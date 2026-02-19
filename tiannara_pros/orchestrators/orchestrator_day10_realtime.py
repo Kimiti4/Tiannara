@@ -60,9 +60,14 @@ def main():
         action = action_layer.intent_to_action(decision["intent"], decision["confidence"], ctx)
 
         # Fatigue-aware grip weakening (realism)
-        if action["mode"] == "hand_control" and action["intent"] == "grip":
-            fatigue_factor = max(0.6, 1.0 - (sim.fatigue * 0.4))
+        # Debug: ensure targets contain expected keys
+        # print("DEBUG action:", action)
+
+        if action.get("mode") == "hand_control" and action.get("intent") == "grip":
+            fatigue_factor = max(0.6, 1.0 - (sim.fatigue * 0.4))  # down to 0.6
+        if "grip_force" in action.get("targets", {}):
             action["targets"]["grip_force"] *= fatigue_factor
+
 
         # Update fatigue using dt
         sim.update_fatigue(decision["intent"], dt=dt)
