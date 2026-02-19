@@ -21,6 +21,24 @@ class ActionLayer:
             smoothed[k] = alpha * prev + (1 - alpha) * v
         self.prev_targets = smoothed
         return smoothed
+    def rate_limit_targets(self, targets, max_delta=0.06):
+        """
+        Limits how fast each target can change per step.
+        max_delta is per loop step (not per second).
+        """
+        limited = {}
+        for k, v in targets.items():
+            prev = self.prev_targets.get(k, v)
+            delta = v - prev
+
+            if delta > max_delta:
+                v = prev + max_delta
+            elif delta < -max_delta:
+                v = prev - max_delta
+
+            limited[k] = v
+
+        return limited
 
     def intent_to_action(self, intent, confidence, context_tags=None):
         context_tags = context_tags or []
@@ -46,6 +64,8 @@ class ActionLayer:
                     "damping": 0.35 * scale,
                 }
             }
+            result["targets"] = self.rate_limit_targets(result["targets"], max_delta=0.06)
+
             result["targets"] = self.smooth_targets(result["targets"])
             return result
 
@@ -60,6 +80,8 @@ class ActionLayer:
                     "damping": 0.25 * scale,
                 }
             }
+            result["targets"] = self.rate_limit_targets(result["targets"], max_delta=0.06)
+
             result["targets"] = self.smooth_targets(result["targets"])
             return result
 
@@ -81,6 +103,8 @@ class ActionLayer:
                     "tremor_filter": 0.70 * stabilize_scale,
                 }
             }
+            result["targets"] = self.rate_limit_targets(result["targets"], max_delta=0.06)
+
             result["targets"] = self.smooth_targets(result["targets"])
             return result
 
@@ -97,5 +121,7 @@ class ActionLayer:
                 "damping": 0.40,
             }
         }
+        result["targets"] = self.rate_limit_targets(result["targets"], max_delta=0.06)
+
         result["targets"] = self.smooth_targets(result["targets"])
         return result
