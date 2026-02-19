@@ -1,0 +1,14 @@
+{
+  "name": "Tiannara Dev Environment",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "rust-lang.rust-analyzer"
+      ]
+    }
+  }
+}
