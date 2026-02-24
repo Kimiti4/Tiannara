@@ -1,61 +1,60 @@
-"""
-tiannara_core/cognition/decision_engine.py
-
-Decision Engine v2.2 (Day 10B)
-- Pattern-based intent selection
-- Confidence scoring (separation-based)
-- Confidence boost if at least 1 context tag matches best pattern
-- Hard safety fallback if there is ZERO tag match
-- Soft safety fallback if confidence < min_confidence
-- Optional SkillMemory bias (online learning signal) to nudge scores
-- Returns rich debug/explanation fields for safety + debugging
-"""
-
-
 class DecisionEngine:
+    """
+    Decision Engine v2.2
+
+    Features:
+    - Pattern-based decision selection
+    - Scoring + breakdown for explainability
+    - Confidence scoring (separation-based)
+    - Confidence boost when there is at least 1 tag match
+    - Hard fallback when there is NO tag match at all
+    - Safety fallback when confidence is below min_confidence
+    - Optional SkillMemory bias
+    - Adds chosen_breakdown["matched"] = True/False
+    """
+
     def __init__(self, min_confidence=0.30, safety_fallback_intent="stabilize", skill_memory=None):
         self.min_confidence = float(min_confidence)
         self.safety_fallback_intent = safety_fallback_intent
-        self.skill_memory = skill_memory  # optional (tiannara_core/cognition/skill_memory.py)
+        self.skill_memory = skill_memory
+
+    def _get_skill_bias(self, intent, context_tags):
+        if not self.skill_memory:
+            return 0.0
+
+        for name in ("bias", "get_bias", "bias_for", "score_bias"):
+            fn = getattr(self.skill_memory, name, None)
+            if callable(fn):
+                try:
+                    return float(fn(intent, context_tags))
+                except TypeError:
+                    try:
+                        return float(fn(intent))
+                    except Exception:
+                        return 0.0
+                except Exception:
+                    return 0.0
+        return 0.0
 
     def _score_pattern(self, pattern, context_tags):
-        """
-        Compute a tunable score for a pattern memory given current context tags.
-        Pattern memory format (expected):
-        {
-            "type": "pattern",
-            "data": {"intent": "...", "avg_stability": 0.0..1.0},
-            "tags": [...],
-            "importance": float,
-            "count": int
-        }
-        """
-        tags = pattern.get("tags", []) or []
+        tags = pattern.get("tags", [])
         match_count = sum(1 for t in (context_tags or []) if t in tags)
 
-        count = int(pattern.get("count", 1) or 1)
-        importance = float(pattern.get("importance", 1.0) or 1.0)
+        count = pattern.get("count", 1)
+        importance = pattern.get("importance", 1.0)
 
-        avg_stability = pattern.get("data", {}).get("avg_stability", 0.0)
-        avg_stability = float(avg_stability or 0.0)
+        data = pattern.get("data", {}) or {}
+        avg_stability = data.get("avg_stability", 0.0) or 0.0
+        intent = data.get("intent", "unknown")
 
-        intent = pattern.get("data", {}).get("intent", "unknown")
+        skill_bias = self._get_skill_bias(intent, context_tags)
 
-        # Optional skill-learning bias (small nudge, never dominates)
-        skill_bias = 0.0
-        if self.skill_memory is not None:
-            try:
-                skill_bias = float(self.skill_memory.bias(context_tags or [], intent))
-            except Exception:
-                skill_bias = 0.0
-
-        # Weighted score (tune later)
         score = (
-            (match_count * 3.0) +      # tag match is king
-            (count * 1.5) +            # frequency matters
-            (importance * 1.0) +       # learned importance matters
-            (avg_stability * 0.5) +    # stability nudges
-            skill_bias                  # learned skill nudge
+            (match_count * 3.0) +
+            (count * 1.5) +
+            (importance * 1.0) +
+            (avg_stability * 0.5) +
+            (skill_bias * 1.0)
         )
 
         breakdown = {
@@ -69,23 +68,9 @@ class DecisionEngine:
         return score, breakdown
 
     def decide(self, memory_store, context_tags):
-        """
-        Returns dict:
-        {
-          "intent": "...",
-          "confidence": 0..1,
-          "reason": "...",
-          "chosen_pattern": <pattern mem or None>,
-          "chosen_breakdown": {...} or None,
-          "runner_up": <pattern mem or None>,
-          "runner_up_breakdown": {...} or None
-        }
-        """
         context_tags = context_tags or []
+        patterns = [m for m in memory_store if m.get("type") == "pattern"]
 
-        patterns = [m for m in (memory_store or []) if m.get("type") == "pattern"]
-
-        # No learned patterns → safest possible behavior
         if not patterns:
             return {
                 "intent": self.safety_fallback_intent,
@@ -97,7 +82,6 @@ class DecisionEngine:
                 "runner_up_breakdown": None,
             }
 
-        # Score all patterns
         scored = []
         for p in patterns:
             score, breakdown = self._score_pattern(p, context_tags)
@@ -108,8 +92,12 @@ class DecisionEngine:
         best_score, best_pattern, best_breakdown = scored[0]
         runner_up = scored[1] if len(scored) > 1 else None
 
-        # HARD SAFETY: If nothing matches the context at all, force fallback
+        # Tag-match flag for downstream logging/feedback logic
+        best_breakdown["matched"] = (best_breakdown.get("match_count", 0) > 0)
+
+        # HARD SAFETY: no tag match -> immediate fallback
         if best_breakdown["match_count"] == 0:
+            best_breakdown["matched"] = False
             return {
                 "intent": self.safety_fallback_intent,
                 "confidence": 0.0,
@@ -123,19 +111,15 @@ class DecisionEngine:
         # Confidence calculation (separation-based)
         if runner_up:
             second_score = runner_up[0]
-            # separation ratio in [0..1]
-            confidence = (best_score - second_score) / (abs(best_score) + 1e-9)
-            confidence = max(0.0, min(1.0, confidence))
+            confidence = max(0.0, min(1.0, (best_score - second_score) / (best_score + 1e-9)))
         else:
             confidence = 1.0
 
-        # Boost confidence if there is at least 1 tag match
-        if best_breakdown["match_count"] > 0:
-            confidence = min(1.0, confidence + 0.20)
+        # Confidence boost if at least one tag match
+        confidence = min(1.0, confidence + 0.20)
 
         chosen_intent = best_pattern.get("data", {}).get("intent", "unknown")
 
-        # SOFT SAFETY: If confidence too low, fallback
         if confidence < self.min_confidence:
             return {
                 "intent": self.safety_fallback_intent,
