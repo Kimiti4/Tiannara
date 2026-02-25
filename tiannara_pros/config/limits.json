@@ -7,6 +7,18 @@
     "min_confidence": 0.30,
     "fallback_intent": "stabilize"
   },
+  "closed_loop": {
+  "slip_high": 0.25,
+  "crush_high": 0.15,
+  "jerk_high": 0.05,
+  "tremor_high": 0.25,
+
+  "step_damping": 0.04,
+  "step_grip_force": 0.03,
+  "step_stiffness": 0.03,
+  "step_correction_gain": 0.03,
+  "step_tremor_filter": 0.02
+},
 
   "hand_control": {
     "max_grip_force": 1.0,
@@ -39,7 +51,11 @@
     "correction_gain_max": 1.0,
     "tremor_filter_min": 0.0,
     "tremor_filter_max": 1.0
-  }
+  },
+
+  "actuator_memory": {
+  "bias_alpha": 0.35
+}
 }
 
 

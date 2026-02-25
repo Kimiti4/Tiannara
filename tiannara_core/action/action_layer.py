@@ -1,7 +1,11 @@
+from tiannara_core.action.control_adapter import apply_closed_loop_adjustments
+
+
 class ActionLayer:
     """
     Converts high-level intent into low-level, prosthetic-safe control targets.
     Applies smoothing + rate limiting (Day 14).
+    Applies closed-loop adjustments using previous feedback (Day 17).
     """
 
     def __init__(self):
@@ -52,14 +56,12 @@ class ActionLayer:
 
     def _apply_filters(self, targets):
         targets = self.smooth_targets(targets, alpha=self.smooth_alpha)
-        targets = self.rate_limit_targets(
-            targets, max_delta=self.rate_limit_max_delta
-        )
+        targets = self.rate_limit_targets(targets, max_delta=self.rate_limit_max_delta)
         return targets
 
     # ---------- Intent Mapping ----------
 
-    def intent_to_action(self, intent, confidence, context_tags=None):
+    def intent_to_action(self, intent, confidence, context_tags=None, cfg=None, prev_feedback=None):
         context_tags = context_tags or []
 
         # Safety scaling
@@ -85,6 +87,11 @@ class ActionLayer:
             }
 
             result["targets"] = self._apply_filters(result["targets"])
+
+            # ✅ Day 17 closed-loop (uses previous feedback)
+            if cfg is not None:
+                result = apply_closed_loop_adjustments(result, prev_feedback, cfg)
+
             return result
 
         # ---- RELEASE ----
@@ -100,14 +107,23 @@ class ActionLayer:
             }
 
             result["targets"] = self._apply_filters(result["targets"])
+
+            # ✅ Day 17 closed-loop
+            if cfg is not None:
+                result = apply_closed_loop_adjustments(result, prev_feedback, cfg)
+
             return result
 
         # ---- STABILIZE ----
         if intent == "stabilize":
-            stabilize_scale = max(0.5, min(1.0, confidence))
+            # runtime config floors (Day 14 / Day 17)
+            stab_cfg = (cfg or {}).get("stabilization", {})
+            stabilize_floor = float(stab_cfg.get("stabilize_scale_floor", 0.5))
+            unknown_floor = float(stab_cfg.get("unknown_scale_floor", 0.7))
 
+            stabilize_scale = max(stabilize_floor, min(1.0, confidence))
             if "unknown" in context_tags:
-                stabilize_scale = max(stabilize_scale, 0.7)
+                stabilize_scale = max(stabilize_scale, unknown_floor)
 
             result = {
                 "mode": "stabilization",
@@ -120,6 +136,11 @@ class ActionLayer:
             }
 
             result["targets"] = self._apply_filters(result["targets"])
+
+            # ✅ Day 17 closed-loop
+            if cfg is not None:
+                result = apply_closed_loop_adjustments(result, prev_feedback, cfg)
+
             return result
 
         # ---- SAFE IDLE ----
@@ -134,4 +155,9 @@ class ActionLayer:
         }
 
         result["targets"] = self._apply_filters(result["targets"])
+
+        # ✅ Day 17 closed-loop
+        if cfg is not None:
+            result = apply_closed_loop_adjustments(result, prev_feedback, cfg)
+
         return result

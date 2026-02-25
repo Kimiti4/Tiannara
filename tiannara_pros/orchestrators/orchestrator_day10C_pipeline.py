@@ -16,6 +16,7 @@ from tiannara_pros.io.action_schema import build_action_packet
 from tiannara_pros.actuators.motor_controller import MotorController
 from tiannara_pros.actuators.command_safety import validate_and_clip
 from tiannara_pros.actuators.retry_controller import RetryController
+from tiannara_pros.actuators.actuator_memory import ActuatorMemory
 
 
 def load_limits():
@@ -45,7 +46,7 @@ def main():
 
     action_layer = ActionLayer()
 
-    # ✅ Day 14: wire config-driven filters
+    # Day 14 runtime-configured filters
     action_layer.smooth_alpha = cfg["filters"]["smooth_alpha"]
     action_layer.rate_limit_max_delta = cfg["filters"]["rate_limit_max_delta"]
 
@@ -56,7 +57,13 @@ def main():
     motor = MotorController()
     retry = RetryController(max_retries=2)
 
-    # ---- Bootstrap patterns ----
+    # ✅ Day 17: remember previous feedback per mode (for next-step closed-loop)
+    prev_feedback_by_mode = {"hand_control": None, "stabilization": None}
+
+    # ✅ Day 15 actuator memory
+    act_mem = ActuatorMemory(bias_alpha=cfg["actuator_memory"]["bias_alpha"])
+
+    # Bootstrap patterns
     bootstrap = [
         {"joint_angles": [10, 20, 30], "intent": "grip", "tags": ["hand", "precision"]},
         {"joint_angles": [15, 22, 35], "intent": "stabilize", "tags": ["balance"]},
@@ -71,7 +78,7 @@ def main():
     for p in patterns:
         memory.store_pattern(p)
 
-    print("\n=== Day 10C Pros Pipeline ===\n")
+    print("\n=== Day 10C Pros Pipeline (Day 17 Closed-Loop) ===\n")
 
     step = 0
     max_steps = 60
@@ -91,7 +98,7 @@ def main():
 
         decision = decider.decide(memory.memory_store, tags)
 
-        # 12.2C — runtime confidence gate
+        # 12.2C runtime confidence gate
         if decision["confidence"] < cfg["safety"]["min_confidence"]:
             decision["_min_confidence_gate"] = True
             decision["intent"] = cfg["safety"]["fallback_intent"]
@@ -100,8 +107,21 @@ def main():
         else:
             decision["_min_confidence_gate"] = False
 
+        # ✅ Day 17: choose previous feedback “hint” based on intent/mode
+        if decision["intent"] in ("grip", "release"):
+            prev_fb = prev_feedback_by_mode["hand_control"]
+        elif decision["intent"] == "stabilize":
+            prev_fb = prev_feedback_by_mode["stabilization"]
+        else:
+            prev_fb = None
+
+        # Action (Day 14 filters + Day 17 closed-loop inside ActionLayer)
         action = action_layer.intent_to_action(
-            decision["intent"], decision["confidence"], tags
+            decision["intent"],
+            decision["confidence"],
+            tags,
+            cfg=cfg,
+            prev_feedback=prev_fb,
         )
 
         sim.update_fatigue(decision["intent"], dt=cfg["loop"]["dt"])
@@ -114,6 +134,12 @@ def main():
             fatigue=sim.fatigue,
         )
 
+        # Day 15: apply actuator-memory bias BEFORE retry loop
+        memory_used = act_mem.has_memory(action_packet["command"])
+        action_packet["command"] = act_mem.apply_bias(action_packet["command"])
+        action_packet["safety"]["actuator_memory_used"] = bool(memory_used)
+
+        # Day 13 retry loop
         final_cmd, fb, retries_used = retry.run_retry_loop(
             motor=motor,
             command=action_packet["command"],
@@ -124,11 +150,36 @@ def main():
         action_packet["command"] = final_cmd
         action_packet["feedback"] = fb
         action_packet["safety"]["retries_used"] = retries_used
+        action_packet["safety"]["retry_exhausted"] = (
+            fb.get("success") is False and retries_used >= retry.max_retries
+        )
+
+        # ✅ Day 17: store this feedback for NEXT iteration closed-loop
+        if final_cmd.get("mode") == "hand_control":
+            prev_feedback_by_mode["hand_control"] = fb
+        elif final_cmd.get("mode") == "stabilization":
+            prev_feedback_by_mode["stabilization"] = fb
 
         outcome = feedback_to_outcome(fb)
 
+        # Day 16: actuator feedback learning -> SkillMemory update
+        updated_bias = skill.update(
+            intent=decision["intent"],
+            context_tags=tags,
+            outcome=outcome,
+            metrics=fb.get("metrics", {}) if fb else {},
+        )
+        skill.decay_step()
+        action_packet["safety"]["skill_bias_updated"] = updated_bias
+
+        # Day 15: update actuator memory
+        updated = act_mem.update_from_feedback(final_cmd, fb)
+        action_packet["safety"]["actuator_memory_updated"] = bool(updated)
+
+        # Store outcome
         memory.store_outcome(tags, decision["intent"], decision["confidence"], outcome)
 
+        # Reinforce/penalize chosen pattern
         chosen = decision.get("chosen_pattern")
         if chosen and chosen.get("type") == "pattern":
             delta = +0.05 if outcome == "good" else -0.05
@@ -141,6 +192,9 @@ def main():
         print("OUTCOME:", outcome)
         print("RETRIES_USED:", retries_used)
         print("SUCCESS:", fb.get("success"))
+        print("ACT_MEM_USED:", action_packet["safety"].get("actuator_memory_used"))
+        print("ACT_MEM_UPDATED:", action_packet["safety"].get("actuator_memory_updated"))
+        print("SKILL_UPDATE:", updated_bias)
 
         out.send(action_packet)
 
@@ -149,15 +203,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    """What Day 14 gives you (confirmed)
-
-Smooth transitions (no sudden jumps)
-
-Rate-limited actuator targets (jerk protection)
-
-Fully config-driven
-
-Works with retries + feedback
-
-Hardware-safe shaping layer complete"""
