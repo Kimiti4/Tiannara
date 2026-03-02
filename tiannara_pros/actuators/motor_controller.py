@@ -1,10 +1,14 @@
-FORCE_FAIL = False  # set True only for testing
+# tiannara_pros/actuators/motor_controller.py
+
 class MotorController:
     """
     Hardware stub.
     Later: replace internals with CAN, UART, BLE, ROS2, etc.
     """
-    
+
+    FORCE_FAIL = False          # set True only for testing
+    FORCE_FAIL_MODE = "slip"    # "slip" | "crush" | "jerk" (test modes)
+
     def __init__(self):
         self.last_command = None
 
@@ -13,8 +17,8 @@ class MotorController:
         Accepts action_packet["command"] dict.
         """
         self.last_command = command
-        # For now: just pretend we sent it.
         return True
+
     def read_feedback(self) -> dict:
         """
         Hardware stub feedback.
@@ -29,21 +33,25 @@ class MotorController:
         # Very rough “simulated” feedback signals
         if mode == "hand_control":
             gf = float(targets.get("grip_force", 0.0))
-            stiffness = float(targets.get("stiffness", 0.0))   
+            stiffness = float(targets.get("stiffness", 0.0))
             damping = float(targets.get("damping", 0.0))
-            # TEST ONLY: force slip failure
-            #damping = 0.05
-            #gf = 0.20
-            # 🚨 TEST ONLY: force a failure condition
-            #gf = 0.95
-            #stiffness = 0.95
-            # damping can stay as-is
-            if FORCE_FAIL:
-                gf = 0.95
-                stiffness = 0.95
+
+            # ✅ TEST ONLY: force failures in a controlled *realistic* way
+            if self.FORCE_FAIL:
+                if self.FORCE_FAIL_MODE == "slip":
+                    # low damping -> higher slip_risk
+                    damping = min(damping, 0.05)
+                elif self.FORCE_FAIL_MODE == "crush":
+                    # too much force + stiffness -> higher crush_risk
+                    gf = max(gf, 0.95)
+                    stiffness = max(stiffness, 0.95)
+                elif self.FORCE_FAIL_MODE == "jerk":
+                    # high stiffness + low damping -> higher jerk_risk
+                    stiffness = max(stiffness, 0.95)
+                    damping = min(damping, 0.10)
+
             # pretend we measure slippage / grip success
             slip_risk = max(0.0, 0.35 - damping) + max(0.0, 0.25 - gf)
-            success = slip_risk < 0.25
             crush_risk = max(0.0, gf - 0.75) + max(0.0, stiffness - 0.85)
             jerk_risk = max(0.0, stiffness - 0.8) * max(0.0, 0.3 - damping)
 
