@@ -55,7 +55,42 @@
 
   "actuator_memory": {
   "bias_alpha": 0.35
+},
+"run": {
+  "output_dir": "runs",
+  "name": "day10c_pipeline",
+  "max_steps": 60
+},
+"safety_monitor": {
+  "window": 20,
+  "max_failures_in_window": 8,
+  "max_consecutive_failures": 4,
+  "max_retry_exhausted_in_window": 4,
+  "crush_trip_threshold": 0.30,
+  "crush_trip_repeats": 3
+},
+
+  "determinism": {
+    "seed": 12345
+  },
+
+  "retry": {
+    "max_retries": 2,
+    "debug": false
+  },
+  "fault_injection": {
+    "enabled": false,
+    "seed": 999,
+    "profile": "slip_spike",
+    "probability": 0.25,
+    "slip_damping_cap": 0.06,
+    "crush_gf_floor": 0.90,
+    "crush_stiff_floor": 0.90,
+    "dropout_ok": false,
+    "tag_noise_probability": 0.0,
+    "tag_noise_to": "unknown"
+  }
 }
-}
+
 
 

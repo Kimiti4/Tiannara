@@ -1,0 +1,14 @@
+{
+  "fault_injection": {
+    "enabled": true,
+    "seed": 999,
+    "profile": "random_mix",
+    "probability": 0.25,
+    "slip_damping_cap": 0.06,
+    "crush_gf_floor": 0.90,
+    "crush_stiff_floor": 0.90,
+    "dropout_ok": false,
+    "tag_noise_probability": 0.0,
+    "tag_noise_to": "unknown"
+  }
+}

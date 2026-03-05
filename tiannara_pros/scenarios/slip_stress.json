@@ -1,0 +1,10 @@
+{
+  "fault_injection": {
+    "enabled": true,
+    "seed": 111,
+    "profile": "slip",
+    "probability": 0.35,
+    "slip_damping_cap": 0.05,
+    "dropout_ok": false
+  }
+}

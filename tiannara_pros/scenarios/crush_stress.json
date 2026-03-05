@@ -1,0 +1,11 @@
+{
+  "fault_injection": {
+    "enabled": true,
+    "seed": 222,
+    "profile": "crush",
+    "probability": 0.25,
+    "crush_gf_floor": 0.92,
+    "crush_stiff_floor": 0.92,
+    "dropout_ok": false
+  }
+}
