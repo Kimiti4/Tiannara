@@ -35,8 +35,10 @@ class DiscoveryModule(ModuleBase):
             permissions=["read_user_text"],
             description="Scientific discovery engine (claims, hypotheses, experiments).",
         ))
-        self._analyze_fn = analyze_fn
-
+        self._analyze_fn = analyze_fn   
+    @app.get("/")
+    def home():
+        return {"message": "Welcome to the Tiannara API!"}
     def run(self, payload):
         return self._analyze_fn(
             question=payload.get("question", ""),
@@ -83,3 +85,6 @@ REGISTRY.register(DiscoveryModule(analyze_fn=DISCOVERY_ENGINE["analyze"]))
 app.include_router(status_router)
 app.include_router(modules_router)
 app.include_router(discovery_router)
+@app.get("/")
+def root():
+    return {"message": "Welcome to the Tiannara API!"}
