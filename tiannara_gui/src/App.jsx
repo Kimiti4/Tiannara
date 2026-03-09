@@ -3,14 +3,14 @@ export default function App() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#111827",
+        backgroundColor: "#0f172a",
         color: "white",
+        fontFamily: "Arial",
         padding: "40px",
-        fontFamily: "Arial, sans-serif",
       }}
     >
-      <h1>Tiannara Core GUI</h1>
-      <p>If you can see this, React is working.</p>
+      <h1> Tiannara Core Interface</h1>
+      <p>Discovery Engine Control Panel</p>
     </div>
   );
 }
