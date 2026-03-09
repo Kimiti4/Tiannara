@@ -1,5 +1,6 @@
 from __future__ import annotations
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from tiannara_core.mission.constitution import TiannaraConstitution
 from tiannara_core.mission.alignment import AlignmentScorer
@@ -20,6 +21,14 @@ from tiannara_api.routes.discovery import router as discovery_router
 
 
 app = FastAPI(title="Tiannara API", version="1.0.0-week1")
+# CORS (allow local dev from different port)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Global singletons (simple for now)
 REGISTRY = ModuleRegistry()
