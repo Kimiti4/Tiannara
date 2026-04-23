@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
-import DiscoveryLab from "./pages/DiscoveryLab";
 
-const API_BASE = "/api";
+import { apiGet } from "./api/client";
+import AutonomousLab from "./pages/AutonomousLab";
+import DiscoveryLab from "./pages/DiscoveryLab";
+import EvolutionLab from "./pages/EvolutionLab";
+import MemoryLab from "./pages/MemoryLab";
+import ModulesPage from "./pages/ModulesPage";
+import ProsControl from "./pages/ProsControl";
+import RunsPage from "./pages/RunsPage";
+import SettingsPage from "./pages/SettingsPage";
 
 const NAV_ITEMS = [
   "Dashboard",
   "Discovery Lab",
+  "Evolution Lab",
+  "Autonomous Lab",
   "Pros Control",
   "Runs & Reports",
   "Memory Explorer",
@@ -47,6 +56,29 @@ function Panel({ title, children }) {
   );
 }
 
+function renderPage(activePage) {
+  switch (activePage) {
+    case "Discovery Lab":
+      return <DiscoveryLab />;
+    case "Evolution Lab":
+      return <EvolutionLab />;
+    case "Autonomous Lab":
+      return <AutonomousLab />;
+    case "Pros Control":
+      return <ProsControl />;
+    case "Runs & Reports":
+      return <RunsPage />;
+    case "Memory Explorer":
+      return <MemoryLab />;
+    case "Modules":
+      return <ModulesPage />;
+    case "Settings":
+      return <SettingsPage />;
+    default:
+      return null;
+  }
+}
+
 export default function App() {
   const [activePage, setActivePage] = useState("Dashboard");
   const [apiStatus, setApiStatus] = useState("Checking...");
@@ -55,15 +87,21 @@ export default function App() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let active = true;
+
     async function loadStatus() {
       try {
-        const res = await fetch(`${API_BASE}/status`);
-        if (!res.ok) throw new Error(`Status request failed: ${res.status}`);
-        const data = await res.json();
+        const data = await apiGet("/status");
+        if (!active) {
+          return;
+        }
         setApiStatus(data.status || "ok");
         setStatusColor("#22c55e");
         setError("");
       } catch (err) {
+        if (!active) {
+          return;
+        }
         setApiStatus("Offline");
         setStatusColor("#ef4444");
         setError(String(err.message || err));
@@ -72,17 +110,25 @@ export default function App() {
 
     async function loadModules() {
       try {
-        const res = await fetch(`${API_BASE}/modules`);
-        if (!res.ok) throw new Error(`Modules request failed: ${res.status}`);
-        const data = await res.json();
+        const data = await apiGet("/modules");
+        if (!active) {
+          return;
+        }
         setModules(Object.keys(data));
       } catch {
+        if (!active) {
+          return;
+        }
         setModules([]);
       }
     }
 
     loadStatus();
     loadModules();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (
@@ -125,7 +171,7 @@ export default function App() {
 
         <nav style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {NAV_ITEMS.map((item) => {
-            const active = activePage === item;
+            const isActive = activePage === item;
             return (
               <button
                 key={item}
@@ -134,9 +180,9 @@ export default function App() {
                   textAlign: "left",
                   padding: "12px 14px",
                   borderRadius: 12,
-                  border: active ? "1px solid #0ea5e9" : "1px solid transparent",
-                  background: active ? "#082f49" : "transparent",
-                  color: active ? "#7dd3fc" : "#cbd5e1",
+                  border: isActive ? "1px solid #0ea5e9" : "1px solid transparent",
+                  background: isActive ? "#082f49" : "transparent",
+                  color: isActive ? "#7dd3fc" : "#cbd5e1",
                   cursor: "pointer",
                   fontSize: 15,
                 }}
@@ -179,7 +225,7 @@ export default function App() {
         </header>
 
         <section style={{ padding: 24 }}>
-          {activePage === "Dashboard" && (
+          {activePage === "Dashboard" ? (
             <>
               {error ? (
                 <div
@@ -217,10 +263,10 @@ export default function App() {
                   color="#38bdf8"
                 />
                 <StatCard
-                  title="Scientific Discovery"
-                  value="Ready"
-                  subtitle="Claims, hypotheses, experiments"
-                  color="#a78bfa"
+                  title="Autonomous Cycle"
+                  value="Online"
+                  subtitle="Discovery -> Evolution -> Simulation -> Memory"
+                  color="#f59e0b"
                 />
                 <StatCard
                   title="Interaction Policy"
@@ -241,36 +287,27 @@ export default function App() {
                   <div style={{ color: "#cbd5e1", lineHeight: 1.7, fontSize: 15 }}>
                     <p>
                       Tiannara is structured as a mission-governed intelligence framework with
-                      scientific discovery, safety evaluation, module governance, and future
-                      domain-specific expansion.
+                      discovery, evolution, simulation, memory, and prosthetic control layers.
                     </p>
                     <p>
-                      This dashboard will become the control center for Discovery, Pros, Robotics,
-                      Defense, Finance, and Med systems.
+                      Use the labs to run one-off discovery analysis, evolve candidate parameters,
+                      or execute a full autonomous cycle that stores its results in memory.
                     </p>
                   </div>
                 </Panel>
 
                 <Panel title="Next Actions">
                   <ul style={{ margin: 0, paddingLeft: 18, color: "#cbd5e1", lineHeight: 1.8 }}>
-                    <li>Connect Discovery Lab form</li>
-                    <li>Render hypotheses and experiments</li>
-                    <li>Add module toggles</li>
-                    <li>Add Tiannara Pros controls</li>
+                    <li>Run Discovery Lab on a prosthetic-control question</li>
+                    <li>Compare Evolution Lab candidate histories</li>
+                    <li>Execute Autonomous Lab and inspect saved memory</li>
+                    <li>Review enabled modules and governance metadata</li>
                   </ul>
                 </Panel>
               </div>
             </>
-          )}
-
-          {activePage === "Discovery Lab" && <DiscoveryLab />}
-
-          {activePage !== "Dashboard" && activePage !== "Discovery Lab" && (
-            <Panel title={activePage}>
-              <p style={{ color: "#cbd5e1", lineHeight: 1.7 }}>
-                This page is the next section of the Tiannara GUI. We’ll wire it up step by step.
-              </p>
-            </Panel>
+          ) : (
+            renderPage(activePage)
           )}
         </section>
       </main>

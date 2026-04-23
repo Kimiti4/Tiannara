@@ -14,6 +14,16 @@ class MemoryEngine:
             "importance": 1.0
         }
         self.memory_store.append(memory)
+        return memory
+
+    def record(self, data, tags=None):
+        payload_tags = tags
+        if payload_tags is None and isinstance(data, dict):
+            payload_tags = data.get("tags", [])
+        return self.store(data, tags=payload_tags)
+
+    def recall(self):
+        return list(self.memory_store)
 
     def recall_by_context(self, context_tags, top_k=5):
         if not context_tags:

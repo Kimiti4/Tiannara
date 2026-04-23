@@ -40,3 +40,22 @@ class DiscoveryMemoryListResponse(BaseModel):
 
 class DiscoveryMemoryGetResponse(BaseModel):
     item: Dict[str, Any]
+
+
+class EvolutionRunRequest(BaseModel):
+    question: str = "Optimize prosthetic grip stability"
+    population_size: int = Field(default=24, ge=6, le=200)
+    generations: int = Field(default=12, ge=1, le=200)
+    fitness_function: str = "grip_stability"
+    genome_type: str = "neural"
+
+
+class AutonomousCycleRequest(BaseModel):
+    question: str = Field(default="Optimize prosthetic grip stability", min_length=3)
+    text: Optional[str] = None
+    source: str = "autonomous_lab"
+    population_size: int = Field(default=24, ge=6, le=200)
+    generations: int = Field(default=12, ge=1, le=200)
+    fitness_function: str = "grip_stability"
+    workers: int = Field(default=4, ge=1, le=16)
+    genome_type: str = "mixed"

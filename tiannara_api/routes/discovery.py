@@ -13,16 +13,23 @@ router = APIRouter()
 
 @router.post("/discovery/analyze", response_model=DiscoveryAnalyzeResponse)
 def discovery_analyze(req: DiscoveryAnalyzeRequest):
-    from tiannara_api.main import DISCOVERY_ENGINE
+    from tiannara_api.main import DISCOVERY_ENGINE, DISCOVERY_MEMORY
 
-    if not DISCOVERY_ENGINE:
+    if DISCOVERY_ENGINE is None:
         raise HTTPException(status_code=500, detail="Discovery engine not initialized")
 
-    report = DISCOVERY_ENGINE["analyze"](
+    report = DISCOVERY_ENGINE.analyze(
         question=req.question,
         text=req.text,
         source=req.source,
     )
+    if DISCOVERY_MEMORY is not None:
+        DISCOVERY_MEMORY.save_report(
+            question=req.question,
+            source=req.source,
+            report=report,
+            tags=["discovery"],
+        )
 
     gate = report.get("safety_gate", {}) or {}
     return DiscoveryAnalyzeResponse(
