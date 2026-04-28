@@ -9,6 +9,7 @@ from tiannara_api.routes.evolution import router as evolution_router
 from tiannara_api.routes.memory import router as memory_router
 from tiannara_api.routes.modules import router as modules_router
 from tiannara_api.routes.status import router as status_router
+from tiannara_api.routes.autonomy import router as autonomy_router  # New import
 from tiannara_core.autonomous.orchestrator import Orchestrator
 from tiannara_core.discovery.engine import DiscoveryEngine
 from tiannara_core.evolution.evolution import evolve as run_evolution
@@ -132,3 +133,4 @@ app.include_router(discovery_router)
 app.include_router(evolution_router)
 app.include_router(autonomous_router)
 app.include_router(memory_router)
+app.include_router(autonomy_router)  # Adding the autonomy router

@@ -1,5 +1,5 @@
 """
-Phase 7 Orchestrator - Updated for Phase 8 Integration
+Phase 7 Orchestrator - Updated for Phase 8 & 9 Integration
 
 Integrates all advanced components:
 - Neural Trace Embeddings (DEG)
@@ -7,12 +7,18 @@ Integrates all advanced components:
 - Parallel Evolution Engine
 - Causal Memory Graph
 - Adaptive Mutation Intelligence
+- True Causal Discovery (Phase 9)
+- Graph Neural Networks for ECM reasoning (Phase 9)
+- Causal Scoring (Phase 9)
+- Trainable Structural Reasoning (Phase 9)
 """
 
 from typing import Dict, Any, List, Optional
 import logging
 import zlib
 import time
+import numpy as np
+import torch
 from concurrent.futures import ThreadPoolExecutor
 
 from tiannara_core.sandbox.executor import run_in_sandbox
@@ -28,6 +34,12 @@ from tiannara_core.evolution.parallel_engine import ParallelEvolution
 from tiannara_core.memory.causal_graph import CausalMemory
 from tiannara_core.evolution.meta_mutator import MetaMutator, MutationStrategy
 
+# Phase 9 components
+from tiannara_core.causal.notears import NotearsCausalDiscovery
+from tiannara_core.causal.trace_to_matrix import trace_to_matrix
+from tiannara_core.causal.causal_scorer import CausalScorer
+from tiannara_core.ecm.gnn_reasoner import GNNTrainer
+
 
 class Phase7Orchestrator:
     def __init__(self):
@@ -42,6 +54,11 @@ class Phase7Orchestrator:
         self.causal_memory = CausalMemory()  # Causal memory graph
         self.parallel = ParallelEvolution(workers=4)  # Parallel evolution
         self.meta = MetaMutator()        # Adaptive mutation intelligence
+        
+        # Phase 9 components
+        self.causal = NotearsCausalDiscovery()
+        self.scorer = CausalScorer()
+        self.gnn = GNNTrainer()
         
         self.logger = logging.getLogger("tiannara.orchestrator.phase7")
 
@@ -72,7 +89,7 @@ class Phase7Orchestrator:
 
     def run_cycle(self, candidate_fn, inputs, complexity=0.5):
         """
-        Run a complete evolution cycle with all Phase 8 components.
+        Run a complete evolution cycle with all Phase 8 & 9 components.
         
         Args:
             candidate_fn: Function to evaluate
@@ -230,6 +247,36 @@ class Phase7Orchestrator:
                 self.logger.error(f"Meta learning failed: {e}")
                 response["mutation_strategy"] = "error"
 
+        # PHASE 9 ENHANCEMENTS - CAUSAL INTELLIGENCE ENGINE
+        # STEP 1: TRACE → MATRIX
+        try:
+            X = trace_to_matrix(trace)
+            
+            # STEP 2: CAUSAL DISCOVERY
+            W = self.causal.fit(X)
+            edges = self.causal.get_edges()
+            response["causal_graph"] = edges
+
+            # STEP 3: INTERVENTION (simulate mutation)
+            X_mut = X + np.random.normal(0, 0.1, X.shape)
+
+            # STEP 4: CAUSAL EFFECT
+            effect = self.scorer.score(X, X_mut)
+            response["causal_effect"] = float(effect)
+
+            # STEP 5: GNN TRAINING (ECM intelligence)
+            node_features = torch.tensor(X[:10], dtype=torch.float32)
+            adj = torch.tensor((abs(W) > 0.1).astype(float), dtype=torch.float32)
+            target = torch.ones((node_features.shape[0], 1))
+            
+            loss = self.gnn.train_step(node_features, adj, target)
+            response["gnn_loss"] = loss
+        except Exception as e:
+            self.logger.error(f"Phase 9 causal processing failed: {e}")
+            response["causal_graph"] = []
+            response["causal_effect"] = 0.0
+            response["gnn_loss"] = float('inf')
+
         return response
 
 
@@ -262,3 +309,6 @@ if __name__ == "__main__":
     print(f"Important nodes: {len(result.get('important_nodes', []))}")
     print(f"Mutation strategy: {result.get('mutation_strategy', 'N/A')}")
     print(f"Hypotheses generated: {len(result.get('hypotheses', []))}")
+    print(f"Causal graph edges: {len(result.get('causal_graph', []))}")
+    print(f"Causal effect: {result.get('causal_effect', 'N/A')}")
+    print(f"GNN Loss: {result.get('gnn_loss', 'N/A')}")
