@@ -13,11 +13,12 @@ import statistics
 
 
 class ConfidenceLevel(Enum):
-    CRITICAL = 0.0      # System will fallback immediately
-    LOW = 0.25         # Consider retry, then fallback
-    MEDIUM = 0.50      # Normal execution with monitoring
-    HIGH = 0.75        # Proceed with confidence
-    EXCELLENT = 0.95   # Full speed ahead
+    """Levels of execution confidence with qualitative descriptions."""
+    CRITICAL = "critical"      # Very low confidence, do not execute
+    LOW = "low"               # Low confidence, use fallback
+    MEDIUM = "medium"         # Medium confidence, proceed with caution
+    HIGH = "high"             # High confidence, execute normally
+    EXCELLENT = "excellent"   # Excellent confidence, execute with minimal checks
 
 
 @dataclass
@@ -36,15 +37,14 @@ class ConfidenceFactors:
 
 @dataclass
 class ConfidenceResult:
-    """Result of confidence scoring."""
-    confidence: float
-    level: ConfidenceLevel
-    factors: ConfidenceFactors
-    reasoning: List[str]
-    should_retry: bool
-    should_evolve: bool
-    should_fallback: bool
-    max_retries: int = 3
+    """Result of confidence evaluation."""
+    confidence: float          # 0.0 to 1.0
+    level: ConfidenceLevel     # Qualitative level
+    reasoning: list[str]       # Explanation for the confidence score
+    should_retry: bool         # Whether to retry if execution fails
+    should_evolve: bool        # Whether to trigger evolution
+    should_fallback: bool      # Whether to use fallback
+    max_retries: int = 3       # Maximum number of retries allowed
 
 
 class ConfidenceScorer:
@@ -53,23 +53,17 @@ class ConfidenceScorer:
     Helps make intelligent execution decisions.
     """
     
-    def __init__(self, 
-                 min_confidence: float = 0.30,
-                 evolution_threshold: float = 0.40,
-                 fallback_threshold: float = 0.20):
-        self.min_confidence = float(min_confidence)
-        self.evolution_threshold = float(evolution_threshold)
-        self.fallback_threshold = float(fallback_threshold)
-        
-        # Factor weights (sum to 1.0)
+    def __init__(self):
+        self.default_min_confidence = 0.3
+        self.evolve_threshold = 0.4
+        self.fallback_threshold = 0.25
         self.weights = {
-            "llm_availability": 0.25,
+            "llm_availability": 0.30,
             "historical_performance": 0.20,
             "tool_reliability": 0.15,
-            "complexity": 0.10,
-            "risk": 0.10,
-            "memory_support": 0.10,
-            "recent_trend": 0.10
+            "plan_specificity": 0.15,
+            "intent_clarity": 0.10,
+            "context_support": 0.10
         }
     
     def score_execution(self, 
@@ -78,30 +72,53 @@ class ConfidenceScorer:
                        has_fallback_plan: bool,
                        context: Optional[Dict[str, Any]] = None) -> ConfidenceResult:
         """
-        Calculate confidence score for execution decision.
+        Score the confidence for executing a plan.
+        
+        Args:
+            intent: Original user intent
+            has_llm_plan: Whether an LLM-generated plan exists
+            has_fallback_plan: Whether a fallback plan exists
+            context: Additional context information
+            
+        Returns:
+            ConfidenceResult with confidence score and recommendations
         """
         context = context or {}
+        reasons = []
         
-        # Extract factors
-        factors = self._extract_factors(intent, has_llm_plan, has_fallback_plan, context)
+        # Calculate base confidence based on plan availability and intent clarity
+        base_confidence = self._calculate_base_confidence(intent, has_llm_plan, has_fallback_plan, context)
         
-        # Calculate base confidence
-        confidence = self._calculate_base_confidence(factors)
+        # Adjust based on context and intent
+        adjusted_confidence = self._adjust_for_context(base_confidence, intent, context)
         
-        # Apply adjustments
-        confidence = self._apply_adjustments(confidence, factors, intent)
+        # Generate reasoning
+        reasons = self._generate_reasoning(intent, has_llm_plan, has_fallback_plan, context, adjusted_confidence)
         
-        # Determine level and decisions
-        level = self._determine_level(confidence)
-        reasoning = self._generate_reasoning(factors, confidence)
-        decisions = self._make_decisions(confidence, level, factors)
+        # Determine if we should retry, evolve, or fallback
+        should_retry = adjusted_confidence < self.default_min_confidence and context.get('attempt_number', 1) < 3
+        should_evolve = adjusted_confidence < self.evolve_threshold
+        should_fallback = adjusted_confidence < self.fallback_threshold
+        
+        # Determine confidence level
+        if adjusted_confidence >= 0.8:
+            level = ConfidenceLevel.EXCELLENT
+        elif adjusted_confidence >= 0.6:
+            level = ConfidenceLevel.HIGH
+        elif adjusted_confidence >= 0.4:
+            level = ConfidenceLevel.MEDIUM
+        elif adjusted_confidence >= 0.2:
+            level = ConfidenceLevel.LOW
+        else:
+            level = ConfidenceLevel.CRITICAL
         
         return ConfidenceResult(
-            confidence=confidence,
+            confidence=adjusted_confidence,
             level=level,
-            factors=factors,
-            reasoning=reasoning,
-            **decisions
+            reasoning=reasons,
+            should_retry=should_retry,
+            should_evolve=should_evolve,
+            should_fallback=should_fallback
         )
     
     def _extract_factors(self, 
@@ -123,155 +140,153 @@ class ConfidenceScorer:
             recent_successes=context.get("recent_successes", 0)
         )
     
-    def _calculate_base_confidence(self, factors: ConfidenceFactors) -> float:
-        """Calculate base confidence from factors."""
+    def _calculate_base_confidence(
+        self,
+        intent: str,
+        has_llm_plan: bool,
+        has_fallback_plan: bool,
+        context: Dict[str, Any]
+    ) -> float:
+        """Calculate base confidence based on plan availability and intent clarity."""
+        base_score = 0.0
         
-        # LLM availability (big boost)
-        llm_score = 0.9 if factors.llm_plan_available else 0.3
-        if factors.fallback_plan_used:
-            llm_score = 0.4  # Fallback gives minimal confidence
+        # Reward having an LLM plan
+        if has_llm_plan:
+            base_score += 0.4
         
-        # Historical performance
-        hist_score = factors.historical_success_rate
+        # Reward having a fallback plan
+        if has_fallback_plan:
+            base_score += 0.3
         
-        # Tool reliability
-        tool_score = factors.tool_reliability
-        
-        # Complexity (inverse - lower complexity = higher confidence)
-        complexity_score = 1.0 - factors.complexity_score
-        
-        # Risk (inverse - lower risk = higher confidence)
-        risk_score = 1.0 - factors.risk_score
-        
-        # Memory support
-        memory_score = min(1.0, factors.memory_support)
-        
-        # Recent trend
-        total_recent = factors.recent_failures + factors.recent_successes
-        if total_recent > 0:
-            trend_score = factors.recent_successes / total_recent
+        # Evaluate intent clarity (simple heuristics)
+        intent_words = intent.split()
+        if len(intent_words) < 2:
+            # Very short intent, likely low confidence
+            base_score -= 0.2
+        elif len(intent_words) > 20:
+            # Very long intent, might be confusing
+            base_score -= 0.1
         else:
-            trend_score = 0.5
+            # Reasonable length, good
+            base_score += 0.1
         
-        # Weighted combination
-        confidence = (
-            llm_score * self.weights["llm_availability"] +
-            hist_score * self.weights["historical_performance"] +
-            tool_score * self.weights["tool_reliability"] +
-            complexity_score * self.weights["complexity"] +
-            risk_score * self.weights["risk"] +
-            memory_score * self.weights["memory_support"] +
-            trend_score * self.weights["recent_trend"]
-        )
+        # Check for specific keywords that indicate clear intent
+        clear_keywords = [
+            "save", "write", "create", "read", "list", "delete", 
+            "search", "find", "calculate", "compute", "show"
+        ]
+        if any(keyword in intent.lower() for keyword in clear_keywords):
+            base_score += 0.2
         
-        return max(0.0, min(1.0, confidence))
+        # Check for context that might help
+        if context.get('file_path') or context.get('target_object'):
+            base_score += 0.1
+        
+        # Plan specificity check
+        if has_llm_plan and context.get('plan_steps'):
+            try:
+                steps = int(context.get('plan_steps', 0))
+                if 2 <= steps <= 7:  # Optimal number of steps
+                    base_score += 0.15
+                elif steps > 10:  # Too many steps can reduce reliability
+                    base_score -= 0.1
+            except ValueError:
+                pass  # If plan_steps isn't a number, skip this check
+        
+        # Ensure confidence is between 0 and 1
+        return max(0.0, min(1.0, base_score))
     
-    def _apply_adjustments(self, 
-                          confidence: float, 
-                          factors: ConfidenceFactors, 
-                          intent: str) -> float:
-        """Apply contextual adjustments to confidence."""
+    def _adjust_for_context(
+        self,
+        base_confidence: float,
+        intent: str,
+        context: Dict[str, Any]
+    ) -> float:
+        """Adjust confidence based on context information."""
+        adjusted = base_confidence
         
-        # Boost for simple, common operations
-        simple_keywords = ["save", "read", "list", "help", "status"]
-        if any(keyword in intent.lower() for keyword in simple_keywords):
-            confidence += 0.1
+        # Adjust for previous failures
+        if 'previous_failures' in context:
+            failure_count = context['previous_failures']
+            if failure_count > 0:
+                adjusted -= 0.1 * failure_count
+                # But don't drop too low if we have a good plan
+                adjusted = max(adjusted, 0.2 if context.get('has_good_plan') else 0.05)
         
-        # Penalty for complex operations
-        complex_keywords = ["deploy", "build", "migrate", "delete", "remove"]
-        if any(keyword in intent.lower() for keyword in complex_keywords):
-            confidence -= 0.15
+        # Adjust for critical operations
+        critical_operations = ['delete', 'remove', 'format', 'destroy', 'kill']
+        if any(op in intent.lower() for op in critical_operations):
+            # Reduce confidence slightly for critical ops to be more careful
+            adjusted = min(adjusted, 0.7)
         
-        # Penalty for recent failures
-        if factors.recent_failures > factors.recent_successes:
-            confidence -= 0.1 * (factors.recent_failures - factors.recent_successes)
+        # Adjust for safety context
+        if context.get('safety_mode', False):
+            adjusted = min(adjusted, 0.6)  # Be more conservative in safety mode
         
-        # Boost for recent successes
-        if factors.recent_successes > factors.recent_failures:
-            confidence += 0.05 * min(3, factors.recent_successes - factors.recent_failures)
+        # Adjust for high-priority tasks
+        if context.get('priority') == 'high':
+            adjusted = max(adjusted, 0.5)  # Don't let confidence get too low for high-priority tasks
         
-        return max(0.0, min(1.0, confidence))
+        # Adjust for time-sensitive operations
+        if context.get('time_critical', False):
+            adjusted = max(adjusted, 0.4)  # Minimum confidence for time-sensitive tasks
+        
+        return adjusted
     
-    def _determine_level(self, confidence: float) -> ConfidenceLevel:
-        """Determine confidence level from score."""
-        if confidence < self.fallback_threshold:
-            return ConfidenceLevel.CRITICAL
-        elif confidence < self.evolution_threshold:
-            return ConfidenceLevel.LOW
-        elif confidence < self.min_confidence:
-            return ConfidenceLevel.MEDIUM
-        elif confidence < 0.75:
-            return ConfidenceLevel.HIGH
-        else:
-            return ConfidenceLevel.EXCELLENT
+    # Removed _determine_level since we now determine the level directly in score_execution
     
-    def _generate_reasoning(self, factors: ConfidenceFactors, confidence: float) -> List[str]:
+    def _generate_reasoning(self, 
+                          intent: str,
+                          has_llm_plan: bool,
+                          has_fallback_plan: bool,
+                          context: Dict[str, Any],
+                          confidence: float) -> list[str]:
         """Generate human-readable reasoning for confidence score."""
         reasoning = []
         
-        if factors.llm_plan_available:
-            reasoning.append("LLM plan available (+confidence)")
-        elif factors.fallback_plan_used:
-            reasoning.append("Using fallback plan (-confidence)")
+        if has_llm_plan and confidence > 0.7:
+            reasoning.append("LLM plan available and intent is clear")
+        elif has_fallback_plan:
+            reasoning.append("Fallback plan available as safety net")
         else:
-            reasoning.append("No plan available (-confidence)")
+            reasoning.append("No viable execution plan available")
         
-        if factors.historical_success_rate > 0.7:
-            reasoning.append("Strong historical success rate")
-        elif factors.historical_success_rate < 0.3:
-            reasoning.append("Poor historical success rate")
+        if confidence < 0.3:
+            reasoning.append("Low confidence due to unclear intent or missing plan")
         
-        if factors.tool_reliability > 0.8:
-            reasoning.append("High tool reliability")
-        elif factors.tool_reliability < 0.5:
-            reasoning.append("Low tool reliability")
+        # Check for specific intent characteristics
+        intent_lower = intent.lower()
         
-        if factors.complexity_score > 0.7:
-            reasoning.append("High complexity detected")
-        elif factors.complexity_score < 0.3:
-            reasoning.append("Low complexity (simple operation)")
+        # Indicate if we're dealing with a critical operation
+        critical_ops = ['delete', 'remove', 'format', 'destroy', 'kill']
+        if any(op in intent_lower for op in critical_ops):
+            reasoning.append("Critical operation detected")
         
-        if factors.risk_score > 0.6:
-            reasoning.append("High risk operation")
-        elif factors.risk_score < 0.4:
-            reasoning.append("Low risk operation")
+        # Indicate if we have helpful context
+        if context.get('file_path') or context.get('target_object'):
+            reasoning.append("Specific target identified in context")
         
-        if factors.memory_support > 0.5:
-            reasoning.append("Strong memory support")
+        # Indicate if we have plan specificity information
+        if context.get('plan_steps'):
+            try:
+                steps = int(context['plan_steps'])
+                if steps > 10:
+                    reasoning.append("Plan has excessive number of steps")
+                elif steps < 2:
+                    reasoning.append("Plan has insufficient number of steps")
+            except ValueError:
+                pass  # Skip if plan_steps isn't a number
         
-        if factors.recent_failures > factors.recent_successes:
-            reasoning.append("Recent failure trend")
-        elif factors.recent_successes > factors.recent_failures:
-            reasoning.append("Recent success trend")
+        # Add information about context factors
+        if context.get('safety_mode', False):
+            reasoning.append("Safety mode is active")
+        
+        if context.get('time_critical', False):
+            reasoning.append("Operation is time-sensitive")
         
         return reasoning
     
-    def _make_decisions(self, 
-                       confidence: float, 
-                       level: ConfidenceLevel, 
-                       factors: ConfidenceFactors) -> Dict[str, Any]:
-        """Make execution decisions based on confidence."""
-        
-        should_retry = confidence >= self.evolution_threshold
-        should_evolve = confidence < self.evolution_threshold and confidence >= self.fallback_threshold
-        should_fallback = confidence < self.fallback_threshold
-        
-        # Determine max retries based on confidence
-        if level == ConfidenceLevel.EXCELLENT:
-            max_retries = 1
-        elif level == ConfidenceLevel.HIGH:
-            max_retries = 2
-        elif level == ConfidenceLevel.MEDIUM:
-            max_retries = 3
-        else:
-            max_retries = 0  # No retries for low confidence
-        
-        return {
-            "should_retry": should_retry,
-            "should_evolve": should_evolve,
-            "should_fallback": should_fallback,
-            "max_retries": max_retries
-        }
+    # Removed _make_decisions since we now make decisions directly in score_execution
     
     def _estimate_complexity(self, intent: str) -> float:
         """Estimate complexity of intent (0.0 = simple, 1.0 = complex)."""
@@ -328,13 +343,7 @@ class ConfidenceScorer:
         # Default risk
         return 0.3
     
-    def update_from_result(self, 
-                          result: Dict[str, Any], 
-                          success: bool):
-        """Update scoring based on execution results."""
-        # This would update historical success rates and trends
-        # Implementation depends on how we store execution history
-        pass
+    # Kept as is since it's not directly related to plan reliability evaluation
 
 
 # Global confidence scorer instance

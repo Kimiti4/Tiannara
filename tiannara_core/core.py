@@ -10,16 +10,20 @@ from dataclasses import dataclass, field
 import logging
 import traceback
 
-from tiannara_core.planning.fallback_planner import get_fallback_planner, deterministic_plan
+from tiannara_core.planning.fallback_planner import get_fallback_planner, deterministic_plan, calculate_deterministic_confidence
 from tiannara_core.execution.confidence_scorer import get_confidence_scorer, score_execution_confidence
 from tiannara_core.memory.memory import Memory
-from tiannara_core.memory.failure_memory import get_failure_memory, log_failure
+from tiannara_core.memory.failure_memory import get_failure_memory, log_failure as log_failure_mem
 from tiannara_core.autonomous.orchestrator import Orchestrator
 from tiannara_core.cognition.decision_engine import DecisionEngine
 from tiannara_core.distributed.windows_stable_manager import run_distributed_safe, summarize_results_safe
 from tiannara_core.plugins.registry import get_plugin_registry, execute_tool
 from tiannara_core.goals.goal_system import get_goal_system, create_goal, get_active_goals
 from tiannara_core.agents.multi_agent_system import get_multi_agent_system, process_with_agents
+from tiannara_core.agents.competition import get_competitive_agent_system, process_intent_via_competition, get_marketplace_status
+from tiannara_core.analytics.metrics import get_analytics_engine, record_tool_usage, get_best_tool_for_capability, schedule_task, cancel_task
+from tiannara_core.evolution_to_discovery_bridge import EvolutionToDiscoveryBridge, EvolutionResult, Hypothesis
+from tiannara_core.evolution.ecm_orchestrator import ECMOrchestrator, ReverseEngineeringEngine
 from tiannara_core.telemetry.dashboard import get_telemetry_dashboard, log_intent, log_planning, log_execution, log_failure
 
 
@@ -39,6 +43,11 @@ class TiannaraConfig:
     enable_plugins: bool = True
     enable_goals: bool = True
     enable_telemetry: bool = True
+    safety_mode: bool = False  # Enable extra safety checks
+    enable_analytics: bool = True  # Enable capability scoring and scheduling
+    enable_competition: bool = True  # Enable market-style agent competition
+    enable_ecm: bool = True  # Enable Executable Causal Manifolds
+    enable_evolution_bridge: bool = True  # Enable evolution to discovery bridge
 
 
 class TiannaraCore:
@@ -115,11 +124,37 @@ class TiannaraCore:
             else:
                 self.goal_system = None
             
+            # Analytics engine (for capability scoring and scheduling)
+            if self.config.enable_analytics:
+                self.analytics_engine = get_analytics_engine()
+            else:
+                self.analytics_engine = None
+            
+            # ECM (Executable Causal Manifolds) system
+            if self.config.enable_ecm:
+                self.ecm_orchestrator = ECMOrchestrator()
+                self.reverse_engineering_engine = ReverseEngineeringEngine()
+            else:
+                self.ecm_orchestrator = None
+                self.reverse_engineering_engine = None
+            
+            # Evolution to discovery bridge
+            if self.config.enable_evolution_bridge:
+                self.evolution_bridge = EvolutionToDiscoveryBridge()
+            else:
+                self.evolution_bridge = None
+            
             # Multi-agent system
             if self.config.enable_multi_agent:
                 self.multi_agent_system = get_multi_agent_system()
             else:
                 self.multi_agent_system = None
+            
+            # Competition-based agent system
+            if self.config.enable_competition:
+                self.competition_system = get_competitive_agent_system()
+            else:
+                self.competition_system = None
             
             # Orchestrator (evolution and distributed execution)
             if self.config.enable_evolution:
@@ -170,6 +205,7 @@ class TiannaraCore:
             return self._create_error_result("No intent provided", context)
         
         context = context or {}
+        context['safety_mode'] = self.config.safety_mode
         
         # Log intent to telemetry
         if self.telemetry:
@@ -178,6 +214,33 @@ class TiannaraCore:
         self.logger.info(f"Processing intent: {intent}")
         
         try:
+            # Check if this is an ECM-related intent
+            if self.config.enable_ecm and self._is_ecm_intent(intent):
+                ecm_result = self._process_ecm_intent(intent, context)
+                if ecm_result:
+                    duration_ms = (time.time() - start_time) * 1000
+                    if self.telemetry:
+                        self.telemetry.log_execution("ecm", True, duration_ms, ecm_result)
+                    return self._process_result(ecm_result, intent, context)
+            
+            # Use competition-based agent system if enabled and requested
+            if (self.config.enable_competition and 
+                self.competition_system and 
+                context.get('use_competition')):
+                
+                # Process via competition
+                competition_result = process_intent_via_competition(
+                    intent, 
+                    requirements=context.get('requirements', ['general_task']), 
+                    priority=context.get('priority', 3)
+                )
+                
+                if competition_result.get("success"):
+                    duration_ms = (time.time() - start_time) * 1000
+                    if self.telemetry:
+                        self.telemetry.log_execution("competition", True, duration_ms, competition_result)
+                    return self._process_result(competition_result, intent, context)
+            
             # Use multi-agent system if enabled
             if self.multi_agent_system:
                 agent_result = self.multi_agent_system.process_intent(intent, context)
@@ -224,6 +287,15 @@ class TiannaraCore:
                         execution_duration, 
                         result
                     )
+                
+                # Record tool usage for analytics if applicable
+                if self.analytics_engine and plan_result["planning_method"] == "fallback":
+                    self.analytics_engine.record_tool_usage(
+                        tool_name="fallback_planner",
+                        capability="planning",
+                        success=result.get("success", False),
+                        response_time=execution_duration
+                    )
             else:
                 result = self._handle_fallback(intent, execution_decision, context)
             
@@ -241,6 +313,61 @@ class TiannaraCore:
             self.logger.debug(traceback.format_exc())
             return self._create_error_result(str(e), context, intent)
     
+    def _is_ecm_intent(self, intent: str) -> bool:
+        """Check if the intent is related to ECM operations."""
+        ecm_keywords = [
+            "analyze", "reverse engineer", "understand behavior", 
+            "causal", "trace", "dependency", "relationship",
+            "find pattern", "detect logic", "infer rule"
+        ]
+        intent_lower = intent.lower()
+        return any(keyword in intent_lower for keyword in ecm_keywords)
+    
+    def _process_ecm_intent(self, intent: str, context: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Process an intent using ECM if applicable."""
+        if not self.ecm_orchestrator:
+            return None
+        
+        # For now, we'll handle specific ECM-related intents
+        if "reverse engineer" in intent.lower():
+            # Extract code or function to analyze from intent/context
+            code_to_analyze = context.get('code', 'def sample_function(x):\n    return x * 2')
+            inputs = context.get('inputs', {"x": 5})
+            
+            try:
+                result = self.ecm_orchestrator.execute_ecm_cycle(
+                    source_code=code_to_analyze,
+                    inputs=inputs
+                )
+                return {
+                    "success": True,
+                    "result_type": "ecm_analysis",
+                    "ecm_result": result
+                }
+            except Exception as e:
+                self.logger.error(f"ECM analysis failed: {e}")
+                return None
+        
+        elif "analyze" in intent.lower() and self.reverse_engineering_engine:
+            # Handle reverse engineering intent
+            try:
+                # This would require specific binary/path in context
+                if 'binary_path' in context:
+                    result = self.reverse_engineering_engine.reverse_engineer(
+                        binary_path=context['binary_path'],
+                        input_samples=context.get('input_samples', [{}])
+                    )
+                    return {
+                        "success": True,
+                        "result_type": "reverse_engineering",
+                        "reverse_engineering_result": result
+                    }
+            except Exception as e:
+                self.logger.error(f"Reverse engineering failed: {e}")
+                return None
+        
+        return None
+    
     def _make_decision(self, intent: str, context: Dict[str, Any]) -> Dict[str, Any]:
         """Make decision about intent using decision engine."""
         try:
@@ -249,6 +376,7 @@ class TiannaraCore:
             
             # Get memory store for decision engine
             memory_store = self.memory.get_all() if hasattr(self.memory, 'get_all') else []
+
             
             # Make decision
             decision = self.decision_engine.decide(memory_store, context_tags)
@@ -307,6 +435,9 @@ class TiannaraCore:
             has_llm_plan = plan_result["llm_plan"] is not None
             has_fallback_plan = plan_result["fallback_plan"] is not None
             
+            # Include safety mode in context for confidence scoring
+            context['safety_mode'] = self.config.safety_mode
+            
             confidence_result = score_execution_confidence(
                 intent=intent,
                 has_llm_plan=has_llm_plan,
@@ -362,6 +493,18 @@ class TiannaraCore:
             
         except Exception as e:
             self.logger.error(f"Plan execution failed: {e}")
+            
+            # Log failure to memory
+            if self.failure_memory:
+                self.failure_memory.log_failure(
+                    intent=plan_result.get("llm_plan", {}).get("intent", "unknown") or 
+                          plan_result.get("fallback_plan", {}).get("intent", "unknown"),
+                    error=e,
+                    component="executor",
+                    step="plan_execution",
+                    context=context
+                )
+            
             return self._create_error_result(f"Execution failed: {e}", context)
     
     def _execute_llm_plan(self, plan: Any, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -395,6 +538,33 @@ class TiannaraCore:
                     question=f"Improve handling of: {intent}",
                     source="fallback_evolution"
                 )
+                
+                # If we have an evolution bridge, translate the result to hypotheses
+                if self.evolution_bridge and isinstance(evolution_result, list):
+                    try:
+                        evolution_results = [
+                            EvolutionResult(
+                                code_diff=str(getattr(item, 'code', '')),
+                                fitness_score=getattr(item, 'fitness', 0.5),
+                                input_output_pairs=getattr(item, 'io_pairs', []),
+                                metadata=getattr(item, 'metadata', {})
+                            ) for item in evolution_result if hasattr(item, 'code')
+                        ]
+                        
+                        if evolution_results:
+                            hypotheses = self.evolution_bridge.translate(evolution_results)
+                            self.logger.info(f"Generated {len(hypotheses)} hypotheses from evolution results")
+                            
+                            return {
+                                "success": False,
+                                "result": "Triggered evolution and hypothesis generation",
+                                "fallback_type": "evolution",
+                                "evolution_result": evolution_result,
+                                "hypotheses": [h.__dict__ for h in hypotheses]
+                            }
+                    except Exception as e:
+                        self.logger.warning(f"Failed to translate evolution results to hypotheses: {e}")
+                
                 return {
                     "success": False,
                     "result": "Triggered evolution for improvement",
@@ -425,6 +595,16 @@ class TiannaraCore:
             except Exception as e:
                 self.logger.warning(f"Failed to update memory: {e}")
         
+        # Update failure memory if this was a failure
+        if not result.get("success", True) and self.failure_memory:
+            self.failure_memory.log_failure(
+                intent=intent,
+                error=result.get("error", "Unknown error"),
+                component="core",
+                step="result_processing",
+                context=context
+            )
+        
         # Add metadata
         result["tiannara_version"] = "1.3.0-phase6"
         result["processing_timestamp"] = self._get_timestamp()
@@ -445,6 +625,10 @@ class TiannaraCore:
             tags.append("development")
         if "help" in intent_lower or "status" in intent_lower:
             tags.append("system_query")
+        if "analyze" in intent_lower or "understand" in intent_lower:
+            tags.append("analysis")
+        if "reverse" in intent_lower or "engineer" in intent_lower:
+            tags.append("reverse_engineering")
         
         # Add context-based tags
         if context.get("file_path"):
@@ -453,6 +637,10 @@ class TiannaraCore:
             tags.append("error_context")
         if context.get("previous_result"):
             tags.append("follow_up")
+        if context.get("code"):
+            tags.append("code_context")
+        if context.get("binary_path"):
+            tags.append("binary_context")
         
         return tags
     
@@ -484,6 +672,11 @@ class TiannaraCore:
                 "decision_engine": hasattr(self, 'decision_engine') and self.decision_engine is not None,
                 "failure_memory": hasattr(self, 'failure_memory') and self.failure_memory is not None,
                 "plugin_registry": hasattr(self, 'plugin_registry') and self.plugin_registry is not None,
+                "analytics_engine": hasattr(self, 'analytics_engine') and self.analytics_engine is not None,
+                "ecm_orchestrator": hasattr(self, 'ecm_orchestrator') and self.ecm_orchestrator is not None,
+                "reverse_engineering_engine": hasattr(self, 'reverse_engineering_engine') and self.reverse_engineering_engine is not None,
+                "evolution_bridge": hasattr(self, 'evolution_bridge') and self.evolution_bridge is not None,
+                "competition_system": hasattr(self, 'competition_system') and self.competition_system is not None,
                 "goal_system": hasattr(self, 'goal_system') and self.goal_system is not None,
                 "multi_agent_system": hasattr(self, 'multi_agent_system') and self.multi_agent_system is not None,
                 "orchestrator": hasattr(self, 'orchestrator') and self.orchestrator is not None,
@@ -496,10 +689,15 @@ class TiannaraCore:
                 "fallback_threshold": self.config.fallback_threshold,
                 "enable_evolution": self.config.enable_evolution,
                 "enable_multi_agent": self.config.enable_multi_agent,
+                "enable_competition": self.config.enable_competition,
+                "enable_ecm": self.config.enable_ecm,
+                "enable_evolution_bridge": self.config.enable_evolution_bridge,
+                "enable_analytics": self.config.enable_analytics,
                 "enable_plugins": self.config.enable_plugins,
                 "enable_goals": self.config.enable_goals,
                 "enable_telemetry": self.config.enable_telemetry,
-                "worker_count": self.config.worker_count
+                "worker_count": self.config.worker_count,
+                "safety_mode": self.config.safety_mode
             }
         }
         
@@ -509,6 +707,24 @@ class TiannaraCore:
                 "total_tools": len(self.plugin_registry.tools),
                 "tool_statistics": self.plugin_registry.get_tool_statistics()
             }
+        
+        if self.analytics_engine:
+            status["analytics"] = self.analytics_engine.get_analytics_summary()
+        
+        if self.ecm_orchestrator:
+            status["ecm"] = {
+                "enabled": True,
+                "status": "ready"
+            }
+        
+        if self.evolution_bridge:
+            status["evolution_bridge"] = {
+                "enabled": True,
+                "cached_hypotheses": len(self.evolution_bridge.rule_cache)
+            }
+        
+        if self.competition_system:
+            status["competition"] = get_marketplace_status()
         
         if self.goal_system:
             status["goals"] = self.goal_system.get_system_overview()

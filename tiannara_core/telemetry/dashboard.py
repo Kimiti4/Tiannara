@@ -176,7 +176,16 @@ class TelemetryCollector:
         # Update response time
         if event.duration_ms is not None:
             self.response_times.append(event.duration_ms)
-            metrics.avg_response_time = statistics.mean(self.response_times)
+            
+            # Use weighted average to smooth out response time metrics
+            if metrics.avg_response_time and metrics.requests_total > 1:
+                alpha = 0.2  # Smoothing factor
+                metrics.avg_response_time = (
+                    alpha * event.duration_ms + 
+                    (1 - alpha) * metrics.avg_response_time
+                )
+            else:
+                metrics.avg_response_time = event.duration_ms
         
         # Calculate error rate
         if metrics.requests_total > 0:
@@ -192,20 +201,31 @@ class TelemetryCollector:
                                               if e.event_type in [EventType.EXECUTION_STARTED, EventType.PLANNING_STARTED]])
         
         if self.response_times:
+            # Calculate multiple percentile metrics for better performance analysis
             self.system_metrics.response_time_avg = statistics.mean(self.response_times)
+            self.system_metrics.response_time_p50 = self._percentile(self.response_times, 0.5)
+            self.system_metrics.response_time_p95 = self._percentile(self.response_times, 0.95)
+            self.system_metrics.response_time_p99 = self._percentile(self.response_times, 0.99)
         
         # Calculate overall error rate
         total_requests = sum(m.requests_total for m in self.component_metrics.values())
         total_errors = sum(m.requests_failed for m in self.component_metrics.values())
         self.system_metrics.error_rate = total_errors / max(1, total_requests)
+        
+        # Calculate event counts by type for better observability
+        for event_type in EventType:
+            count = sum(1 for e in self.events if e.event_type == event_type)
+            self.system_metrics.__dict__[f"{event_type.value}_count"] = count
     
     def get_events(self, 
                    event_type: Optional[EventType] = None,
                    component: Optional[str] = None,
                    severity: Optional[Severity] = None,
                    limit: int = 100,
-                   since_hours: Optional[int] = None) -> List[TelemetryEvent]:
-        """Get filtered events."""
+                   since_hours: Optional[int] = None,
+                   order_by: str = "timestamp",
+                   order_desc: bool = True) -> List[TelemetryEvent]:
+        """Get filtered events with advanced sorting options."""
         with self.lock:
             events = list(self.events)
         
@@ -223,22 +243,33 @@ class TelemetryCollector:
             cutoff = datetime.now() - timedelta(hours=since_hours)
             events = [e for e in events if datetime.fromisoformat(e.timestamp) >= cutoff]
         
-        # Sort by timestamp (newest first) and limit
-        events.sort(key=lambda e: e.timestamp, reverse=True)
+        # Sort by specified field
+        sort_key = lambda e: getattr(e, order_by)
+        events.sort(key=sort_key, reverse=order_desc)
+        
         return events[:limit]
     
     def get_metrics_summary(self) -> Dict[str, Any]:
-        """Get comprehensive metrics summary."""
+        """Get comprehensive metrics summary with enhanced observability features."""
         with self.lock:
+            # Get event counts by type
+            event_counts = defaultdict(int)
+            for event in self.events:
+                event_counts[f"{event.event_type.value}_{event.severity.value}"] += 1
+            
             return {
                 "system": {
                     "uptime_seconds": self.system_metrics.uptime,
                     "uptime_formatted": self._format_duration(self.system_metrics.uptime),
                     "active_tasks": self.system_metrics.active_tasks,
                     "avg_response_time_ms": self.system_metrics.response_time_avg,
+                    "response_time_p50": self.system_metrics.response_time_p50,
+                    "response_time_p95": self.system_metrics.response_time_p95,
+                    "response_time_p99": self.system_metrics.response_time_p99,
                     "error_rate": self.system_metrics.error_rate,
                     "total_events": len(self.events),
-                    "session_id": self.session_id
+                    "session_id": self.session_id,
+                    "event_counts": dict(event_counts)
                 },
                 "components": {
                     name: {
@@ -246,7 +277,9 @@ class TelemetryCollector:
                         "success_rate": 1.0 - m.error_rate,
                         "avg_response_time_ms": m.avg_response_time,
                         "last_request": m.last_request_time,
-                        "status": m.status
+                        "status": m.status,
+                        "error_rate": m.error_rate,
+                        "failure_count": self.error_counts.get(name, 0)
                     }
                     for name, m in self.component_metrics.items()
                 },
@@ -255,14 +288,16 @@ class TelemetryCollector:
                         "timestamp": e.timestamp,
                         "component": e.component,
                         "message": e.message,
-                        "severity": e.severity.value
+                        "severity": e.severity.value,
+                        "error_type": e.data.get("error_type", "N/A") if e.event_type == EventType.FAILURE_OCCURRED else "N/A"
                     }
-                    for e in self.get_events(severity=Severity.ERROR, limit=10)
+                    for e in self.get_events(severity=Severity.ERROR, limit=20)
                 ],
                 "performance": {
-                    "response_time_p50": self._percentile(self.response_times, 0.5),
-                    "response_time_p95": self._percentile(self.response_times, 0.95),
-                    "response_time_p99": self._percentile(self.response_times, 0.99)
+                    "response_time_p50": self.system_metrics.response_time_p50,
+                    "response_time_p95": self.system_metrics.response_time_p95,
+                    "response_time_p99": self.system_metrics.response_time_p99,
+                    "throughput": len(self.events) / (time.time() - self.start_time) * 3600  # Events per hour
                 }
             }
     
@@ -280,13 +315,21 @@ class TelemetryCollector:
             return f"{secs}s"
     
     def _percentile(self, data: deque, percentile: float) -> float:
-        """Calculate percentile of data."""
+        """Calculate percentile of data using linear interpolation."""
         if not data:
             return 0.0
         
         sorted_data = sorted(data)
-        index = int(len(sorted_data) * percentile)
-        return sorted_data[min(index, len(sorted_data) - 1)]
+        n = len(sorted_data)
+        index = (n - 1) * percentile
+        floor = int(index)
+        ceil = min(n - 1, floor + 1)
+        weight = index - floor
+        
+        if floor == ceil:
+            return sorted_data[floor]
+        
+        return sorted_data[floor] * (1 - weight) + sorted_data[ceil] * weight
     
     def cleanup_old_events(self):
         """Clean up events older than retention period."""
@@ -459,27 +502,69 @@ class DashboardAPI:
         return self.collector.get_metrics_summary()
     
     def get_health(self) -> Dict[str, Any]:
-        """Get system health check."""
+        """Get comprehensive system health check with detailed diagnostics."""
         metrics = self.collector.get_metrics_summary()
         
-        # Health checks
-        checks = {
-            "error_rate": metrics["system"]["error_rate"] < 0.1,  # Less than 10% errors
-            "response_time": metrics["system"]["avg_response_time_ms"] < 5000,  # Less than 5 seconds
-            "active_tasks": metrics["system"]["active_tasks"] < 50,  # Less than 50 active tasks
-            "component_health": all(
-                comp["success_rate"] > 0.8 
-                for comp in metrics["components"].values()
-                if comp["requests_total"] > 0
-            )
-        }
+        # Get event counts for detailed diagnostics
+        event_counts = metrics["system"]["event_counts"]
         
-        overall_health = all(checks.values())
+        # Calculate health scores (0-1 scale)
+        error_rate_score = 1 - min(metrics["system"]["error_rate"] / 0.2, 1)
+        response_time_score = 1 - min(
+            metrics["system"]["avg_response_time_ms"] / 10000, 1
+        )  # Score degrades at 10s average
+        task_count_score = 1 - min(
+            metrics["system"]["active_tasks"] / 100, 1
+        )  # Score degrades at 100 active tasks
+        
+        # Component health score
+        component_scores = [
+            comp["success_rate"] 
+            for comp in metrics["components"].values()
+            if comp["requests_total"] > 0
+        ]
+        component_health_score = min(component_scores) if component_scores else 1
+        
+        # Overall health is the minimum of all scores
+        overall_health_score = min(
+            error_rate_score, 
+            response_time_score, 
+            task_count_score, 
+            component_health_score
+        )
+        
+        # Determine health status based on score
+        if overall_health_score > 0.8:
+            health_status = "healthy"
+        elif overall_health_score > 0.6:
+            health_status = "degraded"
+        else:
+            health_status = "critical"
         
         return {
-            "healthy": overall_health,
-            "checks": checks,
+            "status": health_status,
+            "health_score": overall_health_score,
+            "checks": {
+                "error_rate": error_rate_score > 0.8,
+                "error_rate_score": error_rate_score,
+                "response_time": response_time_score > 0.8,
+                "response_time_score": response_time_score,
+                "active_tasks": task_count_score > 0.8,
+                "active_tasks_score": task_count_score,
+                "component_health": component_health_score > 0.8,
+                "component_health_score": component_health_score
+            },
             "system_metrics": metrics["system"],
+            "component_health": {
+                name: {
+                    "success_rate": comp["success_rate"],
+                    "error_rate": comp["error_rate"],
+                    "healthy": comp["success_rate"] > 0.8,
+                    "failure_count": comp["error_rate"] * comp["requests_total"]
+                }
+                for name, comp in metrics["components"].items()
+            },
+            "event_counts": event_counts,
             "timestamp": datetime.now().isoformat()
         }
 

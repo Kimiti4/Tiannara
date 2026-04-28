@@ -5,30 +5,35 @@ Provides stable multiprocessing with automatic fallback for Windows systems.
 Addresses pipe permission issues and other Windows-specific problems.
 """
 
-from __future__ import annotations
-
 import os
 import sys
 import statistics
 import traceback
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Callable, Union
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
-from multiprocessing import get_context
+from multiprocessing import get_context, Process
 from dataclasses import dataclass
+import time
+import threading
 
-from .worker import run_worker
+
+# Define types for better type hinting
+TaskFunction = Callable[..., Any]
+TaskResultData = Dict[str, Any]
 
 
 @dataclass
 class ExecutionResult:
-    """Result of distributed execution with metadata."""
-    result: Dict[str, Any]
+    """Result of distributed execution with enhanced metadata."""
+    result: TaskResultData
     worker_id: int
     backend: str
     execution_time: float
     success: bool
     error: Optional[str] = None
+    task_id: Optional[str] = None
+    timestamp: float = time.time()
 
 
 class WindowsStableManager:
@@ -68,41 +73,213 @@ class WindowsStableManager:
         return "process"
     
     def run_distributed(self, 
-                       configs: List[Dict[str, Any]], 
+                       tasks: List[Dict[str, Any]] | List[Callable],
                        workers: Optional[int] = None,
-                       backend: Optional[str] = None) -> List[ExecutionResult]:
+                       backend: Optional[str] = None,
+                       task_type: str = "config") -> List[ExecutionResult]:
         """
-        Run configurations distributed across workers.
+        Run tasks distributed across workers.
         
         Args:
-            configs: List of configuration dictionaries
+            tasks: Either a list of configuration dictionaries or callable functions
             workers: Number of workers (auto-detected if None)
             backend: Force specific backend ("process", "thread", "serial")
+            task_type: Type of tasks ("config" for configs or "function" for callables)
             
         Returns:
             List of ExecutionResult objects
         """
-        if not configs:
+        if not tasks:
             return []
         
         # Determine worker count
-        worker_count = self._determine_worker_count(configs, workers)
+        worker_count = self._determine_worker_count(tasks, workers)
         
         # Determine backend
         execution_backend = backend or self.optimal_backend
         
-        self.logger.info(f"Running {len(configs)} configs with {worker_count} workers using {execution_backend} backend")
+        self.logger.info(f"Running {len(tasks)} {task_type} tasks with {worker_count} workers using {execution_backend} backend")
         
         # Execute with chosen backend
         if execution_backend == "process":
-            results = self._run_with_processes(configs, worker_count)
+            results = self._run_with_processes(tasks, worker_count, task_type)
         elif execution_backend == "thread":
-            results = self._run_with_threads(configs, worker_count)
+            results = self._run_with_threads(tasks, worker_count, task_type)
         else:
-            results = self._run_serial(configs)
+            results = self._run_serial(tasks, task_type)
         
         # Update backend performance metrics
         self._update_performance_metrics(execution_backend, results)
+        
+        return results
+    
+    def _run_with_processes(self, tasks: List[Dict[str, Any]] | List[Callable], 
+                          workers: int, task_type: str) -> List[ExecutionResult]:
+        """Run using multiprocessing with better task handling."""
+        results = []
+        
+        try:
+            # Use spawn context for better compatibility
+            ctx = get_context("spawn")
+            
+            if task_type == "config":
+                # Config-based tasks
+                with ProcessPoolExecutor(max_workers=workers, mp_context=ctx) as executor:
+                    # Submit all tasks
+                    future_to_config = {
+                        executor.submit(self._safe_worker_run, task, i): (task, i)
+                        for i, task in enumerate(tasks)
+                    }
+                    
+                    # Collect results as they complete
+                    for future in as_completed(future_to_config):
+                        config, worker_id = future_to_config[future]
+                        
+                        try:
+                            result_data, exec_time = future.result(timeout=300)  # 5 minute timeout
+                            results.append(ExecutionResult(
+                                result=result_data,
+                                worker_id=worker_id,
+                                backend="process",
+                                execution_time=exec_time,
+                                success=True
+                            ))
+                        except Exception as e:
+                            self.logger.warning(f"Process worker {worker_id} failed: {e}")
+                            results.append(ExecutionResult(
+                                result={"score": 0.0, "error": str(e)},
+                                worker_id=worker_id,
+                                backend="process",
+                                execution_time=0.0,
+                                success=False,
+                                error=str(e)
+                            ))
+            else:
+                # Function-based tasks
+                with ProcessPoolExecutor(max_workers=workers, mp_context=ctx) as executor:
+                    # Submit all tasks
+                    future_to_task = {
+                        executor.submit(self._execute_task, task, None, None, f"task_{i}", i): (task, i)
+                        for i, task in enumerate(tasks)
+                    }
+                    
+                    # Collect results as they complete
+                    for future in as_completed(future_to_task):
+                        task, task_id = future_to_task[future]
+                        
+                        try:
+                            result_data = future.result(timeout=300)  # 5 minute timeout
+                            results.append(ExecutionResult(
+                                result=result_data,
+                                worker_id=task_id % workers,
+                                backend="process",
+                                execution_time=result_data.get("execution_time", 0.0),
+                                success=result_data.get("success", False),
+                                task_id=result_data.get("task_id", f"task_{task_id}")
+                            ))
+                        except Exception as e:
+                            self.logger.warning(f"Process task {task_id} failed: {e}")
+                            results.append(ExecutionResult(
+                                result={"score": 0.0, "error": str(e)},
+                                worker_id=task_id % workers,
+                                backend="process",
+                                execution_time=0.0,
+                                success=False,
+                                error=str(e),
+                                task_id=f"task_{task_id}"
+                            ))
+            
+            self.logger.info(f"Process execution completed: {len(results)} results")
+            
+        except Exception as e:
+            self.logger.error(f"Process backend failed completely: {e}")
+            self.logger.debug(traceback.format_exc())
+            
+            # Fallback to threading
+            self.logger.info("Falling back to thread backend")
+            return self._run_with_threads(tasks, workers, task_type)
+        
+        return results
+    
+    def _run_with_threads(self, tasks: List[Dict[str, Any]] | List[Callable], 
+                        workers: int, task_type: str) -> List[ExecutionResult]:
+        """Run using threading with enhanced task management."""
+        results = []
+        
+        try:
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                if task_type == "config":
+                    # Config-based tasks
+                    future_to_config = {
+                        executor.submit(self._safe_worker_run, task, i): (task, i)
+                        for i, task in enumerate(tasks)
+                    }
+                    
+                    # Collect results as they complete
+                    for future in as_completed(future_to_config):
+                        config, worker_id = future_to_config[future]
+                        
+                        try:
+                            result_data, exec_time = future.result(timeout=600)  # 10 minute timeout
+                            results.append(ExecutionResult(
+                                result=result_data,
+                                worker_id=worker_id,
+                                backend="thread",
+                                execution_time=exec_time,
+                                success=True
+                            ))
+                        except Exception as e:
+                            self.logger.warning(f"Thread worker {worker_id} failed: {e}")
+                            results.append(ExecutionResult(
+                                result={"score": 0.0, "error": str(e)},
+                                worker_id=worker_id,
+                                backend="thread",
+                                execution_time=0.0,
+                                success=False,
+                                error=str(e)
+                            ))
+                else:
+                    # Function-based tasks
+                    future_to_task = {
+                        executor.submit(self._execute_task, task, None, None, f"task_{i}", i): (task, i)
+                        for i, task in enumerate(tasks)
+                    }
+                    
+                    # Collect results as they complete
+                    for future in as_completed(future_to_task):
+                        task, task_id = future_to_task[future]
+                        
+                        try:
+                            result_data = future.result(timeout=600)  # 10 minute timeout
+                            results.append(ExecutionResult(
+                                result=result_data,
+                                worker_id=task_id % workers,
+                                backend="thread",
+                                execution_time=result_data.get("execution_time", 0.0),
+                                success=result_data.get("success", False),
+                                task_id=result_data.get("task_id", f"task_{task_id}")
+                            ))
+                        except Exception as e:
+                            self.logger.warning(f"Thread task {task_id} failed: {e}")
+                            results.append(ExecutionResult(
+                                result={"score": 0.0, "error": str(e)},
+                                worker_id=task_id % workers,
+                                backend="thread",
+                                execution_time=0.0,
+                                success=False,
+                                error=str(e),
+                                task_id=f"task_{task_id}"
+                            ))
+            
+            self.logger.info(f"Thread execution completed: {len(results)} results")
+            
+        except Exception as e:
+            self.logger.error(f"Thread backend failed completely: {e}")
+            self.logger.debug(traceback.format_exc())
+            
+            # Final fallback to serial
+            self.logger.info("Falling back to serial execution")
+            return self._run_serial(tasks, task_type)
         
         return results
     
@@ -249,9 +426,66 @@ class WindowsStableManager:
         
         return results
     
+    def _execute_task(self, task: TaskFunction, task_args: Union[tuple, None], task_kwargs: Union[dict, None], 
+                     task_id: Optional[str] = None, worker_id: int = 0) -> TaskResultData:
+        """Execute a single task with error handling and metadata tracking."""
+        start_time = time.time()
+        
+        try:
+            # Handle different task types
+            if task_args is None and task_kwargs is None:
+                result = task()
+            elif task_args is not None and task_kwargs is None:
+                result = task(*task_args)
+            elif task_args is None and task_kwargs is not None:
+                result = task(**task_kwargs)
+            else:
+                result = task(*task_args, **task_kwargs)
+            
+            execution_time = time.time() - start_time
+            
+            # Ensure result has required metadata
+            if isinstance(result, dict):
+                result_data = result
+            else:
+                # Wrap non-dict results in a standard format
+                result_data = {
+                    "result": result,
+                    "score": float(result) if isinstance(result, (int, float)) else 0.0
+                }
+            
+            result_data.update({
+                "success": True,
+                "execution_time": execution_time,
+                "worker_id": worker_id
+            })
+            
+            if task_id:
+                result_data["task_id"] = task_id
+                
+            return result_data
+            
+        except Exception as e:
+            execution_time = time.time() - start_time
+            self.logger.debug(f"Task {task_id or worker_id} error: {e}")
+            
+            # Return error result with metadata
+            error_result = {
+                "success": False,
+                "error": str(e),
+                "error_type": type(e).__name__,
+                "execution_time": execution_time,
+                "worker_id": worker_id,
+                "traceback": traceback.format_exc()
+            }
+            
+            if task_id:
+                error_result["task_id"] = task_id
+                
+            return error_result
+    
     def _safe_worker_run(self, config: Dict[str, Any], worker_id: int) -> tuple[Dict[str, Any], float]:
         """Safely run worker with timing and error handling."""
-        import time
         start_time = time.time()
         
         try:
@@ -259,10 +493,14 @@ class WindowsStableManager:
             exec_time = time.time() - start_time
             
             # Ensure result has required fields
-            if "score" not in result:
-                result["score"] = 0.0
-            if "worker_id" not in result:
-                result["worker_id"] = worker_id
+            if not isinstance(result, dict):
+                result = {"result": result, "score": float(result) if isinstance(result, (int, float)) else 0.0}
+            
+            result.update({
+                "success": True,
+                "worker_id": worker_id,
+                "execution_time": exec_time
+            })
             
             return result, exec_time
             
@@ -270,12 +508,15 @@ class WindowsStableManager:
             exec_time = time.time() - start_time
             self.logger.debug(f"Worker {worker_id} error: {e}")
             
-            # Return error result
+            # Return error result with enhanced metadata
             return {
+                "success": False,
                 "score": 0.0,
                 "worker_id": worker_id,
                 "error": str(e),
-                "config": config.get("worker_id", "unknown")
+                "error_type": type(e).__name__,
+                "config": config.get("worker_id", "unknown"),
+                "traceback": traceback.format_exc()
             }, exec_time
     
     def _update_performance_metrics(self, backend: str, results: List[ExecutionResult]):
@@ -390,18 +631,28 @@ def get_windows_stable_manager(**kwargs) -> WindowsStableManager:
         _windows_manager = WindowsStableManager(**kwargs)
     return _windows_manager
 
-def run_distributed_safe(configs: List[Dict[str, Any]], 
+def run_distributed_safe(tasks: List[Dict[str, Any]] | List[Callable],
                         workers: Optional[int] = None,
-                        backend: Optional[str] = None) -> List[Dict[str, Any]]:
+                        backend: Optional[str] = None,
+                        task_type: str = "config") -> List[Dict[str, Any]]:
     """
     Safe distributed execution that works reliably on Windows.
     
     This is the main entry point for distributed execution.
+    
+    Args:
+        tasks: List of configuration dictionaries or callable functions
+        workers: Number of workers (auto-detected if None)
+        backend: Force specific backend ("process", "thread", "serial")
+        task_type: Type of tasks ("config" for configs or "function" for callables)
+        
+    Returns:
+        List of result dictionaries sorted by score descending
     """
     manager = get_windows_stable_manager()
     
     # Run with Windows-stable manager
-    execution_results = manager.run_distributed(configs, workers, backend)
+    execution_results = manager.run_distributed(tasks, workers, backend, task_type)
     
     # Convert back to original format
     results = []
@@ -409,55 +660,96 @@ def run_distributed_safe(configs: List[Dict[str, Any]],
         result = exec_result.result.copy()
         result["execution_backend"] = exec_result.backend
         result["execution_time"] = exec_result.execution_time
+        if "task_id" in exec_result.result:
+            result["task_id"] = exec_result.result["task_id"]
         results.append(result)
     
+    # Sort by score if available
     return sorted(results, key=lambda item: item.get("score", 0.0), reverse=True)
 
 def summarize_results_safe(results: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Safe results summarization with enhanced metadata."""
+    """Safe results summarization with enhanced metadata and error tracking."""
     if not results:
         return {
-            "worker_count": 0,
-            "backend": "none",
-            "best_score": 0.0,
+            "total_tasks": 0,
+            "successful": 0,
+            "failed": 0,
+            "success_rate": 0.0,
             "avg_score": 0.0,
-            "score_spread": 0.0,
-            "genome_counts": {},
+            "best_score": 0.0,
+            "backend_distribution": {},
+            "error_summary": {
+                "total_errors": 0,
+                "error_types": {},
+                "error_distribution": {}
+            },
             "execution_summary": {
                 "total_time": 0.0,
-                "success_rate": 0.0,
-                "backend_distribution": {}
+                "avg_time": 0.0,
+                "fastest_task": 0.0,
+                "slowest_task": 0.0
             }
         }
     
-    scores = [float(item.get("score", 0.0) or 0.0) for item in results]
-    genome_counts = {}
+    scores = []
+    error_types = {}
     backend_counts = {}
-    total_time = 0.0
-    successful = 0
+    execution_times = []
+    successful_count = 0
+    error_count = 0
     
     for item in results:
-        genome_type = item.get("genome_type", "unknown")
-        genome_counts[genome_type] = genome_counts.get(genome_type, 0) + 1
+        # Score tracking
+        score = float(item.get("score", 0.0) or 0.0)
+        if score > 0:
+            scores.append(score)
         
+        # Backend tracking
         backend = item.get("execution_backend", "unknown")
         backend_counts[backend] = backend_counts.get(backend, 0) + 1
         
-        total_time += item.get("execution_time", 0.0)
-        if item.get("score", 0.0) > 0:
-            successful += 1
+        # Error tracking
+        if not item.get("success", True):
+            error_count += 1
+            error_type = item.get("error_type", "UnknownError")
+            error_types[error_type] = error_types.get(error_type, 0) + 1
+            
+            # Track error by backend
+            backend_counts[backend] = backend_counts.get(backend, 0) + 1
+        
+        # Success tracking
+        if score > 0 or item.get("success", False):
+            successful_count += 1
+            
+        # Execution time tracking
+        exec_time = item.get("execution_time", 0.0)
+        if exec_time > 0:
+            execution_times.append(exec_time)
     
-    return {
-        "worker_count": len(results),
-        "backend": results[0].get("execution_backend", "serial"),
-        "best_score": round(max(scores), 4),
-        "avg_score": round(statistics.fmean(scores), 4),
-        "score_spread": round(max(scores) - min(scores), 4),
-        "genome_counts": genome_counts,
+    # Calculate metrics
+    total_tasks = len(results)
+    success_rate = successful_count / total_tasks if total_tasks else 0.0
+    
+    summary = {
+        "total_tasks": total_tasks,
+        "successful": successful_count,
+        "failed": error_count,
+        "success_rate": success_rate,
+        "avg_score": round(statistics.fmean(scores), 4) if scores else 0.0,
+        "best_score": round(max(scores), 4) if scores else 0.0,
+        "backend_distribution": backend_counts,
+        "error_summary": {
+            "total_errors": error_count,
+            "error_types": error_types,
+            "error_distribution": {
+                backend: round(count / total_tasks, 2) 
+                for backend, count in backend_counts.items()
+            }
+        },
         "execution_summary": {
-            "total_time": round(total_time, 2),
-            "success_rate": successful / len(results) if results else 0,
-            "backend_distribution": backend_counts,
-            "avg_time_per_worker": round(total_time / len(results), 2) if results else 0
+            "total_time": round(sum(execution_times), 2) if execution_times else 0.0,
+            "avg_time": round(statistics.fmean(execution_times), 2) if execution_times else 0.0,
+            "fastest_task": round(min(execution_times), 2) if execution_times else 0.0,
+            "slowest_task": round(max(execution_times), 2) if execution_times else 0.0
         }
     }
