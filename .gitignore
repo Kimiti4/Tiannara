@@ -5,4 +5,10 @@ __pycache__/
 .env
 .venv/
 venv/
-upgrades.md
+node_modules
+tiannara_gui/
+tiannara_internal_dashboard/
+tiannara_mobile/
+tests/
+pytest_cache_files-*/
+*.txt
