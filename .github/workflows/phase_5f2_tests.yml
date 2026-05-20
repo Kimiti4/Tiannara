@@ -1,0 +1,100 @@
+name: Phase 5F Tests (5F.2 + 5F.3)
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'tiannara_runtime/lib/tiannara_runtime/meta/**'
+      - 'tiannara_runtime/test/tiannara/meta/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'tiannara_runtime/lib/tiannara_runtime/meta/**'
+      - 'tiannara_runtime/test/tiannara/meta/**'
+
+jobs:
+  test-phase-5f:
+    name: Phase 5F Integration Tests (OCG/OCAL/OMRL)
+    runs-on: ubuntu-latest
+    
+    services:
+      nats:
+        image: nats:latest
+        ports:
+          - 4222:4222
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.18'
+        otp-version: '27'
+    
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          tiannara_runtime/deps
+          tiannara_runtime/_build
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-mix-
+    
+    - name: Install dependencies
+      working-directory: ./tiannara_runtime
+      run: mix deps.get
+    
+    - name: Compile project
+      working-directory: ./tiannara_runtime
+      run: mix compile --warnings-as-errors
+    
+    - name: Run OCG tests (Phase 5F.2)
+      working-directory: ./tiannara_runtime
+      run: mix test test/tiannara/meta/observer_collapse_governor_test.exs
+    
+    - name: Run OCAL tests (Phase 5F.2)
+      working-directory: ./tiannara_runtime
+      run: mix test test/tiannara/meta/observer_arbitration_layer_test.exs
+    
+    - name: Run OMRL tests (Phase 5F.3)
+      working-directory: ./tiannara_runtime
+      run: mix test test/tiannara/meta/observer_memory_reconciliation_test.exs
+    
+    - name: Run integration tests
+      working-directory: ./tiannara_runtime
+      run: mix test test/tiannara/meta/observer_collapse_integration_test.exs
+    
+    - name: Run all Phase 5F tests with coverage
+      working-directory: ./tiannara_runtime
+      run: mix coveralls.json test/tiannara/meta/
+      env:
+        MIX_ENV: test
+    
+    - name: Upload coverage to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        file: tiannara_runtime/cover/excoveralls.json
+    
+    - name: Performance benchmark
+      working-directory: ./tiannara_runtime
+      run: |
+        echo "Running performance benchmarks..."
+        mix test test/tiannara/meta/observer_collapse_integration_test.exs --only performance
+        mix test test/tiannara/meta/observer_memory_reconciliation_test.exs --only performance
+        echo "Performance tests completed"
+    
+    - name: Check test duration
+      working-directory: ./tiannara_runtime
+      run: |
+        START_TIME=$(date +%s)
+        mix test test/tiannara/meta/
+        END_TIME=$(date +%s)
+        DURATION=$((END_TIME - START_TIME))
+        echo "Test suite completed in ${DURATION} seconds"
+        if [ $DURATION -gt 60 ]; then
+          echo "::warning::Test suite took longer than 60 seconds (${DURATION}s)"
+        fi
