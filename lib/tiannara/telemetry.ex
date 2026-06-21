@@ -1,0 +1,151 @@
+defmodule Tiannara.Telemetry do
+  @moduledoc """
+  Telemetry configuration for Tiannara.
+
+  Defines events, metrics, and monitoring for the cosmological runtime system.
+  """
+
+  use Supervisor
+  require Logger
+
+  @doc """
+  Starts the Telemetry supervisor.
+  """
+  def start_link(opts) do
+    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_opts) do
+    children = [
+      # Custom telemetry handlers
+      {Tiannara.Telemetry.CompilationHandler, []},
+      {Tiannara.Telemetry.PhysicsHandler, []},
+      {Tiannara.Telemetry.TopologyHandler, []}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_all)
+  end
+end
+
+defmodule Tiannara.Telemetry.CompilationHandler do
+  @moduledoc """
+  Telemetry handler for compilation events.
+  """
+
+  use GenServer
+  require Logger
+
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_opts) do
+    # Subscribe to compilation events
+    :telemetry.attach_many("compilation-handler", [
+      [:tiannara, :compilation, :start],
+      [:tiannara, :compilation, :stop],
+      [:tiannara, :compilation, :exception]
+    ], &handle_event/4, [])
+
+    {:ok, %{}}
+  end
+
+  defp handle_event([:tiannara, :compilation, :start], measurements, metadata, _config) do
+    Logger.debug("Compilation started: #{metadata.compilation_type}")
+    :ok
+  end
+
+  defp handle_event([:tiannara, :compilation, :stop], measurements, metadata, _config) do
+    duration = measurements.duration || 0
+    Logger.debug("Compilation completed in #{duration}ms: #{metadata.compilation_type}")
+    :ok
+  end
+
+  defp handle_event([:tiannara, :compilation, :exception], measurements, metadata, _config) do
+    Logger.error("Compilation failed: #{metadata.compilation_type}, reason: #{metadata.exception}")
+    :ok
+  end
+end
+
+defmodule Tiannara.Telemetry.PhysicsHandler do
+  @moduledoc """
+  Telemetry handler for physics events.
+  """
+
+  use GenServer
+  require Logger
+
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_opts) do
+    # Subscribe to physics events
+    :telemetry.attach_many("physics-handler", [
+      [:tiannara, :physics, :compilation, :start],
+      [:tiannara, :physics, :compilation, :stop],
+      [:tiannara, :physics, :observation, :recorded]
+    ], &handle_event/4, [])
+
+    {:ok, %{}}
+  end
+
+  defp handle_event([:tiannara, :physics, :compilation, :start], measurements, metadata, _config) do
+    Logger.debug("Physics compilation started: #{metadata.physics_type}")
+    :ok
+  end
+
+  defp handle_event([:tiannara, :physics, :compilation, :stop], measurements, metadata, _config) do
+    duration = measurements.duration || 0
+    Logger.debug("Physics compilation completed in #{duration}ms")
+    :ok
+  end
+
+  defp handle_event([:tiannara, :physics, :observation, :recorded], measurements, metadata, _config) do
+    Logger.debug("Physics observation recorded: #{metadata.observer_id}")
+    :ok
+  end
+end
+
+defmodule Tiannara.Telemetry.TopologyHandler do
+  @moduledoc """
+  Telemetry handler for topology events.
+  """
+
+  use GenServer
+  require Logger
+
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_opts) do
+    # Subscribe to topology events
+    :telemetry.attach_many("topology-handler", [
+      [:tiannara, :topology, :state, :changed],
+      [:tiannara, :topology, :node, :added],
+      [:tiannara, :topology, :node, :removed]
+    ], &handle_event/4, [])
+
+    {:ok, %{}}
+  end
+
+  defp handle_event([:tiannara, :topology, :state, :changed], measurements, metadata, _config) do
+    Logger.debug("Topology state changed: #{metadata.topology_type}")
+    :ok
+  end
+
+  defp handle_event([:tiannara, :topology, :node, :added], measurements, metadata, _config) do
+    Logger.debug("Topology node added: #{metadata.node_id}")
+    :ok
+  end
+
+  defp handle_event([:tiannara, :topology, :node, :removed], measurements, metadata, _config) do
+    Logger.debug("Topology node removed: #{metadata.node_id}")
+    :ok
+  end
+end
