@@ -134,7 +134,7 @@ defmodule Tiannara.ASC.Crucible.AlphaCampaign do
       {:ok, result} ->
         IO.puts("     ✅ Build: #{if result.success?, do: "SUCCESS", else: "FAILED"}")
         result
-      {:error, error} ->
+      error ->
         IO.puts("     ❌ Build Error: #{inspect(error)}")
         nil
     end
@@ -145,7 +145,7 @@ defmodule Tiannara.ASC.Crucible.AlphaCampaign do
       {:ok, result} ->
         IO.puts("     ✅ Validation: #{if result.valid?, do: "PASS", else: "FAIL"}")
         result
-      {:error, error} ->
+      error ->
         IO.puts("     ❌ Validation Error: #{inspect(error)}")
         nil
     end
@@ -238,8 +238,13 @@ defmodule Tiannara.ASC.Crucible.AlphaCampaign do
     # Failure and exploit statistics
     failures = Enum.count(results, fn r -> r.break && r.break.failure_discovered? end)
     exploits = Enum.count(results, fn r -> r.attack && r.attack.exploit_found? end)
-    repairs_attempted = Enum.count(results, fn r -> r.repair != nil end)
-    repairs_successful = Enum.count(results, fn r -> r.repair && r.repair.repair_successful? end)
+    repairs_attempted = Enum.count(results, fn r -> r.repair != nil and r.repair != {false, false, false, nil, 0.0} end)
+    repairs_successful = Enum.count(results, fn r -> 
+      case r.repair do
+        {true, _, _, _, _} -> true
+        _ -> false
+      end
+    end)
 
     IO.puts("\nFailures Discovered: #{failures}")
     IO.puts("Exploits Discovered: #{exploits}")

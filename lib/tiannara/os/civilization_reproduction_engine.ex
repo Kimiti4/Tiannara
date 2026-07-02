@@ -157,6 +157,9 @@ defmodule TiannaraOS.CivilizationReproductionEngine do
                     child_id = generate_child_id(prog_id)
                     child_budget = inherit_budget(program.budget)
                     
+                    # Inherit parent's tech tree with Integration Penalty (Intervention 3)
+                    inherited_caps = apply_integration_penalty(program.capabilities || %{})
+                    
                     child_program = %ResearchProgram{
                       id: child_id,
                       world_id: program.world_id,
@@ -166,7 +169,7 @@ defmodule TiannaraOS.CivilizationReproductionEngine do
                       parent_program_id: prog_id,
                       budget: child_budget,
                       strategy_genome: final_genome,
-                      capabilities: program.capabilities || %{},  # Inherit parent's tech tree
+                      capabilities: inherited_caps,  # Inherited with integration friction
                       last_reproduction_tick: nil,  # Newborn hasn't reproduced yet
                       reproduction_cooldown: 500,
                       born_at_tick: current_tick,        # Track birth tick
@@ -299,20 +302,51 @@ defmodule TiannaraOS.CivilizationReproductionEngine do
   Float representing total portfolio value.
   """
   @spec calculate_portfolio_value(ResearchProgram.t(), State.t()) :: float()
-  def calculate_portfolio_value(%ResearchProgram{} = program, %State{} = _state) do
+  def calculate_portfolio_value(%ResearchProgram{} = program, %State{} = state) do
+    global_adoption = Map.get(state.metadata || %{}, :global_adoption, %{})
+    active_progs = max(1, Map.get(state.metadata || %{}, :active_programs_count, 2000))
+    
     # Sum the fitness score of all capabilities owned by this program
-    capability_fitness_sum = 
+    {capability_fitness_sum, max_adoption} = 
       (program.capabilities || %{})
       |> Map.values()
-      |> Enum.map(&Map.get(&1, :fitness_score, 0.0))
-      |> Enum.sum()
+      |> Enum.reduce({0.0, 1}, fn node, {fit_sum, max_adop} -> 
+        fitness = Map.get(node, :fitness_score, 0.0)
+        adoption_count = Map.get(global_adoption, node.id, 1)
+        
+        # Individual capability friction
+        friction = 1.0 / (1.0 + (:math.log(max(2, adoption_count)) * 0.5))
+        
+        # Lineage monopoly penalty should only target derived capabilities, not roots.
+        new_max_adop =
+          if Map.get(node, :depth, 1) > 1 do
+            max(max_adop, adoption_count)
+          else
+            max_adop
+          end
+          
+        {fit_sum + (fitness * friction), new_max_adop}
+      end)
       
     # Base value from budget
     base_value = program.budget.credits || 0.0
     
+    # Lineage Monopoly Penalty (Intervention 3)
+    # If the program's most common derived capability is heavily adopted globally,
+    # it means the lineage is monopolizing the universe. We heavily penalize reproduction.
+    monopoly_share = max_adoption / active_progs
+    
+    monopoly_penalty = 
+      if monopoly_share > 0.35 do
+        # Base at 35% is 1.0 - (0.35 * 1.5) = 0.475
+        # Exponential cliff from 0.475 down to near 0
+        max(0.0001, 0.475 * :math.pow(0.001, (monopoly_share - 0.35) * 10.0))
+      else
+        max(0.1, 1.0 - (monopoly_share * 1.5))
+      end
+    
     # Total value driven primarily by capability fitness
-    # Scale up to match the previous discovery bonus weighting
-    total_royalty = base_value + (capability_fitness_sum * 100.0)
+    total_royalty = (base_value + (capability_fitness_sum * 100.0)) * monopoly_penalty
     
     # Power law scaling prevents single-jackpot dominance
     :math.pow(total_royalty, 0.7)
@@ -371,6 +405,30 @@ defmodule TiannaraOS.CivilizationReproductionEngine do
     }
   end
   
+  # ============================================================================
+  # Internal Functions
+  # ============================================================================
+
+  defp apply_integration_penalty(capabilities) do
+    Enum.reduce(capabilities, %{}, fn {id, node}, acc ->
+      # Temporary Integration Penalty: Knowledge isn't free. 
+      # Children must "re-validate" inherited frameworks to reach parent's efficiency
+      penalized_node = %{node |
+        efficiency: node.efficiency * 0.6,    # 40% efficiency loss on transfer
+        reliability: node.reliability * 0.4,  # 60% reliability drop (untested by child)
+        usage_count: 1,                       # Reset practice count
+        selection_score: 0.8                  # Slight selection ding
+      }
+      
+      # Re-evaluate fitness baseline (without world alignment context which requires tick loop)
+      # The next tick will fully evaluate it against world_needs.
+      fitness = penalized_node.efficiency * penalized_node.reliability * penalized_node.novelty
+      penalized_node = %{penalized_node | fitness_score: fitness}
+      
+      Map.put(acc, id, penalized_node)
+    end)
+  end
+
   def inherit_budget(_), do: %{credits: 100.0, compute: 100.0, attention: 50.0}
   
   @doc """

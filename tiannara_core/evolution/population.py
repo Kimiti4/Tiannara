@@ -5,6 +5,12 @@ from typing import Any, Dict, List
 
 from tiannara_core.evolution.graph_genome import GraphGenome, graph_crossover
 from tiannara_core.evolution.neural_engine import NeuralGenome, crossover
+from tiannara_core.evolution.novelty_search import (
+    AdaptiveStrategySelector,
+    BehaviorCharacterization,
+    NoveltyArchive,
+    compute_population_diversity,
+)
 from tiannara_core.sim.adversarial_env import AdversarialEnvironment
 from tiannara_core.sim.simulator import run_simulation
 
@@ -56,6 +62,7 @@ def evolve_details(
     genome_type: str = "neural",
     use_adversary: bool = False,
     starting_difficulty: float = 1.0,
+    use_novelty_search: bool = True,  # NEW: Enable novelty search
 ) -> Dict[str, Any]:
     pop_size = max(6, min(int(pop_size), 200))
     generations = max(1, min(int(generations), 200))
@@ -70,9 +77,22 @@ def evolve_details(
     leaderboard: List[Dict[str, Any]] = []
     adversary = AdversarialEnvironment(difficulty=starting_difficulty) if use_adversary else None
     difficulty_history: List[float] = [round(adversary.difficulty, 4)] if adversary else []
+    
+    # NEW: Initialize novelty search components
+    behavior_extractor = BehaviorCharacterization(feature_dim=5)
+    novelty_archive = NoveltyArchive(max_size=100, similarity_threshold=0.15)
+    strategy_selector = AdaptiveStrategySelector(
+        initial_novelty_weight=0.3,
+        adaptation_rate=0.1,
+        diversity_threshold=0.2,
+        stagnation_window=5
+    )
+    novelty_scores_history: List[float] = []
+    strategies_used: List[str] = []
 
     for generation in range(generations):
         scored: List[tuple[float, object, Dict[str, float], Dict[str, float], Dict[str, float]]] = []
+        population_behaviors: List[List[float]] = []  # NEW: Track behaviors
 
         for agent in population:
             simulation_score, breakdown = run_simulation(agent, profile=fitness_function)
@@ -92,6 +112,15 @@ def evolve_details(
             enriched_breakdown = dict(breakdown)
             enriched_breakdown["adversarial"] = round(adversarial["score"], 4)
             enriched_breakdown["difficulty"] = round(adversarial["difficulty_after"], 4)
+            
+            # NEW: Extract behavior and compute novelty if enabled
+            novelty_score = 0.0
+            if use_novelty_search:
+                behavior = behavior_extractor.extract_features(agent)
+                population_behaviors.append(behavior)
+                novelty_score = novelty_archive.novelty_score(behavior)
+                enriched_breakdown["novelty"] = round(novelty_score, 4)
+            
             scored.append((fitness, agent, enriched_breakdown, decode_candidate(agent), adversarial))
 
         scored.sort(reverse=True, key=lambda item: item[0])
@@ -112,10 +141,43 @@ def evolve_details(
             }
             for rank, (score, _, breakdown, candidate, adversarial) in enumerate(scored[: min(5, len(scored))])
         ]
-
-        survivor_count = max(2, int(pop_size * selection_pressure))
-        survivors = [agent for _, agent, _, _, _ in scored[:survivor_count]]
-        population = [best_entry[1]]
+        
+        # NEW: Adaptive strategy selection and novelty-based scoring
+        current_fitness = best_entry[0]
+        population_diversity = compute_population_diversity(population_behaviors) if use_novelty_search and population_behaviors else 0.5
+        
+        if use_novelty_search:
+            strategy, novelty_weight = strategy_selector.select_strategy(
+                current_fitness, population_diversity, generation
+            )
+            strategies_used.append(strategy)
+            
+            # Re-score population with combined fitness-novelty score
+            novelty_scored = []
+            for idx, (fitness, agent, breakdown, candidate, adversarial) in enumerate(scored):
+                behavior = population_behaviors[idx] if idx < len(population_behaviors) else [0.0] * 5
+                novelty = novelty_archive.novelty_score(behavior)
+                novelty_scores_history.append(novelty)
+                
+                # Add to archive if novel enough
+                novelty_archive.add_behavior(behavior)
+                
+                # Compute combined score
+                combined_score = strategy_selector.compute_combined_score(fitness, novelty, novelty_weight)
+                novelty_scored.append((combined_score, fitness, novelty, agent, breakdown, candidate, adversarial))
+            
+            # Sort by combined score
+            novelty_scored.sort(reverse=True, key=lambda x: x[0])
+            
+            # Use combined scoring for selection
+            survivor_count = max(2, int(pop_size * selection_pressure))
+            survivors = [item[3] for item in novelty_scored[:survivor_count]]  # agent is at index 3
+            population = [novelty_scored[0][3]]  # Best combined score
+        else:
+            # Original fitness-only selection
+            survivor_count = max(2, int(pop_size * selection_pressure))
+            survivors = [agent for _, agent, _, _, _ in scored[:survivor_count]]
+            population = [best_entry[1]]
 
         while len(population) < pop_size:
             parent_a, parent_b = random.sample(survivors, 2)
@@ -150,6 +212,16 @@ def evolve_details(
             "difficulty_end": round(adversary.difficulty, 4) if adversary else round(starting_difficulty, 4),
             "history": difficulty_history,
             "best_score": round(best_adversarial["score"], 4),
+        },
+        # NEW: Novelty search statistics
+        "novelty_search": {
+            "enabled": use_novelty_search,
+            "archive_stats": novelty_archive.get_stats() if use_novelty_search else {},
+            "strategy_stats": strategy_selector.get_stats() if use_novelty_search else {},
+            "avg_novelty": round(
+                sum(novelty_scores_history) / len(novelty_scores_history), 4
+            ) if novelty_scores_history else 0.0,
+            "strategies_used": strategies_used if use_novelty_search else [],
         },
     }
 

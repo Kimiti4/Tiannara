@@ -1,11 +1,13 @@
 from __future__ import annotations
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+
+from tiannara_api.security.auth_deps import require_auth
 from typing import Dict, Any
 
 from tiannara_core.modules.registry import ModuleRegistry
-from tiannara_api.schemas import ModuleToggleRequest
+from tiannara_api.models import ModuleToggleRequest
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_auth)])
 
 
 def get_registry() -> ModuleRegistry:

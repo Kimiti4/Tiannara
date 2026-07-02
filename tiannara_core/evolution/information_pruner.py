@@ -8,7 +8,19 @@ low-information paths early.
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 import numpy as np
-from scipy.stats import entropy
+try:
+    from scipy.stats import entropy
+    HAS_SCIPY_STATS = True
+except ImportError:
+    HAS_SCIPY_STATS = False
+    import math
+    
+    def entropy(pk, base=None):
+        """Fallback entropy calculation."""
+        if base is None:
+            base = math.e
+        pk = [float(p) for p in pk if p > 0]
+        return -sum(p * math.log(p) / math.log(base) for p in pk)
 from sklearn.feature_selection import mutual_info_regression
 import networkx as nx
 from enum import Enum
@@ -53,7 +65,7 @@ class InformationPruner:
     def prune_graph(self, 
                    ir: ExecutionIR, 
                    traces: List[List[TraceStep]],
-                   criterion: PruningCriterion = PruningCriterion.CASUAL_IRRELEVANCE) -> Tuple[ExecutionIR, List[PruningResult]]:
+                   criterion: PruningCriterion = PruningCriterion.CAUSAL_IRRELEVANCE) -> Tuple[ExecutionIR, List[PruningResult]]:
         """
         Prune an execution IR based on information-theoretic criteria.
         
@@ -67,7 +79,7 @@ class InformationPruner:
         """
         pruning_results = []
         
-        if criterion == PruningCriterion.CASUAL_IRRELEVANCE:
+        if criterion == PruningCriterion.CAUSAL_IRRELEVANCE:
             pruned_ir, results = self._prune_causal_irrelevance(ir, traces)
         elif criterion == PruningCriterion.INFORMATION_REDUNDANCY:
             pruned_ir, results = self._prune_information_redundancy(ir, traces)
@@ -101,7 +113,7 @@ class InformationPruner:
             PruningResult(
                 pruned_nodes=[node_id],
                 pruned_edges=[],
-                reason=PruningCriterion.CASUAL_IRRELEVANCE,
+                reason=PruningCriterion.CAUSAL_IRRELEVANCE,
                 information_retained=1.0,
                 confidence=min(causal_strengths[node_id] / self.min_causal_strength, 1.0)
             )
@@ -336,7 +348,7 @@ class InformationPruner:
             # Calculate which criterion to apply based on current state
             if len(current_ir.nodes) / original_node_count > 0.8:
                 # Early pruning - focus on causal irrelevance
-                criterion = PruningCriterion.CASUAL_IRRELEVANCE
+                criterion = PruningCriterion.CAUSAL_IRRELEVANCE
             elif len(current_ir.nodes) / original_node_count > 0.6:
                 # Mid pruning - focus on redundancy
                 criterion = PruningCriterion.INFORMATION_REDUNDANCY
@@ -351,7 +363,7 @@ class InformationPruner:
             if len(temp_ir.nodes) == len(current_ir.nodes):
                 # Cycle through other criteria
                 criteria = [
-                    PruningCriterion.CASUAL_IRRELEVANCE,
+                    PruningCriterion.CAUSAL_IRRELEVANCE,
                     PruningCriterion.INFORMATION_REDUNDANCY,
                     PruningCriterion.ENTROPY_THRESHOLD
                 ]
@@ -374,6 +386,50 @@ class InformationPruner:
             pruning_results.extend(results)
         
         return current_ir, pruning_results
+    
+    def save_checkpoint(self, checkpoint_dir: str = "checkpoints", episode: int = 0) -> str:
+        """
+        Save pruner state to checkpoint.
+        
+        Args:
+            checkpoint_dir: Directory to save checkpoints
+            episode: Current episode number (for filename)
+            
+        Returns:
+            Path to saved checkpoint file
+        """
+        import os
+        os.makedirs(checkpoint_dir, exist_ok=True)
+        
+        checkpoint_file = os.path.join(checkpoint_dir, f"pruner_ep{episode}.json")
+        
+        checkpoint = {
+            'entropy_threshold': self.entropy_threshold,
+            'min_causal_strength': self.min_causal_strength,
+            'redundancy_threshold': self.redundancy_threshold,
+            'episode': episode
+        }
+        
+        import json
+        with open(checkpoint_file, 'w') as f:
+            json.dump(checkpoint, f)
+        
+        return checkpoint_file
+    
+    def load_checkpoint(self, checkpoint_path: str) -> None:
+        """
+        Load pruner state from checkpoint.
+        
+        Args:
+            checkpoint_path: Path to checkpoint file
+        """
+        import json
+        with open(checkpoint_path, 'r') as f:
+            checkpoint = json.load(f)
+        
+        self.entropy_threshold = checkpoint.get('entropy_threshold', self.entropy_threshold)
+        self.min_causal_strength = checkpoint.get('min_causal_strength', self.min_causal_strength)
+        self.redundancy_threshold = checkpoint.get('redundancy_threshold', self.redundancy_threshold)
 
 
 class CausalDiscoveryEngine:
@@ -512,7 +568,7 @@ if __name__ == "__main__":
     
     # Perform different types of pruning
     print("\n--- Causal Irrelevance Pruning ---")
-    pruned_ir1, results1 = pruner.prune_graph(test_ir, test_traces, PruningCriterion.CASUAL_IRRELEVANCE)
+    pruned_ir1, results1 = pruner.prune_graph(test_ir, test_traces, PruningCriterion.CAUSAL_IRRELEVANCE)
     print(f"Pruned to {len(pruned_ir1.nodes)} nodes, {len(pruned_ir1.edges)} edges")
     print(f"Pruning results: {len(results1)} nodes pruned")
     

@@ -27,8 +27,6 @@ defmodule Tiannara.ASC.Crucible.Builder do
   """
 
   alias Tiannara.ASC.Interface.Genome
-  alias Tiannara.ASC.Implementation.Adapter.Elixir, as: ElixirAdapter
-  alias Tiannara.ASC.Observatory.ProjectObservatory
 
   @derive Jason.Encoder
   defstruct [
@@ -80,8 +78,8 @@ defmodule Tiannara.ASC.Crucible.Builder do
           compilation_warnings: non_neg_integer(),
           artifact_hash: String.t() | nil,
           build_attempt: non_neg_integer(),
-          started_at: DateTime.t() | nil,
-          completed_at: DateTime.t() | nil,
+          started_at: any(),
+          completed_at: any(),
           environment: map() | nil
         }
 

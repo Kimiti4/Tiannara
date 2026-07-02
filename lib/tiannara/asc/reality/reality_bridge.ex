@@ -49,7 +49,7 @@ defmodule Tiannara.ASC.Reality.RealityBridge do
     System.cmd("mix", ["deps.get"], cd: sandbox_dir)
     
     # Compile
-    {compile_out, compile_code} = System.cmd("mix", ["compile", "--force"], cd: sandbox_dir, stderr_to_stdout: true)
+    {compile_out, compile_code} = System.cmd("mix", ["compile"], cd: sandbox_dir, stderr_to_stdout: true)
     
     if compile_code != 0 do
       Logger.error("❌ [RealityBridge] Compilation failed in sandbox:\n#{compile_out}")

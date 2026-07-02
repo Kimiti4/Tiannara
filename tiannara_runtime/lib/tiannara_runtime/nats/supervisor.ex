@@ -1,6 +1,6 @@
 defmodule TiannaraRuntime.NATS.Supervisor do
   @moduledoc """
-  ARCHITECTURAL BREAKTHROUGH v20: NATS Bridge Supervisor
+  ARCHITECTURAL BREAKTHROUGH v21: Phase 2 NATS Bridge Supervisor
   
   Bridges Python simulation layer with Elixir runtime via NATS event bus.
   
@@ -13,8 +13,12 @@ defmodule TiannaraRuntime.NATS.Supervisor do
   - Python → Elixir: Ecological state updates, fitness scores, niche data
   - Elixir → Python: Identity actions, immune interventions, orchestration commands
   
-  This is critical for Phase 1 hybrid architecture where Python continues
-  handling GRCC v10 ML/simulation while Elixir manages cognitive runtime.
+  Module Structure:
+  - Connection: Manages persistent NATS connection with auto-reconnect
+  - Publisher: Sends events from Elixir to Python cortex
+  - Subscriber: Receives events from Python to Elixir runtime
+  
+  This is critical for Phase 2 closed-loop cognitive control system.
   """
   
   use Supervisor
@@ -27,7 +31,7 @@ defmodule TiannaraRuntime.NATS.Supervisor do
   def init(_opts) do
     children = [
       # NATS Connection Manager - maintains connection to NATS server
-      {TiannaraRuntime.NATS.ConnectionManager, []},
+      {TiannaraRuntime.NATS.Connection, []},
       
       # NATS Publisher - sends events from Elixir to Python
       {TiannaraRuntime.NATS.Publisher, []},

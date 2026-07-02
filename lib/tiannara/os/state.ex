@@ -22,6 +22,9 @@ defmodule TiannaraOS.State do
     dependency_history: [],
     capabilities: %{},             # LAYER 6.5D: Civilization Level Capability Graph
     
+    # PHASE 12.1: RESEARCH INSTITUTIONS ⭐ NEW
+    research_institutions: %{},    # %{atom() => TiannaraOS.ResearchInstitution.t()} - constitutional entities
+    
     # LAYER 6.5D: INSTITUTIONAL EVOLUTION ⭐ NEW
     program_graveyard: %{},        # Institutional memory (dead programs)
     species_registry: %{},         # Species tracking (SpeciationEngine)
@@ -53,6 +56,9 @@ defmodule TiannaraOS.State do
     governance: map(),
     dependency_history: [any()],
     capabilities: map(),
+    
+    # PHASE 12.1 FIELDS
+    research_institutions: %{atom() => TiannaraOS.ResearchInstitution.t()},
     
     # LAYER 6.5D FIELDS
     program_graveyard: %{atom() => map()},

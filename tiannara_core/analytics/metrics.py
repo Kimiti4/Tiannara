@@ -401,3 +401,37 @@ def cancel_task(task_id: str) -> bool:
     """Quick access function for cancelling tasks."""
     engine = get_analytics_engine()
     return engine.cancel_task(task_id)
+
+
+def build_metrics(history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Build metrics summary from evolution history.
+    
+    Args:
+        history: List of history entries from evolution runs
+        
+    Returns:
+        Dictionary with aggregated metrics (delta, improvements, etc.)
+    """
+    if not history:
+        return {"delta": 0.0, "improvements": 0, "total_steps": 0}
+    
+    # Calculate delta (change in score over time)
+    if len(history) >= 2:
+        first_score = history[0].get("score", 0.0)
+        last_score = history[-1].get("score", 0.0)
+        delta = last_score - first_score
+    else:
+        delta = 0.0
+    
+    # Count improvements
+    improvements = sum(
+        1 for i in range(1, len(history))
+        if history[i].get("score", 0) > history[i-1].get("score", 0)
+    )
+    
+    return {
+        "delta": round(delta, 4),
+        "improvements": improvements,
+        "total_steps": len(history),
+        "final_score": history[-1].get("score", 0.0) if history else 0.0,
+    }

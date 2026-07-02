@@ -285,7 +285,7 @@ class ECMGraphEngine:
             try:
                 centrality = nx.betweenness_centrality(self.graph)
                 causal_strengths[node] = centrality.get(node, 0.0)
-            except:
+            except Exception:
                 # If centrality calculation fails, use degree as proxy
                 causal_strengths[node] = self.graph.degree(node) / (len(self.graph) - 1) if len(self.graph) > 1 else 0.0
         

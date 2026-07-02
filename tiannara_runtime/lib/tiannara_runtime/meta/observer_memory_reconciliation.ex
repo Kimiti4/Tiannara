@@ -236,6 +236,19 @@ defmodule Tiannara.Meta.ObserverMemoryReconciliation do
   end
 
   @impl true
+  def handle_cast(:reset, state) do
+    :ets.delete_all_objects(@memory_store_table)
+    :ets.delete_all_objects(@reconciliation_cache_table)
+
+    {:noreply, %{
+      memory_index: %{},
+      total_ingested: 0,
+      total_reconciled: 0,
+      mode_counts: %{blended: 0, layered: 0, split: 0}
+    }}
+  end
+
+  @impl true
   def handle_cast({:ingest_memory, observer_id, memory_event}, state) do
     try do
       # Build OMSV with hydration from OCG/MSCL

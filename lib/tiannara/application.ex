@@ -18,7 +18,7 @@ defmodule Tiannara.Application do
       Tiannara.Telemetry,
 
       # Civilization Kernel (Top-level State Substrate)
-      TiannaraOS.CivilizationKernel,
+      Supervisor.child_spec({TiannaraOS.CivilizationKernel, [:tiannara_civilization, %{}]}, id: :civilization_kernel),
 
       # LEOC LatentVault
       Tiannara.LEOC.LatentVault,

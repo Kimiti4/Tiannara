@@ -289,7 +289,7 @@ defmodule Tiannara.ASC.Crucible.RepairReuseEngine do
       {:ok, result} ->
         IO.inspect("DEBUG: Repairer returned success=#{result.repair_successful?}, regression=#{result.regression_introduced?}", label: "REPAIR_ENGINE")
         result
-      {:error, error} ->
+      error ->
         IO.inspect("DEBUG: Repairer returned error: #{inspect(error)}", label: "REPAIR_ENGINE")
         nil
     end
@@ -391,7 +391,7 @@ defmodule Tiannara.ASC.Crucible.RepairReuseEngine do
             IO.puts("       💡 Transfer failed. Falling back to generate new repair.")
             generate_new_repair(failure_obs, artifact_path, project_id)
           end
-        {:error, _reason} ->
+        error ->
           # Fall back to generating new repair
           generate_new_repair(failure_obs, artifact_path, project_id)
       end

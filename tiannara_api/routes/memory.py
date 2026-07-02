@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
-router = APIRouter()
+from tiannara_api.security.auth_deps import require_auth
+
+router = APIRouter(dependencies=[Depends(require_auth)])
 
 
 @router.get("/memory/all")

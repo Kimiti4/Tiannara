@@ -3,6 +3,22 @@ __pycache__/
 *.pyo
 *.pyd
 .env
+.env.production
+.env.local
+token*.txt
+*.db
+erl_crash.dump
+pytest-cache-files-*/
+# Accidental path-mangled copies (use tiannara_core/, tiannara_saas/ instead)
+c?Users*/
+tiannara_corecognitive_domains/
+tiannara_coreevaluationtest_suites/
+tiannara_coresandbox/
+benchmarksreal_world_scenarios/
+testsintegrationcross_domain/
+monitoringgrafana/
+monitoringgrafanadashboards/
+monitoringgrafanaprovisioning/
 .venv/
 venv/
 node_modules
@@ -12,3 +28,15 @@ tiannara_mobile/
 tests/
 pytest_cache_files-*/
 *.txt
+*.log
+.gitdist/
+build/
+dist/
+
+# Technical documentation (exclude from git)
+SECURITY_AUDIT.md
+OPTIMIZATION_SUMMARY.md
+test_security_fixes.py
+node_modules
+node_modules
+node_modules

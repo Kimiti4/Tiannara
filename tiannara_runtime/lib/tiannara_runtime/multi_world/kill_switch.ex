@@ -81,7 +81,7 @@ defmodule TiannaraRuntime.MultiWorld.KillSwitch do
   """
   def request_termination(world_id, reason, severity \\ :critical) do
     GenServer.cast(__MODULE__, {:request_termination, world_id, reason, severity})
-    :request_accepted
+    :requested
   end
 
   @doc """
@@ -92,6 +92,17 @@ defmodule TiannaraRuntime.MultiWorld.KillSwitch do
   def emergency_kill(world_id, reason) do
     Logger.error("🚨 EMERGENCY KILL REQUESTED for #{world_id}: #{reason}")
     request_termination(world_id, reason, :emergency)
+  end
+
+  @doc """
+  Emergency shutdown from the unified KillSwitch.
+  
+  This routes the emergency path through the ExecutionController.
+  """
+  def emergency_shutdown(world_id, reason) do
+    Logger.error("🚨 EMERGENCY SHUTDOWN REQUESTED for #{world_id}: #{reason}")
+    ExecutionController.execute_emergency_shutdown(reason)
+    :initiated
   end
 
   @doc """

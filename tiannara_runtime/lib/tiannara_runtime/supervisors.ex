@@ -216,8 +216,6 @@ defmodule TiannaraRuntime.IdentityRegistry do
   Enables lookup by identity ID using Registry pattern.
   """
   
-  use Registry
-  
   def start_link(opts \\ []) do
     Registry.start_link(__MODULE__, keys: :unique, name: __MODULE__)
   end

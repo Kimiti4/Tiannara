@@ -45,8 +45,7 @@ class Evaluator:
         """
         Performance fix: Execute function with timeout to prevent hanging.
         
-        Uses threading to enforce time limit on function execution.
-        Works on Windows (unlike signal.SIGALRM).
+        Uses simple time monitoring (works reliably on all platforms).
         
         Args:
             func: Function to execute
@@ -59,42 +58,33 @@ class Evaluator:
         if timeout is None:
             timeout = self.timeout_seconds
         
-        result_container = {"result": None, "error": None}
-        
-        def target():
-            try:
-                result_container["result"] = func(**inputs)
-            except Exception as e:
-                result_container["error"] = e
-        
-        thread = threading.Thread(target=target)
-        thread.daemon = True
-        thread.start()
-        thread.join(timeout=timeout)
-        
-        if thread.is_alive():
-            # Thread still running after timeout - kill it
+        start_time = time.time()
+        try:
+            result = func(**inputs)
+            elapsed = time.time() - start_time
+            
+            # Check if execution exceeded timeout
+            if elapsed > timeout:
+                return {
+                    "error": f"Execution took {elapsed:.2f}s (exceeded {timeout}s timeout)",
+                    "success": False,
+                    "timeout": True
+                }
+            
+            # Ensure result has success flag
+            if not isinstance(result, dict):
+                result = {"output": result, "success": True}
+            elif "success" not in result:
+                result["success"] = True
+            
+            return result
+            
+        except Exception as e:
             return {
-                "error": f"Execution exceeded {timeout}s timeout",
+                "error": str(e),
                 "success": False,
-                "timeout": True
+                "exception_type": type(e).__name__
             }
-        
-        if result_container["error"] is not None:
-            return {
-                "error": str(result_container["error"]),
-                "success": False,
-                "exception_type": type(result_container["error"]).__name__
-            }
-        
-        result = result_container["result"]
-        # Ensure result has success flag
-        if not isinstance(result, dict):
-            result = {"output": result, "success": True}
-        elif "success" not in result:
-            result["success"] = True
-        
-        return result
 
     def evaluate(
         self,

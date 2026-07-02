@@ -16,7 +16,7 @@ defmodule Tiannara.Core.Causality do
       [] -> 
         {:ok, :valid}
       cycles ->
-        Logger.warn("Detected #{length(cycles)} causal cycles")
+        Logger.warning("Detected #{length(cycles)} causal cycles")
         {:error, {:cycles_detected, cycles}}
     end
   end
@@ -59,7 +59,7 @@ defmodule Tiannara.Core.Causality do
     if all_paradoxes == [] do
       {:ok, :no_paradoxes}
     else
-      Logger.warn("Detected #{length(all_paradoxes)} paradoxes")
+      Logger.warning("Detected #{length(all_paradoxes)} paradoxes")
       {:error, {:paradoxes_detected, all_paradoxes}}
     end
   end
@@ -67,33 +67,33 @@ defmodule Tiannara.Core.Causality do
   def detect_paradox(_causal_structure), do: {:error, :invalid_structure}
 
   # Private helper functions
-  defp detect_cycles(causal_graph) do
+  defp detect_cycles(_causal_graph) do
     # Implementation for cycle detection
     # This would typically involve graph traversal algorithms
     []
   end
 
-  defp detect_timeline_inconsistencies(timeline) do
+  defp detect_timeline_inconsistencies(_timeline) do
     # Implementation for timeline inconsistency detection
     []
   end
 
-  defp repair_inconsistencies(timeline, inconsistencies) do
+  defp repair_inconsistencies(_timeline, _inconsistencies) do
     # Implementation for timeline repair
-    timeline
+    []
   end
 
-  defp check_temporal_paradoxes(causal_structure) do
+  defp check_temporal_paradoxes(_causal_structure) do
     # Implementation for temporal paradox detection
     []
   end
 
-  defp check_causal_loops(causal_structure) do
+  defp check_causal_loops(_causal_structure) do
     # Implementation for causal loop detection
     []
   end
 
-  defp check_information_paradoxes(causal_structure) do
+  defp check_information_paradoxes(_causal_structure) do
     # Implementation for information paradox detection
     []
   end

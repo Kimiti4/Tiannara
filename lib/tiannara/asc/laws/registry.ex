@@ -67,6 +67,15 @@ defmodule Tiannara.ASC.Laws.Registry do
     GenServer.call(__MODULE__, :get_audit_log)
   end
 
+  # Phase 17 Stub
+  # TODO: Replace mocked active laws with real telemetry-backed laws
+  def get_all_active_laws do
+    [
+      %{id: "law_functional_core", status: :active},
+      %{id: "law_locality_of_behavior", status: :active}
+    ]
+  end
+
   @doc "Record evidence for or against a law. Promotes to KG if newly established."
   @spec record_evidence(String.t(), :confirms | :disconfirms, String.t()) :: {:ok, Law.t()} | {:error, :not_found}
   def record_evidence(law_id, verdict, project_id) do

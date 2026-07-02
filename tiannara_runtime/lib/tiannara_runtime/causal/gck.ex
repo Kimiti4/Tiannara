@@ -43,8 +43,8 @@ defmodule TiannaraRuntime.Causal.GCK do
   
       # Validate before creating observer
       case GCK.validate_observer_creation(observer_config) do
-        :approved -> create_observer(observer_config)
-        {:rejected, reason} -> Logger.error("Observer creation blocked: #{reason}")
+        :approved -> :ok  # create_observer(observer_config)
+        {:rejected, _reason} -> :error  # Logger.error("Observer creation blocked")
       end
       
       # Validate before world merge
@@ -139,6 +139,15 @@ defmodule TiannaraRuntime.Causal.GCK do
   end
 
   @doc """
+  Validates a causal graph change request.
+  
+  This is a compatibility wrapper for legacy API names.
+  """
+  def validate_causal_graph_change(graph_changes) do
+    validate_causal_modification(graph_changes)
+  end
+
+  @doc """
   Validates causal graph modification.
   
   Checks:
@@ -175,6 +184,16 @@ defmodule TiannaraRuntime.Causal.GCK do
     }
 
     {:ok, state}
+  end
+
+  @impl true
+  def handle_cast(:reset, state) do
+    {:noreply, %{state |
+      validation_log: [],
+      total_approved: 0,
+      total_rejected: 0,
+      rejection_reasons: %{}
+    }}
   end
 
   @impl true
@@ -298,39 +317,39 @@ defmodule TiannaraRuntime.Causal.GCK do
     []
   end
 
-  defp check_merge_creates_cycle(world_a_id, world_b_id) do
+  defp check_merge_creates_cycle(_world_a_id, _world_b_id) do
     # TODO: Implement cycle detection in merged causal graph
     # This would analyze causal dependencies between worlds
     # For now, assume no cycle
-    false
+    !!false
   end
 
-  defp check_memory_contradiction(memory_event) do
+  defp check_memory_contradiction(_memory_event) do
     # TODO: Implement memory contradiction detection
     # This would check against existing memory lineage
     # For now, assume no contradiction
-    false
+    !!false
   end
 
-  defp check_temporal_consistency(memory_event) in
+  defp check_temporal_consistency(_memory_event) do
     # TODO: Implement temporal consistency check
     # This would verify event timestamps respect causality
     # For now, assume consistent
-    false
+    !!false
   end
 
-  defp check_causal_cycle(changes) do
+  defp check_causal_cycle(_changes) do
     # TODO: Implement causal cycle detection
     # This would analyze the modified graph for cycles
     # For now, assume no cycle
-    false
+    !!false
   end
 
-  defp check_causal_depth(changes) do
+  defp check_causal_depth(_changes) do
     # TODO: Implement causal depth calculation
     # This would measure longest causal chain
     # For now, assume within limits
-    false
+    !!false
   end
 
   defp log_and_respond(state, operation_type, decision) do

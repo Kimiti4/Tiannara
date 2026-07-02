@@ -62,7 +62,7 @@ defmodule Tiannara.Core.Observer do
     end
   end
 
-  def upgrade_observer(observer, _tier), do: {:error, :invalid_parameters}
+  def upgrade_observer(_observer, _tier), do: {:error, :invalid_parameters}
 
   @doc """
   Query an observer with a specific query.
@@ -89,7 +89,7 @@ defmodule Tiannara.Core.Observer do
     {:ok, result, updated_observer}
   end
 
-  def query_observer(observer, _query), do: {:error, :invalid_query}
+  def query_observer(_observer, _query), do: {:error, :invalid_query}
 
   # Private helper functions
   defp generate_observer_id do

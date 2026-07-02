@@ -217,7 +217,7 @@ class MetaMutator:
             
             # Replace the first occurrence of this number
             return code.replace(str(number_to_scale), str(new_val), 1)
-        except:
+        except Exception:
             return code  # Return original if conversion fails
     
     def _swap_arguments(self, code: str) -> str:

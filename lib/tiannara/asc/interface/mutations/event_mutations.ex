@@ -292,10 +292,10 @@ defmodule Tiannara.ASC.Interface.Mutations.EventMutations do
           :event,
           old_event,
           new_event,
-          "Removed consumer: #{consumer}",
-          fitness_before,
-          fitness_after,
-          genome.generation
+          rationale: "Removed consumer: #{consumer}",
+          fitness_before: fitness_before,
+          fitness_after: fitness_after,
+          generation: genome.generation
         )
 
         {new_genome, mutation}

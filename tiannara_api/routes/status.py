@@ -1,6 +1,6 @@
 from __future__ import annotations
 from fastapi import APIRouter
-from tiannara_api.schemas import StatusResponse
+from tiannara_api.models import StatusResponse
 
 router = APIRouter()
 

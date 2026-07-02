@@ -59,7 +59,7 @@ defmodule TiannaraRuntime.Resources.QuotaGovernor do
   }
 
   @default_world_limits %{
-    memory_bytes: 100_000_000,         # 100 MB per world
+    memory_bytes: 10_000_000,          # 10 MB per world
     cpu_ms: 5_000,                     # 5 seconds CPU per tick
     observers: 50,                     # Observers per world
     event_rate: 1_000                  # Events per second per world
@@ -113,6 +113,20 @@ defmodule TiannaraRuntime.Resources.QuotaGovernor do
   """
   def check_observer_spawn_quota(world_id) do
     GenServer.call(__MODULE__, {:check_observer_quota, world_id})
+  end
+
+  @doc """
+  Checks a specific quota for a world or global resource.
+
+  Supported resource types:
+  - `:memory_usage`
+  - `:cpu_usage`
+  - `:observer_count`
+  - `:event_rate`
+  - `:world_count`
+  """
+  def check_quota(world_id, resource_type, amount) do
+    GenServer.call(__MODULE__, {:check_quota, world_id, resource_type, amount})
   end
 
   @doc """
@@ -231,6 +245,50 @@ defmodule TiannaraRuntime.Resources.QuotaGovernor do
   end
 
   @impl true
+  def handle_call({:check_quota, world_id, resource_type, amount}, _from, state) do
+    reply =
+      case resource_type do
+        :memory_usage ->
+          normalize_quota_reply(evaluate_world_quota(state, world_id, :memory_bytes, amount), state)
+
+        :cpu_usage ->
+          normalize_quota_reply(evaluate_world_quota(state, world_id, :cpu_ms, amount), state)
+
+        :observer_count ->
+          normalize_quota_reply(evaluate_world_quota(state, world_id, :observers, amount), state)
+
+        :event_rate ->
+          normalize_quota_reply(evaluate_world_quota(state, world_id, :event_rate, amount), state)
+
+        :world_count ->
+          decision = evaluate_quota_decision(state.current_usage.worlds + amount, state.global_limits.max_worlds, :worlds)
+          {:reply, normalize_quota_decision(decision), state}
+
+        _ ->
+          {:reply, {:error, :unsupported_resource}, state}
+      end
+
+    reply
+  end
+
+  defp normalize_quota_reply({:reply, decision, state}, _state), do: {:reply, normalize_quota_decision(decision), state}
+  defp normalize_quota_reply(other, _state), do: other
+
+  defp normalize_quota_decision(:denied), do: :deny
+  defp normalize_quota_decision(other), do: other
+
+  defp evaluate_world_quota(state, world_id, key, amount) do
+    world_limits = Map.get(state.world_limits, world_id, @default_world_limits)
+    world_usage = Map.get(state.world_usage, world_id, default_world_usage())
+
+    current = Map.get(world_usage, key, 0)
+    max_limit = Map.get(world_limits, key, 0)
+    decision = evaluate_quota_decision(current + amount, max_limit, key)
+
+    {:reply, decision, state}
+  end
+
+  @impl true
   def handle_call(:get_usage_stats, _from, state) do
     stats = %{
       global_limits: state.global_limits,
@@ -301,6 +359,23 @@ defmodule TiannaraRuntime.Resources.QuotaGovernor do
     Logger.info("Updated limits for #{world_id}: #{inspect(merged_limits)}")
 
     {:noreply, %{state | world_limits: new_limits}}
+  end
+
+  @impl true
+  def handle_cast(:reset, state) do
+    {:noreply, %{state |
+      world_limits: %{},
+      current_usage: %{
+        memory_bytes: 0,
+        cpu_ms: 0,
+        observers: 0,
+        worlds: 0,
+        event_rate: 0
+      },
+      world_usage: %{},
+      throttle_flags: MapSet.new(),
+      violation_log: []
+    }}
   end
 
   @impl true

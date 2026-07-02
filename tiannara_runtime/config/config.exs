@@ -3,7 +3,11 @@ import Config
 # General application configuration
 config :tiannara_runtime,
   namespace: TiannaraRuntime,
-  version: "0.1.0"
+  version: "0.1.0",
+  boot_profile: :stable,
+  enable_nde: false,
+  enable_twp: false,
+  enable_osl: false
 
 # NATS connection configuration
 config :tiannara_runtime, TiannaraRuntime.NATS.ConnectionManager,
@@ -39,6 +43,8 @@ config :tiannara_runtime, TiannaraRuntimeWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: TiannaraRuntimeWeb.ErrorView, accepts: ~w(json)],
   pubsub_server: TiannaraRuntime.PubSub
+
+import_config "opc.ex"
 
 # Import environment specific config. Expected structure:
 #

@@ -112,7 +112,7 @@ defmodule Tiannara.ROS.EvolutionEngine do
     {:ok, child_a_id, child_b_id}
     else
       err ->
-        Logger.warn("❌ [Evolution] #{parent_civ_id} failed fission: #{inspect(err)}")
+        Logger.warning("❌ [Evolution] #{parent_civ_id} failed fission: #{inspect(err)}")
         err
     end
   end
@@ -150,7 +150,7 @@ defmodule Tiannara.ROS.EvolutionEngine do
     {:ok, continuity, migrated_id}
     else
       err ->
-        Logger.warn("❌ [Evolution] #{civ_id} failed migration: #{inspect(err)}")
+        Logger.warning("❌ [Evolution] #{civ_id} failed migration: #{inspect(err)}")
         err
     end
   end
@@ -184,7 +184,7 @@ defmodule Tiannara.ROS.EvolutionEngine do
           :stable
         end
       err ->
-        Logger.warn("⚠️ [Evolution] #{civ_id} lacks attention to evaluate speciation.")
+        Logger.warning("⚠️ [Evolution] #{civ_id} lacks attention to evaluate speciation.")
         err
     end
   end

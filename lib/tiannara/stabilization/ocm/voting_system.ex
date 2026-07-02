@@ -162,7 +162,7 @@ defmodule Tiannara.Stabilization.OCM.VotingSystem do
   @impl true
   def handle_call({:calculate_concept_consensus, session_id, concept_id}, _from, state) do
     case :ets.lookup(:session_votes, session_id) do
-      votes when length(votes) > 0 ->
+      votes when votes != [] ->
         # Filter votes for specific concept
         concept_votes = Enum.filter(votes, fn {_, vote_data} -> 
           vote_data.concept_id == concept_id
@@ -294,7 +294,7 @@ defmodule Tiannara.Stabilization.OCM.VotingSystem do
     case :ets.lookup(:voter_registry, voter_id) do
       [{^voter_id, %{session_id: ^session_id, status: :registered}}] -> :ok
       [{^voter_id, %{status: :banned}}] -> {:error, :voter_banned}
-      [{^voter_id, %{session_id: other_session}}] -> {:error, :wrong_session}
+      [{^voter_id, %{session_id: _other_session}}] -> {:error, :wrong_session}
       [] -> {:error, :voter_not_registered}
     end
   end
@@ -312,7 +312,7 @@ defmodule Tiannara.Stabilization.OCM.VotingSystem do
     end
   end
 
-  defp update_voter_registry(voter_id, session_id, timestamp) do
+  defp update_voter_registry(voter_id, _session_id, timestamp) do
     case :ets.lookup(:voter_registry, voter_id) do
       [{^voter_id, registry_data}] ->
         updated_data = %{registry_data | 

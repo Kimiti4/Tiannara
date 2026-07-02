@@ -1,20 +1,41 @@
-defmodule Tiannara.Ctl.BranchReconciliation do
+defmodule Tiannara.CTL.BranchReconciliation do
   @moduledoc """
-  Module for reconciling divergent branches in the causal tensegrity lattice.
+  Safely merges branches if causal stress is acceptable.
   """
+  require Logger
+  alias Tiannara.CTL.CausalStressTensor
+  alias Tiannara.CTL.ParadoxResolver
+  alias Tiannara.CTL.HistoryIsolation
+  alias Tiannara.CTL.CausalIntegrityPipeline
 
-  @telemetry_prefix "tiannara.ctl.branch_reconciliation"
-
-  @spec reconcile_branches(map()) :: {:ok, term()} | {:error, term()}
-  def reconcile_branches(branch_data) do
-    # Implementation would go here
-    # This is a placeholder
-    {:ok, :reconciled}
+  def attempt_merge(branch_id, branch_h, base_h) do
+    # 1. Pipeline Validation
+    case CausalIntegrityPipeline.validate_for_merge(branch_h, base_h) do
+      {:ok, :approved} ->
+        # 2. Stress Tensor
+        case CausalStressTensor.evaluate_stress(branch_h, base_h) do
+          {:ok, _stress} ->
+            execute_merge(branch_id)
+            
+          {:error, :stress_exceeded, _stress} ->
+            # 3. Paradox Resolver
+            case ParadoxResolver.resolve(branch_h, base_h) do
+              {:ok, :resolved} ->
+                execute_merge(branch_id)
+              {:error, _reason} ->
+                HistoryIsolation.isolate(branch_id)
+            end
+        end
+        
+      {:error, reason} ->
+        Logger.error("🚫 [CTL] Merge Rejected by Integrity Pipeline: #{reason}")
+        HistoryIsolation.isolate(branch_id)
+    end
   end
-
-  @spec log_reconciliation(term()) :: :ok
-  def log_reconciliation(log) do
-    # Log the reconciliation
-    :ok
+  
+  defp execute_merge(branch_id) do
+    Logger.info("🔗 [CTL] Merging Branch #{branch_id} into Reality Graph...")
+    Tiannara.Metrics.Aggregator.push_event([:tiannara, :ctl, :reconciliation_success], 1)
+    {:ok, :merged}
   end
 end

@@ -34,6 +34,22 @@ class ExecutionPlan:
     fallback_instructions: str
 
 
+class FallbackPlanner:
+    """Fallback planner that provides deterministic planning when LLM is unavailable."""
+    
+    def plan(self, intent: str, context: Optional[Dict[str, Any]] = None) -> Optional[ExecutionPlan]:
+        """Create a deterministic plan from intent.
+        
+        Args:
+            intent: User intent description
+            context: Optional context data
+            
+        Returns:
+            ExecutionPlan or None if planning fails
+        """
+        return deterministic_plan(intent, context)
+
+
 def deterministic_plan(intent: str, context: Optional[Dict[str, Any]] = None) -> Optional[ExecutionPlan]:
     """
     Create a deterministic plan based on intent keywords.

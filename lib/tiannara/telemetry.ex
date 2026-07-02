@@ -52,7 +52,7 @@ defmodule Tiannara.Telemetry.CompilationHandler do
     {:ok, %{}}
   end
 
-  defp handle_event([:tiannara, :compilation, :start], measurements, metadata, _config) do
+  defp handle_event([:tiannara, :compilation, :start], _measurements, metadata, _config) do
     Logger.debug("Compilation started: #{metadata.compilation_type}")
     :ok
   end
@@ -63,7 +63,7 @@ defmodule Tiannara.Telemetry.CompilationHandler do
     :ok
   end
 
-  defp handle_event([:tiannara, :compilation, :exception], measurements, metadata, _config) do
+  defp handle_event([:tiannara, :compilation, :exception], _measurements, metadata, _config) do
     Logger.error("Compilation failed: #{metadata.compilation_type}, reason: #{metadata.exception}")
     :ok
   end

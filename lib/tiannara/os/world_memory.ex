@@ -66,19 +66,19 @@ defmodule TiannaraOS.WorldMemory do
       recurring_bottlenecks = detect_recurring_bottlenecks(world, world_graveyard)
       
       # Merge with any real-time discovery data accumulated this period
-      existing_memory = world.memory || %{successful_domains: %{}, failed_domains: %{}, recurring_bottlenecks: [], adaptation_history: [], last_updated_tick: 0}
-
+      existing_memory = world.memory || %{}
+      
       updated_memory = %{
         successful_domains: merge_counts(
-          merge_counts(existing_memory.successful_domains || %{}, successful_domains),
+          merge_counts(Map.get(existing_memory, :successful_domains, %{}), successful_domains),
           Map.get(existing_memory, :realtime_successes, %{})
         ),
         failed_domains: merge_counts(
-          existing_memory.failed_domains || %{},
+          Map.get(existing_memory, :failed_domains, %{}),
           failed_domains
         ),
         recurring_bottlenecks: recurring_bottlenecks,
-        adaptation_history: add_adaptation_event(existing_memory.adaptation_history || [], state.economy.tick),
+        adaptation_history: add_adaptation_event(Map.get(existing_memory, :adaptation_history, []), state.economy.tick),
         last_updated_tick: state.economy.tick,
         realtime_successes: %{}  # Reset after batch incorporation
       }
@@ -159,8 +159,9 @@ defmodule TiannaraOS.WorldMemory do
   """
   @spec bias_genome_toward_success(map(), map()) :: map()
   def bias_genome_toward_success(base_genome, world_memory) do
-    successful_domains = world_memory.successful_domains || %{}
-    realtime_successes = Map.get(world_memory, :realtime_successes, %{})
+    memory = world_memory || %{}
+    successful_domains = Map.get(memory, :successful_domains, %{})
+    realtime_successes = Map.get(memory, :realtime_successes, %{})
     
     # Merge batch and realtime domain scores
     all_successes = merge_counts(successful_domains, realtime_successes)
@@ -198,7 +199,7 @@ defmodule TiannaraOS.WorldMemory do
   """
   @spec stuck_in_bottleneck?(map(), list()) :: boolean()
   def stuck_in_bottleneck?(world, graveyard) do
-    recurring = world.memory.recurring_bottlenecks || []
+    recurring = Map.get(world.memory || %{}, :recurring_bottlenecks, [])
     
     # If same bottleneck persists across multiple memory updates
     length(recurring) > @min_memory_updates
@@ -219,8 +220,9 @@ defmodule TiannaraOS.WorldMemory do
   """
   @spec get_domain_performance(map()) :: map()
   def get_domain_performance(world_memory) do
-    successful = world_memory.successful_domains || %{}
-    failed = world_memory.failed_domains || %{}
+    memory = world_memory || %{}
+    successful = Map.get(memory, :successful_domains, %{})
+    failed = Map.get(memory, :failed_domains, %{})
     
     all_domains = Map.keys(successful) ++ Map.keys(failed)
     |> Enum.uniq()
@@ -251,13 +253,14 @@ defmodule TiannaraOS.WorldMemory do
   """
   @spec summarize_world_memory(map()) :: String.t()
   def summarize_world_memory(world_memory) do
-    successful = world_memory.successful_domains || %{}
-    failed = world_memory.failed_domains || %{}
-    recurring = world_memory.recurring_bottlenecks || []
+    memory = world_memory || %{}
+    successful = Map.get(memory, :successful_domains, %{})
+    failed = Map.get(memory, :failed_domains, %{})
+    recurring = Map.get(memory, :recurring_bottlenecks, [])
     
     lines = [
       "=== World Memory Summary ===",
-      "Last updated: tick #{world_memory.last_updated_tick}",
+      "Last updated: tick #{Map.get(memory, :last_updated_tick, 0)}",
       "",
       "Successful Domains:",
       format_domain_counts(successful),
@@ -268,7 +271,7 @@ defmodule TiannaraOS.WorldMemory do
       "Recurring Bottlenecks (#{length(recurring)}):",
       format_bottlenecks(recurring),
       "",
-      "Adaptation Events: #{length(world_memory.adaptation_history || [])}"
+      "Adaptation Events: #{length(Map.get(memory, :adaptation_history, []))}"
     ]
     
     Enum.join(lines, "\n")

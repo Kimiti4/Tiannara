@@ -429,3 +429,25 @@ The system has strong foundations (OCG, OMRL, MCK) but critical gaps in:
 **Audit Completed:** 2026-05-20  
 **Next Review:** After P0 items completed  
 **Owner:** Tiannara Architecture Team
+16 Missing Modules (67% of required stack):
+Layer 0: ResourceQuota, MemoryManager, EventBus, Stream.Router
+Layer 1: SafetyCortex, ThreatClassifier
+Layer 2: GraphEngine, DepthEngine, GCK, ChimericCollapse
+Layer 3: Observer.Registry, Runtime, BiasEngine, CollisionMatrix, HorizonShunt
+Layer 4: CausalStore, LineageCompression, Snapshot
+Layer 5: ArbitrationBus
+🔴 5 Critical Vulnerabilities:
+KillSwitch bypasses CIS Supervisor (partially fixed)
+Duplicate KillSwitch implementations (redundancy)
+No resource quota enforcement (memory/CPU exhaustion risk)
+Missing GCK validation gate (paradox injection possible)
+No memory lineage compression (exponential growth risk)
+⚠️ 3 Redundancies:
+Dual KillSwitch modules (HardenedKillSwitch + KillSwitchCausal)
+Fragmented NATS abstractions (7 different modules)
+Multiple world registry variants
+⚠️ 4 Instabilities:
+Application startup dependencies (missing modules in application.ex)
+Test configuration fragility (requires --no-start flag)
+ETS table management (no centralized lifecycle)
+Logger deprecation warnings (~150 compilation warnings)

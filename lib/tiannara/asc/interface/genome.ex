@@ -288,7 +288,7 @@ defmodule Tiannara.ASC.Interface.Genome do
         name: entity,
         fields: [
           %{name: "id", type: "string", primary_key: true},
-          %{name: "created_at", type: "datetime"}
+          %{name: "created_at", type: :datetime}
         ],
         version: "v1"
       }

@@ -33,6 +33,7 @@ defmodule TiannaraOS.WorldTemplate do
   @spec templates() :: [t()]
   def templates do
     [
+      standard_template(),
       cybersecurity_template(),
       robotics_template(),
       mathematics_template()
@@ -40,6 +41,25 @@ defmodule TiannaraOS.WorldTemplate do
   end
 
   # --- TEMPLATE DEFINITIONS ---
+
+  defp standard_template do
+    %__MODULE__{
+      id: :standard,
+      name: "Standard Research Ecosystem",
+      labs: [
+        %{id: :discovery_lab, name: "Discovery Lab"},
+        %{id: :analysis_lab_std, name: "Analysis Lab"},
+        %{id: :synthesis_lab, name: "Synthesis Lab"},
+        %{id: :validation_lab, name: "Validation Lab"}
+      ],
+      goals: [
+        %{id: :knowledge_growth, description: "Grow the civilization's knowledge base through repeated discovery cycles."},
+        %{id: :capability_depth, description: "Develop deep capability lineages through iterative mutation and synthesis."}
+      ],
+      evidence_types: [:experiment_result, :model_output, :peer_review, :synthesis_report],
+      allowed_tools: [:analyzer, :simulator, :synthesizer, :validator]
+    }
+  end
 
   defp cybersecurity_template do
     %__MODULE__{

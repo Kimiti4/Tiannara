@@ -17,8 +17,13 @@ defmodule Tiannara.Meta.ObserverMemoryReconciliationTest do
   alias Tiannara.Meta.ObserverMemoryReconciliation, as: OMRL
 
   setup do
-    # Start OMRL for each test
-    {:ok, pid} = OMRL.start_link([])
+    pid =
+      case OMRL.start_link([]) do
+        {:ok, pid} -> pid
+        {:error, {:already_started, pid}} ->
+          GenServer.cast(OMRL, :reset)
+          pid
+      end
     %{pid: pid}
   end
 

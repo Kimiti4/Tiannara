@@ -230,7 +230,7 @@ class CausalMemory:
         # Calculate centrality as a measure of importance
         try:
             centrality = nx.betweenness_centrality(self.graph)
-        except:
+        except Exception:
             # If betweenness fails, use degree centrality
             centrality = {node: self.graph.degree(node) / (len(self.graph) - 1) 
                          if len(self.graph) > 1 else 0.0 

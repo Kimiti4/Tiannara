@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
-from tiannara_api.schemas import AutonomousCycleRequest
+from tiannara_api.models import AutonomousCycleRequest
+from tiannara_api.security.auth_deps import require_auth
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_auth)])
 
 
 def _run(req: AutonomousCycleRequest):

@@ -1,47 +1,53 @@
-defmodule Tiannara.Ocm.ConsensusMesh do
+defmodule Tiannara.OCM.ConsensusMesh do
   @moduledoc """
-  Consensus mesh for coordinating ontology alignment across distributed nodes.
-  This module manages the distributed consensus process for semantic coherence.
+  The coordination engine for the Ontology Consensus Mesh.
   """
+  require Logger
+  alias Tiannara.OCM.SemanticDriftAnalyzer
+  alias Tiannara.OCM.TranslationPipeline
+  alias Tiannara.OCM.SemanticLineageTracker
 
-  @telemetry_prefix "tiannara.ocm.consensus_mesh"
-
-  @spec propose_alignment(map(), map()) :: {:ok, term()} | {:error, term()}
-  def propose_alignment(node_a, node_b) do
-    # Get embeddings from both nodes
-    {:ok, embedding_a} = EmbeddingPublisher.get_embedding(node_a.id)
-    {:ok, embedding_b} = EmbeddingPublisher.get_embedding(node_b.id)
+  def publish_and_evaluate(civilization, concept, definition) do
+    # 1. Track Lineage
+    SemanticLineageTracker.record_ancestry(civilization, concept, definition)
     
-    # Calculate drift
-    {:ok, drift} = SemanticDriftAnalyzer.calculate_drift(embedding_a.embedding, embedding_b.embedding)
-    
-    # Determine action based on drift
-    action = SemanticDriftAnalyzer.classify_drift(drift)
-    
-    case action do
-      :aligned -> {:ok, :aligned}
-      :translate -> TranslationPipeline.translate(node_a, node_b)
-      :quarantine -> quarantine_node(node_a.id)
-      :reconcile -> reconcile_nodes(node_a.id, node_b.id)
+    # 2. Check for Malicious Semantic Injection (Test 7)
+    if is_poisoned?(definition) do
+      Logger.warning("☣️ [OCM] Semantic Poison Detected! Rejecting malicious ontology.")
+      Tiannara.Metrics.Aggregator.push_event([:tiannara, :ocm, :semantic_intrusion_rate], 1)
+      {:error, :rejected_poisoned}
+    else
+      # 3. Calculate Drift vs Consensus
+      drift = SemanticDriftAnalyzer.calculate_drift(concept, definition)
+      Tiannara.Metrics.Aggregator.push_event([:tiannara, :ocm, :semantic_drift], drift)
+      
+      if drift > 0.8 do
+        # 4. Trigger Translation
+        case TranslationPipeline.attempt_translation(concept, definition) do
+          {:ok, _translated} -> 
+            {:ok, :translated}
+          {:error, :irreconcilable} ->
+            Logger.error("🚫 [OCM] Translation Failed. Quarantining ontology.")
+            Tiannara.Metrics.Aggregator.push_event([:tiannara, :ocm, :ontology_quarantined], 1)
+            {:error, :quarantined}
+        end
+      else
+        {:ok, :consensus_reached}
+      end
     end
   end
-
-  @spec quarantine_node(String.t()) :: {:ok, term()} | {:error, term()}
-  def quarantine_node(node_id) do
-    # Log quarantine action
-    :telemetry.execute([:tiannara, :ocm, :quarantine], %{node_id: node_id}, %{})
-    {:ok, :quarantined}
+  
+  def evaluate_monoculture(ontologies) do
+    # Test 12: Ensure bounded diversity
+    diversity = length(Enum.uniq(ontologies)) / max(1, length(ontologies))
+    Tiannara.Metrics.Aggregator.push_event([:tiannara, :ocm, :ontology_diversity], diversity)
+    
+    if diversity < 0.1 do
+      Logger.warning("⚠️ [OCM] Semantic Monoculture Detected!")
+    end
   end
-
-  @spec reconcile_nodes(String.t(), String.t()) :: {:ok, term()} | {:error, term()}
-  def reconcile_nodes(node_a_id, node_b_id) do
-    # Trigger reconciliation workflow
-    :telemetry.execute([:tiannara, :ocm, :reconcile], %{node_a_id: node_a_id, node_b_id: node_b_id}, %{})
-    {:ok, :reconciled}
-  end
-
-  @spec emit_telemetry(map()) :: :ok
-  def emit_telemetry(metadata) do
-    :telemetry.execute([:tiannara, :ocm, :consensus], %{}, metadata)
+  
+  defp is_poisoned?(definition) do
+    Map.get(definition, :adversarial, false)
   end
 end

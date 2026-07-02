@@ -162,18 +162,18 @@ defmodule Tiannara.Topology.RRG do
         # Check policy limit
         if state.total_policies >= state.config.max_policies do
           {:reply, {:error, :policy_limit_exceeded}, state}
+        else
+          # Create policy
+          policy_data = create_governance_policy(policy_id, rules, opts)
+          :ets.insert(:governance_policies, {policy_id, policy_data})
+          
+          Logger.info("Defined governance policy #{policy_id}")
+          
+          {:reply, :ok, 
+           %{state | 
+             total_policies: state.total_policies + 1
+           }}
         end
-        
-        # Create policy
-        policy_data = create_governance_policy(policy_id, rules, opts)
-        :ets.insert(:governance_policies, {policy_id, policy_data})
-        
-        Logger.info("Defined governance policy #{policy_id}")
-        
-        {:reply, :ok, 
-         %{state | 
-           total_policies: state.total_policies + 1
-         }}
         
       {:error, reason} ->
         Logger.error("Invalid governance policy: #{reason}")
@@ -697,7 +697,7 @@ defmodule Tiannara.Topology.RRG do
     }
   end
 
-  defp generate_enforcement_actions(policy_id, policy_data, violations) do
+  defp generate_enforcement_actions(policy_id, _policy_data, violations) do
     actions = []
     
     # Reduce rate limits if too many violations
@@ -786,14 +786,14 @@ defmodule Tiannara.Topology.RRG do
     # Add recommendations based on violation patterns
     case violation_analysis.by_severity do
       %{critical: count} when count > 0 ->
-        recommendations = recommendations ++ ["Critical violations detected - consider system-wide rate limit adjustments"]
+        _recommendations = recommendations ++ ["Critical violations detected - consider system-wide rate limit adjustments"]
       _ ->
         :ok
     end
     
     case violation_analysis.by_resource do
       %{res_id: res_id, count: count} when count > 10 ->
-        recommendations = recommendations ++ ["High violation rate on resource #{res_id} - consider additional rate limiting"]
+        _recommendations = recommendations ++ ["High violation rate on resource #{res_id} - consider additional rate limiting"]
       _ ->
         :ok
     end

@@ -3,3 +3,52 @@ fastapi
 uvicorn[standard]
 python-multipart
 numpy
+
+# Model quantization and edge deployment
+onnx>=1.14.0
+onnxruntime>=1.16.0
+onnxconverter-common>=1.13.0
+
+# Causal discovery and inference
+dowhy>=0.9.0
+tigramite>=5.2.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+
+# EU AI Act Compliance (privacy & anonymization)
+diffprivlib>=0.6.0
+faker>=20.0.0
+
+# Payment processing
+stripe>=7.5.0
+requests>=2.31.0  # For Lemon Squeezy API
+python-dotenv>=1.0.0
+
+# Production deployment
+gunicorn>=21.2.0
+
+# Gateway infrastructure (Phase A)
+redis>=5.0.0
+celery>=5.3.0
+psycopg2-binary>=2.9.0  # PostgreSQL adapter
+python-jose[cryptography]>=3.3.0  # JWT
+passlib[bcrypt]>=1.7.4  # Password hashing
+SQLAlchemy>=2.0.0  # ORM
+httpx>=0.25.0  # HTTP client for email API
+email-validator>=2.1.0  # Email validation
+
+# Web Data Fetcher & Vision Domain
+beautifulsoup4>=4.12.0  # HTML parsing
+feedparser>=6.0.0  # RSS feed parsing
+Pillow>=10.0.0  # Image processing
+scikit-learn>=1.3.0  # ML utilities (color clustering)
+playwright>=1.40.0  # JavaScript rendering
+openai>=1.3.0  # GPT-4V integration
+pytesseract>=0.3.10  # Tesseract OCR wrapper
+easyocr>=1.7.0  # EasyOCR (80+ languages)
+langdetect>=1.0.9  # Language detection for OCR
+# Optional: transformers>=4.35.0  # For local CLIP model
+# Optional: torch>=2.1.0  # For local CLIP model
+# Optional: ultralytics>=8.0.0  # For local YOLO detection
+# Optional: google-cloud-vision>=3.4.0  # Google Cloud Vision API
+# Optional: boto3>=1.28.0  # AWS Textract API

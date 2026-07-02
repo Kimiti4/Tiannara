@@ -11,7 +11,21 @@ import numpy as np
 from enum import Enum
 import random
 import networkx as nx
-from scipy.special import softmax
+try:
+    from scipy.special import softmax
+    HAS_SCIPY = True
+except ImportError:
+    HAS_SCIPY = False
+    import math
+    
+    def softmax(x):
+        """Fallback softmax implementation."""
+        if isinstance(x, list):
+            x = [float(v) for v in x]
+        max_x = max(x) if isinstance(x, (list, tuple)) else x
+        exp_x = [math.exp(v - max_x) for v in x] if isinstance(x, (list, tuple)) else [math.exp(x - max_x)]
+        sum_exp = sum(exp_x)
+        return [e / sum_exp for e in exp_x]
 from ..evolution.ir_representation import ExecutionIR, IRNode, IRNodeType
 from ..evolution.trace_sandbox import TraceSandbox, TraceEmbedder
 from ..evolution.graph_mutators import GraphMutator
