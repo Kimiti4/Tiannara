@@ -1,0 +1,227 @@
+# Phase 14 RC3 — Cross-Platform Constitutional Verification
+#
+# Runs the evidence package generator on Linux AND macOS, extracts
+# certificate hashes (stripping timestamp nondeterminism), and fails
+# the job if the hashes diverge.
+#
+# Triggers: every push to any branch, every pull request.
+# Repo: https://github.com/Kimiti4/Tiannara
+
+name: Cross-Platform Verification
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  # Allow manual re-run from the Actions tab
+  workflow_dispatch:
+
+# ─────────────────────────────────────────────────────────────
+# Shared Elixir / OTP version (single source of truth)
+# ─────────────────────────────────────────────────────────────
+env:
+  ELIXIR_VERSION: "1.18"
+  OTP_VERSION:    "27"
+  # Timestamp override — makes DateTime.utc_now() calls in the
+  # evidence generator produce the same epoch value on every run,
+  # eliminating timestamp nondeterminism across platforms.
+  TIANNARA_DETERMINISTIC_TIMESTAMP: "2026-01-01T00:00:00Z"
+
+# ─────────────────────────────────────────────────────────────
+# JOB 1 — Run verification on each platform in parallel
+# ─────────────────────────────────────────────────────────────
+jobs:
+  verify:
+    name: Verify — ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false        # Let both platforms finish even if one fails
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Set up Elixir / Erlang ────────────────────────────
+      - name: Set up Elixir ${{ env.ELIXIR_VERSION }} / OTP ${{ env.OTP_VERSION }}
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version:    ${{ env.OTP_VERSION }}
+
+      # ── 3. Restore Mix dependency cache ──────────────────────
+      - name: Restore Mix dependency cache
+        uses: actions/cache@v4
+        id: mix-cache
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-
+
+      # ── 4. Install Mix dependencies ───────────────────────────
+      - name: Install Mix dependencies
+        if: steps.mix-cache.outputs.cache-hit != 'true'
+        run: mix deps.get
+
+      # ── 5. Compile (fail fast on warnings-as-errors) ──────────
+      - name: Compile project
+        run: mix compile --warnings-as-errors
+
+      # ── 6. Generate Phase 14 evidence package ─────────────────
+      - name: Generate Phase 14 evidence package
+        run: mix run generate_phase14_evidence_package.exs
+        env:
+          TIANNARA_DETERMINISTIC_TIMESTAMP: ${{ env.TIANNARA_DETERMINISTIC_TIMESTAMP }}
+
+      # ── 7. Compute canonical file hash ────────────────────────
+      #    Sort JSON keys (eliminates insertion-order differences)
+      #    and drop known-nondeterministic timestamp fields before
+      #    hashing so the comparison is purely about correctness.
+      - name: Compute canonical certificate hash
+        id: file-hash
+        shell: bash
+        run: |
+          CANONICAL=$(python3 -c "
+          import json, hashlib
+          with open('phase14/certification/certificate.json') as f:
+              data = json.load(f)
+          # Remove legitimately non-deterministic fields
+          for key in ('generated_at', 'timestamp', 'verified_at',
+                      'issued_at', 'expires_at'):
+              data.pop(key, None)
+          canonical = json.dumps(data, sort_keys=True, separators=(',', ':'))
+          print(hashlib.sha256(canonical.encode()).hexdigest())
+          ")
+          echo "canonical=$CANONICAL" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Canonical Hash (${{ runner.os }})::$CANONICAL"
+
+      # ── 8. Save hash for the compare job ─────────────────────
+      - name: Save hash artifact
+        shell: bash
+        run: |
+          mkdir -p ci-hashes
+          echo "${{ steps.file-hash.outputs.canonical }}" > ci-hashes/${{ runner.os }}.hash
+          echo "Platform : ${{ runner.os }}"
+          echo "Canonical: ${{ steps.file-hash.outputs.canonical }}"
+
+      - name: Upload hash artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cert-hash-${{ runner.os }}
+          path: ci-hashes/${{ runner.os }}.hash
+          retention-days: 30
+
+      # ── 9. Upload full evidence package for inspection ────────
+      - name: Upload evidence package
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase14-evidence-${{ runner.os }}-${{ github.sha }}
+          path: phase14/certification/
+          retention-days: 30
+
+      # ── 10. Run archaeological reconstruction (smoke test) ────
+      - name: Run archaeological reconstruction
+        run: mix run run_archaeological_reconstruction.exs
+
+      # ── 11. Run mutation testing ──────────────────────────────
+      - name: Run mutation testing
+        run: mix run run_mutation_testing.exs
+
+      # ── 12. Run independent audit ─────────────────────────────
+      - name: Run independent audit
+        run: mix run run_independent_audit.exs
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 2 — Compare hashes from both platforms
+  # ─────────────────────────────────────────────────────────────
+  compare-hashes:
+    name: Compare Cross-Platform Hashes
+    runs-on: ubuntu-latest
+    needs: verify            # Only runs after BOTH platform jobs finish
+
+    steps:
+      - name: Download Linux hash
+        uses: actions/download-artifact@v4
+        with:
+          name: cert-hash-Linux
+          path: hashes/
+
+      - name: Download macOS hash
+        uses: actions/download-artifact@v4
+        with:
+          name: cert-hash-macOS
+          path: hashes/
+
+      - name: Compare hashes and emit report
+        id: compare
+        shell: bash
+        run: |
+          echo "=========================================="
+          echo "  PHASE 14 — CROSS-PLATFORM HASH REPORT  "
+          echo "=========================================="
+          echo ""
+
+          LINUX_HASH=$(cat hashes/Linux.hash | tr -d '[:space:]')
+          MACOS_HASH=$(cat hashes/macOS.hash | tr -d '[:space:]')
+
+          echo "  Linux  : $LINUX_HASH"
+          echo "  macOS  : $MACOS_HASH"
+          echo ""
+
+          if [ "$LINUX_HASH" = "$MACOS_HASH" ]; then
+            echo "  ✅ HASHES MATCH — Phase 14 cross-platform verified!"
+            echo "  The constitutional evidence package is deterministic"
+            echo "  across Linux and macOS."
+            echo ""
+            echo "  SHA-256: $LINUX_HASH"
+            echo "result=pass" >> "$GITHUB_OUTPUT"
+          else
+            echo "  ❌ HASH MISMATCH — Hidden nondeterminism detected!"
+            echo ""
+            echo "  Possible sources (see CROSS_PLATFORM_VERIFICATION.md):"
+            echo "    1. Timestamp fields not excluded from canonical hash"
+            echo "    2. Random seed not fixed (:rand.uniform without seed)"
+            echo "    3. File system listing order (sort before processing)"
+            echo "    4. Float representation differences across platforms"
+            echo ""
+            echo "  ACTION REQUIRED: Phase 14 is NOT ready for freeze."
+            echo "result=fail" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+      # ── Write Markdown table to the Actions job summary ───────
+      - name: Write job summary
+        if: always()
+        shell: bash
+        run: |
+          LINUX_HASH=$(cat hashes/Linux.hash 2>/dev/null | tr -d '[:space:]' || echo "N/A")
+          MACOS_HASH=$(cat hashes/macOS.hash 2>/dev/null | tr -d '[:space:]' || echo "N/A")
+
+          {
+            echo "## Phase 14 RC3 — Cross-Platform Verification"
+            echo ""
+            echo "Commit: \`${{ github.sha }}\`  |  Branch: \`${{ github.ref_name }}\`"
+            echo ""
+            echo "| Platform | Canonical Certificate Hash | Result |"
+            echo "|----------|---------------------------|--------|"
+            if [ "$LINUX_HASH" = "$MACOS_HASH" ] && [ "$LINUX_HASH" != "N/A" ]; then
+              echo "| 🐧 Linux  | \`$LINUX_HASH\` | ✅ Match |"
+              echo "| 🍎 macOS  | \`$MACOS_HASH\` | ✅ Match |"
+              echo ""
+              echo "> ### ✅ PASSED — Hashes are identical across platforms."
+              echo "> Phase 14 constitutional evidence package is cross-platform deterministic."
+            else
+              echo "| 🐧 Linux  | \`$LINUX_HASH\` | ❌ Mismatch |"
+              echo "| 🍎 macOS  | \`$MACOS_HASH\` | ❌ Mismatch |"
+              echo ""
+              echo "> ### ❌ FAILED — Hash mismatch detected."
+              echo "> See [CROSS\\_PLATFORM\\_VERIFICATION.md](../../blob/${{ github.sha }}/CROSS_PLATFORM_VERIFICATION.md) for remediation steps."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
