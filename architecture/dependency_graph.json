@@ -1,0 +1,36 @@
+{
+  "dependencies": {
+    "Tiannara.Core": {
+      "depends_on": [],
+      "description": "Identity, Cognition, Goal System, Meta-Cognition"
+    },
+    "Tiannara.DomainCortex": {
+      "depends_on": ["Tiannara.Core"],
+      "description": "Specialized reasoning domains selected by Meta-Cognition"
+    },
+    "Tiannara.AEO": {
+      "depends_on": ["Tiannara.Core", "Tiannara.DomainCortex"],
+      "description": "Bridge between Core intent and Runtime execution"
+    },
+    "Tiannara.Runtime": {
+      "depends_on": ["Tiannara.AEO"],
+      "description": "Execution substrate: GRCC, CIS, Stability, Regulation, Validation, Physics"
+    },
+    "Tiannara.CIS": {
+      "depends_on": ["Tiannara.Runtime"],
+      "description": "Cognitive Immune System - provides constraints to Core"
+    },
+    "Tiannara.OED": {
+      "depends_on": ["Tiannara.Core", "Tiannara.Runtime"],
+      "description": "Ontological Defense - validates paths from Core to Runtime"
+    },
+    "Tiannara.OPC": {
+      "depends_on": ["Tiannara.OED"],
+      "description": "Physics Compiler - only executes after OED approval"
+    },
+    "Tiannara.Products": {
+      "depends_on": ["Tiannara.AEO"],
+      "description": "SaaS and commercial interfaces"
+    }
+  }
+}

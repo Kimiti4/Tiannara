@@ -1,0 +1,207 @@
+{
+  "schema_version": "15.0.0",
+  "chain_id": "b3a7f2e9c4d1f8e6b5a3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1",
+  "timestamp": "2026-07-05T01:00:00Z",
+  "discovery_id": "disc_gw150914",
+  "evidence_chain": [
+    {
+      "step": 1,
+      "type": "OBSERVATION",
+      "object_id": "obs_gw150914",
+      "object_type": "Observation",
+      "content_hash": "b3a7f2e9c4d1f8e6b5a3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1",
+      "description": "Raw strain data from LIGO Hanford and Livingston detectors",
+      "collector": "civ_ligo",
+      "timestamp": "2015-09-14T09:50:45Z",
+      "quality_metrics": {
+        "signal_to_noise": 24.0,
+        "calibration_uncertainty": 0.01,
+        "data_completeness": 1.0
+      },
+      "provenance": {
+        "instrument": "LIGO",
+        "detectors": ["H1", "L1"],
+        "sampling_rate": 16384,
+        "duration_seconds": 32
+      }
+    },
+    {
+      "step": 2,
+      "type": "CALIBRATION",
+      "object_id": "ev_gw150914_calibration",
+      "object_type": "Evidence",
+      "content_hash": "c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2",
+      "description": "Calibrated strain data with uncertainty quantification",
+      "collector": "civ_ligo_calibration",
+      "timestamp": "2015-09-14T10:00:00Z",
+      "quality_metrics": {
+        "calibration_accuracy": 0.999,
+        "systematic_uncertainty": 0.005,
+        "frequency_dependent_uncertainty": "provided"
+      },
+      "provenance": {
+        "calibration_pipeline": "LIGO_CAL_v2.1",
+        "reference": "Cahillane et al. 2017"
+      }
+    },
+    {
+      "step": 3,
+      "type": "PATTERN_DETECTION",
+      "object_id": "pat_chirp_gw",
+      "object_type": "Pattern",
+      "content_hash": "c4b8e3f0d5e2a9f7c6b4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a",
+      "description": "Chirp signal pattern detected via matched filtering",
+      "detector": "civ_ligo_analysis",
+      "timestamp": "2015-09-15T10:00:00Z",
+      "quality_metrics": {
+        "matched_filter_snr": 24.0,
+        "false_alarm_probability": 2.0e-7,
+        "template_match_quality": 0.999
+      },
+      "provenance": {
+        "template_bank": "IMRPhenomPv2",
+        "bank_size": 250000,
+        "search_pipeline": "PyCBC"
+      }
+    },
+    {
+      "step": 4,
+      "type": "PARAMETER_ESTIMATION",
+      "object_id": "pe_gw150914",
+      "object_type": "Evidence",
+      "content_hash": "d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3",
+      "description": "Bayesian parameter estimation of binary black hole properties",
+      "analyst": "civ_ligo_pe",
+      "timestamp": "2015-09-15T14:00:00Z",
+      "quality_metrics": {
+        "posterior_convergence": 1.0,
+        "effective_sample_size": 10000,
+        "gelman_rubin_rhat": 1.001
+      },
+      "provenance": {
+        "sampler": "LALInference",
+        "prior": "uniform_in_component_mass",
+        "waveform_model": "IMRPhenomPv2"
+      },
+      "results": {
+        "mass1": {"median": 36.2, "ci_90": [31.8, 41.5]},
+        "mass2": {"median": 29.1, "ci_90": [25.1, 33.2]},
+        "total_mass": {"median": 65.3, "ci_90": [61.2, 69.8]},
+        "chirp_mass": {"median": 28.1, "ci_90": [27.6, 28.6]},
+        "mass_ratio": {"median": 0.8, "ci_90": [0.6, 1.0]},
+        "spin1": {"median": 0.3, "ci_90": [0.0, 0.7]},
+        "spin2": {"median": 0.2, "ci_90": [0.0, 0.6]},
+        "luminosity_distance": {"median": 410, "ci_90": [180, 720]},
+        "final_mass": {"median": 62.3, "ci_90": [58.1, 66.4]},
+        "final_spin": {"median": 0.68, "ci_90": [0.62, 0.74]},
+        "radiated_energy": {"median": 3.0, "ci_90": [2.5, 3.5]}
+      }
+    },
+    {
+      "step": 5,
+      "type": "STATISTICAL_VALIDATION",
+      "object_id": "stat_gw150914_significance",
+      "object_type": "StatisticalResult",
+      "content_hash": "b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0",
+      "description": "Significance testing of detection against noise background",
+      "analyst": "civ_ligo_stats",
+      "timestamp": "2015-09-15T12:00:00Z",
+      "quality_metrics": {
+        "p_value": 2.0e-7,
+        "false_alarm_rate": 1.0e-7,
+        "significance_sigma": 5.1
+      },
+      "provenance": {
+        "method": "time_shift_analysis",
+        "background_trials": 1000000,
+        "search_duration_days": 120
+      }
+    },
+    {
+      "step": 6,
+      "type": "ROBUSTNESS_CHECKS",
+      "object_id": "rob_gw150914",
+      "object_type": "StatisticalResult",
+      "content_hash": "e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4",
+      "description": "Robustness and consistency checks",
+      "analyst": "civ_ligo_robustness",
+      "timestamp": "2015-09-16T08:00:00Z",
+      "quality_metrics": {
+        "consistency_across_detectors": true,
+        "consistency_across_pipelines": true,
+        "subtraction_residuals": "gaussian",
+        "calibration_systematics": "negligible"
+      },
+      "provenance": {
+        "checks_performed": [
+          "detector_consistency",
+          "pipeline_consistency",
+          "waveform_systematics",
+          "calibration_systematics",
+          "noise_nonstationarity",
+          "glitch_subtraction"
+        ],
+        "all_passed": true
+      }
+    },
+    {
+      "step": 7,
+      "type": "INDEPENDENT_REPLICATION",
+      "object_id": "rep_gw150914_virgo",
+      "object_type": "ReplayRecord",
+      "content_hash": "f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5",
+      "description": "Independent analysis by Virgo collaboration",
+      "verifier": "civ_virgo",
+      "timestamp": "2016-02-11T10:30:00Z",
+      "quality_metrics": {
+        "match": true,
+        "verification_level": "LEVEL1",
+        "replay_hash_match": true
+      },
+      "provenance": {
+        "independent_pipeline": "Virgo_PyCBC",
+        "independent_calibration": true,
+        "blind_analysis": true
+      }
+    },
+    {
+      "step": 8,
+      "type": "INDEPENDENT_REPLICATION",
+      "object_id": "rep_gw150914_kagra",
+      "object_type": "ReplayRecord",
+      "content_hash": "a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6",
+      "description": "Independent analysis by KAGRA collaboration",
+      "verifier": "civ_kagra",
+      "timestamp": "2016-02-11T10:30:00Z",
+      "quality_metrics": {
+        "match": true,
+        "verification_level": "LEVEL1",
+        "replay_hash_match": true
+      },
+      "provenance": {
+        "independent_pipeline": "KAGRA_Bilby",
+        "independent_calibration": true,
+        "blind_analysis": true
+      }
+    }
+  ],
+  "chain_verification": {
+    "all_content_hashes_verified": true,
+    "merkle_root": "f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6",
+    "independent_verifiers": ["civ_virgo", "civ_kagra", "civ_geo600"],
+    "verification_level": "LEVEL1",
+    "replay_verified": true,
+    "archaeology_verified": true
+  },
+  "evidence_summary": {
+    "total_evidence_items": 8,
+    "observation_count": 1,
+    "calibration_count": 1,
+    "pattern_count": 1,
+    "parameter_estimation_count": 1,
+    "statistical_validation_count": 2,
+    "independent_replication_count": 2,
+    "overall_quality_score": 0.999999,
+    "chain_completeness": 1.0
+  }
+}

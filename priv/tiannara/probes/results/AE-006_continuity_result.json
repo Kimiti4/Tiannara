@@ -1,0 +1,55 @@
+{
+  "characterize": {
+    "mode": "characterize",
+    "phase": {
+      "ok": {
+        "correlation_id": "ae006_char_731f9d6f",
+        "crash_type": "Protocol.UndefinedError",
+        "empty_result": {
+          "error": "exit :exit: {{%Protocol.UndefinedError{protocol: Enumerable, value: {:continue}, description: \"\"}, [{Enumerable, :impl_for!, 1, [file: ~c\"lib/enum.ex\", line: 1]}, {Enumerable, :reduce, 3, [file: ~c\"lib/enum.ex\", line: 166]}, {Enum, :map, 2, [file: ~c\"lib/enum.ex\", line: 4515]}, {Enum, :sort_by, 3, [file: ~c\"lib/enum.ex\", line: 3363]}, {Tiannara.CEL.Services.ExecutiveMemory, :handle_call, 3, [file: ~c\"lib/tiannara/cel/services/executive_memory.ex\", line: 131]}, {:gen_server, :try_handle_call, 4, [file: ~c\"gen_server.erl\", line: 2470]}, {:gen_server, :handle_msg, 3, [file: ~c\"gen_server.erl\", line: 2499]}, {:proc_lib, :init_p_do_apply, 3, [file: ~c\"proc_lib.erl\", line: 333]}]}, {GenServer, :call, [Tiannara.CEL.Services.ExecutiveMemory, {:lineage, \"nonexistent_ae006_char_731f9d6f\"}, 5000]}}"
+        },
+        "has_continue_leak": false,
+        "is_baseline_bug": true,
+        "lineage_result": {
+          "error": "exit :exit: {{%Protocol.UndefinedError{protocol: Enumerable, value: {:continue}, description: \"\"}, [{Enumerable, :impl_for!, 1, [file: ~c\"lib/enum.ex\", line: 1]}, {Enumerable, :reduce, 3, [file: ~c\"lib/enum.ex\", line: 166]}, {Enum, :map, 2, [file: ~c\"lib/enum.ex\", line: 4515]}, {Enum, :sort_by, 3, [file: ~c\"lib/enum.ex\", line: 3363]}, {Tiannara.CEL.Services.ExecutiveMemory, :handle_call, 3, [file: ~c\"lib/tiannara/cel/services/executive_memory.ex\", line: 131]}, {:gen_server, :try_handle_call, 4, [file: ~c\"gen_server.erl\", line: 2470]}, {:gen_server, :handle_msg, 3, [file: ~c\"gen_server.erl\", line: 2499]}, {:proc_lib, :init_p_do_apply, 3, [file: ~c\"proc_lib.erl\", line: 333]}]}, {GenServer, :call, [Tiannara.CEL.Services.ExecutiveMemory, {:lineage, \"ae006_char_731f9d6f\"}, 5000]}}"
+        },
+        "mode": "characterize"
+      }
+    },
+    "status": "complete"
+  },
+  "candidate": {
+    "mode": "candidate",
+    "phase": {
+      "ok": {
+        "empty": {
+          "pass": true,
+          "value": "empty"
+        },
+        "lessons_parity": {
+          "length": 800,
+          "pass": true
+        },
+        "mode": "candidate",
+        "normal_lineage": {
+          "has_continue": false,
+          "length": 200,
+          "pass": true
+        },
+        "overall_pass": true,
+        "recovery_honesty": {
+          "pass": true,
+          "result": {
+            "length": 200,
+            "type": "list"
+          }
+        },
+        "snapshot": {
+          "ok": true,
+          "total_events": 1705
+        }
+      }
+    },
+    "status": "complete"
+  }
+}

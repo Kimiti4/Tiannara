@@ -1,0 +1,80 @@
+{
+  "discovery_source": "capability_graph",
+  "math_found": false,
+  "mode": "negative",
+  "trace": [
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": null,
+        "trace_id": null
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "task": "achieve:constitutional_mathematics"
+      },
+      "payload_hash": "b232caa96df1987131b9c8fc121e35edc82639b7c3e6df254a5b02407a828b07",
+      "phase": "objective",
+      "provenance": {
+        "function": "submit/1",
+        "module": "CEL.Executive"
+      },
+      "timestamp": "2026-08-23T22:55:38.558000Z",
+      "trace_id": "6d1b03d15877be00"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "objective",
+        "trace_id": "6d1b03d15877be00"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "candidates": [],
+        "found": false,
+        "source": "capability_graph"
+      },
+      "payload_hash": "9409882837320cf7cf80c6a12edb90a48bab02ff3ef8e066f96ae5f76d4ad9bc",
+      "phase": "registry_query",
+      "provenance": {
+        "function": "find_optimal_provider/1",
+        "module": "Elixir.Tiannara.CEL.Services.CapabilityGraph"
+      },
+      "timestamp": "2026-08-23T22:55:38.558000Z",
+      "trace_id": "80bc582533958926"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "registry_query",
+        "trace_id": "80bc582533958926"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "delegation": "NOT_EXECUTED",
+        "fallback": "none",
+        "status": "MATH_NOT_REGISTERED"
+      },
+      "payload_hash": "fadbcbd130cf9db320dd73539a82194b0bc5fa29dda524243c758647c9a61260",
+      "phase": "not_registered",
+      "provenance": {
+        "function": "handle_unresolved/1",
+        "module": "CEL.Executive"
+      },
+      "timestamp": "2026-08-23T22:55:38.558000Z",
+      "trace_id": "9ed26ab35c7d0a85"
+    }
+  ]
+}

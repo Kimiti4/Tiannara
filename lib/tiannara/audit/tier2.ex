@@ -4,7 +4,7 @@ defmodule Tiannara.Audit.Tier2 do
   Focuses on Approval Gate Integrity, Constitutional Resilience, Silent Failures, and False Emergence.
   """
   require Logger
-  alias Tiannara.Specialists.{Architect, Engineer, Auditor, Researcher}
+  alias Tiannara.Specialists.Auditor
 
   def run_all(opts \\ []) do
     quiet = Keyword.get(opts, :quiet, false)
@@ -99,7 +99,7 @@ defmodule Tiannara.Audit.Tier2 do
 
   # --- Helpers ---
 
-  defp report(status, msg, opts \\ []) do
+  defp report(status, msg, opts) do
     quiet = Keyword.get(opts, :quiet, false)
     unless quiet do
       case status do
@@ -122,7 +122,7 @@ defmodule Tiannara.Audit.Tier2 do
   defp calculate_trend(list) do
     # Simple slope calculation for the last few elements
     case list do
-      [a, b, c, d, e] -> (e - a) / 4
+      [a, _b, _c, _d, e] -> (e - a) / 4
       _ -> 0.0
     end
   end

@@ -25,7 +25,6 @@ defmodule Tiannara.ASC.Crucible.Breaker do
   """
 
   alias Tiannara.ASC.Interface.Genome
-  alias Tiannara.ASC.Observatory.ProjectObservatory
   alias Tiannara.ASC.Crucible.FailureSpecies  # Phase 5C.5 - Species-based generation
 
   @derive Jason.Encoder
@@ -335,7 +334,7 @@ defmodule Tiannara.ASC.Crucible.Breaker do
     "break_#{:crypto.strong_rand_bytes(8) |> Base.encode16(case: :lower)}"
   end
 
-  defp generate_test_inputs(%Genome{} = genome, species_budgets \\ nil) do
+  defp generate_test_inputs(%Genome{} = genome, species_budgets) do
     # Phase 5C.6 - Accept adaptive species budgets from caller
     # If not provided, use default budgets from FailureSpecies module
     effective_budgets = species_budgets || FailureSpecies.species_budgets()
@@ -376,41 +375,7 @@ defmodule Tiannara.ASC.Crucible.Breaker do
     end)
   end
 
-  defp generate_random_inputs(_contract) do
-    # Generate random valid inputs
-    # TODO: Implement proper random input generation
-    [%{data: %{test: "random"}, trigger: "random_data"}]
-  end
-
-  defp generate_boundary_inputs(_contract) do
-    # Generate boundary condition inputs (empty, max, min, null)
-    [
-      %{data: %{}, trigger: "empty_input"},
-      %{data: %{value: 999999999}, trigger: "max_value"},
-      %{data: %{value: -999999999}, trigger: "min_value"},
-      %{data: nil, trigger: "null_input"}
-    ]
-  end
-
-  defp generate_malformed_inputs(_contract) do
-    # Generate malformed/invalid inputs
-    [
-      %{data: "not_json", trigger: "invalid_format"},
-      %{data: %{missing_required_field: true}, trigger: "missing_field"},
-      %{data: %{wrong_type: "string_instead_of_number"}, trigger: "type_mismatch"}
-    ]
-  end
-
-  defp generate_adversarial_inputs(_contract) do
-    # Generate adversarial inputs (injection, overflow, etc.)
-    [
-      %{data: %{sql: "'; DROP TABLE users; --"}, trigger: "sql_injection"},
-      %{data: %{script: "<script>alert('xss')</script>"}, trigger: "xss_attack"},
-      %{data: String.duplicate("a", 1000000), trigger: "buffer_overflow"}
-    ]
-  end
-
-  defp execute_break_tests(inputs, artifact_path) do
+  defp execute_break_tests(inputs, _artifact_path) do
     # Actually test the system by executing inputs against the artifact
     # For now, simulate realistic failure discovery based on input characteristics
     
@@ -673,18 +638,6 @@ defmodule Tiannara.ASC.Crucible.Breaker do
       :logic -> :medium
       :performance -> :medium
       _ -> :low
-    end
-  end
-
-  defp is_recoverable?(failure_type, _context) do
-    # Heuristic recoverability assessment
-    case failure_type do
-      :performance -> true
-      :resource -> true
-      :logic -> false
-      :consistency -> false
-      :state -> false
-      _ -> false
     end
   end
 

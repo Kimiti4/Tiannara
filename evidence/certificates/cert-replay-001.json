@@ -1,0 +1,15 @@
+{
+  "status": "valid",
+  "type": "replay_verification",
+  "signature": "86FC5BFC347DAC2DD2EB442F9EF74FCC65EA3A859CCBFAEC8545072EDEB7FE56",
+  "metadata": {
+    "campaign": "gc_001_replay",
+    "success_rate": 1.0,
+    "samples": 1000
+  },
+  "signed_at": "2026-07-02T19:26:12.337000Z",
+  "certificate_id": "cert-replay-001",
+  "issued_at": "2026-07-02T19:26:12.337000Z",
+  "issuer": "GovernanceCertificationLaboratory",
+  "subject": "Phase 14.0.99 Campaign Execution"
+}

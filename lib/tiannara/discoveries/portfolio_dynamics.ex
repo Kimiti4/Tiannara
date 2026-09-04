@@ -245,7 +245,7 @@ defmodule Tiannara.REA.PortfolioRebalancer do
     }
     %{new_portfolio | history: [snapshot | portfolio.history || []]}
   end
-  defp normalize_weights(map, quarantined \\ []) do
+  defp normalize_weights(map, quarantined) do
     total = Map.drop(map, quarantined) |> Map.values() |> Enum.sum()
     if total > 0.0 do
       Map.new(map, fn {tid, w} ->
@@ -379,14 +379,18 @@ defmodule Tiannara.REA.PortfolioRiskAnalyzer do
 
   def calculate_prc(weights, meta_tensor, context, domain, all_theories \\ []) do
     state =
-      case Process.whereis(TiannaraOS.CivilizationKernel) do
-        nil -> nil
-        pid ->
-          if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
-          else
-            nil
-          end
+      try do
+        case Process.whereis(TiannaraOS.CivilizationKernel) do
+          nil -> nil
+          pid ->
+            if Process.alive?(pid) do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            else
+              nil
+            end
+        end
+      rescue
+        _ -> nil
       end
 
     if state do
@@ -454,14 +458,18 @@ defmodule Tiannara.REA.PortfolioRiskAnalyzer do
   """
   def calculate_tmi(predictions \\ [], _replication_rate \\ 0.85, _refutation_rate \\ 0.05) do
     state =
-      case Process.whereis(TiannaraOS.CivilizationKernel) do
-        nil -> nil
-        pid ->
-          if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
-          else
-            nil
-          end
+      try do
+        case Process.whereis(TiannaraOS.CivilizationKernel) do
+          nil -> nil
+          pid ->
+            if Process.alive?(pid) do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            else
+              nil
+            end
+        end
+      rescue
+        _ -> nil
       end
 
     if state do
@@ -523,8 +531,8 @@ defmodule Tiannara.REA.PortfolioRiskAnalyzer do
 
     # 4. Domain diversity: knowledge capital variance
     domain_capitals =
-      if Code.ensure_loaded?(Tiannara.Domains.Registry) do
-        Tiannara.Domains.Registry.all() |> Enum.map(& Tiannara.Domains.Registry.get_knowledge_capital(&1.id))
+      if Code.ensure_loaded?(Tiannara.Domains.CanonicalRegistry) do
+        Tiannara.Domains.CanonicalRegistry.all() |> Enum.map(& Tiannara.Domains.KnowledgeCapitalBoundary.get(&1))
       else
         [1.0]
       end

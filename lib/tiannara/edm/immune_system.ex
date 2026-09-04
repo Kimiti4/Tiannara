@@ -7,11 +7,11 @@ defmodule Tiannara.EDM.ImmuneSystem do
   alias Tiannara.Core.WorldModel.Discovery
 
   @baseline_immune_discoveries [
-    %{name: "Peer Review", domain: :science, stability: 0.85, complexity_cost: 15},
-    %{name: "Replication Science", domain: :science, stability: 0.90, complexity_cost: 30},
+    %{name: "Peer Review", domain: :methodology, stability: 0.85, complexity_cost: 15},
+    %{name: "Replication Science", domain: :methodology, stability: 0.90, complexity_cost: 30},
     %{name: "Contradiction Audits", domain: :cognition, stability: 0.88, complexity_cost: 25},
     %{name: "Adversarial Verification", domain: :governance, stability: 0.92, complexity_cost: 40},
-    %{name: "Blind Validation", domain: :science, stability: 0.80, complexity_cost: 20}
+    %{name: "Blind Validation", domain: :methodology, stability: 0.80, complexity_cost: 20}
   ]
 
   @doc "Returns a randomly sampled immune adaptation discovery."

@@ -1,0 +1,87 @@
+{
+  "gate": "MC-003-M",
+  "phase": "MUTATION_TRUTHFULNESS",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "timestamp": "2026-08-30T00:00:00Z",
+  "verdict": "CERTIFIED_BOUNDED",
+  "verdict_scope": "M1_M2_M3_M4_M6_M7_M8_REAL_EXECUTION_TRUTHFULNESS",
+  "verdict_note": "REAL-EXECUTION TRUTHFULNESS MUTATION COMPLETE under authorized scope M1-M8 (M5 excluded). Fabricated runtime theater decommissioned and replaced with evidence-gated/unavailable surfaces (VerificationAuthority, Verification.Result, CertificationServer, ExecutiveCycle, CEL steps, ConstitutionalAutonomy, ASC.Repair, ToolForge, SOPL deploy, RollbackEngine, ProductionObservatory; stubs/httpoison.ex deleted). Discovery confidence_delta now evidence-derived. Phase4.ExperimentOrchestrator.submit_experiment is the single gated real-execution gateway; :real_execution_enabled stays FALSE; NO live real experiment executed (P16-AT(b) PENDING fresh human grant). M5 untouched.",
+  "mutation_authorized": true,
+  "authorization_status": "GRANTED",
+  "authorization_operator": "c14_ac",
+  "authorization_fabricated": false,
+  "authorization_file": "priv/tiannara/authorization/ASC-MC-003-M-REAL-EXECUTION-MUTATION.human.yaml",
+  "scope": "M1_M2_M3_M4_M6_M7_M8",
+  "scope_m5_os_boot_wiring": "EXCLUDED_BY_AUTHORIZATION",
+  "live_real_experiment_executed": false,
+  "real_execution_enabled_flag": false,
+  "deferred_technical_debt": [
+    "TD-MC003-M-P16_LIVE_EXECUTION: P16-AT(b) live real experiment PENDING — requires fresh human grant + :real_execution_enabled true",
+    "TD-MC003-M-AUTONOMY_SERVOS_INTERNALS: SimulationManager/DeploymentPipeline/RollbackEngine internals remain as-is; only the orchestrator surface and RollbackEngine are decommissioned this gate (servos unreachable by any autonomous loop)",
+    "TD-MC003-M-DETERMINISTIC_REPLAY: deterministic execution replay DEFERRED (nondeterministic seeds, multi_world domain)",
+    "TD-MC003-M-OS_BOOT_WIRING: M5 os/ UnknownRegistry boot wiring excluded by authorization"
+  ],
+  "m1_verification": {
+    "VerificationAuthority.verify/1": "TRUTHFUL non-passing Verification.Result (reproduced false, all_passing false) — no fabricated reproduction/regression",
+    "Verification.Result.passed?/1": "false unless independently verified",
+    "CertificationServer.handle_info :experiment_completed": "HONEST Certification.Pipeline.evaluate (no pre-opened :gate_open)",
+    "ExecutiveCycle.execute_phase": "phase machine + :ok kept; no fabricated status/valid posting",
+    "CEL.Steps.{Experiment,Observation,Validation}": "{:error, {:unavailable, :real_step_provider_not_wired}}"
+  },
+  "m2_gateway": {
+    "ExperimentOrchestrator.submit_experiment/1": "GATED by :real_execution_enabled",
+    "flag_off_behavior": "{:error, :real_execution_not_enabled}",
+    "flag_on_behavior": "real execution substrate under DeploymentGateway + HumanDelivery authorization; event_store execution_id recorded",
+    "Approval.decide(:approve)": "ROUTED through orchestrator gateway (no direct Tiannara.Sandbox.execute)",
+    "flag_value_in_gate": false,
+    "live_run": "PENDING"
+  },
+  "m3_discovery": {
+    "confidence_delta": "DERIVED from evidence confidence distribution (replaces fixed 0.1/0.0)"
+  },
+  "m4_verification_evidence": {
+    "real_execution_records": "attach verification: %{harness: ..., method: :real_sandbox}"
+  },
+  "m6_observatory": {
+    "HTTP": "provider-gated; no external provider => {:unavailable, :no_external_provider}",
+    "RealityLedger.record_revenue": "no longer fed fabricated numbers",
+    "stubs/httpoison.ex": "REMOVED"
+  },
+  "m7_rollback": {
+    "RollbackEngine.rollback/2": "{:error, :rollback_unavailable}",
+    "staleness_detection": "real executions tracked with start time; timeout => stale + cancel"
+  },
+  "m8_autonomy": {
+    "ConstitutionalAutonomy.run_cycle": "GATED; stage :simulation / result :not_available when real execution not enabled",
+    "ASC.Repair.{SandboxValidator,CanaryReleaser,ProductionRollout}": "{:error, :unavailable}",
+    "ToolForge do_execute": "{:error, :not_implemented}",
+    "SOPL deploy": "STAGED (not deployed) — no side effect"
+  },
+  "real_primitive_contracts_preserved": true,
+  "canonical_ontology_unchanged": true,
+  "canonical_registry_unchanged": true,
+  "fabricated_success_remaining_in_targets": 0,
+  "evidence": {
+    "static_verification": "PASS — verifier checks",
+    "compile": "PASS — app generated",
+    "verification_suite": "PASS",
+    "autonomy_suite": "PASS",
+    "discovery_suite": "PASS",
+    "tool_forge_suite": "PASS",
+    "asc_reality_suite": "PASS",
+    "sentinel_suite": "PASS",
+    "sopl_suite": "PASS",
+    "phase4_suite": "PASS (62 tests)",
+    "certification_substrate_suite": "PASS (6/7; 1 pre-existing dead constitutional probe)",
+    "full_suite_regression": "TOUCHED/ADJACENT SUITES GREEN (phase4 62, autonomy 53, tool_forge 11, discovery 174, evidence/provenance/engineering 51, executive/self_improvement 48, omega 100). Pre-existing non-mutation failures recorded in evidence matrix: activation engine 2 + cognition 17 (:already_started supervisor collisions), certification 1 (dead probes sentinel_never_executes/research_director_never_executes referencing nonexistent Sentinel.Authority/Research.Authority modules), ASC 11-42 (environmental supervisor/port races, non-reproducible). Full one-shot suite not runnable on this machine (>30min).",
+    "living_silos_os_runtime": "NOT_BOOTED_IN_GATE",
+    "pre_existing_failures": "activation_engine_test (2): start_supervised! collision {:already_started}; cognition/orchestrator_test (17): same {:already_started} root cause; certification_pipeline_test (1): dead constitutional probes referencing nonexistent Sentinel.Authority/Research.Authority (absent from lib/ and git ls-files); ASC: environmental supervisor/port races (poison/no process), non-deterministic run-to-run, none on mutated surfaces. Confirmed baseline battery pre-mutation: proposal+autonomy+activation_engine+tool_forge = 60 tests, 2 failures (the activation_engine pair); activation_engine/cognition/certification modules were not modified by this gate.",
+    "verifier": "PASS — priv/tiannara/remediation/verifiers/MC003_M_real_execution_mutation.py exit 0"
+  },
+  "certification_boundary": "Real-execution truthfulness mutation certified based on static verification, passing targeted acceptance tests, and clean compile. Live P16 real execution NOT executed — PENDING fresh human grant (P16-AT(b)); :real_execution_enabled remains false; M5 and os/ boot wiring untouched.",
+  "final_architectural_question": {
+    "did_mutation_increase_ability_to_distinguish_compute_from_claim": true,
+    "basis": "Every audited surface can no longer emit a fabricated success: a certificate, a completed experiment, a validated proposal, a deployed repair, a rolled-back deployment, a reality-ledger revenue figure, or an autonomous cycle result now requires a real, independently verifiable execution or explicitly reports unavailability (:unavailable / :not_available / {:error, reason} / staged). Unsupported claims are marked pending or fail fast, restoring epistemic discipline over the audited runtime theater."
+  },
+  "contract_hash": null
+}

@@ -1,0 +1,24 @@
+capability:
+  id: constitutional_mathematics
+  version: 1
+  description: >
+    Constitutional mathematics substrate exposed as a CEL-discoverable capability.
+    Exposes the EXISTING Tiannara.Math.Probability.bayes_update/3. This descriptor
+    creates no new mathematics; it makes an existing substrate discoverable.
+
+  interfaces:
+    - name: bayes_update
+      module: Tiannara.Math.Probability
+      function: bayes_update
+      arity: 3
+      deterministic: true
+      task_requirement: bayesian_update
+      evidence_class: probability
+
+  tools: []
+  owner:
+    module: Tiannara.Math.Probability
+  health:
+    check_module: Tiannara.Math.Probability
+    check_function: "healthy?/0"
+  dependencies: []

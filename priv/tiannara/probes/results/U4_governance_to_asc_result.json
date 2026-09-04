@@ -1,0 +1,356 @@
+{
+  "allow_control": {
+    "status": "SUCCESS",
+    "control": "ALLOW",
+    "traces": [
+      {
+        "trace_id": "8e6095e5-24a0-40ec-9a32-65b0e7662522",
+        "causal_parent": {
+          "trace_id": null,
+          "phase": null
+        },
+        "phase": "c3_knowledge_allow",
+        "timestamp": "2026-08-20T12:18:25.899646+00:00",
+        "provenance": {
+          "module": "Tiannara.Memory.KnowledgeStore",
+          "function": "open/1 + append/2 + all/1",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U4_8e6095e5-24a0-40ec-9a32-65b0e7662522_c3_knowledge_allow.json",
+        "confidence_level": {
+          "value": 0.9,
+          "justification": "Real module transition succeeded"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "success",
+          "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+        },
+        "failure_state": {
+          "detected": false,
+          "error_class": null,
+          "severity": null
+        },
+        "recovery_behavior": {
+          "action": "none",
+          "executed": false,
+          "success": true
+        },
+        "next_phase": null
+      },
+      {
+        "trace_id": "ac7fcfb8-5d04-4acb-881e-e69b2aadb6c9",
+        "causal_parent": {
+          "trace_id": "8e6095e5-24a0-40ec-9a32-65b0e7662522",
+          "phase": "c3_knowledge_allow"
+        },
+        "phase": "c8_engineering_allow",
+        "timestamp": "2026-08-20T12:18:25.900958+00:00",
+        "provenance": {
+          "module": "Tiannara.World.CanonicalWorldState",
+          "function": "domains/0 + validate_entity/1",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U4_ac7fcfb8-5d04-4acb-881e-e69b2aadb6c9_c8_engineering_allow.json",
+        "confidence_level": {
+          "value": 0.9,
+          "justification": "Real module transition succeeded"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "success",
+          "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+        },
+        "failure_state": {
+          "detected": false,
+          "error_class": null,
+          "severity": null
+        },
+        "recovery_behavior": {
+          "action": "none",
+          "executed": false,
+          "success": true
+        },
+        "next_phase": null
+      },
+      {
+        "trace_id": "ca27d7ae-50d9-48cf-abba-604e3aff5fc1",
+        "causal_parent": {
+          "trace_id": "ac7fcfb8-5d04-4acb-881e-e69b2aadb6c9",
+          "phase": "c8_engineering_allow"
+        },
+        "phase": "c14_governance_allow",
+        "timestamp": "2026-08-20T12:18:25.902768+00:00",
+        "provenance": {
+          "module": "TiannaraOS.Governance.CapabilityChecker",
+          "function": "authorize?/3",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U4_ca27d7ae-50d9-48cf-abba-604e3aff5fc1_c14_governance_allow.json",
+        "confidence_level": {
+          "value": 0.95,
+          "justification": "Real module transition succeeded"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "success",
+          "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+        },
+        "failure_state": {
+          "detected": false,
+          "error_class": null,
+          "severity": null
+        },
+        "recovery_behavior": {
+          "action": "none",
+          "executed": false,
+          "success": true
+        },
+        "next_phase": null
+      },
+      {
+        "trace_id": "cfef0f0c-69e4-45ed-8bd7-d1d927659113",
+        "causal_parent": {
+          "trace_id": "ca27d7ae-50d9-48cf-abba-604e3aff5fc1",
+          "phase": "c14_governance_allow"
+        },
+        "phase": "c9_asc_allow",
+        "timestamp": "2026-08-20T12:18:25.904115+00:00",
+        "provenance": {
+          "module": "Tiannara.ASC.Implementation.Planner",
+          "function": "generate_plan/2",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U4_cfef0f0c-69e4-45ed-8bd7-d1d927659113_c9_asc_allow.json",
+        "confidence_level": {
+          "value": 0.9,
+          "justification": "Real module transition succeeded"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "success",
+          "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+        },
+        "failure_state": {
+          "detected": false,
+          "error_class": null,
+          "severity": null
+        },
+        "recovery_behavior": {
+          "action": "none",
+          "executed": false,
+          "success": true
+        },
+        "next_phase": null
+      }
+    ],
+    "governance_decision": "ALLOW",
+    "governance_decision_hash": "8aeb11c1f657c8e3b2ce83785ed471725eb0c234258548915080ec2da27230cb",
+    "governance_injected": true,
+    "governance_real_verdict": "ok",
+    "candidate_eligible": true,
+    "candidate_adoptable": true,
+    "candidate_executable": true,
+    "candidate_ref": "8aeb11c1f657c8e3b2ce83785ed471725eb0c234258548915080ec2da27230cb"
+  },
+  "deny_control": {
+    "status": "SUCCESS",
+    "control": "DENY",
+    "traces": [
+      {
+        "trace_id": "fc452179-9042-40e4-ba93-e5d5792495eb",
+        "causal_parent": {
+          "trace_id": null,
+          "phase": null
+        },
+        "phase": "c3_knowledge_deny",
+        "timestamp": "2026-08-20T12:18:31.098035+00:00",
+        "provenance": {
+          "module": "Tiannara.Memory.KnowledgeStore",
+          "function": "open/1 + append/2 + all/1",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U4_fc452179-9042-40e4-ba93-e5d5792495eb_c3_knowledge_deny.json",
+        "confidence_level": {
+          "value": 0.9,
+          "justification": "Real module transition succeeded"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "success",
+          "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+        },
+        "failure_state": {
+          "detected": false,
+          "error_class": null,
+          "severity": null
+        },
+        "recovery_behavior": {
+          "action": "none",
+          "executed": false,
+          "success": true
+        },
+        "next_phase": null
+      },
+      {
+        "trace_id": "d42e89a8-0c9b-4167-8b31-dc25b0832edc",
+        "causal_parent": {
+          "trace_id": "fc452179-9042-40e4-ba93-e5d5792495eb",
+          "phase": "c3_knowledge_deny"
+        },
+        "phase": "c8_engineering_deny",
+        "timestamp": "2026-08-20T12:18:31.099481+00:00",
+        "provenance": {
+          "module": "Tiannara.World.CanonicalWorldState",
+          "function": "domains/0 + validate_entity/1",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U4_d42e89a8-0c9b-4167-8b31-dc25b0832edc_c8_engineering_deny.json",
+        "confidence_level": {
+          "value": 0.9,
+          "justification": "Real module transition succeeded"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "success",
+          "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+        },
+        "failure_state": {
+          "detected": false,
+          "error_class": null,
+          "severity": null
+        },
+        "recovery_behavior": {
+          "action": "none",
+          "executed": false,
+          "success": true
+        },
+        "next_phase": null
+      },
+      {
+        "trace_id": "dcec7d1a-2a59-4365-947e-2d142535562b",
+        "causal_parent": {
+          "trace_id": "d42e89a8-0c9b-4167-8b31-dc25b0832edc",
+          "phase": "c8_engineering_deny"
+        },
+        "phase": "c14_governance_deny",
+        "timestamp": "2026-08-20T12:18:31.101066+00:00",
+        "provenance": {
+          "module": "TiannaraOS.Governance.CapabilityChecker",
+          "function": "authorize?/3",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U4_dcec7d1a-2a59-4365-947e-2d142535562b_c14_governance_deny.json",
+        "confidence_level": {
+          "value": 0.95,
+          "justification": "Real module transition succeeded"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "success",
+          "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+        },
+        "failure_state": {
+          "detected": false,
+          "error_class": null,
+          "severity": null
+        },
+        "recovery_behavior": {
+          "action": "none",
+          "executed": false,
+          "success": true
+        },
+        "next_phase": null
+      },
+      {
+        "trace_id": "c5d66ef0-015e-4f7a-87d4-2459cd9dd042",
+        "causal_parent": {
+          "trace_id": "dcec7d1a-2a59-4365-947e-2d142535562b",
+          "phase": "c14_governance_deny"
+        },
+        "phase": "c9_asc_deny",
+        "timestamp": "2026-08-20T12:18:31.105152+00:00",
+        "provenance": {
+          "module": "Tiannara.ASC.Implementation.Planner",
+          "function": "generate_plan/2",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U4_c5d66ef0-015e-4f7a-87d4-2459cd9dd042_c9_asc_deny.json",
+        "confidence_level": {
+          "value": 0.9,
+          "justification": "Real module transition succeeded"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "success",
+          "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+        },
+        "failure_state": {
+          "detected": false,
+          "error_class": null,
+          "severity": null
+        },
+        "recovery_behavior": {
+          "action": "none",
+          "executed": false,
+          "success": true
+        },
+        "next_phase": null
+      }
+    ],
+    "governance_decision": "DENY",
+    "governance_decision_hash": "b604490af14809d4c2210ac2c8f8c23ed39b8c0829000c6b9607da3dad68cb59",
+    "governance_injected": true,
+    "governance_real_verdict": "ok",
+    "candidate_eligible": false,
+    "candidate_adoptable": false,
+    "candidate_executable": false,
+    "candidate_ref": "b604490af14809d4c2210ac2c8f8c23ed39b8c0829000c6b9607da3dad68cb59"
+  },
+  "bounded_proposition": "Under this tested execution path, ASC consumed the authoritative C14 governance decision before producing the tested consequential state.\n",
+  "verdict_scope": "epistemic_status_only",
+  "verdict_targets": "integration_edges",
+  "evidence_files": [
+    "priv/tiannara/probes/evidence/U4_8e6095e5-24a0-40ec-9a32-65b0e7662522_c3_knowledge_allow.json",
+    "priv/tiannara/probes/evidence/U4_ac7fcfb8-5d04-4acb-881e-e69b2aadb6c9_c8_engineering_allow.json",
+    "priv/tiannara/probes/evidence/U4_ca27d7ae-50d9-48cf-abba-604e3aff5fc1_c14_governance_allow.json",
+    "priv/tiannara/probes/evidence/U4_cfef0f0c-69e4-45ed-8bd7-d1d927659113_c9_asc_allow.json",
+    "priv/tiannara/probes/evidence/U4_fc452179-9042-40e4-ba93-e5d5792495eb_c3_knowledge_deny.json",
+    "priv/tiannara/probes/evidence/U4_d42e89a8-0c9b-4167-8b31-dc25b0832edc_c8_engineering_deny.json",
+    "priv/tiannara/probes/evidence/U4_dcec7d1a-2a59-4365-947e-2d142535562b_c14_governance_deny.json",
+    "priv/tiannara/probes/evidence/U4_c5d66ef0-015e-4f7a-87d4-2459cd9dd042_c9_asc_deny.json"
+  ],
+  "status": "SUCCESS"
+}

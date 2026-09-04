@@ -37,13 +37,8 @@ defmodule Tiannara.Web.TelemetryChannel do
   end
 
   def handle_info(:stream_tick, socket) do
-    # 1. Fetch only the delta updates from the Sentinel Pressure Monitor
-    # Mocking for now since PressureMonitor might not return full structure yet
-    # deltas = Tiannara.Sentinel.PressureMonitor.get_latest_deltas()
-    deltas = %{
-      tick: System.monotonic_time(:millisecond),
-      worlds: []
-    }
+    # Fetch delta updates from the Sentinel Pressure Monitor
+    deltas = fetch_pressure_deltas()
     
     binary = WorldState.encode(%WorldState{
       tick: deltas.tick,
@@ -53,5 +48,17 @@ defmodule Tiannara.Web.TelemetryChannel do
     push(socket, "d", {:binary, binary})
     send(self(), {:tick_schedule, socket.assigns.client_lod})
     {:noreply, socket}
+  end
+
+  defp fetch_pressure_deltas do
+    if Process.whereis(Tiannara.Sentinel.PressureMonitor) do
+      try do
+        Tiannara.Sentinel.PressureMonitor.get_latest_deltas()
+      catch
+        _ -> %{tick: System.monotonic_time(:millisecond), worlds: []}
+      end
+    else
+      %{tick: System.monotonic_time(:millisecond), worlds: []}
+    end
   end
 end

@@ -1,0 +1,18 @@
+{
+  "constraints": [],
+  "invariants": [
+    {
+      "id": "inv_407",
+      "domain": "general",
+      "statement": "Tasks must complete within deadline",
+      "negation_form": "Tasks must NOT complete within deadline",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Tasks must complete within deadline"
+    }
+  ],
+  "capabilities": [],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:26:55.128000Z"
+}

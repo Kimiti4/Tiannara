@@ -6,7 +6,7 @@ defmodule Tiannara.ASC.Engineering.ExecutionPipeline do
   """
   
   alias Tiannara.ASC.Engineering.EngineeringProject
-  alias Tiannara.ASC.Crucible.{FailureSynthesizer, RepairLibrary}
+  alias Tiannara.ASC.Crucible.FailureSynthesizer
   require Logger
 
   @production_cycles 50 # Number of real-world failure events the deployed project must survive

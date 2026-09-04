@@ -13,40 +13,40 @@ defmodule Tiannara.Physics.TWP do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def prune_temporal_states(states, pruning_threshold \\ 0.95) do
-    GenServer.call(__MODULE__, {:prune_temporal_states, states, pruning_threshold})
+  def prune_temporal_states(_states, _pruning_threshold \\ 0.95) do
+    {:error, :physics_substrate_unavailable}
   end
 
-  def add_temporal_state(state_id, probability_vector, metadata \\ %{}) do
-    GenServer.call(__MODULE__, {:add_temporal_state, state_id, probability_vector, metadata})
+  def add_temporal_state(_state_id, _probability_vector, _metadata \\ %{}) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_temporal_states() do
-    GenServer.call(__MODULE__, :get_temporal_states)
+    {:error, :physics_substrate_unavailable}
   end
 
   def calculate_temporal_coherence() do
-    GenServer.call(__MODULE__, :calculate_temporal_coherence)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def prune_future_branches(branch_entropy_threshold \\ 0.8) do
-    GenServer.call(__MODULE__, {:prune_future_branches, branch_entropy_threshold})
+  def prune_future_branches(_branch_entropy_threshold \\ 0.8) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_temporal_metrics() do
-    GenServer.call(__MODULE__, :get_temporal_metrics)
+    {:error, :physics_substrate_unavailable}
   end
 
   def validate_temporal_consistency() do
-    GenServer.call(__MODULE__, :validate_temporal_consistency)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def collapse_temporal_wavefunction(target_state_id) do
-    GenServer.call(__MODULE__, {:collapse_temporal_wavefunction, target_state_id})
+  def collapse_temporal_wavefunction(_target_state_id) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_temporal_predictions() do
-    GenServer.call(__MODULE__, :get_temporal_predictions)
+    {:error, :physics_substrate_unavailable}
   end
 
   # Server callbacks
@@ -514,7 +514,7 @@ defmodule Tiannara.Physics.TWP do
     }
   end
 
-  defp check_temporal_contradictions(states) do
+  defp check_temporal_contradictions(_states) do
     # Check for states with conflicting timestamps or probabilities
     contradictions = []
     
@@ -560,7 +560,7 @@ defmodule Tiannara.Physics.TWP do
     end)
   end
 
-  defp perform_collapse(target_state_id, target_data) do
+  defp perform_collapse(target_state_id, _target_data) do
     # Remove other states with high probability
     states = :ets.tab2list(:temporal_states)
     high_prob_states = Enum.filter(states, fn state ->

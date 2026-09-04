@@ -91,19 +91,20 @@ defmodule Tiannara.ECL.KnowledgeExchange do
       {:reply, :ok, %{state | lattice: new_lattice, metrics: Map.update!(state.metrics, :publishes, & &1 + 1)}}
     else
       {:error, :stability_below_threshold} ->
-        Logger.warn("⚠️ [ECL] Quarantined #{disc_id} (stability < 0.8)")
+        Logger.warning("⚠️ [ECL] Quarantined #{disc_id} (stability < 0.8)")
         {:reply, {:error, :quarantined}, %{state | metrics: Map.update!(state.metrics, :quarantines, & &1 + 1)}}
       {:error, :acm_not_survived} ->
-        Logger.warn("⚠️ [ECL] Quarantined #{disc_id} (has not survived ACM)")
+        Logger.warning("⚠️ [ECL] Quarantined #{disc_id} (has not survived ACM)")
         {:reply, {:error, :quarantined_acm}, %{state | metrics: Map.update!(state.metrics, :quarantines, & &1 + 1)}}
       {:error, :high_disease_risk} ->
-        Logger.warn("⚠️ [ECL] Quarantined #{disc_id} (high disease risk)")
+        Logger.warning("⚠️ [ECL] Quarantined #{disc_id} (high disease risk)")
         {:reply, {:error, :quarantined_disease}, %{state | metrics: Map.update!(state.metrics, :quarantines, & &1 + 1)}}
       err ->
         {:reply, err, state}
     end
   end
 
+  @impl true
   def handle_call({:search, domain, max_cost}, _from, state) do
     all_pubs = 
       :gb_trees.to_list(state.lattice)
@@ -121,31 +122,6 @@ defmodule Tiannara.ECL.KnowledgeExchange do
     }
 
     {:reply, results, state}
-  end
-
-  @impl true
-  def handle_cast({:license, requester_civ, _requester_shard, disc_id}, state) do
-    # Find discovery origin
-    pub = 
-      :gb_trees.to_list(state.lattice)
-      |> Enum.flat_map(fn {_, pubs} -> pubs end)
-      |> Enum.find(& &1.discovery_id == disc_id)
-
-    if pub do
-      # Route to DiscoveryLedger for cross-shard licensing
-      case Tiannara.REL.DiscoveryLedger.grant_license(pub.origin_civ_id, requester_civ, disc_id, pub.license_cost) do
-        {:ok, _license_id} ->
-          # Award posthumous or living influence to originator
-          # ECL-1 Influence amount
-          influence_earned = 50.0
-          :ok = Tiannara.ECL.TrustEngine.award_influence(pub.origin_civ_id, influence_earned)
-          {:noreply, %{state | metrics: Map.update!(state.metrics, :licenses, & &1 + 1)}}
-        _err -> 
-          {:noreply, state}
-      end
-    else
-      {:noreply, state}
-    end
   end
 
   @impl true
@@ -180,32 +156,6 @@ defmodule Tiannara.ECL.KnowledgeExchange do
   end
 
   @impl true
-  def handle_cast({:license_operator, requester_civ, requester_shard, op_id}, state) do
-    # Fetch from lattice
-    pub = 
-      :gb_trees.to_list(state.lattice)
-      |> Enum.flat_map(fn {_, pubs} -> pubs end)
-      |> Enum.find(& &1.discovery_id == op_id and Map.get(&1, :is_operator, false))
-
-    if pub do
-      # Directly give operator to requester by updating their attributes
-      case Tiannara.Core.WorldModel.EntityRegistry.get_entity(requester_civ, requester_shard) do
-        {:ok, ent} ->
-          active_ops = Map.get(ent.attributes, :active_operators, [])
-          unless op_id in active_ops do
-            new_attrs = Map.put(ent.attributes, :active_operators, [op_id | active_ops])
-            Tiannara.Core.WorldModel.EntityRegistry.update_entity(requester_civ, %{attributes: new_attrs}, requester_shard)
-            Logger.info("📜 [ECL] #{requester_civ} licensed Reasoning Operator #{op_id} from #{pub.origin_civ_id}")
-            # Award massive influence
-            Tiannara.ECL.TrustEngine.award_influence(pub.origin_civ_id, 200.0)
-          end
-        _ -> :ok
-      end
-    end
-    {:noreply, state}
-  end
-
-  @impl true
   def handle_call({:publish_law_fragment, law_id, ast, civ_id, shard_id}, _from, state) do
     trust = Tiannara.ECL.TrustEngine.compute_trust_score(civ_id, shard_id)
     
@@ -229,6 +179,57 @@ defmodule Tiannara.ECL.KnowledgeExchange do
 
     Logger.info("🌐 [ECL] Published Law Fragment #{law_id} (Trust: #{trust})")
     {:reply, :ok, %{state | lattice: new_lattice, metrics: Map.update!(state.metrics, :publishes, & &1 + 1)}}
+  end
+
+  @impl true
+  def handle_cast({:license, requester_civ, _requester_shard, disc_id}, state) do
+    # Find discovery origin
+    pub = 
+      :gb_trees.to_list(state.lattice)
+      |> Enum.flat_map(fn {_, pubs} -> pubs end)
+      |> Enum.find(& &1.discovery_id == disc_id)
+
+    if pub do
+      # Route to DiscoveryLedger for cross-shard licensing
+      case Tiannara.REL.DiscoveryLedger.grant_license(pub.origin_civ_id, requester_civ, disc_id, pub.license_cost) do
+        {:ok, _license_id} ->
+          # Award posthumous or living influence to originator
+          # ECL-1 Influence amount
+          influence_earned = 50.0
+          :ok = Tiannara.ECL.TrustEngine.award_influence(pub.origin_civ_id, influence_earned)
+          {:noreply, %{state | metrics: Map.update!(state.metrics, :licenses, & &1 + 1)}}
+        _err -> 
+          {:noreply, state}
+      end
+    else
+      {:noreply, state}
+    end
+  end
+
+  @impl true
+  def handle_cast({:license_operator, requester_civ, requester_shard, op_id}, state) do
+    # Fetch from lattice
+    pub = 
+      :gb_trees.to_list(state.lattice)
+      |> Enum.flat_map(fn {_, pubs} -> pubs end)
+      |> Enum.find(& &1.discovery_id == op_id and Map.get(&1, :is_operator, false))
+
+    if pub do
+      # Directly give operator to requester by updating their attributes
+      case Tiannara.Core.WorldModel.EntityRegistry.get_entity(requester_civ, requester_shard) do
+        {:ok, ent} ->
+          active_ops = Map.get(ent.attributes, :active_operators, [])
+          unless op_id in active_ops do
+            new_attrs = Map.put(ent.attributes, :active_operators, [op_id | active_ops])
+            Tiannara.Core.WorldModel.EntityRegistry.update_entity(requester_civ, %{attributes: new_attrs}, requester_shard)
+            Logger.info("📜 [ECL] #{requester_civ} licensed Reasoning Operator #{op_id} from #{pub.origin_civ_id}")
+            # Award massive influence
+            Tiannara.ECL.TrustEngine.award_influence(pub.origin_civ_id, 200.0)
+          end
+        _ -> :ok
+      end
+    end
+    {:noreply, state}
   end
 
   @impl true

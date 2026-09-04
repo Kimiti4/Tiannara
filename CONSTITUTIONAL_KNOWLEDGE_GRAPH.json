@@ -1,0 +1,29 @@
+{
+  "schema_version": "15.0.0",
+  "graph_id": "phase15-constitutional-candidate-graph",
+  "status": "CANDIDATE",
+  "nodes": [
+    {"id":"CL-001","type":"LAW","status":"PENDING_VALIDATION"},
+    {"id":"CL-002","type":"LAW","status":"PENDING_VALIDATION"},
+    {"id":"CL-003","type":"LAW","status":"PENDING_VALIDATION"},
+    {"id":"GI-001","type":"INVARIANT","status":"SPECIFIED"},
+    {"id":"GI-002","type":"INVARIANT","status":"SPECIFIED"},
+    {"id":"GI-004","type":"INVARIANT","status":"SPECIFIED"},
+    {"id":"GP-001","type":"PATTERN","status":"TEMPLATE"},
+    {"id":"GP-004","type":"PATTERN","status":"TEMPLATE"},
+    {"id":"RP-001","type":"RESEARCH_PROGRAM","status":"PLANNED"},
+    {"id":"RP-002","type":"RESEARCH_PROGRAM","status":"PLANNED"},
+    {"id":"RP-003","type":"RESEARCH_PROGRAM","status":"PLANNED"}
+  ],
+  "edges": [
+    {"source":"GI-001","target":"CL-001","type":"TESTS"},
+    {"source":"GI-002","target":"CL-002","type":"TESTS"},
+    {"source":"GI-004","target":"CL-003","type":"TESTS"},
+    {"source":"RP-001","target":"CL-001","type":"VALIDATES"},
+    {"source":"RP-002","target":"CL-003","type":"VALIDATES"},
+    {"source":"GP-001","target":"GI-004","type":"PRESERVES"},
+    {"source":"GP-004","target":"RP-001","type":"OPERATIONALIZES"}
+  ],
+  "replay": {"canonical_order":"lexicographic_by_type_then_id","verified":false},
+  "source_artifacts": ["CONSTITUTIONAL_LAWS.json","GOVERNANCE_INVARIANTS.json","GOVERNANCE_PATTERNS.json","RESEARCH_PROGRAMS.md"]
+}

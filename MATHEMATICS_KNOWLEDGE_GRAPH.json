@@ -1,0 +1,49 @@
+{
+  "document": "MATHEMATICS_KNOWLEDGE_GRAPH",
+  "phase": "16.X.3",
+  "status": "Implemented",
+  "owner": "Constitutional Research Council",
+
+  "node_types": {
+    "AxiomNode": "Foundational starting assumptions",
+    "DefinitionNode": "Concept definitions and their structure",
+    "StructureNode": "Algebraic/geometric/topological structures",
+    "ConjectureNode": "Unproven mathematical statements",
+    "LemmaNode": "Helper theorems used in larger proofs",
+    "ProofNode": "Step-by-step derivations establishing truth",
+    "TheoremNode": "Proven mathematical statements",
+    "CorollaryNode": "Direct consequences of theorems",
+    "AlgorithmNode": "Computational procedures proven correct",
+    "ApplicationNode": "Real-world/domain-specific applications"
+  },
+
+  "edge_types": {
+    "depends_on": "A depends on B for its validity",
+    "proves": "A provides a proof of B",
+    "refines": "A is a refinement/specialization of B",
+    "contradicts": "A contradicts B",
+    "applied_in": "A is applied in domain/context B",
+    "maps_to": "A maps/homomorphism to B",
+    "derives_from": "A is derived as a consequence of B"
+  },
+
+  "implementation": {
+    "module": "TiannaraRuntime.Mathematics.MathematicsKnowledgeGraph",
+    "ets_node_table": ":math_kg_nodes",
+    "ets_edge_table": ":math_kg_edges",
+    "table_type": ":set, :public, :named_table",
+    "id_prefix_nodes": "node_",
+    "id_prefix_edges": "edge_",
+    "id_algorithm": "SHA-256 of canonical JSON",
+    "traversal": "sorted by content hash (lexicographic)",
+    "cycles": "detected via DFS with recursion stack"
+  },
+
+  "statistics": {
+    "total_tests": 36,
+    "tests_passing": 36,
+    "tests_failing": 0,
+    "node_types_implemented": 10,
+    "edge_types_implemented": 7
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "certificate": {
+    "status": "passed",
+    "verified_at": "2026-07-02T20:06:58.752000Z"
+  },
+  "confidence": 1.0,
+  "campaign": "gc_003_capability_conservation",
+  "assigned_capabilities": 0,
+  "capability_conserved": true,
+  "conservation_rate": 1.0,
+  "failure_modes": [],
+  "orphan_capabilities": 0,
+  "statistical_power": 1.0,
+  "supporting_evidence": [
+    "governance_state_snapshot"
+  ],
+  "total_capabilities": 0
+}

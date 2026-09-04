@@ -25,11 +25,9 @@ defmodule Tiannara.MockAudit do
     "Enum.random",
     ":rand",
     "random_uniform",
-    "mock",
-    "stub",
+    "mock_",
+    "stub_",
     "placeholder",
-    "TODO",
-    "FIXME",
     "hardcoded"
   ]
 

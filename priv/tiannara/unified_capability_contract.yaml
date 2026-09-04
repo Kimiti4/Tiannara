@@ -1,0 +1,194 @@
+version: "1.1.0"
+name: "Unified Tiannara Capability Contract"
+description: >
+  Defines the 16 core capabilities required for Tiannara to operate as a unified,
+  evolving scientific organism. States are strictly evidence-based.
+  null = unassessed (runtime verification has not yet occurred), NOT broken.
+  K-004 Freeze: Runtime U-probes are deferred until AE-003 closure unless
+  explicitly authorized.
+
+audit_model:
+  D: "Designed"
+  S: "Structurally Present"
+  R: "Runtime Operating"
+  I: "Integrated with Tiannara"
+  V: "Validated Under Load"
+  P: "Proven in Real Operation"
+  assessment: "documented | unassessed"
+
+capabilities:
+  - id: "C1"
+    name: "reality_perception"
+    description: "Ingest repository state, telemetry, experiments, documents, human objectives."
+    state: { D: true, S: true, R: null, I: null, V: null, P: null }
+    assessment: "unassessed (S verified: telemetry/observatory/sentinel module tree exists; runtime not audited)"
+    dependencies: []
+    interfaces: ["lib/tiannara/telemetry/", "lib/tiannara/observatory/", "lib/tiannara/sentinel/operational_observatory.ex"]
+    entrypoints: ["unassessed — no perception mix task found"]
+    evidence: []
+    known_blockers: ["U1 probe required to verify canonical merge with C2"]
+
+  - id: "C2"
+    name: "unified_reality_model"
+    description: "Merge observations into one authoritative world/reality representation."
+    state: { D: true, S: true, R: null, I: null, V: null, P: null }
+    assessment: "unassessed (S verified: lib/tiannara/world/unified_world_model.ex, unified_reality_graph.ex, reality_graph.ex, adapters exist; runtime/canonical-merge not audited)"
+    dependencies: ["C1"]
+    interfaces: ["lib/tiannara/world/unified_reality_graph.ex", "lib/tiannara/world/unified_world_model.ex", "lib/tiannara/world/adapters/", "lib/tiannara/reality_graph.ex"]
+    entrypoints: ["unassessed — no world mix task found"]
+    evidence: []
+    known_blockers: ["CRITICAL: Canonical merge of World Model and Reality Graph unassessed (U1); shadow-state risk"]
+
+  - id: "C3"
+    name: "epistemic_reasoning"
+    description: "Track facts, evidence, assumptions, hypotheses, uncertainty, contradictions."
+    state: { D: true, S: true, R: true, I: true, V: true, P: null }
+    assessment: "documented (ASC slice: knowledge.eterm gate + oracle fidelity pass=true)"
+    dependencies: ["C2"]
+    interfaces: ["lib/tiannara/epistemic/{view,node,debugger}.ex", "priv/asc/missions/*/knowledge.eterm", "priv/asc/missions/ASC-AE-003/oracle.sealed.exs"]
+    entrypoints: ["mix asc.mission (evidence generation)", "mix asc.adopt (evidence consumption)"]
+    evidence: ["oracle.sealed.exs (fidelity pass=true)", "knowledge.eterm (verdict accept_eligible)"]
+    known_blockers: []
+
+  - id: "C4"
+    name: "mathematical_reasoning"
+    description: "Probability, optimization, formal reasoning, quantitative models."
+    state: { D: true, S: true, R: true, I: null, V: null, P: null }
+    assessment: "unassessed (R verified within ASC contracts: statistics/CI computation ran; availability to higher layers not audited)"
+    dependencies: ["C3"]
+    interfaces: ["lib/tiannara/math/{statistics,probability,optimization,graphs}.ex"]
+    entrypoints: ["unassessed — no math mix task found"]
+    evidence: ["AE-003 latency CI [0.81, 0.90], 15 rounds x n=15 (contract K-AE003)"]
+    known_blockers: ["Integration with higher-level research engine unassessed"]
+
+  - id: "C5"
+    name: "scientific_discovery"
+    description: "Observation → hypothesis → experiment → evidence → validation → knowledge."
+    state: { D: true, S: true, R: true, I: true, V: true, P: null }
+    assessment: "documented (ASC domain: AE-001..AE-003 executed full loop with contracts, rounds, oracle)"
+    dependencies: ["C2", "C3", "C4"]
+    interfaces: ["lib/tiannara/asc/c_missions/", "priv/asc/missions/"]
+    entrypoints: ["mix asc.c.run / asc.c.run2 / asc.c.run3 / asc.c.verify"]
+    evidence: ["AE-001 (D1 falsified by repeated measurement)", "AE-002", "AE-003"]
+    known_blockers: ["Single domain (ASC) audited; other research domains unassessed"]
+
+  - id: "C6"
+    name: "meta_science"
+    description: "Decide what should be investigated next based on information/value return."
+    state: { D: true, S: true, R: null, I: null, V: null, P: null }
+    assessment: "unassessed (S verified: lib/tiannara/os/research_program_engine.ex, research_strategy_result.ex exist)"
+    dependencies: ["C5", "C7"]
+    interfaces: ["lib/tiannara/os/research_program_engine.ex", "lib/tiannara/os/research_strategy_result.ex"]
+    entrypoints: ["unassessed — no meta-science mix task found"]
+    evidence: []
+    known_blockers: ["Runtime execution unassessed; lack of historical experiment ROI data"]
+
+  - id: "C7"
+    name: "knowledge_memory"
+    description: "Preserve, retrieve, validate, version and transform information into knowledge."
+    state: { D: true, S: true, R: true, I: true, V: true, P: null }
+    assessment: "documented (K-001..K-004; ASC consumed and produced knowledge across the adoption loop)"
+    dependencies: ["C2", "C3"]
+    interfaces: ["lib/tiannara/memory/knowledge_store.ex", "lib/tiannara/memory/memory.ex", "priv/asc/knowledge/", "priv/asc/missions/ASC-AE-003/knowledge.eterm"]
+    entrypoints: ["priv/asc/knowledge/*.md (read/write)"]
+    evidence: ["K-001 (D1 falsification)", "K-002 resolution (World 1 confirmed)", "K-003 gate-hierarchy finding", "K-004 ordering policy"]
+    known_blockers: []
+
+  - id: "C8"
+    name: "engineering_intelligence"
+    description: "Generate → simulate → evaluate → adversarially test → select engineering solutions."
+    state: { D: true, S: true, R: true, I: true, V: null, P: null }
+    assessment: "documented (R/I verified as exercised through ASC: candidate generation, compile, validation; standalone use unassessed)"
+    dependencies: ["C5", "C7"]
+    interfaces: ["lib/tiannara/engineering/{proposal_generator,design_evaluator,design_translator,engineering_synthesis_engine}.ex", "lib/tiannara/asc/implementation/compiler.ex"]
+    entrypoints: ["unassessed — no standalone engineering mix task found"]
+    evidence: ["ASC mission candidate generation/validation (AE-003 lineage)"]
+    known_blockers: ["Validation under controlled workload (standalone) pending"]
+
+  - id: "C9"
+    name: "autonomous_software_engineering"
+    description: "ASC: Research, design, implement, test, benchmark and evolve software."
+    state: { D: true, S: true, R: true, I: true, V: true, P: null }
+    assessment: "documented (AE-001..AE-003; adoption completed via two-key pathway; observation window OPEN)"
+    dependencies: ["C8", "C14"]
+    interfaces: ["lib/mix/tasks/asc.adopt.ex", "lib/mix/tasks/asc.observe.ex", "lib/tiannara/asc/adoption/{gate,adopter}.ex"]
+    entrypoints: ["mix asc.adopt", "mix asc.observe", "mix asc.audit", "mix asc.bench.boot"]
+    evidence: ["AE-001", "AE-002", "AE-003", "priv/asc/adoptions/ASC-AE-003-adoption.eterm"]
+    known_blockers: ["C2 (world model) integration unassessed", "Observation window open (day1/day3/day7)", "AE-004 designed, execution gated"]
+
+  - id: "C10"
+    name: "long_horizon_execution"
+    description: "Manage projects, dependencies, milestones, resources and outcomes over time."
+    state: { D: true, S: true, R: null, I: null, V: null, P: null }
+    assessment: "unassessed (S verified: lib/tiannara/executive/boot_manager/, lib/tiannara/cel/ MissionDirector exist)"
+    dependencies: ["C9", "C15"]
+    interfaces: ["lib/tiannara/executive/boot_manager/", "lib/tiannara/cel/"]
+    entrypoints: ["unassessed — no execution mix task found"]
+    evidence: []
+    known_blockers: ["Runtime execution unassessed; state decay over long durations"]
+
+  - id: "C11"
+    name: "external_action"
+    description: "Safely affect external systems and real-world/repository state."
+    state: { D: true, S: null, R: null, I: null, V: null, P: null }
+    assessment: "unassessed (no lib/tiannara/{execution,action,perception} dirs; no external gateway found; structural presence not verified)"
+    dependencies: ["C14"]
+    interfaces: ["unassessed"]
+    entrypoints: ["unassessed — no action mix task found"]
+    evidence: []
+    known_blockers: ["CRITICAL: Real-world interface is a genuine gap (self-referential trap risk)"]
+
+  - id: "C12"
+    name: "cognitive_immune_system"
+    description: "Detect anomalies, contradictions, unsafe behavior, degradation, epistemic failures."
+    state: { D: true, S: true, R: null, I: null, V: null, P: null }
+    assessment: "unassessed (S verified: full sentinel/CIS module tree exists incl. anomaly_detector, immune_coordinator, d2/*; runtime not audited)"
+    dependencies: ["C2", "C3"]
+    interfaces: ["lib/tiannara/sentinel/", "lib/tiannara/cis/", "lib/tiannara/rea/epistemic/constitutional_immune_system.ex"]
+    entrypoints: ["unassessed — no sentinel mix task found"]
+    evidence: []
+    known_blockers: ["Zero observed runtime runs; AE-004 is DESIGNED, not evidence"]
+
+  - id: "C13"
+    name: "capability_evolution"
+    description: "Discover gaps → generate candidates → benchmark → falsify → adopt → monitor."
+    state: { D: true, S: true, R: true, I: true, V: true, P: null }
+    assessment: "documented (runner, contracts, gates, oracle, adoption pathway all executed; instrument frozen per K-004)"
+    dependencies: ["C12"]
+    interfaces: ["lib/tiannara/asc/adoption/", "lib/mix/tasks/asc.adopt.ex", "lib/mix/tasks/asc.observe.ex"]
+    entrypoints: ["mix asc.adopt --dry-run", "mix asc.adopt", "mix asc.observe --label <day>"]
+    evidence: ["AE-001", "AE-002", "AE-003", "adoption dev-verify (DEV_VERIFY_ALL_OK)", "dry-run + artifact mismatch abort"]
+    known_blockers: ["AE-004 is designed, not yet run", "P unassessed (observation window open)"]
+
+  - id: "C14"
+    name: "constitutional_governance"
+    description: "Enforce constraints, authority, provenance, safety and human approval."
+    state: { D: true, S: true, R: true, I: true, V: true, P: null }
+    assessment: "documented (ASC slice: two-key gate enforced in real adoption; artifact branch mismatch aborted; scope check exact)"
+    dependencies: []
+    interfaces: ["lib/tiannara/asc/adoption/gate.ex", "priv/asc/authorizations/", "lib/tiannara/ucc/", "lib/tiannara/os/governance/"]
+    entrypoints: ["priv/asc/authorizations/*.human (human key)", "mix asc.adopt (gate enforcement)"]
+    evidence: ["dev-verify (GATE_PLACEHOLDER/MISSING/DECISION/DATE/VALID all ok)", "artifact branch mismatch abort", "adoption record with authorization sha256"]
+    known_blockers: ["P unassessed (single real adoption)", "Tiannara-wide governance layers unassessed"]
+
+  - id: "C15"
+    name: "civilizational_continuity"
+    description: "Preserve state, memory, identity, lineage, institutions and recovery capability."
+    state: { D: true, S: true, R: true, I: true, V: null, P: null }
+    assessment: "documented (byte-exact snapshot restore executed in a real failure: pre-adoption copy restored to identical hash)"
+    dependencies: ["C7", "C14"]
+    interfaces: ["priv/asc/adoptions/*/pre-adoption/", "git tags (asc-pre-adoption-*, asc-adopted-*)", "priv/asc/adoptions/*-adoption.eterm"]
+    entrypoints: ["git rev-parse asc-pre-adoption-ASC-AE-003"]
+    evidence: ["snapshot restore incident (b11bdef -> 4f7024f -> b11bdef, hash-verified)", "adoption.eterm record", "lineage tags"]
+    known_blockers: ["Long-run sustained validation pending; restart-level recovery (cold boot) unassessed"]
+
+  - id: "C16"
+    name: "human_collaboration"
+    description: "Explain evidence, uncertainty, alternatives, decisions and required human intervention."
+    state: { D: true, S: true, R: true, I: true, V: null, P: null }
+    assessment: "documented (dossiers, authorization artifacts, dry-run reports, escalation questions all used in real adoption)"
+    dependencies: ["C3", "C14"]
+    interfaces: ["priv/asc/adoptions/review-ASC-AE-003.md", "priv/asc/authorizations/ASC-AE-003.human"]
+    entrypoints: ["mix asc.adopt --dry-run (human review output)"]
+    evidence: ["review dossier", "human artifact (a.kimityr, 2026-08-18)", "authorization_sha256 in adoption record"]
+    known_blockers: ["UI/UX for complex epistemic uncertainty immature", "P unassessed"]

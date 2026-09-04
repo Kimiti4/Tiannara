@@ -1,0 +1,18 @@
+{
+  "phase": "epistemic_tagging",
+  "trace_id": "1f6804e5-d3b7-49eb-9b96-bebbd25360ac",
+  "ok": false,
+  "chain_result": {
+    "assumptions": [
+      "synthetic_observation_is_valid"
+    ],
+    "confidence": 0.95,
+    "node_stage": "knowledge",
+    "payload_hash": "b6fea8bc0fa9228d4a5870782cb3820e10313696cb5fe6250b07dd2a486a648c",
+    "rendered_provenance": "KNOWLEDGE  (\"u1_repo_tiannara\")\n    subsystem:      :probe_u1\n    timestamp:      ~U[2026-08-20 02:55:34.488000Z]\n    confidence:     0.95\n    disposition:    :provisional\n    content:        %{\"data\" => %{\"author\" => \"researcher_42\", \"commit_hash\" => \"HEAD\", \"files_changed\" => 3, \"message\" => \"Add epistemic tracer module\"}, \"entity_id\" => \"repo_tiannara\", \"timestamp\" => \"2026-08-20T02:54:17.032818+00:00\", \"type\" => \"repository_commit\"}\n    lineage:        [\"repo_tiannara\"]\n    assumptions:    [\"synthetic_observation_is_valid\"]\n    unknowns:       [\"external_verification_pending\"]\n    contradictions: []\n    checks:         [:explainability, :observability]",
+    "unknowns": [
+      "external_verification_pending"
+    ]
+  },
+  "payload_hash": "b6fea8bc0fa9228d4a5870782cb3820e10313696cb5fe6250b07dd2a486a648c"
+}

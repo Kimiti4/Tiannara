@@ -1,0 +1,21 @@
+{
+  "phase": "c9_asc",
+  "trace_id": "cfef0f0c-69e4-45ed-8bd7-d1d927659113",
+  "ok": true,
+  "chain_result": {
+    "adoptable": true,
+    "architecture_style": "modular_monolith",
+    "candidate_hash": "24801695d2bcd09ce184850ed3f38437f1cf7e8e834a2b0250294f271ccaacd3",
+    "candidate_id": "u4_7a7e3d591d68a3d6",
+    "complexity_score": 0.0,
+    "components": 0,
+    "confidence": 0.0,
+    "executable": true,
+    "governance_decision_ref": "8aeb11c1f657c8e3b2ce83785ed471725eb0c234258548915080ec2da27230cb",
+    "is_eligible": true,
+    "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a",
+    "provenance": "Tiannara.ASC.Implementation.Planner.generate_plan/2",
+    "timestamp": "2026-08-20T12:18:25.854000Z"
+  },
+  "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+}

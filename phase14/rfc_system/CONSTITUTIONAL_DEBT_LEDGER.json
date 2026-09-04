@@ -1,0 +1,41 @@
+{
+  "debts": [
+    {
+      "id": "DEBT-001",
+      "interest_rate": "Medium",
+      "introduced": "Phase 14.1",
+      "owner": "Replay Council",
+      "resolution_milestone": "Phase 15",
+      "severity": "High",
+      "type": "Replay Debt"
+    },
+    {
+      "id": "DEBT-002",
+      "interest_rate": "Medium",
+      "introduced": "Phase 14.1",
+      "owner": "Governance Review Board",
+      "resolution_milestone": "Phase 15",
+      "severity": "High",
+      "type": "Governance Debt"
+    },
+    {
+      "id": "DEBT-003",
+      "interest_rate": "Medium",
+      "introduced": "Phase 14.1",
+      "owner": "Knowledge Architecture Board",
+      "resolution_milestone": "Phase 15",
+      "severity": "Medium",
+      "type": "Knowledge Debt"
+    },
+    {
+      "id": "DEBT-004",
+      "interest_rate": "Medium",
+      "introduced": "Phase 14.1",
+      "owner": "Certification Council",
+      "resolution_milestone": "Phase 15",
+      "severity": "Medium",
+      "type": "Certification Debt"
+    }
+  ],
+  "version": "14.1.2"
+}

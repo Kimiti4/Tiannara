@@ -1,0 +1,830 @@
+{
+  "episodes": [
+    {
+      "episode": 1,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 2,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 3,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 4,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 5,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 6,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 7,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 8,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 9,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 10,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 11,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 12,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 13,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 14,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 15,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 16,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 17,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 18,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 19,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 20,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 21,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 22,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 23,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 24,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 25,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 26,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 27,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 28,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 29,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 30,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 31,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 32,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 33,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 34,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 35,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 36,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 37,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 38,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 39,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 40,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 41,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 42,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 43,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 44,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 45,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 46,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 47,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 48,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 49,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 50,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 51,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 52,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 53,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 54,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 55,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 56,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 57,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 58,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 59,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 60,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 61,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 62,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 63,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 64,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 65,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 66,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 67,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 68,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 69,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 70,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 71,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 72,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 73,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 74,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 75,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 76,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 77,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 78,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 79,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 80,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 81,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 82,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 83,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 84,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 85,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 86,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 87,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 88,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 89,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 90,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 91,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 92,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 93,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 94,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 95,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 96,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 97,
+      "subtype": "confounded_system",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 98,
+      "subtype": "branching_causal",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 99,
+      "subtype": "linear_causal_chain",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    },
+    {
+      "episode": 100,
+      "subtype": "intervention_prediction",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.95
+    }
+  ],
+  "success_rates_by_subtype": {
+    "linear_causal_chain": {
+      "successes": 0,
+      "total": 22,
+      "success_rate": 0.0
+    },
+    "confounded_system": {
+      "successes": 0,
+      "total": 27,
+      "success_rate": 0.0
+    },
+    "branching_causal": {
+      "successes": 0,
+      "total": 29,
+      "success_rate": 0.0
+    },
+    "intervention_prediction": {
+      "successes": 0,
+      "total": 22,
+      "success_rate": 0.0
+    }
+  },
+  "overall_success_rate": 0.0,
+  "quality_trajectory": [
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95,
+    0.95
+  ],
+  "improvements_applied": []
+}

@@ -4,8 +4,6 @@ defmodule Tiannara.Ctl.BranchValidator do
   This module works with the CausalRegistry to ensure branch integrity.
   """
 
-  @telemetry_prefix "tiannara.ctl.branch_validator"
-
   alias Tiannara.Ctl.CausalRegistry
 
   @type branch_id :: String.t()

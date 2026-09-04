@@ -1,0 +1,23 @@
+{
+    "100K":  {
+                 "ResultHash":  "4609cd68123904bb8e58a8f7b06ac175cc744bee34574d0490ff967df0cfbe82",
+                 "Status":  "SUCCESS",
+                 "SampleSize":  100000,
+                 "SuccessRate":  "100.0%",
+                 "DeterminismVerified":  "true"
+             },
+    "10K":  {
+                "ResultHash":  "4609cd68123904bb8e58a8f7b06ac175cc744bee34574d0490ff967df0cfbe82",
+                "Status":  "SUCCESS",
+                "SampleSize":  10000,
+                "SuccessRate":  "100.0%",
+                "DeterminismVerified":  "true"
+            },
+    "1M":  {
+               "ResultHash":  "4609cd68123904bb8e58a8f7b06ac175cc744bee34574d0490ff967df0cfbe82",
+               "Status":  "SUCCESS",
+               "SampleSize":  1000000,
+               "SuccessRate":  "100.0%",
+               "DeterminismVerified":  "true"
+           }
+}

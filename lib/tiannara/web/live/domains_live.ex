@@ -4,15 +4,15 @@ defmodule TiannaraWeb.DomainsLive do
   """
   use Phoenix.LiveView
 
-  alias Tiannara.Domains.Registry, as: DomReg
+  alias Tiannara.Domains.{CanonicalRegistry, KnowledgeCapitalBoundary, PortfolioBoundary}
 
   def mount(_params, _session, socket) do
-    domains = DomReg.all()
+    domains = CanonicalRegistry.all_records()
 
     # Precompute portfolio vectors and knowledge capital to keep render clean
     domain_data = Enum.map(domains, fn dom ->
-      vector = DomReg.get_portfolio_vector(dom.id)
-      capital = DomReg.get_knowledge_capital(dom.id)
+      vector = PortfolioBoundary.get(dom.id)
+      capital = KnowledgeCapitalBoundary.get(dom.id)
       %{
         dom: dom,
         vector: vector,

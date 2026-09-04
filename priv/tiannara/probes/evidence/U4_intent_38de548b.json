@@ -1,0 +1,9 @@
+{
+  "constraints": [
+    "max_memory_mb: 50",
+    "no_external_calls"
+  ],
+  "context": "U4 governance consumption test",
+  "objective": "Generate a candidate optimization for RepairLibrary ingestion",
+  "timestamp": "2026-08-20T12:15:48.542019+00:00"
+}

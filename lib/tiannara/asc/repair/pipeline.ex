@@ -29,19 +29,19 @@ defmodule Tiannara.ASC.Repair.PatchGenerator do
 end
 
 defmodule Tiannara.ASC.Repair.SandboxValidator do
-  @moduledoc "Runs the patch through Testing + Crucible in an isolated sandbox. Phase H stub."
-  @spec validate(map(), map()) :: {:ok, :pass} | {:error, :fail}
-  def validate(_project, _patch), do: {:ok, :pass}
+  @moduledoc "Runs the patch through Testing + Crucible in an isolated sandbox. Truthful: no real sandbox is wired — reports unavailability."
+  @spec validate(map(), map()) :: {:error, :unavailable}
+  def validate(_project, _patch), do: {:error, :unavailable}
 end
 
 defmodule Tiannara.ASC.Repair.CanaryReleaser do
-  @moduledoc "Deploys the validated patch to 5% of traffic. Phase H stub."
-  @spec release(map(), map()) :: {:ok, :canary_deployed}
-  def release(_project, _patch), do: {:ok, :canary_deployed}
+  @moduledoc "Deploys the validated patch to 5% of traffic. Truthful: no real canary path is wired — reports unavailability."
+  @spec release(map(), map()) :: {:error, :unavailable}
+  def release(_project, _patch), do: {:error, :unavailable}
 end
 
 defmodule Tiannara.ASC.Repair.ProductionRollout do
-  @moduledoc "Rolls out canary to 100% if metrics hold for the configured window. Phase H stub."
-  @spec rollout(map()) :: {:ok, :rolled_out}
-  def rollout(_project), do: {:ok, :rolled_out}
+  @moduledoc "Rolls out canary to 100% if metrics hold for the configured window. Truthful: no real rollout path is wired — reports unavailability."
+  @spec rollout(map()) :: {:error, :unavailable}
+  def rollout(_project), do: {:error, :unavailable}
 end

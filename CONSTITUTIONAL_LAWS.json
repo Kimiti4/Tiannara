@@ -1,0 +1,12 @@
+{
+  "schema_version": "15.0.0",
+  "status": "CANDIDATE",
+  "laws": [
+    {"id":"CL-001","name":"Canonical ownership","validation":"PENDING"},
+    {"id":"CL-002","name":"Provenance completeness","validation":"PENDING"},
+    {"id":"CL-003","name":"Replay continuity","validation":"PENDING"},
+    {"id":"CL-004","name":"Evidence quality","validation":"PENDING"},
+    {"id":"CL-005","name":"Bounded authority","validation":"PENDING"},
+    {"id":"CL-006","name":"Entropy control","validation":"PENDING"}
+  ]
+}

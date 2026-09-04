@@ -1,0 +1,40 @@
+{
+  "gate": "EFDI-D1",
+  "phase": "SIGNAL_INTELLIGENCE",
+  "verdict": "CERTIFIED_BOUNDED",
+  "timestamp": "2026-09-01T00:00:00Z",
+  "scope": "D1 Signal Intelligence only; no forecast/calibration/decision/counterfactual/noise/memory implementation",
+  "modules": [
+    "Tiannara.Forecasting.Signal",
+    "Tiannara.Forecasting.SignalRegistry",
+    "Tiannara.Forecasting.SignalQuality",
+    "Tiannara.Forecasting.SignalValue",
+    "Tiannara.Forecasting.Provenance",
+    "Tiannara.Forecasting.Correlation",
+    "Tiannara.Forecasting.Contracts",
+    "Tiannara.Forecasting.Adapters.Evidence",
+    "Tiannara.Forecasting.Adapters.Research",
+    "Tiannara.Forecasting.Adapters.CIS",
+    "Tiannara.Forecasting.Adapters.WorldModel",
+    "Tiannara.Forecasting"
+  ],
+  "test_files": 10,
+  "test_results": {
+    "tests": 92,
+    "failures": 0
+  },
+  "invariants": {
+    "epistemic_separation": true,
+    "unknown_distinct_from_zero": true,
+    "deterministic_dedup": true,
+    "historical_immutability": true,
+    "no_fabrication_pre_outcome": true,
+    "adapter_boundary_declare_only": true,
+    "existing_stubs_untouched": true
+  },
+  "verifier": "certification/forecasting/verifiers/EFDI_D1_independent_verification.py",
+  "verifier_output": "certification/forecasting/verifiers/EFDI_D1_independent_verification_output.json",
+  "verifier_exit": 0,
+  "verifier_overall": "PASS",
+  "final_verdict": "CERTIFIED_BOUNDED"
+}

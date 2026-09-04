@@ -1,0 +1,47 @@
+[
+  {
+    "id": "tc_331",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: check system",
+    "source_ref": "cap_328",
+    "test_module_name": "CheckSystemTest",
+    "test_function_name": "test check system succeeds with valid inputs",
+    "expected_behavior": "check system completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_332",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: alert when latency",
+    "source_ref": "cap_329",
+    "test_module_name": "AlertWhenLatencyTest",
+    "test_function_name": "test alert when latency succeeds with valid inputs",
+    "expected_behavior": "alert when latency completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_333",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: check database connectivity",
+    "source_ref": "cap_330",
+    "test_module_name": "CheckDatabaseConnectivityTest",
+    "test_function_name": "test check database connectivity succeeds with valid inputs",
+    "expected_behavior": "check database connectivity completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

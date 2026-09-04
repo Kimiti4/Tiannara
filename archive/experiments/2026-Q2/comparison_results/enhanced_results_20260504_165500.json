@@ -1,0 +1,86 @@
+{
+  "timestamp": "20260504_165609",
+  "mode": "enhanced",
+  "configuration": {
+    "episodes_per_domain": 20,
+    "skill_transfer_enabled": true,
+    "abstraction_enabled": true,
+    "domains_tested": [
+      "algorithm",
+      "logic",
+      "reverse_engineering",
+      "causal",
+      "temporal",
+      "combinatorial"
+    ],
+    "extraction_interval": 50
+  },
+  "overall": {
+    "total_episodes": 120,
+    "total_successes": 120,
+    "overall_success_rate": 1.0,
+    "elapsed_time_seconds": 56.94102215766907
+  },
+  "per_domain": {
+    "algorithm": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "successes": 20,
+      "total_episodes": 20
+    },
+    "logic": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "successes": 20,
+      "total_episodes": 20
+    },
+    "reverse_engineering": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "successes": 20,
+      "total_episodes": 20
+    },
+    "causal": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "successes": 20,
+      "total_episodes": 20
+    },
+    "temporal": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "successes": 20,
+      "total_episodes": 20
+    },
+    "combinatorial": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "successes": 20,
+      "total_episodes": 20
+    }
+  },
+  "skill_memory_stats": {
+    "total_skills_stored": 120,
+    "transfer_attempts": 270,
+    "transfer_successes": 120,
+    "transfer_success_rate": 0.4444444444444444,
+    "skills_per_domain": {
+      "algorithm": 20,
+      "logic": 20,
+      "reverse_engineering": 20,
+      "causal": 20,
+      "temporal": 20,
+      "combinatorial": 20
+    },
+    "abstraction": {
+      "total_skills_processed": 120,
+      "extraction_count": 2,
+      "abstract_patterns": 2,
+      "meta_patterns": 0,
+      "avg_abstract_success_rate": 1.0,
+      "avg_meta_success_rate": 0.0,
+      "avg_cross_domain_score": 0.8
+    },
+    "extracted_patterns_count": 2
+  }
+}

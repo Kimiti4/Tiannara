@@ -1,0 +1,80 @@
+probe_id: "CEL-1_registry_delegation"
+audit: "Unified Capability Certification"
+mode: "CERTIFICATION"   # auth-free integration certification, NOT a feature build
+
+# ------------------------------------------------------------------------------
+# What CEL-1 certifies
+# ------------------------------------------------------------------------------
+capabilities_under_test: [CEL_Executive, CapabilityRegistry, MissionDirector]
+layer: "Layer 4 — Executive"
+
+bounded_proposition: >
+  Under this tested execution path, CEL receives an objective, discovers the
+  appropriate capability dynamically from the CapabilityRegistry, evaluates
+  candidate health/ownership/dependencies, obtains C14 governance approval,
+  and delegates execution — WITHOUT relying on a hardcoded objective-to-
+  subsystem mapping for the tested objective.
+
+three_claims:
+  discovery:  "CEL discovers capabilities dynamically via registry descriptors."
+  selection:  "CEL selects among eligible providers using actual state."
+  delegation: "CEL delegates through the selected provider preserving C14, lineage, and trace."
+
+# ------------------------------------------------------------------------------
+# The novel-capability requirement (test integrity)
+# ------------------------------------------------------------------------------
+novel_capability_requirement: >
+  The delegated capability must be one the registry did NOT hardcode
+  specifically for the tested objective. Phase A characterizes the registry
+  and any hardcoded dispatch table, then selects a test objective that maps
+  to a resident capability ONLY through capability descriptors, not through
+  a pre-existing objective->handler entry. If every capability is hardcoded
+  for its objectives (no novel test possible), the verdict is
+  CANNOT_TEST_DYNAMIC_DISCOVERY — itself a finding, not a pass.
+
+# ------------------------------------------------------------------------------
+# Certification bounds (POL-CERT-AUTH-001)
+# ------------------------------------------------------------------------------
+production_mutation_allowed: false
+production_service_bootstrap_allowed: false
+external_mutations_allowed: false
+production_adoption_allowed: false
+test_registry_entry_injection_allowed: false   # must NOT add a test stub to the registry
+
+declared_side_effects:
+  - evidence_artifacts
+  - certification_records
+  - temporary_probe_state
+
+verdict_scope: "epistemic_status_only"
+verdict_targets: "integration_edges"
+
+# ------------------------------------------------------------------------------
+# Phases
+# ------------------------------------------------------------------------------
+phases:
+  Phase_A_registry_characterization:
+    description: "Read-only inspection of what the registry actually exposes."
+    outputs:
+      - "Enumerated capabilities + descriptors (health, ownership, dependencies, interfaces)"
+      - "Detected hardcoded dispatch table (objective/event_type -> handler), if any"
+      - "Selected novel test objective (not in the hardcoded table)"
+  Phase_B_dynamic_delegation_test:
+    description: "Submit the novel objective to CEL and observe the delegation trace."
+    required_trace_phases:
+      - "objective_received"
+      - "registry_query"          # CRITICAL: absence => hardcoded dispatch => FAIL
+      - "candidate_set"
+      - "health_check"
+      - "ownership_check"
+      - "dependency_resolution"
+      - "selection"
+      - "governance_gate"         # CRITICAL: absence => C14 bypass => FAIL
+      - "delegation"
+      - "execution"
+      - "result"
+      - "executive_memory_update"
+  Phase_C_verdict:
+    description: "Produce the bounded verdict from the trace evidence."
+
+contract_hash: "9c7dfc1a293e64b5c61fea18d37a7026eaa9fc5bbd749da90733fdf318ee2fc1"

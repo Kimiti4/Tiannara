@@ -3,7 +3,7 @@ defmodule Tiannara.REA.Causal.Attribution do
   Traces causal ancestry of a ruin.
   """
   
-  alias Tiannara.REA.{EvolutionaryRuin, LineageRegistry}
+  alias Tiannara.REA.EvolutionaryRuin
   alias Tiannara.REA.Causal.{Graph, PressureField}
   
   @type attribution :: %{

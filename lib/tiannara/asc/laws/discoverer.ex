@@ -107,14 +107,18 @@ defmodule Tiannara.ASC.Laws.Discoverer do
         }
 
         if falsification_check(metadata) do
-          # Upsert into the global registry using the ecology sentinel
-          Registry.upsert_law(
-            @ecology_sentinel_project,
-            candidate.law,
-            metadata
-          )
+          if unchanged?(candidate, metadata) do
+            Logger.debug("  ⏭️ UNCHANGED: \"#{candidate.law}\" (Support: #{candidate.support_count}) — skipping re-mint")
+          else
+            # Upsert into the global registry using the ecology sentinel
+            Registry.upsert_law(
+              @ecology_sentinel_project,
+              candidate.law,
+              metadata
+            )
 
-          Logger.info("  📜 MINTED: \"#{candidate.law}\" (Confidence: #{candidate.confidence}, Support: #{candidate.support_count})")
+            Logger.info("  📜 MINTED: \"#{candidate.law}\" (Confidence: #{candidate.confidence}, Support: #{candidate.support_count})")
+          end
         else
           Logger.info("  🛡️ REJECTED BY FALSIFICATION CHECK: \"#{candidate.law}\" (Confidence: #{candidate.confidence}, Support: #{candidate.support_count})")
         end
@@ -139,6 +143,19 @@ defmodule Tiannara.ASC.Laws.Discoverer do
         true -> true
       end
     end
+  end
+
+  # True when the candidate's evidence signature matches an already-registered
+  # law with the same statement — a re-mint would be a no-op.
+  defp unchanged?(candidate, metadata) do
+    existing =
+      Registry.all()
+      |> Enum.find(&(&1.statement == candidate.law))
+
+    existing != nil and
+      existing.support_count == Map.get(metadata, :support_count, existing.support_count) and
+      existing.contradiction_count == Map.get(metadata, :contradiction_count, existing.contradiction_count) and
+      existing.confidence == Map.get(metadata, :confidence, existing.confidence)
   end
 
   defp loop do

@@ -38,9 +38,6 @@ defmodule TiannaraOS.CivilizationReproductionEngine do
   # Lowered from 3000 to 1500 to make reproduction easier
   @reproduction_scale 1500.0
   
-  # Base mutation rate
-  @base_mutation_rate 0.2
-  
   # Contrarian mutation probability (5%)
   @contrarian_probability 0.05
   
@@ -62,7 +59,6 @@ defmodule TiannaraOS.CivilizationReproductionEngine do
   
   # FOUR-STAGE DEVELOPMENTAL LIFECYCLE ⭐
   @juvenile_protection_period 8000  # full maturation window: newborn(1k) + juvenile(4k) + apprentice(3k)
-  @juvenile_burn_rate_fraction 0.10  # newborns consume 10% of adult burn rate
   
   @doc """
   Trigger reproduction for all eligible programs.
@@ -86,7 +82,7 @@ defmodule TiannaraOS.CivilizationReproductionEngine do
   """
   @spec trigger_reproduction(State.t()) :: State.t()
   def trigger_reproduction(%State{} = state) do
-    programs = state.research_programs || %{}
+    _programs = state.research_programs || %{}
     index = state.world_program_index || %{}
     current_tick = state.economy[:tick] || 0
     
@@ -352,16 +348,6 @@ defmodule TiannaraOS.CivilizationReproductionEngine do
     :math.pow(total_royalty, 0.7)
   end
   
-  @doc false
-  @spec count_active_in_world(State.t(), atom()) :: integer()
-  defp count_active_in_world(%State{} = state, world_id) do
-    if state.world_population_cache do
-      get_in(state.world_population_cache, [world_id, :active]) || 0
-    else
-      MapSet.size(Map.get(state.world_program_index || %{}, world_id, MapSet.new()))
-    end
-  end
-  
   @doc """
   Generate unique child program ID.
   
@@ -404,6 +390,8 @@ defmodule TiannaraOS.CivilizationReproductionEngine do
       attention: inherited_attention
     }
   end
+
+  def inherit_budget(_), do: %{credits: 100.0, compute: 100.0, attention: 50.0}
   
   # ============================================================================
   # Internal Functions
@@ -429,8 +417,6 @@ defmodule TiannaraOS.CivilizationReproductionEngine do
     end)
   end
 
-  def inherit_budget(_), do: %{credits: 100.0, compute: 100.0, attention: 50.0}
-  
   @doc """
   Summarize reproduction event for logging.
   

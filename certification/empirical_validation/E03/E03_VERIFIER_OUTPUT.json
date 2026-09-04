@@ -1,0 +1,283 @@
+{
+  "frozen_against_head": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+  "assertions": {
+    "ARTIFACTS_EXIST": {
+      "status": "PASS",
+      "evidence": {
+        "prereg_path": "C:\\Users\\user\\Tiannara\\Tiannara-MindCache-Prosthetic\\certification\\empirical_validation\\E03\\E03_PREREGISTRATION.md",
+        "prereg_exists": true,
+        "manifest_path": "C:\\Users\\user\\Tiannara\\Tiannara-MindCache-Prosthetic\\certification\\empirical_validation\\E03\\E03_PARAMETER_MANIFEST.json",
+        "manifest_exists": true
+      }
+    },
+    "PREREG_REFERENCES_FROZEN_HEAD": {
+      "status": "PASS",
+      "evidence": {
+        "expected_head": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+        "found_in_text": true
+      }
+    },
+    "PREREG_DECLARES_FROZEN": {
+      "status": "PASS",
+      "evidence": {
+        "frozen_in_text": true,
+        "no_posthoc_in_text": true
+      }
+    },
+    "REPO_HEAD_MATCHES_FROZEN_HEAD": {
+      "status": "PASS",
+      "evidence": {
+        "expected": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+        "actual": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6"
+      }
+    },
+    "MANIFEST_VALID_JSON": {
+      "status": "PASS",
+      "evidence": {
+        "keys_count": 41
+      }
+    },
+    "MANIFEST_HAS_REQUIRED_KEYS": {
+      "status": "PASS",
+      "evidence": {
+        "required": [
+          "manifest_id",
+          "campaign",
+          "status",
+          "frozen_against_head",
+          "environment",
+          "hypotheses",
+          "conditions",
+          "seeds",
+          "run_duration",
+          "measurement_schedule",
+          "metrics",
+          "perturbation_protocol",
+          "counterfactual_protocol",
+          "overreach_sweep_protocol",
+          "primary_success_criteria",
+          "primary_failure_conditions",
+          "stop_conditions_master_prompt_section_22",
+          "evidence_model",
+          "provenance_schema",
+          "no_trust_verification",
+          "scientific_analysis_questions",
+          "final_classification",
+          "next_concrete_deliverables_in_order"
+        ],
+        "missing": []
+      }
+    },
+    "MANIFEST_HAS_HYPOTHESES": {
+      "status": "PASS",
+      "evidence": {
+        "keys": [
+          "H1_primary",
+          "H0_A_suffocation",
+          "H0_B_ineffectiveness",
+          "H0_C_artificial_emergence"
+        ]
+      }
+    },
+    "PREREG_HAS_H1_AND_H0S_AND_CLASSIFICATION": {
+      "status": "PASS",
+      "evidence": {
+        "h1_in_text": true,
+        "h0a_in_text": true,
+        "h0b_in_text": true,
+        "h0c_in_text": true,
+        "endogenous_in_text": true
+      }
+    },
+    "EMERGENCE_CLASSIFICATION_VOCABULARY_COMPLETE": {
+      "status": "PASS",
+      "evidence": {
+        "required": [
+          "ENDOGENOUS",
+          "STABILIZER_ASSISTED",
+          "STABILIZER_INDUCED",
+          "ARTIFICIAL_NON_EMERGENT",
+          "UNRESOLVED"
+        ],
+        "found": [
+          "ENDOGENOUS",
+          "STABILIZER_ASSISTED",
+          "STABILIZER_INDUCED",
+          "ARTIFICIAL_NON_EMERGENT",
+          "UNRESOLVED"
+        ]
+      }
+    },
+    "MANIFEST_HAS_ABC_CONTROLS": {
+      "status": "PASS",
+      "evidence": {
+        "condition_ids": [
+          "CONTROL_A",
+          "CONTROL_B",
+          "CONTROL_C"
+        ]
+      }
+    },
+    "MANIFEST_HAS_REQUIRED_SEEDS_AND_9_RUNS": {
+      "status": "PASS",
+      "evidence": {
+        "required": [
+          42,
+          1729,
+          20240903
+        ],
+        "found_unique": [
+          42,
+          1729,
+          20240903
+        ],
+        "total_runs": 9
+      }
+    },
+    "MANIFEST_DURATION_AND_CHECKPOINTS": {
+      "status": "PASS",
+      "evidence": {
+        "baseline_runs_ticks": 10000,
+        "checkpoints": [
+          0,
+          100,
+          500,
+          1000,
+          2500,
+          5000,
+          7500,
+          10000
+        ],
+        "duration_ok": true,
+        "checkpoints_ok": true
+      }
+    },
+    "MANIFEST_PRESSURE_SWEEP": {
+      "status": "PASS",
+      "evidence": {
+        "pressures_swept": [
+          0.0,
+          0.25,
+          0.5,
+          0.75,
+          1.0
+        ],
+        "expected": [
+          0.0,
+          0.25,
+          0.5,
+          0.75,
+          1.0
+        ],
+        "total_sweep_runs": 15
+      }
+    },
+    "MANIFEST_SUCCESS_FAILURE_STOP_CRITERIA": {
+      "status": "PASS",
+      "evidence": {
+        "success_count": 10,
+        "failure_count": 9,
+        "stop_count": 10
+      }
+    },
+    "PREREG_INDEPENDENCE_REQUIREMENT": {
+      "status": "PASS",
+      "evidence": {
+        "independence_in_text": true,
+        "trace_causal_in_text": true,
+        "stabilizer_induced_in_text": true
+      }
+    },
+    "ABSENCE_OF_EXECUTION_ARTIFACTS": {
+      "status": "PASS",
+      "evidence": {
+        "checked": [
+          "E03_RUN_LEDGER.jsonl",
+          "E03_EVIDENCE.json",
+          "E03_ANALYSIS.md",
+          "E03_CERTIFICATION.md",
+          "E03_STOP_REPORT.md"
+        ]
+      }
+    },
+    "ABSENCE_OF_RUN_OUTPUT_DIRS": {
+      "status": "PASS",
+      "evidence": {
+        "existing_candidate_run_dirs": []
+      }
+    },
+    "MEASUREMENT_INTEGRITY_R7_STILL_VALID": {
+      "status": "PASS",
+      "evidence": {
+        "source": "C:\\Users\\user\\Tiannara\\Tiannara-MindCache-Prosthetic\\certification\\empirical_validation\\verifiers\\MEASUREMENT_INTEGRITY_verifier_output.json",
+        "overall": "MEASUREMENT_INTEGRITY_CERTIFIED",
+        "gates_passed": 12,
+        "gates_total": 12,
+        "note": "Read from R6 most-recent output JSON (authoritative)."
+      }
+    },
+    "ABSENCE_OF_D6_OPC_MEMORY_D6": {
+      "status": "PASS",
+      "evidence": {
+        "checked": [
+          "lib\\tiannara\\d6",
+          "lib\\tiannara\\opc",
+          "lib\\tiannara\\memory_d6"
+        ],
+        "violations": []
+      }
+    },
+    "PHASE4_PRE_EXISTING_AND_UNTouched_BY_E03": {
+      "status": "PASS",
+      "evidence": {
+        "phase4_path": "lib\\tiannara\\phase4",
+        "total_files": 4,
+        "files_modified_after_e03_prereg": [],
+        "note": "phase4 is pre-existing untracked content from the dirty working tree. E03 must not have touched it."
+      }
+    },
+    "D5_FACADE_STILL_CERTIFIED_BOUNDED": {
+      "status": "PASS",
+      "evidence": {
+        "d5_facade_path": "C:\\Users\\user\\Tiannara\\Tiannara-MindCache-Prosthetic\\lib\\tiannara\\forecasting\\d5.ex",
+        "verdict_line_present": true
+      }
+    },
+    "E06_E07_PRESERVED_FALSIFIED": {
+      "status": "PASS",
+      "evidence": {
+        "e06_falsified_in_text": true,
+        "e07_falsified_in_text": true
+      }
+    },
+    "MANIFEST_FROZEN_NO_POSTHOC": {
+      "status": "PASS",
+      "evidence": {
+        "no_post_hoc_modification": true,
+        "status": "FROZEN \u00b7 PENDING_EXECUTION_AUTHORIZATION"
+      }
+    },
+    "PREREG_HAS_FREEZE_DECLARATION": {
+      "status": "PASS",
+      "evidence": {
+        "freeze_declaration_in_text": true
+      }
+    }
+  },
+  "PREREG_SHA256": "16e7f841fd6d470b4c368f5c5e479d9cad663d007dc745d134209bb0f7c3732f",
+  "MANIFEST_SHA256": "2bcf575c5c57c1bc493a9b73222d5eeb6515c0de4a10fbfb095e5050dcbf13bd",
+  "GATES_PASS": 24,
+  "GATES_FAIL": 0,
+  "GATES_INDETERMINATE": 0,
+  "GATES_TOTAL": 24,
+  "OVERALL": "PASS",
+  "EXIT_CODE": 0,
+  "VERIFIER_NOTES": [
+    "This verifier does not execute E03, invoke stabilizers, mutate code, or modify the preregistration.",
+    "All assertions are deterministic and reproducible.",
+    "Pass conditions: all assertions are PASS.",
+    "FAIL conditions: any assertion is FAIL.",
+    "INDETERMINATE conditions: at least one assertion is INDETERMINATE and zero are FAIL.",
+    "Frozen against HEAD 3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6."
+  ]
+}

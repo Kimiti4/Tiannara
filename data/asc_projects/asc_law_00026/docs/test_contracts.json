@@ -1,0 +1,17 @@
+[
+  {
+    "id": "tc_110",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: validate data quality",
+    "source_ref": "cap_109",
+    "test_module_name": "ValidateDataQualityTest",
+    "test_function_name": "test validate data quality succeeds with valid inputs",
+    "expected_behavior": "validate data quality completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

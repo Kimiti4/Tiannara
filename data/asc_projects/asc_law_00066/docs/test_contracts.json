@@ -1,0 +1,34 @@
+[
+  {
+    "id": "tc_280",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: publish messages topics",
+    "source_ref": "cap_279",
+    "test_module_name": "PublishMessagesTopicsTest",
+    "test_function_name": "test publish messages topics succeeds with valid inputs",
+    "expected_behavior": "publish messages topics completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_281",
+    "priority": "medium",
+    "status": "pending",
+    "type": "integration",
+    "description": "Integration: publish messages topics — cross-boundary",
+    "source_ref": "cap_279",
+    "test_module_name": "PublishMessagesTopicsTestIntegration",
+    "test_function_name": "test publish messages topics propagates across boundaries",
+    "expected_behavior": "publish messages topics propagates correctly across system boundaries",
+    "coverage_dimension": "integration",
+    "property_spec": null,
+    "tags": [
+      "integration"
+    ],
+    "source_type": "capability"
+  }
+]

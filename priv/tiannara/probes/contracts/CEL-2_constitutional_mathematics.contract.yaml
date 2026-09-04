@@ -1,0 +1,70 @@
+probe_id: "CEL-2_constitutional_mathematics"
+audit: "Unified Capability Certification"
+mode: "CERTIFICATION"                       # the probe is auth-free
+companion_action: "ASC-CEL-2-REGISTRATION"  # the ONLY mutation; C14-gated
+
+bounded_proposition: >
+  Given an objective requiring mathematics (without naming a provider), CEL
+  discovers an eligible mathematics provider from live CapabilityRegistry state,
+  validates health/ownership/dependency/interface, obtains C14 approval, delegates
+  to the registered Tiannara.Math.Probability.bayes_update/3, receives a
+  deterministic result, and preserves the complete causal evidence.
+
+objective_constraint:
+  objective: "perform_bayesian_update"      # describes the NEED only
+  must_not_contain:
+    - "use Tiannara.Math.Probability"
+    - "use constitutional_mathematics"
+    - "route to math provider"
+  rationale: "Discovery must come from the registry, not the objective string."
+
+assertions:
+  P1:  "objective accepted by CEL"
+  P2:  "registry_query exists and is causally linked to the objective"
+  P3:  "candidate_set produced from the LIVE registry"
+  P4:  "constitutional_mathematics discovered, not hardcoded"
+  P5:  "health/ownership/dependency/interface checks participated in selection"
+  P6:  "selected provider corresponds to the live registered capability"
+  P7:  "C14 governance_gate occurs before delegation"
+  P8:  "delegation invokes the registered bayes_update/3"
+  P9:  "bayes_update/3 produces a deterministic result"
+  P10: "result linked to originating objective via the trace"
+  P11: "no unauthorized mutation or unrelated production pollution"
+
+hard_fail:
+  - "objective → provider routing hardcoded"
+  - "registry_query absent"
+  - "registry_query present but does not influence selection"
+  - "provider inserted by probe/helper rather than C14 registration"
+  - "C14 bypassed"
+  - "delegation invokes a different implementation"
+  - "deterministic result not reproducible"
+  - "trace order fabricated or causally inconsistent"
+  - "missing provider silently substituted"
+  - "unrelated production state mutated"
+
+negative_control:
+  source: "priv/tiannara/probes/results/u1x_trace.json"
+  expected: "MATH_NOT_REGISTERED"
+  math_discoverable: false
+  immutable: true                            # never regenerated post-registration
+
+verdict_semantics:
+  PASS:    "all P1-P11 hold AND negative control intact"
+  PARTIAL: "registration succeeds but one or more positive assertions unestablished"
+  FAIL:    "any hard_fail condition"
+  BLOCKED: "a genuine substrate prerequisite prevents legitimate execution"
+
+# Certification bounds (POL-CERT-AUTH-001)
+production_mutation_allowed: false
+registry_mutation_allowed: false            # registration is the gated companion action
+external_mutations_allowed: false
+production_adoption_allowed: false
+probe_self_registration_allowed: false      # probe MUST NOT register the provider
+
+post_verdict_language: >
+  On PASS: "CEL demonstrates registry-mediated discovery for the certified
+  constitutional_mathematics provider; generalized runtime capability ingestion
+  remains an architectural expansion." Do NOT claim the registry is fully dynamic.
+
+contract_hash: "d9dddd6b706479640216cf9d339785c30f3b82723d4ad95128d834353485ebc8"

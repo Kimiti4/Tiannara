@@ -1,0 +1,35 @@
+{
+  "constraints": [],
+  "invariants": [],
+  "capabilities": [
+    {
+      "id": "cap_233",
+      "name": "validate input schemas",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "validate",
+      "subject": "input schemas",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_234",
+      "name": "check business rules",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "check",
+      "subject": "business rules",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:23:32.343000Z"
+}

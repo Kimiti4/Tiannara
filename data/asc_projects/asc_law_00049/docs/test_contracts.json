@@ -1,0 +1,55 @@
+[
+  {
+    "id": "tc_199",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Writes must be eventually consistent",
+    "source_ref": "inv_196",
+    "test_module_name": "WritesMustEventuallyInvariantTest",
+    "test_function_name": "property Writes must be eventually consistent",
+    "expected_behavior": "Writes must NOT be eventually consistent",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "general",
+      "generator": "StreamData.term()",
+      "assertion": "Writes must NOT be eventually consistent",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "general"
+    ],
+    "source_type": "invariant"
+  },
+  {
+    "id": "tc_200",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: read and write",
+    "source_ref": "cap_197",
+    "test_module_name": "ReadAndWriteTest",
+    "test_function_name": "test read and write succeeds with valid inputs",
+    "expected_behavior": "read and write completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_201",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: read queries",
+    "source_ref": "cap_198",
+    "test_module_name": "ReadQueriesTest",
+    "test_function_name": "test read queries succeeds with valid inputs",
+    "expected_behavior": "read queries completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

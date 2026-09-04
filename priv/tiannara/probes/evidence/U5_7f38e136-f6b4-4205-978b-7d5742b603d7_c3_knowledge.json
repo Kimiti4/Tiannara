@@ -1,0 +1,10 @@
+{
+  "phase": "c3_knowledge",
+  "trace_id": "7f38e136-f6b4-4205-978b-7d5742b603d7",
+  "ok": false,
+  "chain_result": {
+    "reason": "causal chain broken at C1->C2 (C2 deferred); cannot accept state without canonical reality model",
+    "skipped": true
+  },
+  "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f"
+}

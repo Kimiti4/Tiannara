@@ -13,7 +13,6 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairLineage do
   """
 
   alias Tiannara.ASC.Crucible.RepairPattern
-  alias __MODULE__
 
   @derive Jason.Encoder
   defstruct [
@@ -50,7 +49,7 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairLineage do
   
   The first pattern in a lineage becomes the root ancestor.
   """
-  def from_root_pattern(%RepairPattern{} = pattern, species_id, generation, epoch_id) do
+  def from_root_pattern(%RepairPattern{} = pattern, species_id, generation, _epoch_id) do
     now = DateTime.utc_now() |> DateTime.to_iso8601()
     
     %__MODULE__{

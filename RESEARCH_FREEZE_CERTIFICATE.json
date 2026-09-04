@@ -1,0 +1,50 @@
+{
+  "certificate_id": "RESEARCH_FREEZE_CERTIFICATE_ID_PLACEHOLDER",
+  "certificate_type": "RESEARCH_FREEZE_TEMPLATE",
+  "schema_version": "16.0.0",
+  "freeze_epoch": "16.05",
+  "required_frozen_artifacts": [
+    "AUTONOMOUS_RESEARCH_ARCHITECTURE.md",
+    "RESEARCH_PIPELINE.md",
+    "RESEARCH_DATA_MODEL.md",
+    "RESEARCH_REPLAY_MODEL.md",
+    "RESEARCH_CERTIFICATION.md",
+    "RESEARCH_RUNTIME_FREEZE.md"
+  ],
+  "frozen_contracts_summary": {
+    "replay_critical_outputs": [
+      "KnowledgeGap",
+      "ResearchQuestion",
+      "ResearchPriority",
+      "ResearchProgram",
+      "ResearchExperiment",
+      "ResearchEvidence",
+      "ResearchStatisticalValidation",
+      "ResearchTheoryUpdateProposal",
+      "DISCOVERY_LINEAGE.json"
+    ],
+    "determinism_rules": [
+      "content-addressed IDs",
+      "canonical serialization",
+      "tie-breaking by content-hash ordering",
+      "no network calls during derivation"
+    ],
+    "evidence_mapping_rules": [
+      "evidence bundles reference experiment design hashes",
+      "evidence normalization proofs are required for evidence replayability"
+    ],
+    "constitutional_gates": [
+      "knowledge acceptance requires certificate chain completion",
+      "independent evidence-only audit is required for acceptance"
+    ]
+  },
+  "issued_by": {
+    "issuer_id": "PROTOCOL_TEMPLATE_ISSUER_ID",
+    "issuer_signature": "ed25519_signature_placeholder"
+  },
+  "timestamp": "ISO8601_PLACEHOLDER",
+  "validity_conditions": {
+    "only_template": true,
+    "note": "This is a specification/template artifact for the Phase 16.05 freeze certificate, not an issued certificate."
+  }
+}

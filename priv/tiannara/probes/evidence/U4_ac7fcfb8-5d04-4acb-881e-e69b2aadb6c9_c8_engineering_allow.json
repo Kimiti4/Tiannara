@@ -1,0 +1,146 @@
+{
+  "phase": "c8_engineering",
+  "trace_id": "ac7fcfb8-5d04-4acb-881e-e69b2aadb6c9",
+  "ok": true,
+  "chain_result": {
+    "entity_types": {
+      "agents": [
+        "human",
+        "ai_system",
+        "subsystem",
+        "organization",
+        "team"
+      ],
+      "capabilities": [
+        "service",
+        "tool",
+        "skill",
+        "competency",
+        "api"
+      ],
+      "civilizations": [
+        "society",
+        "institution",
+        "culture",
+        "governance_structure"
+      ],
+      "constraints": [
+        "policy",
+        "constitutional_rule",
+        "invariant",
+        "regulation",
+        "quota"
+      ],
+      "environment": [
+        "physical_object",
+        "location",
+        "ecosystem",
+        "climate_state",
+        "natural_resource"
+      ],
+      "experiments": [
+        "hypothesis_test",
+        "simulation_run",
+        "validation_trial",
+        "replication_attempt"
+      ],
+      "knowledge": [
+        "fact",
+        "evidence",
+        "hypothesis",
+        "theory",
+        "principle",
+        "discovery",
+        "pattern",
+        "model",
+        "unknown"
+      ],
+      "missions": [
+        "mission",
+        "program",
+        "objective",
+        "workflow",
+        "task",
+        "outcome"
+      ],
+      "observations": [
+        "measurement",
+        "sensor_reading",
+        "telemetry",
+        "raw_data"
+      ],
+      "predictions": [
+        "forecast",
+        "simulation_output",
+        "counterfactual",
+        "risk_estimate"
+      ],
+      "resources": [
+        "compute",
+        "memory",
+        "energy",
+        "budget",
+        "material",
+        "bandwidth",
+        "lab_time"
+      ],
+      "unknowns": [
+        "knowledge_gap",
+        "unresolved_question",
+        "missing_evidence",
+        "contradiction"
+      ]
+    },
+    "entity_validation": {
+      "ok": {
+        "error": [
+          "invalid_entity_type",
+          "knowledge",
+          "artifact"
+        ]
+      }
+    },
+    "memory_stages": [
+      "data",
+      "information",
+      "knowledge",
+      "pattern",
+      "model",
+      "principle",
+      "generalized_understanding",
+      "engineering_insight",
+      "scientific_discovery"
+    ],
+    "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a",
+    "provenance": "Tiannara.World.CanonicalWorldState (schema)",
+    "required_fields": [
+      "id",
+      "domain",
+      "type",
+      "confidence",
+      "uncertainty",
+      "provenance",
+      "owner_subsystem",
+      "version",
+      "created_at",
+      "updated_at",
+      "status"
+    ],
+    "timestamp": "2026-08-20T12:18:25.835000Z",
+    "world_domains": [
+      "environment",
+      "resources",
+      "knowledge",
+      "agents",
+      "civilizations",
+      "experiments",
+      "missions",
+      "capabilities",
+      "constraints",
+      "observations",
+      "predictions",
+      "unknowns"
+    ]
+  },
+  "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+}

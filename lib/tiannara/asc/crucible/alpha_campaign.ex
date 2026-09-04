@@ -158,9 +158,6 @@ defmodule Tiannara.ASC.Crucible.AlphaCampaign do
         status = if result.failure_discovered?, do: "FAILURE FOUND", else: "NO FAILURE"
         IO.puts("     ✅ Break: #{status}")
         result
-      {:error, error} ->
-        IO.puts("     ❌ Break Error: #{inspect(error)}")
-        nil
     end
 
     # Step 4: Attack
@@ -170,9 +167,6 @@ defmodule Tiannara.ASC.Crucible.AlphaCampaign do
         status = if result.exploit_found?, do: "EXPLOIT FOUND", else: "NO EXPLOIT"
         IO.puts("     ✅ Attack: #{status}")
         result
-      {:error, error} ->
-        IO.puts("     ❌ Attack Error: #{inspect(error)}")
-        nil
     end
 
     # Step 5: Repair (attempt repair on first failure found)
@@ -199,9 +193,6 @@ defmodule Tiannara.ASC.Crucible.AlphaCampaign do
           status = if result.repair_successful?, do: "SUCCESS", else: "FAILED"
           IO.puts("     ✅ Repair: #{status}")
           result
-        {:error, error} ->
-          IO.puts("     ❌ Repair Error: #{inspect(error)}")
-          nil
       end
     else
       IO.puts("  🩹 Skipping repair (no failure to repair)")

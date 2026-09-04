@@ -24,7 +24,6 @@ defmodule Tiannara.ASC.Interface.Population do
   """
 
   alias Tiannara.ASC.Interface.{Genome, Lineage}
-  alias Tiannara.ASC.Interface.Fitness
 
   @derive Jason.Encoder
   defstruct [

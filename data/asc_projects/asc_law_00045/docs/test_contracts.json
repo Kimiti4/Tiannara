@@ -1,0 +1,17 @@
+[
+  {
+    "id": "tc_186",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: create user sessions",
+    "source_ref": "cap_185",
+    "test_module_name": "CreateUserSessionsTest",
+    "test_function_name": "test create user sessions succeeds with valid inputs",
+    "expected_behavior": "create user sessions completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

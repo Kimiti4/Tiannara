@@ -169,7 +169,7 @@ defmodule Tiannara.Topology.OSL do
           :ok ->
             # Execute operation in sandbox
             case execute_operation(sandbox_data, operation) do
-              {:ok, result, updated_ontologies} ->
+              {:ok, result, _updated_ontologies} ->
                 # Store changes
                 record_sandbox_changes(sandbox_id, operation, result)
                 
@@ -230,7 +230,7 @@ defmodule Tiannara.Topology.OSL do
   @impl true
   def handle_call({:isolate_changes, sandbox_id, target_ontology_id}, _from, state) do
     case :ets.lookup(:sandboxes, sandbox_id) do
-      [{^sandbox_id, sandbox_data}] ->
+      [{^sandbox_id, _sandbox_data}] ->
         # Isolate changes for specific ontology
         case isolate_sandbox_changes(sandbox_id, target_ontology_id) do
           :ok ->
@@ -250,7 +250,7 @@ defmodule Tiannara.Topology.OSL do
   @impl true
   def handle_call({:merge_changes, sandbox_id, source_ontology_id, target_ontology_id}, _from, state) do
     case :ets.lookup(:sandboxes, sandbox_id) do
-      [{^sandbox_id, sandbox_data}] ->
+      [{^sandbox_id, _sandbox_data}] ->
         # Merge changes from source to target
         case merge_sandbox_changes(sandbox_id, source_ontology_id, target_ontology_id) do
           {:ok, merged_ontology} ->
@@ -273,7 +273,7 @@ defmodule Tiannara.Topology.OSL do
   @impl true
   def handle_call({:rollback_sandbox, sandbox_id, to_version}, _from, state) do
     case :ets.lookup(:sandboxes, sandbox_id) do
-      [{^sandbox_id, sandbox_data}] ->
+      [{^sandbox_id, _sandbox_data}] ->
         # Perform rollback
         case perform_sandbox_rollback(sandbox_id, to_version) do
           {:ok, rollback_data} ->
@@ -734,13 +734,13 @@ defmodule Tiannara.Topology.OSL do
       duplicates = concept_ids -- Enum.uniq(concept_ids)
       
       if length(duplicates) > 0 do
-        issues = issues ++ ["Duplicate concept IDs in #{ontology.id}: #{inspect(duplicates)}"]
+        _issues = issues ++ ["Duplicate concept IDs in #{ontology.id}: #{inspect(duplicates)}"]
       end
       
       # Check required fields
       Enum.each(ontology.concepts, fn concept ->
         if not Map.has_key?(concept, :id) do
-          issues = issues ++ ["Concept missing ID in #{ontology.id}"]
+          _issues = issues ++ ["Concept missing ID in #{ontology.id}"]
         end
       end)
     end)
@@ -754,13 +754,13 @@ defmodule Tiannara.Topology.OSL do
     
     # Check for rapid succession of operations
     if sandbox_data.operations_count > 100 do
-      issues = issues ++ ["High operation count: #{sandbox_data.operations_count}"]
+      _issues = issues ++ ["High operation count: #{sandbox_data.operations_count}"]
     end
     
     issues
   end
 
-  defp check_circular_references(ontologies) do
+  defp check_circular_references(_ontologies) do
     # Simple circular reference check
     issues = []
     
@@ -790,7 +790,7 @@ defmodule Tiannara.Topology.OSL do
     }
   end
 
-  defp cleanup_sandbox_data(sandbox_id, sandbox_data) do
+  defp cleanup_sandbox_data(sandbox_id, _sandbox_data) do
     # Remove all related data
     :ets.delete(:sandboxes, sandbox_id)
     :ets.delete(:sandbox_versions, sandbox_id)

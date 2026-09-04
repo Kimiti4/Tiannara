@@ -1,0 +1,22 @@
+{
+  "constraints": [],
+  "risks": [],
+  "invariants": [],
+  "capabilities": [
+    {
+      "id": "cap_139",
+      "name": "retrieve cached values",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "retrieve",
+      "subject": "cached values",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:34:17.449000Z"
+}

@@ -16,7 +16,7 @@ defmodule Tiannara.OAVL.DiscoveryVerifier do
     
     cond do
       stability < 0.2 ->
-        Logger.warn("👁️‍🗨️ [OAVL] Discovery #{discovery.name} is structurally incoherent (Delusional).")
+        Logger.warning("👁️‍🗨️ [OAVL] Discovery #{discovery.name} is structurally incoherent (Delusional).")
       stability < 0.5 ->
         Logger.info("👁️‍🗨️ [OAVL] Discovery #{discovery.name} has weak coherence.")
       true ->

@@ -1,0 +1,33 @@
+id: ASC-MC-004-P-DOMAIN-PHYSICS-PILOT
+status: GRANTED
+operator: c14_ac
+gate: MC-004-P
+campaign: Tiannara Remediation + Substrate Integration
+date: 2026-08-31
+authorization_kind: BOUNDED_EXECUTION
+basis: human_grant_after_MC004_M_verifier_pass
+
+granted_scope:
+  - "Execute the MC-004-P domain-physics pilot: the damped harmonic oscillator (m=1.0, c=0.5, k=4.0, underdamped, x0=1.0, v0=0.0, duration=10.0, dt=0.01) defined by Tiannara.Domains.Physics.pilot_experiment/0, integrated with the real RK4 solver."
+  - "Add Tiannara.Phase4.PhysicsPilotExecution to run the pilot as a REAL authorized experiment: guard on a human-minted Authorization grant; run the pilot via Physics.simulate/2; record Evidence.Provenance with kind :real_execution; persist an append-only JSONL ledger under priv/tiannara/real_execution/executions.jsonl; best-effort append to the Executive EventStore."
+  - "Route Physics.execute_experiment/1 through the pilot path only when a grant is supplied AND :real_execution_enabled is true; otherwise preserve the existing gated behavior ({:error, :real_execution_not_enabled} / orchestrator refusals) so MC-003-M M2 and MC-004-M tests remain green."
+  - "Add targeted ExUnit tests and run them; run mix compile; run the MC-004-P verifier to PASS; write the evidence matrix, certification, and result JSON."
+
+expressly_forbidden:
+  - "Deploying any candidate or mutating production code as a result of the pilot (the pilot is an experiment, not a deployment)"
+  - "Routing the pilot through the code-patch sandbox (RealHarness) or the DeploymentGateway (out of scope; the simulation is the experiment)"
+  - "Fabricating verifier outputs, result JSON, provenance, or c14 signatures"
+  - "Reviving formal verification (FormalVerification must remain {:error, :formal_verification_unavailable})"
+  - "Expanding scope to the other 19 canonical domains or running any pilot other than the damped-harmonic-oscillator"
+  - "Modifying MC-001/MC-002/MC-003/AC-001/MC-004-A0/MC-004-M artifacts"
+
+flags:
+  mutation_executed: true
+  pilot_executed: true
+  real_execution_enabled: true
+  authorization_required_for_pilot: true
+
+note: >
+  MC-004-P enables a single, human-authorized execution of the physics pilot with
+  real provenance and durable evidence. The flag is set true for this gate only
+  under the operator's explicit grant; no broader autonomous execution is authorized.

@@ -220,7 +220,7 @@ defmodule Tiannara.ASC.Interface.Fitness do
     end)
   end
 
-  defp logging_score(genome) do
+  defp logging_score(_genome) do
     # INFO and WARNING are good production levels
     # DEBUG is too verbose, ERROR is too silent
     0.2  # Default moderate score

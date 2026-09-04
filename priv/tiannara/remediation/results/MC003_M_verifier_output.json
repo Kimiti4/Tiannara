@@ -1,0 +1,80 @@
+{
+  "gate": "MC-003-M",
+  "verifier": "priv/tiannara/remediation/verifiers/MC003_M_real_execution_mutation.py",
+  "result": "PASS",
+  "exit_code": 0,
+  "run_at": "2026-08-30",
+  "checks": {
+    "M1_verification_truth": {
+      "VerificationAuthority_reproduced_false": true,
+      "VerificationAuthority_all_passing_false": true,
+      "VerificationAuthority_not_independently_assessed": true,
+      "VerificationResult_passed_guarded": true,
+      "CertificationServer_unevaluated_gates": true,
+      "ExecutiveCycle_pending_and_no_real_evidence_reason": true,
+      "CEL_steps_real_step_provider_not_wired": true
+    },
+    "M2_gateway": {
+      "submit_experiment_real_execution_not_enabled": true,
+      "orchestrator_delegates_to_RealExecution": true,
+      "RealExecution_enabled_default_false": true,
+      "RealExecution_grant_required": true,
+      "RealExecution_substrate_required": true,
+      "RealExecution_real_harness_run": true,
+      "RealExecution_jsonl_ledger": true,
+      "RealExecution_provenance_real_execution": true,
+      "RealExecution_deployment_gateway": true,
+      "Approval_decide_routed_through_orchestration": true,
+      "Approval_direct_sandbox_removed": true
+    },
+    "M3_discovery": {
+      "confidence_delta_evidence_derived": true,
+      "supported_coefficient_0_2": true,
+      "refuted_coefficient_neg_0_05": true
+    },
+    "M4_evidence": {
+      "harness_real_sandbox": true,
+      "method_real_sandbox": true
+    },
+    "M6_observatory": {
+      "no_external_provider": true,
+      "unavailable": true,
+      "fed_reality_ledger_false_without_provider": true,
+      "record_revenue_gated_behind_real_provider_fetch": true,
+      "stubs_httpoison_ex_removed": true
+    },
+    "M7_rollback": {
+      "rollback_unavailable": true
+    },
+    "M8_autonomy": {
+      "constitutional_autonomy_gated_not_available": true,
+      "asc_repair_unavailable": true,
+      "tool_forge_not_implemented": true,
+      "sopl_deploy_staged": true
+    },
+    "protected_constraints": {
+      "real_execution_enabled_true_nowhere_in_config": true,
+      "real_execution_enabled_module_default_false": true,
+      "m5_excluded": true
+    },
+    "authorization": {
+      "status_granted": true,
+      "operator_c14_ac": true
+    },
+    "artifacts": {
+      "evidence_matrix_md": true,
+      "certification_md": true,
+      "contract_yaml": true,
+      "result_json": true,
+      "authorization_yaml": true
+    },
+    "result_json_truth_flags": {
+      "valid": true,
+      "verdict_CERTIFIED_BOUNDED": true,
+      "mutation_authorized_true": true,
+      "live_real_experiment_executed_false": true,
+      "real_execution_enabled_flag_false": true,
+      "evidence_verifier_finalized": true
+    }
+  }
+}

@@ -1,0 +1,230 @@
+{
+  "valid_ingress": {
+    "status": "PARTIAL_SUCCESS_CAUSAL_BREAK",
+    "control": "valid_signed_ingress",
+    "signature_verified": true,
+    "governance_consult": {
+      "ok": "ok"
+    },
+    "causal_break": "exit :exit: {:noproc, {GenServer, :call, [Tiannara.Graph.UnifiedRealityGraph, {:add_node, %{id: \"ext_entity_f55071bcc4c3\", name: \"external_reality_event\"}, :information, %{source: :probe_u5, payload_hash: \"3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f\"}}, 5000]}}",
+    "c3_behavior": "refused state (chain broken)",
+    "traces": [
+      {
+        "trace_id": "bc760123-3811-445a-b077-7c7486ee134b",
+        "causal_parent": {
+          "trace_id": null,
+          "phase": null
+        },
+        "phase": "c11_ingress_valid",
+        "timestamp": "2026-08-20T13:05:11.988742+00:00",
+        "provenance": {
+          "module": "TiannaraOS.Governance.CapabilityChecker",
+          "function": "authorize?/3 (:can_observe @ :observability)",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U5_bc760123-3811-445a-b077-7c7486ee134b_c11_ingress_valid.json",
+        "confidence_level": {
+          "value": 0.95,
+          "justification": "Real module transition succeeded"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "success",
+          "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f"
+        },
+        "failure_state": {
+          "detected": false,
+          "error_class": null,
+          "severity": null
+        },
+        "recovery_behavior": {
+          "action": "none",
+          "executed": true,
+          "success": true
+        },
+        "next_phase": null
+      },
+      {
+        "trace_id": "b795559c-b20d-46e4-891c-8ec2c0fe6a74",
+        "causal_parent": {
+          "trace_id": "bc760123-3811-445a-b077-7c7486ee134b",
+          "phase": "c11_ingress_valid"
+        },
+        "phase": "c1_perception_valid",
+        "timestamp": "2026-08-20T13:05:11.990604+00:00",
+        "provenance": {
+          "module": "Tiannara.Sentinel.Activation.Event",
+          "function": "new/1 + Engine.process/1",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U5_b795559c-b20d-46e4-891c-8ec2c0fe6a74_c1_perception_valid.json",
+        "confidence_level": {
+          "value": 0.9,
+          "justification": "Real module transition succeeded"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "success",
+          "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f"
+        },
+        "failure_state": {
+          "detected": false,
+          "error_class": null,
+          "severity": null
+        },
+        "recovery_behavior": {
+          "action": "none",
+          "executed": true,
+          "success": true
+        },
+        "next_phase": null
+      },
+      {
+        "trace_id": "771e2d23-0601-4568-9383-ffa892c864cf",
+        "causal_parent": {
+          "trace_id": "b795559c-b20d-46e4-891c-8ec2c0fe6a74",
+          "phase": "c1_perception_valid"
+        },
+        "phase": "c2_reality_model_valid",
+        "timestamp": "2026-08-20T13:05:11.992040+00:00",
+        "provenance": {
+          "module": "Tiannara.Graph.UnifiedRealityGraph",
+          "function": "add_node/3",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U5_771e2d23-0601-4568-9383-ffa892c864cf_c2_reality_model_valid.json",
+        "confidence_level": {
+          "value": 0.9,
+          "justification": "exit :exit: {:noproc, {GenServer, :call, [Tiannara.Graph.UnifiedRealityGraph, {:add_node, %{id: \"ext_entity_f55071bcc4c3\", name: \"external_reality_event\"}, :information, %{source: :probe_u5, payload_hash: \"3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f\"}}, 5000]}}"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "failed",
+          "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f"
+        },
+        "failure_state": {
+          "detected": true,
+          "error_class": "causal_break",
+          "severity": "known_deferred_dependency"
+        },
+        "recovery_behavior": {
+          "action": "record_causal_break_no_mask",
+          "executed": true,
+          "success": true
+        },
+        "next_phase": null
+      },
+      {
+        "trace_id": "7f38e136-f6b4-4205-978b-7d5742b603d7",
+        "causal_parent": {
+          "trace_id": "771e2d23-0601-4568-9383-ffa892c864cf",
+          "phase": "c2_reality_model_valid"
+        },
+        "phase": "c3_knowledge_valid",
+        "timestamp": "2026-08-20T13:05:11.993235+00:00",
+        "provenance": {
+          "module": "Tiannara.Memory.KnowledgeStore",
+          "function": "open/1 + append/2 + all/1",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U5_7f38e136-f6b4-4205-978b-7d5742b603d7_c3_knowledge_valid.json",
+        "confidence_level": {
+          "value": 0.9,
+          "justification": "causal chain broken at C1->C2 (C2 deferred); cannot accept state without canonical reality model"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "failed",
+          "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f"
+        },
+        "failure_state": {
+          "detected": true,
+          "error_class": "causal_break",
+          "severity": "known_deferred_dependency"
+        },
+        "recovery_behavior": {
+          "action": "record_causal_break_no_mask",
+          "executed": true,
+          "success": true
+        },
+        "next_phase": null
+      }
+    ]
+  },
+  "tampered_ingress": {
+    "status": "REJECTED",
+    "control": "tampered_ingress",
+    "signature_verified": false,
+    "traces": [
+      {
+        "trace_id": "44d78185-b133-49e2-adc8-132590e618ff",
+        "causal_parent": {
+          "trace_id": null,
+          "phase": null
+        },
+        "phase": "c11_ingress_rejected",
+        "timestamp": "2026-08-20T13:05:22.807348+00:00",
+        "provenance": {
+          "module": "TiannaraOS.Governance.CapabilityChecker",
+          "function": "authorize?/3 (:can_observe @ :observability)",
+          "commit_hash": "HEAD"
+        },
+        "evidence_ref": "priv/tiannara/probes/evidence/U5_44d78185-b133-49e2-adc8-132590e618ff_c11_ingress_rejected.json",
+        "confidence_level": {
+          "value": 0.95,
+          "justification": "signature_verified=false: payload hash mismatch at C11 ingress"
+        },
+        "authorization_state": {
+          "required": false,
+          "granted_by": null,
+          "timestamp": null
+        },
+        "outcome": {
+          "status": "failed",
+          "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f"
+        },
+        "failure_state": {
+          "detected": true,
+          "error_class": "causal_break",
+          "severity": "known_deferred_dependency"
+        },
+        "recovery_behavior": {
+          "action": "record_causal_break_no_mask",
+          "executed": true,
+          "success": true
+        },
+        "next_phase": null
+      }
+    ]
+  },
+  "bounded_proposition": "Under this tested execution path, an external reality event received at the C11  boundary propagates through C1 (and C2 if operable) into C3 with intact  cryptographic provenance, without creating unauthorized side channels or shadow state.\n",
+  "verdict_scope": "epistemic_status_only",
+  "verdict_targets": "integration_edges",
+  "evidence_files": [
+    "priv/tiannara/probes/evidence/U5_bc760123-3811-445a-b077-7c7486ee134b_c11_ingress.json",
+    "priv/tiannara/probes/evidence/U5_b795559c-b20d-46e4-891c-8ec2c0fe6a74_c1_perception.json",
+    "priv/tiannara/probes/evidence/U5_771e2d23-0601-4568-9383-ffa892c864cf_c2_reality_model.json",
+    "priv/tiannara/probes/evidence/U5_7f38e136-f6b4-4205-978b-7d5742b603d7_c3_knowledge.json",
+    "priv/tiannara/probes/evidence/U5_44d78185-b133-49e2-adc8-132590e618ff_c11_ingress_rejected.json"
+  ],
+  "causal_breaks": [
+    "C1->C2 broken: exit :exit: {:noproc, {GenServer, :call, [Tiannara.Graph.UnifiedRealityGraph, {:add_node, %{id: \"ext_entity_f55071bcc4c3\", name: \"external_reality_event\"}, :information, %{source: :probe_u5, payload_hash: \"3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f\"}}, 5000]}}"
+  ],
+  "status": "PARTIAL_SUCCESS_CAUSAL_BREAK"
+}

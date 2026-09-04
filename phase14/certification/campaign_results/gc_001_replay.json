@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "failures": 0,
+  "success_rate": 1.0,
+  "successes": 1000,
+  "sample_size": 1000,
+  "determinism_verified": true,
+  "campaign": "gc_001_replay"
+}

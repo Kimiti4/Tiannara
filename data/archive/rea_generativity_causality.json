@@ -1,0 +1,180 @@
+{
+  "metadata": {
+    "trader_pre": {
+      "pe": 5,
+      "region": "CLIFF"
+    },
+    "phoenix_pre": {
+      "pe": 5,
+      "region": "CORRIDOR"
+    },
+    "full_transfer": {
+      "pe": 5,
+      "region": "CORRIDOR"
+    },
+    "pe_ceiling": 5,
+    "pe_null": 5
+  },
+  "experiments": {
+    "E": {
+      "ca": 0.0,
+      "pe": 5,
+      "pr": 0.08000000000000002,
+      "region": "CORRIDOR",
+      "contrib": 0.0,
+      "ghl": 65,
+      "description": "Null control \u2014 Phoenix + nothing (Catalytic test)",
+      "type": "transfer"
+    },
+    "A": {
+      "ca": 0.0,
+      "pe": 5,
+      "pr": 0.08000000000000002,
+      "region": "CORRIDOR",
+      "contrib": 0.0,
+      "ghl": 65,
+      "description": "Topology only \u2014 Phoenix adopts Trader's trust matrix",
+      "type": "transfer"
+    },
+    "B": {
+      "ca": 0.0,
+      "pe": 5,
+      "pr": 0.08000000000000002,
+      "region": "CORRIDOR",
+      "contrib": 0.0,
+      "ghl": 65,
+      "description": "Constitution only \u2014 20 epochs under Trader coords",
+      "type": "transfer"
+    },
+    "C": {
+      "ca": 0.0,
+      "pe": 5,
+      "pr": 0.08000000000000002,
+      "region": "CORRIDOR",
+      "contrib": 0.0,
+      "ghl": 65,
+      "description": "Signals only \u2014 Trader S-fields transplanted (knowledge memory)",
+      "type": "transfer"
+    },
+    "D": {
+      "ca": 0.0,
+      "pe": 5,
+      "pr": 0.08000000000000002,
+      "region": "CORRIDOR",
+      "contrib": 0.0,
+      "ghl": 65,
+      "description": "History proxy only \u2014 trust density rescaled to Trader pattern",
+      "type": "transfer"
+    },
+    "F": {
+      "ca": 0.0,
+      "pe": 5,
+      "pr": 0.08000000000000002,
+      "region": "CORRIDOR",
+      "contrib": 0.0,
+      "ghl": 65,
+      "description": "Compositional F \u2014 50% topology + 50% constitution (no history)",
+      "type": "transfer"
+    },
+    "G": {
+      "ca": 0.0,
+      "pe": 5,
+      "pr": 0.08000000000000002,
+      "region": "CORRIDOR",
+      "contrib": 0.0,
+      "ghl": 65,
+      "description": "Compositional G \u2014 75% history + 25% topology (no constitution)",
+      "type": "transfer"
+    },
+    "H": {
+      "ca": 0.0,
+      "pe": 5,
+      "pr": 0.08000000000000002,
+      "region": "CORRIDOR",
+      "contrib": 0.0,
+      "ghl": 65,
+      "description": "Compositional H \u2014 33% topology + 33% constitution + 33% signals",
+      "type": "transfer"
+    },
+    "I": {
+      "ca": 14.239545411713353,
+      "pe": 5,
+      "pr": 0.9756882123705015,
+      "region": "GENERATOR",
+      "necessity_score": 0.0,
+      "description": "Destroy topology \u2014 Trader Generator burst, reset trust \u2192 uniform 1.0",
+      "type": "destruction"
+    },
+    "J": {
+      "ca": 0.3018110770276275,
+      "pe": 5,
+      "pr": 0.01963778459447453,
+      "region": "CORRIDOR",
+      "necessity_score": 0.0,
+      "description": "Destroy constitution \u2014 Trader Generator burst, switch to Phoenix coords",
+      "type": "destruction"
+    },
+    "K": {
+      "ca": 0.0,
+      "pe": 5,
+      "pr": 0.08000000000000002,
+      "region": "CORRIDOR",
+      "necessity_score": 0.0,
+      "description": "Destroy history \u2014 Trader Generator burst, flatten trust density to mean",
+      "type": "destruction"
+    },
+    "L": {
+      "pe_trader": 5,
+      "pe_phoenix": 5,
+      "relational": false,
+      "region_trader": "CLIFF",
+      "region_phoenix": "CORRIDOR",
+      "ghl": 65,
+      "description": "Coexistence \u2014 partial signal coupling"
+    }
+  },
+  "donor_post": {
+    "pe": 5,
+    "region": "CORRIDOR",
+    "delta": 0
+  },
+  "compositional_scores": {
+    "A": 0.0,
+    "B": 0.0,
+    "C": 0.0,
+    "D": 0.0
+  },
+  "necessity_scores": {
+    "I": 0.0,
+    "J": 0.0,
+    "K": 0.0
+  },
+  "causal_roles": {
+    "Topology": "Inert",
+    "Constitution": "Inert",
+    "Signals": "Inert",
+    "History": "Inert"
+  },
+  "conservation_verdict": "\ud83c\udf31 CATALYTIC \u2014 Null Phoenix developed Generativity without transfer",
+  "generativity_type": "Emergent",
+  "architecture_implication": "World-generation systems \u2014 Generativity cannot be decomposed",
+  "relational_signal": false,
+  "generativity_dependency_graph": {
+    "nodes": [
+      "Topology",
+      "Constitution",
+      "Signals",
+      "History",
+      "Interaction",
+      "Generativity"
+    ],
+    "edges": [],
+    "component_roles": {
+      "Topology": "Inert",
+      "Constitution": "Inert",
+      "Signals": "Inert",
+      "History": "Inert"
+    },
+    "generativity_type": "Emergent"
+  }
+}

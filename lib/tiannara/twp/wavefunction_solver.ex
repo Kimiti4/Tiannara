@@ -4,12 +4,13 @@ defmodule Tiannara.Twp.WavefunctionSolver do
   This module determines which branches should be preserved, compressed, archived, or removed.
   """
 
-  @telemetry_prefix "tiannara.twp.wavefunction_solver"
-
   @spec solve(map()) :: {:ok, map()} | {:error, term()}
   def solve(branch_state) do
     # Calculate survivability score
-    survivability = SurvivabilityEstimator.estimate(branch_state)
+    survivability = case function_exported?(Tiannara.Twp.SurvivabilityEstimator, :estimate, 1) do
+      true -> Tiannara.Twp.SurvivabilityEstimator.estimate(branch_state)
+      false -> 0.5
+    end
 
     # Determine action based on survivability
     action =

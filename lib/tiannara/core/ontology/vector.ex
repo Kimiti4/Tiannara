@@ -114,7 +114,7 @@ defmodule Tiannara.Core.Ontology.Vector do
       
       # Check cached similarity first
       case :ets.lookup(:vector_similarities, {ontology_id1, ontology_id2}) do
-        [{key, similarity}] ->
+            [{_key, similarity}] ->
           Logger.debug("Cache hit for vector similarity comparison")
           {:reply, {:ok, similarity}, %{state | cache_hits: state.cache_hits + 1}}
         [] ->
@@ -251,16 +251,16 @@ defmodule Tiannara.Core.Ontology.Vector do
     
     # Avoid division by zero
     case {mag1, mag2} do
-      {0.0, 0.0} -> 1.0  # Identical zero vectors
-      {0.0, _} -> 0.0  # One vector is zero
-      {_, 0.0} -> 0.0  # One vector is zero
+      {+0.0, +0.0} -> 1.0
+      {+0.0, _} -> 0.0
+      {_, +0.0} -> 0.0
       _ -> dot_product / (mag1 * mag2)
     end
   end
 
   defp calculate_similarity(_, _), do: 0.0
 
-  defp update_vector_stats(%{vector_count: count} = state) do
+  defp update_vector_stats(%{vector_count: _count} = state) do
     vector_count = :ets.info(:semantic_vectors, :size)
     %{state | vector_count: vector_count}
   end

@@ -39,7 +39,7 @@ defmodule Tiannara.ASC.Crucible.EvolutionCampaign do
   - Falsify 2-8 laws (scientific rigor!)
   """
 
-  alias Tiannara.ASC.Crucible.{Builder, Validator, Breaker, Attacker, Repairer, Observatory, RepairReuseEngine, RepairTransfer, RepairEcology, RepairPhylogeny}
+  alias Tiannara.ASC.Crucible.{Builder, Validator, Breaker, Attacker, Observatory, RepairReuseEngine}
   alias Tiannara.ASC.Interface.Genome
 
   # Test genome configurations for 5 diverse projects
@@ -238,25 +238,21 @@ defmodule Tiannara.ASC.Crucible.EvolutionCampaign do
     # Step 1: Build
     build_result = case Builder.build(genome, project_id) do
       {:ok, result} -> result
-      {:error, _error} -> nil
     end
 
     # Step 2: Validate
     validation_result = case Validator.validate(genome, project_id) do
       {:ok, result} -> result
-      {:error, _error} -> nil
     end
 
     # Step 3: Break
     break_result = case Breaker.break_system(genome, artifact_path, project_id: project_id) do
       {:ok, result} -> result
-      {:error, _error} -> nil
     end
 
     # Step 4: Attack
     attack_result = case Attacker.attack_system(genome, artifact_path, project_id: project_id) do
       {:ok, result} -> result
-      {:error, _error} -> nil
     end
 
     # Step 5: Repair (use Repair Reuse Engine for knowledge-based repair)
@@ -278,7 +274,6 @@ defmodule Tiannara.ASC.Crucible.EvolutionCampaign do
 
       case RepairReuseEngine.repair_failure(failure_obs, artifact_path) do
         {:ok, result} -> result
-        {:error, _error} -> nil
       end
     else
       nil
@@ -361,7 +356,7 @@ defmodule Tiannara.ASC.Crucible.EvolutionCampaign do
   """
   def evolve_genome(current_genome, result, generation) do
     # Calculate mutation pressure based on failures and exploits
-    mutation_pressure = calculate_mutation_pressure(result)
+    _mutation_pressure = calculate_mutation_pressure(result)
 
     # Create evolved genome
     %Genome{
@@ -376,22 +371,24 @@ defmodule Tiannara.ASC.Crucible.EvolutionCampaign do
   defp calculate_mutation_pressure(result) do
     pressure = 0.0
 
-    # Increase mutation if failures found
-    if result.break && result.break.failure_discovered? do
-      pressure = pressure + 0.3
+    pressure = if result.break && result.break.failure_discovered? do
+      pressure + 0.3
+    else
+      pressure
     end
 
-    # Increase mutation if exploits found
-    if result.attack && result.attack.exploit_found? do
-      pressure = pressure + 0.3
+    pressure = if result.attack && result.attack.exploit_found? do
+      pressure + 0.3
+    else
+      pressure
     end
 
-    # Decrease mutation if repair succeeded (stabilization)
-    if result.repair && result.repair.repair_successful? do
-      pressure = pressure - 0.2
+    pressure = if result.repair && result.repair.repair_successful? do
+      pressure - 0.2
+    else
+      pressure
     end
 
-    # Clamp to [0.0, 1.0]
     max(0.0, min(1.0, pressure))
   end
 
@@ -404,19 +401,17 @@ defmodule Tiannara.ASC.Crucible.EvolutionCampaign do
   end
 
   defp add_policy_if_vulnerable(policies, result) do
-    new_policies = policies
-
-    # Add security policy if exploit found
-    if result.attack && result.attack.exploit_found? do
-      new_policies = ["security_hardening_#{:rand.uniform(100)}" | new_policies]
+    policies = if result.attack && result.attack.exploit_found? do
+      ["security_hardening_#{:rand.uniform(100)}" | policies]
+    else
+      policies
     end
 
-    # Add robustness policy if failure found
     if result.break && result.break.failure_discovered? do
-      new_policies = ["robustness_improvement_#{:rand.uniform(100)}" | new_policies]
+      ["robustness_improvement_#{:rand.uniform(100)}" | policies]
+    else
+      policies
     end
-
-    new_policies
   end
 
   defp print_evolution_summary(epoch, all_results) do
@@ -588,9 +583,4 @@ defmodule Tiannara.ASC.Crucible.EvolutionCampaign do
     IO.puts("  Summary: #{failures} failures, #{exploits} exploits, #{repairs} successful repairs")
   end
 
-  # Helper function to extract species map from ecology results
-  defp get_species_map_from_ecology(_ecology_results) do
-    # Get all species from RepairEcologyEngine
-    Tiannara.ASC.Crucible.RepairEcology.RepairEcologyEngine.get_species_map()
-  end
 end

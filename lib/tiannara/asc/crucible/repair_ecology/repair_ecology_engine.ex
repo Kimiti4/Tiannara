@@ -41,7 +41,6 @@ defmodule Tiannara.ASC.Crucible.RepairEcology.RepairEcologyEngine do
   }
 
   alias Tiannara.ASC.Observatory.ProjectObservatory
-  alias Tiannara.ASC.KnowledgeArchive
 
   # State
   defstruct [
@@ -223,7 +222,7 @@ defmodule Tiannara.ASC.Crucible.RepairEcology.RepairEcologyEngine do
 
   # Private helpers
 
-  defp group_into_species(population, patterns, generation, epoch_id) do
+  defp group_into_species(population, patterns, generation, _epoch_id) do
     # Group patterns by species classification
     grouped = Enum.group_by(patterns, fn pattern ->
       classify_pattern_to_species(pattern)
@@ -297,7 +296,7 @@ defmodule Tiannara.ASC.Crucible.RepairEcology.RepairEcologyEngine do
   end
 
   defp detect_and_execute_transfers(patterns, projects, generation, epoch_id) do
-    transfers = []
+    _transfers = []
 
     # For each pattern, check if it can transfer to other projects
     Enum.flat_map(patterns, fn pattern ->
@@ -361,7 +360,7 @@ defmodule Tiannara.ASC.Crucible.RepairEcology.RepairEcologyEngine do
     })
   end
 
-  defp archive_events(birth_events, competitions, extinctions, transfers, epoch_id) do
+  defp archive_events(_birth_events, _competitions, _extinctions, _transfers, _epoch_id) do
     # Archive birth events
     # TODO: Fix KnowledgeArchive.register -> store with proper Entry structs
     # Enum.each(birth_events, fn event ->
@@ -391,7 +390,7 @@ defmodule Tiannara.ASC.Crucible.RepairEcology.RepairEcologyEngine do
     # end)
   end
 
-  defp emit_law_candidates(competitions, extinctions, transfers, patterns) do
+  defp emit_law_candidates(competitions, _extinctions, transfers, patterns) do
     # Analyze patterns for potential laws
 
     # Law Candidate 1: Knowledge Reuse Improves Repair Success

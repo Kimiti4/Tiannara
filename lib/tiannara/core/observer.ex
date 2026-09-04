@@ -57,7 +57,7 @@ defmodule Tiannara.Core.Observer do
       Logger.info("Observer #{observer.id} upgraded to tier #{tier}")
       {:ok, final_observer}
     else
-      Logger.warn("Cannot downgrade observer #{observer.id} from tier #{current_tier} to #{tier}")
+      Logger.warning("Cannot downgrade observer #{observer.id} from tier #{current_tier} to #{tier}")
       {:error, :downgrade_not_allowed}
     end
   end

@@ -1,0 +1,181 @@
+{
+  "dependencies": [
+    {
+      "type": "calls",
+      "to": "account balanceRepository",
+      "from": "account balanceService"
+    },
+    {
+      "type": "calls",
+      "to": "account balanceValidator",
+      "from": "account balanceService"
+    },
+    {
+      "type": "calls",
+      "to": "accounts uniqueRepository",
+      "from": "accounts uniqueService"
+    },
+    {
+      "type": "calls",
+      "to": "accounts uniqueValidator",
+      "from": "accounts uniqueService"
+    },
+    {
+      "type": "calls",
+      "to": "all accountsRepository",
+      "from": "all accountsService"
+    },
+    {
+      "type": "calls",
+      "to": "all accountsValidator",
+      "from": "all accountsService"
+    }
+  ],
+  "components": [
+    {
+      "name": "account balanceService",
+      "dependencies": [],
+      "interfaces": [
+        "update_account balance"
+      ],
+      "responsibilities": [
+        "update account balance"
+      ]
+    },
+    {
+      "name": "accounts uniqueService",
+      "dependencies": [],
+      "interfaces": [
+        "create_accounts unique"
+      ],
+      "responsibilities": [
+        "create accounts unique"
+      ]
+    },
+    {
+      "name": "all accountsService",
+      "dependencies": [],
+      "interfaces": [
+        "list_all accounts"
+      ],
+      "responsibilities": [
+        "list all accounts"
+      ]
+    }
+  ],
+  "project_id": "phase3_quick_test_001",
+  "architecture_style": "modular_monolith",
+  "interfaces": [
+    {
+      "name": "create_accounts unique",
+      "path": "/accounts unique",
+      "protocol": "http",
+      "method": "POST",
+      "input_schema": {
+        "params": "map()"
+      },
+      "output_schema": {
+        "result": "{:ok, term()} | {:error, term()}"
+      }
+    },
+    {
+      "name": "list_all accounts",
+      "path": "/all accounts",
+      "protocol": "http",
+      "method": "GET",
+      "input_schema": {
+        "params": "map()"
+      },
+      "output_schema": {
+        "result": "{:ok, term()} | {:error, term()}"
+      }
+    },
+    {
+      "name": "update_account balance",
+      "path": "/account balance",
+      "protocol": "http",
+      "method": "PUT",
+      "input_schema": {
+        "params": "map()"
+      },
+      "output_schema": {
+        "result": "{:ok, term()} | {:error, term()}"
+      }
+    }
+  ],
+  "validation_rules": [
+    {
+      "severity": "error",
+      "rule_type": "range",
+      "implementation": "Validate: Balance cannot go below zero",
+      "invariant_ref": "inv_1"
+    }
+  ],
+  "storage_models": [
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "primary_key": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "entity": "accounts unique"
+    },
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "primary_key": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "entity": "all accounts"
+    },
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "primary_key": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "entity": "account balance"
+    }
+  ],
+  "deployment_units": [],
+  "workflows": [],
+  "confidence": 0.85,
+  "complexity_score": 16.5,
+  "created_at": "2026-06-18T01:24:28.056000Z"
+}

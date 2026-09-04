@@ -80,9 +80,6 @@ defmodule Tiannara.ASC.Crucible.PilotCampaign do
       {:ok, result} ->
         IO.puts("     ✅ Build: #{if result.success?, do: "SUCCESS", else: "FAILED"}")
         result
-      {:error, error} ->
-        IO.puts("     ❌ Build error: #{inspect(error)}")
-        nil
     end
 
     # Step 2: Validate (if build succeeded)
@@ -92,9 +89,6 @@ defmodule Tiannara.ASC.Crucible.PilotCampaign do
         {:ok, result} ->
           IO.puts("     ✅ Validation: #{if result.valid?, do: "PASS", else: "FAIL"}")
           result
-        {:error, error} ->
-          IO.puts("     ❌ Validation error: #{inspect(error)}")
-          nil
       end
     else
       nil
@@ -107,9 +101,6 @@ defmodule Tiannara.ASC.Crucible.PilotCampaign do
         {:ok, result} ->
           IO.puts("     ✅ Break: #{if result.failure_discovered?, do: "FAILURE FOUND", else: "NO FAILURE"}")
           result
-        {:error, error} ->
-          IO.puts("     ❌ Break error: #{inspect(error)}")
-          nil
       end
     else
       nil
@@ -122,9 +113,6 @@ defmodule Tiannara.ASC.Crucible.PilotCampaign do
         {:ok, result} ->
           IO.puts("     ✅ Attack: #{if result.exploit_found?, do: "EXPLOIT FOUND", else: "NO EXPLOIT"}")
           result
-        {:error, error} ->
-          IO.puts("     ❌ Attack error: #{inspect(error)}")
-          nil
       end
     else
       nil
@@ -154,9 +142,6 @@ defmodule Tiannara.ASC.Crucible.PilotCampaign do
           {:ok, result} ->
             IO.puts("     ✅ Repair: #{if result.repair_successful?, do: "SUCCESS", else: "FAILED"}")
             result
-          {:error, error} ->
-            IO.puts("     ❌ Repair error: #{inspect(error)}")
-            nil
         end
 
       attack_result && attack_result.exploit_found? ->
@@ -181,9 +166,6 @@ defmodule Tiannara.ASC.Crucible.PilotCampaign do
           {:ok, result} ->
             IO.puts("     ✅ Repair: #{if result.repair_successful?, do: "SUCCESS", else: "FAILED"}")
             result
-          {:error, error} ->
-            IO.puts("     ❌ Repair error: #{inspect(error)}")
-            nil
         end
 
       true ->

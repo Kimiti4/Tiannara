@@ -1,0 +1,22 @@
+{
+  "constraints": [],
+  "invariants": [],
+  "capabilities": [
+    {
+      "id": "cap_307",
+      "name": "send notifications users",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "send",
+      "subject": "notifications users",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "user"
+    }
+  ],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:25:06.490000Z"
+}

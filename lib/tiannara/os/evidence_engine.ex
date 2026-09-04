@@ -5,9 +5,6 @@ defmodule TiannaraOS.EvidenceEngine do
 
   alias TiannaraOS.State
   alias TiannaraOS.EvidenceNode
-  alias TiannaraOS.Discovery
-  alias TiannaraOS.DiscoveryAsset
-  alias TiannaraOS.ResearchProgram
 
   require Logger
 
@@ -241,7 +238,7 @@ defmodule TiannaraOS.EvidenceEngine do
   Registers a successful replication event, triggering positive recovery cascade.
   """
   @spec register_successful_replication(State.t(), atom(), atom()) :: State.t()
-  def register_successful_replication(%State{} = state, replication_id, target_id) do
+  def register_successful_replication(%State{} = state, _replication_id, target_id) do
     graph = state.evidence_graph
     
     case Map.get(graph, target_id) do
@@ -249,7 +246,7 @@ defmodule TiannaraOS.EvidenceEngine do
         Logger.warning("JTMS++ Replication: Target node #{target_id} not found")
         state
       
-      target_node ->
+      _target_node ->
         # Positive delta for successful replication
         recovery_delta = 0.1  # Configurable recovery amount
         
@@ -262,7 +259,7 @@ defmodule TiannaraOS.EvidenceEngine do
   Registers a failed replication event, triggering negative degradation cascade.
   """
   @spec register_failed_replication(State.t(), atom(), atom()) :: State.t()
-  def register_failed_replication(%State{} = state, replication_id, target_id) do
+  def register_failed_replication(%State{} = state, _replication_id, target_id) do
     graph = state.evidence_graph
     
     case Map.get(graph, target_id) do
@@ -270,12 +267,66 @@ defmodule TiannaraOS.EvidenceEngine do
         Logger.warning("JTMS++ Failed Replication: Target node #{target_id} not found")
         state
       
-      target_node ->
+      _target_node ->
         # Negative delta for failed replication
         degradation_delta = -0.15  # Configurable degradation amount
         
         # Apply degradation cascade
         cascade_jtms_delta(state, target_id, degradation_delta, :degradation)
+    end
+  end
+
+  @doc """
+  Refutes a piece of evidence, reducing confidence of dependent nodes.
+  Applies a standardized negative delta and propagates through the graph.
+  """
+  @spec refute_evidence(State.t(), atom()) :: State.t()
+  def refute_evidence(%State{} = state, evidence_id) do
+    evidence = Map.get(state.evidence_graph, evidence_id)
+
+    if is_nil(evidence) do
+      state
+    else
+      # Standard refutation penalty
+      refutation_delta = -(1.0 - evidence.value) * 0.3
+      graph = state.evidence_graph
+
+      # Walk the dependency chain: evidence → dependents → their justifications
+      dependents = evidence.dependents || []
+
+      new_graph =
+        Enum.reduce(dependents, graph, fn dep_id, acc_graph ->
+          case Map.get(acc_graph, dep_id) do
+            nil -> acc_graph
+            dep ->
+              new_val = max(0.0, dep.value + refutation_delta)
+              acc_graph |> Map.put(dep_id, %{dep | value: new_val})
+          end
+        end)
+
+      updated_state = %{state | evidence_graph: new_graph}
+
+      # Cascade from each dependent to propagate through justification chain
+      Enum.reduce(dependents, updated_state, fn dep_id, acc_state ->
+        dep = Map.get(acc_state.evidence_graph, dep_id)
+
+        if dep do
+          # Also reduce all justifications of the dependent (back-propagation)
+          justifications = dep.justifications || []
+
+          Enum.reduce(justifications, acc_state, fn j_id, inner_state ->
+            case Map.get(inner_state.evidence_graph, j_id) do
+              nil -> inner_state
+              j_node ->
+                new_j_val = max(0.0, j_node.value + refutation_delta)
+                inner_graph = Map.put(inner_state.evidence_graph, j_id, %{j_node | value: new_j_val})
+                %{inner_state | evidence_graph: inner_graph}
+            end
+          end)
+        else
+          acc_state
+        end
+      end)
     end
   end
 
@@ -358,7 +409,7 @@ defmodule TiannaraOS.EvidenceEngine do
   # --- HELPER FUNCTIONS ---
 
   defp clamp_confidence(conf) do
-    max(0.0, min(1.0, conf))
+    max(0.0, conf)
   end
 
   defp generate_cascade_id() do

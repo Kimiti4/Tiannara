@@ -1,0 +1,3247 @@
+{
+  "timestamp": "2026-05-06T15:09:24.252471",
+  "comparison": {
+    "avg_success_rate": 92.0,
+    "avg_final_quality": 0.9550000000000001,
+    "best_domain": "Algorithm",
+    "worst_domain": "Logic"
+  },
+  "domains": [
+    {
+      "domain": "Algorithm",
+      "episodes": [
+        {
+          "episode": 0,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0002899169921875
+        },
+        {
+          "episode": 1,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00031495094299316406
+        },
+        {
+          "episode": 2,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00019121170043945312
+        },
+        {
+          "episode": 3,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00015592575073242188
+        },
+        {
+          "episode": 4,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0001499652862548828
+        },
+        {
+          "episode": 5,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00015044212341308594
+        },
+        {
+          "episode": 6,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00013828277587890625
+        },
+        {
+          "episode": 7,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0001533031463623047
+        },
+        {
+          "episode": 8,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0001709461212158203
+        },
+        {
+          "episode": 9,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0001621246337890625
+        },
+        {
+          "episode": 10,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0001671314239501953
+        },
+        {
+          "episode": 11,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0001678466796875
+        },
+        {
+          "episode": 12,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00017189979553222656
+        },
+        {
+          "episode": 13,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.000209808349609375
+        },
+        {
+          "episode": 14,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00018310546875
+        },
+        {
+          "episode": 15,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00021338462829589844
+        },
+        {
+          "episode": 16,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0004074573516845703
+        },
+        {
+          "episode": 17,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00027680397033691406
+        },
+        {
+          "episode": 18,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0002384185791015625
+        },
+        {
+          "episode": 19,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00023317337036132812
+        },
+        {
+          "episode": 20,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0002110004425048828
+        },
+        {
+          "episode": 21,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00023865699768066406
+        },
+        {
+          "episode": 22,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0002384185791015625
+        },
+        {
+          "episode": 23,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00023984909057617188
+        },
+        {
+          "episode": 24,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0002491474151611328
+        },
+        {
+          "episode": 25,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0002601146697998047
+        },
+        {
+          "episode": 26,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0002474784851074219
+        },
+        {
+          "episode": 27,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00025916099548339844
+        },
+        {
+          "episode": 28,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00026869773864746094
+        },
+        {
+          "episode": 29,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0002753734588623047
+        },
+        {
+          "episode": 30,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00026607513427734375
+        },
+        {
+          "episode": 31,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00029158592224121094
+        },
+        {
+          "episode": 32,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0002913475036621094
+        },
+        {
+          "episode": 33,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0003082752227783203
+        },
+        {
+          "episode": 34,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00029158592224121094
+        },
+        {
+          "episode": 35,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00033926963806152344
+        },
+        {
+          "episode": 36,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0005397796630859375
+        },
+        {
+          "episode": 37,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00041985511779785156
+        },
+        {
+          "episode": 38,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0015037059783935547
+        },
+        {
+          "episode": 39,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00047016143798828125
+        },
+        {
+          "episode": 40,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0004458427429199219
+        },
+        {
+          "episode": 41,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0005090236663818359
+        },
+        {
+          "episode": 42,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00038886070251464844
+        },
+        {
+          "episode": 43,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00035572052001953125
+        },
+        {
+          "episode": 44,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0003490447998046875
+        },
+        {
+          "episode": 45,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0009963512420654297
+        },
+        {
+          "episode": 46,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0008463859558105469
+        },
+        {
+          "episode": 47,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0009932518005371094
+        },
+        {
+          "episode": 48,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0009448528289794922
+        },
+        {
+          "episode": 49,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00048041343688964844
+        },
+        {
+          "episode": 50,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.009724140167236328
+        },
+        {
+          "episode": 51,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0009882450103759766
+        },
+        {
+          "episode": 52,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0008337497711181641
+        },
+        {
+          "episode": 53,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0010194778442382812
+        },
+        {
+          "episode": 54,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.001401662826538086
+        },
+        {
+          "episode": 55,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0010597705841064453
+        },
+        {
+          "episode": 56,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0010704994201660156
+        },
+        {
+          "episode": 57,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.001161336898803711
+        },
+        {
+          "episode": 58,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0010831356048583984
+        },
+        {
+          "episode": 59,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00102996826171875
+        },
+        {
+          "episode": 60,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0011708736419677734
+        },
+        {
+          "episode": 61,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.001104593276977539
+        },
+        {
+          "episode": 62,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0012028217315673828
+        },
+        {
+          "episode": 63,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0012373924255371094
+        },
+        {
+          "episode": 64,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0014503002166748047
+        },
+        {
+          "episode": 65,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0016453266143798828
+        },
+        {
+          "episode": 66,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0010869503021240234
+        },
+        {
+          "episode": 67,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0010862350463867188
+        },
+        {
+          "episode": 68,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0011470317840576172
+        },
+        {
+          "episode": 69,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0011379718780517578
+        },
+        {
+          "episode": 70,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0011756420135498047
+        },
+        {
+          "episode": 71,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0014362335205078125
+        },
+        {
+          "episode": 72,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.001302480697631836
+        },
+        {
+          "episode": 73,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0013086795806884766
+        },
+        {
+          "episode": 74,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0015227794647216797
+        },
+        {
+          "episode": 75,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.00189208984375
+        },
+        {
+          "episode": 76,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.002048969268798828
+        },
+        {
+          "episode": 77,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.002393007278442383
+        },
+        {
+          "episode": 78,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0017974376678466797
+        },
+        {
+          "episode": 79,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0017278194427490234
+        },
+        {
+          "episode": 80,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0017325878143310547
+        },
+        {
+          "episode": 81,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0018284320831298828
+        },
+        {
+          "episode": 82,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.001451730728149414
+        },
+        {
+          "episode": 83,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.001630544662475586
+        },
+        {
+          "episode": 84,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0015883445739746094
+        },
+        {
+          "episode": 85,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0015816688537597656
+        },
+        {
+          "episode": 86,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0026319026947021484
+        },
+        {
+          "episode": 87,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0017747879028320312
+        },
+        {
+          "episode": 88,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.001577615737915039
+        },
+        {
+          "episode": 89,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.001688241958618164
+        },
+        {
+          "episode": 90,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0014870166778564453
+        },
+        {
+          "episode": 91,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0015947818756103516
+        },
+        {
+          "episode": 92,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0014424324035644531
+        },
+        {
+          "episode": 93,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0015714168548583984
+        },
+        {
+          "episode": 94,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.001504659652709961
+        },
+        {
+          "episode": 95,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0032689571380615234
+        },
+        {
+          "episode": 96,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0017933845520019531
+        },
+        {
+          "episode": 97,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0017101764678955078
+        },
+        {
+          "episode": 98,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0017154216766357422
+        },
+        {
+          "episode": 99,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.85,
+          "execution_time": 0.0017383098602294922
+        }
+      ],
+      "success_rate": 100.0,
+      "avg_quality": 0.8499999999999995,
+      "learning_curve": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "domain": "Logic",
+      "episodes": [
+        {
+          "episode": 0,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00021910667419433594
+        },
+        {
+          "episode": 1,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0002903938293457031
+        },
+        {
+          "episode": 2,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00023627281188964844
+        },
+        {
+          "episode": 3,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00025844573974609375
+        },
+        {
+          "episode": 4,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0002448558807373047
+        },
+        {
+          "episode": 5,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00024056434631347656
+        },
+        {
+          "episode": 6,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0002646446228027344
+        },
+        {
+          "episode": 7,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0003542900085449219
+        },
+        {
+          "episode": 8,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00027179718017578125
+        },
+        {
+          "episode": 9,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0002970695495605469
+        },
+        {
+          "episode": 10,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00032258033752441406
+        },
+        {
+          "episode": 11,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.000385284423828125
+        },
+        {
+          "episode": 12,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004382133483886719
+        },
+        {
+          "episode": 13,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00018548965454101562
+        },
+        {
+          "episode": 14,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00015544891357421875
+        },
+        {
+          "episode": 15,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00019097328186035156
+        },
+        {
+          "episode": 16,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0001876354217529297
+        },
+        {
+          "episode": 17,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00021839141845703125
+        },
+        {
+          "episode": 18,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00019407272338867188
+        },
+        {
+          "episode": 19,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00022840499877929688
+        },
+        {
+          "episode": 20,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00027942657470703125
+        },
+        {
+          "episode": 21,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00022864341735839844
+        },
+        {
+          "episode": 22,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00022983551025390625
+        },
+        {
+          "episode": 23,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00023102760314941406
+        },
+        {
+          "episode": 24,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00023317337036132812
+        },
+        {
+          "episode": 25,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0002589225769042969
+        },
+        {
+          "episode": 26,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0002758502960205078
+        },
+        {
+          "episode": 27,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00027179718017578125
+        },
+        {
+          "episode": 28,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004088878631591797
+        },
+        {
+          "episode": 29,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005736351013183594
+        },
+        {
+          "episode": 30,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006091594696044922
+        },
+        {
+          "episode": 31,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006349086761474609
+        },
+        {
+          "episode": 32,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005941390991210938
+        },
+        {
+          "episode": 33,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010139942169189453
+        },
+        {
+          "episode": 34,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011935234069824219
+        },
+        {
+          "episode": 35,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0008146762847900391
+        },
+        {
+          "episode": 36,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006659030914306641
+        },
+        {
+          "episode": 37,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004024505615234375
+        },
+        {
+          "episode": 38,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00048232078552246094
+        },
+        {
+          "episode": 39,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00037670135498046875
+        },
+        {
+          "episode": 40,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0003657341003417969
+        },
+        {
+          "episode": 41,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005719661712646484
+        },
+        {
+          "episode": 42,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005049705505371094
+        },
+        {
+          "episode": 43,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00039577484130859375
+        },
+        {
+          "episode": 44,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0003845691680908203
+        },
+        {
+          "episode": 45,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004367828369140625
+        },
+        {
+          "episode": 46,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00039505958557128906
+        },
+        {
+          "episode": 47,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004107952117919922
+        },
+        {
+          "episode": 48,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00044226646423339844
+        },
+        {
+          "episode": 49,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004436969757080078
+        },
+        {
+          "episode": 50,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.010690689086914062
+        },
+        {
+          "episode": 51,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009205341339111328
+        },
+        {
+          "episode": 52,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010192394256591797
+        },
+        {
+          "episode": 53,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010311603546142578
+        },
+        {
+          "episode": 54,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009164810180664062
+        },
+        {
+          "episode": 55,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009164810180664062
+        },
+        {
+          "episode": 56,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009355545043945312
+        },
+        {
+          "episode": 57,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0008456707000732422
+        },
+        {
+          "episode": 58,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009317398071289062
+        },
+        {
+          "episode": 59,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011334419250488281
+        },
+        {
+          "episode": 60,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001073598861694336
+        },
+        {
+          "episode": 61,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009334087371826172
+        },
+        {
+          "episode": 62,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009386539459228516
+        },
+        {
+          "episode": 63,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012412071228027344
+        },
+        {
+          "episode": 64,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0025281906127929688
+        },
+        {
+          "episode": 65,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011968612670898438
+        },
+        {
+          "episode": 66,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001135110855102539
+        },
+        {
+          "episode": 67,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012767314910888672
+        },
+        {
+          "episode": 68,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001313924789428711
+        },
+        {
+          "episode": 69,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011796951293945312
+        },
+        {
+          "episode": 70,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0013573169708251953
+        },
+        {
+          "episode": 71,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0015323162078857422
+        },
+        {
+          "episode": 72,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010619163513183594
+        },
+        {
+          "episode": 73,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010325908660888672
+        },
+        {
+          "episode": 74,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011494159698486328
+        },
+        {
+          "episode": 75,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012216567993164062
+        },
+        {
+          "episode": 76,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011553764343261719
+        },
+        {
+          "episode": 77,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.003128528594970703
+        },
+        {
+          "episode": 78,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001355886459350586
+        },
+        {
+          "episode": 79,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012111663818359375
+        },
+        {
+          "episode": 80,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012021064758300781
+        },
+        {
+          "episode": 81,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001191854476928711
+        },
+        {
+          "episode": 82,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011706352233886719
+        },
+        {
+          "episode": 83,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011858940124511719
+        },
+        {
+          "episode": 84,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001207113265991211
+        },
+        {
+          "episode": 85,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001148223876953125
+        },
+        {
+          "episode": 86,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0016064643859863281
+        },
+        {
+          "episode": 87,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0013866424560546875
+        },
+        {
+          "episode": 88,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0022802352905273438
+        },
+        {
+          "episode": 89,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0016508102416992188
+        },
+        {
+          "episode": 90,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0014150142669677734
+        },
+        {
+          "episode": 91,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0036439895629882812
+        },
+        {
+          "episode": 92,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0016026496887207031
+        },
+        {
+          "episode": 93,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0014412403106689453
+        },
+        {
+          "episode": 94,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0013284683227539062
+        },
+        {
+          "episode": 95,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0016467571258544922
+        },
+        {
+          "episode": 96,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0019407272338867188
+        },
+        {
+          "episode": 97,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002580404281616211
+        },
+        {
+          "episode": 98,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001615285873413086
+        },
+        {
+          "episode": 99,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001947164535522461
+        }
+      ],
+      "success_rate": 75.0,
+      "avg_quality": 0.9899999999999999,
+      "learning_curve": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "domain": "Reverse Engineering",
+      "episodes": [
+        {
+          "episode": 0,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.000469207763671875
+        },
+        {
+          "episode": 1,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00039196014404296875
+        },
+        {
+          "episode": 2,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005812644958496094
+        },
+        {
+          "episode": 3,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0034160614013671875
+        },
+        {
+          "episode": 4,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0033304691314697266
+        },
+        {
+          "episode": 5,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001070261001586914
+        },
+        {
+          "episode": 6,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.000919342041015625
+        },
+        {
+          "episode": 7,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006995201110839844
+        },
+        {
+          "episode": 8,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005319118499755859
+        },
+        {
+          "episode": 9,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004634857177734375
+        },
+        {
+          "episode": 10,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0013375282287597656
+        },
+        {
+          "episode": 11,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005159378051757812
+        },
+        {
+          "episode": 12,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009372234344482422
+        },
+        {
+          "episode": 13,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004189014434814453
+        },
+        {
+          "episode": 14,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0003857612609863281
+        },
+        {
+          "episode": 15,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00045990943908691406
+        },
+        {
+          "episode": 16,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0003998279571533203
+        },
+        {
+          "episode": 17,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004582405090332031
+        },
+        {
+          "episode": 18,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006146430969238281
+        },
+        {
+          "episode": 19,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00045752525329589844
+        },
+        {
+          "episode": 20,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0022513866424560547
+        },
+        {
+          "episode": 21,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0014622211456298828
+        },
+        {
+          "episode": 22,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.000713348388671875
+        },
+        {
+          "episode": 23,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0008206367492675781
+        },
+        {
+          "episode": 24,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005893707275390625
+        },
+        {
+          "episode": 25,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005893707275390625
+        },
+        {
+          "episode": 26,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005145072937011719
+        },
+        {
+          "episode": 27,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005767345428466797
+        },
+        {
+          "episode": 28,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006258487701416016
+        },
+        {
+          "episode": 29,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0008208751678466797
+        },
+        {
+          "episode": 30,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007538795471191406
+        },
+        {
+          "episode": 31,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0021343231201171875
+        },
+        {
+          "episode": 32,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007653236389160156
+        },
+        {
+          "episode": 33,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0008594989776611328
+        },
+        {
+          "episode": 34,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0008108615875244141
+        },
+        {
+          "episode": 35,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007162094116210938
+        },
+        {
+          "episode": 36,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.013195037841796875
+        },
+        {
+          "episode": 37,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007297992706298828
+        },
+        {
+          "episode": 38,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005118846893310547
+        },
+        {
+          "episode": 39,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005028247833251953
+        },
+        {
+          "episode": 40,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004734992980957031
+        },
+        {
+          "episode": 41,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004658699035644531
+        },
+        {
+          "episode": 42,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.009566068649291992
+        },
+        {
+          "episode": 43,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.008887290954589844
+        },
+        {
+          "episode": 44,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002023935317993164
+        },
+        {
+          "episode": 45,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0075206756591796875
+        },
+        {
+          "episode": 46,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004937648773193359
+        },
+        {
+          "episode": 47,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005033016204833984
+        },
+        {
+          "episode": 48,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.010247230529785156
+        },
+        {
+          "episode": 49,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.010584115982055664
+        },
+        {
+          "episode": 50,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.03184652328491211
+        },
+        {
+          "episode": 51,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.017333030700683594
+        },
+        {
+          "episode": 52,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0022766590118408203
+        },
+        {
+          "episode": 53,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0024535655975341797
+        },
+        {
+          "episode": 54,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011854171752929688
+        },
+        {
+          "episode": 55,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.01271963119506836
+        },
+        {
+          "episode": 56,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006093978881835938
+        },
+        {
+          "episode": 57,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002103090286254883
+        },
+        {
+          "episode": 58,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005381107330322266
+        },
+        {
+          "episode": 59,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004901885986328125
+        },
+        {
+          "episode": 60,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.011417388916015625
+        },
+        {
+          "episode": 61,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.013919591903686523
+        },
+        {
+          "episode": 62,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001096487045288086
+        },
+        {
+          "episode": 63,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.015573263168334961
+        },
+        {
+          "episode": 64,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.013943195343017578
+        },
+        {
+          "episode": 65,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.006006479263305664
+        },
+        {
+          "episode": 66,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007126331329345703
+        },
+        {
+          "episode": 67,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005371570587158203
+        },
+        {
+          "episode": 68,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0023636817932128906
+        },
+        {
+          "episode": 69,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001222848892211914
+        },
+        {
+          "episode": 70,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.019586801528930664
+        },
+        {
+          "episode": 71,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005795955657958984
+        },
+        {
+          "episode": 72,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.015021324157714844
+        },
+        {
+          "episode": 73,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011916160583496094
+        },
+        {
+          "episode": 74,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012590885162353516
+        },
+        {
+          "episode": 75,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.019240617752075195
+        },
+        {
+          "episode": 76,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0024111270904541016
+        },
+        {
+          "episode": 77,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012331008911132812
+        },
+        {
+          "episode": 78,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012481212615966797
+        },
+        {
+          "episode": 79,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012938976287841797
+        },
+        {
+          "episode": 80,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0035796165466308594
+        },
+        {
+          "episode": 81,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0018124580383300781
+        },
+        {
+          "episode": 82,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0013613700866699219
+        },
+        {
+          "episode": 83,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.018636465072631836
+        },
+        {
+          "episode": 84,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0013577938079833984
+        },
+        {
+          "episode": 85,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001409769058227539
+        },
+        {
+          "episode": 86,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.018934011459350586
+        },
+        {
+          "episode": 87,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002665996551513672
+        },
+        {
+          "episode": 88,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.016729354858398438
+        },
+        {
+          "episode": 89,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.005322933197021484
+        },
+        {
+          "episode": 90,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.01634979248046875
+        },
+        {
+          "episode": 91,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.019893169403076172
+        },
+        {
+          "episode": 92,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002163410186767578
+        },
+        {
+          "episode": 93,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0018749237060546875
+        },
+        {
+          "episode": 94,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.023080825805664062
+        },
+        {
+          "episode": 95,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001461029052734375
+        },
+        {
+          "episode": 96,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.003938436508178711
+        },
+        {
+          "episode": 97,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.018776893615722656
+        },
+        {
+          "episode": 98,
+          "success": false,
+          "correctness": 0.0,
+          "quality_level": 0.99,
+          "execution_time": 0.003498554229736328
+        },
+        {
+          "episode": 99,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0015451908111572266
+        }
+      ],
+      "success_rate": 93.0,
+      "avg_quality": 0.9899999999999999,
+      "learning_curve": [
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "domain": "Causal",
+      "episodes": [
+        {
+          "episode": 0,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006468296051025391
+        },
+        {
+          "episode": 1,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0003058910369873047
+        },
+        {
+          "episode": 2,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00027751922607421875
+        },
+        {
+          "episode": 3,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.003309965133666992
+        },
+        {
+          "episode": 4,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0003204345703125
+        },
+        {
+          "episode": 5,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001775503158569336
+        },
+        {
+          "episode": 6,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011703968048095703
+        },
+        {
+          "episode": 7,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011477470397949219
+        },
+        {
+          "episode": 8,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00047206878662109375
+        },
+        {
+          "episode": 9,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002146005630493164
+        },
+        {
+          "episode": 10,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0003724098205566406
+        },
+        {
+          "episode": 11,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.000316619873046875
+        },
+        {
+          "episode": 12,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0002307891845703125
+        },
+        {
+          "episode": 13,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00023126602172851562
+        },
+        {
+          "episode": 14,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002972126007080078
+        },
+        {
+          "episode": 15,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012483596801757812
+        },
+        {
+          "episode": 16,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012404918670654297
+        },
+        {
+          "episode": 17,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007653236389160156
+        },
+        {
+          "episode": 18,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00238037109375
+        },
+        {
+          "episode": 19,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00047397613525390625
+        },
+        {
+          "episode": 20,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00067138671875
+        },
+        {
+          "episode": 21,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006411075592041016
+        },
+        {
+          "episode": 22,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002017974853515625
+        },
+        {
+          "episode": 23,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00049591064453125
+        },
+        {
+          "episode": 24,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002012968063354492
+        },
+        {
+          "episode": 25,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0020415782928466797
+        },
+        {
+          "episode": 26,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002511739730834961
+        },
+        {
+          "episode": 27,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002557516098022461
+        },
+        {
+          "episode": 28,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007016658782958984
+        },
+        {
+          "episode": 29,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0022144317626953125
+        },
+        {
+          "episode": 30,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006613731384277344
+        },
+        {
+          "episode": 31,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006997585296630859
+        },
+        {
+          "episode": 32,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0008323192596435547
+        },
+        {
+          "episode": 33,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005495548248291016
+        },
+        {
+          "episode": 34,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005273818969726562
+        },
+        {
+          "episode": 35,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005307197570800781
+        },
+        {
+          "episode": 36,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002199888229370117
+        },
+        {
+          "episode": 37,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0003829002380371094
+        },
+        {
+          "episode": 38,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0003437995910644531
+        },
+        {
+          "episode": 39,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004754066467285156
+        },
+        {
+          "episode": 40,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0004222393035888672
+        },
+        {
+          "episode": 41,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005679130554199219
+        },
+        {
+          "episode": 42,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006105899810791016
+        },
+        {
+          "episode": 43,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0026192665100097656
+        },
+        {
+          "episode": 44,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010437965393066406
+        },
+        {
+          "episode": 45,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001081705093383789
+        },
+        {
+          "episode": 46,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.00104522705078125
+        },
+        {
+          "episode": 47,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009031295776367188
+        },
+        {
+          "episode": 48,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0008497238159179688
+        },
+        {
+          "episode": 49,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0036771297454833984
+        },
+        {
+          "episode": 50,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.011626482009887695
+        },
+        {
+          "episode": 51,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010309219360351562
+        },
+        {
+          "episode": 52,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001050710678100586
+        },
+        {
+          "episode": 53,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.001041412353515625
+        },
+        {
+          "episode": 54,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.003171682357788086
+        },
+        {
+          "episode": 55,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0054552555084228516
+        },
+        {
+          "episode": 56,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0012054443359375
+        },
+        {
+          "episode": 57,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0047795772552490234
+        },
+        {
+          "episode": 58,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.003412961959838867
+        },
+        {
+          "episode": 59,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009245872497558594
+        },
+        {
+          "episode": 60,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009486675262451172
+        },
+        {
+          "episode": 61,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011508464813232422
+        },
+        {
+          "episode": 62,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009467601776123047
+        },
+        {
+          "episode": 63,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010213851928710938
+        },
+        {
+          "episode": 64,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.003698110580444336
+        },
+        {
+          "episode": 65,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0014166831970214844
+        },
+        {
+          "episode": 66,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0019567012786865234
+        },
+        {
+          "episode": 67,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010650157928466797
+        },
+        {
+          "episode": 68,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010228157043457031
+        },
+        {
+          "episode": 69,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0035889148712158203
+        },
+        {
+          "episode": 70,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011374950408935547
+        },
+        {
+          "episode": 71,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0010995864868164062
+        },
+        {
+          "episode": 72,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0013191699981689453
+        },
+        {
+          "episode": 73,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002621173858642578
+        },
+        {
+          "episode": 74,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005829334259033203
+        },
+        {
+          "episode": 75,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005500316619873047
+        },
+        {
+          "episode": 76,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.000537872314453125
+        },
+        {
+          "episode": 77,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006759166717529297
+        },
+        {
+          "episode": 78,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006647109985351562
+        },
+        {
+          "episode": 79,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002418041229248047
+        },
+        {
+          "episode": 80,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0008032321929931641
+        },
+        {
+          "episode": 81,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005872249603271484
+        },
+        {
+          "episode": 82,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0005834102630615234
+        },
+        {
+          "episode": 83,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007503032684326172
+        },
+        {
+          "episode": 84,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002452850341796875
+        },
+        {
+          "episode": 85,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007202625274658203
+        },
+        {
+          "episode": 86,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007116794586181641
+        },
+        {
+          "episode": 87,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007011890411376953
+        },
+        {
+          "episode": 88,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.004932403564453125
+        },
+        {
+          "episode": 89,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0011963844299316406
+        },
+        {
+          "episode": 90,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006768703460693359
+        },
+        {
+          "episode": 91,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007412433624267578
+        },
+        {
+          "episode": 92,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007467269897460938
+        },
+        {
+          "episode": 93,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0009739398956298828
+        },
+        {
+          "episode": 94,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002672910690307617
+        },
+        {
+          "episode": 95,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0008080005645751953
+        },
+        {
+          "episode": 96,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.002563953399658203
+        },
+        {
+          "episode": 97,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0006890296936035156
+        },
+        {
+          "episode": 98,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.0007865428924560547
+        },
+        {
+          "episode": 99,
+          "success": true,
+          "correctness": 1.0,
+          "quality_level": 0.99,
+          "execution_time": 0.000774383544921875
+        }
+      ],
+      "success_rate": 100.0,
+      "avg_quality": 0.9899999999999999,
+      "learning_curve": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  ]
+}

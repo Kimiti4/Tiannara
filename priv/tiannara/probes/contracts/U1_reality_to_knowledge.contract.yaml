@@ -1,0 +1,18 @@
+probe_id: "U1_reality_to_knowledge"
+audit: "U0"
+mode: "CERTIFICATION"                 # never "ACTION"
+
+capabilities_under_test: [C1, C2, C3, C4, C7]
+
+# Certification bounds — all must be false to proceed without C14 authorization
+mutation_allowed: false
+service_bootstrap_allowed: false       # <-- rejects U1b ExecutiveMemory bootstrap
+external_calls_allowed: false
+
+declared_side_effects:
+  - "linked graph process may exit if ExecutiveMemory :noproc (incidental, observed U1)"
+
+verdict_scope: "epistemic_status_only" # cannot trigger adoption/action
+
+# Fill by running: python tools/hash_contract.py <this-file>
+contract_hash: "11767e7f24231ecd6891fba2c9cdf63297876911a0d18cf2a77a5a6f3b6740c3"

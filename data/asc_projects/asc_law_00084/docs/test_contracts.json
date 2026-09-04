@@ -1,0 +1,25 @@
+[
+  {
+    "id": "tc_339",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Traces must propagate context",
+    "source_ref": "inv_338",
+    "test_module_name": "TracesMustPropagateInvariantTest",
+    "test_function_name": "property Traces must propagate context",
+    "expected_behavior": "Traces must NOT propagate context",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "general",
+      "generator": "StreamData.term()",
+      "assertion": "Traces must NOT propagate context",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "general"
+    ],
+    "source_type": "invariant"
+  }
+]

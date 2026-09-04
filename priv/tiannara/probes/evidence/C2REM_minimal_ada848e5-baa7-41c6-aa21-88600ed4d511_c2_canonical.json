@@ -1,0 +1,57 @@
+{
+  "phase": "c2_canonical",
+  "ok": true,
+  "chain_result": {
+    "ok": {
+      "add_entity": {
+        "ok": "ext_entity_fef9467c27e6"
+      },
+      "add_latency_us": 102,
+      "entity_id": "ext_entity_fef9467c27e6",
+      "get_entity": {
+        "ok": {
+          "confidence": 0.8,
+          "domain": "external_reality",
+          "id": "ext_entity_fef9467c27e6",
+          "ingested_at": {
+            "calendar": "Elixir.Calendar.ISO",
+            "day": 20,
+            "hour": 14,
+            "microsecond": [
+              39000,
+              6
+            ],
+            "minute": 59,
+            "month": 8,
+            "second": 46,
+            "std_offset": 0,
+            "time_zone": "Etc/UTC",
+            "utc_offset": 0,
+            "year": 2026,
+            "zone_abbr": "UTC"
+          },
+          "mission": "C2-REM-001",
+          "payload_hash": "dd016c9ee9585932f3eecc9275bd6fd62f1024b4ce43664a70ae05e57648b69d",
+          "provenance": "probe_c2_rem_001",
+          "status": "active",
+          "type": "event",
+          "uncertainty": 0.2,
+          "version": 1
+        }
+      },
+      "get_latency_us": 0,
+      "payload_hash": "dd016c9ee9585932f3eecc9275bd6fd62f1024b4ce43664a70ae05e57648b69d",
+      "provenance": "Tiannara.World.UnifiedRealityGraph.add_entity/1 + get_entity/1",
+      "stats": {
+        "ok": {
+          "entities_with_provenance": 0,
+          "entity_count": 1,
+          "healthy": "true",
+          "relationship_count": 0
+        }
+      },
+      "timestamp": "2026-08-20T14:59:46.040000Z"
+    }
+  },
+  "payload_hash": "dd016c9ee9585932f3eecc9275bd6fd62f1024b4ce43664a70ae05e57648b69d"
+}

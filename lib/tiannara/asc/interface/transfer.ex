@@ -22,7 +22,7 @@ defmodule Tiannara.ASC.Interface.Transfer do
 
   """
 
-  alias Tiannara.ASC.Interface.{Genome, Mutation}
+  alias Tiannara.ASC.Interface.Genome
   alias Tiannara.ASC.Interface.Fitness
 
   @derive Jason.Encoder

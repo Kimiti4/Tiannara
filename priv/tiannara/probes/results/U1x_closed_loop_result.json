@@ -1,0 +1,32 @@
+{
+  "probe": "U1x_closed_loop",
+  "status": "PASS",
+  "checks": {
+    "lineage": {
+      "pass": true,
+      "problems": []
+    },
+    "cel_bridge": {
+      "pass": true,
+      "provider": "asc"
+    },
+    "governance": {
+      "pass": true
+    },
+    "no_hardcoded": {
+      "pass": true
+    },
+    "continuity": {
+      "pass": true
+    },
+    "egress": {
+      "pass": true
+    },
+    "pollution": {
+      "pass": true
+    }
+  },
+  "math_discoverable": false,
+  "math_note": "MATH_NOT_REGISTERED (next gap -> Constitutional Math v1 / CEL-2)",
+  "bounded_proposition": "Under this tested execution path, a novel objective entering via C11 traverses the unified cognitive substrate, is dynamically routed by CEL via the CapabilityRegistry, passes constitutional governance, produces a monitored ASC action, survives continuity validation, and yields a traceable dry-run egress \u2014 with a continuous causal chain and no hardcoded routing.\n"
+}

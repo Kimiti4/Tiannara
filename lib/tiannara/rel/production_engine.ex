@@ -7,7 +7,6 @@ defmodule Tiannara.REL.ProductionEngine do
   use GenServer
   require Logger
 
-  alias Tiannara.REL.EconomyEngine
   alias Tiannara.REL.DiscoveryLedger
 
   def start_link(opts \\ []) do

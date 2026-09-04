@@ -1,0 +1,40 @@
+[
+  {
+    "id": "tc_395",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Orders cannot be modified after shipment",
+    "source_ref": "inv_393",
+    "test_module_name": "OrdersCannotModifiedInvariantTest",
+    "test_function_name": "property Orders cannot be modified after shipment",
+    "expected_behavior": "Orders cannot be modified after shipment",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "business_logic",
+      "generator": "StreamData.term()",
+      "assertion": "Orders cannot be modified after shipment",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "business_logic"
+    ],
+    "source_type": "invariant"
+  },
+  {
+    "id": "tc_396",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: cancel pending orders",
+    "source_ref": "cap_394",
+    "test_module_name": "CancelPendingOrdersTest",
+    "test_function_name": "test cancel pending orders succeeds with valid inputs",
+    "expected_behavior": "cancel pending orders completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

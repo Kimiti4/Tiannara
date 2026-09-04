@@ -1,0 +1,58 @@
+{
+  "constraints": [],
+  "capabilities": [
+    {
+      "id": "cap_2",
+      "name": "create accounts unique",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "tags": [],
+      "verb": "create",
+      "subject": "accounts unique",
+      "preconditions": [],
+      "postconditions": [],
+      "actor": "user"
+    },
+    {
+      "id": "cap_3",
+      "name": "list all accounts",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "tags": [],
+      "verb": "list",
+      "subject": "all accounts",
+      "preconditions": [],
+      "postconditions": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_4",
+      "name": "update account balance",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "tags": [],
+      "verb": "update",
+      "subject": "account balance",
+      "preconditions": [],
+      "postconditions": [],
+      "actor": "unknown"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "inv_1",
+      "domain": "business_logic",
+      "tags": [],
+      "statement": "Balance cannot go below zero",
+      "source_fragment": "Balance cannot go below zero",
+      "strength": "must",
+      "negation_form": "Balance cannot go below zero"
+    }
+  ],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-18T02:37:25.754000Z"
+}

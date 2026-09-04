@@ -1,0 +1,52 @@
+{
+  "gate": "MC-004",
+  "gate_sub": "SETTLEMENT",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "operator": "c14_ac",
+  "settlement_date": "2026-08-31",
+  "authorization": "ASC-MC-004-SETTLEMENT.human.yaml",
+  "authorization_status": "GRANTED",
+  "verifier_mode": "independent_no_trust",
+  "independent_verifier": "priv/tiannara/remediation/verifiers/MC004_independent_verification.py",
+  "independent_verifier_exit_code": 0,
+  "verdict": "CERTIFIED_BOUNDED",
+  "sub_gates": {
+    "MC004_M": "CERTIFIED_BOUNDED",
+    "MC004_P": "CERTIFIED_BOUNDED"
+  },
+  "independent_verification": {
+    "overall": "PASS",
+    "v1_real_solver": "PASS",
+    "v2_mc001_pin": "PASS",
+    "v3_physics_simulation": "PASS",
+    "v4_structural_validation": "PASS",
+    "v5_pilot": "PASS",
+    "v5_flag_restored_false": "PASS",
+    "v6_live_execution": "PASS",
+    "v7_gateway": "PASS",
+    "v8_regression": "PASS",
+    "v8_tests": 85,
+    "v8_failures": 0,
+    "v9_scope": "PASS"
+  },
+  "capability_state": {
+    "real_bounded_physics_computation": "VERIFIED",
+    "authorized_live_pilot": "VERIFIED",
+    "durable_provenance_evidence": "VERIFIED",
+    "structural_validation": "VERIFIED",
+    "formal_verification": "UNAVAILABLE",
+    "unrestricted_real_execution": "DISABLED",
+    "autonomous_physics_discovery": "NOT_ESTABLISHED",
+    "deployment": "NOT_PERFORMED"
+  },
+  "false_flags": {
+    "production_mutation_from_settlement": false,
+    "sandbox_patch_performed": false,
+    "deployment_performed": false,
+    "formal_verification_revived": false,
+    "theatrical_verification_re_asserted": false,
+    "unrestricted_real_execution_enabled": false,
+    "ontology_modified": false
+  },
+  "certification_boundary": "CERTIFIED_BOUNDED: one authorized, bounded, real numerical physics execution proven; this is NOT formal mathematical proof, unrestricted autonomous experimentation, production deployment, or general scientific discovery."
+}

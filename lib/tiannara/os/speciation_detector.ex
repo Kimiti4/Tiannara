@@ -17,8 +17,7 @@ defmodule TiannaraOS.SpeciationDetector do
   # Distance threshold for new species formation
   @speciation_distance_threshold 0.3
   
-  # Minimum members before species is considered established
-  @min_species_size 3
+
   
   # Ticks without new members before species considered extinct
   @extinction_timeout_ticks 5000
@@ -76,12 +75,6 @@ defmodule TiannaraOS.SpeciationDetector do
     end
   end
   
-  @doc """
-  Classify a program into existing species or create new species.
-  
-  Uses Euclidean distance in 5D trait space to find closest species.
-  If distance > threshold, creates new species.
-  """
   @spec classify_program(ResearchProgram.t(), map(), integer()) :: {atom(), map()}
   defp classify_program(%ResearchProgram{} = program, species_registry, current_tick) do
     genome = program.strategy_genome
@@ -106,9 +99,6 @@ defmodule TiannaraOS.SpeciationDetector do
     end
   end
   
-  @doc """
-  Add program to existing species and update statistics.
-  """
   @spec add_to_existing_species(map(), atom(), atom(), integer()) :: map()
   defp add_to_existing_species(species_registry, species_id, program_id, current_tick) do
     case Map.get(species_registry, species_id) do
@@ -129,9 +119,6 @@ defmodule TiannaraOS.SpeciationDetector do
     end
   end
   
-  @doc """
-  Create a new species record.
-  """
   @spec create_new_species(atom(), ResearchProgram.t(), integer()) :: map()
   defp create_new_species(species_id, %ResearchProgram{} = founding_program, current_tick) do
     %{
@@ -153,13 +140,6 @@ defmodule TiannaraOS.SpeciationDetector do
     }
   end
   
-  @doc """
-  Detect species extinction events.
-  
-  A species is extinct if:
-  - No current members
-  - OR no new members for @extinction_timeout_ticks
-  """
   @spec detect_extinctions(map(), integer()) :: map()
   defp detect_extinctions(species_registry, current_tick) do
     Enum.map(species_registry, fn {species_id, species} ->
@@ -184,16 +164,6 @@ defmodule TiannaraOS.SpeciationDetector do
     |> Enum.into(%{})
   end
   
-  @doc """
-  Calculate diversity metrics for the ecosystem.
-  
-  Returns metrics including:
-  - Total species count
-  - Active species count
-  - Shannon diversity index
-  - Max lineage depth
-  - Speciation rate (new species per 1000 ticks)
-  """
   @spec calculate_diversity_metrics(map()) :: map()
   defp calculate_diversity_metrics(species_registry) do
     total_species = map_size(species_registry)
@@ -233,13 +203,6 @@ defmodule TiannaraOS.SpeciationDetector do
     }
   end
   
-  @doc """
-  Calculate Shannon diversity index.
-  
-  H = -Σ(p_i * ln(p_i)) where p_i is proportion of species i
-  
-  Higher values = more diverse ecosystem
-  """
   @spec calculate_shannon_index(map()) :: float()
   defp calculate_shannon_index(species_registry) do
     total_members = species_registry
@@ -262,11 +225,6 @@ defmodule TiannaraOS.SpeciationDetector do
     end
   end
   
-  @doc """
-  Find closest species to given genome using Euclidean distance.
-  
-  Returns {species_id, distance} or {nil, 999.0} if no species exist.
-  """
   @spec find_closest_species(map(), map()) :: {atom() | nil, float()}
   defp find_closest_species(genome, species_registry) do
     if map_size(species_registry) == 0 do
@@ -281,12 +239,6 @@ defmodule TiannaraOS.SpeciationDetector do
     end
   end
   
-  @doc """
-  Calculate Euclidean distance between two genomes in 5D trait space.
-  
-  Traits: exploration_rate, validation_priority, cross_domain_synthesis,
-          anomaly_sensitivity, risk_tolerance
-  """
   @spec calculate_genome_distance(map(), map()) :: float()
   defp calculate_genome_distance(genome1, genome2) do
     traits = [:exploration_rate, :validation_priority, :cross_domain_synthesis, 
@@ -301,11 +253,6 @@ defmodule TiannaraOS.SpeciationDetector do
     :math.sqrt(Enum.sum(squared_distances))
   end
   
-  @doc """
-  Infer primary domain from strategy genome.
-  
-  Maps trait combinations to institutional archetypes.
-  """
   @spec infer_primary_domain(map()) :: atom()
   defp infer_primary_domain(genome) do
     cond do
@@ -319,9 +266,6 @@ defmodule TiannaraOS.SpeciationDetector do
     end
   end
   
-  @doc """
-  Generate unique species ID.
-  """
   @spec generate_species_id() :: atom()
   defp generate_species_id do
     :"species_#{:rand.uniform(99999)}"

@@ -4,7 +4,7 @@ defmodule Tiannara.Audit.Tier3 do
   Focuses on WHY the system makes decisions, analyzing beliefs, evidence, and assumptions.
   """
   require Logger
-  alias Tiannara.Specialists.{Architect, Engineer, Auditor, Researcher}
+  alias Tiannara.Specialists.{Architect, Engineer, Researcher}
 
   def run_all(opts \\ []) do
     quiet = Keyword.get(opts, :quiet, false)
@@ -71,7 +71,7 @@ defmodule Tiannara.Audit.Tier3 do
 
   # --- Helpers ---
 
-  defp report(status, msg, opts \\ []) do
+  defp report(status, msg, opts) do
     quiet = Keyword.get(opts, :quiet, false)
     unless quiet do
       case status do

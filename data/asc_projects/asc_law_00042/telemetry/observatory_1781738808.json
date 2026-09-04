@@ -1,0 +1,22 @@
+{
+  "test_effectiveness": 0.0,
+  "bug_discovery_rate": 0.0,
+  "test_contract_count": 0,
+  "project_id": "asc_law_00042",
+  "requirements_completeness": 0.0,
+  "invariant_count": 0,
+  "capability_count": 0,
+  "constraint_count": 0,
+  "source_file_count": 0,
+  "architecture_fitness": 0.0,
+  "repair_success_rate": 0.0,
+  "api_fitness": 0.0,
+  "deployment_readiness": 0.0,
+  "long_term_stability": 0.0,
+  "architecture_style": null,
+  "team_size_proxy": 0,
+  "phase_durations": {},
+  "crucible_iterations": 0,
+  "meta_learning_applied": 0,
+  "recorded_at": "2026-06-17T23:23:24.886000Z"
+}

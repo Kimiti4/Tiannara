@@ -1,0 +1,88 @@
+probe_id: "U1x-R2_unified_recertification"
+audit: "Unified Capability Re-Certification"
+mode: "CERTIFICATION"                     # auth-free; observational/dry-run
+class: "composition_recertification"
+
+bounded_proposition: >
+  The previously certified unified organism loop remains causally closed after
+  constitutional mathematics became a CEL-discoverable capability, with CEL as the
+  single governed executive bridge to BOTH engineering/adaptation (ASC) and
+  mathematical reasoning (constitutional_mathematics), via registry-derived
+  discovery — not hardcoded routing.
+
+baseline_evidence:                         # preserved; never modified by this probe
+  - "AE-004..AE-010: RESOLVED"
+  - "CEL-1: PASS"
+  - "U1x: PASS"
+  - "CEL-2: PASS"
+  - "CEL-2 negative control: MATH_NOT_REGISTERED"
+  - "CEL-2 positive result: bayes_update/3 = 2.25 (deterministic)"
+
+cel2_bounded_claim:
+  certified_provider: "constitutional_mathematics"
+  registry_wide_dynamic_discovery: "NOT_CERTIFIED"   # do not silently upgrade
+
+allowed_providers: ["asc", "constitutional_mathematics"]
+real_math_implementation: "Tiannara.Math.Probability.bayes_update/3"
+expected_math_result: 2.25                 # sourced from CEL-2 baseline certification
+math_discrepancy_policy: "record_as_finding; never normalize"
+
+objective:
+  task: "adapt_capability_with_bayesian_validation"   # describes NEED, not providers
+  task_requirements: ["capability_adaptation", "bayesian_update"]
+  must_not_contain:
+    - "asc"
+    - "constitutional_mathematics"
+    - "Tiannara.Math.Probability"
+
+trace_phases_in_order:
+  - ingress
+  - perception
+  - reality_state
+  - knowledge
+  - epistemic_reasoning
+  - mathematics
+  - world_context
+  - governance
+  - cel_discovery_asc
+  - cel_delegation_asc
+  - cel_discovery_math
+  - cel_delegation_math
+  - adaptation
+  - homeostasis
+  - continuity
+  - egress
+  - pollution_check
+
+executive_discovery_schema:                # each cel_discovery_* must contain
+  required_fields: [registry_query, candidate_set, selection, selection_source, governance_gate]
+  selection_source_must_equal: "registry_query"
+  governance_order: "registry_query < selection < governance_gate < delegation"
+
+composition_requirement:
+  both_discoveries_in_single_trace: true
+  single_root_correlation: true
+  same_executive_mechanism: true
+  same_governance_boundary: true
+
+required_checks: [R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,R11,R12,R13,R14,R15,R16,R17,R18,R19,R20]
+
+# Certification bounds (POL-CERT-AUTH-001)
+production_mutation_allowed: false
+registry_mutation_allowed: false
+external_mutations_allowed: false
+production_adoption_allowed: false
+egress_mode: "dry_run"
+canonical_topology_attach_allowed: true
+isolated_test_namespace_allowed: true
+no_pollution_required: true
+
+verdict_space: [PASS, PARTIAL, FAIL, BLOCKED]
+
+bounded_success_claim: >
+  On PASS: the unified organism loop remains causally closed with CEL as governed
+  executive bridge to both engineering/adaptation and mathematical reasoning.
+  Does NOT establish full registry dynamism, unrestricted autonomy, complete
+  math/research coverage, security, self-awareness, or final organism certification.
+
+contract_hash: "3a4213fd14801db8bb011565076eecb6378b80317452028cb40c5e41c56cf48c"

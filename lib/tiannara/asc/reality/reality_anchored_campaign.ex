@@ -68,7 +68,7 @@ defmodule Tiannara.ASC.Reality.RealityAnchoredCampaign do
         
         if decision == :approve do
           roi = RegressionAnalyzer.calculate_roi(outcome)
-          outcome = %{outcome | calculated_roi: roi}
+          _outcome = %{outcome | calculated_roi: roi}
           
           Logger.info("✅ [Phase 8B] Real-world optimization approved! ROI: #{roi}")
           ResearchRegistry.apply_engineering_roi(top_genome.id, roi)

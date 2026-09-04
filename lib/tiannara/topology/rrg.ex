@@ -396,7 +396,7 @@ defmodule Tiannara.Topology.RRG do
     }
   end
 
-  defp get_applicable_policies(resource_id, user_id) do
+  defp get_applicable_policies(_resource_id, _user_id) do
     # Get policies applicable to resource and user
     all_policies = :ets.tab2list(:governance_policies)
     |> Enum.map(fn {policy_id, policy_data} ->
@@ -460,9 +460,6 @@ defmodule Tiannara.Topology.RRG do
         update_usage(resource_id, user_id, policy_id, request_count)
         :allowed
         
-      :exceeded_limit ->
-        {:denied, "Rate limit exceeded for policy #{policy_id}"}
-        
       :adaptive_limit ->
         # Apply adaptive adjustment
         adjusted_limit = apply_adaptive_adjustment(current_usage, rate_limits, policy_data)
@@ -506,8 +503,7 @@ defmodule Tiannara.Topology.RRG do
           end
         end
         
-      _ ->
-        # No per-second limit
+      _ -> :within_limit
     end
     
     # Check per-minute limit
@@ -527,8 +523,7 @@ defmodule Tiannara.Topology.RRG do
           end
         end
         
-      _ ->
-        # No per-minute limit
+      _ -> :within_limit
     end
     
     # Check adaptive conditions
@@ -697,22 +692,22 @@ defmodule Tiannara.Topology.RRG do
     }
   end
 
-  defp generate_enforcement_actions(policy_id, _policy_data, violations) do
+  defp generate_enforcement_actions(_policy_id, _policy_data, violations) do
     actions = []
     
     # Reduce rate limits if too many violations
     if length(violations) > 10 do
-      actions = actions ++ ["reduce_rate_limits"]
+      _actions = actions ++ ["reduce_rate_limits"]
     end
     
     # Enable adaptive mode
     if length(violations) > 5 do
-      actions = actions ++ ["enable_adaptive_mode"]
+      _actions = actions ++ ["enable_adaptive_mode"]
     end
     
     # Temporarily disable policy if severe violations
     if length(violations) > 20 do
-      actions = actions ++ ["temporarily_disable"]
+      _actions = actions ++ ["temporarily_disable"]
     end
     
     actions

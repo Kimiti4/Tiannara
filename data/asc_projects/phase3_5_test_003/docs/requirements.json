@@ -1,0 +1,48 @@
+{
+  "constraints": [],
+  "capabilities": [
+    {
+      "id": "cap_17",
+      "name": "add products inventory",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "tags": [],
+      "verb": "add",
+      "subject": "products inventory",
+      "preconditions": [],
+      "postconditions": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_18",
+      "name": "update stock quantities",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "tags": [],
+      "verb": "update",
+      "subject": "stock quantities",
+      "preconditions": [],
+      "postconditions": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_19",
+      "name": "list low-stock items",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "tags": [],
+      "verb": "list",
+      "subject": "low-stock items",
+      "preconditions": [],
+      "postconditions": [],
+      "actor": "unknown"
+    }
+  ],
+  "invariants": [],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-18T02:37:48.539000Z"
+}

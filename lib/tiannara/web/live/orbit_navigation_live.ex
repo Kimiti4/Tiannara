@@ -7,11 +7,7 @@ defmodule TiannaraWeb.OrbitNavigationLive do
 
   alias Tiannara.REA.OrbitReachabilityGraph
   alias Tiannara.REA.MultiObjectivePlanner
-  alias Tiannara.REA.OrbitGatewayDetector
-  alias Tiannara.REA.OrbitEnergyModel
-  alias Tiannara.REA.OrbitResidency
   alias Tiannara.REA.OrbitResilience
-  alias Tiannara.REA.OrbitObserver
   alias Tiannara.REA.OrbitEstimator
   alias Tiannara.REA.OrbitController
 

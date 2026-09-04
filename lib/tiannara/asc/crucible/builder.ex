@@ -354,7 +354,7 @@ defmodule Tiannara.ASC.Crucible.Builder do
       end
       """
 
-      File.write!(Path.join(sandbox_path, "lib", "#{Macro.underscore(contract.id || "placeholder")}.ex"), content)
+      File.write!(Path.join([sandbox_path, "lib", "#{Macro.underscore(contract.id || "placeholder")}.ex"]), content)
     end)
 
     {:ok, %{project_path: sandbox_path}}

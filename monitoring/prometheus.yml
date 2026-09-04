@@ -1,0 +1,83 @@
+# Prometheus Configuration for Tiannara API
+# 
+# This configuration defines how Prometheus collects metrics from the Tiannara API
+# and stores them for querying and alerting.
+#
+# Date: April 30, 2026
+# Status: Week 24 Day 2 - Monitoring Infrastructure
+
+global:
+  # How frequently to scrape targets
+  scrape_interval: 15s
+  
+  # How frequently to evaluate rules
+  evaluation_interval: 15s
+  
+  # Attach these labels to any time series or alerts when communicating with external systems
+  external_labels:
+    cluster: 'tiannara-production'
+    environment: 'production'
+
+# Alertmanager configuration (optional - uncomment when Alertmanager is set up)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts.yml"
+  # - "recording_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Tiannara API metrics
+  - job_name: 'tiannara-api'
+    
+    # Override the global default and scrape targets from this job every 10 seconds
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    
+    # Metrics path defaults to '/metrics'
+    metrics_path: '/metrics'
+    
+    # Use HTTP scheme
+    scheme: http
+    
+    # Static targets
+    static_configs:
+      - targets: ['host.docker.internal:8004']
+        labels:
+          service: 'tiannara-api'
+          instance: 'api-primary'
+          tier: 'production'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    
+    scrape_interval: 30s
+    
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          instance: 'prometheus-primary'
+
+  # Node exporter for system metrics (optional - uncomment if running node-exporter)
+  # - job_name: 'node-exporter'
+  #   
+  #   scrape_interval: 15s
+  #   
+  #   static_configs:
+  #     - targets: ['node-exporter:9100']
+  #       labels:
+  #         service: 'node-exporter'
+  #         instance: 'server-01'
+
+# Storage configuration
+# Note: For Docker deployment, use command-line flags instead
+# storage:
+#   tsdb:
+#     retention.time: 7d
+#     retention.size: 10GB

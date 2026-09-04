@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "certificate": {
+    "status": "passed",
+    "verified_at": "2026-07-02T20:06:58.757000Z"
+  },
+  "confidence": 1.0,
+  "campaign": "gc_006_certificate_verification",
+  "failure_modes": [],
+  "statistical_power": 1.0,
+  "supporting_evidence": [
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/certificates/cert-authority-002.json",
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/certificates/cert-entropy-003.json",
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/certificates/cert-replay-001.json"
+  ],
+  "all_certificates_valid": true,
+  "invalid_certificates": 0,
+  "total_certificates": 3,
+  "valid_certificates": 3,
+  "verification_rate": 1.0
+}

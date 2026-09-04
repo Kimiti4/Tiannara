@@ -1,0 +1,25 @@
+[
+  {
+    "id": "tc_232",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Jobs must complete within SLA",
+    "source_ref": "inv_231",
+    "test_module_name": "JobsMustCompleteInvariantTest",
+    "test_function_name": "property Jobs must complete within SLA",
+    "expected_behavior": "Jobs must NOT complete within SLA",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "general",
+      "generator": "StreamData.term()",
+      "assertion": "Jobs must NOT complete within SLA",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "general"
+    ],
+    "source_type": "invariant"
+  }
+]

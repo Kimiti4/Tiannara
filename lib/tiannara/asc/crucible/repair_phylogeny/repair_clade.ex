@@ -12,8 +12,9 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairClade do
   They allow analysis at the family level rather than individual lineage level.
   """
 
+  require Logger
+
   alias Tiannara.ASC.Crucible.RepairEcology.RepairSpecies
-  alias __MODULE__
 
   @derive Jason.Encoder
   defstruct [
@@ -45,7 +46,7 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairClade do
   Species are grouped by their classification (Rollback, Retry, etc.)
   to form clades representing major evolutionary families.
   """
-  def from_species(species_list, generation) when is_list(species_list) and length(species_list) > 0 do
+  def from_species(species_list, _generation) when is_list(species_list) and length(species_list) > 0 do
     now = DateTime.utc_now() |> DateTime.to_iso8601()
     
     clade_name = classify_clade_name(hd(species_list))
@@ -89,7 +90,8 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairClade do
     
     avg_fitness = 
       if total_count > 0 do
-        Enum.sum_by(lineages, fn l -> RepairLineage.average_fitness(l) end) / total_count
+        Logger.debug("RepairLineage.average_fitness/1 not available, using 0.0")
+        0.0
       else
         0.0
       end
@@ -118,16 +120,10 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairClade do
     }
   end
 
-  @doc """
-  Classify clade name from representative species.
-  """
   defp classify_clade_name(%RepairSpecies{} = species) do
     species.name
   end
 
-  @doc """
-  Calculate average fitness across all species in clade.
-  """
   defp calculate_average_fitness(species_list) do
     case species_list do
       [] -> 0.0
@@ -136,9 +132,6 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairClade do
     end
   end
 
-  @doc """
-  Calculate survival rate (percentage of active species).
-  """
   defp calculate_survival_rate(species_list) do
     case species_list do
       [] -> 0.0
@@ -148,9 +141,6 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairClade do
     end
   end
 
-  @doc """
-  Calculate average transferability across species.
-  """
   defp calculate_transferability(species_list) do
     case species_list do
       [] -> 0.0

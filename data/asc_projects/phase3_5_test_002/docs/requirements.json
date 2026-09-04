@@ -1,0 +1,61 @@
+{
+  "constraints": [],
+  "capabilities": [
+    {
+      "id": "cap_9",
+      "name": "create user management",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "tags": [],
+      "verb": "create",
+      "subject": "user management",
+      "preconditions": [],
+      "postconditions": [],
+      "actor": "user"
+    },
+    {
+      "id": "cap_10",
+      "name": "register new users",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "tags": [],
+      "verb": "register",
+      "subject": "new users",
+      "preconditions": [],
+      "postconditions": [],
+      "actor": "user"
+    },
+    {
+      "id": "cap_11",
+      "name": "list users by",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "tags": [],
+      "verb": "list",
+      "subject": "users by",
+      "preconditions": [],
+      "postconditions": [],
+      "actor": "user"
+    },
+    {
+      "id": "cap_12",
+      "name": "validate password strength",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "tags": [],
+      "verb": "validate",
+      "subject": "password strength",
+      "preconditions": [],
+      "postconditions": [],
+      "actor": "unknown"
+    }
+  ],
+  "invariants": [],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-18T02:37:43.475000Z"
+}

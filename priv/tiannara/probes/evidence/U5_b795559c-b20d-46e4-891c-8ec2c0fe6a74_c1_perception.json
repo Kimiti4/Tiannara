@@ -1,0 +1,53 @@
+{
+  "phase": "c1_perception",
+  "trace_id": "b795559c-b20d-46e4-891c-8ec2c0fe6a74",
+  "ok": true,
+  "chain_result": {
+    "engine": {
+      "ok": {
+        "crav_triggered": "ok",
+        "event": {
+          "category": "runtime",
+          "causal_links": [
+            {
+              "confidence": 0.3,
+              "path": [
+                "external_reality",
+                "causal_analysis_pending"
+              ],
+              "root_cause": "Causal analysis pending for external_reality"
+            }
+          ],
+          "confidence": 0.3,
+          "evidence": [
+            "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f"
+          ],
+          "id": "ext-d98141926c56e1c8",
+          "interpretation": "Causal analysis pending for external_reality",
+          "metadata": {
+            "external_source": "U5_external_payload_507b876b.json",
+            "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f"
+          },
+          "observation": "{\"commit\":\"test-commit-hash\",\"content\":{\"files_changed\":[\"docs/example.md\"]},\"message\":\"External reality probe event\",\"repository\":\"tiannara-mindcache-prosthetic\",\"timestamp\":\"2026-08-20T13:05:01.632058+00:00\",\"type\":\"repository_commit_event\"}",
+          "recommended_actions": [],
+          "requires_human": false,
+          "severity": "info",
+          "source": "external_reality",
+          "timestamp": "2026-08-20T13:05:11.852000Z"
+        },
+        "importance": 0.0,
+        "priority": "ignore",
+        "proposal": null,
+        "recommendations": []
+      }
+    },
+    "event_category": "runtime",
+    "event_id": "ext-d98141926c56e1c8",
+    "event_severity": "info",
+    "event_source": "external_reality",
+    "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f",
+    "provenance": "Tiannara.Sentinel.Activation.Event.new/1 + Engine.process/1",
+    "timestamp": "2026-08-20T13:05:11.898000Z"
+  },
+  "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f"
+}

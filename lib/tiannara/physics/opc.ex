@@ -13,44 +13,44 @@ defmodule Tiannara.Physics.OPC do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def compile_observer_physics(observer_data, physics_model, opts \\ []) do
-    GenServer.call(__MODULE__, {:compile_observer_physics, observer_data, physics_model, opts})
+  def compile_observer_physics(_observer_data, _physics_model, _opts \\ []) do
+    {:error, :physics_substrate_unavailable}
   end
 
-  def get_observer_status(observer_id) do
-    GenServer.call(__MODULE__, {:get_observer_status, observer_id})
+  def get_observer_status(_observer_id) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_all_observers() do
-    GenServer.call(__MODULE__, :get_all_observers)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def apply_observer_effect(observer_id, target_system, effect_data) do
-    GenServer.call(__MODULE__, {:apply_observer_effect, observer_id, target_system, effect_data})
+  def apply_observer_effect(_observer_id, _target_system, _effect_data) do
+    {:error, :physics_substrate_unavailable}
   end
 
-  def compile_deterministic_physics(physics_spec, observer_constraints \\ []) do
-    GenServer.call(__MODULE__, {:compile_deterministic_physics, physics_spec, observer_constraints})
+  def compile_deterministic_physics(_physics_spec, _observer_constraints \\ []) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_compilation_metrics() do
-    GenServer.call(__MODULE__, :get_compilation_metrics)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def validate_observer_consistency(observer_id) do
-    GenServer.call(__MODULE__, {:validate_observer_consistency, observer_id})
+  def validate_observer_consistency(_observer_id) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_physics_stability_metrics() do
-    GenServer.call(__MODULE__, :get_physics_stability_metrics)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def optimize_observer_physics(observer_id, optimization_params) do
-    GenServer.call(__MODULE__, {:optimize_observer_physics, observer_id, optimization_params})
+  def optimize_observer_physics(_observer_id, _optimization_params) do
+    {:error, :physics_substrate_unavailable}
   end
 
-  def export_physics_model(model_id, format \\ :json) do
-    GenServer.call(__MODULE__, {:export_physics_model, model_id, format})
+  def export_physics_model(_model_id, _format \\ :json) do
+    {:error, :physics_substrate_unavailable}
   end
 
   # Server callbacks
@@ -432,7 +432,7 @@ defmodule Tiannara.Physics.OPC do
     complexity
   end
 
-  defp calculate_determinism_score(physics_model, threshold) do
+  defp calculate_determinism_score(physics_model, _threshold) do
     # Calculate determinism score based on model structure
     case physics_model do
       %{deterministic: true} ->
@@ -467,17 +467,23 @@ defmodule Tiannara.Physics.OPC do
   end
 
   defp simulate_physics_compilation(_observer_data, _physics_model) do
-    # Simulate physics compilation process
+    # MC-004-M (MU-3): theatrical random compaction decommissioned. No physics
+    # "success" step may be fabricated; every phase reports substrate unavailability.
     steps = [
-      {:validate_observer_state, :rand.uniform() > 0.8},
-      {:apply_quantum_corrections, :rand.uniform() > 0.7},
-      {:compute_observer_influence, :rand.uniform() > 0.6},
-      {:resolve_paradoxes, :rand.uniform() > 0.9},
-      {:finalize_model, true}
+      :validate_observer_state,
+      :apply_quantum_corrections,
+      :compute_observer_influence,
+      :resolve_paradoxes,
+      :finalize_model
     ]
-    
-    Enum.map(steps, fn {step, success} ->
-      %{step: step, success: success, timestamp: System.system_time(:millisecond)}
+
+    Enum.map(steps, fn step ->
+      %{
+        step: step,
+        success: false,
+        reason: :physics_substrate_unavailable,
+        timestamp: System.system_time(:millisecond)
+      }
     end)
   end
 
@@ -573,8 +579,9 @@ defmodule Tiannara.Physics.OPC do
     %{
       deterministic_elements: deterministic_elements,
       constraint_satisfaction: constraint_satisfaction,
-      determinism_score: 0.98,
-      compilation_time: :rand.uniform(1000),
+      determinism_score: nil,
+      compilation_time: nil,
+      compilation_error: :physics_substrate_unavailable,
       observer_compatibility: calculate_observer_compatibility_constraints(observer_constraints)
     }
   end

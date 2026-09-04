@@ -10,11 +10,9 @@ defmodule TiannaraWeb.CivilizationDynamicsLive do
     Goal,
     GoalRegistry,
     GoalEcology,
-    Institution,
     InstitutionRegistry,
     InstitutionEcology,
-    CivilizationMemory,
-    CivilizationEvent
+    CivilizationMemory
   }
 
   def mount(_params, _session, socket) do
@@ -472,10 +470,10 @@ defmodule TiannaraWeb.CivilizationDynamicsLive do
   end
 
   defp list_domains do
-    if Code.ensure_loaded?(Tiannara.Domains.Registry) do
-      Tiannara.Domains.Registry.all() |> Enum.map(& &1.id)
+    if Code.ensure_loaded?(Tiannara.Domains.CanonicalRegistry) do
+      Tiannara.Domains.CanonicalRegistry.all()
     else
-      [:engineering, :medicine, :governance, :computation, :science, :agriculture, :energy, :logistics, :cognition, :materials, :robotics, :economics, :philosophy, :sociology, :linguistics, :aerospace, :ecology, :cybernetics, :architecture, :mathematics]
+      [:engineering, :medicine, :governance, :computation, :agriculture, :energy, :logistics, :cognition, :materials, :robotics, :economics, :philosophy, :sociology, :linguistics, :aerospace, :ecology, :cybernetics, :architecture]
     end
   end
 end

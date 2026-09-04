@@ -199,7 +199,7 @@ defmodule Tiannara.Stabilization.OCM.ConsensusManager do
   def handle_info({:timeout_session, session_id}, state) do
     # Handle session timeout
     case :ets.lookup(:consensus_sessions, session_id) do
-      [{^session_id, session}] ->
+      [{^session_id, _session}] ->
         Logger.warning("Session #{session_id} timed out")
         end_session(session_id, :timeout)
       [] ->

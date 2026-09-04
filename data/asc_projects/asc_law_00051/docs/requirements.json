@@ -1,0 +1,47 @@
+{
+  "constraints": [
+    {
+      "id": "con_206",
+      "type": "latency",
+      "unit": "s",
+      "value": 60.0,
+      "operator": "lte",
+      "tags": [],
+      "metric": "response_time",
+      "source_fragment": "Aggregate counters every 60 seconds",
+      "percentile": null
+    }
+  ],
+  "invariants": [],
+  "capabilities": [
+    {
+      "id": "cap_204",
+      "name": "calculate percentiles",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "calculate",
+      "subject": "percentiles",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_205",
+      "name": "query metrics by",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "query",
+      "subject": "metrics by",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:23:27.847000Z"
+}

@@ -12,7 +12,6 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairAncestor do
   """
 
   alias Tiannara.ASC.Crucible.RepairPattern
-  alias __MODULE__
 
   @derive Jason.Encoder
   defstruct [
@@ -74,9 +73,6 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairAncestor do
     }
   end
 
-  @doc """
-  Classify the type of failure that this ancestor was designed to fix.
-  """
   defp classify_failure_type(%RepairPattern{} = pattern) do
     failure_context = String.downcase(pattern.failure_context || "")
     

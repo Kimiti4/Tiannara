@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "reason": "CEL discovered the capability via registry descriptor, selected it, gated it through governance, and delegated \u2014 no hardcoded shortcut.",
+  "bounded_proposition": "Under this tested execution path, CEL receives an objective, discovers the appropriate capability dynamically from the CapabilityRegistry, evaluates candidate health/ownership/dependencies, obtains C14 governance approval, and delegates execution \u2014 WITHOUT relying on a hardcoded objective-to- subsystem mapping for the tested objective.\n",
+  "three_claims": {
+    "discovery": "CEL discovers capabilities dynamically via registry descriptors.",
+    "selection": "CEL selects among eligible providers using actual state.",
+    "delegation": "CEL delegates through the selected provider preserving C14, lineage, and trace."
+  },
+  "evidence_files": [
+    "priv/tiannara/probes/evidence/CEL1_a4031022-d574-4760-ad39-537b19d0893d_phaseA_registry.json",
+    "priv/tiannara/probes/evidence/CEL1_84134763-baab-4426-a8bf-0cb550b4bff3_phaseB_delegation.json"
+  ]
+}

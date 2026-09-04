@@ -94,6 +94,8 @@ defmodule Tiannara.Runtime.AuditHooks do
   @moduledoc "Glue layer for REA-4.6 audit integration. Zero-latency casting for telemetry."
   use GenServer
 
+  def init(_opts), do: {:ok, %{}}
+
   def setup(opts) do
     unless opts[:audit_mode] == :rea_4_6, do: {:ok, []}
 
@@ -129,7 +131,7 @@ defmodule Tiannara.Runtime.AuditHooks do
     Tiannara.Audit.InnovationPreservationMonitor.record_discovery(discovery)
   end
 
-  def finalize_epoch(epoch) do
+  def finalize_epoch(_epoch) do
     # Non-blocking checkpoint
     :ok
   end

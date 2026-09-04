@@ -1,0 +1,38 @@
+{
+  "campaign": "Remediation Architecture & Epistemic Foundation Certification",
+  "baseline_commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+  "head_commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+  "generated": "2026-08-25",
+  "mode": "READ-ONLY_AUDIT",
+  "id_mapping_note": {
+    "prior_register": {"MC-001": "Domain Execution", "MC-002": "Math Proof Kernel", "MC-003": "Logic Substrate", "MC-004": "Phase16 Execution"},
+    "this_campaign": {"MC-001": "Mathematical substrate", "MC-002": "Logic substrate", "MC-003": "Phase16 autonomous research execution", "MC-004": "Domain execution", "AC-001": "DomainRegistry ontology mismatch"},
+    "policy": "Both numberings preserved; cross-references resolved by content, not id."
+  },
+  "nodes": [
+    {"id": "R0", "label": "Quarantine fabricated-evidence loop (Loop A)", "type": "prerequisite", "criticality": "CRITICAL", "evidence": ["lib/tiannara/research/research_director.ex:173-185", "research/research_director.ex:156-157 persistent-memory write", "cel/workflow/steps/experiment.ex:49-57", "sandbox.ex:216-218"], "blocks": ["MC-003", "MC-004"]},
+    {"id": "AC-001", "label": "Resolve dual DomainRegistry ontology", "type": "gap_resolution", "verdict_category": "CONTRADICTION_CONFIRMED_EXTENDED", "evidence": ["os/domain_registry.ex:83-104", "domains/registry.ex:4-33", "computer_science.ex orphan :cs", "asc/research_bridge.ex phantom seeds", "~14 nonexistent-API call sites"], "blocks": ["MC-004", "P17_COHERENCE"]},
+    {"id": "MC-001", "label": "Mathematical substrate consolidation", "type": "gap_resolution", "verdict_category": "B+C+D_DISTRIBUTED_THIN_CORE_DUPLICATED", "key_facts": ["bayes_update LIVE ~8 consumers", "9 entropy impls", "Statistics dead code", "Optimization mocked; nash_equilibrium consumed by economics.ex:12", "cosine_similarity consumed aal/lexical_tensegrity_field.ex:29", "graphs.shortest_path consumed chemistry"], "blocks": ["MC-002"]},
+    {"id": "MC-002", "label": "Logic kernel extraction", "type": "gap_resolution", "verdict_category": "B_PARTIAL_THEATRICAL", "key_facts": ["no lib/tiannara/logic namespace", "contradiction/engine.ex:38-100 sound core", "belief_system.ex:284-356 broken negation matcher", "constitution/registry.ex:118 calls nonexistent Graph.Audit.find_contradictions", "11 contradiction impls / 4 transition validators / 3 invariant aggregators / 2 complementarity invariants"], "blocks": ["MC-003"]},
+    {"id": "MC-003", "label": "Phase16 autonomous research execution", "type": "gap_resolution", "verdict_category": "BREAK_AT_STAGE_7_THREE_EXECUTOR_TIERS", "key_facts": ["Tier1 fabricated live loop", "Tier2 real narrow discovery loop closes world-model feedback via WorldStateSynchronizer:84", "Tier3 Phase4 orchestrator built, submit_experiment ZERO callers", "UnknownRegistry never started empty init 223-233", "OS ResearchDirector orphaned + latent deadlock 377-381", "uncertainty fixed +/-0.1"], "blocks": ["MC-004"]},
+    {"id": "MC-004", "label": "Domain execution activation", "type": "gap_resolution", "verdict_category": "UNIVERSAL_STUBS", "key_facts": ["21 modules generate_hypotheses/design_experiments -> {:ok, []}", "physics pilot recommended", "chemistry second", "ecology->economics transfer pair third"], "depends_on": ["R0", "AC-001", "MC-003"]},
+    {"id": "P17_COHERENCE", "label": "Phase 19/20 coherence prerequisites", "type": "downstream", "note": "Cannot certify multi-domain coherence while ontology contradictory and domains stubbed."}
+  ],
+  "edges": [
+    {"from": "AC-001", "to": "MC-004", "reason": "domain ids must be canonical before activation"},
+    {"from": "R0", "to": "MC-003", "reason": "no remediation may build on poisoned persistent memory"},
+    {"from": "R0", "to": "MC-004", "reason": "domain pilots must route through real executors only"},
+    {"from": "MC-001", "to": "MC-002", "reason": "logic consumes confidence-scored claims from probability layer; Logic sits above Math"},
+    {"from": "MC-002", "to": "MC-003", "reason": "research questions derive from kernel-grade contradiction detection (discovery_scheduler fetch_integrity_report path)"},
+    {"from": "MC-003", "to": "MC-004", "reason": "domain experiments require single gated execution gateway with resource validation"},
+    {"from": "MC-004", "to": "P17_COHERENCE", "reason": "coherence certification needs >=2 executing domains"}
+  ],
+  "critical_path": ["R0", "AC-001", "MC-001", "MC-002", "MC-003", "MC-004"],
+  "ordering_justification": {
+    "R0_first": "Stops active epistemic contamination of persistent memory before any substrate work is trusted.",
+    "AC-001_before_MC-004": "Cheap, unblocks crash paths and phantom seeds; domain ids must exist before domains execute.",
+    "MC-001_before_MC-002": "Logic kernel evaluates claims whose confidences come from the math/probability layer.",
+    "MC-002_before_MC-003": "Canonical contradiction detection upgrades the Unknown/question source feeding the research lifecycle.",
+    "MC-003_before_MC-004": "Domains must execute through the Phase4 gateway with real resource validation and evidence provenance."
+  }
+}

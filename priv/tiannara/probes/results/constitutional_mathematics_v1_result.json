@@ -1,0 +1,52 @@
+{
+  "verdict": "CERTIFIED",
+  "assertions": {
+    "P1": true,
+    "P2": true,
+    "P3": true,
+    "P4": true,
+    "P5": true,
+    "P6": true,
+    "P7": true,
+    "P8": true,
+    "P9": true,
+    "P10": true,
+    "P11": true,
+    "P12": true,
+    "P13": true,
+    "P14": true,
+    "P15": true,
+    "P16": true,
+    "P17": true,
+    "P18": true
+  },
+  "negative_controls": {
+    "N1": {
+      "expected": "MATH_NOT_REGISTERED",
+      "found": false,
+      "honest": true
+    },
+    "N2": {
+      "honest": true,
+      "kind": "explicit_error",
+      "value": "{:error, :evidence_probability_zero}"
+    },
+    "N3": {
+      "action": "DENIED",
+      "governance": "deny",
+      "computation": "observation_only"
+    },
+    "N4": {
+      "certifiable_as_causally_grounded": false,
+      "corrupted_provenance": true
+    }
+  },
+  "lineage_problems": [],
+  "trace_hash": "3e0c82bc57a71160d5754791cb5bebe70df8027ff4c016859a10300ae581d289",
+  "contract_hash": "7bf983d5d46fb782238c90327a113c44354134ec98177c4c6bdfebd524a0fe18",
+  "bounded_claim": "Constitutional Mathematics (Tiannara.Math.Probability.bayes_update/3) functions as a causally grounded, constitutionally governed, failure-honest foundational substrate used within Tiannara's own epistemic loop \u2014 discovered via the live CapabilityGraph, composed with C4/C8/C14, and capable of grounded self-measurement \u2014 not merely a discoverable capability.\n",
+  "claims": {
+    "math_is_substrate": true,
+    "registry_fully_dynamic": false
+  }
+}

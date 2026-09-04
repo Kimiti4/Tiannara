@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-05-06T16:47:23.274307",
+  "episodes_per_domain": 200,
+  "results": {
+    "Algorithm": {
+      "success_rate": 0.0,
+      "avg_correctness": 0.0,
+      "episodes": 200
+    },
+    "Logic": {
+      "success_rate": 0.0,
+      "avg_correctness": 0.0,
+      "episodes": 200
+    },
+    "Reverse Engineering": {
+      "success_rate": 0.915,
+      "avg_correctness": 0.915,
+      "episodes": 200
+    },
+    "Causal": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "episodes": 200
+    }
+  },
+  "overall_average": 0.47875,
+  "skill_accumulation": [
+    {
+      "domain": "Reverse Engineering",
+      "total_skills": 183,
+      "by_type": {
+        "pattern_recognition": 42,
+        "sequential_reasoning": 0,
+        "optimization_heuristic": 0,
+        "constraint_satisfaction": 60,
+        "causal_inference": 0,
+        "transformation_rule": 54,
+        "search_strategy": 0,
+        "decomposition": 27,
+        "generalization": 0,
+        "prediction": 0
+      },
+      "by_abstraction": {
+        "meta": 27,
+        "abstract": 42,
+        "concrete": 114
+      }
+    }
+  ],
+  "final_skill_stats": {
+    "success_rate": 1.0,
+    "avg_correctness": 1.0,
+    "episodes": 200
+  }
+}

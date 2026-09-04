@@ -5,18 +5,18 @@ defmodule TiannaraWeb.DomainDetailLive do
   """
   use Phoenix.LiveView
 
-  alias Tiannara.Domains.Registry, as: DomReg
+  alias Tiannara.Domains.{CanonicalRegistry, KnowledgeCapitalBoundary, PortfolioBoundary}
   alias Tiannara.KnowledgeGraph.Registry, as: KG
   alias Tiannara.Discoveries.Program
   alias Tiannara.Research.Director
 
   def mount(%{"name" => name}, _session, socket) do
     domain_id = String.to_atom(name)
-    dom = DomReg.get(domain_id)
+    dom = CanonicalRegistry.get(domain_id)
 
     if dom do
-      vector = DomReg.get_portfolio_vector(domain_id)
-      capital = DomReg.get_knowledge_capital(domain_id)
+      vector = PortfolioBoundary.get(domain_id)
+      capital = KnowledgeCapitalBoundary.get(domain_id)
       
       # Query knowledge graph nodes matching this domain
       nodes = KG.all()

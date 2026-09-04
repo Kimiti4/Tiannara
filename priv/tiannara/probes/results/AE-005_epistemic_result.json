@@ -1,0 +1,185 @@
+{
+  "characterize": {
+    "mode": "characterize",
+    "phase": {
+      "ok": {
+        "is_random": true,
+        "missing_behavior": {
+          "ok": {
+            "collapse_risk": 0.07106863650322431,
+            "subsystem": "nil",
+            "timestamp": {
+              "calendar": "Elixir.Calendar.ISO",
+              "day": 21,
+              "hour": 2,
+              "microsecond": [
+                614000,
+                6
+              ],
+              "minute": 42,
+              "month": 8,
+              "second": 8,
+              "std_offset": 0,
+              "time_zone": "Etc/UTC",
+              "utc_offset": 0,
+              "year": 2026,
+              "zone_abbr": "UTC"
+            }
+          }
+        },
+        "mode": "characterize",
+        "samples": [
+          0.1893507395010103,
+          0.0035270974098312257,
+          0.24167919439750893,
+          0.14306830117417718,
+          0.06701665024665787
+        ],
+        "unique_risk_count": 100,
+        "variance": 0.29928224926921504
+      }
+    },
+    "status": "complete"
+  },
+  "candidate": {
+    "mode": "candidate",
+    "phase": {
+      "ok": {
+        "bounded_uncertainty": {
+          "pass": true,
+          "r_missing": [
+            "unknown",
+            "insufficient_evidence",
+            [
+              [
+                "missing_fields",
+                [
+                  "executive_memory_health",
+                  "event_bus_health"
+                ]
+              ]
+            ]
+          ],
+          "r_nil": [
+            "unknown",
+            "insufficient_evidence",
+            [
+              [
+                "missing_fields",
+                [
+                  "telemetry"
+                ]
+              ]
+            ]
+          ],
+          "r_stale": [
+            "unknown",
+            "insufficient_evidence",
+            [
+              [
+                "missing_fields",
+                [
+                  "executive_memory_health"
+                ]
+              ]
+            ]
+          ]
+        },
+        "determinism": {
+          "pass": true,
+          "scores": [
+            0.05,
+            0.05,
+            0.05
+          ]
+        },
+        "grounding": {
+          "pass": true,
+          "result": {
+            "collapse_risk": 0.05,
+            "contributing_factors": [],
+            "evidence_count": 5,
+            "risk_score": 0.05,
+            "subsystem": "telemetry_map",
+            "timestamp": {
+              "calendar": "Elixir.Calendar.ISO",
+              "day": 21,
+              "hour": 2,
+              "microsecond": [
+                516000,
+                6
+              ],
+              "minute": 42,
+              "month": 8,
+              "second": 16,
+              "std_offset": 0,
+              "time_zone": "Etc/UTC",
+              "utc_offset": 0,
+              "year": 2026,
+              "zone_abbr": "UTC"
+            }
+          }
+        },
+        "mode": "candidate",
+        "sensitivity": {
+          "degraded_factors": [
+            [
+              "executive_memory_health",
+              "unhealthy",
+              [
+                [
+                  "weight",
+                  0.35
+                ]
+              ]
+            ],
+            [
+              "event_store_healthy",
+              false,
+              [
+                [
+                  "weight",
+                  0.35
+                ]
+              ]
+            ],
+            [
+              "event_bus_health",
+              "unhealthy",
+              [
+                [
+                  "weight",
+                  0.15
+                ]
+              ]
+            ],
+            [
+              "memory_pressure",
+              0.95,
+              [
+                [
+                  "weight",
+                  0.22499999999999987
+                ]
+              ]
+            ],
+            [
+              "dets_health",
+              false,
+              [
+                [
+                  "weight",
+                  0.25
+                ]
+              ]
+            ]
+          ],
+          "degraded_score": 1.0,
+          "healthy_score": 0.05,
+          "pass": true
+        }
+      }
+    },
+    "status": "complete"
+  }
+}

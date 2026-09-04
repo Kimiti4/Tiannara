@@ -1,0 +1,62 @@
+{
+  "timestamp": "20260504_165439",
+  "mode": "baseline",
+  "configuration": {
+    "episodes_per_domain": 5,
+    "skill_transfer_enabled": true,
+    "abstraction_enabled": false,
+    "domains_tested": [
+      "algorithm",
+      "logic",
+      "reverse_engineering",
+      "causal"
+    ],
+    "extraction_interval": 50
+  },
+  "overall": {
+    "total_episodes": 20,
+    "total_successes": 20,
+    "overall_success_rate": 1.0,
+    "elapsed_time_seconds": 0.12575578689575195
+  },
+  "per_domain": {
+    "algorithm": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "successes": 5,
+      "total_episodes": 5
+    },
+    "logic": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "successes": 5,
+      "total_episodes": 5
+    },
+    "reverse_engineering": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "successes": 5,
+      "total_episodes": 5
+    },
+    "causal": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0,
+      "successes": 5,
+      "total_episodes": 5
+    }
+  },
+  "skill_memory_stats": {
+    "total_skills_stored": 20,
+    "transfer_attempts": 125,
+    "transfer_successes": 20,
+    "transfer_success_rate": 0.16,
+    "skills_per_domain": {
+      "algorithm": 5,
+      "logic": 5,
+      "reverse_engineering": 5,
+      "causal": 5,
+      "temporal": 0,
+      "combinatorial": 0
+    }
+  }
+}

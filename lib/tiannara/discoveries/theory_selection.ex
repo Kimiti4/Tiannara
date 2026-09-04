@@ -235,7 +235,7 @@ defmodule Tiannara.REA.TheoryFitnessAnalyzer do
   @doc """
   Ranks variables based on correlation to survival. Calculates Hazard Ratios and P_survival.
   """
-  def rank_theory_invariants(population, volatility \\ 0.0, complexity \\ 0.0) do
+  def rank_theory_invariants(population, _volatility \\ 0.0, _complexity \\ 0.0) do
     survivals = Enum.map(population, fn t -> 1.0 - t.extinction_risk end)
 
     rankings =
@@ -374,6 +374,12 @@ defmodule Tiannara.REA.TheoryNiches do
   @moduledoc """
   Categorizes theories into adaptive ecological niches.
   """
+
+  use Tiannara.Stub, subsystem: :rea, phase: "Omega+", priority: :high
+
+  def classify_theories(args) do
+    stub_result(:classify_theories, [args], {:ok, []})
+  end
 
   def classify_niches(population) do
     universal = Enum.filter(population, fn t -> (t.convergence_score || 0.0) >= 0.70 or (t.cross_domain_resilience || 0.0) >= 0.75 end)

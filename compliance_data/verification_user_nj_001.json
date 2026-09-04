@@ -1,0 +1,15 @@
+{
+  "user_id": "user_nj_001",
+  "verification": {
+    "verified": true,
+    "age": 26,
+    "required_age": 21,
+    "country": "US",
+    "region": "NJ",
+    "timestamp": "2026-05-07T06:37:27.494164",
+    "status": "approved",
+    "message": "Age verified: 26 years old (minimum: 21)"
+  },
+  "verified_at": "2026-05-07T06:37:27.495051",
+  "expires_at": "2027-05-07T06:37:27.495066"
+}

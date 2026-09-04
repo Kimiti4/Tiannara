@@ -1,0 +1,1442 @@
+[
+  {
+    "epoch": 400,
+    "shock": "Resource",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.045454545454545456,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.6006060606060606,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.5800000000000001,
+        "novelty": 12.0
+      },
+      "explore": {
+        "fri": 0.790909090909091,
+        "novelty": 12.0
+      },
+      "triage": {
+        "fri": 0.7025837320574163,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "explore",
+    "recoverability": 0.790909090909091
+  },
+  {
+    "epoch": 410,
+    "shock": "Resource",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.056818181818181816,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": -0.14136347641649838,
+      "path_entropy_delta": 0.09105080246348152,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.6013636363636364,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.6909090909090909,
+        "novelty": 12.0
+      },
+      "explore": {
+        "fri": 0.6000000000000001,
+        "novelty": 12.0
+      },
+      "triage": {
+        "fri": 0.546060606060606,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "repair",
+    "recoverability": 0.6909090909090909
+  },
+  {
+    "epoch": 420,
+    "shock": "Resource",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": -5.079163316925338,
+      "path_entropy_delta": -2.4464393446710155,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": -1.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.6848484848484848,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 15.8
+      },
+      "explore": {
+        "fri": 0.603030303030303,
+        "novelty": 12.0
+      },
+      "triage": {
+        "fri": 0.52,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.6848484848484848
+  },
+  {
+    "epoch": 430,
+    "shock": "Resource",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.045454545454545456,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 5.151271687651508,
+      "path_entropy_delta": 2.197159723424149,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 1.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.6000000000000001,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.6000000000000001,
+        "novelty": 12.0
+      },
+      "explore": {
+        "fri": 0.6606060606060606,
+        "novelty": 12.0
+      },
+      "triage": {
+        "fri": 0.52,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "explore",
+    "recoverability": 0.6606060606060606
+  },
+  {
+    "epoch": 440,
+    "shock": "Resource",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": -5.151271687651508,
+      "path_entropy_delta": -2.197159723424149,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": -1.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "repair": {
+        "fri": 0.6007575757575758,
+        "novelty": 12.0
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "triage": {
+        "fri": 0.5445454545454546,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "repair",
+    "recoverability": 0.6007575757575758
+  },
+  {
+    "epoch": 450,
+    "shock": "Resource",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.6000000000000001,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 15.0
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.6000000000000001
+  },
+  {
+    "epoch": 460,
+    "shock": "Resource",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "triage": {
+        "fri": 0.56,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "triage",
+    "recoverability": 0.56
+  },
+  {
+    "epoch": 470,
+    "shock": "Resource",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 100.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.54,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 15.0
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.54
+  },
+  {
+    "epoch": 480,
+    "shock": "Resource",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 15.0
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.0
+  },
+  {
+    "epoch": 490,
+    "shock": "Resource",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 6.04979338490167,
+      "path_entropy_delta": 0.9182958340544896,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 1.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.5703030303030303,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.5703030303030303,
+        "novelty": 12.0
+      },
+      "explore": {
+        "fri": 0.54,
+        "novelty": 12.0
+      },
+      "triage": {
+        "fri": 0.5,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.5703030303030303
+  },
+  {
+    "epoch": 400,
+    "shock": "Population",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.045454545454545456,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16996731711975951,
+      "trust_centralization_delta": -1.2225773189237312,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.40454545454545454,
+        "novelty": 54.0
+      },
+      "repair": {
+        "fri": 0.4,
+        "novelty": 55.2
+      },
+      "explore": {
+        "fri": 0.6287878787878789,
+        "novelty": 66.80000000000001
+      },
+      "triage": {
+        "fri": 0.4,
+        "novelty": 119.2
+      }
+    },
+    "best_regime": "explore",
+    "recoverability": 0.6287878787878789
+  },
+  {
+    "epoch": 410,
+    "shock": "Population",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16996731711975951,
+      "trust_centralization_delta": 2.3870015825595443,
+      "path_entropy_delta": -2.355388542207534,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.07659574468085106,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.5363636363636364,
+        "novelty": 80.0
+      },
+      "repair": {
+        "fri": 0.546969696969697,
+        "novelty": 82.4
+      },
+      "explore": {
+        "fri": 0.4,
+        "novelty": 84.4
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 161.4
+      }
+    },
+    "best_regime": "repair",
+    "recoverability": 0.546969696969697
+  },
+  {
+    "epoch": 420,
+    "shock": "Population",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16996731711975951,
+      "trust_centralization_delta": -6.384951056977649,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.038866930171278,
+      "adaptation_velocity": -1.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 167.8
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 149.8
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 141.0
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 247.4
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.0
+  },
+  {
+    "epoch": 430,
+    "shock": "Population",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16996731711975951,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.11477488902980343,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 219.0
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 223.4
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 238.60000000000002
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 297.8
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.0
+  },
+  {
+    "epoch": 440,
+    "shock": "Population",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16996731711975951,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.09101251422070535,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 277.8
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 270.20000000000005
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 263.0
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 351.8
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.0
+  },
+  {
+    "epoch": 450,
+    "shock": "Population",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16996731711975951,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0808133472367049,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 327.40000000000003
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 316.2
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 316.6
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 395.8
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.0
+  },
+  {
+    "epoch": 460,
+    "shock": "Population",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16996731711975951,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.04582730342498794,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 342.20000000000005
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 351.8
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 337.40000000000003
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 443.0
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.0
+  },
+  {
+    "epoch": 470,
+    "shock": "Population",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16996731711975951,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0235239852398524,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 360.20000000000005
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 357.0
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 360.20000000000005
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 433.0
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.0
+  },
+  {
+    "epoch": 480,
+    "shock": "Population",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16996731711975951,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.01216764308246958,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 364.20000000000005
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 358.6
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 362.6
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 459.0
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.0
+  },
+  {
+    "epoch": 490,
+    "shock": "Population",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16996731711975951,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.019590382902938557,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 381.8
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 378.20000000000005
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 378.6
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 456.6
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.0
+  },
+  {
+    "epoch": 400,
+    "shock": "Knowledge",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.045454545454545456,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.6000000000000001,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.7272727272727273,
+        "novelty": 12.0
+      },
+      "explore": {
+        "fri": 0.6000000000000001,
+        "novelty": 12.0
+      },
+      "triage": {
+        "fri": 0.6472727272727273,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "repair",
+    "recoverability": 0.7272727272727273
+  },
+  {
+    "epoch": 410,
+    "shock": "Knowledge",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": -0.9844379477528653,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.7436363636363638,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "explore": {
+        "fri": 0.6954545454545455,
+        "novelty": 12.0
+      },
+      "triage": {
+        "fri": 0.8766666666666668,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "triage",
+    "recoverability": 0.8766666666666668
+  },
+  {
+    "epoch": 420,
+    "shock": "Knowledge",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 0.643763445041662,
+      "path_entropy_delta": -1.3709505944546687,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 100.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.52,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.54,
+        "novelty": 12.0
+      },
+      "explore": {
+        "fri": 0.8116666666666666,
+        "novelty": 25.6
+      },
+      "triage": {
+        "fri": 0.5540909090909091,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "explore",
+    "recoverability": 0.8116666666666666
+  },
+  {
+    "epoch": 430,
+    "shock": "Knowledge",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": -0.048484189347819395,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.52,
+        "novelty": 12.0
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "explore": {
+        "fri": 0.5290909090909091,
+        "novelty": 12.0
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 15.0
+      }
+    },
+    "best_regime": "explore",
+    "recoverability": 0.5290909090909091
+  },
+  {
+    "epoch": 440,
+    "shock": "Knowledge",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": -5.815806049035679,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": -1.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 15.0
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.0
+  },
+  {
+    "epoch": 450,
+    "shock": "Knowledge",
+    "telemetry": {
+      "dcr_retention": 0.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 0.0,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 15.0
+      },
+      "triage": {
+        "fri": 0.5303030303030303,
+        "novelty": 12.0
+      }
+    },
+    "best_regime": "triage",
+    "recoverability": 0.5303030303030303
+  },
+  {
+    "epoch": 460,
+    "shock": "Knowledge",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 6.374197988766901,
+      "path_entropy_delta": 1.5219280948873621,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 1.0,
+      "control_effort_gradient": 100.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.8327272727272728,
+        "novelty": 97.60000000000001
+      },
+      "repair": {
+        "fri": 0.7551270772238515,
+        "novelty": 98.4
+      },
+      "explore": {
+        "fri": 0.8274242424242424,
+        "novelty": 86.0
+      },
+      "triage": {
+        "fri": 0.8400000000000001,
+        "novelty": 94.0
+      }
+    },
+    "best_regime": "triage",
+    "recoverability": 0.8400000000000001
+  },
+  {
+    "epoch": 470,
+    "shock": "Knowledge",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.9223484848484849,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 1.8099329974771488,
+      "path_entropy_delta": 1.6943874741792804,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.14468085106382977,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 100.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.8400000000000001,
+        "novelty": 165.60000000000002
+      },
+      "repair": {
+        "fri": 0.6745454545454546,
+        "novelty": 172.8
+      },
+      "explore": {
+        "fri": 0.6536363636363637,
+        "novelty": 160.0
+      },
+      "triage": {
+        "fri": 0.8400000000000001,
+        "novelty": 178.8
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.8400000000000001
+  },
+  {
+    "epoch": 480,
+    "shock": "Knowledge",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.4412878787878788,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": 0.5665204180800867,
+      "path_entropy_delta": -0.3719546312962092,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.10161090458488228,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.8600000000000001,
+        "novelty": 220.0
+      },
+      "repair": {
+        "fri": 0.8200000000000001,
+        "novelty": 220.0
+      },
+      "explore": {
+        "fri": 0.7571212121212122,
+        "novelty": 221.20000000000002
+      },
+      "triage": {
+        "fri": 0.49121212121212127,
+        "novelty": 214.4
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.8600000000000001
+  },
+  {
+    "epoch": 490,
+    "shock": "Knowledge",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 1.4034090909090908,
+      "mortality_rate": 0.0,
+      "niche_skew": 0.004714045207910321,
+      "trust_centralization_delta": -0.15905085495034754,
+      "path_entropy_delta": 0.20936797043288147,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.08773903262092239,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.733939393939394,
+        "novelty": 256.4
+      },
+      "repair": {
+        "fri": 0.8400000000000001,
+        "novelty": 264.8
+      },
+      "explore": {
+        "fri": 0.8200000000000001,
+        "novelty": 262.4
+      },
+      "triage": {
+        "fri": 0.8400000000000001,
+        "novelty": 276.40000000000003
+      }
+    },
+    "best_regime": "repair",
+    "recoverability": 0.8400000000000001
+  },
+  {
+    "epoch": 400,
+    "shock": "Mixed",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.045454545454545456,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16679994670929071,
+      "trust_centralization_delta": -1.5205267933418365,
+      "path_entropy_delta": 0.0,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.0,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.46454545454545454,
+        "novelty": 78.4
+      },
+      "repair": {
+        "fri": 0.525,
+        "novelty": 84.0
+      },
+      "explore": {
+        "fri": 0.4174242424242425,
+        "novelty": 84.4
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 151.4
+      }
+    },
+    "best_regime": "repair",
+    "recoverability": 0.525
+  },
+  {
+    "epoch": 410,
+    "shock": "Mixed",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.42424242424242425,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.16679994670929071,
+      "trust_centralization_delta": 3.6976955871406347,
+      "path_entropy_delta": 0.39966907773077365,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.09645390070921986,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.5325757575757576,
+        "novelty": 92.80000000000001
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 94.60000000000001
+      },
+      "explore": {
+        "fri": 0.4257575757575758,
+        "novelty": 96.80000000000001
+      },
+      "triage": {
+        "fri": 0.6022727272727273,
+        "novelty": 156.4
+      }
+    },
+    "best_regime": "triage",
+    "recoverability": 0.6022727272727273
+  },
+  {
+    "epoch": 420,
+    "shock": "Mixed",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.09568466729604881,
+      "trust_centralization_delta": -0.018732245315442597,
+      "path_entropy_delta": -0.6269723410469132,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.17205692108667528,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 150.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.0,
+        "novelty": 337.8
+      },
+      "repair": {
+        "fri": 0.0,
+        "novelty": 326.6
+      },
+      "explore": {
+        "fri": 0.4,
+        "novelty": 328.0
+      },
+      "triage": {
+        "fri": 0.42000000000000004,
+        "novelty": 344.8
+      }
+    },
+    "best_regime": "triage",
+    "recoverability": 0.42000000000000004
+  },
+  {
+    "epoch": 430,
+    "shock": "Mixed",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.06182412330330468,
+      "trust_centralization_delta": 1.7462763810533248,
+      "path_entropy_delta": -0.6280852788913944,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.23620309050772628,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 150.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.42454545454545456,
+        "novelty": 486.8
+      },
+      "repair": {
+        "fri": 0.688939393939394,
+        "novelty": 480.8
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 465.40000000000003
+      },
+      "triage": {
+        "fri": 0.42909090909090913,
+        "novelty": 502.0
+      }
+    },
+    "best_regime": "repair",
+    "recoverability": 0.688939393939394
+  },
+  {
+    "epoch": 440,
+    "shock": "Mixed",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.875,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.06182412330330468,
+      "trust_centralization_delta": 1.1067248978578146,
+      "path_entropy_delta": 0.881051959488611,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.13214285714285715,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.8200000000000001,
+        "novelty": 536.8000000000001
+      },
+      "repair": {
+        "fri": 0.6260606060606061,
+        "novelty": 547.6
+      },
+      "explore": {
+        "fri": 0.0,
+        "novelty": 559.8000000000001
+      },
+      "triage": {
+        "fri": 0.8,
+        "novelty": 588.4
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.8200000000000001
+  },
+  {
+    "epoch": 450,
+    "shock": "Mixed",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 1.3049242424242424,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.06182412330330468,
+      "trust_centralization_delta": 0.1350214407957271,
+      "path_entropy_delta": 0.3943796415125256,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.07925867507886436,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.7533333333333334,
+        "novelty": 616.8000000000001
+      },
+      "repair": {
+        "fri": 0.42000000000000004,
+        "novelty": 609.6
+      },
+      "explore": {
+        "fri": 0.42000000000000004,
+        "novelty": 618.8000000000001
+      },
+      "triage": {
+        "fri": 0.8200000000000001,
+        "novelty": 636.0
+      }
+    },
+    "best_regime": "triage",
+    "recoverability": 0.8200000000000001
+  },
+  {
+    "epoch": 460,
+    "shock": "Mixed",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 1.8806818181818181,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.06944222218666553,
+      "trust_centralization_delta": 1.5673802810937616,
+      "path_entropy_delta": -0.2076907860569892,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.1041286079649251,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 115.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.8200000000000001,
+        "novelty": 743.6
+      },
+      "repair": {
+        "fri": 0.42984848484848487,
+        "novelty": 731.2
+      },
+      "explore": {
+        "fri": 0.7775757575757576,
+        "novelty": 738.8000000000001
+      },
+      "triage": {
+        "fri": 0.8200000000000001,
+        "novelty": 740.4000000000001
+      }
+    },
+    "best_regime": "preserve",
+    "recoverability": 0.8200000000000001
+  },
+  {
+    "epoch": 470,
+    "shock": "Mixed",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.6950757575757576,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.06944222218666553,
+      "trust_centralization_delta": -0.5241121824416552,
+      "path_entropy_delta": -0.16943781982858797,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.07015221707478492,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.691969696969697,
+        "novelty": 793.2
+      },
+      "repair": {
+        "fri": 0.42984848484848487,
+        "novelty": 790.8000000000001
+      },
+      "explore": {
+        "fri": 0.8200000000000001,
+        "novelty": 806.0
+      },
+      "triage": {
+        "fri": 0.6662121212121213,
+        "novelty": 786.4000000000001
+      }
+    },
+    "best_regime": "explore",
+    "recoverability": 0.8200000000000001
+  },
+  {
+    "epoch": 480,
+    "shock": "Mixed",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.17803030303030304,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.06944222218666553,
+      "trust_centralization_delta": -0.13971291319873025,
+      "path_entropy_delta": -0.5139894673157603,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.03927025355596784,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 0.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.43060606060606066,
+        "novelty": 830.8000000000001
+      },
+      "repair": {
+        "fri": 0.42000000000000004,
+        "novelty": 842.0
+      },
+      "explore": {
+        "fri": 0.5533333333333333,
+        "novelty": 829.2
+      },
+      "triage": {
+        "fri": 0.8200000000000001,
+        "novelty": 829.2
+      }
+    },
+    "best_regime": "triage",
+    "recoverability": 0.8200000000000001
+  },
+  {
+    "epoch": 490,
+    "shock": "Mixed",
+    "telemetry": {
+      "dcr_retention": 1.0,
+      "scp_retention": 0.0,
+      "mortality_rate": 0.22999999999999998,
+      "niche_skew": 0.06944222218666553,
+      "trust_centralization_delta": 0.9172354165410201,
+      "path_entropy_delta": -1.0730354033406662,
+      "redundancy_delta": 0.0,
+      "novelty_rate": 0.03272835465635228,
+      "adaptation_velocity": 0.0,
+      "control_effort_gradient": 100.0
+    },
+    "outcomes": {
+      "preserve": {
+        "fri": 0.4207575757575758,
+        "novelty": 862.0
+      },
+      "repair": {
+        "fri": 0.45787878787878794,
+        "novelty": 864.4000000000001
+      },
+      "explore": {
+        "fri": 0.8200000000000001,
+        "novelty": 866.0
+      },
+      "triage": {
+        "fri": 0.0,
+        "novelty": 871.0
+      }
+    },
+    "best_regime": "explore",
+    "recoverability": 0.8200000000000001
+  }
+]

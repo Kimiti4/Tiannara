@@ -1,0 +1,15 @@
+{
+  "audit": "replay",
+  "checks": {
+    "certificates": true,
+    "deterministic": true,
+    "evidence": true,
+    "ledger": true,
+    "no caches": true,
+    "no ets": true,
+    "no genserver": true,
+    "without runtime state": true
+  },
+  "status": "PASS",
+  "summary": "Replay logic is documented as ledger/evidence/certificate based and free of runtime-state dependence."
+}

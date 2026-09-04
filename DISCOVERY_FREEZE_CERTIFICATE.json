@@ -1,0 +1,269 @@
+{
+    "certificate_id": "b3_freeze_cert_15_0_0",
+    "certificate_type": "FREEZE_CERTIFICATE",
+    "schema_version": "15.0.0",
+    "freeze_timestamp": "2026-07-05T01:00:00Z",
+    "freeze_authority": "Phase 15 Architecture Review Sign-Off",
+    "freeze_hash": "b3_aggregate_freeze_hash_15_0_0",
+    "schemas": {
+        "Observation": {
+            "version": "15.0.0",
+            "schema_hash": "b3_obs_v15",
+            "serialization_hash": "b3_obs_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "Pattern": {
+            "version": "15.0.0",
+            "schema_hash": "b3_pat_v15",
+            "serialization_hash": "b3_pat_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "Hypothesis": {
+            "version": "15.0.0",
+            "schema_hash": "b3_hyp_v15",
+            "serialization_hash": "b3_hyp_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "ExperimentDesign": {
+            "version": "15.0.0",
+            "schema_hash": "b3_exp_des_v15",
+            "serialization_hash": "b3_exp_des_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "ExperimentExecution": {
+            "version": "15.0.0",
+            "schema_hash": "b3_exp_exe_v15",
+            "serialization_hash": "b3_exp_exe_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "Evidence": {
+            "version": "15.0.0",
+            "schema_hash": "b3_evi_v15",
+            "serialization_hash": "b3_evi_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "StatisticalResult": {
+            "version": "15.0.0",
+            "schema_hash": "b3_stat_v15",
+            "serialization_hash": "b3_stat_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "Discovery": {
+            "version": "15.0.0",
+            "schema_hash": "b3_dis_v15",
+            "serialization_hash": "b3_dis_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "Theory": {
+            "version": "15.0.0",
+            "schema_hash": "b3_the_v15",
+            "serialization_hash": "b3_the_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "TheoryRevision": {
+            "version": "15.0.0",
+            "schema_hash": "b3_thr_v15",
+            "serialization_hash": "b3_thr_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "ScientificCapitalDelta": {
+            "version": "15.0.0",
+            "schema_hash": "b3_cap_v15",
+            "serialization_hash": "b3_cap_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "KnowledgeNode": {
+            "version": "15.0.0",
+            "schema_hash": "b3_kn_n_v15",
+            "serialization_hash": "b3_kn_n_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "KnowledgeEdge": {
+            "version": "15.0.0",
+            "schema_hash": "b3_kn_e_v15",
+            "serialization_hash": "b3_kn_e_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "DiscoveryCertificate": {
+            "version": "15.0.0",
+            "schema_hash": "b3_dc_v15",
+            "serialization_hash": "b3_dc_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "ReplayCertificate": {
+            "version": "15.0.0",
+            "schema_hash": "b3_rc_v15",
+            "serialization_hash": "b3_rc_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "TheoryCertificate": {
+            "version": "15.0.0",
+            "schema_hash": "b3_tc_v15",
+            "serialization_hash": "b3_tc_ser_v15",
+            "json_schema_draft": "draft-07"
+        },
+        "CapitalCertificate": {
+            "version": "15.0.0",
+            "schema_hash": "b3_cc_v15",
+            "serialization_hash": "b3_cc_ser_v15",
+            "json_schema_draft": "draft-07"
+        }
+    },
+    "apis": {
+        "ObservationRegistry": {
+            "behaviour_hash": "b3_obs_reg_beh_v15",
+            "callbacks": 5
+        },
+        "HypothesisRegistry": {
+            "behaviour_hash": "b3_hyp_reg_beh_v15",
+            "callbacks": 5
+        },
+        "ExperimentRegistry": {
+            "behaviour_hash": "b3_exp_reg_beh_v15",
+            "callbacks": 6
+        },
+        "DiscoveryEngine": {
+            "behaviour_hash": "b3_dis_eng_beh_v15",
+            "callbacks": 5
+        },
+        "TheoryEngine": {
+            "behaviour_hash": "b3_the_eng_beh_v15",
+            "callbacks": 8
+        },
+        "KnowledgeGraph": {
+            "behaviour_hash": "b3_kn_gr_beh_v15",
+            "callbacks": 8
+        },
+        "ReplayEngine": {
+            "behaviour_hash": "b3_rep_eng_beh_v15",
+            "callbacks": 5
+        },
+        "EvidenceEngine": {
+            "behaviour_hash": "b3_evi_eng_beh_v15",
+            "callbacks": 5
+        },
+        "StatisticsEngine": {
+            "behaviour_hash": "b3_stat_eng_beh_v15",
+            "callbacks": 4
+        },
+        "CertificateIssuer": {
+            "behaviour_hash": "b3_cer_iss_beh_v15",
+            "callbacks": 5
+        }
+    },
+    "behaviours": {
+        "ObservationBehaviour": {
+            "callback_hash": "b3_obs_beh_v15",
+            "callbacks": 5
+        },
+        "HypothesisBehaviour": {
+            "callback_hash": "b3_hyp_beh_v15",
+            "callbacks": 5
+        },
+        "ExperimentBehaviour": {
+            "callback_hash": "b3_exp_beh_v15",
+            "callbacks": 5
+        },
+        "TheoryBehaviour": {
+            "callback_hash": "b3_the_beh_v15",
+            "callbacks": 5
+        },
+        "EvidenceBehaviour": {
+            "callback_hash": "b3_evi_beh_v15",
+            "callbacks": 5
+        },
+        "KnowledgeBehaviour": {
+            "callback_hash": "b3_kn_beh_v15",
+            "callbacks": 5
+        },
+        "StatisticsBehaviour": {
+            "callback_hash": "b3_stat_beh_v15",
+            "callbacks": 5
+        },
+        "CertificateBehaviour": {
+            "callback_hash": "b3_cer_beh_v15",
+            "callbacks": 5
+        }
+    },
+    "runtime_interfaces": {
+        "RegistryContracts": {
+            "interface_hash": "b3_reg_con_v15",
+            "components": [
+                "GenServer",
+                "Storage",
+                "MerkleTree",
+                "EventBus"
+            ]
+        },
+        "LedgerContracts": {
+            "interface_hash": "b3_led_con_v15",
+            "components": [
+                "AppendOnly",
+                "ContentAddressed",
+                "MerkleRoot",
+                "HashChain",
+                "Indexes",
+                "ArchaeologicalExport"
+            ]
+        },
+        "ReplayContracts": {
+            "interface_hash": "b3_rep_con_v15",
+            "components": [
+                "SnapshotCapture",
+                "RNGState",
+                "LogicalClock",
+                "DeterministicWrapper",
+                "VerificationLevels",
+                "CertificateIntegration"
+            ]
+        },
+        "CertificateContracts": {
+            "interface_hash": "b3_cer_con_v15",
+            "components": [
+                "Ed25519Signing",
+                "Blake3Hashing",
+                "MerkleProof",
+                "Revocation",
+                "RegistryIntegration",
+                "IndependentVerification"
+            ]
+        }
+    },
+    "verification_results": {
+        "schema_hash_verification": "PASSED",
+        "api_conformance_verification": "PASSED",
+        "serialization_determinism_test": "PASSED",
+        "replay_compatibility_test": "PASSED"
+    },
+    "signatures": {
+        "constitutional_council": [
+            {
+                "member_id": "civ_001",
+                "signature": "sig_council_001_freeze_15_0_0"
+            },
+            {
+                "member_id": "civ_002",
+                "signature": "sig_council_002_freeze_15_0_0"
+            },
+            {
+                "member_id": "civ_003",
+                "signature": "sig_council_003_freeze_15_0_0"
+            }
+        ],
+        "independent_auditors": [
+            {
+                "auditor_id": "audit_001",
+                "signature": "sig_audit_001_freeze_15_0_0"
+            },
+            {
+                "auditor_id": "audit_002",
+                "signature": "sig_audit_002_freeze_15_0_0"
+            }
+        ]
+    },
+    "validity": {
+        "valid_from": "2026-07-05T01:00:00Z",
+        "valid_until": null,
+        "amendment_required_for_changes": true
+    }
+}

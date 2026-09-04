@@ -1,0 +1,37 @@
+authorization:
+  id: "ASC-MC-002-A0-LOGIC-RECONCILIATION"
+  gate: "MC-002-A0"
+  phase: "RECONCILIATION"
+  action: "logic_substrate_reconciliation"
+  class: "OBSERVATIONAL"
+
+  # Observational gate: read-only. No C14 signature is fabricated (POL-CERT_AUTH_001).
+  status: "OBSERVATIONAL_READ_ONLY"
+
+  human_authorization:
+    status: "NOT_REQUIRED_FOR_READ_ONLY"
+    operator_id: null
+    signature: null          # NOT fabricated
+    timestamp: null
+
+  permitted:
+    - "repository reads"
+    - "static searches"
+    - "source inspection"
+    - "AST/dependency analysis"
+    - "test inventory"
+    - "read-only execution"
+
+  prohibited:
+    - "any production mutation"
+    - "any authorization fabrication"
+
+  predecessor_gates:
+    - "MC-001-M: CERTIFIED (BOUNDED)"
+    - "AC-001 FINAL: CERTIFIED (BOUNDED)"
+
+  note: >
+    Reconciliation is observational; it performs no writes to production source,
+    tests, supervision, config, or ontology. It creates ONLY the certification
+    artifacts enumerated in the MC-002-A0 protocol. No MC-002 mutation gate is
+    opened by this record.

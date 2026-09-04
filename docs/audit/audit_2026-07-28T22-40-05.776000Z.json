@@ -1,0 +1,66 @@
+{
+  "node": "nonode@nohost",
+  "generated_at": "2026-07-28T22:40:05.774000Z",
+  "findings": [
+    {
+      "id": "FIX-1",
+      "status": "pass",
+      "title": "EngineeringDirector subscribes to campaign.phase8a.input",
+      "severity": "critical",
+      "evidence": "module loaded=true; source aligned=true"
+    },
+    {
+      "id": "FIX-2",
+      "status": "pass",
+      "title": "Phase5FeedbackListener in supervision tree",
+      "severity": "critical",
+      "evidence": "pid=#PID<0.660.0>"
+    },
+    {
+      "id": "FIX-3",
+      "status": "pass",
+      "title": "Alpha launch gate reads real soak status (no hardcoded stub)",
+      "severity": "critical",
+      "evidence": "real-status read present=true"
+    },
+    {
+      "id": "RT-EVENTBUS",
+      "status": "pass",
+      "title": "EventBus + EventStore DETS health",
+      "severity": "critical",
+      "evidence": "EventBus alive (#PID<0.621.0>) and accepting publishes",
+      "recommendation": "Apply ResilientDETS wrapper (see hardening note) so cold boot self-heals"
+    },
+    {
+      "id": "RT-RESOURCEMGR",
+      "status": "fail",
+      "title": "ResourceManager initialized",
+      "severity": "high",
+      "evidence": "pid=nil",
+      "recommendation": "Add init guard + lazy pool initialization"
+    },
+    {
+      "id": "RT-PHASE8B",
+      "status": "pass",
+      "title": "RealityDirector wired to phase8b/phase9 topics",
+      "severity": "high",
+      "evidence": "module loaded=true; phase8b subscription=true"
+    },
+    {
+      "id": "DEBT-WARNINGS",
+      "status": "info",
+      "title": "Compiler warnings (unused vars/aliases)",
+      "severity": "medium",
+      "evidence": "Run: mix compile --force 2>&1 | findstr /c:\"warning:\"",
+      "recommendation": "Batch cleanup — see hardening note"
+    }
+  ],
+  "counts": {
+    "high": 2,
+    "pass": 5,
+    "verify": 0,
+    "critical": 4,
+    "fail": 1,
+    "medium": 1
+  }
+}

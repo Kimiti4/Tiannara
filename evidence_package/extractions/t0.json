@@ -1,0 +1,551 @@
+{
+  "cross_check": {
+    "checks": [
+      {
+        "delta": 0,
+        "extracted": 4171,
+        "field": "agency_loops",
+        "match": true,
+        "reference": 4171
+      },
+      {
+        "delta": 0,
+        "extracted": 458,
+        "field": "recoveries",
+        "match": true,
+        "reference": 458
+      },
+      {
+        "delta": 0,
+        "extracted": 17,
+        "field": "restraints",
+        "match": true,
+        "reference": 17
+      },
+      {
+        "delta": 0,
+        "extracted": 834,
+        "field": "improvement_cycles",
+        "match": true,
+        "reference": 834
+      },
+      {
+        "delta": 0,
+        "extracted": 894,
+        "field": "self_diagnoses",
+        "match": true,
+        "reference": 894
+      },
+      {
+        "delta": 0,
+        "extracted": 878,
+        "field": "workflow_crashes",
+        "match": true,
+        "reference": 878
+      },
+      {
+        "delta": 0,
+        "extracted": 911,
+        "field": "mints",
+        "match": true,
+        "reference": 911
+      }
+    ],
+    "status": "match"
+  },
+  "extracted_at": "2026-08-16T04:54:58.556000Z",
+  "extractor_version": "soak_evidence.v1",
+  "log_lines": 135647,
+  "log_path": "C:\\Users\\user\\AppData\\Local\\Temp\\opencode\\soak72.log",
+  "mint_diversity": {
+    "duplicate_mint_groups": [
+      {
+        "count": 278,
+        "signature": "\"Portable Repairs Outlive Specialized Repairs\" (Confidence: 0.214, Support: 323)"
+      },
+      {
+        "count": 257,
+        "signature": "\"Classification Adaptation Outperforms \"meta_science\"\" (Confidence: 0.214, Support: 323)"
+      },
+      {
+        "count": 206,
+        "signature": "\"Repair Simplicity Improves Transferability\" (Confidence: 0.189, Support: 323)"
+      },
+      {
+        "count": 2,
+        "signature": "\"Target Architectural Complexity Imposes a Transfer Penalty\" (Confidence: 0.311, Support: 45)"
+      },
+      {
+        "count": 2,
+        "signature": "\"Classification Adaptation Outperforms \"meta_science\"\" (Confidence: 0.225, Support: 176)"
+      },
+      {
+        "count": 2,
+        "signature": "\"Repair Simplicity Improves Transferability\" (Confidence: 0.311, Support: 45)"
+      },
+      {
+        "count": 2,
+        "signature": "\"Portable Repairs Outlive Specialized Repairs\" (Confidence: 0.225, Support: 176)"
+      },
+      {
+        "count": 2,
+        "signature": "\"Repair Simplicity Improves Transferability\" (Confidence: 0.319, Support: 47)"
+      },
+      {
+        "count": 2,
+        "signature": "\"Portable Repairs Outlive Specialized Repairs\" (Confidence: 0.213, Support: 229)"
+      },
+      {
+        "count": 2,
+        "signature": "\"Repair Simplicity Improves Transferability\" (Confidence: 0.192, Support: 229)"
+      }
+    ],
+    "duplicate_mint_rate": 0.8211,
+    "top_crash_signatures": [
+      {
+        "count": 878,
+        "signature": "could not put/update key \"step_execute\" on a nil value"
+      }
+    ],
+    "unique_mints": 163,
+    "unique_ratio": 0.1789
+  },
+  "soak_start_utc": "2026-08-14T08:43:25Z",
+  "totals": {
+    "agency_loops": 4171,
+    "first_mint_at": "2026-08-14T23:43:11",
+    "improvement_cycles": 834,
+    "loop_monotonic": true,
+    "mints": 911,
+    "pipeline_bypasses": 2,
+    "recoveries": 458,
+    "rejects": 17,
+    "restraints": 17,
+    "self_diagnoses": 894,
+    "total_lines": 135647,
+    "unmatched_lines": 127482,
+    "workflow_crashes": 878
+  },
+  "trajectory": [
+    {
+      "crashes_per_hour": 6,
+      "diagnoses_per_hour": 6,
+      "hour": "2026-08-14T11",
+      "improvements_per_hour": 6,
+      "loops_per_hour": 33,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 4,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 24,
+      "diagnoses_per_hour": 24,
+      "hour": "2026-08-14T12",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 15,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 25,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-14T13",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 119,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 28,
+      "diagnoses_per_hour": 28,
+      "hour": "2026-08-14T14",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 14,
+      "diagnoses_per_hour": 14,
+      "hour": "2026-08-14T15",
+      "improvements_per_hour": 21,
+      "loops_per_hour": 104,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 8,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 25,
+      "diagnoses_per_hour": 24,
+      "hour": "2026-08-14T16",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-14T17",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 119,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 28,
+      "diagnoses_per_hour": 28,
+      "hour": "2026-08-14T18",
+      "improvements_per_hour": 23,
+      "loops_per_hour": 120,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-14T19",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 19,
+      "diagnoses_per_hour": 20,
+      "hour": "2026-08-14T20",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 119,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 10,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 21,
+      "diagnoses_per_hour": 22,
+      "hour": "2026-08-14T21",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 119,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 12,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 23,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-14T22",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 23,
+      "diagnoses_per_hour": 25,
+      "hour": "2026-08-14T23",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 185,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 17
+    },
+    {
+      "crashes_per_hour": 25,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T00",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 119,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 25,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T01",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 19,
+      "diagnoses_per_hour": 24,
+      "hour": "2026-08-15T02",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 119,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 12,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T03",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 21,
+      "diagnoses_per_hour": 22,
+      "hour": "2026-08-15T04",
+      "improvements_per_hour": 21,
+      "loops_per_hour": 107,
+      "mints_per_hour": 33,
+      "recoveries_per_hour": 12,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 24,
+      "diagnoses_per_hour": 24,
+      "hour": "2026-08-15T05",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 12,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 28,
+      "diagnoses_per_hour": 28,
+      "hour": "2026-08-15T06",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 119,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T07",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 28,
+      "diagnoses_per_hour": 28,
+      "hour": "2026-08-15T08",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T09",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 28,
+      "diagnoses_per_hour": 28,
+      "hour": "2026-08-15T10",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T11",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T12",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T13",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 24,
+      "diagnoses_per_hour": 22,
+      "hour": "2026-08-15T14",
+      "improvements_per_hour": 19,
+      "loops_per_hour": 98,
+      "mints_per_hour": 33,
+      "recoveries_per_hour": 11,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 23,
+      "diagnoses_per_hour": 24,
+      "hour": "2026-08-15T15",
+      "improvements_per_hour": 23,
+      "loops_per_hour": 111,
+      "mints_per_hour": 36,
+      "recoveries_per_hour": 12,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 28,
+      "diagnoses_per_hour": 28,
+      "hour": "2026-08-15T16",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 35,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T17",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 24,
+      "recoveries_per_hour": 13,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 28,
+      "diagnoses_per_hour": 28,
+      "hour": "2026-08-15T18",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 24,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 28,
+      "diagnoses_per_hour": 28,
+      "hour": "2026-08-15T19",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 24,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T20",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 24,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 27,
+      "diagnoses_per_hour": 28,
+      "hour": "2026-08-15T21",
+      "improvements_per_hour": 23,
+      "loops_per_hour": 119,
+      "mints_per_hour": 14,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 26,
+      "diagnoses_per_hour": 26,
+      "hour": "2026-08-15T22",
+      "improvements_per_hour": 24,
+      "loops_per_hour": 120,
+      "mints_per_hour": 11,
+      "recoveries_per_hour": 14,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 0,
+      "diagnoses_per_hour": 0,
+      "hour": "2026-08-15T23",
+      "improvements_per_hour": 2,
+      "loops_per_hour": 6,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 0,
+      "restraints_per_hour": 0
+    },
+    {
+      "crashes_per_hour": 0,
+      "diagnoses_per_hour": 1,
+      "hour": "unknown",
+      "improvements_per_hour": 0,
+      "loops_per_hour": 0,
+      "mints_per_hour": 0,
+      "recoveries_per_hour": 0,
+      "restraints_per_hour": 0
+    }
+  ],
+  "trajectory_hours": [
+    "2026-08-14T11",
+    "2026-08-14T12",
+    "2026-08-14T13",
+    "2026-08-14T14",
+    "2026-08-14T15",
+    "2026-08-14T16",
+    "2026-08-14T17",
+    "2026-08-14T18",
+    "2026-08-14T19",
+    "2026-08-14T20",
+    "2026-08-14T21",
+    "2026-08-14T22",
+    "2026-08-14T23",
+    "2026-08-15T00",
+    "2026-08-15T01",
+    "2026-08-15T02",
+    "2026-08-15T03",
+    "2026-08-15T04",
+    "2026-08-15T05",
+    "2026-08-15T06",
+    "2026-08-15T07",
+    "2026-08-15T08",
+    "2026-08-15T09",
+    "2026-08-15T10",
+    "2026-08-15T11",
+    "2026-08-15T12",
+    "2026-08-15T13",
+    "2026-08-15T14",
+    "2026-08-15T15",
+    "2026-08-15T16",
+    "2026-08-15T17",
+    "2026-08-15T18",
+    "2026-08-15T19",
+    "2026-08-15T20",
+    "2026-08-15T21",
+    "2026-08-15T22",
+    "2026-08-15T23",
+    "unknown"
+  ]
+}

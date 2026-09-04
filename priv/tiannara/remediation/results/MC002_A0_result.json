@@ -1,0 +1,49 @@
+{
+  "gate": "MC-002-A0",
+  "phase": "RECONCILIATION",
+  "verdict": "CERTIFIED_RECONCILIATION_ONLY",
+  "mutation_performed": false,
+  "capability_counts": {
+    "REAL": 6,
+    "PARTIAL": 1,
+    "THEATRICAL": 8,
+    "FABRICATED": 8,
+    "DUPLICATE": 1,
+    "UNKNOWN": 1,
+    "NO": 5
+  },
+  "critical_findings": [
+    "BeliefSystem negation matcher (belief_system.ex:345-356) silently misclassifies contradictions in Loop B",
+    "constitution/registry.ex:118 calls Audit.find_contradictions/1; graph/audit.ex lacks it -> UndefinedFunctionError",
+    "substrate/*.ex and CTL.ParadoxResolver return success + fabricated metrics without logical computation",
+    "No proof/prover/SAT/SMT/theorem-proving/symbolic layer exists"
+  ],
+  "bottlenecks": [
+    "CRITICAL: broken BeliefSystem matcher in Loop B",
+    "CRITICAL: dangling Audit.find_contradictions/1",
+    "HIGH: no canonical kernel, 5+ duplicates",
+    "HIGH: theatrical logical capability",
+    "MEDIUM: no proof/SAT/SMT layer; no symbolic layer"
+  ],
+  "consumer_hazards": [
+    "silent-wrong via BeliefSystem -> core/world_model/api.ex:39,71",
+    "fail-loud governance probe via constitution/registry.ex:118",
+    "theatrical-as-success via substrate + ParadoxResolver metric push"
+  ],
+  "evidence_limitations": [
+    "Static-source classification; full runtime cross-repo behavior NOT_EXECUTED",
+    "Runtime reachability of registry.ex:118 probe NOT_EXECUTED",
+    "Shadow-run behavioral parity is a future mutation-gate task"
+  ],
+  "authorization_state": "OBSERVATIONAL_READ_ONLY; signature NOT fabricated",
+  "canonical_ontology_unchanged": "CONFIRMED (verifier PASS, 20 domains, no excluded atoms)",
+  "reconciliation_only": true,
+  "mutation_recommendations": [
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5"
+  ],
+  "mutation_gate_status": "CLOSED"
+}

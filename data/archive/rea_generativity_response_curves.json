@@ -1,0 +1,1717 @@
+{
+  "metadata": {
+    "timestamp": "2026-06-11T03:20:04.298759",
+    "version": "11.6",
+    "donor_fingerprint": {
+      "archetype": "Explorer",
+      "epoch": 70,
+      "pe": 4,
+      "ca": 0.3865,
+      "pr": 0.1915,
+      "pdr": 0.8,
+      "oi": 0.3314,
+      "rv": 0.4681,
+      "agency": 0.3092,
+      "region": "CORRIDOR",
+      "oi_values": {
+        "Settler": 0.278,
+        "Explorer": 0.0816,
+        "Trader": 0.4087,
+        "Survivor": 0.4681,
+        "Phoenix": 0.4209
+      },
+      "gy": 0.6128,
+      "ghl": 5,
+      "generator_score": 1.098
+    },
+    "recipient_fingerprint": {
+      "archetype": "baseline",
+      "epoch": 0,
+      "pe": 0,
+      "ca": 0.0,
+      "pr": 0.08,
+      "pdr": 0.0,
+      "oi": 0.08,
+      "rv": 0.08,
+      "agency": 0.0,
+      "region": "DESERT",
+      "oi_values": {
+        "Settler": 0.08,
+        "Explorer": 0.08,
+        "Trader": 0.08,
+        "Survivor": 0.08,
+        "Phoenix": 0.08
+      }
+    },
+    "contrast_score": 612800.0,
+    "contrast_label": "STRONG",
+    "retention_levels": [
+      0.0,
+      0.2,
+      0.4,
+      0.6,
+      0.8,
+      1.0
+    ],
+    "observation_window": 40,
+    "ghl_max_epochs": 40
+  },
+  "curves": {
+    "topology": [
+      {
+        "retention": 0.0,
+        "component": "topology",
+        "label": "topology_r0",
+        "pe": 1,
+        "ca": 0.05435014321077804,
+        "pr": 0.07224062130298814,
+        "pdr": 0.2,
+        "ghl": 5,
+        "oi": 0.09335512205073596,
+        "rv": 0.13528822636274274,
+        "agency": 0.010870028642155607,
+        "region": "DESERT",
+        "gy": 0.014448124260597628,
+        "me": 14448.12426059763,
+        "fe": 0.014448124260597628,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.12658186242539585,
+          "peak_epoch": 0,
+          "recovery_time": 0,
+          "trajectory": [
+            "CORRIDOR",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.2,
+        "component": "topology",
+        "label": "topology_r20",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.3553189612103891,
+          "peak_epoch": 50,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "CORRIDOR",
+            "DESERT",
+            "CORRIDOR",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.4,
+        "component": "topology",
+        "label": "topology_r40",
+        "pe": 3,
+        "ca": 0.3071689817630964,
+        "pr": 0.0905245562728446,
+        "pdr": 0.6,
+        "ghl": 5,
+        "oi": 0.20590214859539957,
+        "rv": 0.38894662064655955,
+        "agency": 0.18430138905785784,
+        "region": "CORRIDOR",
+        "gy": 0.16294420129112028,
+        "me": 0.40736050322780065,
+        "fe": 0.2715736688185338,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.5474061282569077,
+          "peak_epoch": 0,
+          "recovery_time": 0,
+          "trajectory": [
+            "CORRIDOR",
+            "DESERT",
+            "CORRIDOR",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "CORRIDOR"
+          ]
+        }
+      },
+      {
+        "retention": 0.6,
+        "component": "topology",
+        "label": "topology_r60",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.5775225117157032,
+          "peak_epoch": 30,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.8,
+        "component": "topology",
+        "label": "topology_r80",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.15037064652655202,
+          "peak_epoch": 20,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 1.0,
+        "component": "topology",
+        "label": "topology_r100",
+        "pe": 0,
+        "ca": 0.0020000000000000018,
+        "pr": 0.07960000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08040000000000001,
+        "rv": 0.08200000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.19779559546141218,
+          "peak_epoch": 20,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      }
+    ],
+    "history": [
+      {
+        "retention": 0.0,
+        "component": "history",
+        "label": "history_r0",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.48330606786731073,
+          "peak_epoch": 20,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.2,
+        "component": "history",
+        "label": "history_r20",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.0,
+          "peak_epoch": 0,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.4,
+        "component": "history",
+        "label": "history_r40",
+        "pe": 2,
+        "ca": 0.4673617813303855,
+        "pr": 0.03215433756559949,
+        "pdr": 0.4,
+        "ghl": 5,
+        "oi": 0.21479576096521594,
+        "rv": 0.5473617813303855,
+        "agency": 0.1869447125321542,
+        "region": "DESERT",
+        "gy": 0.025723470052479592,
+        "me": 0.06430867513119898,
+        "fe": 0.042872450087465985,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.2920845057724081,
+          "peak_epoch": 0,
+          "recovery_time": 0,
+          "trajectory": [
+            "CORRIDOR",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.6,
+        "component": "history",
+        "label": "history_r60",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.1505047297293625,
+          "peak_epoch": 20,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.8,
+        "component": "history",
+        "label": "history_r80",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.26866027606094606,
+          "peak_epoch": 50,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 1.0,
+        "component": "history",
+        "label": "history_r100",
+        "pe": 0,
+        "ca": 0.007680315748280833,
+        "pr": 0.07846393685034385,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08153606314965618,
+        "rv": 0.08768031574828085,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.5787896878020813,
+          "peak_epoch": 30,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      }
+    ],
+    "constitution": [
+      {
+        "retention": 0.0,
+        "component": "constitution",
+        "label": "constitution_r0",
+        "pe": 0,
+        "ca": 0.0020000000000000018,
+        "pr": 0.080171917450947,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08102649638953326,
+        "rv": 0.08200000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.48353762507921244,
+          "peak_epoch": 0,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.2,
+        "component": "constitution",
+        "label": "constitution_r20",
+        "pe": 0,
+        "ca": 0.0020000000000000018,
+        "pr": 0.08018508801528157,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08110287511177602,
+        "rv": 0.08200000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.4836775710282512,
+          "peak_epoch": 50,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.4,
+        "component": "constitution",
+        "label": "constitution_r40",
+        "pe": 0,
+        "ca": 0.0020000000000000018,
+        "pr": 0.08064747209379981,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08134575772243863,
+        "rv": 0.08200000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.2680275077643054,
+          "peak_epoch": 10,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "CORRIDOR",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.6,
+        "component": "constitution",
+        "label": "constitution_r60",
+        "pe": 3,
+        "ca": 0.3081067143850513,
+        "pr": 0.06684914473100961,
+        "pdr": 0.6,
+        "ghl": 5,
+        "oi": 0.18321837682555045,
+        "rv": 0.389011025049468,
+        "agency": 0.18486402863103074,
+        "region": "CORRIDOR",
+        "gy": 0.1203284605158173,
+        "me": 0.20054743419302884,
+        "fe": 0.30082115128954323,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.05379016963561434,
+          "peak_epoch": 0,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.8,
+        "component": "constitution",
+        "label": "constitution_r80",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.05505714285714286,
+          "peak_epoch": 60,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 1.0,
+        "component": "constitution",
+        "label": "constitution_r100",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.4104598496644708,
+          "peak_epoch": 30,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "CORRIDOR",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      }
+    ],
+    "identity": [
+      {
+        "retention": 0.0,
+        "component": "identity",
+        "label": "identity_r0",
+        "pe": 0,
+        "ca": 0.0020000000000000018,
+        "pr": 0.08017278310630409,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08106441839304142,
+        "rv": 0.08200000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.46680099890575544,
+          "peak_epoch": 20,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.2,
+        "component": "identity",
+        "label": "identity_r20",
+        "pe": 2,
+        "ca": 0.1651748985596234,
+        "pr": 0.06629261825807274,
+        "pdr": 0.4,
+        "ghl": 5,
+        "oi": 0.1345111895304687,
+        "rv": 0.2459748985596234,
+        "agency": 0.06606995942384936,
+        "region": "DESERT",
+        "gy": 0.05303409460645819,
+        "me": 0.26517047303229097,
+        "fe": 0.06629261825807274,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.45206431943031344,
+          "peak_epoch": 0,
+          "recovery_time": 0,
+          "trajectory": [
+            "CORRIDOR",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.4,
+        "component": "identity",
+        "label": "identity_r40",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.3883815541336296,
+          "peak_epoch": 10,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.6,
+        "component": "identity",
+        "label": "identity_r60",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.35501394003405085,
+          "peak_epoch": 30,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "CORRIDOR",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 0.8,
+        "component": "identity",
+        "label": "identity_r80",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.578032174564325,
+          "peak_epoch": 10,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "CORRIDOR",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      },
+      {
+        "retention": 1.0,
+        "component": "identity",
+        "label": "identity_r100",
+        "pe": 0,
+        "ca": 0.0,
+        "pr": 0.08000000000000002,
+        "pdr": 0.0,
+        "ghl": 5,
+        "oi": 0.08000000000000002,
+        "rv": 0.08000000000000002,
+        "agency": 0.0,
+        "region": "DESERT",
+        "gy": 0.0,
+        "me": 0.0,
+        "fe": 0.0,
+        "trajectory_summary": {
+          "burst_duration": 0,
+          "peak_height": 0.29205928544914594,
+          "peak_epoch": 20,
+          "recovery_time": 0,
+          "trajectory": [
+            "DESERT",
+            "DESERT",
+            "CORRIDOR",
+            "DESERT",
+            "DESERT",
+            "DESERT",
+            "DESERT"
+          ]
+        }
+      }
+    ]
+  },
+  "curve_analysis": {
+    "topology_pe": {
+      "shape": "inverted_u",
+      "best_fit": "cubic",
+      "quadratic_coeff": -3.1250000000000058,
+      "cubic_coeff": 8.101851851851821,
+      "peak_retention": 0.2663316582914573,
+      "peak_value": 1.4067198102782217,
+      "trough_retention": 0.9899497487437187,
+      "trough_value": -0.12780869567974507,
+      "coefficients": {
+        "linear": [
+          -1.1428571428571426,
+          1.2380952380952377
+        ],
+        "quadratic": [
+          -3.1250000000000058,
+          1.982142857142863,
+          0.8214285714285707
+        ],
+        "cubic": [
+          8.101851851851821,
+          -15.277777777777748,
+          6.42195767195767,
+          0.6269841269841278
+        ]
+      },
+      "r_squared": {
+        "linear": 0.1247,
+        "quadratic": 0.2042,
+        "cubic": 0.2413
+      }
+    },
+    "topology_ca": {
+      "shape": "flat",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.4227344691957578,
+      "cubic_coeff": 1.1191264016186262,
+      "peak_retention": 0.2964824120603015,
+      "peak_value": 0.14551100987107168,
+      "trough_retention": 0.9547738693467337,
+      "trough_value": -0.012032728868368231,
+      "coefficients": {
+        "linear": [
+          -0.08127424254528379,
+          0.10122364210162095
+        ],
+        "quadratic": [
+          -0.4227344691957578,
+          0.341460226650474,
+          0.044859046208853295
+        ],
+        "cubic": [
+          1.1191264016186262,
+          -2.101424071623699,
+          0.9547414947374829,
+          0.018000012570006232
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0614,
+        "quadratic": 0.2032,
+        "cubic": 0.2722
+      }
+    },
+    "topology_pr": {
+      "shape": "monotonic_increasing",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.037006749364481194,
+      "cubic_coeff": 0.0913137946486538,
+      "peak_retention": 0.36683417085427134,
+      "peak_value": 0.08579627017337547,
+      "trough_retention": 0.0,
+      "trough_value": 0.07139183642731546,
+      "coefficients": {
+        "linear": [
+          0.0037531910303164103,
+          0.07851760074748056
+        ],
+        "quadratic": [
+          -0.037006749364481194,
+          0.040759940394797516,
+          0.0735833674988832
+        ],
+        "cubic": [
+          0.0913137946486538,
+          -0.173977441337462,
+          0.09079989986225999,
+          0.07139183642731546
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0579,
+        "quadratic": 0.5386,
+        "cubic": 0.7417
+      }
+    },
+    "topology_ghl": {
+      "shape": "flat",
+      "best_fit": "linear",
+      "quadratic_coeff": 0.0,
+      "cubic_coeff": 0.0,
+      "peak_retention": 0.5,
+      "peak_value": 5.0,
+      "trough_retention": 0.5,
+      "trough_value": 5.0,
+      "coefficients": {
+        "linear": [
+          0.0,
+          0.0
+        ],
+        "quadratic": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cubic": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0,
+        "quadratic": 0.0,
+        "cubic": 0.0
+      }
+    },
+    "topology_gy": {
+      "shape": "flat",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.2587215106524528,
+      "cubic_coeff": 0.6707594720619116,
+      "peak_retention": 0.31155778894472363,
+      "peak_value": 0.07793766865985383,
+      "trough_retention": 0.9447236180904522,
+      "trough_value": -0.007620998506388972,
+      "coefficients": {
+        "linear": [
+          -0.033597831799158345,
+          0.04636430349153215
+        ],
+        "quadratic": [
+          -0.2587215106524528,
+          0.2251236788532944,
+          0.011868102071205143
+        ],
+        "cubic": [
+          0.6707594720619116,
+          -1.2648607187453214,
+          0.5926998695432227,
+          -0.004230125258280754
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0367,
+        "quadratic": 0.2226,
+        "cubic": 0.3093
+      }
+    },
+    "topology_pdr": {
+      "shape": "inverted_u",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.6250000000000017,
+      "cubic_coeff": 1.6203703703703647,
+      "peak_retention": 0.2663316582914573,
+      "peak_value": 0.28134396205564444,
+      "trough_retention": 0.9899497487437187,
+      "trough_value": -0.025561739135948586,
+      "coefficients": {
+        "linear": [
+          -0.2285714285714285,
+          0.24761904761904757
+        ],
+        "quadratic": [
+          -0.6250000000000017,
+          0.3964285714285728,
+          0.1642857142857142
+        ],
+        "cubic": [
+          1.6203703703703647,
+          -3.0555555555555505,
+          1.2843915343915346,
+          0.1253968253968255
+        ]
+      },
+      "r_squared": {
+        "linear": 0.1247,
+        "quadratic": 0.2042,
+        "cubic": 0.2413
+      }
+    },
+    "history_pe": {
+      "shape": "inverted_u",
+      "best_fit": "cubic",
+      "quadratic_coeff": -3.571428571428579,
+      "cubic_coeff": 9.259259259259242,
+      "peak_retention": 0.32160804020100503,
+      "peak_value": 0.9684064725746235,
+      "trough_retention": 0.0,
+      "trough_value": -0.2222222222222217,
+      "coefficients": {
+        "linear": [
+          -0.28571428571428575,
+          0.4761904761904762
+        ],
+        "quadratic": [
+          -3.571428571428579,
+          3.2857142857142927,
+          -1.2690906251431506e-15
+        ],
+        "cubic": [
+          9.259259259259242,
+          -17.46031746031746,
+          8.35978835978837,
+          -0.2222222222222217
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0171,
+        "quadratic": 0.2457,
+        "cubic": 0.3524
+      }
+    },
+    "history_ca": {
+      "shape": "inverted_u",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.8174310475804204,
+      "cubic_coeff": 2.2081582222950704,
+      "peak_retention": 0.32160804020100503,
+      "peak_value": 0.22649428500673924,
+      "trough_retention": 0.0,
+      "trough_value": -0.05217290636205156,
+      "coefficients": {
+        "linear": [
+          -0.06128002894128302,
+          0.10981369731708586
+        ],
+        "quadratic": [
+          -0.8174310475804204,
+          0.7561510186391374,
+          0.0008228909730298952
+        ],
+        "cubic": [
+          2.2081582222950704,
+          -4.129668381023029,
+          1.9662217244568387,
+          -0.05217290636205156
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0145,
+        "quadratic": 0.2352,
+        "cubic": 0.347
+      }
+    },
+    "history_pr": {
+      "shape": "monotonic_increasing",
+      "best_fit": "cubic",
+      "quadratic_coeff": 0.08200997053094729,
+      "cubic_coeff": -0.23039695079384584,
+      "peak_retention": 0.0,
+      "peak_value": 0.08536494862444638,
+      "trough_retention": 0.32160804020100503,
+      "trough_value": 0.05679373581304034,
+      "coefficients": {
+        "linear": [
+          0.0057379066694456735,
+          0.06890075906793437
+        ],
+        "quadratic": [
+          0.08200997053094729,
+          -0.07627206386150165,
+          0.07983542180539414
+        ],
+        "cubic": [
+          -0.23039695079384584,
+          0.4276053967217163,
+          -0.20252959289652941,
+          0.08536494862444638
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0122,
+        "quadratic": 0.2253,
+        "cubic": 0.3421
+      }
+    },
+    "history_ghl": {
+      "shape": "flat",
+      "best_fit": "linear",
+      "quadratic_coeff": 0.0,
+      "cubic_coeff": 0.0,
+      "peak_retention": 0.5,
+      "peak_value": 5.0,
+      "trough_retention": 0.5,
+      "trough_value": 5.0,
+      "coefficients": {
+        "linear": [
+          0.0,
+          0.0
+        ],
+        "quadratic": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cubic": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0,
+        "quadratic": 0.0,
+        "cubic": 0.0
+      }
+    },
+    "history_gy": {
+      "shape": "monotonic_increasing",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.045934767950856506,
+      "cubic_coeff": 0.11909013913184975,
+      "peak_retention": 0.32160804020100503,
+      "peak_value": 0.012455387447950324,
+      "trough_retention": 0.0,
+      "trough_value": -0.0028581633391644248,
+      "coefficients": {
+        "linear": [
+          -0.003674781436068514,
+          0.006124635726780855
+        ],
+        "quadratic": [
+          -0.045934767950856506,
+          0.042259986514787996,
+          -1.1331166295920988e-17
+        ],
+        "cubic": [
+          0.11909013913184975,
+          -0.22456997664863135,
+          0.10752138275904179,
+          -0.0028581633391644248
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0171,
+        "quadratic": 0.2457,
+        "cubic": 0.3524
+      }
+    },
+    "history_pdr": {
+      "shape": "inverted_u",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.7142857142857157,
+      "cubic_coeff": 1.8518518518518465,
+      "peak_retention": 0.32160804020100503,
+      "peak_value": 0.19368129451492452,
+      "trough_retention": 0.0,
+      "trough_value": -0.04444444444444438,
+      "coefficients": {
+        "linear": [
+          -0.057142857142857106,
+          0.0952380952380952
+        ],
+        "quadratic": [
+          -0.7142857142857157,
+          0.6571428571428585,
+          -3.1727265628578765e-16
+        ],
+        "cubic": [
+          1.8518518518518465,
+          -3.492063492063488,
+          1.6719576719576725,
+          -0.04444444444444438
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0171,
+        "quadratic": 0.2457,
+        "cubic": 0.3524
+      }
+    },
+    "constitution_pe": {
+      "shape": "inverted_u",
+      "best_fit": "cubic",
+      "quadratic_coeff": -5.357142857142872,
+      "cubic_coeff": -13.888888888888854,
+      "peak_retention": 0.678391959798995,
+      "peak_value": 1.4526097088619294,
+      "trough_retention": 1.0,
+      "trough_value": -0.33333333333332654,
+      "coefficients": {
+        "linear": [
+          0.4285714285714285,
+          0.2857142857142856
+        ],
+        "quadratic": [
+          -5.357142857142872,
+          5.785714285714301,
+          -0.4285714285714312
+        ],
+        "cubic": [
+          -13.888888888888854,
+          15.476190476190443,
+          -1.8253968253968194,
+          -0.09523809523809594
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0171,
+        "quadratic": 0.2457,
+        "cubic": 0.3524
+      }
+    },
+    "constitution_ca": {
+      "shape": "inverted_u",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.5501905614018787,
+      "cubic_coeff": -1.4125310851159745,
+      "peak_retention": 0.678391959798995,
+      "peak_value": 0.14930590597229815,
+      "trough_retention": 1.0,
+      "trough_value": -0.034186460328497315,
+      "coefficients": {
+        "linear": [
+          0.04144381634072159,
+          0.031629210893814395
+        ],
+        "quadratic": [
+          -0.5501905614018787,
+          0.5916343777426001,
+          -0.04172953062643613
+        ],
+        "cubic": [
+          -1.4125310851159745,
+          1.5686060662720864,
+          -0.18243265690095672,
+          -0.007828784583652547
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0153,
+        "quadratic": 0.2457,
+        "cubic": 0.3511
+      }
+    },
+    "constitution_pr": {
+      "shape": "monotonic_increasing",
+      "best_fit": "cubic",
+      "quadratic_coeff": 0.022628585687596386,
+      "cubic_coeff": 0.0643858082215231,
+      "peak_retention": 1.0,
+      "peak_value": 0.08145135225202361,
+      "trough_retention": 0.6884422110552764,
+      "trough_value": 0.07370959193864449,
+      "coefficients": {
+        "linear": [
+          -0.0021733112376242205,
+          0.0790622593339851
+        ],
+        "quadratic": [
+          0.022628585687596386,
+          -0.02480189692522062,
+          0.08207940409233136
+        ],
+        "cubic": [
+          0.0643858082215231,
+          -0.07395012664468843,
+          0.010481525980174156,
+          0.0805341446950148
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0222,
+        "quadratic": 0.2277,
+        "cubic": 0.3432
+      }
+    },
+    "constitution_ghl": {
+      "shape": "flat",
+      "best_fit": "linear",
+      "quadratic_coeff": 0.0,
+      "cubic_coeff": 0.0,
+      "peak_retention": 0.5,
+      "peak_value": 5.0,
+      "trough_retention": 0.5,
+      "trough_value": 5.0,
+      "coefficients": {
+        "linear": [
+          0.0,
+          0.0
+        ],
+        "quadratic": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cubic": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0,
+        "quadratic": 0.0,
+        "cubic": 0.0
+      }
+    },
+    "constitution_gy": {
+      "shape": "flat",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.21487225092110288,
+      "cubic_coeff": -0.5570762060917452,
+      "peak_retention": 0.678391959798995,
+      "peak_value": 0.05826342999922852,
+      "trough_retention": 1.0,
+      "trough_value": -0.013369828946201623,
+      "coefficients": {
+        "linear": [
+          0.017189780073688175,
+          0.011459853382458793
+        ],
+        "quadratic": [
+          -0.21487225092110288,
+          0.23206203099479095,
+          -0.017189780073688272
+        ],
+        "cubic": [
+          -0.5570762060917452,
+          0.6207420582165163,
+          -0.07321572994348641,
+          -0.0038199511274862653
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0171,
+        "quadratic": 0.2457,
+        "cubic": 0.3524
+      }
+    },
+    "constitution_pdr": {
+      "shape": "inverted_u",
+      "best_fit": "cubic",
+      "quadratic_coeff": -1.0714285714285738,
+      "cubic_coeff": -2.777777777777771,
+      "peak_retention": 0.678391959798995,
+      "peak_value": 0.2905219417723864,
+      "trough_retention": 1.0,
+      "trough_value": -0.06666666666666467,
+      "coefficients": {
+        "linear": [
+          0.08571428571428567,
+          0.05714285714285712
+        ],
+        "quadratic": [
+          -1.0714285714285738,
+          1.1571428571428592,
+          -0.0857142857142862
+        ],
+        "cubic": [
+          -2.777777777777771,
+          3.095238095238089,
+          -0.365079365079364,
+          -0.019047619047618772
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0171,
+        "quadratic": 0.2457,
+        "cubic": 0.3524
+      }
+    },
+    "identity_pe": {
+      "shape": "inverted_u",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.8928571428571395,
+      "cubic_coeff": 16.20370370370367,
+      "peak_retention": 0.22613065326633167,
+      "peak_value": 1.1688449264745218,
+      "trough_retention": 0.8090452261306533,
+      "trough_value": -0.44594456004781463,
+      "coefficients": {
+        "linear": [
+          -0.8571428571428574,
+          0.7619047619047621
+        ],
+        "quadratic": [
+          -0.8928571428571395,
+          0.035714285714282305,
+          0.6428571428571432
+        ],
+        "cubic": [
+          16.20370370370367,
+          -25.198412698412685,
+          8.915343915343927,
+          0.2539682539682551
+        ]
+      },
+      "r_squared": {
+        "linear": 0.1543,
+        "quadratic": 0.1686,
+        "cubic": 0.4952
+      }
+    },
+    "identity_ca": {
+      "shape": "flat",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.0692745082855457,
+      "cubic_coeff": 1.3266484837006498,
+      "peak_retention": 0.22613065326633167,
+      "peak_value": 0.09666795558779837,
+      "trough_retention": 0.8090452261306533,
+      "trough_value": -0.03665112852129156,
+      "coefficients": {
+        "linear": [
+          -0.07221781366841,
+          0.06397138992747557
+        ],
+        "quadratic": [
+          -0.0692745082855457,
+          -0.0029433053828643732,
+          0.054734788822736184
+        ],
+        "cubic": [
+          1.3266484837006498,
+          -2.0592472338365235,
+          0.7240600636850941,
+          0.022895225213920407
+        ]
+      },
+      "r_squared": {
+        "linear": 0.1613,
+        "quadratic": 0.174,
+        "cubic": 0.4966
+      }
+    },
+    "identity_pr": {
+      "shape": "monotonic_increasing",
+      "best_fit": "cubic",
+      "quadratic_coeff": 0.006505043425646159,
+      "cubic_coeff": -0.11205507838542995,
+      "peak_retention": 0.8090452261306533,
+      "peak_value": 0.08307176936054932,
+      "trough_retention": 0.22613065326633167,
+      "trough_value": 0.07200085043015857,
+      "coefficients": {
+        "linear": [
+          0.005751175670608778,
+          0.07486864572542506
+        ],
+        "quadratic": [
+          0.006505043425646159,
+          -0.0007538677550374738,
+          0.07573598484884467
+        ],
+        "cubic": [
+          -0.11205507838542995,
+          0.17458766100379136,
+          -0.0621600507102532,
+          0.07842530673009498
+        ]
+      },
+      "r_squared": {
+        "linear": 0.1471,
+        "quadratic": 0.1632,
+        "cubic": 0.494
+      }
+    },
+    "identity_ghl": {
+      "shape": "flat",
+      "best_fit": "linear",
+      "quadratic_coeff": 0.0,
+      "cubic_coeff": 0.0,
+      "peak_retention": 0.5,
+      "peak_value": 5.0,
+      "trough_retention": 0.5,
+      "trough_value": 5.0,
+      "coefficients": {
+        "linear": [
+          0.0,
+          0.0
+        ],
+        "quadratic": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "cubic": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "r_squared": {
+        "linear": 0.0,
+        "quadratic": 0.0,
+        "cubic": 0.0
+      }
+    },
+    "identity_gy": {
+      "shape": "flat",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.02367593509216875,
+      "cubic_coeff": 0.42967437759861876,
+      "peak_retention": 0.22613065326633167,
+      "peak_value": 0.030994316205464174,
+      "trough_retention": 0.8090452261306533,
+      "trough_value": -0.011825132993405624,
+      "coefficients": {
+        "linear": [
+          -0.022728897688482068,
+          0.020203464611984065
+        ],
+        "quadratic": [
+          -0.02367593509216875,
+          0.0009470374036866435,
+          0.01704667326636159
+        ],
+        "cubic": [
+          0.42967437759861876,
+          -0.6681875014900979,
+          0.23640859632773056,
+          0.006734488203994676
+        ]
+      },
+      "r_squared": {
+        "linear": 0.1543,
+        "quadratic": 0.1686,
+        "cubic": 0.4952
+      }
+    },
+    "identity_pdr": {
+      "shape": "flat",
+      "best_fit": "cubic",
+      "quadratic_coeff": -0.17857142857142774,
+      "cubic_coeff": 3.2407407407407343,
+      "peak_retention": 0.22613065326633167,
+      "peak_value": 0.23376898529490361,
+      "trough_retention": 0.8090452261306533,
+      "trough_value": -0.089188912009564,
+      "coefficients": {
+        "linear": [
+          -0.17142857142857143,
+          0.15238095238095237
+        ],
+        "quadratic": [
+          -0.17857142857142774,
+          0.0071428571428562146,
+          0.12857142857142873
+        ],
+        "cubic": [
+          3.2407407407407343,
+          -5.039682539682537,
+          1.7830687830687844,
+          0.05079365079365048
+        ]
+      },
+      "r_squared": {
+        "linear": 0.1543,
+        "quadratic": 0.1686,
+        "cubic": 0.4952
+      }
+    }
+  },
+  "discoveries": [
+    {
+      "component": "topology",
+      "metric": "pe",
+      "peak_retention_pct": 26.6,
+      "peak_value": 1.4067,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "topology",
+      "metric": "pr",
+      "peak_retention_pct": 36.7,
+      "peak_value": 0.0858,
+      "type": "Memory-Capital"
+    },
+    {
+      "component": "topology",
+      "metric": "pdr",
+      "peak_retention_pct": 26.6,
+      "peak_value": 0.2813,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "history",
+      "metric": "pe",
+      "peak_retention_pct": 32.2,
+      "peak_value": 0.9684,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "history",
+      "metric": "ca",
+      "peak_retention_pct": 32.2,
+      "peak_value": 0.2265,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "history",
+      "metric": "pr",
+      "peak_retention_pct": 0.0,
+      "peak_value": 0.0854,
+      "type": "Memory-Capital"
+    },
+    {
+      "component": "history",
+      "metric": "gy",
+      "peak_retention_pct": 32.2,
+      "peak_value": 0.0125,
+      "type": "Memory-Capital"
+    },
+    {
+      "component": "history",
+      "metric": "pdr",
+      "peak_retention_pct": 32.2,
+      "peak_value": 0.1937,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "constitution",
+      "metric": "pe",
+      "peak_retention_pct": 67.8,
+      "peak_value": 1.4526,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "constitution",
+      "metric": "ca",
+      "peak_retention_pct": 67.8,
+      "peak_value": 0.1493,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "constitution",
+      "metric": "pr",
+      "peak_retention_pct": 100.0,
+      "peak_value": 0.0815,
+      "type": "Memory-Capital"
+    },
+    {
+      "component": "constitution",
+      "metric": "pdr",
+      "peak_retention_pct": 67.8,
+      "peak_value": 0.2905,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "identity",
+      "metric": "pe",
+      "peak_retention_pct": 22.6,
+      "peak_value": 1.1688,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "identity",
+      "metric": "pr",
+      "peak_retention_pct": 80.9,
+      "peak_value": 0.0831,
+      "type": "Memory-Capital"
+    },
+    {
+      "type": "Emergent",
+      "note": "Multiple components contribute to GY \u2014 emergent",
+      "peak_gys": {
+        "topology": 0.16294420129112028,
+        "history": 0.025723470052479592,
+        "constitution": 0.1203284605158173,
+        "identity": 0.05303409460645819
+      }
+    }
+  ]
+}

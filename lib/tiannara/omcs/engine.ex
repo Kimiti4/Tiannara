@@ -118,7 +118,7 @@ defmodule Tiannara.OMCS.Engine do
   def handle_call({:get_lineage, civ_id}, _from, state) do
     case Map.get(state.identity_graph, civ_id) do
       nil -> {:reply, {:error, :not_found}, state}
-      identity -> 
+      _identity -> 
         lineage = build_lineage_tree(state.identity_graph, civ_id)
         {:reply, {:ok, lineage}, state}
     end

@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: tiannara
+      POSTGRES_USER: tiannara
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tiannara"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  tiannara-api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://tiannara:dev_password@postgres:5432/tiannara
+      REDIS_URL: redis://redis:6379
+      ENVIRONMENT: development
+      JWT_SECRET_KEY: dev-secret-key-change-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./tiannara_api:/app/tiannara_api
+      - ./tiannara_core:/app/tiannara_core
+    command: uvicorn tiannara_api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  tiannara-core:
+    build:
+      context: .
+      dockerfile: docker/core/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://tiannara:dev_password@postgres:5432/tiannara
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./tiannara_core:/app/tiannara_core
+
+volumes:
+  postgres_data:
+  redis_data:

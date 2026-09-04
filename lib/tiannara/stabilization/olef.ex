@@ -339,7 +339,7 @@ defmodule Tiannara.Stabilization.OLEF do
 
   defp validate_harmonics_params(_), do: %{frequency: 1.0, amplitude: 0.2, phase: 0.0}
 
-  defp apply_field_harmonics(harmonics, params) do
+  defp apply_field_harmonics(harmonics, _params) do
     # Apply harmonic oscillation to all pressure fields
     current_time = System.system_time(:millisecond) / 1000.0  # Convert to seconds
     

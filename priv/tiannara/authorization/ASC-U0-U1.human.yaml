@@ -1,0 +1,77 @@
+# ==============================================================================
+# STATUS: RETIRED (dependency removed from internal certification path)
+# ==============================================================================
+# This artifact authorized U1 under the OLD rule. It is preserved for the audit
+# trail but is NO LONGER a prerequisite for internal certification.
+#
+# Per POL-CERT-AUTH-001, internal certification now requires an immutable
+# certification contract (priv/tiannara/probes/contracts/*.contract.yaml),
+# not a signed human authorization.
+#
+# Human authorization REMAINS mandatory for: production adoption, mutation,
+# external action (C11), constitutional amendments, service bootstrap.
+# The AE-003 two-key adoption mechanism is UNTOUCHED (production safety control).
+# ==============================================================================
+status: "RETIRED"
+retired_reason: "Superseded by POL-CERT-AUTH-001 (certification != authorization)"
+# Two-Key Authorization Artifact for Probe U1: Reality → Knowledge
+# Required before execution per Tiannara Constitutional Governance (C14)
+
+authorization_id: "ASC-U0-U1-2026-08-20"
+probe: "U1 - Reality → Knowledge (Metabolism)"
+audit: "U0 - Unified Substrate & Circulatory Integrity"
+
+# Scope Definition
+scope:
+  capabilities_tested:
+    - C1: "Reality Perception / Ingestion"
+    - C2: "Unified Reality Model"
+    - C3: "Knowledge / Memory"
+    - C4: "Epistemic Reasoning"
+  input_type: "synthetic_observation"
+  external_interfaces: "mocked (no real external systems affected)"
+  production_modification: false
+  observation_instrument_modification: false
+
+# Authorization Parameters
+authorized_by: "HUMAN_OPERATOR"  # Must be replaced with actual operator ID
+authorization_timestamp: null     # To be filled at signing
+valid_until: "2026-08-21T23:59:59Z"  # 24-hour window
+revocable: true
+
+# Constraints
+constraints:
+  - "Read-only investigation principle applies"
+  - "No production code modifications"
+  - "No observation instrument modifications"
+  - "Trace Envelope schema mandatory for all transitions"
+  - "Shadow state detection required"
+  - "Epistemic status markers must be preserved (no guessing)"
+
+# Success Criteria
+success_criteria:
+  - "Single trace_id spans C1→C2→C3→C4"
+  - "Canonical state mutation verified via read-back"
+  - "No competing reality representations diverge"
+  - "All transitions emit conformant trace envelopes"
+  - "Payload hash consistency maintained end-to-end"
+
+# Risk Assessment
+risks:
+  - level: "LOW"
+    description: "Synthetic input only; no real external systems affected"
+    mitigation: "Mocked interfaces; isolated test environment"
+
+# Audit Trail
+audit_trail:
+  created_by: "Qwen3.7"
+  creation_timestamp: "2026-08-20T00:00:00Z"
+  status: "AUTHORIZED"
+  
+# Human Authorization Block (to be completed)
+human_authorization:
+  operator_id: schtickman        # e.g., "lead_architect_01"
+  signature: mock-test-001          # e.g., GPG signature hash, or formal approval token
+  timestamp: "2026-08-20T03:09:00Z"          # e.g., "2026-08-20T14:30:00Z"
+  conditions_accepted: true
+  notes: "Approved for real-module U1 execution."

@@ -5,12 +5,11 @@ defmodule TiannaraWeb.CivilizationAtlasLive do
   """
   use Phoenix.LiveView
 
-  alias Tiannara.Domains.Registry, as: DomReg
+  alias Tiannara.Domains.{CanonicalRegistry, PortfolioBoundary}
   alias Tiannara.KnowledgeGraph.Registry, as: KG
-  alias Tiannara.Discoveries.Program
 
   def mount(_params, _session, socket) do
-    domains = DomReg.all()
+    domains = CanonicalRegistry.all()
     nodes = KG.all()
     discoveries = Enum.filter(nodes, & &1.type == :discovery)
     laws = Enum.filter(nodes, & &1.type == :law)
@@ -134,7 +133,7 @@ defmodule TiannaraWeb.CivilizationAtlasLive do
             <!-- Selected Domain View -->
             <%= if @selected_domain do %>
               <% dom_data = Enum.find(@domains, & &1.id == @selected_domain) %>
-              <% _vector = DomReg.get_portfolio_vector(@selected_domain) %>
+              <% _vector = PortfolioBoundary.get(@selected_domain) %>
               <%= if dom_data do %>
                 <div class="p-6 bg-slate-900/30 border border-slate-800 rounded-xl flex flex-col gap-5">
                   <div class="border-b border-slate-800 pb-2 flex justify-between items-center">
@@ -227,7 +226,7 @@ defmodule TiannaraWeb.CivilizationAtlasLive do
             <%= if @selected_discovery do %>
               <% 
                 # Collect Impacted domains
-                impacted_domains = Enum.map(@selected_discovery.domains || [], &DomReg.get/1) |> Enum.reject(&is_nil/1)
+                impacted_domains = Enum.map(@selected_discovery.domains || [], &CanonicalRegistry.get/1) |> Enum.reject(&is_nil/1)
                 
                 # Fetch children interventions
                 disc_id_str = to_string(@selected_discovery.id)

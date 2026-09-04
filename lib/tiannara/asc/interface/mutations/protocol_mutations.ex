@@ -46,10 +46,10 @@ defmodule Tiannara.ASC.Interface.Mutations.ProtocolMutations do
           :protocol,
           old_protocol,
           new_protocol,
-          "Switched protocol from #{old_protocol.type} to #{new_type}",
-          fitness_before,
-          fitness_after,
-          genome.generation
+          rationale: "Switched protocol from #{old_protocol.type} to #{new_type}",
+          fitness_before: fitness_before,
+          fitness_after: fitness_after,
+          generation: genome.generation
         )
 
         {new_genome, mutation}
@@ -87,10 +87,10 @@ defmodule Tiannara.ASC.Interface.Mutations.ProtocolMutations do
           :protocol,
           old_protocol,
           new_protocol,
-          "Added capability: #{capability}",
-          fitness_before,
-          fitness_after,
-          genome.generation
+          rationale: "Added capability: #{capability}",
+          fitness_before: fitness_before,
+          fitness_after: fitness_after,
+          generation: genome.generation
         )
 
         {new_genome, mutation}
@@ -128,10 +128,10 @@ defmodule Tiannara.ASC.Interface.Mutations.ProtocolMutations do
           :protocol,
           old_protocol,
           new_protocol,
-          "Removed capability: #{capability}",
-          fitness_before,
-          fitness_after,
-          genome.generation
+          rationale: "Removed capability: #{capability}",
+          fitness_before: fitness_before,
+          fitness_after: fitness_after,
+          generation: genome.generation
         )
 
         {new_genome, mutation}
@@ -171,10 +171,10 @@ defmodule Tiannara.ASC.Interface.Mutations.ProtocolMutations do
         :protocol,
         [protocol1, protocol2],
         hybrid,
-        "Created hybrid protocol: #{protocol1.type} + #{protocol2.type}",
-        fitness_before,
-        fitness_after,
-        genome.generation
+        rationale: "Created hybrid protocol: #{protocol1.type} + #{protocol2.type}",
+        fitness_before: fitness_before,
+        fitness_after: fitness_after,
+        generation: genome.generation
       )
 
       {new_genome, mutation}
@@ -216,10 +216,10 @@ defmodule Tiannara.ASC.Interface.Mutations.ProtocolMutations do
         :protocol,
         [protocol1, protocol2],
         merged,
-        "Merged #{protocol1.type} protocols",
-        fitness_before,
-        fitness_after,
-        genome.generation
+        rationale: "Merged #{protocol1.type} protocols",
+        fitness_before: fitness_before,
+        fitness_after: fitness_after,
+        generation: genome.generation
       )
 
       {new_genome, mutation}
@@ -252,10 +252,10 @@ defmodule Tiannara.ASC.Interface.Mutations.ProtocolMutations do
       :protocol,
       nil,
       new_protocol,
-      "Added protocol for use case: #{use_case}",
-      fitness_before,
-      fitness_after,
-      genome.generation
+      rationale: "Added protocol for use case: #{use_case}",
+      fitness_before: fitness_before,
+      fitness_after: fitness_after,
+      generation: genome.generation
     )
 
     {new_genome, mutation}
@@ -290,10 +290,10 @@ defmodule Tiannara.ASC.Interface.Mutations.ProtocolMutations do
           :protocol,
           removed_protocol,
           nil,
-          "Removed protocol #{protocol_id}",
-          fitness_before,
-          fitness_after,
-          genome.generation
+          rationale: "Removed protocol #{protocol_id}",
+          fitness_before: fitness_before,
+          fitness_after: fitness_after,
+          generation: genome.generation
         )
 
         {new_genome, mutation}

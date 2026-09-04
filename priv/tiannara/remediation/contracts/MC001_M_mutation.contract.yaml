@@ -1,0 +1,89 @@
+gate_id: "MC-001-M"
+parent_gate: "MC-001"
+campaign: "Tiannara Remediation + Substrate Integration"
+class: "MUTATION_TRUTHFULNESS"
+mode: "MUTATING"
+created_at: "2026-08-27"
+
+bounded_proposition: >
+  Decommission-only truthfulness mutation. The identified theatrical
+  mathematical capabilities (verify_invariants, solve_ode, gradient_descent,
+  nash_equilibrium) and fabricated mathematical metrics (Physics.metrics,
+  Observatory.Metrics.Mathematics dashboard) are decommissioned so that
+  unavailable capabilities are represented as explicitly unavailable rather
+  than as successful or empirically grounded. No replacement mathematical
+  implementation is introduced. No REAL primitive contract is changed.
+  Affected consumers are remediated atomically. The 20-domain ontology,
+  CanonicalRegistry, and AC-001 boundaries are untouched.
+
+requires:
+  - "MC-001 Reconciliation CERTIFIED"
+  - "AC-001 FINAL CERTIFIED (BOUNDED)"
+  - "ASC-MC-001-M-MUTATION.human.yaml status GRANTED"
+
+verifies:
+  - "formal_verification_explicitly_unavailable"
+  - "ode_solver_explicitly_unavailable"
+  - "gradient_descent_explicitly_unavailable"
+  - "nash_equilibrium_explicitly_unavailable"
+  - "physics_metrics_no_longer_fabricated"
+  - "mathematics_dashboard_explicitly_unavailable"
+  - "consumers_handle_unavailable_without_crash"
+  - "autonomous_discovery_does_not_verify_unavailable"
+  - "no_fake_replacement_math_introduced"
+  - "no_real_primitive_contract_changed"
+  - "canonical_ontology_unchanged"
+
+forbids:
+  - "new_math_implementation"
+  - "symbolic_math"
+  - "theorem_proving"
+  - "ode_solver_replacement"
+  - "formal_verification_replacement"
+  - "game_theory_solver_replacement"
+  - "real_primitive_semantic_change"
+  - "revising_20_domain_ontology"
+  - "modifying_CanonicalRegistry"
+  - "AC-001_boundary_violation"
+  - "broad_refactor"
+  - "silent_unavailable_to_success"
+  - "silent_unavailable_to_failure"
+  - "fabricated_replacement_behavior"
+  - "claiming_PASS_for_unexecuted_checks"
+
+targets:
+  M3:
+    - "Tiannara.Foundations.FormalVerification.verify_invariants/2"
+    - "Tiannara.Foundations.Mathematics.Calculus.solve_ode/3"
+    - "Tiannara.Math.Optimization.gradient_descent/4"
+    - "Tiannara.Math.Optimization.nash_equilibrium/2"
+  M5:
+    - "Tiannara.Domains.Physics.metrics/0"
+    - "Tiannara.Observatory.Metrics.Mathematics.get_dashboard_data/0"
+
+epistemic_semantics:
+  Available: "capability actually executed and produced evidence"
+  Failed: "capability executed but failed"
+  Unavailable: "no truthful implementation exists"
+  Unknown: "evidence insufficient"
+  Simulated: "explicitly simulated, never presented as real"
+
+verdict_space: [CERTIFIED, CERTIFIED_BOUNDED, NOT_CERTIFIED]
+
+certification_boundary: >
+  Certification certifies the decommission-only truthfulness remediation of the
+  authorized M3/M5 targets based on static verification, the passing targeted
+  regression tests, and a clean compile/boot where the environment permitted.
+  If a fresh full-suite regression cannot be executed in the environment, that
+  gap is recorded as NOT_EXECUTED, never as PASS. This gate does NOT certify any
+  new mathematical capability.
+
+constitutional_basis:
+  - "Evidence Before Confidence"
+  - "Uncertainty should never be hidden"
+  - "Truth has priority over confidence"
+  - "Capability must never outpace verification"
+  - "Stable migration > broad rewrite"
+  - "Reuse > duplication"
+
+contract_hash: null

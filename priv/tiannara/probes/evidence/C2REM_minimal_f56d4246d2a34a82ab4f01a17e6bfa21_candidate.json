@@ -1,0 +1,178 @@
+{
+  "mode": "minimal",
+  "chain": {
+    "boot": {
+      "ok": {
+        "candidate": "B_minimal_bootstrap",
+        "canonical_graph_pid": "true",
+        "dets_table_count": 2,
+        "ets_table_count": 46,
+        "event_store_dets_exists": "true",
+        "event_store_dets_path": "./test_data/dets/1923/dets/test/cel_event_store.dets",
+        "event_store_pid": "true",
+        "executive_memory_pid": "true",
+        "legacy_graph_pid": "true",
+        "memory_total_bytes": 50369944,
+        "start_result": {
+          "ok": "#PID<0.1230.0>"
+        },
+        "start_us": 398950,
+        "topology": "EventStore -> ExecutiveMemory -> World.UnifiedRealityGraph -> Graph.UnifiedRealityGraph"
+      }
+    },
+    "canonical_ok": "false",
+    "executive_memory_up": "true",
+    "failure_recovery": {
+      "ok": {
+        "canonical_graph_after_stop": {
+          "ok": {
+            "ok": "post_stop_entity_830db5de"
+          }
+        },
+        "interpretation": "legacy graph: degraded gracefully",
+        "legacy_graph_after_stop": {
+          "ok": {
+            "ok": "post_stop_2d78ba0b"
+          }
+        },
+        "stop_latency_us": 48128,
+        "stop_result": "stopped",
+        "timestamp": "2026-08-20T14:50:32.844000Z"
+      }
+    },
+    "mode": "minimal",
+    "payload_hash": "c395cc68d2fd3d209c6fa796d67c29163df3dc09796e68ed6774c87a48767f7d",
+    "phases": {
+      "c1": {
+        "ok": {
+          "engine": {
+            "ok": {
+              "crav_triggered": "ok",
+              "event": {
+                "category": "runtime",
+                "causal_links": [
+                  {
+                    "confidence": 0.3,
+                    "path": [
+                      "external_reality",
+                      "causal_analysis_pending"
+                    ],
+                    "root_cause": "Causal analysis pending for external_reality"
+                  }
+                ],
+                "confidence": 0.3,
+                "evidence": [
+                  "c395cc68d2fd3d209c6fa796d67c29163df3dc09796e68ed6774c87a48767f7d"
+                ],
+                "id": "ext-ca4c768bc58b313f",
+                "interpretation": "Causal analysis pending for external_reality",
+                "metadata": {
+                  "mission": "C2-REM-001",
+                  "payload_hash": "c395cc68d2fd3d209c6fa796d67c29163df3dc09796e68ed6774c87a48767f7d"
+                },
+                "observation": "{\"content\":{\"files_changed\":[\"docs/audit/U0_capability_matrix_update_post_U5U6.md\"]},\"payload_hash\":\"c2-rem-001-mission-probe\",\"repository\":\"tiannara-mindcache-prosthetic\",\"timestamp\":\"2026-08-20T14:50:32.143000Z\",\"type\":\"external_reality_commit\"}",
+                "recommended_actions": [],
+                "requires_human": "false",
+                "severity": "info",
+                "source": "external_reality",
+                "timestamp": "2026-08-20T14:50:32.206000Z"
+              },
+              "importance": 0.0,
+              "priority": "ignore",
+              "proposal": "nil",
+              "recommendations": []
+            }
+          },
+          "event_id": "ext-ca4c768bc58b313f",
+          "payload_hash": "c395cc68d2fd3d209c6fa796d67c29163df3dc09796e68ed6774c87a48767f7d",
+          "provenance": "Tiannara.Sentinel.Activation.Event.new/1 + Engine.process/1",
+          "timestamp": "2026-08-20T14:50:32.395000Z"
+        }
+      },
+      "c2_canonical": {
+        "ok": {
+          "add_entity": {
+            "ok": "ext_entity_43265bb03d56"
+          },
+          "add_latency_us": 1945,
+          "entity_id": "ext_entity_43265bb03d56",
+          "get_entity": {
+            "ok": {
+              "confidence": 0.8,
+              "domain": "external_reality",
+              "id": "ext_entity_43265bb03d56",
+              "ingested_at": {
+                "calendar": "Elixir.Calendar.ISO",
+                "day": 20,
+                "hour": 14,
+                "microsecond": [
+                  397000,
+                  6
+                ],
+                "minute": 50,
+                "month": 8,
+                "second": 32,
+                "std_offset": 0,
+                "time_zone": "Etc/UTC",
+                "utc_offset": 0,
+                "year": 2026,
+                "zone_abbr": "UTC"
+              },
+              "mission": "C2-REM-001",
+              "payload_hash": "c395cc68d2fd3d209c6fa796d67c29163df3dc09796e68ed6774c87a48767f7d",
+              "provenance": "probe_c2_rem_001",
+              "status": "active",
+              "type": "event",
+              "uncertainty": 0.2,
+              "version": 1
+            }
+          },
+          "get_latency_us": 0,
+          "payload_hash": "c395cc68d2fd3d209c6fa796d67c29163df3dc09796e68ed6774c87a48767f7d",
+          "provenance": "Tiannara.World.UnifiedRealityGraph.add_entity/1 + get_entity/1",
+          "stats": {
+            "ok": {
+              "entities_with_provenance": 0,
+              "entity_count": 1,
+              "healthy": "true",
+              "relationship_count": 0
+            }
+          },
+          "timestamp": "2026-08-20T14:50:32.397000Z"
+        }
+      },
+      "c2_legacy": {
+        "ok": {
+          "add_latency_us": 142131,
+          "add_node": {
+            "ok": "legacy_node_9955e20fc7b7"
+          },
+          "event_store_count": {
+            "ok": 29
+          },
+          "executive_memory_count": {
+            "ok": 1
+          },
+          "lineage_events": {
+            "error": "exit :exit: {{%Protocol.UndefinedError{protocol: Enumerable, value: {:continue}, description: \"\"}, [{Enumerable, :impl_for!, 1, [file: ~c\"lib/enum.ex\", line: 1]}, {Enumerable, :reduce, 3, [file: ~c\"lib/enum.ex\", line: 166]}, {Enum, :map, 2, [file: ~c\"lib/enum.ex\", line: 4515]}, {Enum, :sort_by, 3, [file: ~c\"lib/enum.ex\", line: 3363]}, {Tiannara.CEL.Services.ExecutiveMemory, :handle_call, 3, [file: ~c\"lib/tiannara/cel/services/executive_memory.ex\", line: 131]}, {:gen_server, :try_handle_call, 4, [file: ~c\"gen_server.erl\", line: 2470]}, {:gen_server, :handle_msg, 3, [file: ~c\"gen_server.erl\", line: 2499]}, {:proc_lib, :init_p_do_apply, 3, [file: ~c\"proc_lib.erl\", line: 333]}]}, {GenServer, :call, [Tiannara.CEL.Services.ExecutiveMemory, {:lineage, \"c395cc68d2fd3d209c6fa796d67c29163df3dc09796e68ed6774c87a48767f7d\"}, 5000]}}"
+          },
+          "node_id": "legacy_node_9955e20fc7b7",
+          "payload_hash": "c395cc68d2fd3d209c6fa796d67c29163df3dc09796e68ed6774c87a48767f7d",
+          "provenance": "Tiannara.Graph.UnifiedRealityGraph.add_node/3 -> ExecutiveMemory.record_event/4 -> EventStore.append/2",
+          "timestamp": "2026-08-20T14:50:32.771000Z"
+        }
+      },
+      "c3": {
+        "reason": "canonical C2 mutation failed; no shadow state created",
+        "skipped": "true"
+      }
+    },
+    "resources": {
+      "dets_table_count": 2,
+      "ets_table_count": 46,
+      "memory_total_bytes": 50598784
+    },
+    "status": "complete"
+  },
+  "out_dir": "C:\\Users\\user\\Tiannara\\Tiannara-MindCache-Prosthetic\\priv\\tiannara\\probes\\evidence\\c2_mission_d6892a99"
+}

@@ -1,0 +1,13 @@
+{
+  "max_size": 1,
+  "max_depth": 0,
+  "avg_size": 1.0,
+  "avg_depth": 0.0,
+  "avg_amplification": 0.13,
+  "max_amplification": 0.13,
+  "cascade_count": 45,
+  "total_positive_deltas": 0,
+  "total_negative_deltas": 45,
+  "unique_nodes_affected": 45,
+  "network_coverage_pct": 15.0
+}

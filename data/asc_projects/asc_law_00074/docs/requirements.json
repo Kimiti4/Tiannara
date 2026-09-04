@@ -1,0 +1,32 @@
+{
+  "constraints": [],
+  "invariants": [
+    {
+      "id": "inv_299",
+      "domain": "security",
+      "statement": "Roles cannot have circular dependencies",
+      "negation_form": "Roles cannot have circular dependencies",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Roles cannot have circular dependencies"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap_300",
+      "name": "check permissions before",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "check",
+      "subject": "permissions before",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:24:21.977000Z"
+}

@@ -1,0 +1,80 @@
+gate: MC-004-A0
+name: domain_physics_reconciliation
+campaign: Tiannara Remediation + Substrate Integration
+phase: RECONCILIATION_ONLY
+mode: READ_ONLY
+date: 2026-08-31
+predecessors:
+  - MC-003-M (CERTIFIED_BOUNDED)
+  - MC-003-A0 (CERTIFIED_RECONCILIATION_ONLY)
+  - MC-002-M (CERTIFIED_BOUNDED)
+  - MC-001-M (CERTIFIED_BOUNDED)
+
+scope:
+  focus: canonical_physics_domain
+  registry: Tiannara.Domains.CanonicalRegistry
+  domain_module: Tiannara.Domains.Physics
+  subsystem:
+    - lib/tiannara/physics/** (OPC_NDE_IRD_TWP)
+  substrates_audited:
+    - math/probability.ex
+    - math/statistics.ex
+    - math/graphs.ex
+    - lib/tiannara/numerics.ex
+    - math/optimization.ex
+    - foundations/mathematics/calculus.ex
+    - foundations/formal_verification.ex
+    - foundations/information_theory.ex
+    - lib/tiannara/logic/**
+  consumers_audited:
+    - lib/tiannara/asc/autonomous_discovery.ex
+    - lib/tiannara/domains/research_director.ex
+    - lib/tiannara/domains/canonical_registry.ex
+    - liveview dashboards (registry metadata only)
+
+boundaries:
+  mutation_allowed: false
+  real_execution_enabled_flag_unchanged: false
+  live_experiment_execution_allowed: false
+  physics_capability_certification: false
+  new_math_capability_implementation: false
+  subsystem_decommission: false
+  all_20_domains_remediation: false
+  modify_prior_gate_artifacts: false
+
+truth_classes:
+  - REAL
+  - PARTIAL
+  - THEATRICAL
+  - FABRICATED
+  - UNKNOWN
+  - NO
+
+verification:
+  verifier: priv/tiannara/remediation/verifiers/MC004_A0_domain_physics_reconciliation.py
+  verifier_mode: static_evidence
+  required_verdict: CERTIFIED_RECONCILIATION
+  result_artifact: priv/tiannara/remediation/results/MC004_A0_result.json
+  flags:
+    mutation_executed: false
+    pilot_executed: false
+    real_execution_enabled: false
+    authorization_required_for_mutation: true
+    authorization_required_for_live_pilot: true
+
+authorization:
+  required_for_mutation: true
+  required_for_live_pilot: true
+  this_gate_status: GRANTED_READ_ONLY
+  operator: c14_ac
+
+constitutional_question: Can Tiannara today produce one bounded Physics result whose computation, execution, observation, provenance, and verification status are all demonstrably truthful and independently reproducible?
+
+settlement:
+  sequence:
+    - MC-004-A0
+    - HUMAN_REVIEW
+    - MC-004-M (authorized mutation)
+    - MC-004-P (bounded pilot execution)
+    - INDEPENDENT_VERIFICATION
+    - MC-004_CERTIFICATION

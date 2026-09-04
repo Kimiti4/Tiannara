@@ -1,0 +1,70 @@
+[
+  {
+    "id": "tc_145",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Stock quantity cannot be negative",
+    "source_ref": "inv_141",
+    "test_module_name": "StockQuantityCannotInvariantTest",
+    "test_function_name": "property Stock quantity cannot be negative",
+    "expected_behavior": "Stock quantity cannot be negative",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "general",
+      "generator": "StreamData.term()",
+      "assertion": "Stock quantity cannot be negative",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "general"
+    ],
+    "source_type": "invariant"
+  },
+  {
+    "id": "tc_146",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: add products inventory",
+    "source_ref": "cap_142",
+    "test_module_name": "AddProductsInventoryTest",
+    "test_function_name": "test add products inventory succeeds with valid inputs",
+    "expected_behavior": "add products inventory completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_147",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: update stock quantities",
+    "source_ref": "cap_143",
+    "test_module_name": "UpdateStockQuantitiesTest",
+    "test_function_name": "test update stock quantities succeeds with valid inputs",
+    "expected_behavior": "update stock quantities completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_148",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: list low-stock items",
+    "source_ref": "cap_144",
+    "test_module_name": "ListLowStockTest",
+    "test_function_name": "test list low-stock items succeeds with valid inputs",
+    "expected_behavior": "list low-stock items completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

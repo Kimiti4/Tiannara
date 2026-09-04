@@ -1,0 +1,88 @@
+# ==============================================================================
+# TIANNARA C14 AUTHORIZATION ARTIFACT: EVOLUTIONARY EXPERIMENT
+# ==============================================================================
+# Mission:    ASC-AE-004 — Observability Contract Fidelity (F12 → F9)
+# Predecessor: U0 Full Closed-Loop Certification (QUALIFIED_PARTIAL)
+# ==============================================================================
+
+mission_id: "ASC-AE-004"
+status: "AUTHORIZED" # Must be changed to "AUTHORIZED" by human
+
+# ------------------------------------------------------------------------------
+# 1. MISSION OBJECTIVE (Falsifiable & Narrowly Scoped)
+# ------------------------------------------------------------------------------
+objective: >
+  Determine whether the system's health-observation layer faithfully represents 
+  actual subsystem health, and whether correcting the DETS contract (F12) 
+  eliminates the false EOS emergency (F9) without degrading fault sensitivity.
+
+# ------------------------------------------------------------------------------
+# 2. STRICT SCOPE & BOUNDARIES
+# ------------------------------------------------------------------------------
+scope:
+  permitted_targets:
+    - "F12: DETS health reporting contract (EventStore.healthy?/0, ExecutiveMemory.health/0)"
+    - "F9: EOS boot/emergency classification logic"
+  explicitly_forbidden:
+    - "F10: CollapsePredictor (Epistemic grounding deferred)"
+    - "F11: CIS.Supervisor production residency (Deferred until telemetry is trusted)"
+    - "F8: DETS lineage retrieval (Deferred; U8 proved Recovery Honesty despite it)"
+    - "AE-003: Production adoption state (Untouched)"
+    - "C11: External egress (Deferred)"
+
+# ------------------------------------------------------------------------------
+# 3. MISSION GATES (The Causal Discrimination Protocol)
+# ------------------------------------------------------------------------------
+gates:
+  Phase_A_Characterization:
+    description: "Reproduce F12/F9 on healthy topology. Capture raw :dets.info/1 shapes."
+    requirement: "Establish exact expected vs. current return shapes without modifying code."
+  
+  Phase_B_Candidate_Generation:
+    description: "Generate isolated candidates."
+    candidates:
+      - "baseline (untouched)"
+      - "candidate_f12_contract_only (fix match? pattern)"
+      - "candidate_f12_plus_eos_adjustment (if Phase C proves F9 has independent root cause)"
+  
+  Phase_C_Causal_Discrimination:
+    description: "Verify F12 causes F9, and that the fix improves specificity WITHOUT losing sensitivity."
+    tests:
+      - name: "Specificity Test (Healthy State)"
+        condition: "Topology fully healthy"
+        baseline_expected: "Health? = false, EOS = Emergency (F9 reproduced)"
+        candidate_expected: "Health? = true, EOS = Healthy (F9 resolved)"
+      - name: "Sensitivity Test (Injected Fault)"
+        condition: "Kill DETS/EventStore process"
+        baseline_expected: "Health? = false, EOS = Emergency"
+        candidate_expected: "Health? = false, EOS = Emergency (Must NOT silence the alarm)"
+
+# ------------------------------------------------------------------------------
+# 4. ADOPTION GATE (M6 Equivalent)
+# ------------------------------------------------------------------------------
+no_automatic_adoption:
+  rule: >
+    This authorization permits ISOLATED EXPERIMENTATION only. 
+    If a candidate passes Phase C, it must generate an EVIDENCE REPORT.
+    Merging to production requires a SEPARATE C14 authorization artifact 
+    (ASC-AE-004-ADOPTION.human.yaml).
+
+# ------------------------------------------------------------------------------
+# 5. HUMAN AUTHORIZATION BLOCK
+# ------------------------------------------------------------------------------
+human_authorization:
+  operator_id: schtickman
+  signature: f9/f12          # Tier 1 or Tier 3 per DEC-U0-U1-SIG-TIER
+  timestamp: 8-20-2026T2322
+  conditions_accepted: true
+  notes: AE-004
+
+valid_until:  8-27-2026T2322         # e.g., 14-day experiment window
+
+# ------------------------------------------------------------------------------
+# 6. AUDIT TRAIL
+# ------------------------------------------------------------------------------
+audit_trail:
+  created_by: "tiannara_os"
+  creation_timestamp: "2026-08-21T00:00:00Z"
+  constitutional_basis: "rules.md -> Evidence Before Confidence / Verification First"

@@ -186,7 +186,7 @@ defmodule Tiannara.Topology.ACF.LawManager do
   @impl true
   def handle_call({:delete_law, law_id}, _from, state) do
     case :ets.lookup(:conservation_laws, law_id) do
-      [{^law_id, law_data}] ->
+      [{^law_id, _law_data}] ->
         :ets.delete(:conservation_laws, law_id)
         
         record_law_history(law_id, :deleted, %{})

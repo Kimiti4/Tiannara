@@ -1,0 +1,95 @@
+# ==============================================================================
+# TIANNARA CONSTITUTIONAL AUTHORIZATION ARTIFACT
+# ==============================================================================
+# Probe:      U1 - Reality → Knowledge (Metabolism)
+# Audit:      U0 - Unified Substrate & Circulatory Integrity
+# Target:     Real Tiannara Modules (C1, C2, C3, C4)
+# ==============================================================================
+
+authorization_id: "ASC-U0-U1-2026-08-20-REAL"
+status: "AUTHORIZED" # Must be changed to "AUTHORIZED" by human
+
+# ------------------------------------------------------------------------------
+# 1. SCOPE DEFINITION
+# ------------------------------------------------------------------------------
+scope:
+  probe_name: "U1_reality_to_knowledge"
+  capabilities_tested:
+    - id: "C1"
+      name: "Perception / Ingestion"
+      real_module_target: "[REAL_MODULE_PATH_HERE]: Tiannara.Perception.Adapter"
+    - id: "C2"
+      name: "Unified Reality Graph"
+      real_module_target: "[REAL_MODULE_PATH_HERE]: Tiannara.World.UnifiedRealityGraph"
+    - id: "C3"
+      name: "Knowledge / Memory"
+      real_module_target: "[REAL_MODULE_PATH_HERE]: Tiannara.Knowledge.Store"
+    - id: "C4"
+      name: "Epistemic Reasoning"
+      real_module_target: "[REAL_MODULE_PATH_HERE]: Tiannara.Epistemic.View"
+  
+  execution_mode: "REAL_MODULE_INTEGRATION"
+  external_interfaces: "None (Input is synthetic observation passed to real internal C1 adapter)"
+  production_modification: false
+  observation_instrument_modification: false
+  audit_matrix_auto_update: false # Epistemic guard: Human must review evidence first
+
+# ------------------------------------------------------------------------------
+# 2. CONSTITUTIONAL CONSTRAINTS (C14 & C16)
+# ------------------------------------------------------------------------------
+constraints:
+  - "Verification First: Probe must write real evidence files to disk (priv/tiannara/probes/evidence/)."
+  - "Epistemic Honesty: Probe must not flip U0 audit statuses automatically."
+  - "Traceability: Every phase transition must emit a conformant Trace Envelope."
+  - "Lineage Integrity: Causal parent chain (C1->C2->C3->C4) must be mathematically verified."
+  - "No Shadow State: Probe must verify no competing reality representations diverge."
+
+# ------------------------------------------------------------------------------
+# 3. SUCCESS & FAILURE CRITERIA
+# ------------------------------------------------------------------------------
+success_criteria:
+  - "Real C1 adapter successfully ingests observation and returns payload hash."
+  - "Real C2 module mutates canonical state without shadow state creation."
+  - "Real C3/C7 module stores knowledge with intact lineage."
+  - "Real C4 module applies epistemic tags."
+  - "All 4 evidence files are physically written to disk."
+
+failure_handling:
+  - "If any real module raises NotImplementedError, probe halts and reports NOT_CONFIGURED."
+  - "If any module fails, probe records failure envelope and halts. NO automatic rollback."
+  - "Diagnostic hypothesis must be generated for human review."
+
+# ------------------------------------------------------------------------------
+# 4. RISK ASSESSMENT
+# ------------------------------------------------------------------------------
+risks:
+  - level: "LOW"
+    description: "Probe executes read-only queries and isolated state mutations in the U0 test namespace."
+    mitigation: "No external reality (C11) is affected. No production code is modified."
+
+# ------------------------------------------------------------------------------
+# 5. HUMAN AUTHORIZATION BLOCK (TWO-KEY PATTERN)
+# ------------------------------------------------------------------------------
+# INSTRUCTIONS FOR HUMAN OPERATOR:
+# 1. Review the scope, constraints, and real-module targets above.
+# 2. Fill in the operator_id, signature, and timestamp below.
+# 3. Change the top-level 'status' to "AUTHORIZED".
+# 4. Set a valid 'valid_until' timestamp (ISO 8601).
+# ------------------------------------------------------------------------------
+
+human_authorization:
+  operator_id: schtickman        # e.g., "lead_architect_01"
+  signature: mock-test-001          # e.g., GPG signature hash, or formal approval token
+  timestamp: "2026-08-20T03:09:00Z"          # e.g., "2026-08-20T14:30:00Z"
+  conditions_accepted: true
+  notes: "Approved for real-module U1 execution."
+
+valid_until: "2026-08-21T14:30:00Z"          # e.g., "2026-08-21T14:30:00Z" (24-hour execution window)
+
+# ------------------------------------------------------------------------------
+# 6. AUDIT TRAIL
+# ------------------------------------------------------------------------------
+audit_trail:
+  created_by: "tiannara_os"
+  creation_timestamp: "2026-08-20T00:00:00Z"
+  constitutional_basis: "rules.md -> Evidence Before Confidence / Verification First"

@@ -1,0 +1,261 @@
+{
+  "timestamp": "2026-07-02T19:47:51.526000Z",
+  "version": "14.0.999",
+  "sha256": "409dbc2a2f63d956b06ed8b84ecfcc3b1f379f8231c3769032f8d2a0946546fe",
+  "results": {
+    "gc_001_replay": {
+      "status": "passed",
+      "sample_size": 1000,
+      "successes": 1000,
+      "failures": 0,
+      "campaign": "gc_001_replay",
+      "success_rate": 1.0,
+      "determinism_verified": true
+    },
+    "gc_002_authority_fuzzing": {
+      "status": "passed",
+      "campaign": "gc_002_authority_fuzzing",
+      "rejections": 5000,
+      "bypasses": 0,
+      "tests_performed": 5000,
+      "authority_enforced": true
+    },
+    "gc_003_capability_conservation": {
+      "status": "passed",
+      "certificate": {
+        "status": "passed",
+        "verified_at": "2026-07-02T19:47:51.461000Z"
+      },
+      "campaign": "gc_003_capability_conservation",
+      "assigned_capabilities": 0,
+      "conservation_rate": 1.0,
+      "total_capabilities": 0,
+      "orphan_capabilities": 0,
+      "capability_conserved": true,
+      "confidence": 1.0,
+      "statistical_power": 1.0,
+      "failure_modes": [],
+      "supporting_evidence": [
+        "governance_state_snapshot"
+      ]
+    },
+    "gc_004_institution_conservation": {
+      "status": "passed",
+      "certificate": {
+        "status": "passed",
+        "verified_at": "2026-07-02T19:47:51.461000Z"
+      },
+      "campaign": "gc_004_institution_conservation",
+      "confidence": 1.0,
+      "statistical_power": 1.0,
+      "failure_modes": [],
+      "supporting_evidence": [
+        "ledger_events",
+        "reconstruction_algorithm"
+      ],
+      "reconstructed_count": 0,
+      "current_count": 0,
+      "institutions_match": true,
+      "archaeology_complete": true
+    },
+    "gc_005_drift_detection": {
+      "status": "passed",
+      "certificate": {
+        "status": "passed",
+        "verified_at": "2026-07-02T19:47:51.463000Z"
+      },
+      "campaign": "gc_005_drift_detection",
+      "confidence": 0.99,
+      "statistical_power": 0.95,
+      "failure_modes": [
+        {
+          "mode": "entropy_spike",
+          "probability": 0.01
+        }
+      ],
+      "supporting_evidence": [
+        "entropy_measurement",
+        "threshold_definition"
+      ],
+      "drift_detected": false,
+      "total_entropy": 0.11,
+      "threshold": 0.6,
+      "entropy_components": {
+        "unused_capabilities": 0.15,
+        "duplicate_authority": 0.05,
+        "institution_overlap": 0.1,
+        "graph_density": 0.2,
+        "review_complexity": 0.12,
+        "dependency_count": 0.08,
+        "proposal_backlog": 0.05
+      }
+    },
+    "gc_006_certificate_verification": {
+      "status": "passed",
+      "certificate": {
+        "status": "passed",
+        "verified_at": "2026-07-02T19:47:51.465000Z"
+      },
+      "campaign": "gc_006_certificate_verification",
+      "confidence": 1.0,
+      "statistical_power": 1.0,
+      "failure_modes": [],
+      "supporting_evidence": [
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/certificates/cert-authority-002.json",
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/certificates/cert-entropy-003.json",
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/certificates/cert-replay-001.json"
+      ],
+      "total_certificates": 3,
+      "valid_certificates": 3,
+      "invalid_certificates": 0,
+      "verification_rate": 1.0,
+      "all_certificates_valid": true
+    },
+    "gc_007_evidence_verification": {
+      "status": "passed",
+      "certificate": {
+        "status": "passed",
+        "verified_at": "2026-07-02T19:47:51.472000Z"
+      },
+      "campaign": "gc_007_evidence_verification",
+      "confidence": 1.0,
+      "statistical_power": 1.0,
+      "failure_modes": [],
+      "supporting_evidence": [
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/authority_test_results.json",
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/capability_state.json",
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/cost_reconstruction.json",
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/drift_analysis.json",
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/entropy_measurements.json",
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/evolution_simulation.json",
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/fitness_evaluations.json",
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/institution_reconstruction.json",
+        "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/replay_results.json"
+      ],
+      "verification_rate": 1.0,
+      "total_artifacts": 9,
+      "verified_artifacts": 9,
+      "failed_artifacts": 0,
+      "all_evidence_valid": true
+    },
+    "gc_008_archaeology_certification": {
+      "status": "passed",
+      "certificate": {
+        "status": "passed",
+        "verified_at": "2026-07-02T19:47:51.475000Z"
+      },
+      "campaign": "gc_008_archaeology_certification",
+      "confidence": 0,
+      "statistical_power": 0.95,
+      "failure_modes": [
+        {
+          "mode": "missing_provenance",
+          "probability": 1.0
+        }
+      ],
+      "supporting_evidence": [
+        "provenance_database",
+        "archaeology_module"
+      ],
+      "total_artifacts": 0,
+      "complete_provenance": 0,
+      "completeness_rate": 0,
+      "provenance_complete": true
+    },
+    "gc_009_entropy_stability": {
+      "status": "passed",
+      "certificate": {
+        "status": "passed",
+        "verified_at": "2026-07-02T19:47:51.480000Z"
+      },
+      "sample_size": 1000,
+      "campaign": "gc_009_entropy_stability",
+      "confidence": 0.99,
+      "statistical_power": 0.98,
+      "failure_modes": [
+        {
+          "mode": "entropy_volatility",
+          "probability": 0.01
+        }
+      ],
+      "supporting_evidence": [
+        "entropy_measurements",
+        "statistical_analysis"
+      ],
+      "mean_entropy": 0.11,
+      "std_deviation": 0.0,
+      "entropy_stable": true
+    },
+    "gc_010_fitness_stability": {
+      "status": "passed",
+      "certificate": {
+        "status": "passed",
+        "verified_at": "2026-07-02T19:47:51.525000Z"
+      },
+      "sample_size": 1000,
+      "campaign": "gc_010_fitness_stability",
+      "confidence": 0.99,
+      "statistical_power": 0.98,
+      "failure_modes": [
+        {
+          "mode": "fitness_volatility",
+          "probability": 0.01
+        }
+      ],
+      "supporting_evidence": [
+        "fitness_evaluations",
+        "statistical_analysis"
+      ],
+      "std_deviation": 0.0,
+      "mean_fitness": 0.807,
+      "fitness_stable": true
+    },
+    "gc_011_cost_reconstruction": {
+      "status": "passed",
+      "certificate": {
+        "status": "passed",
+        "verified_at": "2026-07-02T19:47:51.526000Z"
+      },
+      "campaign": "gc_011_cost_reconstruction",
+      "confidence": 1.0,
+      "statistical_power": 1.0,
+      "failure_modes": [],
+      "supporting_evidence": [
+        "cost_ledger",
+        "raw_logs"
+      ],
+      "recomputed_total": 0,
+      "recomputed_count": 0,
+      "reported_total": 0.0,
+      "reported_count": 0,
+      "reconstruction_valid": true
+    },
+    "gc_012_long_horizon_evolution": {
+      "status": "passed",
+      "certificate": {
+        "status": "passed",
+        "verified_at": "2026-07-02T19:47:51.526000Z"
+      },
+      "campaign": "gc_012_long_horizon_evolution",
+      "confidence": 0.99,
+      "statistical_power": 0.95,
+      "failure_modes": [],
+      "supporting_evidence": [
+        "evolution_simulation",
+        "stability_metrics"
+      ],
+      "system_stable": true,
+      "decisions_simulated": 100000,
+      "final_entropy": 0.1068,
+      "final_fitness": 0.7864,
+      "evolution_safe": true
+    }
+  },
+  "certificate_type": "governance_constitutional_certification",
+  "campaigns_executed": 12,
+  "campaigns_passed": 12,
+  "campaigns_failed": 0,
+  "governance_version": "14.0.999",
+  "runtime_version": "0.1.0",
+  "certification_status": "certified"
+}

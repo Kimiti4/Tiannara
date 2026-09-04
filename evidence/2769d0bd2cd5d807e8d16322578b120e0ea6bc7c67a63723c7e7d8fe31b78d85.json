@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-07-02T16:08:16.615000Z",
+  "signature": null,
+  "campaign_id": "GV-010",
+  "content": {
+    "data": {
+      "success": true
+    },
+    "measurements": {
+      "duration_ms": 0,
+      "execution_success": true,
+      "records_processed": 0
+    },
+    "logs": [],
+    "timings": {
+      "start_time": 1783008496599,
+      "end_time": 1783008496615,
+      "duration_ms": 16
+    }
+  },
+  "content_hash": null,
+  "campaign_version": "1.0.0",
+  "input_fingerprint": "a03df4678906ec7d1a2d8b2af894ad6b1f3358baa7798276157e924156803f41",
+  "output_fingerprint": "80d2252b04c4809c2291009084ad3da991c8bb8a12c68a32998d1533ce130b4e"
+}

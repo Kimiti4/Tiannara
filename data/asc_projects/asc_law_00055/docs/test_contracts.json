@@ -1,0 +1,40 @@
+[
+  {
+    "id": "tc_225",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Alerts must include context",
+    "source_ref": "inv_222",
+    "test_module_name": "AlertsMustIncludeInvariantTest",
+    "test_function_name": "property Alerts must include context",
+    "expected_behavior": "Alerts must NOT include context",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "general",
+      "generator": "StreamData.term()",
+      "assertion": "Alerts must NOT include context",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "general"
+    ],
+    "source_type": "invariant"
+  },
+  {
+    "id": "tc_226",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: alert rules",
+    "source_ref": "cap_223",
+    "test_module_name": "AlertRulesTest",
+    "test_function_name": "test alert rules succeeds with valid inputs",
+    "expected_behavior": "alert rules completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

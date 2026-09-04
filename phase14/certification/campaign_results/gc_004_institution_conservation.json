@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "certificate": {
+    "status": "passed",
+    "verified_at": "2026-07-02T20:06:58.752000Z"
+  },
+  "confidence": 1.0,
+  "campaign": "gc_004_institution_conservation",
+  "failure_modes": [],
+  "statistical_power": 1.0,
+  "supporting_evidence": [
+    "ledger_events",
+    "reconstruction_algorithm"
+  ],
+  "archaeology_complete": true,
+  "current_count": 0,
+  "institutions_match": true,
+  "reconstructed_count": 0
+}

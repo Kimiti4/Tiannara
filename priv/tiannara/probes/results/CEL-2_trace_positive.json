@@ -1,0 +1,172 @@
+{
+  "delegated": true,
+  "deterministic": true,
+  "objective": {
+    "id": "4ab4810bac4ce4e2",
+    "task": "perform_bayesian_update"
+  },
+  "trace": [
+    {
+      "causal_parent": {
+        "phase": null,
+        "trace_id": null
+      },
+      "payload": {
+        "id": "4ab4810bac4ce4e2",
+        "task": "perform_bayesian_update"
+      },
+      "phase": "objective",
+      "trace_id": "bbeb6ed4877bfc09"
+    },
+    {
+      "causal_parent": {
+        "phase": "objective",
+        "trace_id": "bbeb6ed4877bfc09"
+      },
+      "payload": {
+        "candidates": [
+          {
+            "found": true,
+            "provider": "constitutional_mathematics"
+          }
+        ],
+        "found": true
+      },
+      "phase": "registry_query",
+      "trace_id": "b12aa66a60401d61"
+    },
+    {
+      "causal_parent": {
+        "phase": "registry_query",
+        "trace_id": "b12aa66a60401d61"
+      },
+      "payload": {
+        "candidates": [
+          {
+            "found": true,
+            "provider": "constitutional_mathematics"
+          }
+        ],
+        "from_live_registry": true
+      },
+      "phase": "candidate_set",
+      "trace_id": "50b8dd326a7841a7"
+    },
+    {
+      "causal_parent": {
+        "phase": "candidate_set",
+        "trace_id": "50b8dd326a7841a7"
+      },
+      "payload": {
+        "healthy": true
+      },
+      "phase": "health_check",
+      "trace_id": "6cc71f3aefae199d"
+    },
+    {
+      "causal_parent": {
+        "phase": "health_check",
+        "trace_id": "6cc71f3aefae199d"
+      },
+      "payload": {
+        "owner": "Tiannara.Math.Probability"
+      },
+      "phase": "ownership_check",
+      "trace_id": "e0b23eef95f24177"
+    },
+    {
+      "causal_parent": {
+        "phase": "ownership_check",
+        "trace_id": "e0b23eef95f24177"
+      },
+      "payload": {
+        "deps_ok": true
+      },
+      "phase": "dependency_check",
+      "trace_id": "ddbce632bd904845"
+    },
+    {
+      "causal_parent": {
+        "phase": "dependency_check",
+        "trace_id": "ddbce632bd904845"
+      },
+      "payload": {
+        "interface": "bayes_update/3"
+      },
+      "phase": "interface_validation",
+      "trace_id": "4b58b68e2322e927"
+    },
+    {
+      "causal_parent": {
+        "phase": "interface_validation",
+        "trace_id": "4b58b68e2322e927"
+      },
+      "payload": {
+        "derived_from": "registry_query",
+        "provider": "constitutional_mathematics"
+      },
+      "phase": "selection",
+      "trace_id": "53bc5972b021036a"
+    },
+    {
+      "causal_parent": {
+        "phase": "selection",
+        "trace_id": "53bc5972b021036a"
+      },
+      "payload": {
+        "consulted": true,
+        "decision": "allow"
+      },
+      "phase": "governance_gate",
+      "trace_id": "4a308a67edea47cf"
+    },
+    {
+      "causal_parent": {
+        "phase": "governance_gate",
+        "trace_id": "4a308a67edea47cf"
+      },
+      "payload": {
+        "implementation": "Tiannara.Math.Probability.bayes_update/3",
+        "status": "EXECUTED"
+      },
+      "phase": "delegation",
+      "trace_id": "f545aa1d8bf2f0ff"
+    },
+    {
+      "causal_parent": {
+        "phase": "delegation",
+        "trace_id": "f545aa1d8bf2f0ff"
+      },
+      "payload": {
+        "deterministic": true,
+        "result": 2.25
+      },
+      "phase": "math_operation",
+      "trace_id": "bfc4d9baacdd92df"
+    },
+    {
+      "causal_parent": {
+        "phase": "math_operation",
+        "trace_id": "bfc4d9baacdd92df"
+      },
+      "payload": {
+        "deterministic": true,
+        "objective_id": "4ab4810bac4ce4e2",
+        "structured": true
+      },
+      "phase": "result",
+      "trace_id": "96cd7faa7eb67de0"
+    },
+    {
+      "causal_parent": {
+        "phase": "result",
+        "trace_id": "96cd7faa7eb67de0"
+      },
+      "payload": {
+        "clean": true
+      },
+      "phase": "pollution_check",
+      "trace_id": "c26337923179c0f1"
+    }
+  ]
+}

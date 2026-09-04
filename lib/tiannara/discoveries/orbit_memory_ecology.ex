@@ -5,13 +5,8 @@ defmodule Tiannara.REA.OrbitMemoryEcology do
   """
 
   alias Tiannara.REA.OrbitMemory
-  alias Tiannara.REA.OrbitMemory.Synthesis
   alias Tiannara.REA.OrbitMemory.VSA
 
-  @doc """
-  Runs evolutionary selection sweeps on a population of civilizations with different OMT vectors.
-  Fitter memories (measured by MPP) replicate and spread while weaker ones undergo decay.
-  """
   @doc """
   Runs evolutionary selection sweeps on a population of civilizations with different OMT vectors.
   Fitter memories (measured by canonical fitness: 0.4 * MPP + 0.3 * MES + 0.3 * GSI) replicate and spread.
@@ -115,7 +110,7 @@ defmodule Tiannara.REA.OrbitMemoryEcology do
 
   defp do_clustering([], clusters, _threshold), do: clusters
   defp do_clustering([item | rest], clusters, threshold) do
-    {id, vec} = item
+    {_id, vec} = item
     
     # Find matching cluster
     matched_idx =

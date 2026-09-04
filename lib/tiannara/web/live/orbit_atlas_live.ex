@@ -6,7 +6,6 @@ defmodule TiannaraWeb.OrbitAtlasLive do
   use Phoenix.LiveView
 
   alias Tiannara.OrbitAtlas
-  alias Tiannara.OrbitEngineering
 
   def mount(_params, _session, socket) do
     # Fetch computed stats

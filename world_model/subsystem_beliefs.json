@@ -1,0 +1,36 @@
+{
+  "beliefs": [
+    {
+      "subsystem": "CIS",
+      "health": 0.85,
+      "bottlenecks": ["collapse predictor accuracy"],
+      "known_failures": ["autoimmune overreaction"],
+      "confidence": 0.75,
+      "last_updated": "2026-06-10"
+    },
+    {
+      "subsystem": "GRCC",
+      "health": 0.90,
+      "bottlenecks": ["specialization bias field drift"],
+      "known_failures": ["monoculture formation"],
+      "confidence": 0.80,
+      "last_updated": "2026-06-10"
+    },
+    {
+      "subsystem": "AEO",
+      "health": 0.88,
+      "bottlenecks": ["planner deadlock in complex multi-agent tasks"],
+      "known_failures": ["task destruction during re-routing"],
+      "confidence": 0.70,
+      "last_updated": "2026-06-10"
+    },
+    {
+      "subsystem": "OED",
+      "health": 0.95,
+      "bottlenecks": ["OAVL validation latency"],
+      "known_failures": ["false positive validation"],
+      "confidence": 0.90,
+      "last_updated": "2026-06-10"
+    }
+  ]
+}

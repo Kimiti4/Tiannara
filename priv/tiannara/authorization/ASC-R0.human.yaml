@@ -1,0 +1,82 @@
+# ==============================================================================
+# TIANNARA C14 AUTHORIZATION ARTIFACT: REMEDIATION GATE R0
+# ==============================================================================
+# Campaign:   Remediation + Substrate Integration (R0 -> AC-001 -> MC-001 ->
+#             MC-002 -> MC-003 -> MC-004)
+# Gate:       R0 — Evidence Truth / Fabricated Result Quarantine
+# Predecessor: Remediation Architecture & Epistemic Foundation Certification
+#             (PROCEED TO REMEDIATION; baseline 3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6)
+# Basis:      Human ratification of locked six-gate sequence in operator session
+# ==============================================================================
+
+mission_id: "ASC-R0"
+status: "AUTHORIZED"
+
+# ------------------------------------------------------------------------------
+# 1. MISSION OBJECTIVE
+# ------------------------------------------------------------------------------
+objective: >
+  Quarantine the verified fabricated-experiment-result heartbeat so that no
+  synthetic or random outcome can enter persistent scientific memory, and
+  establish explicit execution-mode provenance (real_execution | simulation |
+  synthetic_fixture | imported_evidence | unknown) that downstream
+  certification paths reject when absent or non-real.
+
+# ------------------------------------------------------------------------------
+# 2. STRICT SCOPE & BOUNDARIES
+# ------------------------------------------------------------------------------
+scope:
+  permitted_targets:
+    - "lib/tiannara/research/research_director.ex (Pipeline execute_experiment/1 and :advance handling)"
+    - "lib/tiannara/research/evidence_scorer.ex (inputs must be real execution output)"
+    - "lib/tiannara/research/knowledge_integrator.ex (provenance on integrated knowledge)"
+    - "lib/tiannara/executive/executive_memory.ex (provenance-aware persistence/quarantine class only)"
+    - "test/ additions for R0 acceptance tests"
+    - "certification/remediation/ report artifacts"
+    - "priv/tiannara/authorization/ artifacts for this campaign"
+  explicitly_forbidden:
+    - "AC-001 / MC-001 / MC-002 / MC-003 / MC-004 implementation work"
+    - "DiscoveryScheduler loop and Discovery.Steps.* executors (Loop B untouched)"
+    - "Constitutional semantics changes"
+    - "Silent deletion of persisted records (quarantine only, with ledger entry)"
+
+# ------------------------------------------------------------------------------
+# 3. ACCEPTANCE GATES
+# ------------------------------------------------------------------------------
+gates:
+  R0_AT1_Heartbeat_No_Fabrication:
+    requirement: "Heartbeat executes without generating fake experimental outcomes."
+  R0_AT2_No_Random_Persistence:
+    requirement: "No random result is persisted as scientific evidence."
+  R0_AT3_Simulation_Cannot_Masquerade:
+    requirement: "Simulation cannot masquerade as real execution (explicit states/provenance required)."
+  R0_AT4_Provenance_Survival:
+    requirement: "Provenance survives persistence and replay."
+  R0_AT4b_Historical_Quarantine:
+    requirement: "Pre-existing fabricated records are quarantined, never promoted."
+  R0_AT5_Certification_Rejection:
+    requirement: "Downstream certification/validation rejects fabricated/unverified evidence."
+  R0_AT6_Regression_Green:
+    requirement: "Existing test suite remains green."
+
+no_automatic_adoption:
+  rule: >
+    This authorization covers Gate R0 only. Later gates require their own
+    reviewable mutation groups under this campaign's ratification.
+
+# ------------------------------------------------------------------------------
+# 4. HUMAN AUTHORIZATION BLOCK
+# ------------------------------------------------------------------------------
+human_authorization:
+  operator_id: schtickman
+  signature: R0-quarantine-ratified
+  timestamp: 2026-08-25T0000
+  conditions_accepted: true
+  notes: "Six-gate remediation sequence ratified verbatim in session."
+
+valid_until: 2026-09-08T2359
+
+audit_trail:
+  created_by: "tiannara_os"
+  creation_timestamp: "2026-08-25T0000"
+  constitutional_basis: "rules.md -> Truth > apparent capability / Evidence Before Confidence / Verification First"

@@ -12,8 +12,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
   adapt to changing environmental demands.
   """
   
-  alias TiannaraOS.State
-  alias TiannaraOS.Discovery
+
   
   # Rate at which satisfied needs decay (per relevant discovery)
   @satisfaction_decay_rate 0.02
@@ -67,12 +66,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
     end
   end
   
-  @doc """
-  Reduce needs that have been addressed by discoveries.
-  
-  Each discovery that addresses a domain reduces that need slightly.
-  Multiple discoveries compound the effect.
-  """
+  @doc false
   @spec reduce_satisfied_needs(map(), [map()]) :: map()
   defp reduce_satisfied_needs(current_needs, discoveries) do
     Enum.reduce(discoveries, current_needs, fn {_disc_id, discovery}, needs_acc ->
@@ -96,14 +90,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
     end)
   end
   
-  @doc """
-  Detect emerging needs from oversaturation patterns.
-  
-  When a domain becomes oversaturated (>30% of all discoveries),
-  complementary or alternative domains become more valuable.
-  
-  Example: If energy is saturated, materials or efficiency might emerge.
-  """
+  @doc false
   @spec detect_emerging_needs([map()], map()) :: map()
   defp detect_emerging_needs(discoveries, current_needs) do
     # Count discoveries per primary domain
@@ -147,9 +134,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
     end
   end
   
-  @doc """
-  Count discoveries by their primary domain.
-  """
+  @doc false
   @spec count_discoveries_by_domain([map()]) :: map()
   defp count_discoveries_by_domain(discoveries) do
     Enum.reduce(discoveries, %{}, fn {_disc_id, discovery}, acc ->
@@ -164,16 +149,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
     end)
   end
   
-  @doc """
-  Generate cross-domain needs based on oversaturation.
-  
-  When certain domains are oversaturated, related domains become valuable.
-  
-  Examples:
-  - Energy saturated → Materials, Efficiency
-  - Medicine saturated → Prevention, Diagnostics
-  - Mathematics saturated → Computation, Applications
-  """
+  @doc false
   @spec generate_cross_domain_needs([atom()], map()) :: map()
   defp generate_cross_domain_needs(oversaturated_domains, current_needs) do
     cross_domain_map = %{
@@ -183,8 +159,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
       prevention: [:medicine, :public_health],
       diagnostics: [:medicine, :imaging],
       genetics: [:medicine, :bioengineering],
-      mathematics: [:computation, :applications, :logic],
-      computation: [:mathematics, :algorithms, :hardware],
+      computation: [:algorithms, :hardware],
       cybernetics: [:robotics, :ai, :control_systems],
       robotics: [:cybernetics, :mechanics, :sensors],
       ai: [:cybernetics, :learning, :reasoning],
@@ -227,7 +202,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
   Map of newly emerged needs with initial priority values.
   """
   @spec generate_emergent_needs(map(), map(), [map()]) :: map()
-  def generate_emergent_needs(original_needs, current_needs, discoveries) do
+  def generate_emergent_needs(original_needs, current_needs, _discoveries) do
     # Identify highly satisfied needs (>70% reduction)
     satisfied_needs = identify_satisfied_needs(original_needs, current_needs)
     
@@ -309,11 +284,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
     Map.get(adjacency_map, domain, [])
   end
   
-  @doc """
-  Identify needs that have been significantly satisfied.
-  
-  Returns list of domains where need dropped by >70%.
-  """
+  @doc false
   @spec identify_satisfied_needs(map(), map()) :: [atom()]
   defp identify_satisfied_needs(original_needs, current_needs) do
     Enum.filter(original_needs, fn {domain, original_value} ->
@@ -324,11 +295,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
     |> Enum.map(fn {domain, _value} -> domain end)
   end
   
-  @doc """
-  Merge current needs with emerging needs and normalize.
-  
-  Ensures all values are within [@min_need_value, @max_need_value].
-  """
+  @doc false
   @spec merge_and_normalize(map(), map()) :: map()
   defp merge_and_normalize(current_needs, emerging_needs) do
     merged = Map.merge(current_needs, emerging_needs, fn _key, current_val, emerging_val ->

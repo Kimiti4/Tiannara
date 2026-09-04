@@ -1,0 +1,191 @@
+# Alert Rules for Tiannara API
+#
+# Defines conditions that trigger alerts when metrics exceed thresholds.
+# Alerts can be sent to email, Slack, PagerDuty, etc. via Alertmanager.
+#
+# Date: April 30, 2026
+# Status: Week 24 Day 2 - Monitoring Infrastructure
+
+groups:
+  # API Performance Alerts
+  - name: api_performance
+    interval: 30s
+    rules:
+      # High error rate
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m])) 
+            / 
+            sum(rate(http_requests_total[5m]))
+          ) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "High API error rate detected"
+          description: "Error rate is {{ $value | printf \"%.2f\" }}% (threshold: 5%) over the last 5 minutes."
+          runbook_url: "https://wiki.tiannara.com/runbooks/high-error-rate"
+      
+      # Slow response times (p95)
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, endpoint)
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High API latency on {{ $labels.endpoint }}"
+          description: "95th percentile latency is {{ $value | printf \"%.3f\" }}s (threshold: 100ms)"
+          runbook_url: "https://wiki.tiannara.com/runbooks/high-latency"
+      
+      # No traffic detected
+      - alert: NoTraffic
+        expr: sum(rate(http_requests_total[5m])) == 0
+        for: 10m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "No API traffic detected"
+          description: "No HTTP requests received in the last 10 minutes. Check if API is running."
+
+  # System Resource Alerts
+  - name: system_resources
+    interval: 30s
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: system_cpu_usage_percent > 90
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value | printf \"%.1f\" }}% (threshold: 90%)"
+      
+      # Low disk space
+      - alert: LowDiskSpace
+        expr: |
+          (
+            system_disk_usage_bytes{type="free"} 
+            / 
+            system_disk_usage_bytes{type="total"}
+          ) * 100 < 10
+        for: 10m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Low disk space"
+          description: "Only {{ $value | printf \"%.1f\" }}% disk space remaining (threshold: 10%)"
+      
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            system_memory_usage_bytes{type="used"} 
+            / 
+            system_memory_usage_bytes{type="total"}
+          ) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value | printf \"%.1f\" }}% (threshold: 85%)"
+
+  # Authentication Alerts
+  - name: authentication
+    interval: 30s
+    rules:
+      # Authentication failure spike
+      - alert: AuthFailureSpike
+        expr: |
+          sum(rate(auth_attempts_total{result="failure"}[5m])) 
+          > 
+          sum(rate(auth_attempts_total[5m])) * 0.5
+        for: 5m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "High authentication failure rate"
+          description: "{{ $value | printf \"%.1f\" }}% of auth attempts are failing"
+      
+      # Possible brute force attack
+      - alert: PossibleBruteForce
+        expr: |
+          sum(rate(auth_attempts_total{result="failure"}[1m])) > 10
+        for: 2m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "Possible brute force attack detected"
+          description: "More than 10 failed auth attempts per minute"
+
+  # Business Metrics Alerts
+  - name: business_metrics
+    interval: 60s
+    rules:
+      # Prediction engine down
+      - alert: PredictionEngineDown
+        expr: engines_running == 0
+        for: 5m
+        labels:
+          severity: critical
+          team: ml
+        annotations:
+          summary: "All prediction engines are down"
+          description: "No prediction engines are currently running"
+      
+      # Low prediction confidence
+      - alert: LowPredictionConfidence
+        expr: |
+          histogram_quantile(0.5, 
+            sum(rate(prediction_confidence_bucket[1h])) by (le, domain)
+          ) < 0.7
+        for: 30m
+        labels:
+          severity: warning
+          team: ml
+        annotations:
+          summary: "Low prediction confidence on {{ $labels.domain }}"
+          description: "Median confidence is {{ $value | printf \"%.2f\" }} (threshold: 0.7)"
+
+  # Database Alerts
+  - name: database
+    interval: 30s
+    rules:
+      # High database query latency
+      - alert: HighDBQueryLatency
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(database_query_duration_seconds_bucket[5m])) by (le, operation)
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High database query latency for {{ $labels.operation }}"
+          description: "95th percentile query time is {{ $value | printf \"%.3f\" }}s"
+      
+      # Database connection pool exhaustion
+      - alert: DBConnectionPoolExhaustion
+        expr: |
+          database_active_connections / database_connection_pool_size > 0.9
+        for: 5m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "{{ $value | printf \"%.1f\" }}% of connection pool is in use"

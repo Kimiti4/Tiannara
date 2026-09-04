@@ -1,0 +1,75 @@
+digraph ValidationRuntime {
+  rankdir=TB;
+  node [shape=box, style=filled, fillcolor=lightblue];
+  
+  // Runtime Components
+  CampaignRegistry [label="CampaignRegistry\n(load specs)"];
+  CampaignPlanner [label="CampaignPlanner\n(build DAG)"];
+  CampaignScheduler [label="CampaignScheduler\n(execute phases)"];
+  CampaignExecutor [label="CampaignExecutor\n(generic execution)"];
+  EvidenceCollector [label="EvidenceCollector\n(gather outputs)"];
+  EvidenceSigner [label="EvidenceSigner\n(cryptographic sign)"];
+  EvidenceVerifier [label="EvidenceVerifier\n(independent verify)"];
+  EvidenceAggregator [label="EvidenceAggregator\n(combine results)"];
+  ReportGenerator [label="ReportGenerator\n(produce report)"];
+  AdapterRegistry [label="AdapterRegistry\n(hot-swap adapters)"];
+  GovernanceValidationLaboratory [label="GovernanceValidationLaboratory\n(orchestrator)", shape=ellipse, fillcolor=lightyellow];
+  
+  // Registries
+  subgraph cluster_registries {
+    label = "Registries (Data Layer)";
+    style=dashed;
+    CampaignRegistryData [label="Campaign Registry\n(GOVERNANCE_CAMPAIGN_REGISTRY.md)", shape=cylinder];
+    FailureRegistryData [label="Failure Registry\n(GOVERNANCE_FAILURE_REGISTRY.md)", shape=cylinder];
+    EvidenceRegistryData [label="Evidence Registry\n(GOVERNANCE_EVIDENCE_REGISTRY.md)", shape=cylinder];
+  }
+  
+  // Adapters (Interfaces Only - Frozen Behaviours)
+  subgraph cluster_adapters {
+    label = "Adapter Behaviours (Frozen Interfaces)";
+    style=dashed;
+    LedgerAdapter [label="LedgerAdapterBehaviour"];
+    ReplayAdapter [label="ReplayAdapterBehaviour"];
+    StateAdapter [label="StateAdapterBehaviour"];
+    GraphAdapter [label="GraphAdapterBehaviour"];
+    CertificateAdapter [label="CertificateAdapterBehaviour"];
+    FingerprintAdapter [label="FingerprintAdapterBehaviour"];
+    FitnessAdapter [label="FitnessAdapterBehaviour"];
+    EntropyAdapter [label="EntropyAdapterBehaviour"];
+    CostAdapter [label="CostAdapterBehaviour"];
+    ArchaeologyAdapter [label="ArchaeologyAdapterBehaviour"];
+  }
+  
+  // Execution Flow
+  GovernanceValidationLaboratory -> CampaignRegistry [label="load_registry()"];
+  CampaignRegistry -> CampaignPlanner [label="campaigns"];
+  CampaignPlanner -> CampaignScheduler [label="execution_plan"];
+  CampaignScheduler -> CampaignExecutor [label="execute_campaign()"];
+  CampaignExecutor -> EvidenceCollector [label="collect_evidence()"];
+  EvidenceCollector -> EvidenceSigner [label="sign_artifact()"];
+  EvidenceSigner -> EvidenceVerifier [label="verify_artifact()"];
+  EvidenceVerifier -> EvidenceAggregator [label="aggregate_results()"];
+  EvidenceAggregator -> ReportGenerator [label="generate_report()"];
+  
+  // Adapter Resolution
+  CampaignExecutor -> AdapterRegistry [label="resolve_adapter()"];
+  AdapterRegistry -> LedgerAdapter [style=dotted];
+  AdapterRegistry -> ReplayAdapter [style=dotted];
+  AdapterRegistry -> StateAdapter [style=dotted];
+  AdapterRegistry -> GraphAdapter [style=dotted];
+  AdapterRegistry -> CertificateAdapter [style=dotted];
+  AdapterRegistry -> FingerprintAdapter [style=dotted];
+  AdapterRegistry -> FitnessAdapter [style=dotted];
+  AdapterRegistry -> EntropyAdapter [style=dotted];
+  AdapterRegistry -> CostAdapter [style=dotted];
+  AdapterRegistry -> ArchaeologyAdapter [style=dotted];
+  
+  // Registry Data Dependencies
+  CampaignRegistry -> CampaignRegistryData [label="reads", style=dashed];
+  CampaignRegistry -> FailureRegistryData [label="reads", style=dashed];
+  CampaignRegistry -> EvidenceRegistryData [label="reads", style=dashed];
+  
+  // Metadata
+  label="Governance Validation Runtime Architecture\nPhase 14.0.96 - Frozen";
+  fontsize=16;
+}

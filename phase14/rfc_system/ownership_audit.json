@@ -1,0 +1,23 @@
+{
+  "audit": "ownership",
+  "checks": {
+    "GovernanceValidationLaboratory": true,
+    "ProposalLedger": true,
+    "PureArtifactGenerator": true,
+    "RFCKnowledgeGraph": true,
+    "RFCRegistry": true,
+    "ReplayEngine": true
+  },
+  "evidence": {
+    "required_terms": [
+      "RFCRegistry",
+      "ProposalLedger",
+      "GovernanceValidationLaboratory",
+      "PureArtifactGenerator",
+      "ReplayEngine",
+      "RFCKnowledgeGraph"
+    ]
+  },
+  "status": "PASS",
+  "summary": "Canonical ownership references are present for the core RFC subsystems."
+}

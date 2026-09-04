@@ -6,7 +6,6 @@ defmodule TiannaraOS.ResearchProgramEngine do
   alias TiannaraOS.ResearchProgram
   alias TiannaraOS.State
   alias TiannaraOS.Discovery
-  alias TiannaraOS.DiscoveryExchange
 
   @doc """
   Ticks a research program to advance its lifecycle stage, deducting budget and emitting events.

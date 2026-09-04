@@ -1,0 +1,83 @@
+{
+  "edges": [
+    {
+      "from": "RFC",
+      "to": "Experiment",
+      "type": "requires"
+    },
+    {
+      "from": "Experiment",
+      "to": "Simulation",
+      "type": "has_variant"
+    },
+    {
+      "from": "Experiment",
+      "to": "Benchmark",
+      "type": "has_variant"
+    },
+    {
+      "from": "Experiment",
+      "to": "Counterfactual",
+      "type": "has_variant"
+    },
+    {
+      "from": "Simulation",
+      "to": "Evidence",
+      "type": "produces"
+    },
+    {
+      "from": "Benchmark",
+      "to": "Evidence",
+      "type": "produces"
+    },
+    {
+      "from": "Counterfactual",
+      "to": "Evidence",
+      "type": "produces"
+    },
+    {
+      "from": "Evidence",
+      "to": "Statistics",
+      "type": "feeds"
+    },
+    {
+      "from": "Statistics",
+      "to": "Certificate",
+      "type": "supports"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "RFC",
+      "type": "proposal"
+    },
+    {
+      "id": "Experiment",
+      "type": "experiment"
+    },
+    {
+      "id": "Simulation",
+      "type": "experiment_type"
+    },
+    {
+      "id": "Benchmark",
+      "type": "experiment_type"
+    },
+    {
+      "id": "Counterfactual",
+      "type": "experiment_type"
+    },
+    {
+      "id": "Evidence",
+      "type": "evidence"
+    },
+    {
+      "id": "Statistics",
+      "type": "statistics"
+    },
+    {
+      "id": "Certificate",
+      "type": "certificate"
+    }
+  ]
+}

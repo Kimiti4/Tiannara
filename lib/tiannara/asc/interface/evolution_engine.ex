@@ -34,7 +34,7 @@ defmodule Tiannara.ASC.Interface.EvolutionEngine do
     LawCandidates
   }
 
-  alias Tiannara.ASC.Interface.Mutations.{ContractMutations, EventMutations, ProtocolMutations}
+  alias Tiannara.ASC.Interface.Mutations.ContractMutations
 
   # State
   defstruct [

@@ -1,0 +1,29 @@
+authorization_id: "ASC-AC-001-E-ORPHAN-RECLASSIFICATION"
+gate_id: "AC-001-E"
+class: "SEMANTIC_CLOSURE"
+mode: "AUTHORIZED_MUTATION"
+authorizer: "c14_ac"
+policy: "POL-CERT_AUTH_001"
+status: "ACTIVE"
+created_at: "2026-08-27"
+
+authorizes:
+  - "E1: remove dead ComputerScience module (merged into :computation)"
+  - "E2: reclassify :science domain-identity misuse to canonical domain or :methodology"
+  - "E3: reclassify :mathematics domain-identity misuse to :computation"
+  - "E4: verify canonical ontology closure (20 domains, no fakes)"
+
+bounds:
+  - "no new canonical domains"
+  - "no removed canonical domains"
+  - "no changes to canonical_registry @domains list"
+  - "substrate/methodology/documentation references preserved verbatim"
+  - "no fake domain modules created"
+  - "each mutation group separately reviewable and attributable"
+
+forbids:
+  - "broad_semantic_rewrite"
+  - "mechanical_global_replacement"
+  - "modifying deprecated lineage modules (registry.ex, os/domain_registry.ex)"
+
+hash: null

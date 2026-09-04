@@ -1,0 +1,372 @@
+{
+  "correlation_id": "d149489eb1dad698",
+  "m1_determinism": {
+    "deterministic": true,
+    "reps": 5,
+    "unique": 1
+  },
+  "m6_self_measurement": {
+    "grounded_in_real_state": true,
+    "quantity": 0.05,
+    "random_or_ungrounded": false
+  },
+  "negative_controls": {
+    "N1": {
+      "expected": "MATH_NOT_REGISTERED",
+      "found": false,
+      "honest": true
+    },
+    "N2": {
+      "honest": true,
+      "kind": "explicit_error",
+      "value": "{:error, :evidence_probability_zero}"
+    },
+    "N3": {
+      "action": "DENIED",
+      "governance": "deny",
+      "computation": "observation_only"
+    },
+    "N4": {
+      "certifiable_as_causally_grounded": false,
+      "corrupted_provenance": true
+    }
+  },
+  "pollution_clean": true,
+  "probe": "constitutional_mathematics_v1",
+  "trace": [
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": null,
+        "trace_id": null
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 1,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "evidence_ref": null,
+        "source": "real_organism_state"
+      },
+      "phase": "evidence",
+      "provenance": {
+        "function": "accept/1",
+        "module": "C11.External.Ingress"
+      },
+      "provenance_hash": "6dbb7574533cf8ba283f806e91bbd97b5a552954261459f31a21066fb3413417",
+      "timestamp": "2026-08-24T12:13:53.200000Z",
+      "trace_id": "48c9ead982bcfad5"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "evidence",
+        "trace_id": "48c9ead982bcfad5"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 2,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "interpreted": true
+      },
+      "phase": "perception",
+      "provenance": {
+        "function": "process/1",
+        "module": "Tiannara.Perception.Engine"
+      },
+      "provenance_hash": "d5a3b81f9aca26ba240226e07fc8bdfe817be5981b3ce0dfb8e2a19216346838",
+      "timestamp": "2026-08-24T12:13:53.200000Z",
+      "trace_id": "d82a1390a6a4b62d"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "perception",
+        "trace_id": "d82a1390a6a4b62d"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 3,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "canonical": true,
+        "lineage": true
+      },
+      "phase": "reality_knowledge",
+      "provenance": {
+        "function": "store/2",
+        "module": "Tiannara.Knowledge.KnowledgeStore"
+      },
+      "provenance_hash": "ac4e76f74858280b5c7e97ab1f2e8cb09f5c13f0af7e61a4ec3d738867e11a67",
+      "timestamp": "2026-08-24T12:13:53.200000Z",
+      "trace_id": "9a9119f58edf82d6"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "reality_knowledge",
+        "trace_id": "9a9119f58edf82d6"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 4,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "assessment": "evidence_tagged",
+        "produces_premises": true
+      },
+      "phase": "epistemic_interpretation",
+      "provenance": {
+        "function": "render_node/1",
+        "module": "Tiannara.Epistemic.View"
+      },
+      "provenance_hash": "76466f1155fc6cea4d797836eb168a71f42494bcd3a4db7938fc29efb463acca",
+      "timestamp": "2026-08-24T12:13:53.200000Z",
+      "trace_id": "6bbbce79940f90dd"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "epistemic_interpretation",
+        "trace_id": "6bbbce79940f90dd"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 5,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "derived_from_evidence": true,
+        "premises": {}
+      },
+      "phase": "mathematical_premises",
+      "provenance": {
+        "function": "premises/1",
+        "module": "Tiannara.Epistemic.View"
+      },
+      "provenance_hash": "dd468611230a12123c71f796f57c01deb6787125396d44e769d0d6ed58ff0cf4",
+      "timestamp": "2026-08-24T12:13:53.200000Z",
+      "trace_id": "f3b6f0ed292f36f8"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "mathematical_premises",
+        "trace_id": "f3b6f0ed292f36f8"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 6,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "candidate_set": [
+          {
+            "id": "constitutional_mathematics"
+          }
+        ],
+        "registry_query": {
+          "capability": "constitutional_mathematics",
+          "found": true,
+          "source": "capability_graph"
+        },
+        "selection_source": "registry_query"
+      },
+      "phase": "cel_discovery",
+      "provenance": {
+        "function": "find_optimal_provider/1",
+        "module": "Elixir.Tiannara.CEL.Services.CapabilityGraph"
+      },
+      "provenance_hash": "466aefcf96edb55a31b9beea125ec0140e5a5a90e4d913ac04ca03e846e7cf86",
+      "timestamp": "2026-08-24T12:13:53.201000Z",
+      "trace_id": "73c3241569851290"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "cel_discovery",
+        "trace_id": "73c3241569851290"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 7,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "derived_from": "registry_query",
+        "provider": "constitutional_mathematics"
+      },
+      "phase": "provider_selection",
+      "provenance": {
+        "function": "select/1",
+        "module": "CEL.MissionDirector"
+      },
+      "provenance_hash": "8c15a4ef0da16a750d4b61e1caefa95d1d67bc9a72437fef9ddc0cacc79c0aaa",
+      "timestamp": "2026-08-24T12:13:53.201000Z",
+      "trace_id": "fa3191159093e0c1"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "provider_selection",
+        "trace_id": "fa3191159093e0c1"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 8,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "consulted": true,
+        "decision": "deny",
+        "math_is_authorization": false
+      },
+      "phase": "c14_governance",
+      "provenance": {
+        "function": "authorize?/3",
+        "module": "Tiannara.Governance.CapabilityChecker"
+      },
+      "provenance_hash": "97c3165a049ea973f6963ceeded7e7c04263a0d49be50d385a0ba0b6b737cda9",
+      "timestamp": "2026-08-24T12:13:53.201000Z",
+      "trace_id": "915db7c4882102ef"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c14_governance",
+        "trace_id": "915db7c4882102ef"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 9,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "implementation": "Tiannara.Math.Probability.bayes_update/3",
+        "provider": "constitutional_mathematics",
+        "status": "EXECUTED"
+      },
+      "phase": "mathematical_delegation",
+      "provenance": {
+        "function": "delegate/1",
+        "module": "CEL.MissionDirector"
+      },
+      "provenance_hash": "793e8de3b7053c3781a42e8e1e97b34ef3cbcafa2425bc0da8b25e34342f8901",
+      "timestamp": "2026-08-24T12:13:53.214000Z",
+      "trace_id": "a6fe78b1ac2d9ce7"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "mathematical_delegation",
+        "trace_id": "a6fe78b1ac2d9ce7"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 10,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "baseline_match": true,
+        "deterministic": true,
+        "premises_ref": "f3b6f0ed292f36f8",
+        "results": [
+          2.25,
+          2.25,
+          2.25,
+          2.25,
+          2.25
+        ],
+        "unique_results": 1
+      },
+      "phase": "mathematical_result",
+      "provenance": {
+        "function": "bayes_update/3",
+        "module": "Elixir.Tiannara.Math.Probability"
+      },
+      "provenance_hash": "0e3c5f47ab8b207904a8039021cc20a96dd2df505a9d341265d2984d00bba2f1",
+      "timestamp": "2026-08-24T12:13:53.214000Z",
+      "trace_id": "023330f36911c695"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "mathematical_result",
+        "trace_id": "023330f36911c695"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 11,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "consumed_by": [
+          "C8.WorldContext",
+          "C14.Governance"
+        ],
+        "result_ref": "023330f36911c695"
+      },
+      "phase": "downstream_consumption",
+      "provenance": {
+        "function": "consume/1",
+        "module": "Tiannara.World.CanonicalWorldState"
+      },
+      "provenance_hash": "adadfeb0676200869f70df37918db86801268ed082df30bbea4c02055928b0b0",
+      "timestamp": "2026-08-24T12:13:53.214000Z",
+      "trace_id": "9bb4eaabb1048cfb"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "downstream_consumption",
+        "trace_id": "9bb4eaabb1048cfb"
+      },
+      "correlation_id": "d149489eb1dad698",
+      "order": 12,
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "governance_decision": "deny",
+        "math_constituted_authorization": false
+      },
+      "phase": "final_governed_outcome",
+      "provenance": {
+        "function": "finalize/1",
+        "module": "Tiannara.Governance.CapabilityChecker"
+      },
+      "provenance_hash": "4ab37552120c5416430ca49b717ea5bb14129eb343cfe0e493ce00dd11ee2230",
+      "timestamp": "2026-08-24T12:13:53.214000Z",
+      "trace_id": "96a33a27e9cfb4c4"
+    }
+  ]
+}

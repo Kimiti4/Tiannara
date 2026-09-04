@@ -87,11 +87,6 @@ defmodule Tiannara.REA.Topo.ReplacementRegistry do
             do_promote(p, state)
             [p.id]
 
-          audit_result.verdict == :degraded ->
-            extended = %{p | evaluation_windows: p.evaluation_windows - 25}
-            Map.put(state.proposals, p.id, extended)
-            []
-
           true ->
             failed = %{p | status: :failed, failure_reason: :epistemic_decoupling}
             Map.put(state.proposals, p.id, failed)
@@ -108,7 +103,7 @@ defmodule Tiannara.REA.Topo.ReplacementRegistry do
     {:reply, promoted_ids, %{state | proposals: remaining}}
   end
 
-  defp do_promote(p, state) do
+  defp do_promote(p, _state) do
     # Register the replacement channel in the graph
     Tiannara.REA.Causal.Graph.register(p.proposed_channel)
     # Register supersession in constitution

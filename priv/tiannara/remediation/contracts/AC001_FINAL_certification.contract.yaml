@@ -1,0 +1,59 @@
+gate_id: "AC-001-FINAL"
+parent_gate: "AC-001"
+campaign: "Tiannara Remediation + Substrate Integration"
+class: "CERTIFICATION_CLOSURE"
+mode: "OBSERVATIONAL"
+created_at: "2026-08-27"
+
+bounded_proposition: >
+  The complete AC-001 sequence (A0 → A → B → C0 → C1 → D → E) has established
+  a single, truthful, semantically closed, supervised canonical domain-identity
+  system. CanonicalRegistry is the sole authoritative domain-identity mechanism.
+  The canonical ontology contains exactly 20 domains. Excluded identities
+  (:science, :mathematics, :logic, :cs) do not function as domains. Legacy
+  registries are deprecated and non-authoritative. Knowledge capital and portfolio
+  boundaries remain truthful. Certification is bounded to executed evidence.
+
+requires:
+  - "AC-001-A0 COMPLETE"
+  - "AC-001-A CERTIFIED"
+  - "AC-001-B CERTIFIED"
+  - "AC-001-C0 COMPLETE"
+  - "AC-001-C1 CERTIFIED"
+  - "AC-001-D CERTIFIED"
+  - "AC-001-E CERTIFIED"
+
+verifies:
+  - "canonical_registry_sole_authority"
+  - "ontology_exact_20"
+  - "excluded_identities_not_domains"
+  - "legacy_authority_eliminated"
+  - "consumer_migration_complete"
+  - "orphan_resolution_closed"
+  - "semantic_closure_achieved"
+  - "boundary_integrity_preserved"
+  - "no_fabricated_capabilities"
+  - "authorization_chain_attributable"
+
+forbids:
+  - "starting_MC-001_implementation"
+  - "modifying_frozen_ontology"
+  - "fabricating_unexecuted_evidence"
+  - "claiming_PASS_for_unexecuted_checks"
+
+verdict_space: [CERTIFIED, NOT_CERTIFIED]
+
+certification_boundary: >
+  Certification is bounded to verified architectural/semantic claims. Full
+  runtime regression after the final E mutation (program_registry.ex:876
+  atom swap) is NOT EXECUTED due to environment timeout constraint. This
+  limitation is explicitly recorded rather than represented as PASS.
+
+constitutional_basis:
+  - "Evidence Before Confidence"
+  - "Uncertainty should never be hidden"
+  - "Truth has priority over confidence"
+  - "Capability must never outpace verification"
+  - "Every architectural decision should remain traceable"
+
+contract_hash: null

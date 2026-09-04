@@ -1,0 +1,417 @@
+{
+  "schema_version": "15.0.0",
+  "graph_id": "b3a7f2e9c4d1f8e6b5a3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1",
+  "timestamp": "2026-07-05T01:00:00Z",
+  "nodes": [
+    {
+      "node_id": "node_obs_001",
+      "node_type": "OBSERVATION",
+      "label": "Gravitational Wave Detection GW150914",
+      "properties": {
+        "observation_id": "obs_gw150914",
+        "detector": "LIGO",
+        "timestamp": "2015-09-14T09:50:45Z",
+        "signal_to_noise": 24.0,
+        "frequency_range": [35, 250],
+        "confidence": 0.999999
+      },
+      "content_hash": "b3a7f2e9c4d1f8e6b5a3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1",
+      "created_by": "civ_ligo",
+      "created_at": "2015-09-14T09:50:45Z",
+      "version": 1
+    },
+    {
+      "node_id": "node_pat_001",
+      "node_type": "PATTERN",
+      "label": "Chirp Signal Pattern",
+      "properties": {
+        "pattern_id": "pat_chirp_gw",
+        "source_observations": ["obs_gw150914"],
+        "pattern_class": "compact_binary_coalescence",
+        "parameters": {
+          "mass1": 36.2,
+          "mass2": 29.1,
+          "spin1": 0.3,
+          "spin2": 0.2
+        },
+        "significance": 5.1
+      },
+      "content_hash": "c4b8e3f0d5e2a9f7c6b4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a",
+      "created_by": "civ_ligo_analysis",
+      "created_at": "2015-09-15T10:00:00Z",
+      "version": 1
+    },
+    {
+      "node_id": "node_hyp_001",
+      "node_type": "HYPOTHESIS",
+      "label": "Binary Black Hole Merger Hypothesis",
+      "properties": {
+        "hypothesis_id": "hyp_bbh_merger",
+        "originator_id": "civ_ligo_theory",
+        "source_patterns": ["pat_chirp_gw"],
+        "statement": "The observed chirp signal is produced by the inspiral and merger of two black holes with masses ~36 and ~29 solar masses",
+        "domain": "astrophysics",
+        "state": "VALIDATED",
+        "confidence": 0.999999,
+        "predictions": [
+          "Final black hole mass ~62 solar masses",
+          "Energy radiated ~3 solar masses",
+          "Ringdown frequency ~250 Hz"
+        ]
+      },
+      "content_hash": "d5c9f4a1e6b3f0c7d8e9f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1",
+      "created_by": "civ_ligo_theory",
+      "created_at": "2015-09-16T08:00:00Z",
+      "version": 1
+    },
+    {
+      "node_id": "node_exp_001",
+      "node_type": "EXPERIMENT_DESIGN",
+      "label": "LIGO O1 Observing Run",
+      "properties": {
+        "design_id": "exp_ligo_o1",
+        "designer_id": "civ_ligo",
+        "hypothesis_id": "hyp_bbh_merger",
+        "design_type": "observational",
+        "parameters": {
+          "duration_days": 120,
+          "sensitivity_target": 1e-23,
+          "frequency_band": [10, 1000]
+        },
+        "status": "COMPLETED"
+      },
+      "content_hash": "e6d0a5b2f7c4a1d8e9f0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2",
+      "created_by": "civ_ligo",
+      "created_at": "2015-09-18T00:00:00Z",
+      "version": 1
+    },
+    {
+      "node_id": "node_run_001",
+      "node_type": "EXPERIMENT_RUN",
+      "label": "LIGO O1 Run - GW150914 Detection",
+      "properties": {
+        "run_id": "run_gw150914",
+        "executor_id": "civ_ligo",
+        "design_id": "exp_ligo_o1",
+        "evidence_ids": ["ev_gw150914_strain", "ev_gw150914_calibration"],
+        "statistical_result_ids": ["stat_gw150914_significance"],
+        "start_time": "2015-09-12T00:00:00Z",
+        "end_time": "2015-09-14T09:50:45Z",
+        "status": "COMPLETED"
+      },
+      "content_hash": "f7e1b6c3a8d5b2e9f0a1c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4",
+      "created_by": "civ_ligo",
+      "created_at": "2015-09-14T09:50:45Z",
+      "version": 1
+    },
+    {
+      "node_id": "node_ev_001",
+      "node_type": "EVIDENCE",
+      "label": "Strain Data GW150914",
+      "properties": {
+        "evidence_id": "ev_gw150914_strain",
+        "collector_id": "civ_ligo",
+        "run_id": "run_gw150914",
+        "evidence_type": "time_series",
+        "data_hash": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+        "quality_score": 0.999,
+        "novelty_score": 1.0
+      },
+      "content_hash": "a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9",
+      "created_by": "civ_ligo",
+      "created_at": "2015-09-14T09:50:45Z",
+      "version": 1
+    },
+    {
+      "node_id": "node_stat_001",
+      "node_type": "STATISTICAL_RESULT",
+      "label": "GW150914 Significance Analysis",
+      "properties": {
+        "result_id": "stat_gw150914_significance",
+        "analyst_id": "civ_ligo_stats",
+        "evidence_ids": ["ev_gw150914_strain"],
+        "test_type": "frequentist",
+        "method": "matched_filter",
+        "parameters": {
+          "template_bank_size": 250000,
+          "false_alarm_rate": 1e-7,
+          "snr_threshold": 8.0
+        },
+        "results": {
+          "test_statistic": 24.0,
+          "p_value": 2.0e-7,
+          "confidence_interval": [23.5, 24.5],
+          "effect_size": 24.0,
+          "degrees_of_freedom": 2
+        },
+        "conclusion": "SIGNIFICANT",
+        "assumptions": ["gaussian_noise", "stationary_noise", "template_accuracy"]
+      },
+      "content_hash": "b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0",
+      "created_by": "civ_ligo_stats",
+      "created_at": "2015-09-15T12:00:00Z",
+      "version": 1
+    },
+    {
+      "node_id": "node_disc_001",
+      "node_type": "DISCOVERY",
+      "label": "First Direct Detection of Gravitational Waves",
+      "properties": {
+        "discovery_id": "disc_gw150914",
+        "hypothesis_id": "hyp_bbh_merger",
+        "evidence_ids": ["ev_gw150914_strain", "ev_gw150914_calibration"],
+        "statistical_result_ids": ["stat_gw150914_significance"],
+        "validation_criteria": {
+          "significance_threshold": 0.05,
+          "bayes_factor_threshold": 10.0,
+          "min_effect_size": 8.0,
+          "min_replications": 2,
+          "consistency_requirement": "all_same_direction"
+        },
+        "validation_outcome": {
+          "status": "VALIDATED",
+          "significance_achieved": true,
+          "effect_size_achieved": true,
+          "replications_confirmed": 3,
+          "robustness_checks_passed": true
+        },
+        "certificate_id": "cert_disc_gw150914",
+        "state": "VALIDATED",
+        "version": 1,
+        "tags": ["gravitational_waves", "black_holes", "general_relativity", "nobel_2017"]
+      },
+      "content_hash": "c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1",
+      "created_by": "civ_ligo",
+      "created_at": "2016-02-11T10:30:00Z",
+      "version": 1
+    },
+    {
+      "node_id": "node_theory_001",
+      "node_type": "THEORY",
+      "label": "General Relativity - Strong Field Regime",
+      "properties": {
+        "theory_id": "theory_gr_strong_field",
+        "proposer_id": "civ_einstein",
+        "domain": "physics",
+        "scope": {
+          "domains": ["gravitation", "cosmology", "astrophysics"],
+          "phenomena": ["black_holes", "gravitational_waves", "cosmology"],
+          "score": 0.95
+        },
+        "confidence": 0.999999,
+        "predictions": [
+          "gravitational_waves_exist",
+          "black_holes_exist",
+          "gravitational_lensing",
+          "frame_dragging"
+        ],
+        "evidence_supporting": ["disc_gw150914", "disc_gw151226", "disc_gw170104"],
+        "status": "ACTIVE",
+        "version": 1
+      },
+      "content_hash": "d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2",
+      "created_by": "civ_einstein",
+      "created_at": "1915-11-25T00:00:00Z",
+      "version": 1
+    },
+    {
+      "node_id": "node_rev_001",
+      "node_type": "THEORY_REVISION",
+      "label": "GR Confirmation via GW150914",
+      "properties": {
+        "revision_id": "rev_gr_gw150914",
+        "theory_id": "theory_gr_strong_field",
+        "author_id": "civ_ligo_theory",
+        "operation": "CONFIRM",
+        "changes": {
+          "confidence_delta": 0.000001,
+          "evidence_added": ["disc_gw150914"],
+          "predictions_validated": ["gravitational_waves_exist", "black_holes_exist"]
+        },
+        "certificate_id": "cert_rev_gr_gw150914",
+        "timestamp": "2016-02-11T10:30:00Z"
+      },
+      "content_hash": "e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3",
+      "created_by": "civ_ligo_theory",
+      "created_at": "2016-02-11T10:30:00Z",
+      "version": 1
+    },
+    {
+      "node_id": "node_cap_001",
+      "node_type": "CAPITAL_DELTA",
+      "label": "Discovery Capital - GW150914",
+      "properties": {
+        "delta_id": "delta_disc_gw150914",
+        "owner_id": "civ_ligo",
+        "capital_type": "DISCOVERY",
+        "amount": 15.7,
+        "source_hashes": ["disc_gw150914"],
+        "computation_proof": "f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
+        "confidence": 0.999999,
+        "reproducibility_multiplier": 1.6,
+        "certificate_id": "cert_cap_disc_gw150914"
+      },
+      "content_hash": "f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4",
+      "created_by": "civ_capital_engine",
+      "created_at": "2016-02-11T10:30:00Z",
+      "version": 1
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "edge_obs_pat_001",
+      "source": "node_obs_001",
+      "target": "node_pat_001",
+      "edge_type": "GENERATES_PATTERN",
+      "properties": {
+        "detector_id": "civ_ligo_analysis",
+        "confidence": 0.999999,
+        "method": "matched_filtering"
+      },
+      "content_hash": "a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5",
+      "created_at": "2015-09-15T10:00:00Z"
+    },
+    {
+      "edge_id": "edge_pat_hyp_001",
+      "source": "node_pat_001",
+      "target": "node_hyp_001",
+      "edge_type": "SUPPORTS_HYPOTHESIS",
+      "properties": {
+        "originator_id": "civ_ligo_theory",
+        "confidence": 0.999999,
+        "inference_method": "bayesian_model_selection"
+      },
+      "content_hash": "b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6",
+      "created_at": "2015-09-16T08:00:00Z"
+    },
+    {
+      "edge_id": "edge_hyp_exp_001",
+      "source": "node_hyp_001",
+      "target": "node_exp_001",
+      "edge_type": "MOTIVATES_EXPERIMENT",
+      "properties": {
+        "designer_id": "civ_ligo",
+        "design_type": "observational"
+      },
+      "content_hash": "c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7",
+      "created_at": "2015-09-18T00:00:00Z"
+    },
+    {
+      "edge_id": "edge_exp_run_001",
+      "source": "node_exp_001",
+      "target": "node_run_001",
+      "edge_type": "EXECUTES_DESIGN",
+      "properties": {
+        "executor_id": "civ_ligo",
+        "status": "COMPLETED"
+      },
+      "content_hash": "d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8",
+      "created_at": "2015-09-14T09:50:45Z"
+    },
+    {
+      "edge_id": "edge_run_ev_001",
+      "source": "node_run_001",
+      "target": "node_ev_001",
+      "edge_type": "PRODUCES_EVIDENCE",
+      "properties": {
+        "collector_id": "civ_ligo",
+        "evidence_type": "time_series"
+      },
+      "content_hash": "e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9",
+      "created_at": "2015-09-14T09:50:45Z"
+    },
+    {
+      "edge_id": "edge_run_stat_001",
+      "source": "node_run_001",
+      "target": "node_stat_001",
+      "edge_type": "GENERATES_STATISTICS",
+      "properties": {
+        "analyst_id": "civ_ligo_stats",
+        "method": "matched_filter"
+      },
+      "content_hash": "f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0",
+      "created_at": "2015-09-15T12:00:00Z"
+    },
+    {
+      "edge_id": "edge_ev_disc_001",
+      "source": "node_ev_001",
+      "target": "node_disc_001",
+      "edge_type": "SUPPORTS_DISCOVERY",
+      "properties": {
+        "weight": 1.0
+      },
+      "content_hash": "a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1",
+      "created_at": "2016-02-11T10:30:00Z"
+    },
+    {
+      "edge_id": "edge_stat_disc_001",
+      "source": "node_stat_001",
+      "target": "node_disc_001",
+      "edge_type": "VALIDATES_DISCOVERY",
+      "properties": {
+        "p_value": 2.0e-7,
+        "significance": true
+      },
+      "content_hash": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2",
+      "created_at": "2016-02-11T10:30:00Z"
+    },
+    {
+      "edge_id": "edge_disc_theory_001",
+      "source": "node_disc_001",
+      "target": "node_theory_001",
+      "edge_type": "CONFIRMS_THEORY",
+      "properties": {
+        "confidence_delta": 0.000001,
+        "predictions_validated": ["gravitational_waves_exist", "black_holes_exist"]
+      },
+      "content_hash": "c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3",
+      "created_at": "2016-02-11T10:30:00Z"
+    },
+    {
+      "edge_id": "edge_theory_rev_001",
+      "source": "node_theory_001",
+      "target": "node_rev_001",
+      "edge_type": "HAS_REVISION",
+      "properties": {
+        "operation": "CONFIRM",
+        "author_id": "civ_ligo_theory"
+      },
+      "content_hash": "d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4",
+      "created_at": "2016-02-11T10:30:00Z"
+    },
+    {
+      "edge_id": "edge_disc_cap_001",
+      "source": "node_disc_001",
+      "target": "node_cap_001",
+      "edge_type": "GENERATES_CAPITAL",
+      "properties": {
+        "capital_type": "DISCOVERY",
+        "amount": 15.7
+      },
+      "content_hash": "e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5",
+      "created_at": "2016-02-11T10:30:00Z"
+    }
+  ],
+  "subgraphs": {
+    "discovery_pipeline": {
+      "nodes": ["node_obs_001", "node_pat_001", "node_hyp_001", "node_exp_001", "node_run_001", "node_ev_001", "node_stat_001", "node_disc_001"],
+      "description": "Complete discovery pipeline from observation to validated discovery"
+    },
+    "theory_evolution": {
+      "nodes": ["node_theory_001", "node_rev_001", "node_disc_001"],
+      "description": "Theory evolution through discovery confirmation"
+    },
+    "capital_flows": {
+      "nodes": ["node_disc_001", "node_cap_001"],
+      "description": "Scientific capital generated by discovery"
+    }
+  },
+  "merkle_root": "f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6",
+  "epoch": 0,
+  "verification": {
+    "replay_verified": true,
+    "independent_verifiers": ["civ_virgo", "civ_kagra", "civ_geo600"],
+    "verification_level": "LEVEL1",
+    "all_hashes_match": true
+  }
+}

@@ -22,9 +22,6 @@ defmodule Tiannara.ASC.Crucible.AdaptationVelocity do
 
   use GenServer
 
-  alias Tiannara.ASC.Crucible.RepairReuseEngine
-  alias Tiannara.ASC.Crucible.RepairTransfer
-
   @typedoc "Generation fitness snapshot"
   @type generation_snapshot :: %{
           generation: non_neg_integer(),
@@ -139,23 +136,9 @@ defmodule Tiannara.ASC.Crucible.AdaptationVelocity do
     {:reply, velocity, state}
   end
 
-  @doc """
-  Get all recorded generation snapshots.
-  """
-  def get_snapshots do
-    GenServer.call(__MODULE__, :get_snapshots)
-  end
-
   @impl true
   def handle_call(:get_snapshots, _from, state) do
     {:reply, Enum.reverse(state.snapshots), state}
-  end
-
-  @doc """
-  Get summary statistics.
-  """
-  def get_summary do
-    GenServer.call(__MODULE__, :get_summary)
   end
 
   @impl true
@@ -195,6 +178,20 @@ defmodule Tiannara.ASC.Crucible.AdaptationVelocity do
       end
 
     {:reply, summary, state}
+  end
+
+  @doc """
+  Get all recorded generation snapshots.
+  """
+  def get_snapshots do
+    GenServer.call(__MODULE__, :get_snapshots)
+  end
+
+  @doc """
+  Get summary statistics.
+  """
+  def get_summary do
+    GenServer.call(__MODULE__, :get_summary)
   end
 
   # Private helpers

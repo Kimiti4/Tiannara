@@ -1,0 +1,7 @@
+{
+  "deterministic": true,
+  "match": true,
+  "original_hash": "0d8d0d890efa2eb83429d5dd6ebac8e8a32cb5ec7a241ba7daedc256a4689b45",
+  "proposal_id": "test_proposal_1783114007875",
+  "replayed_hash": "0d8d0d890efa2eb83429d5dd6ebac8e8a32cb5ec7a241ba7daedc256a4689b45"
+}

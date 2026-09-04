@@ -1,0 +1,37 @@
+id: ASC-MC-004-A0-DOMAIN-PHYSICS-RECONCILIATION
+status: GRANTED
+operator: c14_ac
+gate: MC-004-A0
+campaign: Tiannara Remediation + Substrate Integration
+date: 2026-08-31
+authorization_kind: READ_ONLY_RECONCILIATION
+
+granted_scope:
+  - "Reconcile canonical :physics domain capability truth across registry boundary, domain module, OPC/NDE/IRD/TWP subsystem, math substrate dependencies, consumers, workflow chain, real-execution integration, verification/provenance paths, safety, and metrics."
+  - "Produce the 17 MC-004-A0 deliverables defined in docs/remediation/MC004_A0_DOMAIN_PHYSICS_RECONCILIATION_PROTOCOL.md"
+  - "Classify every surface with file:line evidence using REAL/PARTIAL/THEATRICAL/FABRICATED/UNKNOWN/NO"
+  - "Define the bounded physics pilot (definition only) and the preliminary MC-004-M mutation plan (recommendations only)"
+  - "Run the static reconciliation verifier to PASS and finalize MC004_A0_result.json"
+
+expressly_forbidden:
+  - "ANY production mutation (no code changes to domain modules, math substrate, physics subsystem, consumers, registries)"
+  - "Enabling :real_execution_enabled"
+  - "Running, simulating, or executing any physics experiment or pilot"
+  - "Implementing an ODE solver, linear algebra, formal verifier, or any new math/logic capability"
+  - "Decommissioning or replacing theatrical subsystem components"
+  - "Certifying physics capability (only reconciliation quality is certified)"
+  - "Broadening scope to all 20 canonical domains"
+  - "Modifying MC-001/MC-002/MC-003/AC-001 artifacts"
+  - "Fabricating any c14 signature or verifier output"
+
+flags:
+  mutation_executed: false
+  pilot_executed: false
+  real_execution_enabled: false
+  authorization_required_for_mutation: true
+  authorization_required_for_live_pilot: true
+
+note: >
+  This authorization covers reconciliation evidence only. MC-004-M mutation and
+  MC-004-P live pilot each require a FURTHER explicit human authorization, issued
+  after human review of these A0 deliverables.

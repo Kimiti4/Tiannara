@@ -1,0 +1,16 @@
+{
+  "schema_version": "15.0.0",
+  "proof_id": "phase15-provisional-proof-2026-07-05",
+  "status": "INSUFFICIENT_FOR_CERTIFICATION",
+  "claims": [
+    {"claim":"architecture_review_complete","result":"PASS","evidence":"PHASE15_ARCHITECTURE_REVIEW.md"},
+    {"claim":"runtime_contracts_frozen","result":"PASS_DOCUMENTATION","evidence":"DISCOVERY_RUNTIME_FREEZE.md"},
+    {"claim":"schemas_documented","result":"PASS_DOCUMENTATION","evidence":"SCIENTIFIC_SCHEMA_REPORT.md"},
+    {"claim":"large_scale_campaign_complete","result":"FAIL","evidence":"DISCOVERY_CAMPAIGN_RESULTS.md"},
+    {"claim":"laws_independently_validated","result":"FAIL","evidence":"CONSTITUTIONAL_LAWS_VALIDATION.md"},
+    {"claim":"independent_audit_passed","result":"FAIL","evidence":"INDEPENDENT_DISCOVERY_AUDIT.md"},
+    {"claim":"readiness_at_least_GSR_4","result":"FAIL","evidence":"GOVERNANCE_SCIENCE_READINESS.md"},
+    {"claim":"archaeology_complete","result":"FAIL","evidence":"SCIENTIFIC_ARCHAEOLOGY.md"}
+  ],
+  "decision":"WITHHOLD_CERTIFICATE"
+}

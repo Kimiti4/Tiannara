@@ -32,7 +32,7 @@ defmodule Tiannara.OPC do
         Logger.info("✅ [OPC] Physics rule successfully compiled.")
         {:ready_for_deployment, %{rule: rule, compiled_at: DateTime.utc_now()}}
       {:rejected, reason} ->
-        Logger.warn("❌ [OPC] Physics compilation rejected by governance: #{inspect(reason)}")
+        Logger.warning("❌ [OPC] Physics compilation rejected by governance: #{inspect(reason)}")
         {:error, reason}
     end
   end

@@ -1,0 +1,21 @@
+{
+  "baseline_commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+  "nodes": [
+    {"id": "Mathematics", "type": "substrate"},
+    {"id": "Logic", "type": "substrate"},
+    {"id": "Information", "type": "substrate"},
+    {"id": "Meta-Science", "type": "os_layer"},
+    {"id": "ResearchDirector", "type": "executive"},
+    {"id": "DomainRegistry", "type": "registry"},
+    {"id": "PhysicsDomain", "type": "domain"},
+    {"id": "ChemistryDomain", "type": "domain"}
+  ],
+  "edges": [
+    {"source": "Meta-Science", "target": "Information", "status": "integrated"},
+    {"source": "ResearchDirector", "target": "DomainRegistry", "status": "integrated"},
+    {"source": "PhysicsDomain", "target": "Mathematics", "status": "mocked_dependency"},
+    {"source": "ChemistryDomain", "target": "Mathematics", "status": "mocked_dependency"},
+    {"source": "DomainRegistry", "target": "PhysicsDomain", "status": "missing_link"},
+    {"source": "DomainRegistry", "target": "ChemistryDomain", "status": "missing_link"}
+  ]
+}

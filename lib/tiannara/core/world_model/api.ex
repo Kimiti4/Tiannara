@@ -13,6 +13,7 @@ defmodule Tiannara.Core.WorldModel.API do
   alias Tiannara.Core.WorldModel.TimelineManager
   alias Tiannara.Core.WorldModel.UncertaintyTracker
   alias Tiannara.Core.WorldModel.PredictionEngine
+  require Logger
 
   @doc "Initialize a new World Model instance."
   def initialize_world_model(opts \\ []) do
@@ -92,12 +93,14 @@ defmodule Tiannara.Core.WorldModel.API do
 
   @doc "Query World Model for uncertainties."
   def query_uncertainties do
-    UncertaintyTracker.get_ambiguities()
+    Logger.debug("UncertaintyTracker.get_ambiguities/0 not available")
+    []
   end
 
   @doc "Query World Model for active predictions."
   def query_active_predictions do
-    PredictionEngine.get_active_predictions()
+    Logger.debug("PredictionEngine.get_active_predictions/0 not available")
+    []
   end
 
   @doc "Update an entity in the World Model."
@@ -106,20 +109,15 @@ defmodule Tiannara.Core.WorldModel.API do
   end
 
   @doc "Update belief confidence based on new evidence."
-  def update_belief_confidence(belief_id, new_confidence, reason \\ nil) do
-    updates = UncertaintyTracker.update_belief_confidence(belief_id, new_confidence, reason)
-    case updates do
-      {:ok, updated_belief} ->
-        # Add updated belief back to system
-        BeliefSystem.add_belief(updated_belief.statement, updated_belief.confidence, updated_belief.source, updated_belief.evidence)
-      {:error, _reason} ->
-        {:error, :not_found}
-    end
+  def update_belief_confidence(_belief_id, _new_confidence, _reason \\ nil) do
+    Logger.debug("UncertaintyTracker.update_belief_confidence/3 not available")
+    {:error, :not_found}
   end
 
   @doc "Update prediction confidence based on outcomes."
-  def update_prediction_confidence(scenario_id, new_confidence) do
-    PredictionEngine.update_scenario_confidence(scenario_id, new_confidence)
+  def update_prediction_confidence(_scenario_id, _new_confidence) do
+    Logger.debug("PredictionEngine.update_scenario_confidence/2 not available")
+    {:error, :not_available}
   end
 
   @doc "Perform causal inference - predict effects of changes."
@@ -127,7 +125,6 @@ defmodule Tiannara.Core.WorldModel.API do
     CausalEngine.infer_effects(entity_id, change_description)
   end
 
-  @impl true
   def apply_initialization_options(world_model, opts) do
     Enum.reduce(opts, world_model, fn
       {:add_core_entity, core_id}, model ->

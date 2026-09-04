@@ -1,0 +1,128 @@
+{
+  "description": "Replayable constitutional knowledge graph for Phase 14.1 RFC governance artifacts.",
+  "edges": [
+    {
+      "from": "proposal-14.1.0-architecture",
+      "to": "proposal-14.1.1-ontology",
+      "type": "depends_on"
+    },
+    {
+      "from": "proposal-14.1.1-ontology",
+      "to": "proposal-14.1.2-ledger",
+      "type": "depends_on"
+    },
+    {
+      "from": "proposal-14.1.2-ledger",
+      "to": "proposal-14.1.3-replay",
+      "type": "depends_on"
+    },
+    {
+      "from": "proposal-14.1.3-replay",
+      "to": "proposal-14.1.4-provenance",
+      "type": "depends_on"
+    },
+    {
+      "from": "proposal-14.1.4-provenance",
+      "to": "proposal-14.1.5-genome",
+      "type": "depends_on"
+    },
+    {
+      "from": "proposal-14.1.5-genome",
+      "to": "proposal-14.1.6-simulation",
+      "type": "depends_on"
+    },
+    {
+      "from": "proposal-14.1.6-simulation",
+      "to": "proposal-14.1.7-review-ratification",
+      "type": "depends_on"
+    },
+    {
+      "from": "proposal-14.1.7-review-ratification",
+      "to": "proposal-14.1.8-runtime",
+      "type": "depends_on"
+    },
+    {
+      "from": "proposal-14.1.8-runtime",
+      "to": "proposal-14.1.9-validation",
+      "type": "depends_on"
+    },
+    {
+      "from": "proposal-14.1.9-validation",
+      "to": "proposal-14.1.999-freeze",
+      "type": "validates"
+    },
+    {
+      "from": "proposal-14.1.0-architecture",
+      "to": "proposal-14.1.999-freeze",
+      "type": "supersedes"
+    }
+  ],
+  "metrics": {
+    "edge_count": 11,
+    "node_count": 11,
+    "relationship_types": [
+      "depends_on",
+      "supersedes",
+      "validates"
+    ]
+  },
+  "nodes": [
+    {
+      "id": "proposal-14.1.0-architecture",
+      "label": "RFC 14.1.0 Architecture",
+      "type": "proposal"
+    },
+    {
+      "id": "proposal-14.1.1-ontology",
+      "label": "RFC 14.1.1 Ontology",
+      "type": "proposal"
+    },
+    {
+      "id": "proposal-14.1.2-ledger",
+      "label": "RFC 14.1.2 Ledger",
+      "type": "proposal"
+    },
+    {
+      "id": "proposal-14.1.3-replay",
+      "label": "RFC 14.1.3 Replay",
+      "type": "proposal"
+    },
+    {
+      "id": "proposal-14.1.4-provenance",
+      "label": "RFC 14.1.4 Provenance",
+      "type": "proposal"
+    },
+    {
+      "id": "proposal-14.1.5-genome",
+      "label": "RFC 14.1.5 Genome",
+      "type": "proposal"
+    },
+    {
+      "id": "proposal-14.1.6-simulation",
+      "label": "RFC 14.1.6 Simulation",
+      "type": "proposal"
+    },
+    {
+      "id": "proposal-14.1.7-review-ratification",
+      "label": "RFC 14.1.7 Review/Ratification",
+      "type": "proposal"
+    },
+    {
+      "id": "proposal-14.1.8-runtime",
+      "label": "RFC 14.1.8 Runtime",
+      "type": "proposal"
+    },
+    {
+      "id": "proposal-14.1.9-validation",
+      "label": "RFC 14.1.9 Validation",
+      "type": "proposal"
+    },
+    {
+      "id": "proposal-14.1.999-freeze",
+      "label": "RFC 14.1.999 Freeze",
+      "type": "proposal"
+    }
+  ],
+  "type": "RFCKnowledgeGraph",
+  "version": "14.1.0"
+}

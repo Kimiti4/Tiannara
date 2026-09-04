@@ -11,7 +11,7 @@ defmodule Tiannara.REA.Epistemic.LongTermValidator do
   
   alias Tiannara.REA.{UniversalEvolutionEngine, LineageRegistry, ArchaeologyRegistry}
   alias Tiannara.REA.Causal.{Graph, Topology, ChannelMonitor}
-  alias Tiannara.REA.Epistemic.{ConstitutionalImmuneSystem, ReflexivityObservatory, EcologicalMemory, Audit}
+  alias Tiannara.REA.Epistemic.{ConstitutionalImmuneSystem, ReflexivityObservatory}
   
   @type campaign_metrics :: %{
     total_epochs: non_neg_integer(),
@@ -25,7 +25,7 @@ defmodule Tiannara.REA.Epistemic.LongTermValidator do
   
   @doc "Execute the 100k epoch validation campaign."
   @spec run_campaign(non_neg_integer(), map()) :: {:ok, campaign_metrics(), String.t()}
-  def run_campaign(epochs \\ 100_000, config \\ %{}) do
+  def run_campaign(epochs \\ 100_000, _config \\ %{}) do
     IO.puts("⚖️  REA-4.5: The Crucible - Initializing #{epochs} Epoch Validation...")
     
     # 1. System Reset
@@ -38,7 +38,7 @@ defmodule Tiannara.REA.Epistemic.LongTermValidator do
     # 3. Execution Loop
     start_time = System.system_time(:millisecond)
     
-    {final_universe, samples} = Enum.reduce(1..epochs, {initialize_universe(0), []}, fn epoch, {u, acc} ->
+    {_final_universe, samples} = Enum.reduce(1..epochs, {initialize_universe(0), []}, fn epoch, {u, acc} ->
       next_u = UniversalEvolutionEngine.tick(u)
       
       # Sample every 1,000 epochs to avoid memory bloat while maintaining resolution
@@ -97,8 +97,6 @@ defmodule Tiannara.REA.Epistemic.LongTermValidator do
   end
   
   defp aggregate_metrics(samples, total_epochs) do
-    n = length(samples)
-    
     %{
       total_epochs: total_epochs,
       gamer_emergence_rate: Enum.map(samples, & &1.gamer_emergence_rate) |> average(),

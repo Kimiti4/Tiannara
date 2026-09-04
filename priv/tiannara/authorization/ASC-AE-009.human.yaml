@@ -1,0 +1,149 @@
+# ==============================================================================
+# TIANNARA C14 AUTHORIZATION ARTIFACT: DIAGNOSTIC-FIRST INVESTIGATION
+# ==============================================================================
+# Mission:    ASC-AE-009 — DiscoveryMetrics Lifecycle Investigation (F13)
+# Predecessor: AE-008 (verdict: H5_real_failure_metrics)
+# Class:      DIAGNOSTIC-FIRST INVESTIGATION (no adoption; remedy decided by verdict)
+# ==============================================================================
+
+mission_id: "ASC-AE-009"
+status: "AUTHORIZED"
+
+# ------------------------------------------------------------------------------
+# 1. MISSION OBJECTIVE
+# ------------------------------------------------------------------------------
+objective: >
+  Determine WHY DiscoveryMetrics fails to become resident during canonical
+  boot, and establish its INTENDED contract (required vs intentionally optional).
+  The required/optional verdict must be grounded in design-intent evidence,
+  NOT in convenience.
+
+mission_class_note: >
+  This is an INVESTIGATION, not a fix. It produces a verdict with two
+  legitimate branches:
+    A — DiscoveryMetrics is REQUIRED → authorizes a later remediation mission.
+    B — DiscoveryMetrics is OPTIONAL → authorizes a later contract-formalization
+        mission so absence is explicit and EOS stays accurate.
+  Neither branch is executed here. Neither is chosen for convenience.
+
+constitutional_basis:
+  - "Evidence Before Confidence. Never optimize for appearing correct. Optimize for being correct."
+  - "Distinguish clearly between Facts, Evidence, Assumptions, Hypotheses."
+  - "Uncertainty should never be hidden."
+  - "Every architectural decision should remain traceable."
+
+# ------------------------------------------------------------------------------
+# 2. THE INVESTIGATION QUESTION
+# ------------------------------------------------------------------------------
+core_question: "Why does DiscoveryMetrics fail to become resident during canonical boot?"
+
+sub_questions:
+  - "intended owner?"
+  - "start_child result?"
+  - "dependency?"
+  - "crash reason?"
+  - "supervisor restart behavior?"
+  - "startup ordering?"
+  - "intentionally optional?"
+
+# ------------------------------------------------------------------------------
+# 3. STRICT SCOPE & BOUNDARIES
+# ------------------------------------------------------------------------------
+scope:
+  permitted_targets:
+    - "Read-only inspection of DiscoveryMetrics lifecycle, init, dependencies"
+    - "Inspection of owning supervisor start_child result and restart behavior"
+    - "Inspection of boot ordering and startup logs"
+    - "Reading design docs / moduledoc / architecture intent for DiscoveryMetrics"
+    - "Tracing which components (if any) consume DiscoveryMetrics output"
+  explicitly_forbidden:
+    - "Patching DiscoveryMetrics startup during this investigation"
+    - "Changing the health contract during this investigation"
+    - "Choosing 'optional' because it is more convenient than fixing startup"
+    - "Forcing EOS to report healthy"
+    - "CEL-1: registry-driven delegation work"
+    - "Production mutation of any kind"
+
+  hard_prohibition: >
+    The required/optional verdict MUST cite design-intent evidence (docs,
+    consumers, contract semantics). A verdict of 'optional' whose only
+    justification is 'easier than fixing it' is a constitutional violation
+    and is REJECTED. The current health contract penalizing absence is
+    evidence to be validated, not a conclusion to be assumed.
+
+# ------------------------------------------------------------------------------
+# 4. MISSION GATES
+# ------------------------------------------------------------------------------
+gates:
+  Phase_A_Failure_Mechanics:
+    description: "Capture exactly how DiscoveryMetrics fails to start."
+    requirements:
+      - "Record the owning supervisor's start_child return value"
+      - "Record whereis/registered-name state for DiscoveryMetrics"
+      - "Capture crash reason from init (if it crashes after start)"
+      - "Record restart spec (:permanent/:transient/:temporary) and restart intensity"
+      - "Determine if supervisor hit max_restarts and gave up (crash-loop)"
+
+  Phase_B_Dependency_And_Ordering:
+    description: "Determine whether a dependency or ordering causes the failure."
+    requirements:
+      - "List DiscoveryMetrics init dependencies (services, DETS/ETS, config)"
+      - "Check whether any dependency is unavailable at DiscoveryMetrics start time"
+      - "Map DiscoveryMetrics position in boot order relative to its dependencies"
+      - "Check whether AE-004/AE-007 changes altered any dependency it needs"
+
+  Phase_C_Intent_Discovery:
+    description: "Establish the INTENDED contract (required vs optional) from evidence."
+    requirements:
+      - "Read design docs / moduledoc / architecture intent for DiscoveryMetrics"
+      - "Trace which components consume DiscoveryMetrics output (if any)"
+      - "Determine whether CEL/registry/health consumers depend on metrics"
+      - "Classify intent as REQUIRED / OPTIONAL / INSUFFICIENT_EVIDENCE"
+    evidence_matrix_reference: "docs/probes/AE-009_discovery_metrics_investigation_protocol.md"
+
+  Phase_D_Verdict:
+    description: "Produce the verdict and the authorized next step."
+    verdict_branches:
+      A_required:
+        evidence: "Design intent says it must run + consumers exist + contract expects it"
+        next: "Authorize remediation mission (ASC-AE-010) to fix lifecycle; adoption-gated"
+      B_optional:
+        evidence: "Design intent says best-effort + no hard dependents + absence tolerable"
+        next: "Authorize contract-formalization mission (ASC-AE-010) to make absence explicit"
+      C_insufficient_evidence:
+        evidence: "Intent cannot be established from available artifacts"
+        next: "Record as UNKNOWN; escalate for explicit human design decision. Do NOT guess."
+
+# ------------------------------------------------------------------------------
+# 5. ADOPTION GATE
+# ------------------------------------------------------------------------------
+no_automatic_adoption:
+  rule: >
+    This investigation is read-only and produces NO production change and NO
+    adoption artifact. It produces a VERDICT. Any subsequent remediation (A)
+    or contract formalization (B) is a SEPARATE mission (ASC-AE-010) with its
+    own C14 authorization and adoption gate.
+
+# ------------------------------------------------------------------------------
+# 6. HUMAN AUTHORIZATION BLOCK
+# ------------------------------------------------------------------------------
+human_authorization:
+  operator_id: schtickman
+  signature: F13-investigate
+  timestamp: 2026-08-21T04:30Z
+  conditions_accepted: true
+  notes: "AE-009 authorized — DiscoveryMetrics lifecycle investigation"
+
+valid_until: 2026-09-04T04:30Z
+
+# ------------------------------------------------------------------------------
+# 7. AUDIT TRAIL
+# ------------------------------------------------------------------------------
+audit_trail:
+  created_by: "tiannara_os"
+  creation_timestamp: "2026-08-21T00:00:00Z"
+  constitutional_basis: "rules.md -> Scientific Method / Evidence Before Confidence"
+  lineage:
+    - "AE-008 verdict: H5_real_failure_metrics, remedy=investigate_metrics"
+    - "F13 refined: DiscoveryMetrics lifecycle failure"
+    - "F9/F12 lesson: do not trade truth for green"

@@ -21,7 +21,6 @@ defmodule Tiannara.REA.OrbitMemory do
   """
 
   alias Tiannara.REA.OrbitMemoryTensor
-  alias Tiannara.REA.OrbitEstimator
 
   @doc """
   Extracts OMT from archived genesis records.

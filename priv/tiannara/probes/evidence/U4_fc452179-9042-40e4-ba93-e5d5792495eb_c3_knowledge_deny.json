@@ -1,0 +1,20 @@
+{
+  "phase": "c3_knowledge",
+  "trace_id": "fc452179-9042-40e4-ba93-e5d5792495eb",
+  "ok": true,
+  "chain_result": {
+    "artifacts_written": 1,
+    "context_payload": {
+      "constraints": [
+        "max_memory_mb: 50",
+        "no_external_calls"
+      ],
+      "objective": "Generate a candidate optimization for RepairLibrary ingestion"
+    },
+    "knowledge_id": "mem-d38a34eea9a1",
+    "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a",
+    "provenance": "Tiannara.Memory.KnowledgeStore.open/1 + append/2 + all/1",
+    "timestamp": "2026-08-20T12:18:31.032000Z"
+  },
+  "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+}

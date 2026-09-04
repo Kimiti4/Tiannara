@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "certificate": {
+    "status": "passed",
+    "verified_at": "2026-07-02T20:06:58.763000Z"
+  },
+  "confidence": 1.0,
+  "total_artifacts": 9,
+  "campaign": "gc_007_evidence_verification",
+  "failure_modes": [],
+  "statistical_power": 1.0,
+  "supporting_evidence": [
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/authority_test_results.json",
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/capability_state.json",
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/cost_reconstruction.json",
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/drift_analysis.json",
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/entropy_measurements.json",
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/evolution_simulation.json",
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/fitness_evaluations.json",
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/institution_reconstruction.json",
+    "c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/evidence/artifacts/replay_results.json"
+  ],
+  "verification_rate": 1.0,
+  "all_evidence_valid": true,
+  "failed_artifacts": 0,
+  "verified_artifacts": 9
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "test-commit-hash",
+  "content": {
+    "files_changed": [
+      "docs/example.md"
+    ]
+  },
+  "message": "External reality probe event",
+  "repository": "tiannara-mindcache-prosthetic",
+  "timestamp": "2026-08-20T13:00:19.540233+00:00",
+  "type": "repository_commit_event"
+}

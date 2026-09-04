@@ -1,0 +1,81 @@
+{
+  "artifacts": {
+    "crash_dump": {
+      "in_package": true,
+      "path": "evidence_package/oom/erl_crash.dump",
+      "size_mb": 62.7
+    },
+    "injections": "scripts/inject_failures.exs (3/3 PASS, isolated scratch node)",
+    "t0_extraction": "evidence_package/extractions/t0.json",
+    "t24_extraction": "evidence_package/extractions/t24.json (written by t24_audit.exs)"
+  },
+  "findings": [
+    {
+      "action": "post-Omega.R: strengthen unchanged? guard; do not touch running evidence",
+      "category": "P2 synthesis monoculture",
+      "evidence": [
+        "48x identical mint of \"Repair Simplicity Improves Transferability\" (confidence 0.189, support 323)",
+        "13 duplicate-mint groups total",
+        "124 pipeline-bypass entries",
+        "per-5min window bounded at 3 mints (no runaway loop; monoculture instead)"
+      ],
+      "id": "F1",
+      "severity": "evidence_problem",
+      "status": "open",
+      "title": "unchanged? guard does not prevent repeated identical mints"
+    },
+    {
+      "action": "F2 closer: run check_f2_closed.exs --since <post-fix-soak-start>; PASS only when signature count is 0 on a new image",
+      "evidence": [
+        "363x identical ArgumentError: could not put/update key \"step_execute\" on a nil value in soak log",
+        "fix: defensive retry_counts Map.put at workflow_engine.ex:614",
+        "regression test: test/tiannara/cel/services/workflow_engine_retry_test.exs (passing)",
+        "soak BEAM ran the OLD image -> crash loop persisted until OOM death; see F4"
+      ],
+      "id": "F2",
+      "post_fix_soak_evidence": "pending",
+      "severity": "defect_fixed",
+      "soak_runtime_patched": false,
+      "status": "fixed_with_regression_test",
+      "title": "WorkflowEngine put_in crash on missing retry_counts"
+    },
+    {
+      "action": "post-Omega.R: persist hourly reports/lineage/CPL from the soak context",
+      "evidence": [
+        "no hourly reports on disk during soak (docs/operations/report_*.json are stale, pre-soak)",
+        "no data/cpl/ checkpoints on disk",
+        "no lineage files on disk from the soak",
+        "capability audit therefore reports :not_measured for disk-derived capabilities"
+      ],
+      "id": "F3",
+      "severity": "observability_gap",
+      "status": "open",
+      "title": "soak evidence trail is log-only"
+    },
+    {
+      "action": "parallel track: analyze_oom_dump.exs over evidence_package/oom/erl_crash.dump; root-cause before any future re-soak",
+      "evidence": [
+        "ran 38.3h of planned 72h; died 2026-08-15T23:03:13Z",
+        "eheap_alloc: Cannot allocate 600904 bytes (type \"heap\")",
+        "erl_crash.dump written to repo root (62.7MB) - copied into evidence_package/oom/",
+        "final PhaseOmega runtime verification: 1/16 healthy (subsystems dying under memory pressure)",
+        "last crash stack: DiscoveryScheduler.run_cycle -> Events.emit -> GenServer.call (timeout)",
+        "plausible leak contributor: F2 WorkflowEngine crash loop accumulating supervisor restarts"
+      ],
+      "id": "F4",
+      "severity": "experiment_termination",
+      "status": "recorded",
+      "title": "soak terminated early by BEAM heap exhaustion (OOM)"
+    }
+  ],
+  "generated_at": "2026-08-16T04:48:42.218000Z",
+  "soak": {
+    "died_at_utc": "2026-08-15T23:03:13Z",
+    "log_frozen": true,
+    "log_lines": 135647,
+    "log_path": "C:\\Users\\user\\AppData\\Local\\Temp\\opencode\\soak72.log",
+    "planned_hours": 72,
+    "ran_hours": 38.3,
+    "terminated": "beam_oom"
+  }
+}

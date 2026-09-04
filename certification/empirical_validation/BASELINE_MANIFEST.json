@@ -1,0 +1,86 @@
+{
+  "manifest_id": "TIANNARA_BASELINE_2026-09-03",
+  "mission": "TIANNARA_EMPIRICAL_VALIDATION_AND_SCIENTIFIC_GOVERNANCE",
+  "phase": 2,
+  "purpose": "Freeze a baseline BEFORE any optimization/validation work. Every subsequent experiment must be reproducible from this manifest. NO OPTIMIZATION against metrics before this baseline is established (No-Metric-Gaming rule).",
+  "date": "2026-09-03",
+  "control_state": "RECON_AND_REGISTRY_COMPLETE_NO_EXPERIMENTS_RUN",
+  "repository": {
+    "path": "C:\\Users\\user\\Tiannara\\Tiannara-MindCache-Prosthetic",
+    "head_commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+    "head_short": "3bd1601",
+    "working_tree_dirty_entries": 2097,
+    "note": "Working tree is heavily divergent from HEAD (2097 changed/untracked paths). Baseline must be anchored to HEAD commit, NOT working-tree state, for reproducibility."
+  },
+  "app": {
+    "project_app": "tiannara",
+    "version": "0.3.5",
+    "start_module": "Tiannara.Application",
+    "supervision_strategy": "one_for_one",
+    "top_level_children_estimate": "53+ core+loop (ASC gated off by default: asc.enabled defaults false)"
+  },
+  "runtime": {
+    "elixir": "1.18.4",
+    "otp": "28",
+    "erts": "16.4",
+    "platform": "win32",
+    "compiled_beams_dev": 1457,
+    "compiled_beams_test": 2066
+  },
+  "truth_anchor__forecasting_chain": {
+    "domain": "D1-D5 EFDI forecasting chain (the trustworthy reference harness)",
+    "certification_state": "D1..D5 CERTIFIED_BOUNDED (unmodified by this mission)",
+    "d5_terminal": true,
+    "test_files": 41,
+    "test_blocks": 354,
+    "test_failures": 0,
+    "note": "The only area of the substrate that is genuinely implemented AND tested. Intended measurement-grade reference for falsification controls."
+  },
+  "classification_summary": {
+    "real": [
+      "world_state/world_model", "simulation_engine+multiworld", "scenario_builder/horizon_planner/impact_forecaster",
+      "ecology_organism+tracker", "evolution_engine+long_horizon", "council+cis_control",
+      "telemetry+observatory_validation_harness", "repro_framework", "research_proposal_pipeline(honest,execution-disabled)",
+      "forecasting_D1-D5"
+    ],
+    "real_untested": [
+      "stabilization_OLEF", "stabilization_OCM", "stabilization_HSV", "stabilization_CTL",
+      "ecology_organism", "ecology_tracker"
+    ],
+    "simulated": [
+      "archaeology", "epistemic_mirror", "discovery/engine.ex", "forecasting/planner.ex",
+      "validation/campaign.ex", "ecology/regime_ladder.ex", "simulation_output/*.csv"
+    ],
+    "stubbed": ["stubs/* (12 modules)", "p9x_ecosystem (empty)", "civics (placeholder)"],
+    "absent": ["intelligence_tiers", "durable_experiment_registry", "persisted_evidence_ledger", "genuine_independent_revalidator"]
+  },
+  "critical_controls_already_present": [
+    "R0 experiment-execution quarantine -> reason :fabrication_path_disabled (research_director Pipeline)",
+    "evidence/provenance.ex accepts_as_evidence only :real_execution; refuses to fabricate kind",
+    "verification_authority.ex honestly returns :not_independently_assessed / :unavailable",
+    "Metrics.Aggregator silently discards simulated pushes (mirror/forecasting/archaeology/discovery/governance/cis/twp/coherence)"
+  ],
+  "critical_holes_to_close_only_with_explicit_authorization": [
+    "durable experiment registry (currently in-memory ETS only)",
+    "persisted evidence ledger (none exists)",
+    "genuine no-trust empirical auditor (current 'independent audit' is artifact-fingerprint only)"
+  ],
+  "metrics_and_locking": {
+    "locked_metric_selections": [],
+    "optimization_initiated": false,
+    "goodhart_guard": "No metric is an optimization target before this baseline is established and validated",
+    "no_hardcoding_guard": "No PASS/SUCCESS/VALIDATED/INTELLIGENT/ROBUST/EMERGENT/STABLE verdicts are hardcoded; all must emerge from measured evidence"
+  },
+  "provenance": {
+    "authority": "Council-authorized mission (master prompt). D5 terminal; no authority propagation.",
+    "recon_artifacts": [
+      "certification/empirical_validation/EMPIRICAL_VALIDATION_RECONNAISSANCE.md",
+      "certification/empirical_validation/EMPIRICAL_VALIDATION_CLASSIFICATION_MATRIX.md"
+    ],
+    "registry_artifact": [
+      "certification/empirical_validation/TIANNARA_CLAIM_REGISTRY.md",
+      "certification/empirical_validation/TIANNARA_CLAIMS.json"
+    ],
+    "status": "FREEZEN_ONLY_NO_EXPERIMENT"
+  }
+}

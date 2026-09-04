@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-07-03T16:19:27.366000Z",
+  "seed": 42,
+  "num_runs": 5,
+  "manifest_hash": "ffb09a902619bb4997d60ada30bc12733a8b77dda5dd1c180e27b02a10771e5c",
+  "test_type": "cold_boot_reproducibility",
+  "all_identical": true,
+  "certificate_hash": "8d9c812d8ed2a3c25da29eafe5f96f02e8a7686420fcfceb1f5c68c8f368658c",
+  "individual_runs": [
+    {
+      "run": 1,
+      "cert_hash": "8d9c812d8ed2a3c25da29eafe5f96f02e8a7686420fcfceb1f5c68c8f368658c",
+      "manifest_hash": "ffb09a902619bb4997d60ada30bc12733a8b77dda5dd1c180e27b02a10771e5c",
+      "elapsed_ms": 372731
+    },
+    {
+      "run": 2,
+      "cert_hash": "8d9c812d8ed2a3c25da29eafe5f96f02e8a7686420fcfceb1f5c68c8f368658c",
+      "manifest_hash": "ffb09a902619bb4997d60ada30bc12733a8b77dda5dd1c180e27b02a10771e5c",
+      "elapsed_ms": 374566
+    },
+    {
+      "run": 3,
+      "cert_hash": "8d9c812d8ed2a3c25da29eafe5f96f02e8a7686420fcfceb1f5c68c8f368658c",
+      "manifest_hash": "ffb09a902619bb4997d60ada30bc12733a8b77dda5dd1c180e27b02a10771e5c",
+      "elapsed_ms": 343370
+    },
+    {
+      "run": 4,
+      "cert_hash": "8d9c812d8ed2a3c25da29eafe5f96f02e8a7686420fcfceb1f5c68c8f368658c",
+      "manifest_hash": "ffb09a902619bb4997d60ada30bc12733a8b77dda5dd1c180e27b02a10771e5c",
+      "elapsed_ms": 343162
+    },
+    {
+      "run": 5,
+      "cert_hash": "8d9c812d8ed2a3c25da29eafe5f96f02e8a7686420fcfceb1f5c68c8f368658c",
+      "manifest_hash": "ffb09a902619bb4997d60ada30bc12733a8b77dda5dd1c180e27b02a10771e5c",
+      "elapsed_ms": 353128
+    }
+  ],
+  "tier_status": "PASSED",
+  "notes": "All 5 clean builds produced identical cryptographic hashes"
+}

@@ -6,7 +6,7 @@ defmodule Tiannara.ASC.Reality.RealityBridge do
   """
   
   require Logger
-  alias Tiannara.ASC.Reality.{PatchProposal, EngineeringOutcome}
+  alias Tiannara.ASC.Reality.PatchProposal
 
   @source_repo File.cwd!()
 

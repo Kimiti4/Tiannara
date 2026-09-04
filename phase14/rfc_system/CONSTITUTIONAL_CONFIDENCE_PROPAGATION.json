@@ -1,0 +1,25 @@
+{
+  "confidence_chain": [
+    {
+      "artifact": "RFC",
+      "confidence_class": "CC-3",
+      "confidence_score": 0.84
+    },
+    {
+      "artifact": "Replay Report",
+      "confidence_class": "CC-3",
+      "confidence_score": 0.81
+    },
+    {
+      "artifact": "Certificate",
+      "confidence_class": "CC-3",
+      "confidence_score": 0.79
+    },
+    {
+      "artifact": "Freeze Package",
+      "confidence_class": "CC-3",
+      "confidence_score": 0.77
+    }
+  ],
+  "version": "14.1.2"
+}

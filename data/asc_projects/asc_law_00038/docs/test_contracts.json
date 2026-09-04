@@ -1,0 +1,49 @@
+[
+  {
+    "id": "tc_168",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: create pub/sub system",
+    "source_ref": "cap_166",
+    "test_module_name": "CreatePubSubTest",
+    "test_function_name": "test create pub/sub system succeeds with valid inputs",
+    "expected_behavior": "create pub/sub system completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_169",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: publish events channels",
+    "source_ref": "cap_167",
+    "test_module_name": "PublishEventsChannelsTest",
+    "test_function_name": "test publish events channels succeeds with valid inputs",
+    "expected_behavior": "publish events channels completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_170",
+    "priority": "medium",
+    "status": "pending",
+    "type": "integration",
+    "description": "Integration: publish events channels — cross-boundary",
+    "source_ref": "cap_167",
+    "test_module_name": "PublishEventsChannelsTestIntegration",
+    "test_function_name": "test publish events channels propagates across boundaries",
+    "expected_behavior": "publish events channels propagates correctly across system boundaries",
+    "coverage_dimension": "integration",
+    "property_spec": null,
+    "tags": [
+      "integration"
+    ],
+    "source_type": "capability"
+  }
+]

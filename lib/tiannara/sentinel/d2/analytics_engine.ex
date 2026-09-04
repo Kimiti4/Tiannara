@@ -77,7 +77,7 @@ defmodule Tiannara.Sentinel.D2.AnalyticsEngine do
   @moduledoc """
   D.2: The Meta-Analytics layer for Phase 9.85/9.9 Ecological Observation.
   """
-  alias Tiannara.Sentinel.D2.{EpistemologySpecies, EpistemologyGraph, BreakthroughAnalyzer}
+  alias Tiannara.Sentinel.D2.{EpistemologyGraph, BreakthroughAnalyzer}
   alias Tiannara.Sentinel.D2.{
     SpeciesAtlas,
     OperatorEcology,
@@ -90,7 +90,11 @@ defmodule Tiannara.Sentinel.D2.AnalyticsEngine do
   }
 
   def calculate_species_atlas(pipeline_telemetry \\ %{}) do
-    all_species = EpistemologySpecies.get_all_species()
+    all_species = if function_exported?(Tiannara.Sentinel.D2.EpistemologySpecies, :get_all_species, 0) do
+      apply(Tiannara.Sentinel.D2.EpistemologySpecies, :get_all_species, [])
+    else
+      []
+    end
     sorted = Enum.sort_by(all_species, & &1.metrics.active_duration, :desc)
     dominant = sorted |> Enum.take(5)
     extinct = Enum.filter(sorted, fn sp -> sp.metrics.extinctions > 0 end) |> Enum.sort_by(& &1.metrics.extinctions, :desc)
@@ -114,7 +118,11 @@ defmodule Tiannara.Sentinel.D2.AnalyticsEngine do
   end
 
   def detect_attractors(pipeline_telemetry \\ %{}) do
-    all_species = EpistemologySpecies.get_all_species()
+    all_species = if function_exported?(Tiannara.Sentinel.D2.EpistemologySpecies, :get_all_species, 0) do
+      apply(Tiannara.Sentinel.D2.EpistemologySpecies, :get_all_species, [])
+    else
+      []
+    end
     breakthroughs = BreakthroughAnalyzer.get_breakthroughs()
     
     Enum.map(all_species, fn sp ->
@@ -140,7 +148,11 @@ defmodule Tiannara.Sentinel.D2.AnalyticsEngine do
   end
 
   def calculate_diversity_profile do
-    all_species = EpistemologySpecies.get_all_species()
+    all_species = if function_exported?(Tiannara.Sentinel.D2.EpistemologySpecies, :get_all_species, 0) do
+      apply(Tiannara.Sentinel.D2.EpistemologySpecies, :get_all_species, [])
+    else
+      []
+    end
     species_count = length(all_species)
     attractors = detect_attractors()
     
@@ -166,8 +178,12 @@ defmodule Tiannara.Sentinel.D2.AnalyticsEngine do
     }
   end
 
-  def certify_ecosystem_health(pipeline_telemetry \\ %{}) do
-    all_species = EpistemologySpecies.get_all_species()
+  def certify_ecosystem_health(_pipeline_telemetry \\ %{}) do
+    all_species = if function_exported?(Tiannara.Sentinel.D2.EpistemologySpecies, :get_all_species, 0) do
+      apply(Tiannara.Sentinel.D2.EpistemologySpecies, :get_all_species, [])
+    else
+      []
+    end
     breakthroughs = BreakthroughAnalyzer.get_breakthroughs()
     extinctions = Enum.sum(Enum.map(all_species, & &1.metrics.extinctions))
     
@@ -179,7 +195,11 @@ defmodule Tiannara.Sentinel.D2.AnalyticsEngine do
   end
 
   def cluster_epistemic_archetypes(pipeline_telemetry \\ %{}) do
-    all_species = EpistemologySpecies.get_all_species()
+    all_species = if function_exported?(Tiannara.Sentinel.D2.EpistemologySpecies, :get_all_species, 0) do
+      apply(Tiannara.Sentinel.D2.EpistemologySpecies, :get_all_species, [])
+    else
+      []
+    end
     grouped = Enum.group_by(all_species, fn sp -> length(sp.operators) end)
     
     Enum.map(grouped, fn {op_count, members} ->
@@ -228,13 +248,17 @@ defmodule Tiannara.Sentinel.D2.AnalyticsEngine do
     %{"adversarial" => -0.2, "causal" => 0.05, "empirical" => 0.1}
   end
 
-  def calculate_readiness_score(pipeline_telemetry \\ %{}) do
+  def calculate_readiness_score(_pipeline_telemetry \\ %{}) do
     state =
       case Process.whereis(TiannaraOS.CivilizationKernel) do
         nil -> nil
         pid ->
           if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
+            try do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            rescue
+              _ -> nil
+            end
           else
             nil
           end
@@ -265,7 +289,7 @@ defmodule Tiannara.Sentinel.D2.AnalyticsEngine do
         ext_cycles = low_conf_count * 1.0
 
         # 5. species_diversity: normalized tool count
-        total_tools = Map.size(state.tools)
+        total_tools = map_size(state.tools)
         diversity = min(1.0, total_tools / 10.0)
 
         # 6. regime_robustness: average value of claims

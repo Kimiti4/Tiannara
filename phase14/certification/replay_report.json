@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-07-02T20:06:58.957000Z",
+  "replay_type": "deterministic_reconstruction",
+  "sample_size": 2,
+  "states_captured": 2,
+  "states_identical": true,
+  "determinism_verified": true,
+  "replay_method": "capture_state_twice",
+  "note": "For bootstrap scenario with no events, structural identity verified"
+}

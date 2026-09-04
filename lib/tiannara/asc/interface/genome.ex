@@ -156,7 +156,7 @@ defmodule Tiannara.ASC.Interface.Genome do
 
   """
   def from_plan(%Tiannara.ASC.Implementation.Plan{} = plan) do
-    contracts = extract_contracts_from_capabilities(plan.capabilities)
+    contracts = extract_contracts_from_capabilities(Map.get(plan, :capabilities, []))
     schemas = extract_schemas_from_storage_models(plan.storage_models)
     events = infer_events_from_workflows(plan.workflows)
 

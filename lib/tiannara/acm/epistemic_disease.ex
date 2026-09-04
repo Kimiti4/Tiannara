@@ -19,7 +19,7 @@ defmodule Tiannara.ACM.EpistemicDisease do
   @doc "Randomly generate a disease discovery for a civilization."
   def infect(civ_id) do
     {type, name} = Enum.random(@diseases)
-    Logger.warn("🦠 [EDM] Civilization #{civ_id} infected with Epistemic Disease: #{name}")
+    Logger.warning("🦠 [EDM] Civilization #{civ_id} infected with Epistemic Disease: #{name}")
     
     # Diseases look like normal discoveries but have 0 stability and high complexity
     Discovery.new(%{

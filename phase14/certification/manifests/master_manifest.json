@@ -1,0 +1,43 @@
+{
+  "version": "RC3",
+  "components": {
+    "manifests": "manifests/evidence_index.json",
+    "certificate": "certificate.json",
+    "evidence": "evidence/",
+    "runtime_freeze": "runtime_freeze.json",
+    "validation_report": "validation_report.json",
+    "replay_report": "replay_report.json",
+    "independent_audit": "independent_audit.json",
+    "campaign_results": "campaign_results/*.json (12 files)",
+    "hashes": "hashes/*.sha256"
+  },
+  "generated_at": "2026-07-02T20:06:59.247000Z",
+  "manifest_type": "phase_14_constitutional_evidence_package",
+  "generator_version": "14.0.999",
+  "package_structure": {
+    "base_directory": "phase14/certification",
+    "subdirectories": [
+      "campaign_results",
+      "evidence",
+      "hashes",
+      "replay",
+      "manifests"
+    ],
+    "total_artifacts": 30
+  },
+  "reproducibility": {
+    "requirements": [
+      "Clean Elixir 1.18+ installation",
+      "All dependencies installed via mix deps.get",
+      "No external services required",
+      "Deterministic execution guaranteed"
+    ],
+    "method": "mix run generate_phase14_evidence_package.exs",
+    "verification_command": "diff <(cat phase14/certification/certificate.json | jq -S .) <(mix run generate_phase14_evidence_package.exs && cat phase14/certification/certificate.json | jq -S .)"
+  },
+  "integrity": {
+    "hash_algorithm": "sha256",
+    "total_hashes": 30,
+    "index_file": "manifests/evidence_index.json"
+  }
+}

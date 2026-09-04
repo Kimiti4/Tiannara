@@ -1,0 +1,58 @@
+{
+  "constraints": [],
+  "risks": [],
+  "invariants": [
+    {
+      "id": "inv_198",
+      "domain": "general",
+      "statement": "Stock quantity cannot be negative",
+      "negation_form": "Stock quantity cannot be negative",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Stock quantity cannot be negative"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap_199",
+      "name": "add products inventory",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "add",
+      "subject": "products inventory",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_200",
+      "name": "update stock quantities",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "update",
+      "subject": "stock quantities",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_201",
+      "name": "list low-stock items",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "list",
+      "subject": "low-stock items",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:34:18.016000Z"
+}

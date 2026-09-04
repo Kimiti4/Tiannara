@@ -1,0 +1,81 @@
+# ==============================================================================
+# TIANNARA C14 AUTHORIZATION ARTIFACT: EVOLUTIONARY EXPERIMENT
+# ==============================================================================
+# Mission:    ASC-AE-006 — Lineage Retrieval Remediation (F8)
+# Predecessor: AE-005 (Epistemic Grounding)
+# ==============================================================================
+
+mission_id: "ASC-AE-006"
+status: "AUTHORIZED"
+
+# ------------------------------------------------------------------------------
+# 1. MISSION OBJECTIVE
+# ------------------------------------------------------------------------------
+objective: Remediate DETS traverse continuation leak in ExecutiveMemory get_lineage and find_lessons while preserving Recovery Honesty guarantee.
+
+constitutional_basis:
+  - Memory exists to improve reasoning rather than merely storing information.
+  - Uncertainty should never be hidden.
+  - Evidence Before Confidence.
+
+# ------------------------------------------------------------------------------
+# 2. STRICT SCOPE & BOUNDARIES
+# ------------------------------------------------------------------------------
+scope:
+  permitted_targets:
+    - F8 ExecutiveMemory get_lineage DETS traversal
+    - F8 ExecutiveMemory find_lessons DETS traversal
+  explicitly_forbidden:
+    - F11 CIS production residency Deferred to AE-007
+    - F13 Discovery supervisor degradation Deferred to AE-008
+    - Modifying EventStore append write path Read-only fix
+    - Production mutation Isolated experiment only
+
+# ------------------------------------------------------------------------------
+# 3. MISSION GATES
+# ------------------------------------------------------------------------------
+gates:
+  Phase_A_Traversal_Characterization:
+    description: Isolate the exact DETS match specification causing the leak.
+    requirement: Identify whether the leak occurs in the match spec or accumulator.
+
+  Phase_B_Candidate_Generation:
+    description: Generate isolated candidates.
+    candidates:
+      - baseline untouched crashes on traverse
+      - candidate_foldl replace traverse with dets foldl
+      - candidate_traverse_fix correctly handle continue
+
+  Phase_C_Continuity_Verification:
+    description: The candidate must pass all continuity and honesty tests.
+    tests:
+      - name: Normal Lineage
+        condition: Retrieve lineage for a known persisted event chain.
+        requirement: Returns complete ordered list of events. No crashes.
+      - name: Empty No-Match
+        condition: Retrieve lineage for a non-existent entity ID.
+        requirement: Returns empty list cleanly. No crashes.
+      - name: Continuation Leak Check
+        condition: Force a large lineage that requires DETS continuation.
+        requirement: No Protocol UndefinedError. No continue tuples in final output.
+      - name: Recovery Honesty
+        condition: Corrupt the DETS file or simulate unreadable state.
+        requirement: Must return explicit error. Must not return empty list that masks corruption.
+
+# ------------------------------------------------------------------------------
+# 4. ADOPTION GATE
+# ------------------------------------------------------------------------------
+no_automatic_adoption:
+  rule: This authorization permits ISOLATED EXPERIMENTATION only. If a candidate passes Phase C, it must generate an EVIDENCE REPORT. Merging to production requires a SEPARATE C14 authorization artifact.
+
+# ------------------------------------------------------------------------------
+# 5. HUMAN AUTHORIZATION BLOCK
+# ------------------------------------------------------------------------------
+human_authorization:
+  operator_id: schtickman
+  signature: F8-fix
+  timestamp: 8-21-2026T1030
+  conditions_accepted: true
+  notes: AE-006
+
+valid_until: 8-28-2026T1030

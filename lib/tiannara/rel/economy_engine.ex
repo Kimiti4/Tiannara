@@ -272,6 +272,13 @@ defmodule Tiannara.REL.EconomyEngine do
     end
   end
 
+  defp get_fitness(civ_id, shard_id) do
+    case safe_get_entity(civ_id, shard_id) do
+      {:ok, ent} -> Map.get(ent.attributes, :fitness_score, 0.1)
+      _ -> 0.1
+    end
+  end
+
   defp process_maintenance_tick(%ResourceBudget{state: :dormant} = budget) do
     # Dormant civs do nothing but increment their sleep counter
     new_budget = %{budget | ticks_dormant: budget.ticks_dormant + 1}
@@ -298,15 +305,6 @@ defmodule Tiannara.REL.EconomyEngine do
     
     new_budget
   end
-
-  defp get_fitness(civ_id, shard_id) do
-    case safe_get_entity(civ_id, shard_id) do
-      {:ok, ent} -> Map.get(ent.attributes, :fitness_score, 0.1)
-      _ -> 0.1
-    end
-  end
-
-
 
   defp process_maintenance_tick(budget) do
     # Calculate maintenance cost (e.g. 1 energy per 10 beliefs)
@@ -376,7 +374,7 @@ defmodule Tiannara.REL.EconomyEngine do
     budget_with_deltas = %{budget | truth_capital: new_truth}
 
     if budget_with_deltas.energy <= 0 do
-      Logger.warn("💀 [REL] Civilization #{budget.civilization_id} hit 0 energy. Entering dormancy.")
+      Logger.warning("💀 [REL] Civilization #{budget.civilization_id} hit 0 energy. Entering dormancy.")
       
       case safe_get_entity(budget.civilization_id, budget.shard_id) do
         {:ok, ent} ->
@@ -384,7 +382,7 @@ defmodule Tiannara.REL.EconomyEngine do
           if genome do
              Tiannara.Sentinel.EpistemologyArchive.record_collapse(budget, genome)
           else
-             Logger.warn("💀 [REL] Civilization #{budget.civilization_id} collapsed, but genome was nil! Attributes: #{inspect(Map.keys(ent.attributes))}")
+             Logger.warning("💀 [REL] Civilization #{budget.civilization_id} collapsed, but genome was nil! Attributes: #{inspect(Map.keys(ent.attributes))}")
           end
         _ -> :ok
       end
@@ -394,7 +392,7 @@ defmodule Tiannara.REL.EconomyEngine do
       budget_after_energy =
         if budget_with_deltas.energy < 200 do
           if budget.state != :starving do
-             Logger.warn("⚠️ [REL] Civilization #{budget.civilization_id} is starving! Initiating shedding.")
+             Logger.warning("⚠️ [REL] Civilization #{budget.civilization_id} is starving! Initiating shedding.")
           end
           # Trigger shedding to lower future maintenance
           shed_beliefs(budget.shard_id, budget.civilization_id)

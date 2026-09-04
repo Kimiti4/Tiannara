@@ -1,0 +1,8 @@
+{
+  "verdict": "OPERATIONAL",
+  "last_launched": "2026-07-20T21:44:24.6358537Z",
+  "beam_started": "2026-07-21T00:44:09.5149373+03:00",
+  "dashboard_url": "http://localhost:4000/coa/index.html",
+  "api_url": "http://localhost:4000/api/observatory/status",
+  "status": "running"
+}

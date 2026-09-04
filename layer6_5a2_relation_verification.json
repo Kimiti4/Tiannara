@@ -1,0 +1,23 @@
+{
+  "changes": {
+    "discovery": -0.36,
+    "evidence": -0.5,
+    "theory": -0.2592
+  },
+  "pre_confidences": {
+    "discovery": 0.7,
+    "evidence": 0.6,
+    "theory": 0.8
+  },
+  "post_confidences": {
+    "discovery": 0.3399999999999999,
+    "evidence": 0.09999999999999998,
+    "theory": 0.5408
+  },
+  "dependency_history_count": 3,
+  "propagation_reached": {
+    "discovery": true,
+    "evidence": true,
+    "theory": true
+  }
+}

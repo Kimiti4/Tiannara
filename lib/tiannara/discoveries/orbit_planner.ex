@@ -5,7 +5,6 @@ defmodule Tiannara.REA.MultiObjectivePlanner do
   """
 
   alias Tiannara.REA.OrbitReachabilityGraph
-  alias Tiannara.REA.OrbitDistance
 
   @doc """
   Plans the optimal trajectory path from `current_orbit` to `desired_orbit`
@@ -148,7 +147,7 @@ defmodule Tiannara.REA.MultiObjectivePlanner do
   end
 
   # Aggregate metrics along computed path
-  defp aggregate_path_metrics(path, edges, nodes) do
+  defp aggregate_path_metrics(path, edges, _nodes) do
     steps = Enum.chunk_every(path, 2, 1, :discard)
 
     {sum_epochs, joint_prob, sum_energy, interventions} =

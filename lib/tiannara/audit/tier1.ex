@@ -116,7 +116,7 @@ defmodule Tiannara.Audit.Tier1 do
 
   # --- Helpers ---
 
-  defp report(status, msg, opts \\ []) do
+  defp report(status, msg, opts) do
     quiet = Keyword.get(opts, :quiet, false)
     unless quiet do
       case status do

@@ -55,7 +55,7 @@ defmodule TiannaraOS.DiscoveryDependencyGraph do
   @spec check_prerequisites(State.t(), Discovery.t()) :: {:ok, [atom()]} | {:blocked, [atom()]}
   def check_prerequisites(%State{} = state, %Discovery{} = discovery) do
     # Get all existing discoveries in this world
-    world_discoveries = get_world_discoveries(state, discovery.world_id)
+    world_discoveries = get_world_discoveries(state, Map.get(discovery, :world_id))
     
     # Extract domain vectors from existing discoveries
     existing_capabilities = Enum.map(world_discoveries, & &1.domain_vector)
@@ -102,15 +102,14 @@ defmodule TiannaraOS.DiscoveryDependencyGraph do
     
     # Update dependency registry
     updated_dependencies = add_to_dependency_registry(
-      state.discovery_dependencies || %{},
+      Map.get(state, :discovery_dependencies) || %{},
       discovery.id,
       enabled_domains
     )
     
-    %{state |
-      worlds: updated_worlds,
-      discovery_dependencies: updated_dependencies
-    }
+    state
+    |> Map.put(:worlds, updated_worlds)
+    |> Map.put(:discovery_dependencies, updated_dependencies)
   end
   
   @doc """
@@ -155,11 +154,11 @@ defmodule TiannaraOS.DiscoveryDependencyGraph do
   """
   @spec infer_enabled_domains(Discovery.t()) :: [atom()]
   def infer_enabled_domains(%Discovery{} = discovery) do
-    domain_vector = discovery.domain_vector || %{}
-    
+    domain_vector = Map.get(discovery, :domain_vector) || %{}
+
     # High-weight domains become "enabled"
     enabled = domain_vector
-      |> Enum.filter(fn {_domain, weight} -> weight > @mastery_threshold end)
+      |> Enum.filter(fn {_domain, weight} -> weight >= @mastery_threshold end)
       |> Enum.map(fn {domain, _weight} -> domain end)
     
     # Add cross-domain synthesis opportunities
@@ -210,7 +209,7 @@ defmodule TiannaraOS.DiscoveryDependencyGraph do
   defp extract_required_domains(%Discovery{} = discovery) do
     # For now, use domain_vector weights as requirement indicators
     # Domains with weight > 0.5 are considered "required"
-    domain_vector = discovery.domain_vector || %{}
+    domain_vector = Map.get(discovery, :domain_vector) || %{}
     
     domain_vector
       |> Enum.filter(fn {_domain, weight} -> weight > 0.5 end)
@@ -221,20 +220,20 @@ defmodule TiannaraOS.DiscoveryDependencyGraph do
   defp domain_covered?(domain, capabilities_list) do
     # Check if any existing capability covers this domain
     Enum.any?(capabilities_list, fn cap_vector ->
-      Map.get(cap_vector, domain, 0.0) > @mastery_threshold
+      Map.get(cap_vector, domain, 0.0) >= @mastery_threshold
     end)
   end
   
   @spec calculate_unlocked_capabilities(Discovery.t(), [map()]) :: [atom()]
   defp calculate_unlocked_capabilities(discovery, _existing_capabilities) do
     # For now, return the high-weight domains from this discovery
-    domain_vector = discovery.domain_vector || %{}
-    
+    domain_vector = Map.get(discovery, :domain_vector) || %{}
+
     domain_vector
-      |> Enum.filter(fn {_domain, weight} -> weight > @mastery_threshold end)
+      |> Enum.filter(fn {_domain, weight} -> weight >= @mastery_threshold end)
       |> Enum.map(fn {domain, _weight} -> domain end)
   end
-  
+
   @spec update_world_capabilities(map(), Discovery.t()) :: map()
   defp update_world_capabilities(worlds, discovery) do
     world_id = discovery.world_id

@@ -1,0 +1,90 @@
+{
+  "min_confidence": 0.5339050749732707,
+  "final_confidence": 0.5339050749732707,
+  "dependency_events": [
+    {
+      "events": 0,
+      "tick": 5000
+    },
+    {
+      "events": 225,
+      "tick": 10000
+    },
+    {
+      "events": 225,
+      "tick": 15000
+    },
+    {
+      "events": 225,
+      "tick": 20000
+    },
+    {
+      "events": 450,
+      "tick": 25000
+    },
+    {
+      "events": 450,
+      "tick": 30000
+    },
+    {
+      "events": 450,
+      "tick": 35000
+    },
+    {
+      "events": 675,
+      "tick": 40000
+    },
+    {
+      "events": 675,
+      "tick": 45000
+    },
+    {
+      "events": 675,
+      "tick": 50000
+    }
+  ],
+  "confidence_timeline": [
+    {
+      "tick": 5000,
+      "confidence": 0.8321050749732737
+    },
+    {
+      "tick": 10000,
+      "confidence": 0.6971050749732681
+    },
+    {
+      "tick": 15000,
+      "confidence": 0.6971050749732681
+    },
+    {
+      "tick": 20000,
+      "confidence": 0.6971050749732681
+    },
+    {
+      "tick": 25000,
+      "confidence": 0.6005050749732691
+    },
+    {
+      "tick": 30000,
+      "confidence": 0.6005050749732691
+    },
+    {
+      "tick": 35000,
+      "confidence": 0.6005050749732691
+    },
+    {
+      "tick": 40000,
+      "confidence": 0.5339050749732707
+    },
+    {
+      "tick": 45000,
+      "confidence": 0.5339050749732707
+    },
+    {
+      "tick": 50000,
+      "confidence": 0.5339050749732707
+    }
+  ],
+  "shock_events": [],
+  "max_confidence": 0.8321050749732737
+}

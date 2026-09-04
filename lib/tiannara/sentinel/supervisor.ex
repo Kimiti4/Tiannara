@@ -12,11 +12,39 @@ defmodule Tiannara.Sentinel.Supervisor do
   @impl true
   def init(_opts) do
     children = [
+      # Universal Observation System (must start before TelemetryHub)
+      Tiannara.Sentinel.Observatory,
+
+      # Scientific Verification Layer
+      Tiannara.Sentinel.Verification,
+      # Causal Intelligence
+      Tiannara.Sentinel.CausalIntelligence,
+      # Evolutionary Oversight
+      Tiannara.Sentinel.EvolutionaryOversight,
+      # Archaeology Management
+      Tiannara.Sentinel.ArchaeologyManagement,
+      # SOPL/REA Governance
+      Tiannara.Sentinel.Governance,
+      # Human Collaboration Interface
+      Tiannara.Sentinel.HumanCollaboration,
+      # Sentinel Activation Engine — the continuous epistemic awareness loop
+      Tiannara.Sentinel.Activation.Engine,
+
+      # Sentinel Cognition Layer — scientific reasoning, context, and investigation
+      Tiannara.Sentinel.Cognition.Supervisor,
+
+      # Research Director — hypothesis generation and experiment planning
+      Tiannara.Research.Director,
+
+      # Execution Sandbox — isolated experiment execution
+      Tiannara.Sandbox,
+
+      # Core Sentinel analysis modules
       Tiannara.Sentinel.TelemetryHub,
       Tiannara.Sentinel.AnomalyDetector,
       Tiannara.Sentinel.ImmuneCoordinator,
-      
-      # Other Sentinel components (if needed)
+
+      # Epistemic tracking and archaeology
       Tiannara.Sentinel.EpistemologyArchive,
       Tiannara.Sentinel.EpistemologyAtlas,
       Tiannara.Sentinel.DiscoveryGenealogy,
@@ -24,7 +52,7 @@ defmodule Tiannara.Sentinel.Supervisor do
       Tiannara.Sentinel.DiseaseGenealogy
     ]
 
-    Logger.info("🛡️ [SENTINEL] Initializing Sentinel supervisor.")
+    Logger.info("Sentinel supervisor initialized.")
 
     Supervisor.init(children, strategy: :one_for_all)
   end

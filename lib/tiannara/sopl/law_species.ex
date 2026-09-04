@@ -157,9 +157,7 @@ defmodule Tiannara.SOPL.LawSpecies do
   end
 
   defp current_epoch do
-    if Code.ensure_loaded?(Tiannara.SOPL.Clock),
-      do: Tiannara.SOPL.Clock.now(),
-      else: System.system_time(:second)
+    DateTime.utc_now()
   end
   
   defp clamp(v, lo, hi), do: v |> max(lo) |> min(hi)

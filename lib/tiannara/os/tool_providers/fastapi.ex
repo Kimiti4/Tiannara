@@ -28,7 +28,6 @@ defmodule TiannaraOS.ToolProviders.FastAPI do
     else
       Logger.info("📡 [Tool Provider FastAPI] Dispatching genome #{genome.id} to autonomous-api at #{url}...")
       case perform_http_post(url, payload) do
-        {:ok, body} -> {:ok, body}
         {:error, reason} ->
           Logger.warning("📡 [Tool Provider FastAPI] Service offline (#{inspect(reason)}). Falling back to simulated result.")
           simulate_execution(genome.capability, twin_path)

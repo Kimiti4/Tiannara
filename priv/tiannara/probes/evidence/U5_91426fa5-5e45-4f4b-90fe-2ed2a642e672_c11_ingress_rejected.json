@@ -1,0 +1,27 @@
+{
+  "phase": "c11_ingress_rejected",
+  "trace_id": "91426fa5-5e45-4f4b-90fe-2ed2a642e672",
+  "ok": false,
+  "chain_result": {
+    "event_keys": [
+      "commit",
+      "content",
+      "external_received_at",
+      "message",
+      "repository",
+      "timestamp",
+      "type"
+    ],
+    "external_source": "U5_external_payload_tampered_f501e220.json",
+    "governance_consult": {
+      "ok": "ok"
+    },
+    "governance_institution": "Observatory (:can_observe @ :observability)",
+    "payload_hash": "d016274fb840bb0509d4f81e80bc79c7428fdc4040bae209b3c3988f2bbcf551",
+    "provenance": "filesystem ingress + sha256 signature verification (read-only; no external writes)",
+    "signature": "2096dff20a80a5b765ae9347b64847bfc1a93c638fc01bf1117368e5d35b0b1b",
+    "signature_verified": false,
+    "timestamp": "2026-08-20T13:03:37.803000Z"
+  },
+  "payload_hash": "2096dff20a80a5b765ae9347b64847bfc1a93c638fc01bf1117368e5d35b0b1b"
+}

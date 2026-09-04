@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-07-02T20:12:08.844000Z",
+  "sha256": "4f3015e8d3a4b650fbf5a133fc8fe1a4050e2a4c534348e823e18c6a2ace3ceb",
+  "test_type": "archaeological_reconstruction",
+  "reconstruction_successful": true,
+  "components_verified": {
+    "fitness": {
+      "name": "Fitness",
+      "reason": null,
+      "matches": true
+    },
+    "institutions": {
+      "name": "Institutions",
+      "reason": null,
+      "matches": true
+    },
+    "capabilities": {
+      "name": "Capabilities",
+      "reason": null,
+      "matches": true
+    },
+    "appointments": {
+      "name": "Appointments",
+      "reason": null,
+      "matches": true
+    },
+    "authority_graph": {
+      "name": "Authority Graph",
+      "reason": null,
+      "matches": true
+    },
+    "entropy": {
+      "name": "Entropy",
+      "reason": null,
+      "matches": true
+    },
+    "cost_summary": {
+      "name": "Cost Summary",
+      "reason": null,
+      "matches": true
+    },
+    "ledger_events": {
+      "name": "Ledger Events",
+      "reason": null,
+      "matches": true
+    },
+    "provenance_stats": {
+      "name": "Provenance Stats",
+      "reason": null,
+      "matches": true
+    }
+  },
+  "discrepancies": [],
+  "confidence": 1.0,
+  "original_state_hash": "fa955d939803d0a61c73432bc719783164ab8ca45f66b17382ea6505d3fa399d",
+  "reconstructed_state_hash": "ad841a394cd0af31b376bbc7ec73efef2cff7cc1d55fc482a69ab64a7ac40f82"
+}

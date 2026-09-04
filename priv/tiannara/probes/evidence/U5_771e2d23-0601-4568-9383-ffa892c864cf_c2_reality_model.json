@@ -1,0 +1,17 @@
+{
+  "phase": "c2_reality_model",
+  "trace_id": "771e2d23-0601-4568-9383-ffa892c864cf",
+  "ok": false,
+  "chain_result": {
+    "ok": {
+      "add_node": {
+        "error": "exit :exit: {:noproc, {GenServer, :call, [Tiannara.Graph.UnifiedRealityGraph, {:add_node, %{id: \"ext_entity_f55071bcc4c3\", name: \"external_reality_event\"}, :information, %{source: :probe_u5, payload_hash: \"3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f\"}}, 5000]}}"
+      },
+      "entity_id": "ext_entity_f55071bcc4c3",
+      "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f",
+      "provenance": "Tiannara.Graph.UnifiedRealityGraph.add_node/3",
+      "timestamp": "2026-08-20T13:05:11.926000Z"
+    }
+  },
+  "payload_hash": "3d319de15803ce2c467be9253571ac59f562381feca9868e4e8afa41b707bf4f"
+}

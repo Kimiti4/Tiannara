@@ -1,0 +1,32 @@
+# ==============================================================================
+# TIANNARA C14 ADOPTION ARTIFACT — ASC-AE-005
+# ==============================================================================
+# Approves production merge of candidate_grounding_fix
+# Evidence: docs/probes/AE-005_evidence_report.md
+# Predecessor: ASC-AE-005.human.yaml (AUTHORIZED, operator schtickman)
+# ==============================================================================
+
+mission_id: "ASC-AE-005-ADOPTION"
+parent_mission: "ASC-AE-005"
+status: "AUTHORIZED"
+
+evidence_ref: "docs/probes/AE-005_evidence_report.md"
+candidate: "candidate_grounding_fix"
+phase_c_verdict: "PASS (T1 Determinism, T2 Sensitivity, T3 Grounding, T4 Bounded Uncertainty)"
+
+patches_adopted:
+  - "lib/tiannara/cis/supervisor.ex — CollapsePredictor: :rand.uniform -> grounded deterministic telemetry-weighted risk with quarantine to {:unknown, :insufficient_evidence}"
+
+human_authorization:
+  operator_id: schtickman
+  signature: f9/f12/f10
+  timestamp: 2026-08-21T02:15Z
+  conditions_accepted: true
+  notes: "AE-005 adoption approved — epistemic grounding verified, proceeding to production"
+
+valid_until: 2026-09-04T02:15Z
+
+audit_trail:
+  created_by: "tiannara_os"
+  constitutional_basis: "rules.md -> Evidence Before Confidence / Truth has priority over confidence"
+  predecessor_hash: "AE-005 PASS"

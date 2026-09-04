@@ -44,7 +44,7 @@ defmodule Tiannara.ASC.Crucible.FailureClassifier do
   ## Returns
     A classification map with domain, category, subcategory, and confidence
   """
-  def classify(%{evidence: evidence, origin: origin} = _observation, project_id \\ nil) do
+  def classify(%{evidence: evidence, origin: origin} = _observation, _project_id \\ nil) do
     domain = classify_domain(origin)
     
     # Extract text from evidence (first evidence item or concatenated)
@@ -129,7 +129,7 @@ defmodule Tiannara.ASC.Crucible.FailureClassifier do
   defp extract_evidence_text(text) when is_binary(text), do: text
   defp extract_evidence_text(_), do: ""
 
-  defp classify_failure_type(text, domain) do
+  defp classify_failure_type(text, _domain) do
     text_lower = String.downcase(text)
     
     # Try to match specific failure patterns
@@ -350,7 +350,7 @@ defmodule Tiannara.ASC.Crucible.FailureClassifier do
   # Keyword Extraction
   # ============================================================================
 
-  defp extract_keywords(text, category) do
+  defp extract_keywords(text, _category) do
     # Extract meaningful keywords from the text for additional matching context
     stop_words = ~w(the a an is are was were be been being have has had do does did
                     will would shall should may might can could of in to for on with

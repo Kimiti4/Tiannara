@@ -1,0 +1,2 @@
+ID,Metric Type,Resource Type,Resource ID,Period Start,Period End,Granularity,Count,Value,Min Value,Max Value,Avg Value,Created At
+metric_a1e5125b68914670,api_calls,workspace,,2026-05-12T02:13:17.862500,2026-05-12T03:13:17.862500,hour,1,5.0,5.0,5.0,5.0,2026-05-12T02:13:17.909905

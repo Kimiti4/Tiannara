@@ -1,0 +1,17 @@
+[
+  {
+    "id": "tc_70",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: query event history",
+    "source_ref": "cap_69",
+    "test_module_name": "QueryEventHistoryTest",
+    "test_function_name": "test query event history succeeds with valid inputs",
+    "expected_behavior": "query event history completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

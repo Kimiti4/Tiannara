@@ -1,0 +1,22 @@
+{
+  "constraints": [],
+  "risks": [],
+  "invariants": [],
+  "capabilities": [
+    {
+      "id": "cap_49",
+      "name": "query event history",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "query",
+      "subject": "event history",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:29:28.882000Z"
+}

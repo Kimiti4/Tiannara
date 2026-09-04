@@ -1,0 +1,89 @@
+{
+  "edges": [
+    {
+      "from": "rfc",
+      "to": "simulation",
+      "type": "supports"
+    },
+    {
+      "from": "rfc",
+      "to": "replay",
+      "type": "supports"
+    },
+    {
+      "from": "rfc",
+      "to": "genome",
+      "type": "supports"
+    },
+    {
+      "from": "rfc",
+      "to": "ledger",
+      "type": "supports"
+    },
+    {
+      "from": "rfc",
+      "to": "validation",
+      "type": "supports"
+    },
+    {
+      "from": "simulation",
+      "to": "certificate",
+      "type": "supports"
+    },
+    {
+      "from": "replay",
+      "to": "certificate",
+      "type": "supports"
+    },
+    {
+      "from": "ledger",
+      "to": "certificate",
+      "type": "supports"
+    },
+    {
+      "from": "validation",
+      "to": "certificate",
+      "type": "supports"
+    },
+    {
+      "from": "review",
+      "to": "certificate",
+      "type": "evaluates"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "rfc",
+      "type": "artifact"
+    },
+    {
+      "id": "simulation",
+      "type": "artifact"
+    },
+    {
+      "id": "replay",
+      "type": "artifact"
+    },
+    {
+      "id": "genome",
+      "type": "artifact"
+    },
+    {
+      "id": "ledger",
+      "type": "artifact"
+    },
+    {
+      "id": "validation",
+      "type": "artifact"
+    },
+    {
+      "id": "certificate",
+      "type": "artifact"
+    },
+    {
+      "id": "review",
+      "type": "artifact"
+    }
+  ],
+  "version": "14.1.2"
+}

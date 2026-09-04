@@ -1,0 +1,25 @@
+{
+  "claims": [
+    {
+      "claim": "Replay scalability",
+      "required_evidence": "10M deterministic replay benchmark",
+      "sufficiency_rule": "Sufficient when replay is deterministic and latency remains within the accepted envelope"
+    },
+    {
+      "claim": "Distributed governance",
+      "required_evidence": "Independent multi-node audit",
+      "sufficiency_rule": "Sufficient when independent validation succeeds across distributed execution paths"
+    },
+    {
+      "claim": "Long-horizon compatibility",
+      "required_evidence": "Multi-generation migration tests",
+      "sufficiency_rule": "Sufficient when lineage and schema compatibility remain intact across migrations"
+    },
+    {
+      "claim": "Civilization readiness",
+      "required_evidence": "Longitudinal governance evaluations",
+      "sufficiency_rule": "Sufficient when readiness metrics remain stable across multiple review cycles"
+    }
+  ],
+  "version": "14.1.2"
+}

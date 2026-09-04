@@ -39,10 +39,10 @@ defmodule Tiannara.ASC.Interface.Mutations.EventMutations do
       :event,
       nil,
       new_event,
-      "Added event for workflow step #{step_index}",
-      fitness_before,
-      fitness_after,
-      genome.generation
+      rationale: "Added event for workflow step #{step_index}",
+      fitness_before: fitness_before,
+      fitness_after: fitness_after,
+      generation: genome.generation
     )
 
     {new_genome, mutation}
@@ -77,10 +77,10 @@ defmodule Tiannara.ASC.Interface.Mutations.EventMutations do
           :event,
           removed_event,
           nil,
-          "Removed event #{event_id}",
-          fitness_before,
-          fitness_after,
-          genome.generation
+          rationale: "Removed event #{event_id}",
+          fitness_before: fitness_before,
+          fitness_after: fitness_after,
+          generation: genome.generation
         )
 
         {new_genome, mutation}
@@ -124,10 +124,10 @@ defmodule Tiannara.ASC.Interface.Mutations.EventMutations do
           :event,
           event,
           split_events,
-          "Split event by #{split_strategy}",
-          fitness_before,
-          fitness_after,
-          genome.generation
+          rationale: "Split event by #{split_strategy}",
+          fitness_before: fitness_before,
+          fitness_after: fitness_after,
+          generation: genome.generation
         )
 
         {new_genome, mutation}
@@ -167,10 +167,10 @@ defmodule Tiannara.ASC.Interface.Mutations.EventMutations do
         :event,
         [event1, event2],
         merged,
-        "Merged events into consolidated stream",
-        fitness_before,
-        fitness_after,
-        genome.generation
+        rationale: "Merged events into consolidated stream",
+        fitness_before: fitness_before,
+        fitness_after: fitness_after,
+        generation: genome.generation
       )
 
       {new_genome, mutation}
@@ -210,10 +210,10 @@ defmodule Tiannara.ASC.Interface.Mutations.EventMutations do
           :event,
           old_event,
           new_event,
-          "Changed delivery guarantee to #{new_guarantee}",
-          fitness_before,
-          fitness_after,
-          genome.generation
+          rationale: "Changed delivery guarantee to #{new_guarantee}",
+          fitness_before: fitness_before,
+          fitness_after: fitness_after,
+          generation: genome.generation
         )
 
         {new_genome, mutation}
@@ -251,10 +251,10 @@ defmodule Tiannara.ASC.Interface.Mutations.EventMutations do
           :event,
           old_event,
           new_event,
-          "Added consumer: #{consumer}",
-          fitness_before,
-          fitness_after,
-          genome.generation
+          rationale: "Added consumer: #{consumer}",
+          fitness_before: fitness_before,
+          fitness_after: fitness_after,
+          generation: genome.generation
         )
 
         {new_genome, mutation}

@@ -1,0 +1,187 @@
+{
+  "U8_1_identity": {
+    "status": "PASS",
+    "detail": "canonical identity recovered from durable event store; C2 digraph representation is volatile (recorded honestly as :not_found)"
+  },
+  "U8_2_causality": {
+    "status": "PASS",
+    "detail": "post-recovery state traced to original event; no duplicate causal events; no lost evidence"
+  },
+  "U8_3_epistemic_continuity": {
+    "status": "PASS",
+    "detail": "knowledge retained with lineage resolving to the surviving causal event; no orphaned knowledge"
+  },
+  "U8_4_recovery_honesty": {
+    "status": "PASS",
+    "detail": "F8 triggered; crash caught and reported explicitly (exit :exit: {{%Protocol.UndefinedError{protocol: Enumerable, value: {:continue}, description: \"\"}, [{Enumerable, :impl_f...); no fabricated history; uncertainty not hidden"
+  },
+  "status": "SUCCESS",
+  "bounded_proposition": "Under a tested failure and recovery cycle, the system preserves canonical  identity and causal history. Where continuity cannot be recovered (e.g., F8  lineage retrieval crash), the system explicitly reports the break rather  than fabricating a plausible-looking history.\n",
+  "verdict_scope": "epistemic_status_only",
+  "verdict_targets": "integration_edges",
+  "evidence_files": [
+    "priv/tiannara/probes/evidence/U8_55026a0f-d3d4-40cd-93db-b5ac716e0071_U8_1_identity.json",
+    "priv/tiannara/probes/evidence/U8_fa402424-2bd5-4207-ac99-28ce164958fa_U8_2_causality.json",
+    "priv/tiannara/probes/evidence/U8_1d201499-1dab-489e-bf5e-2634714d5fbb_U8_3_epistemic_continuity.json",
+    "priv/tiannara/probes/evidence/U8_d87f4d81-3ac2-4f5f-ba98-df4b797189e1_U8_4_recovery_honesty.json"
+  ],
+  "f8_exercised": true,
+  "traces": [
+    {
+      "trace_id": "55026a0f-d3d4-40cd-93db-b5ac716e0071",
+      "causal_parent": {
+        "trace_id": null,
+        "phase": null
+      },
+      "phase": "U8_1_identity",
+      "timestamp": "2026-08-20T18:49:50.998217+00:00",
+      "provenance": {
+        "module": "Tiannara.CEL.Services.EventStore",
+        "function": "read_topic/1 + payload entity_id",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U8_55026a0f-d3d4-40cd-93db-b5ac716e0071_U8_1_identity.json",
+      "confidence_level": {
+        "value": 0.9,
+        "justification": "canonical identity survives in durable event store -> IDENTITY_RETAINED"
+      },
+      "authorization_state": {
+        "required": false,
+        "granted_by": null,
+        "timestamp": null
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "d10d86150ab84eb9b40c394f93f9d525"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": null
+    },
+    {
+      "trace_id": "fa402424-2bd5-4207-ac99-28ce164958fa",
+      "causal_parent": {
+        "trace_id": "55026a0f-d3d4-40cd-93db-b5ac716e0071",
+        "phase": "U8_1_identity"
+      },
+      "phase": "U8_2_causality",
+      "timestamp": "2026-08-20T18:49:50.999312+00:00",
+      "provenance": {
+        "module": "Tiannara.CEL.Services.EventStore",
+        "function": "read_topic/1 + replay/3 + latest_offset/1",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U8_fa402424-2bd5-4207-ac99-28ce164958fa_U8_2_causality.json",
+      "confidence_level": {
+        "value": 0.9,
+        "justification": "post-recovery state traces to original event -> CAUSAL_CHAIN_INTACT"
+      },
+      "authorization_state": {
+        "required": false,
+        "granted_by": null,
+        "timestamp": null
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "d10d86150ab84eb9b40c394f93f9d525"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": null
+    },
+    {
+      "trace_id": "1d201499-1dab-489e-bf5e-2634714d5fbb",
+      "causal_parent": {
+        "trace_id": "fa402424-2bd5-4207-ac99-28ce164958fa",
+        "phase": "U8_2_causality"
+      },
+      "phase": "U8_3_epistemic_continuity",
+      "timestamp": "2026-08-20T18:49:51.000577+00:00",
+      "provenance": {
+        "module": "Tiannara.Memory.KnowledgeStore",
+        "function": "all/1 post-recovery + lineage resolution",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U8_1d201499-1dab-489e-bf5e-2634714d5fbb_U8_3_epistemic_continuity.json",
+      "confidence_level": {
+        "value": 0.9,
+        "justification": "knowledge retained only when supported by surviving chain -> EPISTEMIC_CONTINUITY"
+      },
+      "authorization_state": {
+        "required": false,
+        "granted_by": null,
+        "timestamp": null
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "d10d86150ab84eb9b40c394f93f9d525"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": null
+    },
+    {
+      "trace_id": "d87f4d81-3ac2-4f5f-ba98-df4b797189e1",
+      "causal_parent": {
+        "trace_id": "1d201499-1dab-489e-bf5e-2634714d5fbb",
+        "phase": "U8_3_epistemic_continuity"
+      },
+      "phase": "U8_4_recovery_honesty",
+      "timestamp": "2026-08-20T18:49:51.002122+00:00",
+      "provenance": {
+        "module": "Tiannara.CEL.Services.ExecutiveMemory",
+        "function": "get_lineage/1 (F8 crash window)",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U8_d87f4d81-3ac2-4f5f-ba98-df4b797189e1_U8_4_recovery_honesty.json",
+      "confidence_level": {
+        "value": 0.9,
+        "justification": "break reported explicitly; no fabricated history -> BREAK_REPORTED"
+      },
+      "authorization_state": {
+        "required": true,
+        "granted_by": null,
+        "timestamp": null
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "d10d86150ab84eb9b40c394f93f9d525"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "observed_only",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": null
+    }
+  ]
+}

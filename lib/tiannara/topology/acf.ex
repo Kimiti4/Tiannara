@@ -668,7 +668,7 @@ defmodule Tiannara.Topology.ACF do
     end
   end
 
-  defp repair_system_violation(system_id, violation_data, config) do
+  defp repair_system_violation(system_id, violation_data, _config) do
     # Attempt to repair conservation violation
     case violation_data do
       %{type: :information_loss} ->
@@ -688,7 +688,7 @@ defmodule Tiannara.Topology.ACF do
     end
   end
 
-  defp repair_information_violation(system_id, violation_data) do
+  defp repair_information_violation(system_id, _violation_data) do
     # Repair information conservation violation
     # In production would implement actual repair algorithms
     
@@ -696,25 +696,25 @@ defmodule Tiannara.Topology.ACF do
     :repaired
   end
 
-  defp repair_energy_violation(system_id, violation_data) do
+  defp repair_energy_violation(system_id, _violation_data) do
     # Repair energy conservation violation
     Logger.info("Repairing energy conservation violation for #{system_id}")
     :repaired
   end
 
-  defp repair_momentum_violation(system_id, violation_data) do
+  defp repair_momentum_violation(system_id, _violation_data) do
     # Repair momentum conservation violation
     Logger.info("Repairing momentum conservation violation for #{system_id}")
     :repaired
   end
 
-  defp repair_causal_violation(system_id, violation_data) do
+  defp repair_causal_violation(system_id, _violation_data) do
     # Repair causal closure violation
     Logger.info("Repairing causal closure violation for #{system_id}")
     :repaired
   end
 
-  defp repair_semantic_violation(system_id, violation_data) do
+  defp repair_semantic_violation(system_id, _violation_data) do
     # Repair semantic invertibility violation
     Logger.info("Repairing semantic invertibility violation for #{system_id}")
     :repaired

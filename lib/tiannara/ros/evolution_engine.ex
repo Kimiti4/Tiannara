@@ -57,7 +57,7 @@ defmodule Tiannara.ROS.EvolutionEngine do
     {:ok, child_id}
     else
       err ->
-        Logger.warn("❌ [Evolution] #{parent_civ_id} failed reproduction: #{inspect(err)}")
+        Logger.warning("❌ [Evolution] #{parent_civ_id} failed reproduction: #{inspect(err)}")
         err
     end
   end

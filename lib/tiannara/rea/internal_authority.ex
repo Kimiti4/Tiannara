@@ -5,7 +5,6 @@ defmodule Tiannara.REA.InternalAuthority do
   specialist heuristics, and experiment ranking.
   """
   require Logger
-  alias Tiannara.Audit.Tier0
 
   alias Tiannara.Sentinel.OperationalObservatory
 

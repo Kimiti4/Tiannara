@@ -7,7 +7,6 @@ defmodule Tiannara.Core.WorldModel.RuntimeAPI do
   """
 
   alias Tiannara.Core.WorldModel
-  alias Tiannara.Core.WorldModel.API
 
   @doc "Initialize World Model for runtime operations."
   def initialize_runtime_world_model(core_id, runtime_id) do
@@ -126,7 +125,7 @@ defmodule Tiannara.Core.WorldModel.RuntimeAPI do
     %{
       entity_id: entity_id,
       operation_type: operation_type,
-      parameters: parameters,
+      parameters: _parameters,
       expected_outcome: expected_outcome
     } = operation
     
@@ -222,7 +221,7 @@ defmodule Tiannara.Core.WorldModel.RuntimeAPI do
 
   # Private helper functions
 
-  defp update_entity_confidence(entity, success, confidence) do
+  defp update_entity_confidence(entity, success, _confidence) do
     # Adjust entity confidence based on operation success
     confidence_adjustment = if success, do: 0.1, else: -0.2
     new_confidence = entity.confidence + confidence_adjustment
@@ -296,7 +295,7 @@ defmodule Tiannara.Core.WorldModel.RuntimeAPI do
     end)
   end
 
-  defp validate_against_constraints(operation, constraints) do
+  defp validate_against_constraints(_operation, constraints) do
     # Simplified constraint validation
     Enum.all?(constraints, fn constraint ->
       # Check if operation violates any constraints
@@ -304,7 +303,7 @@ defmodule Tiannara.Core.WorldModel.RuntimeAPI do
     end)
   end
 
-  defp predict_outcome(world_model, operation) do
+  defp predict_outcome(_world_model, _operation) do
     # Simplified outcome prediction based on causal relationships
     %{
       likelihood: 0.8,  # Base likelihood

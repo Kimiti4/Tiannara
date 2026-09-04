@@ -142,13 +142,6 @@ defmodule Tiannara.Topology.ACF.RepairSystem do
           total_repairs: state.total_repairs + 1,
           successful_repairs: state.successful_repairs + 1
         }}
-        
-      :failed ->
-        Logger.error("Failed to repair violation: #{violation_data.type}")
-        {:reply, {:error, :repair_failed}, %{state | 
-          total_repairs: state.total_repairs + 1,
-          failed_repairs: state.failed_repairs + 1
-        }}
     end
   end
 

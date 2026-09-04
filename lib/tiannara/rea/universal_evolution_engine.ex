@@ -18,7 +18,7 @@ defmodule Tiannara.REA.UniversalEvolutionEngine do
     * Niche-aware selection (prevents Goodhart convergence)
   """
   
-  alias Tiannara.REA.{ArchaeologyRegistry, LineageRegistry}
+  alias Tiannara.REA.ArchaeologyRegistry
   
   @type population :: %{
     module: module(),

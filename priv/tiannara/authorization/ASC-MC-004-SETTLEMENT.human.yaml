@@ -1,0 +1,38 @@
+id: ASC-MC-004-SETTLEMENT
+status: GRANTED
+operator: c14_ac
+gate: MC-004-SETTLEMENT
+campaign: Tiannara Remediation + Substrate Integration
+date: 2026-08-31
+authorization_kind: SETTLEMENT
+basis: completion_of_MC004_M_and_MC004_P
+
+granted_scope:
+  - "Perform Phase 1 HUMAN_REVIEW: reconcile the MC-004-M and MC-004-P authorizations, certifications, contracts, evidence matrices, verifier outputs, captured test outputs, and the real execution ledger."
+  - "Perform Phase 2 INDEPENDENT_VERIFICATION: build and run an independent no-trust verifier covering V1-V9 against source, config, authorization, the execution ledger, and a reproduced targeted test suite."
+  - "Perform Phase 3 CERTIFICATION_DECISION: record CERTIFIED / CERTIFIED_BOUNDED / NOT_CERTIFIED with the explicit capability-state distinctions."
+  - "Perform Phase 4 CAMPAIGN_SETTLEMENT: emit the residual-risk register, deferred capabilities, and the final settlement record. Close the R0 -> AC-001 -> MC-001 -> MC-002 -> MC-003 -> MC-004 sequence."
+
+expressly_authorized:
+  - "Running the MC-004_P launch controlled pilot (one live authorized execution) to produce canonical settlement evidence (already performed; execution_id pilot_1788192789_162)."
+  - "Reproducing the targeted test suite as part of V8."
+  - "Writing settlement artifacts (protocols, contract, authorization record, review record, evidence matrix, reconciliation, residual risks, verifier, verifier output, certification, result JSON)."
+
+expressly_forbidden:
+  - "Performing additional production mutation"
+  - "Broadening scope beyond MC-004 settlement"
+  - "Manufacturing missing evidence"
+  - "Converting NOT_EXECUTED into PASS"
+  - "Reviving formal verification"
+  - "Setting :real_execution_enabled true in committed config"
+  - "Deploying experimental code"
+
+flags:
+  mutation_executed: true
+  pilot_executed: true
+  real_execution_enabled: false
+  settlement_executed: true
+
+note: >
+  This is a settlement gate: it establishes whether completed work satisfies its
+  contracts. It adds no capability. The expected disposition is CERTIFIED_BOUNDED.

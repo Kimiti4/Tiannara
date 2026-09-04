@@ -63,14 +63,16 @@ defmodule Tiannara.SOPL.EvolutionEngine do
   end
 
   defp deploy(children) do
-    Logger.info("🚀 [SOPL-2] Deploying #{length(children)} mutated laws into parallel ROS shards.")
+    # Truthful: law mutation candidates are STAGED, never deployed — no real
+    # parallel ROS shards exist in this configuration.
+    Logger.info("🚀 [SOPL-2] Staged #{length(children)} mutated laws (STAGED, not deployed — no real deployment substrate).")
     Enum.each(children, fn {:ok, law, pressure} ->
-      Logger.debug("    -> Deployed Law #{law.id} (Parent: #{law.parent_id}) | Pressure: #{Float.round(pressure.total_pressure, 3)}")
+      Logger.debug("    -> Staged Law #{law.id} (Parent: #{law.parent_id}) | Pressure: #{Float.round(pressure.total_pressure, 3)}")
     end)
   end
 
   defp update_lineages(children) do
     # Here we would initialize %LawLineage{} entries for tracking phylogenetics
-    Logger.info("🧬 [SOPL-2] Initialized %LawLineage{} tracking for #{length(children)} deployed laws.")
+    Logger.info("🧬 [SOPL-2] Tracked lineage metadata for #{length(children)} staged laws.")
   end
 end

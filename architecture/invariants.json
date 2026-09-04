@@ -1,0 +1,40 @@
+{
+  "invariants": [
+    {
+      "id": "INV-001",
+      "description": "OPC can NEVER restart without OED approval.",
+      "subsystems": ["OPC", "OED"],
+      "severity": "critical"
+    },
+    {
+      "id": "INV-002",
+      "description": "OED failure → freeze all physics changes.",
+      "subsystems": ["OED", "OPC"],
+      "severity": "critical"
+    },
+    {
+      "id": "INV-003",
+      "description": "CIS failure → freeze all regulation; enter telemetry-only mode.",
+      "subsystems": ["CIS"],
+      "severity": "critical"
+    },
+    {
+      "id": "INV-004",
+      "description": "GRCC failure → restore prior ecological snapshot; trigger forced diversity.",
+      "subsystems": ["GRCC"],
+      "severity": "critical"
+    },
+    {
+      "id": "INV-005",
+      "description": "No experiment may modify global ontology, physics, causality, or governance without external human approval.",
+      "subsystems": ["REA"],
+      "severity": "critical"
+    },
+    {
+      "id": "INV-006",
+      "description": "No experiment result may be silently discarded — all outcomes including failures must be logged.",
+      "subsystems": ["REA", "Sentinel"],
+      "severity": "high"
+    }
+  ]
+}

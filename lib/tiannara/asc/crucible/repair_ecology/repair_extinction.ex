@@ -79,7 +79,7 @@ defmodule Tiannara.ASC.Crucible.RepairEcology.RepairExtinction do
   - List of extinction events (may be empty)
   """
   def check_patterns(patterns, population_median_fitness, epoch_id, generation) do
-    now = DateTime.utc_now()
+    _now = DateTime.utc_now()
 
     Enum.flat_map(patterns, fn pattern ->
       case check_extinction_condition(pattern, population_median_fitness, epoch_id, generation) do

@@ -1,0 +1,86 @@
+{
+  "nodes": [
+    "new usersService",
+    "password strengthService",
+    "user managementService",
+    "users byService"
+  ],
+  "edges": [
+    {
+      "type": "calls",
+      "to": "new usersRepository",
+      "from": "new usersService"
+    },
+    {
+      "type": "calls",
+      "to": "new usersValidator",
+      "from": "new usersService"
+    },
+    {
+      "type": "calls",
+      "to": "password strengthRepository",
+      "from": "password strengthService"
+    },
+    {
+      "type": "calls",
+      "to": "password strengthValidator",
+      "from": "password strengthService"
+    },
+    {
+      "type": "calls",
+      "to": "user managementRepository",
+      "from": "user managementService"
+    },
+    {
+      "type": "calls",
+      "to": "user managementValidator",
+      "from": "user managementService"
+    },
+    {
+      "type": "calls",
+      "to": "users byRepository",
+      "from": "users byService"
+    },
+    {
+      "type": "calls",
+      "to": "users byValidator",
+      "from": "users byService"
+    }
+  ],
+  "complexity": 3.0,
+  "critical_paths": [
+    [
+      "new usersService",
+      "new usersValidator"
+    ],
+    [
+      "new usersService",
+      "new usersRepository"
+    ],
+    [
+      "password strengthService",
+      "password strengthValidator"
+    ]
+  ],
+  "bottlenecks": [],
+  "fan_in": {
+    "new usersRepository": 1,
+    "new usersService": 0,
+    "new usersValidator": 1,
+    "password strengthRepository": 1,
+    "password strengthService": 0,
+    "password strengthValidator": 1,
+    "user managementRepository": 1,
+    "user managementService": 0,
+    "user managementValidator": 1,
+    "users byRepository": 1,
+    "users byService": 0,
+    "users byValidator": 1
+  },
+  "fan_out": {
+    "new usersService": 2,
+    "password strengthService": 2,
+    "user managementService": 2,
+    "users byService": 2
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "constraints": [
+    {
+      "id": "con_360",
+      "type": "latency",
+      "unit": "ms",
+      "value": 100.0,
+      "operator": "lte",
+      "tags": [],
+      "metric": "response_time",
+      "source_fragment": "Must respond in under 100ms",
+      "percentile": null
+    }
+  ],
+  "invariants": [
+    {
+      "id": "inv_355",
+      "domain": "business_logic",
+      "statement": "Balance cannot go below zero",
+      "negation_form": "Balance cannot go below zero",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Balance cannot go below zero"
+    },
+    {
+      "id": "inv_356",
+      "domain": "performance",
+      "statement": "Must respond in under 100ms",
+      "negation_form": "must NOT respond in under 100ms",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Must respond in under 100ms"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap_357",
+      "name": "create accounts unique",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "create",
+      "subject": "accounts unique",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "user"
+    },
+    {
+      "id": "cap_358",
+      "name": "list all accounts",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "list",
+      "subject": "all accounts",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_359",
+      "name": "update account balance",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "update",
+      "subject": "account balance",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:26:22.225000Z"
+}

@@ -1,0 +1,147 @@
+# ==============================================================================
+# TIANNARA C14 AUTHORIZATION ARTIFACT: TOPOLOGY CORRECTION
+# ==============================================================================
+# Mission:    ASC-AE-010 — Discovery Ownership Remediation (F13)
+# Predecessor: AE-009 (verdict: H1 duplicate ownership, DiscoverySupervisor is intended owner)
+# Class:      TOPOLOGY CORRECTION (minimal, falsifiable)
+# ==============================================================================
+
+mission_id: "ASC-AE-010"
+status: "AUTHORIZED"
+
+# ------------------------------------------------------------------------------
+# 1. MISSION OBJECTIVE
+# ------------------------------------------------------------------------------
+objective: >
+  Remove duplicate ownership of DiscoveryEngine and DiscoveryScheduler from
+  ControlCenter, leaving DiscoverySupervisor as the sole owner of its three
+  children (Engine, Scheduler, Metrics). Verify the intended topology is
+  actually running, not merely that EOS reports healthy.
+
+scope_restriction: >
+  No redesign of Discovery. No registry work. No CapabilityRegistry changes.
+  No health-policy changes. No speculative refactoring.
+
+# ------------------------------------------------------------------------------
+# 2. STRICT SCOPE & BOUNDARIES
+# ------------------------------------------------------------------------------
+scope:
+  permitted_targets:
+    - "ControlCenter @subsystems — remove DiscoveryEngine and DiscoveryScheduler entries"
+    - "Verification that DiscoverySupervisor remains sole owner of Engine, Scheduler, Metrics"
+  explicitly_forbidden:
+    - "Redesigning Discovery internals"
+    - "Modifying CapabilityRegistry"
+    - "Changing health contracts or EOS classification logic"
+    - "Adding new domains, agents, or orchestration abstractions"
+    - "Reopening U0 certification"
+    - "Any change beyond the two-line removal in ControlCenter"
+
+  exact_change: |
+    ControlCenter.@subsystems
+        remove:
+          {Tiannara.Discovery.DiscoveryEngine, :discovery_engine}
+          {Tiannara.Discovery.DiscoveryScheduler, :discovery_scheduler}
+    DiscoverySupervisor
+        remains sole owner of:
+          DiscoveryEngine
+          DiscoveryScheduler
+          DiscoveryMetrics
+
+# ------------------------------------------------------------------------------
+# 3. MISSION GATES
+# ------------------------------------------------------------------------------
+gates:
+  Phase_A_Ownership_Characterization:
+    description: "Establish baseline ownership before change."
+    requirements:
+      - "Record current owners of DiscoveryEngine and Scheduler (duplicate)"
+      - "Record DiscoverySupervisor PID and child list"
+      - "Record EOS status and health"
+
+  Phase_B_Candidate_Generation:
+    description: "Generate isolated candidate with duplicate removed."
+    candidates:
+      - "baseline (duplicate ownership)"
+      - "candidate_single_owner (ControlCenter duplicate removed)"
+
+  Phase_C_Verification:
+    description: "Verify the intended topology is actually running."
+    tests:
+      - id: "ownership_engine"
+        criterion: "DiscoveryEngine has exactly one production owner"
+        method: "Enumerate supervisors, count owners"
+      - id: "ownership_scheduler"
+        criterion: "Scheduler has exactly one production owner"
+        method: "Enumerate supervisors, count owners"
+      - id: "supervisor_alive"
+        criterion: "DiscoverySupervisor has a live PID"
+        method: "whereis(DiscoverySupervisor) != nil"
+      - id: "metrics_alive"
+        criterion: "DiscoveryMetrics starts under its intended supervisor"
+        method: "whereis(DiscoveryMetrics) != nil and parent is DiscoverySupervisor"
+      - id: "health_healthy"
+        criterion: "DiscoverySupervisor.health() -> :healthy"
+        method: "GenServer.call"
+      - id: "eos_no_critical"
+        criterion: "failed_critical == []"
+        method: "Kernel.boot_report"
+      - id: "runtime_no_emergency"
+        criterion: "no :emergency classification"
+        method: "Kernel.runtime_state"
+      - id: "regression_eventstore"
+        criterion: "EventStore healthy"
+        method: "EventStore.healthy?()"
+      - id: "regression_executive_memory"
+        criterion: "ExecutiveMemory healthy"
+        method: "ExecutiveMemory.health()"
+      - id: "regression_c2_cis"
+        criterion: "C2/CIS still operational"
+        method: "UnifiedRealityGraph and CIS.Supervisor alive"
+      - id: "regression_grounded_risk"
+        criterion: "grounded assess_risk remains deterministic"
+        method: "CollapsePredictor assess_risk(map) -> deterministic, nil -> unknown"
+      - id: "no_pollution"
+        criterion: "no unexpected DETS/archive mutations"
+        method: "Check file sizes and archives"
+      - id: "traceability"
+        criterion: "evidence records exact owner topology before/after"
+        method: "Compare ownership maps"
+
+  hard_prohibition: >
+    Do not automatically upgrade F13 merely because the supervisor starts.
+    The evidence must establish that the INTENDED topology is actually running.
+
+# ------------------------------------------------------------------------------
+# 4. ADOPTION GATE
+# ------------------------------------------------------------------------------
+no_automatic_adoption:
+  rule: >
+    This authorization permits ISOLATED candidate verification only.
+    If candidate passes all Phase C tests, it must generate an EVIDENCE REPORT.
+    Applying to production requires a SEPARATE C14 adoption artifact
+    (ASC-AE-010-ADOPTION.human.yaml).
+
+# ------------------------------------------------------------------------------
+# 5. HUMAN AUTHORIZATION BLOCK
+# ------------------------------------------------------------------------------
+human_authorization:
+  operator_id: schtickman
+  signature: F13-ownership-fix
+  timestamp: 2026-08-21T05:00Z
+  conditions_accepted: true
+  notes: "AE-010 authorized — minimal topology correction per AE-009 verdict"
+
+valid_until: 2026-09-04T05:00Z
+
+# ------------------------------------------------------------------------------
+# 6. AUDIT TRAIL
+# ------------------------------------------------------------------------------
+audit_trail:
+  created_by: "tiannara_os"
+  creation_timestamp: "2026-08-21T00:00:00Z"
+  constitutional_basis: "rules.md -> Verification First / Minimal Change"
+  lineage:
+    - "AE-008 verdict: H5_real_failure_metrics"
+    - "AE-009 verdict: H1 duplicate ownership, intended owner DiscoverySupervisor"
+    - "F13 refined: DiscoveryMetrics lifecycle failure due to duplicate ownership"

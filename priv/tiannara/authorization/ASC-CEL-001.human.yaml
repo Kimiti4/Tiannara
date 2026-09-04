@@ -1,0 +1,93 @@
+# ==============================================================================
+# TIANNARA C14 AUTHORIZATION ARTIFACT: INTEGRATION CERTIFICATION
+# ==============================================================================
+# Mission:    CEL-1 — Registry-Driven Executive Delegation
+# Predecessor: AE-010 (Topology Stabilization)
+# Class:      INTEGRATION CERTIFICATION (Proving dynamic coordination)
+# ==============================================================================
+
+mission_id: "ASC-CEL-001"
+status: "PENDING_HUMAN_AUTHORIZATION" # Must be changed to "AUTHORIZED" by human
+
+# ------------------------------------------------------------------------------
+# 1. MISSION OBJECTIVE
+# ------------------------------------------------------------------------------
+objective: >
+  Prove that the CEL Executive can dynamically discover, evaluate, and delegate 
+  a novel objective to capable subsystems using the CapabilityRegistry, 
+  WITHOUT relying on hardcoded routing logic.
+
+constitutional_basis:
+  - "Prefer many specialized components cooperating through well-defined interfaces."
+  - "Capability must never outpace verification."
+  - "Evidence Before Confidence."
+
+# ------------------------------------------------------------------------------
+# 2. STRICT SCOPE & BOUNDARIES
+# ------------------------------------------------------------------------------
+scope:
+  permitted_targets:
+    - "CEL Executive delegation logic"
+    - "CapabilityRegistry discovery and evaluation interfaces"
+    - "Mission Director routing"
+  explicitly_forbidden:
+    - "Hardcoding event_type -> subsystem fallbacks"
+    - "Bypassing C14 Governance during delegation"
+    - "Modifying the internal logic of the delegated capabilities (Discovery, ASC, etc.)"
+    - "Production mutation (Isolated certification only)"
+
+# ------------------------------------------------------------------------------
+# 3. CERTIFICATION GATES (The Dynamic Delegation Protocol)
+# ------------------------------------------------------------------------------
+gates:
+  Phase_A_Registry_Interrogation:
+    description: "Verify the registry exposes dynamic discovery interfaces."
+    requirements:
+      - "Registry must support querying by interface/tool signature, not just name."
+      - "Registry must expose real-time health/state (consuming grounded F10/F12 telemetry)."
+
+  Phase_B_Positive_Control (Dynamic Discovery):
+    description: "Inject a novel objective that requires composing two capabilities."
+    test_scenario: >
+      Objective: "Analyze the causal lineage of entity X and generate a risk report."
+      Required Capabilities: DiscoveryEngine (analyze_lineage) + CollapsePredictor (assess_risk).
+    requirements:
+      - "CEL must query the registry to find providers for 'analyze_lineage' and 'assess_risk'."
+      - "CEL must evaluate their health (both must be healthy post-AE-010/AE-005)."
+      - "CEL must sequence the delegation and pass through C14."
+      - "Execution must succeed and record a causal trace in ExecutiveMemory."
+
+  Phase_C_Negative_Control (No Eligible Provider):
+    description: "Inject an objective for which NO capability exists in the registry."
+    test_scenario: "Execute physical robotics calibration."
+    requirements:
+      - "CEL must query the registry and find zero matches."
+      - "CEL must explicitly return {:error, :no_eligible_provider}."
+      - "CEL MUST NOT fall back to a hardcoded default or fail silently."
+
+  Phase_D_Negative_Control (Governance Denial):
+    description: "Inject an objective where the matching capability is unauthorized."
+    requirements:
+      - "C14 must deny the delegation."
+      - "CEL must explicitly return {:error, :governance_denied}."
+
+# ------------------------------------------------------------------------------
+# 4. ADOPTION GATE
+# ------------------------------------------------------------------------------
+no_automatic_adoption:
+  rule: >
+    This is a certification mission. If the current CEL implementation fails 
+    Phase B, C, or D, it proves the executive is still static/hardcoded. 
+    Remediation of the CEL routing logic will require a subsequent mission.
+
+# ------------------------------------------------------------------------------
+# 5. HUMAN AUTHORIZATION BLOCK
+# ------------------------------------------------------------------------------
+human_authorization:
+  operator_id: null
+  signature: null
+  timestamp: null
+  conditions_accepted: false
+  notes: null
+
+valid_until: null

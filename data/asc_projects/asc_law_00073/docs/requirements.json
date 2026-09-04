@@ -1,0 +1,35 @@
+{
+  "constraints": [],
+  "invariants": [],
+  "capabilities": [
+    {
+      "id": "cap_295",
+      "name": "create audit log",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "create",
+      "subject": "audit log",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "system"
+    },
+    {
+      "id": "cap_296",
+      "name": "query logs by",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "query",
+      "subject": "logs by",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:24:10.987000Z"
+}

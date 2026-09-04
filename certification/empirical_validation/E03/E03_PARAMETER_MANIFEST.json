@@ -1,0 +1,332 @@
+{
+  "manifest_id": "E03_PARAMETER_MANIFEST_2026-09-03",
+  "campaign": "E03_Stabilizer_Only_Emergence_Campaign",
+  "status": "FROZEN · PENDING_EXECUTION_AUTHORIZATION",
+  "frozen_against_head": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+  "frozen_at": "2026-09-03",
+  "frozen_by": "Council AUTHORIZE 2026-09-03 (pre-registration review gate pending)",
+  "no_post_hoc_modification": true,
+
+  "environment": {
+    "elixir": "1.18.4",
+    "otp": "28",
+    "platform": "win32",
+    "app": "tiannara",
+    "app_version": "0.3.5",
+    "compiled_beams_dev": 1457,
+    "compiled_beams_test": 2066
+  },
+
+  "hypotheses": {
+    "H1_primary": "A bounded stabilizer regime can prevent catastrophic ecological collapse while preserving measurable adaptive emergence, diversity, novelty, and evolutionary exploration.",
+    "H0_A_suffocation": "Stabilization suppresses evolutionary freedom sufficiently that diversity, novelty, adaptation, or exploration decline toward artificial equilibrium.",
+    "H0_B_ineffectiveness": "Stabilization fails to prevent ecological collapse.",
+    "H0_C_artificial_emergence": "Apparent emergence is generated primarily by the stabilizer itself rather than by autonomous ecological dynamics."
+  },
+
+  "emergence_classification_vocabulary": [
+    "ENDOGENOUS", "STABILIZER_ASSISTED", "STABILIZER_INDUCED", "ARTIFICIAL_NON_EMERGENT", "UNRESOLVED"
+  ],
+
+  "conditions": [
+    {
+      "condition": "CONTROL_A",
+      "description": "Unregulated baseline (stabilizer OFF)",
+      "stabilizer_state": "OFF",
+      "purpose": "Reference: what the ecology does on its own"
+    },
+    {
+      "condition": "CONTROL_B",
+      "description": "Stabilizer-only regime (minimum effective pressure to be identified by §13 sweep)",
+      "stabilizer_state": "ON",
+      "stabilizer_pressure": "TBD_BY_PRESSURE_SWEEP",
+      "purpose": "Test H1"
+    },
+    {
+      "condition": "CONTROL_C",
+      "description": "Reduced/intermediate stabilization (half pressure of B)",
+      "stabilizer_state": "ON",
+      "stabilizer_pressure": "0.5",
+      "purpose": "Test H0-A and H1 gradient"
+    }
+  ],
+
+  "seed_policy": {
+    "all_seeds_preregistered": true,
+    "discard_inconvenient_seeds": false,
+    "rerun_until_desired_result": false,
+    "all_runs_belong_in_ledger": true
+  },
+
+  "seeds": [
+    {"run": "E03-A-001", "condition": "CONTROL_A", "seed": 42,        "seed_label": "A-001", "notes": "Independent seed"},
+    {"run": "E03-A-002", "condition": "CONTROL_A", "seed": 1729,      "seed_label": "A-002", "notes": "Independent seed"},
+    {"run": "E03-A-003", "condition": "CONTROL_A", "seed": 20240903,   "seed_label": "A-003", "notes": "Independent seed"},
+    {"run": "E03-B-001", "condition": "CONTROL_B", "seed": 42,        "seed_label": "B-001", "notes": "Matched seed to A-001 for direct comparison"},
+    {"run": "E03-B-002", "condition": "CONTROL_B", "seed": 1729,      "seed_label": "B-002", "notes": "Matched seed to A-002"},
+    {"run": "E03-B-003", "condition": "CONTROL_B", "seed": 20240903,   "seed_label": "B-003", "notes": "Matched seed to A-003"},
+    {"run": "E03-C-001", "condition": "CONTROL_C", "seed": 42,        "seed_label": "C-001", "notes": "Matched seed to A/B-001"},
+    {"run": "E03-C-002", "condition": "CONTROL_C", "seed": 1729,      "seed_label": "C-002", "notes": "Matched seed to A/B-002"},
+    {"run": "E03-C-003", "condition": "CONTROL_C", "seed": 20240903,   "seed_label": "C-003", "notes": "Matched seed to A/B-003"}
+  ],
+
+  "run_duration": {
+    "baseline_runs_ticks": 10000,
+    "perturbation_run_baseline_ticks": 10000,
+    "perturbation_at_tick": 5000,
+    "counterfactual_same_initial_state": true,
+    "counterfactual_only_change": "stabilizer_regime",
+    "termination_rules": [
+      "Pre-registered tick count reached",
+      "Pre-registered hard-stop condition (collapse invariant) reached",
+      "STOP condition from master prompt §22 reached"
+    ],
+    "never_terminate_because": "An intermediate metric looks favorable (master prompt §16)"
+  },
+
+  "measurement_schedule": {
+    "checkpoints": [0, 100, 500, 1000, 2500, 5000, 7500, 10000],
+    "checkpoints_count": 8,
+    "record_at_each_checkpoint": [
+      "diversity_metrics",
+      "emergence_metrics_with_provenance",
+      "adaptation_metrics",
+      "stabilizer_pressure_metrics",
+      "ecological_health_metrics"
+    ]
+  },
+
+  "metrics": {
+    "diversity": [
+      "shannon_entropy_of_lineage_distribution",
+      "lineage_distribution_counts",
+      "dominance_max_lineage_share",
+      "niche_occupancy_count",
+      "lineage_diversity_count"
+    ],
+    "emergence_with_provenance": [
+      "novel_structures_count",
+      "novel_strategies_count",
+      "new_niches_count",
+      "new_behavioral_patterns_count",
+      "unexpected_adaptations_count",
+      "cross_lineage_synthesis_count",
+      "provenance_classification_per_occurrence"
+    ],
+    "adaptation": [
+      "adaptation_rate_per_tick",
+      "fitness_delta_mean",
+      "environmental_response_correlation",
+      "strategy_turnover_fraction",
+      "lineage_persistence_fraction",
+      "recovery_after_perturbation"
+    ],
+    "stabilizer_pressure": [
+      "intervention_frequency_per_tick",
+      "intervention_magnitude_mean",
+      "intervention_magnitude_max",
+      "resource_suppression_events",
+      "mutation_modification_events",
+      "forced_hybridization_events",
+      "niche_creation_events",
+      "damping_activity",
+      "constraint_pressure_cumulative"
+    ],
+    "ecological_health": [
+      "entropy_shannon",
+      "dominance",
+      "active_niches",
+      "oscillation_amplitude",
+      "oscillation_frequency",
+      "hybridization_rate",
+      "collapse_probability"
+    ]
+  },
+
+  "per_intervention_record_schema": [
+    "intervention_id",
+    "timestamp",
+    "trigger",
+    "detected_state",
+    "metric_values",
+    "decision",
+    "action",
+    "magnitude",
+    "affected_population",
+    "expected_effect",
+    "actual_effect",
+    "recovery_time",
+    "downstream_effects"
+  ],
+
+  "perturbation_protocol": {
+    "perturbation_at_tick": 5000,
+    "perturbation_types": [
+      {"name": "lineage_dominance_shock",   "description": "Boost max-share lineage by +20%"},
+      {"name": "entropy_reduction",         "description": "Collapse two niche axes"},
+      {"name": "niche_removal",             "description": "Delete the largest niche"},
+      {"name": "resource_redistribution",   "description": "Shift 50% of resources from largest niche to smallest"},
+      {"name": "mutation_perturbation",     "description": "2x mutation rate for 500 ticks"},
+      {"name": "population_imbalance",      "description": "Redistribute lineages toward uniform counts"}
+    ],
+    "measured_at_each_perturbation": [
+      "time_to_recovery",
+      "recovery_completeness_fraction",
+      "diversity_preservation",
+      "novelty_preservation",
+      "stabilizer_effort",
+      "post_recovery_trajectory"
+    ]
+  },
+
+  "counterfactual_protocol": {
+    "same_initial_state_as_observed": true,
+    "only_change": "stabilizer_regime",
+    "matrix": [
+      {"observed": "CONTROL_A (OFF)", "counterfactual": "stabilizer ON at matched pressure"},
+      {"observed": "CONTROL_B (ON)",  "counterfactual": "stabilizer OFF"},
+      {"observed": "CONTROL_C (0.5)", "counterfactual": "stabilizer OFF"},
+      {"observed": "CONTROL_C (0.5)", "counterfactual": "stabilizer full pressure (1.0)"}
+    ]
+  },
+
+  "overreach_sweep_protocol": {
+    "pressures_swept": [0.0, 0.25, 0.5, 0.75, 1.0],
+    "seeds_per_pressure": 3,
+    "total_sweep_runs": 15,
+    "objective": "Find minimum effective stabilization, not maximum"
+  },
+
+  "monoculture_test_metrics": [
+    "lineage_dominance",
+    "entropy",
+    "strategy_similarity",
+    "ontology_similarity",
+    "niche_convergence",
+    "behavioral_convergence"
+  ],
+
+  "oscillation_test_metrics": [
+    "oscillation_amplitude",
+    "oscillation_frequency",
+    "overshoot",
+    "recovery_time",
+    "intervention_lag",
+    "intervention_frequency"
+  ],
+
+  "long_horizon_look_for": [
+    "slow_convergence",
+    "delayed_collapse",
+    "stabilizer_accumulation",
+    "memory_effects",
+    "feedback_oscillation",
+    "hidden_monoculture",
+    "novelty_decay"
+  ],
+
+  "primary_success_criteria": [
+    {"id": "S1_stability",                "criterion": "Catastrophic collapse bounded", "operationalization": "No run reaches collapse_probability > 0.8 for >= 500 consecutive ticks"},
+    {"id": "S2_diversity",                "criterion": "Diversity persists", "operationalization": "Median Shannon entropy across checkpoints >= 0.5 * baseline (CONTROL A) entropy at the same checkpoint"},
+    {"id": "S3_exploration",              "criterion": "Exploration active", "operationalization": ">= 10% of t=0 lineages still present at tick 10000 AND new lineage appearances > 0"},
+    {"id": "S4_novelty",                  "criterion": "Novelty appears", "operationalization": ">= 1 new strategy cluster emerges in >= 1 condition, classified ENDOGENOUS or STABILIZER_ASSISTED (not STABILIZER_INDUCED)"},
+    {"id": "S5_adaptation",               "criterion": "Adaptation persists", "operationalization": "Mean lineage fitness Delta > 0 across the run"},
+    {"id": "S6_recoverability",           "criterion": "Recoverability", "operationalization": ">= 80% of pre-perturbation diversity restored within 2000 ticks of perturbation"},
+    {"id": "S7_non_overreach",            "criterion": "Non-overreach", "operationalization": "In the pressure sweep, ecological outcome remains non-degenerate at pressures <= 0.5"},
+    {"id": "S8_reproducibility",          "criterion": "Reproducibility", "operationalization": "Coefficient of variation of Shannon entropy at tick 10000 <= 0.3 across 3 seeds of each condition"},
+    {"id": "S9_measurement_integrity",    "criterion": "Measurement integrity", "operationalization": "Every claimed novel phenomenon is tagged with provenance classification; no result requires STABILIZER_INDUCED -> ENDOGENOUS reclassification to support H1"},
+    {"id": "S10_falsifiability",          "criterion": "Falsifiability", "operationalization": "At least one of H0-A / H0-B / H0-C was actively tested and either rejected or partially supported by the data"}
+  ],
+
+  "primary_failure_conditions": [
+    "persistent_monoculture: dominance > 0.8 sustained for >= 2000 ticks",
+    "collapse_despite_stabilization",
+    "stabilizer_induced_ecological_stagnation",
+    "persistent_oscillatory_control",
+    "novelty_collapse",
+    "intervention_dominance: >= 50% of classified novel phenomena are STABILIZER_INDUCED in CONTROL B",
+    "results_cannot_be_independently_reproduced",
+    "measurement_boundary_ambiguous",
+    "evidence_cannot_distinguish_endogenous_from_stabilizer_induced"
+  ],
+
+  "stop_conditions_master_prompt_section_22": [
+    "Measurement integrity becomes uncertain",
+    "A forbidden subsystem is modified (D1-D5, planner, AEO, GRCC, CIS redesign)",
+    "Unregistered parameters are introduced",
+    "Evidence artifacts become inconsistent",
+    "The experiment produces an unbounded failure mode",
+    "A safety or recovery invariant is violated",
+    "Results can no longer be independently reconstructed",
+    "Stabilizer behavior exceeds the authorized intervention boundary",
+    "The campaign begins modifying D1-D5",
+    "Any result requires retroactive alteration of the experimental record"
+  ],
+
+  "evidence_model": {
+    "distinguish": ["fact", "evidence", "observation", "inference", "hypothesis", "unknown", "confidence"],
+    "never_collapse_into_single_result": true
+  },
+
+  "provenance_schema": [
+    "campaign_id", "experiment_id", "run_id", "seed", "configuration_hash",
+    "code_revision", "parameter_hash", "input_hash", "output_hash",
+    "measurement_version", "timestamp"
+  ],
+
+  "run_id_computation": "sha256(campaign_id | experiment_id | seed | config_hash | code_revision)",
+
+  "no_trust_verification": {
+    "script_must_be_written_before_any_run": true,
+    "script_path": "certification/empirical_validation/E03/E03_INDEPENDENT_VERIFIER.py",
+    "script_must_establish": [
+      "run_completeness",
+      "artifact_integrity",
+      "parameter_integrity",
+      "metric_correctness",
+      "replication_integrity",
+      "success_failure_gate_correctness",
+      "stop_condition_compliance"
+    ],
+    "verifier_verdict_format": ["PASS", "FAIL", "INDETERMINATE"],
+    "never_force_binary_success": true
+  },
+
+  "scientific_analysis_questions": [
+    "Did stabilization prevent collapse?",
+    "At what intervention pressure did stabilization become harmful?",
+    "Did diversity persist?",
+    "Did novelty persist?",
+    "Did adaptation persist?",
+    "Did new structures arise independently of stabilizer intervention?",
+    "Did stabilization create or merely preserve emergent structures?",
+    "Were results reproducible?",
+    "Which hypothesis was falsified?",
+    "What remains unknown?"
+  ],
+
+  "final_classification": [
+    "SUPPORTED", "PARTIALLY_SUPPORTED", "FALSIFIED", "INCONCLUSIVE"
+  ],
+
+  "no_success_by_survival_alone": true,
+  "no_automatic_follow_on": true,
+  "no_e04_no_d6_no_phase4_no_opc": true,
+  "no_planner_redesign": true,
+  "no_new_persistence_architecture": true,
+  "no_competition_with_measurement_system": true,
+  "real_world_execution_prohibited": true,
+
+  "next_concrete_deliverables_in_order": [
+    "E03_PARAMETER_MANIFEST.json (this file)",
+    "E03_INDEPENDENT_VERIFIER.py (before any run)",
+    "Council review of pre-registration",
+    "Execution-start authorization (separate signal)",
+    "Run, measure, record per protocol",
+    "Independent verification",
+    "Scientific analysis",
+    "Final classification + STOP"
+  ],
+
+  "stop_declaration": "No execution begins until pre-registration is reviewed and approved, AND a separate execution-start authorization is given."
+}

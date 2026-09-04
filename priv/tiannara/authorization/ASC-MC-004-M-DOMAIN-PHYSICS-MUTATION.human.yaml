@@ -1,0 +1,37 @@
+id: ASC-MC-004-M-DOMAIN-PHYSICS-MUTATION
+status: GRANTED
+operator: c14_ac
+gate: MC-004-M
+campaign: Tiannara Remediation + Substrate Integration
+date: 2026-08-31
+authorization_kind: BOUNDED_MUTATION
+basis: human_review_of_MC004_A0
+
+granted_scope:
+  - "MU-1: Implement a REAL bounded 4th-order Runge-Kutta solver in Tiannara.Foundations.Mathematics.Calculus.solve_ode/2,3 for :first_order_system equation specs. All unsupported/empty specs must continue to return {:error, :ode_solver_unavailable}. Pure Elixir, tested against analytic solutions, bounded step budget."
+  - "MU-2: Wire Tiannara.Domains.Physics.simulate/2 to the real solver for supported specs; implement Physics.validate/1 as explicit structural checks (energy-bounded and finiteness) clearly labeled verification_method :structural_checks (never verified:true); attach Evidence.Provenance (kind :simulation) to computed results; add pilot_experiment/0 (damped harmonic oscillator, underdamped)."
+  - "MU-3: Quarantine the client surfaces of Tiannara.Physics.OPC/NDE/IRD/TWP so every public capability function returns {:error, :physics_substrate_unavailable}; remove :rand.uniform from opc.ex and ird.ex; retain supervisors and ETS so application boot remains green."
+  - "MU-4: Add Physics.execute_experiment/1 adapter to Phase4.ExperimentOrchestrator.submit_experiment/1 (must return {:error, :real_execution_not_enabled} while the flag is false); replace the AutonomousDiscoveryEngine canned gravity/time_dilation placeholder with the pilot experiment spec."
+  - "Add targeted ExUnit tests and run them; run mix compile; run the MC-004-M verifier to PASS; write the evidence matrix, certification, and result JSON."
+
+expressly_forbidden:
+  - "Setting :real_execution_enabled to true"
+  - "Executing, simulating-with-claims, or running any physics experiment/pilot (MC-004-P is a separate gate)"
+  - "Reviving formal verification (FormalVerification must remain {:error, :formal_verification_unavailable})"
+  - "Adding an ODE/numerics library dependency or removing existing math tests"
+  - "Rewriting OPC/NDE/IRD/TWP beyond the quarantine surface and rand removal"
+  - "Removing or restructuring the physics supervisors or their ETS tables (boot must stay green)"
+  - "Expanding scope to the other 19 canonical domains or adding a linear algebra module"
+  - "Modifying MC-001/MC-002/MC-003/AC-001/MC-004-A0 artifacts"
+  - "Fabricating verifier outputs or c14 signatures"
+
+flags:
+  mutation_executed: true
+  pilot_executed: false
+  real_execution_enabled: false
+  authorization_required_for_pilot: true
+
+note: >
+  MC-004-M changes production source; the MC-004-A0 reconciliation baseline is
+  hereby superseded for the mutated surfaces. Live execution remains forbidden
+  until a separate MC-004-P authorization.

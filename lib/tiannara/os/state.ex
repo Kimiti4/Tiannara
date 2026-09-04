@@ -21,6 +21,7 @@ defmodule TiannaraOS.State do
     governance: %{},
     dependency_history: [],
     capabilities: %{},             # LAYER 6.5D: Civilization Level Capability Graph
+    discovery_dependencies: %{},   # Dependency registry for discovery dependency graph
     
     # PHASE 12.1: RESEARCH INSTITUTIONS ⭐ NEW
     research_institutions: %{},    # %{atom() => TiannaraOS.ResearchInstitution.t()} - constitutional entities
@@ -56,6 +57,7 @@ defmodule TiannaraOS.State do
     governance: map(),
     dependency_history: [any()],
     capabilities: map(),
+    discovery_dependencies: %{atom() => [atom()]},
     
     # PHASE 12.1 FIELDS
     research_institutions: %{atom() => TiannaraOS.ResearchInstitution.t()},

@@ -1,0 +1,992 @@
+[
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_4478",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_15",
+        "target_node": "w4_ev_15"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8272695307611819,
+    "root_node": "w4_ev_15",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.727,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_5456",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_7",
+        "target_node": "w3_ev_7"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w3_ev_7",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_3128",
+        "cascade_depth": 0,
+        "source_node": "w5_ev_20",
+        "target_node": "w5_ev_20"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w5_ev_20",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_404",
+        "cascade_depth": 0,
+        "source_node": "w2_ev_6",
+        "target_node": "w2_ev_6"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w2_ev_6",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_7178",
+        "cascade_depth": 0,
+        "source_node": "w2_ev_20",
+        "target_node": "w2_ev_20"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8208985836177287,
+    "root_node": "w2_ev_20",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.721,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_9385",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_25",
+        "target_node": "w4_ev_25"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w4_ev_25",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_4929",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_13",
+        "target_node": "w4_ev_13"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w4_ev_13",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_5221",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_9",
+        "target_node": "w4_ev_9"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8696097940221591,
+    "root_node": "w4_ev_9",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.77,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_7554",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_19",
+        "target_node": "w4_ev_19"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w4_ev_19",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_1413",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_14",
+        "target_node": "w3_ev_14"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.7874910455941819,
+    "root_node": "w3_ev_14",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.687,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_9210",
+        "cascade_depth": 0,
+        "source_node": "w5_ev_14",
+        "target_node": "w5_ev_14"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8237225359199698,
+    "root_node": "w5_ev_14",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.724,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_303",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_19",
+        "target_node": "w3_ev_19"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8535883670588018,
+    "root_node": "w3_ev_19",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.754,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_4409",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_4",
+        "target_node": "w4_ev_4"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w4_ev_4",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_1113",
+        "cascade_depth": 0,
+        "source_node": "w2_ev_7",
+        "target_node": "w2_ev_7"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.7518847448036419,
+    "root_node": "w2_ev_7",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.652,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_2461",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_27",
+        "target_node": "w3_ev_27"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w3_ev_27",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_78",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_17",
+        "target_node": "w4_ev_17"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.7587430379818026,
+    "root_node": "w4_ev_17",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.659,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_2910",
+        "cascade_depth": 0,
+        "source_node": "w5_ev_5",
+        "target_node": "w5_ev_5"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8796059035675188,
+    "root_node": "w5_ev_5",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.78,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_5920",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_20",
+        "target_node": "w4_ev_20"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w4_ev_20",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_5314",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_7",
+        "target_node": "w4_ev_7"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.792298910986681,
+    "root_node": "w4_ev_7",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.692,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_318",
+        "cascade_depth": 0,
+        "source_node": "w1_ev_10",
+        "target_node": "w1_ev_10"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8883652993227021,
+    "root_node": "w1_ev_10",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.788,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_8825",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_23",
+        "target_node": "w3_ev_23"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8176731349077655,
+    "root_node": "w3_ev_23",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.718,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_7467",
+        "cascade_depth": 0,
+        "source_node": "w5_ev_4",
+        "target_node": "w5_ev_4"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8378018031298933,
+    "root_node": "w5_ev_4",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.738,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_4063",
+        "cascade_depth": 0,
+        "source_node": "w2_ev_8",
+        "target_node": "w2_ev_8"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8874620520876055,
+    "root_node": "w2_ev_8",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.787,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_2585",
+        "cascade_depth": 0,
+        "source_node": "w5_ev_30",
+        "target_node": "w5_ev_30"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.7928317133088836,
+    "root_node": "w5_ev_30",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.693,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_4072",
+        "cascade_depth": 0,
+        "source_node": "w2_ev_14",
+        "target_node": "w2_ev_14"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w2_ev_14",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_1771",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_22",
+        "target_node": "w3_ev_22"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.7879859881943985,
+    "root_node": "w3_ev_22",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.688,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_9321",
+        "cascade_depth": 0,
+        "source_node": "w5_ev_24",
+        "target_node": "w5_ev_24"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8283413456892766,
+    "root_node": "w5_ev_24",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.728,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_1974",
+        "cascade_depth": 0,
+        "source_node": "w5_ev_13",
+        "target_node": "w5_ev_13"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w5_ev_13",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_2374",
+        "cascade_depth": 0,
+        "source_node": "w1_ev_19",
+        "target_node": "w1_ev_19"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w1_ev_19",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_919",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_3",
+        "target_node": "w3_ev_3"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8978086831511762,
+    "root_node": "w3_ev_3",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.798,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_8802",
+        "cascade_depth": 0,
+        "source_node": "w2_ev_4",
+        "target_node": "w2_ev_4"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.772893439693884,
+    "root_node": "w2_ev_4",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.673,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_3682",
+        "cascade_depth": 0,
+        "source_node": "w2_ev_10",
+        "target_node": "w2_ev_10"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w2_ev_10",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_8218",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_1",
+        "target_node": "w3_ev_1"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w3_ev_1",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_9597",
+        "cascade_depth": 0,
+        "source_node": "w1_ev_20",
+        "target_node": "w1_ev_20"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.764446844282169,
+    "root_node": "w1_ev_20",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.664,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_1520",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_6",
+        "target_node": "w4_ev_6"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.8476751395459777,
+    "root_node": "w4_ev_6",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.748,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_7589",
+        "cascade_depth": 0,
+        "source_node": "w2_ev_15",
+        "target_node": "w2_ev_15"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w2_ev_15",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_4880",
+        "cascade_depth": 0,
+        "source_node": "w1_ev_24",
+        "target_node": "w1_ev_24"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.7502031761466034,
+    "root_node": "w1_ev_24",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.65,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_9095",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_8",
+        "target_node": "w3_ev_8"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.781291929053928,
+    "root_node": "w3_ev_8",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.681,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_4170",
+        "cascade_depth": 0,
+        "source_node": "w5_ev_21",
+        "target_node": "w5_ev_21"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.7692583725538791,
+    "root_node": "w5_ev_21",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.669,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_642",
+        "cascade_depth": 0,
+        "source_node": "w1_ev_15",
+        "target_node": "w1_ev_15"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.7763451127490755,
+    "root_node": "w1_ev_15",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.676,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_10",
+        "cascade_depth": 0,
+        "source_node": "w1_ev_6",
+        "target_node": "w1_ev_6"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w1_ev_6",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_4171",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_11",
+        "target_node": "w4_ev_11"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w4_ev_11",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511876,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511876_929",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_25",
+        "target_node": "w3_ev_25"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w3_ev_25",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511877,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511877_9769",
+        "cascade_depth": 0,
+        "source_node": "w3_ev_9",
+        "target_node": "w3_ev_9"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w3_ev_9",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  },
+  {
+    "affected_nodes": [
+      {
+        "timestamp": 1788067511877,
+        "relation": "self_update",
+        "event_type": "shock",
+        "delta": -0.1,
+        "cascade_id": "cascade_1788067511877_1546",
+        "cascade_depth": 0,
+        "source_node": "w4_ev_16",
+        "target_node": "w4_ev_16"
+      }
+    ],
+    "cascade_depth": 0,
+    "pre_confidence": 0.9,
+    "root_node": "w4_ev_16",
+    "positive_deltas": 0,
+    "negative_deltas": 1,
+    "post_confidence": 0.8,
+    "cascade_size": 1,
+    "amplification_factor": 0.13
+  }
+]

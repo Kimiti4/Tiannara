@@ -1,0 +1,37 @@
+probe_id: "U1x_unified_recertification"
+audit: "Unified Capability Re-certification (post CEL-1)"
+mode: "CERTIFICATION"
+
+bounded_proposition: >
+  Under the tested execution path, the unified organism demonstrates:
+  C11 ingress → C1 perception → C2 reality → C3 knowledge → C4 epistemics → C8 world → C14 governance → CEL-1 dynamic delegation → C9 ASC → C12 homeostasis → C15 continuity,
+  with registry-driven delegation and without hardcoded shortcuts.
+
+capabilities_under_test: [C11, C1, C2, C3, C4, C8, C14, CEL1, C9, C12, C15]
+
+production_mutation_allowed: false
+production_service_bootstrap_allowed: false
+external_mutations_allowed: false
+production_adoption_allowed: false
+
+declared_side_effects:
+  - evidence_artifacts
+  - certification_records
+  - temporary_probe_state
+
+verdict_scope: "epistemic_status_only"
+verdict_targets: "integration_edges"
+
+phases:
+  Phase_ingress:
+    description: "C11 → C1 → C2 → C3"
+  Phase_cognition:
+    description: "C3 → C4 → C5 → C6"
+  Phase_executive:
+    description: "C4 → C8 → C14 → CEL-1 dynamic delegation"
+  Phase_engineering:
+    description: "CEL-1 → C9 → C12 → C15"
+  Phase_verdict:
+    description: "Produce bounded verdict"
+
+contract_hash: "a5d7a517ade64899108c05c5266336fae90cec7354525c1cb0cd826c489e506b"

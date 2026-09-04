@@ -1,0 +1,17 @@
+From,To,Probability,EnergyCost,ExpectedEpochs
+stability_orbit,stability_orbit,0.7378,0.3,10.0
+stability_orbit,collapse_recovery_orbit,0.0061,0.99,10.0
+stability_orbit,other_orbit_0,0.0061,0.99,10.0
+stability_orbit,other_orbit_1,0.25,0.75,10.0
+collapse_recovery_orbit,stability_orbit,0.0156,0.98,10.0
+collapse_recovery_orbit,collapse_recovery_orbit,0.3281,0.67,10.0
+collapse_recovery_orbit,other_orbit_0,0.3281,0.67,10.0
+collapse_recovery_orbit,other_orbit_1,0.3281,0.67,10.0
+other_orbit_0,stability_orbit,0.128,0.97,10.0
+other_orbit_0,collapse_recovery_orbit,0.25,0.75,10.0
+other_orbit_0,other_orbit_0,0.4939,0.53,10.0
+other_orbit_0,other_orbit_1,0.128,0.87,10.0
+other_orbit_1,stability_orbit,0.1192,0.96,10.0
+other_orbit_1,collapse_recovery_orbit,0.0029,1.0,10.0
+other_orbit_1,other_orbit_0,0.1192,0.88,10.0
+other_orbit_1,other_orbit_1,0.7587,0.26,10.0

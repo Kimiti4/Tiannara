@@ -1,0 +1,85 @@
+gate_id: "MC-003-A0"
+phase: "RECONCILIATION"
+campaign: "Tiannara Remediation + Substrate Integration"
+class: "OBSERVATIONAL"
+mode: "READ_ONLY"
+
+bounded_proposition: >
+  The P16 / Real Execution substrate is inventoried, truth-classified,
+  consumer-mapped, architecture-assessed, verification-assessed,
+  safety/reliability-audited, and bottleneck-ranked from source evidence.
+  A capability is REAL only when an observable side effect or a genuine
+  measurement with provenance is demonstrated. No capability is certified
+  from API existence. No mutation is performed or authorized by this artifact.
+
+requires:
+  - "MC-002-M CERTIFIED (BOUNDED)"
+  - "MC-002-A0 CERTIFIED (RECONCILIATION ONLY)"
+  - "AC-001 FINAL CERTIFIED (BOUNDED)"
+  - "R0 OPEN-CRITICAL fabricated-evidence loop acknowledged"
+
+forbids:
+  - "production_mutation"
+  - "api_changes"
+  - "module_deletion"
+  - "test_changes"
+  - "supervision_changes"
+  - "config_changes"
+  - "ontology_changes"
+  - "creating_an_execution_engine"
+  - "implementing_missing_capabilities"
+  - "theatrical_replacement"
+  - "expanding_P16_into_general_autonomous_agency"
+  - "modifying_MC-001"
+  - "modifying_MC-002"
+  - "modifying_AC-001"
+  - "fabricating_c14_signature"
+  - "creating_a_fake_verifier"
+
+truth_classes: [REAL, PARTIAL, THEATRICAL, FABRICATED, UNKNOWN, NO]
+
+key_findings:
+  - id: X1
+    claim: "No fully-wired, supervised, real execution loop exists. Real side-effecting bridges are library/Mix-task/dry-run only: SelfImprovement.Sandbox.Backend.{Local,Container,CI} + RealHarness (reached only via dry_run.ex / tests), ASC Adoption (Mix task only), ASC Reality bridge/campaign (one-shot phase), ASC CMissions (mission tooling)."
+    evidence: "lib/tiannara/self_improvement/dry_run.ex:47; lib/tiannara/omega/dry_run.ex:102; lib/mix/tasks/asc.adopt.ex"
+  - id: X2
+    claim: "The only execution sandbox in the runtime supervision tree, Tiannara.Sandbox, fabricates outcomes with :rand uniforms and self-documents simulation."
+    evidence: "lib/tiannara/sentinel/supervisor.ex:40 (wired); lib/tiannara/sandbox.ex:217-218,226-228 (simulate); sandbox.ex:247-251 (rollback no-op)"
+  - id: X3
+    claim: "Autonomy self-improvement loop is random-number-driven theatre: fabricated baselines -> improvement verdict -> status-flip deploy; rollback is :timer.sleep + fake checkpoint."
+    evidence: "lib/tiannara/autonomy/simulation_manager.ex:76,79-82,63-70; deployment_pipeline.ex:112-120,66-68; rollback_engine.ex:67-72"
+  - id: X4
+    claim: "ASC.Repair full-deployment pipeline reports success with no work: SandboxValidator always pass, CanaryReleaser always deployed, ProductionRollout always rolled out."
+    evidence: "lib/tiannara/asc/repair/pipeline.ex:34,40,46"
+  - id: X5
+    claim: "ASC.Reality deployment managers complete without executing: DigitalDeploymentManager marks all steps :completed; PhysicalDeploymentManager default adapter SimulatedAdapter appends to an in-memory list."
+    evidence: "lib/tiannara/asc/reality/digital_deployment_manager.ex:26-40; adapters/simulated_adapter.ex:57-71"
+  - id: X6
+    claim: "Phase4.ExperimentOrchestrator.submit_experiment (the P16-AT(b) sole gateway) has zero production callers; not in app supervision tree."
+    evidence: "lib/tiannara/phase4/experiment_orchestrator.ex (service registry registration only); P16-AT: certification/TIANNARA_PHASE16_EXECUTION_AUDIT.md:77"
+  - id: X7
+    claim: "The one real earned-evidence loop is Discovery Loop B: WorkflowEngine dispatches Discovery.Steps.ExperimentStep which genuinely measures divergence from world-model entities and publishes provenance-bearing evidence; results integrate into the world model."
+    evidence: "lib/tiannara/discovery/steps/experiment_step.ex:54-108; lib/tiannara/discovery/discovery_scheduler.ex:653-702; lib/tiannara/world/world_state_synchronizer.ex:216,245-277"
+  - id: X8
+    claim: "Independent verification of execution outcomes in the runtime is unavailable. VerificationAuthority and OmCE CertificationServer hardcode PASS; the only real verification (>be executed subprocess tests/benchmarks) is the unwired Sandbox RealHarness; 'external reality' HTTP sensor reaches a stub HTTPoison."
+    evidence: "lib/tiannara/verification_authority.ex:75-91; lib/tiannara/omega/certification_server.ex:41-46; lib/tiannara/stubs/httpoison.ex:4-6; lib/tiannara/reality/production_observatory.ex:46,67,92"
+  - id: X9
+    claim: "The human-approval -> execution step is not connected: Approval.propose is called (activation/engine.ex:72) but Approval.decide has no caller in lib/."
+    evidence: "lib/tiannara/sentinel/activation/approval.ex:44-49; grep: no call sites"
+  - id: X10
+    claim: "P16-AT(a)-(e) acceptance criteria are unmet or unverifiable: orchestrator dead (b), fixed confidence_delta 0.1/0.0 (d), Loop A live via ExecutiveCycle + Tiannara.Sandbox (e), UnknownRegistry only in separate unbooted os/ subsystem (a)."
+    evidence: "lib/tiannara/discovery/discovery_scheduler.ex:178; lib/tiannara/executive/cognitive/executive_cycle.ex:145-159; lib/tiannara/os/unknown_registry.ex"
+
+certification_rule: >
+  CERTIFIED_RECONCILIATION iff: inventory complete; classifications
+  source-grounded (file:line); consumers mapped; architecture evidence-backed;
+  verification claims distinguished from actual verification; side-effect and
+  result-authenticity questions answered; safety/reliability classified per
+  contract; bottlenecks ranked with evidence; mutation candidates remain
+  recommendations; no mutation occurred; no fake verifier created; verifier
+  passes; limitations recorded. This certifies the reconciliation EVIDENCE,
+  never the P16 capability itself.
+
+verdict_space: [CERTIFIED_RECONCILIATION, PARTIAL_RECONCILIATION, NOT_CERTIFIED]
+
+contract_hash: null

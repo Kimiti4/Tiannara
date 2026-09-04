@@ -1,0 +1,101 @@
+[
+  {
+    "anchor_id": "ANCHOR_1a8ad423",
+    "anchor_type": "external_validation",
+    "claim": "The Earth orbits the Sun at approximately 30 km/s",
+    "evidence_sources": [
+      "NASA planetary data",
+      "Astronomical observations"
+    ],
+    "validation_result": 0.95,
+    "timestamp": 1778854173.7868617,
+    "confidence": 0.9,
+    "metadata": {}
+  },
+  {
+    "anchor_id": "ANCHOR_1cb5fc6d",
+    "anchor_type": "physical_constraint",
+    "claim": "Perpetual motion machines can generate infinite energy",
+    "evidence_sources": [
+      "Thermodynamics laws",
+      "Energy conservation principle"
+    ],
+    "validation_result": 0.05,
+    "timestamp": 1778854173.7873433,
+    "confidence": 0.95,
+    "metadata": {}
+  },
+  {
+    "anchor_id": "ANCHOR_c81b9af2",
+    "anchor_type": "empirical_evidence",
+    "claim": "Human reaction time is approximately 250ms",
+    "evidence_sources": [
+      "Psychology studies",
+      "Reaction time experiments"
+    ],
+    "validation_result": 0.85,
+    "timestamp": 1778854173.787371,
+    "confidence": 0.8,
+    "metadata": {}
+  },
+  {
+    "anchor_id": "ANCHOR_105eab17",
+    "anchor_type": "external_validation",
+    "claim": "Synthetic claim 1 with low validation",
+    "evidence_sources": [
+      "Unreliable source"
+    ],
+    "validation_result": 0.2,
+    "timestamp": 1778854173.7912757,
+    "confidence": 0.3,
+    "metadata": {}
+  },
+  {
+    "anchor_id": "ANCHOR_38727d92",
+    "anchor_type": "external_validation",
+    "claim": "Synthetic claim 2 with low validation",
+    "evidence_sources": [
+      "Unreliable source"
+    ],
+    "validation_result": 0.25,
+    "timestamp": 1778854173.7912922,
+    "confidence": 0.3,
+    "metadata": {}
+  },
+  {
+    "anchor_id": "ANCHOR_2f5a7577",
+    "anchor_type": "external_validation",
+    "claim": "Synthetic claim 3 with low validation",
+    "evidence_sources": [
+      "Unreliable source"
+    ],
+    "validation_result": 0.30000000000000004,
+    "timestamp": 1778854173.7913053,
+    "confidence": 0.3,
+    "metadata": {}
+  },
+  {
+    "anchor_id": "ANCHOR_e3c86431",
+    "anchor_type": "external_validation",
+    "claim": "Synthetic claim 4 with low validation",
+    "evidence_sources": [
+      "Unreliable source"
+    ],
+    "validation_result": 0.35000000000000003,
+    "timestamp": 1778854173.7913163,
+    "confidence": 0.3,
+    "metadata": {}
+  },
+  {
+    "anchor_id": "ANCHOR_41843447",
+    "anchor_type": "external_validation",
+    "claim": "Synthetic claim 5 with low validation",
+    "evidence_sources": [
+      "Unreliable source"
+    ],
+    "validation_result": 0.4,
+    "timestamp": 1778854173.7913272,
+    "confidence": 0.3,
+    "metadata": {}
+  }
+]

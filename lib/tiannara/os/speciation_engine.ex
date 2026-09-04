@@ -207,12 +207,6 @@ defmodule TiannaraOS.SpeciationEngine do
     end
   end
   
-  @doc """
-  Calculate Shannon entropy of population distribution.
-  
-  High entropy = diverse ecosystem
-  Low entropy = dominated by few species
-  """
   @spec calculate_shannon_entropy([integer()], integer()) :: float()
   defp calculate_shannon_entropy(populations, total) do
     if total == 0 do

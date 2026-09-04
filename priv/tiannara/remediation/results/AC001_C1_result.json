@@ -1,0 +1,73 @@
+{
+  "gate": "AC-001-C1",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "timestamp": "2026-08-26T21:45:00Z",
+  "verdict": "CERTIFIED",
+  "verdict_determination": {
+    "certified_requires": {
+      "call_sites_accounted": "40/40",
+      "all_records_atomic": true,
+      "legacy_production_references": 0,
+      "fabricated_capability": 0,
+      "knowledge_capital_boundary": "EXPLICITLY_UNAVAILABLE",
+      "portfolio_boundary": "EXPLICITLY_UNAVAILABLE",
+      "domain_projection_test_disposition": "ACCEPTED — all 4 functions never implemented",
+      "compile": "PASS",
+      "tests_domains": "43/43 PASS",
+      "tests_web": "13/13 PASS",
+      "tests_discoveries": "114/114 PASS",
+      "tests_asc": "38 failures — PRE_EXISTING_BOOT_FAILURES",
+      "runtime_verification": "PASS",
+      "authorization_valid": "PENDING_HUMAN_SIGN",
+      "migration_ledger_complete": true
+    },
+    "blocking_findings": []
+  },
+  "evidence": {
+    "call_sites_total": 40,
+    "call_sites_migrated": 23,
+    "call_sites_boundary": 17,
+    "call_sites_retired": 0,
+    "call_sites_deferred": 0,
+    "modules_migrated": 15,
+    "legacy_production_references": 0,
+    "all_records_atomic": true,
+    "compile": "PASS",
+    "tests": {
+      "domains": {"total": 43, "passed": 43, "failed": 0},
+      "web": {"total": 13, "passed": 13, "failed": 0},
+      "discoveries": {"total": 114, "passed": 114, "failed": 0},
+      "asc": {"total": 38, "passed": 0, "failed": 38, "classification": "PRE_EXISTING_BOOT_FAILURES"}
+    },
+    "runtime": {
+      "canonical_registry_all": "PASS — 20 atoms, deterministic",
+      "canonical_registry_all_records": "PASS — 20 records, atomic",
+      "canonical_registry_get": "PASS — returns record for valid, nil for invalid",
+      "knowledge_capital_boundary": "PASS — returns nil",
+      "portfolio_boundary": "PASS — returns nil"
+    }
+  },
+  "boundaries": {
+    "knowledge_capital": "EXPLICITLY_UNAVAILABLE",
+    "portfolio": "EXPLICITLY_UNAVAILABLE"
+  },
+  "semantic_reclassification": {
+    "science": "LIMITED_TO_MIGRATION_PATH",
+    "mathematics": "LIMITED_TO_MIGRATION_PATH",
+    "logic": "EXCLUDED_FROM_DOMAINS",
+    "cs": "MERGED_INTO_COMPUTATION",
+    "full_reclassification": "DEFERRED_TO_AC-001-E"
+  },
+  "dead_apis": {
+    "add_program_2": "ZERO_CALLERS_RETIRE_IN_D",
+    "record_activity_3": "ZERO_CALLERS_RETIRE_IN_D",
+    "get_all_domain_ids_0": "ZERO_CALLERS_RETIRE_IN_D"
+  },
+  "findings_resolved": {
+    "F-C1-001": "RESOLVED — DomainProjectionTest tests 2-4 called functions that were never implemented (UndefinedFunctionError). Evidence: grep of entire lib/ returns zero matches for get_domain_allocations, identify_neglected_domains, balance_portfolio, evaluate_outcomes_and_update_principles on Tiannara.Research.Director.",
+    "F-C1-002": "RESOLVED — C0 reported 42 call sites; line-level audit found 40. Discrepancy: C0 double-counted 2 sites in civilization_atlas.ex."
+  },
+  "contract_hash": null,
+  "authorization_ref": "priv/tiannara/authorization/ASC-AC-001-C1-CONSUMER-MIGRATION.human.yaml",
+  "commit_sha": null
+}

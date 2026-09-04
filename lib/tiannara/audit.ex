@@ -167,139 +167,139 @@ defmodule Tiannara.Audit do
   @doc "Generate audit report template"
   def generate_report_template do
     """
-# Tiannara System Integrity Audit Template
+    # Tiannara System Integrity Audit Template
 
-## Audit Overview
-- **Date**: [Audit Date]
-- **System**: Tiannara Unified Architecture
-- **Auditor**: [Your Name/Team]
-- **Purpose**: Verify architectural integrity after unification
+    ## Audit Overview
+    - **Date**: [Audit Date]
+    - **System**: Tiannara Unified Architecture
+    - **Auditor**: [Your Name/Team]
+    - **Purpose**: Verify architectural integrity after unification
 
-## Test Categories
+    ## Test Categories
 
-### Tier 0: Foundational (REA)
-- [ ] L1 Architectural Understanding
-- [ ] L2 Invariant Preservation
-- [ ] L3 Experiment Classification
-- [ ] L4 World Model Accuracy
-- [ ] L5 Experiment Memory
-- [ ] L6 Simulation Accuracy
-- [ ] L7 Specialist Agent Ecology
-- [ ] L8 GHL (Generativity Half-Life)
-- [ ] L9 Silent Failure Detection
-- [ ] L10 Self-Improvement Loop
+    ### Tier 0: Foundational (REA)
+    - [ ] L1 Architectural Understanding
+    - [ ] L2 Invariant Preservation
+    - [ ] L3 Experiment Classification
+    - [ ] L4 World Model Accuracy
+    - [ ] L5 Experiment Memory
+    - [ ] L6 Simulation Accuracy
+    - [ ] L7 Specialist Agent Ecology
+    - [ ] L8 GHL (Generativity Half-Life)
+    - [ ] L9 Silent Failure Detection
+    - [ ] L10 Self-Improvement Loop
 
-### Tier 1: Emergence Audits
-- [ ] T1-A Architecture Model Fidelity
-- [ ] T1-B Prediction Calibration (Brier Score)
-- [ ] T1-D Knowledge Graph Consistency
-- [ ] T1-E Specialist Drift (Diversity)
+    ### Tier 1: Emergence Audits
+    - [ ] T1-A Architecture Model Fidelity
+    - [ ] T1-B Prediction Calibration (Brier Score)
+    - [ ] T1-D Knowledge Graph Consistency
+    - [ ] T1-E Specialist Drift (Diversity)
 
-### Tier 2: Governance Audits
-- [ ] T2-A Constitutional Resilience (Adversarial)
-- [ ] T2-B Approval Gate Integrity
-- [ ] T2-C Silent Failure Stress Test
-- [ ] T2-E False Emergence Audit
+    ### Tier 2: Governance Audits
+    - [ ] T2-A Constitutional Resilience (Adversarial)
+    - [ ] T2-B Approval Gate Integrity
+    - [ ] T2-C Silent Failure Stress Test
+    - [ ] T2-E False Emergence Audit
 
-### Tier 3: Epistemic Audits
-- [ ] T3-A Epistemic Rigor (Counterarguments)
-- [ ] T3-B Assumption Exposure
-- [ ] T3-C Evidence Weighting (Quantified)
+    ### Tier 3: Epistemic Audits
+    - [ ] T3-A Epistemic Rigor (Counterarguments)
+    - [ ] T3-B Assumption Exposure
+    - [ ] T3-C Evidence Weighting (Quantified)
 
-### Tier 4: Reality Correspondence (Discovery)
-- [ ] T4-A Hidden Coupling Discovery
-- [ ] T4-B Metric Gaming Detection
-- [ ] T4-C Measurement Skepticism (Lying Instruments)
-- [ ] T4-D Shadow Research Benchmark
+    ### Tier 4: Reality Correspondence (Discovery)
+    - [ ] T4-A Hidden Coupling Discovery
+    - [ ] T4-B Metric Gaming Detection
+    - [ ] T4-C Measurement Skepticism (Lying Instruments)
+    - [ ] T4-D Shadow Research Benchmark
 
-### Tier 5: Evolutionary Effectiveness
-- [ ] T5-A Architectural Fitness (Prediction/GHL Trend)
-- [ ] T5-B Improvement Yield Rate
-- [ ] T5-C Research Efficiency
-- [ ] T5-D Novel Discovery Rate
-- [ ] T5-E Discovery-to-Value Ratio (DVR)
+    ### Tier 5: Evolutionary Effectiveness
+    - [ ] T5-A Architectural Fitness (Prediction/GHL Trend)
+    - [ ] T5-B Improvement Yield Rate
+    - [ ] T5-C Research Efficiency
+    - [ ] T5-D Novel Discovery Rate
+    - [ ] T5-E Discovery-to-Value Ratio (DVR)
 
-### Tier 1 (Legacy): Architectural Invariants
-- [ ] AI-001 Core Sovereignty (Only Core generates intent)
-- [ ] AI-002 World Model Authority (Single source of truth)
-- [ ] AI-003 Runtime Ownership (Runtime owns entropy, pressure, constraints)
-- [ ] AI-004 Domain Ownership (Domains never mutate core identity)
+    ### Tier 1 (Legacy): Architectural Invariants
+    - [ ] AI-001 Core Sovereignty (Only Core generates intent)
+    - [ ] AI-002 World Model Authority (Single source of truth)
+    - [ ] AI-003 Runtime Ownership (Runtime owns entropy, pressure, constraints)
+    - [ ] AI-004 Domain Ownership (Domains never mutate core identity)
 
-### Tier 2: World Model Integrity
-- [ ] WM-001 Entity Consistency (User, Goal, Lineage, Project)
-- [ ] WM-002 Belief Revision (Contradictory beliefs increase uncertainty)
-- [ ] WM-003 Temporal Integrity (Timeline ordering preserved)
-- [ ] WM-004 Prediction Feedback (Belief confidence decreases)
-- [ ] WM-005 Causal Consistency (Counterfactual propagation)
+    ### Tier 2: World Model Integrity
+    - [ ] WM-001 Entity Consistency (User, Goal, Lineage, Project)
+    - [ ] WM-002 Belief Revision (Contradictory beliefs increase uncertainty)
+    - [ ] WM-003 Temporal Integrity (Timeline ordering preserved)
+    - [ ] WM-004 Prediction Feedback (Belief confidence decreases)
+    - [ ] WM-005 Causal Consistency (Counterfactual propagation)
 
-### Tier 3: Core Integration
-- [ ] CORE-001 Goal → Intent (Goal System → Intent Graph → AEO)
-- [ ] CORE-002 Meta-Cognition Uses World Model (Uncertainty increases Logic/Causal)
-- [ ] CORE-003 Identity Persistence (Lineage preserved over 100 cycles)
+    ### Tier 3: Core Integration
+    - [ ] CORE-001 Goal → Intent (Goal System → Intent Graph → AEO)
+    - [ ] CORE-002 Meta-Cognition Uses World Model (Uncertainty increases Logic/Causal)
+    - [ ] CORE-003 Identity Persistence (Lineage preserved over 100 cycles)
 
-### Tier 4: Domain Cortex
-- [ ] DC-001 Domain Team Assembly (Trading strategy selects correct domains)
-- [ ] DC-002 Domain Diversity (Prediction 80% triggers CIS warning)
-- [ ] DC-003 Domain Collaboration (RE, Logic, Causal, Ethics work together)
+    ### Tier 4: Domain Cortex
+    - [ ] DC-001 Domain Team Assembly (Trading strategy selects correct domains)
+    - [ ] DC-002 Domain Diversity (Prediction 80% triggers CIS warning)
+    - [ ] DC-003 Domain Collaboration (RE, Logic, Causal, Ethics work together)
 
-### Tier 5-8: System Tests
-- [ ] AEO-001 Intent Translation (Deterministic Goal → Execution Graph)
-- [ ] AEO-002 Runtime Submission (submit_to_runtime() only)
-- [ ] AEO-003 Feedback Loop (Success updates World Model and goals)
-- [ ] CIS-001 Monoculture Detection (Prediction 80% warning)
-- [ ] CIS-002 Constraint Behavior (Core decides despite CIS warnings)
-- [ ] CIS-003 Collapse Simulation (Entropy 0.15 → recommendations)
-- [ ] OED-001 Constitution Check (Invalid plan rejected)
-- [ ] OED-002 Adversarial Challenge (ACM → alternative ontology)
-- [ ] OED-003 Validation Pipeline (ACM → OAVL → UMSC → approval)
-- [ ] RT-001 Runtime Cannot Create Intent (Runtime.create_goal() fails)
-- [ ] RT-002 Runtime Uses World Model (Updates through RuntimeAPI)
-- [ ] RT-003 Pressure Loop (GRCC → CIS → GRCC stability)
+    ### Tier 5-8: System Tests
+    - [ ] AEO-001 Intent Translation (Deterministic Goal → Execution Graph)
+    - [ ] AEO-002 Runtime Submission (submit_to_runtime() only)
+    - [ ] AEO-003 Feedback Loop (Success updates World Model and goals)
+    - [ ] CIS-001 Monoculture Detection (Prediction 80% warning)
+    - [ ] CIS-002 Constraint Behavior (Core decides despite CIS warnings)
+    - [ ] CIS-003 Collapse Simulation (Entropy 0.15 → recommendations)
+    - [ ] OED-001 Constitution Check (Invalid plan rejected)
+    - [ ] OED-002 Adversarial Challenge (ACM → alternative ontology)
+    - [ ] OED-003 Validation Pipeline (ACM → OAVL → UMSC → approval)
+    - [ ] RT-001 Runtime Cannot Create Intent (Runtime.create_goal() fails)
+    - [ ] RT-002 Runtime Uses World Model (Updates through RuntimeAPI)
+    - [ ] RT-003 Pressure Loop (GRCC → CIS → GRCC stability)
 
-### Tier 9: End-to-End
-- [ ] E2E-001 Trading Strategy (Complete pipeline verification)
-- [ ] E2E-002 Malware Analysis (Multi-domain collaboration)
-- [ ] E2E-003 Long Horizon (10,000 cycles stability metrics)
+    ### Tier 9: End-to-End
+    - [ ] E2E-001 Trading Strategy (Complete pipeline verification)
+    - [ ] E2E-002 Malware Analysis (Multi-domain collaboration)
+    - [ ] E2E-003 Long Horizon (10,000 cycles stability metrics)
 
-## Pass Targets
-| Area | Pass Target |
-|------|-------------|
-| Foundational (REA) | 100% |
-| Emergence Audits | 100% |
-| Governance Audits | 100% |
-| Epistemic Audits | 100% |
-| Reality Correspondence | >80% |
-| Evolutionary Effectiveness | >70% |
-| Architectural Invariants | 100% |
+    ## Pass Targets
+    | Area | Pass Target |
+    |------|-------------|
+    | Foundational (REA) | 100% |
+    | Emergence Audits | 100% |
+    | Governance Audits | 100% |
+    | Epistemic Audits | 100% |
+    | Reality Correspondence | >80% |
+    | Evolutionary Effectiveness | >70% |
+    | Architectural Invariants | 100% |
 
-## Readiness Assessment
-- **REA-1 (Low Risk)**: FULLY AUTONOMOUS
-- **REA-2 (Architectural)**: GRADUATED TRUST (Phase A: Shadow + Approval)
-- **REA-3 (Critical)**: HUMAN-IN-THE-LOOP REQUIRED
-| World Model Integrity | 100% |
-| Core Integration | 100% |
-| Domain Cortex | >95% |
-| AEO | 100% |
-| CIS | 100% |
-| OED | 100% |
-| Runtime | >95% |
-| End-to-End | 100% |
+    ## Readiness Assessment
+    - **REA-1 (Low Risk)**: FULLY AUTONOMOUS
+    - **REA-2 (Architectural)**: GRADUATED TRUST (Phase A: Shadow + Approval)
+    - **REA-3 (Critical)**: HUMAN-IN-THE-LOOP REQUIRED
+    | World Model Integrity | 100% |
+    | Core Integration | 100% |
+    | Domain Cortex | >95% |
+    | AEO | 100% |
+    | CIS | 100% |
+    | OED | 100% |
+    | Runtime | >95% |
+    | End-to-End | 100% |
 
-## Critical Success Factors
-1. **Silent Architectural Divergence Detection** - Biggest risk after unification
-2. **World Model Authority** - Must be single source of truth
-3. **Core Sovereignty** - Only Core generates intent
-4. **Temporal Integrity** - Timeline ordering preserved
-5. **Domain Separation** - Clear ownership boundaries
+    ## Critical Success Factors
+    1. **Silent Architectural Divergence Detection** - Biggest risk after unification
+    2. **World Model Authority** - Must be single source of truth
+    3. **Core Sovereignty** - Only Core generates intent
+    4. **Temporal Integrity** - Timeline ordering preserved
+    5. **Domain Separation** - Clear ownership boundaries
 
-## Remediation Steps
-1. Fix all failing tests
-2. Re-run audit to verify fixes
-3. Ensure 100% pass rate for critical tiers
-4. Only proceed to advanced features after audit passes
+    ## Remediation Steps
+    1. Fix all failing tests
+    2. Re-run audit to verify fixes
+    3. Ensure 100% pass rate for critical tiers
+    4. Only proceed to advanced features after audit passes
 
----
-*Template for Tiannara System Integrity Audit*
+    ---
+    *Template for Tiannara System Integrity Audit*
     """
   end
 end

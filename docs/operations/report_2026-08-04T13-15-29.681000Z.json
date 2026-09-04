@@ -1,0 +1,13 @@
+{
+  "uptime_seconds": 3934,
+  "generated_at": "2026-08-04T13:15:29.552000Z",
+  "last_health_check": "2026-08-04T13:15:28.787000Z",
+  "autonomous": true,
+  "health_trend": "stable",
+  "last_audit_status": null,
+  "subsystems_healthy": 33,
+  "subsystems_total": 33,
+  "total_failures": 0,
+  "total_recoveries": 0,
+  "uptime_human": "1h 5m 34s"
+}

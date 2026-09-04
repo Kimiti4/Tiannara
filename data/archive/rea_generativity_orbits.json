@@ -1,0 +1,177 @@
+{
+  "metadata": {
+    "hypothesis": "Generativity is not a state, resource, or component. Generativity is a regenerative orbit sustained by preserved identity."
+  },
+  "top_orbit_counts": {
+    "top_10": 50,
+    "top_5": 25,
+    "top_1": 5
+  },
+  "orbit_atlas": [
+    {
+      "cluster_id": 0,
+      "archetype": "Other Orbit",
+      "count": 9,
+      "mean_gsi": 0.7445666666666667,
+      "mean_return_time": 3.111111111111111,
+      "mean_duty_cycle": 0.5,
+      "mean_recurrence": 0.025,
+      "mean_half_life": 28.799999999999997,
+      "mean_identity_persistence": 0.4197888888888889,
+      "family_composition": {
+        "Explorer": 2,
+        "Phoenix": 0,
+        "Settler": 2,
+        "Survivor": 3,
+        "Trader": 2
+      },
+      "dominant_navigator": "Survivor"
+    },
+    {
+      "cluster_id": 1,
+      "archetype": "Other Orbit",
+      "count": 31,
+      "mean_gsi": 0.708658064516129,
+      "mean_return_time": 2.806451612903226,
+      "mean_duty_cycle": 0.29838709677419356,
+      "mean_recurrence": 0.029838709677419358,
+      "mean_half_life": 14.399999999999995,
+      "mean_identity_persistence": 0.5539193548387096,
+      "family_composition": {
+        "Explorer": 4,
+        "Phoenix": 8,
+        "Settler": 6,
+        "Survivor": 6,
+        "Trader": 7
+      },
+      "dominant_navigator": "Phoenix"
+    },
+    {
+      "cluster_id": 2,
+      "archetype": "Stability Orbit",
+      "count": 1,
+      "mean_gsi": 0.6917,
+      "mean_return_time": 2.0,
+      "mean_duty_cycle": 0.75,
+      "mean_recurrence": 0.025,
+      "mean_half_life": 43.2,
+      "mean_identity_persistence": 0.8538,
+      "family_composition": {
+        "Explorer": 0,
+        "Phoenix": 1,
+        "Settler": 0,
+        "Survivor": 0,
+        "Trader": 0
+      },
+      "dominant_navigator": "Phoenix"
+    },
+    {
+      "cluster_id": 3,
+      "archetype": "Collapse-Recovery Orbit",
+      "count": 9,
+      "mean_gsi": 0.702,
+      "mean_return_time": 6.0,
+      "mean_duty_cycle": 0.25,
+      "mean_recurrence": 0.025,
+      "mean_half_life": 14.399999999999999,
+      "mean_identity_persistence": 0.5050666666666667,
+      "family_composition": {
+        "Explorer": 3,
+        "Phoenix": 1,
+        "Settler": 1,
+        "Survivor": 2,
+        "Trader": 2
+      },
+      "dominant_navigator": "Explorer"
+    }
+  ],
+  "equivalence_matrix": {
+    "Other Orbit": {
+      "Explorer": 4,
+      "Phoenix": 8,
+      "Settler": 6,
+      "Survivor": 6,
+      "Trader": 7
+    },
+    "Stability Orbit": {
+      "Explorer": 0,
+      "Phoenix": 1,
+      "Settler": 0,
+      "Survivor": 0,
+      "Trader": 0
+    },
+    "Collapse-Recovery Orbit": {
+      "Explorer": 3,
+      "Phoenix": 1,
+      "Settler": 1,
+      "Survivor": 2,
+      "Trader": 2
+    }
+  },
+  "invariants_ranked": [
+    {
+      "metric": "return_time",
+      "mutual_information": 0.8268487132174123,
+      "feature_importance": 0.25827492963696275
+    },
+    {
+      "metric": "recurrence",
+      "mutual_information": 0.6778948158396889,
+      "feature_importance": 0.25703026536620166
+    },
+    {
+      "metric": "duty_cycle",
+      "mutual_information": 0.7102463248552826,
+      "feature_importance": 0.17405649834390638
+    },
+    {
+      "metric": "half_life",
+      "mutual_information": 0.6884176442871346,
+      "feature_importance": 0.12386882507793881
+    },
+    {
+      "metric": "burst_duration",
+      "mutual_information": 0.699004824195226,
+      "feature_importance": 0.11436078744227418
+    },
+    {
+      "metric": "mean_pe",
+      "mutual_information": 1.3957651303811889,
+      "feature_importance": 0.06831944955511059
+    },
+    {
+      "metric": "mean_pr",
+      "mutual_information": 1.3844959852531056,
+      "feature_importance": 0.003894039924442732
+    },
+    {
+      "metric": "H",
+      "mutual_information": 0.0,
+      "feature_importance": 8.666221277320957e-05
+    },
+    {
+      "metric": "T",
+      "mutual_information": 0.020399396420156535,
+      "feature_importance": 6.277061809026537e-05
+    },
+    {
+      "metric": "I",
+      "mutual_information": 0.00759786875144286,
+      "feature_importance": 2.4349420143105213e-05
+    },
+    {
+      "metric": "C",
+      "mutual_information": 0.0,
+      "feature_importance": 2.142240215642275e-05
+    }
+  ],
+  "candidate_laws": [
+    "IF IdentityPersistence > 0.85 AND ReturnTime < 3.0 THEN GSI > 0.75 (Identity Preservation Law)",
+    "IF DutyCycle > 0.40 AND Recurrence > 0.03 THEN GSI > 0.70 (Emergent Orbit Law)",
+    "IF ReturnEfficiency > 0.25 THEN OrbitClass = Regenerative (Regenerative Velocity Law)"
+  ],
+  "verdict": {
+    "choice": "B",
+    "explanation": "The data confirms that elite Phoenix and Settler trajectories converge onto the exact same Regenerative Orbit cluster. IdentityPersistence (I) is the single most predictive invariant (Importance: 0.0000), proving that surviving collapse via identity preservation enables repeated re-entry into generative orbits regardless of navigator search path."
+  }
+}

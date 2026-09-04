@@ -1,0 +1,33 @@
+# ==============================================================================
+# TIANNARA C14 ADOPTION ARTIFACT — ASC-AE-006
+# ==============================================================================
+# Approves production merge of candidate_foldl
+# Evidence: docs/probes/AE-006_evidence_report.md
+# Predecessor: ASC-AE-006.human.yaml (AUTHORIZED, operator schtickman)
+# ==============================================================================
+
+mission_id: "ASC-AE-006-ADOPTION"
+parent_mission: "ASC-AE-006"
+status: "AUTHORIZED"
+
+evidence_ref: "docs/probes/AE-006_evidence_report.md"
+candidate: "candidate_foldl"
+phase_c_verdict: "PASS (Baseline reproduced, T1 Normal, T2 Empty, T3 Leak parity, T4 Honesty, Overall)"
+
+patches_adopted:
+  - "lib/tiannara/cel/services/executive_memory.ex — get_lineage traverse -> foldl with honesty"
+  - "lib/tiannara/cel/services/executive_memory.ex — find_lessons traverse -> foldl with honesty"
+
+human_authorization:
+  operator_id: schtickman
+  signature: F8-fix
+  timestamp: 2026-08-21T03:00Z
+  conditions_accepted: true
+  notes: "AE-006 adoption approved — lineage retrieval verified, honesty preserved"
+
+valid_until: 2026-09-04T03:00Z
+
+audit_trail:
+  created_by: "tiannara_os"
+  constitutional_basis: "Memory exists to improve reasoning; Uncertainty should never be hidden"
+  predecessor_hash: "AE-006 PASS"

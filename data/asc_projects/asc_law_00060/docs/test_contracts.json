@@ -1,0 +1,32 @@
+[
+  {
+    "id": "tc_235",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: validate input schemas",
+    "source_ref": "cap_233",
+    "test_module_name": "ValidateInputSchemasTest",
+    "test_function_name": "test validate input schemas succeeds with valid inputs",
+    "expected_behavior": "validate input schemas completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_236",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: check business rules",
+    "source_ref": "cap_234",
+    "test_module_name": "CheckBusinessRulesTest",
+    "test_function_name": "test check business rules succeeds with valid inputs",
+    "expected_behavior": "check business rules completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

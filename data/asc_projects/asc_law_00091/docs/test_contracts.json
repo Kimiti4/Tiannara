@@ -1,0 +1,117 @@
+[
+  {
+    "id": "tc_361",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Balance cannot go below zero",
+    "source_ref": "inv_355",
+    "test_module_name": "BalanceCannotBelowInvariantTest",
+    "test_function_name": "property Balance cannot go below zero",
+    "expected_behavior": "Balance cannot go below zero",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "business_logic",
+      "generator": "StreamData.term()",
+      "assertion": "Balance cannot go below zero",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "business_logic"
+    ],
+    "source_type": "invariant"
+  },
+  {
+    "id": "tc_362",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Must respond in under 100ms",
+    "source_ref": "inv_356",
+    "test_module_name": "MustRespondUnderInvariantTest",
+    "test_function_name": "property Must respond in under 100ms",
+    "expected_behavior": "must NOT respond in under 100ms",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "performance",
+      "generator": "StreamData.term()",
+      "assertion": "must NOT respond in under 100ms",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "performance"
+    ],
+    "source_type": "invariant"
+  },
+  {
+    "id": "tc_363",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: create accounts unique",
+    "source_ref": "cap_357",
+    "test_module_name": "CreateAccountsUniqueTest",
+    "test_function_name": "test create accounts unique succeeds with valid inputs",
+    "expected_behavior": "create accounts unique completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_364",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: list all accounts",
+    "source_ref": "cap_358",
+    "test_module_name": "ListAllAccountsTest",
+    "test_function_name": "test list all accounts succeeds with valid inputs",
+    "expected_behavior": "list all accounts completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_365",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: update account balance",
+    "source_ref": "cap_359",
+    "test_module_name": "UpdateAccountBalanceTest",
+    "test_function_name": "test update account balance succeeds with valid inputs",
+    "expected_behavior": "update account balance completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_366",
+    "priority": "high",
+    "status": "pending",
+    "type": "load",
+    "description": "Load: response_time <= 100.0 ms",
+    "source_ref": "con_360",
+    "test_module_name": null,
+    "test_function_name": "test response_time satisfies latency constraint",
+    "expected_behavior": "response_time <= 100.0 ms",
+    "coverage_dimension": "performance",
+    "property_spec": {
+      "type": "latency",
+      "unit": "ms",
+      "value": 100.0,
+      "operator": "lte",
+      "metric": "response_time"
+    },
+    "tags": [
+      "latency",
+      "non_functional"
+    ],
+    "source_type": "constraint"
+  }
+]

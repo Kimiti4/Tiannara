@@ -16,8 +16,6 @@ defmodule TiannaraOS.InstitutionalMemory do
   """
   
   alias TiannaraOS.State
-  alias TiannaraOS.ResearchProgram
-  alias TiannaraOS.Discovery
   
   # Minimum deaths before extracting patterns
   @min_deaths_for_analysis 3
@@ -403,33 +401,41 @@ defmodule TiannaraOS.InstitutionalMemory do
   defp adjust_for_failed_traits(genome, failed_traits, confidence) do
     adjusted = genome
     
-    # If high exploration + low validation is fatal, push away from that region
-    if Map.get(failed_traits, :high_exploration_low_validation_fatal) do
+    adjusted = if Map.get(failed_traits, :high_exploration_low_validation_fatal) do
       if genome.exploration_rate > 0.6 and genome.validation_priority < 0.4 do
-        # Reduce exploration, increase validation
-        adjusted = %{adjusted |
+        %{adjusted |
           exploration_rate: max(0.2, genome.exploration_rate - 0.3 * confidence),
           validation_priority: min(0.9, genome.validation_priority + 0.3 * confidence)
         }
+      else
+        adjusted
       end
+    else
+      adjusted
     end
     
-    # If low risk tolerance leads to slow death, increase risk tolerance
-    if Map.get(failed_traits, :low_risk_tolerance_slow_death) do
+    adjusted = if Map.get(failed_traits, :low_risk_tolerance_slow_death) do
       if genome.risk_tolerance < 0.3 do
-        adjusted = %{adjusted |
+        %{adjusted |
           risk_tolerance: min(0.7, genome.risk_tolerance + 0.2 * confidence)
         }
+      else
+        adjusted
       end
+    else
+      adjusted
     end
     
-    # If low exploration causes stagnation, boost exploration
-    if Map.get(failed_traits, :low_exploration_stagnation) do
+    adjusted = if Map.get(failed_traits, :low_exploration_stagnation) do
       if genome.exploration_rate < 0.3 do
-        adjusted = %{adjusted |
+        %{adjusted |
           exploration_rate: min(0.8, genome.exploration_rate + 0.2 * confidence)
         }
+      else
+        adjusted
       end
+    else
+      adjusted
     end
     
     adjusted

@@ -1,0 +1,19 @@
+{
+  "domain": "predictive",
+  "timestamp": "2026-05-09T22:40:24.150565",
+  "total_tests": 0,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 0,
+  "pass_rate": 0.0,
+  "coverage_percent": null,
+  "duration_seconds": 22.813512563705444,
+  "missing_dependencies": [
+    "scikit-learn"
+  ],
+  "installed_dependencies": [
+    "scikit-learn"
+  ],
+  "auto_fixes_applied": [],
+  "test_results": []
+}

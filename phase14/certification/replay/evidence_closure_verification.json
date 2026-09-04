@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-07-03T16:31:38.178000Z",
+  "original_manifest_hash": "ffb09a902619bb4997d60ada30bc12733a8b77dda5dd1c180e27b02a10771e5c",
+  "recomputed_manifest_hash": "ffb09a902619bb4997d60ada30bc12733a8b77dda5dd1c180e27b02a10771e5c",
+  "manifest_match": true,
+  "test_type": "evidence_only_reconstruction",
+  "original_certificate_hash": "b69fee34460012f2c521bbd7f8325c1739a79f677499a5ba5a941bad44d77d8a",
+  "recomputed_certificate_hash": "b69fee34460012f2c521bbd7f8325c1739a79f677499a5ba5a941bad44d77d8a",
+  "certificate_match": true,
+  "overall_success": true,
+  "artifacts_used": [
+    "certificate.json",
+    "manifest.json",
+    "evidence/"
+  ],
+  "runtime_state_required": false
+}

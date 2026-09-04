@@ -9,8 +9,7 @@ defmodule TiannaraOS.CapabilityRegistry do
   alias TiannaraOS.State
   alias TiannaraOS.Discovery
   alias TiannaraOS.CapabilityNode
-  alias TiannaraOS.ResearchProgram
-  alias Tiannara.LifecycleRegistry
+
 
   @capability_unlock_threshold 0.4
   
@@ -368,7 +367,7 @@ defmodule TiannaraOS.CapabilityRegistry do
     update_fitness(node, world_needs)
   end
 
-  defp update_fitness(node, world_needs \\ %{}) do
+  defp update_fitness(node, world_needs) do
     alignment = if map_size(world_needs) > 0 do
       # Calculate similarity between capability domain vector and world needs
       # Simple dot product mapped to [0.5, 1.5] base scaling

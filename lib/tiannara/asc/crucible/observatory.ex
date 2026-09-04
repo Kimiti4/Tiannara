@@ -35,7 +35,6 @@ defmodule Tiannara.ASC.Crucible.Observatory do
 
   alias Tiannara.ASC.Crucible.Observation
   alias Tiannara.ASC.Crucible.RepairPattern
-  alias Tiannara.ASC.KnowledgeArchive
 
   # State structure
   defstruct [
@@ -249,6 +248,77 @@ defmodule Tiannara.ASC.Crucible.Observatory do
       last_updated_at: DateTime.utc_now()
     }
     {:reply, :ok, new_state}
+  end
+
+  @impl true
+  def handle_call({:finalize_epoch, epoch_id, projects_tested}, _from, state) do
+    # Get current metrics
+    metrics = extract_metrics(state)
+
+    # === FIX 2: Run law discovery on epoch observations ===
+    IO.puts("\n🔍 Running Law Discovery...")
+    candidate_laws = discover_candidate_laws_from_observations(state.observations)
+    IO.puts("✅ Discovered #{length(candidate_laws)} candidate laws")
+    # ========================================
+
+    # Add candidate laws to metrics for epoch creation
+    enhanced_metrics = Map.put(metrics, :law_candidates, candidate_laws)
+
+    # Create epoch record with discovered laws
+    epoch = Tiannara.ASC.Crucible.Epoch.from_observatory_metrics(
+      epoch_id,
+      enhanced_metrics,
+      projects_tested
+    )
+
+    # === FIX 3: Update Falsification Ledger with new evidence ===
+    if length(candidate_laws) > 0 do
+      IO.puts("📚 Updating Falsification Ledger...")
+      observations = get_all_observations(state)
+      Tiannara.ASC.Crucible.LawFalsificationLedger.update_from_epoch(epoch, observations)
+      IO.puts("✅ Falsification Ledger updated")
+    end
+    # ========================================
+
+    # Check if meets Alpha criteria
+    meets_criteria = Tiannara.ASC.Crucible.Epoch.meets_alpha_criteria?(epoch)
+
+    # Store epoch
+    updated_state = %{
+      state
+      | epochs: [epoch | state.epochs],
+        current_epoch_id: epoch_id,
+        last_updated_at: DateTime.utc_now()
+    }
+
+    # Log results
+    if meets_criteria do
+      IO.puts("\n✅ Alpha Campaign SUCCESS")
+      IO.inspect(Tiannara.ASC.Crucible.Epoch.summarize(epoch), label: "Epoch Summary")
+    else
+      IO.puts("\n❌ Alpha Campaign INCOMPLETE")
+      IO.inspect(Tiannara.ASC.Crucible.Epoch.summarize(epoch), label: "Epoch Summary")
+    end
+
+    {:reply, {:ok, epoch}, updated_state}
+  end
+
+  @impl true
+  def handle_call(:get_epochs, _from, state) do
+    {:reply, {:ok, state.epochs}, state}
+  end
+
+  @impl true
+  def handle_call({:compare_epochs, epoch_id1, epoch_id2}, _from, state) do
+    epoch1 = Enum.find(state.epochs, &(&1.epoch_id == epoch_id1))
+    epoch2 = Enum.find(state.epochs, &(&1.epoch_id == epoch_id2))
+
+    if is_nil(epoch1) || is_nil(epoch2) do
+      {:reply, {:error, :epoch_not_found}, state}
+    else
+      comparison = Tiannara.ASC.Crucible.Epoch.compare_epochs(epoch1, epoch2)
+      {:reply, {:ok, comparison}, state}
+    end
   end
 
   # Private helpers
@@ -578,59 +648,6 @@ defmodule Tiannara.ASC.Crucible.Observatory do
     GenServer.call(__MODULE__, {:finalize_epoch, epoch_id, projects_tested})
   end
 
-  @impl true
-  def handle_call({:finalize_epoch, epoch_id, projects_tested}, _from, state) do
-    # Get current metrics
-    metrics = extract_metrics(state)
-
-    # === FIX 2: Run law discovery on epoch observations ===
-    IO.puts("\n🔍 Running Law Discovery...")
-    candidate_laws = discover_candidate_laws_from_observations(state.observations)
-    IO.puts("✅ Discovered #{length(candidate_laws)} candidate laws")
-    # ========================================
-
-    # Add candidate laws to metrics for epoch creation
-    enhanced_metrics = Map.put(metrics, :law_candidates, candidate_laws)
-
-    # Create epoch record with discovered laws
-    epoch = Tiannara.ASC.Crucible.Epoch.from_observatory_metrics(
-      epoch_id,
-      enhanced_metrics,
-      projects_tested
-    )
-
-    # === FIX 3: Update Falsification Ledger with new evidence ===
-    if length(candidate_laws) > 0 do
-      IO.puts("📚 Updating Falsification Ledger...")
-      observations = get_all_observations(state)
-      Tiannara.ASC.Crucible.LawFalsificationLedger.update_from_epoch(epoch, observations)
-      IO.puts("✅ Falsification Ledger updated")
-    end
-    # ========================================
-
-    # Check if meets Alpha criteria
-    meets_criteria = Tiannara.ASC.Crucible.Epoch.meets_alpha_criteria?(epoch)
-
-    # Store epoch
-    updated_state = %{
-      state
-      | epochs: [epoch | state.epochs],
-        current_epoch_id: epoch_id,
-        last_updated_at: DateTime.utc_now()
-    }
-
-    # Log results
-    if meets_criteria do
-      IO.puts("\n✅ Alpha Campaign SUCCESS")
-      IO.inspect(Tiannara.ASC.Crucible.Epoch.summarize(epoch), label: "Epoch Summary")
-    else
-      IO.puts("\n❌ Alpha Campaign INCOMPLETE")
-      IO.inspect(Tiannara.ASC.Crucible.Epoch.summarize(epoch), label: "Epoch Summary")
-    end
-
-    {:reply, {:ok, epoch}, updated_state}
-  end
-
   @doc """
   Get all completed epochs.
   """
@@ -638,29 +655,11 @@ defmodule Tiannara.ASC.Crucible.Observatory do
     GenServer.call(__MODULE__, :get_epochs)
   end
 
-  @impl true
-  def handle_call(:get_epochs, _from, state) do
-    {:reply, {:ok, state.epochs}, state}
-  end
-
   @doc """
   Compare two epochs to identify trends.
   """
   def compare_epochs(epoch_id1, epoch_id2) do
     GenServer.call(__MODULE__, {:compare_epochs, epoch_id1, epoch_id2})
-  end
-
-  @impl true
-  def handle_call({:compare_epochs, epoch_id1, epoch_id2}, _from, state) do
-    epoch1 = Enum.find(state.epochs, &(&1.epoch_id == epoch_id1))
-    epoch2 = Enum.find(state.epochs, &(&1.epoch_id == epoch_id2))
-
-    if is_nil(epoch1) || is_nil(epoch2) do
-      {:reply, {:error, :epoch_not_found}, state}
-    else
-      comparison = Tiannara.ASC.Crucible.Epoch.compare_epochs(epoch1, epoch2)
-      {:reply, {:ok, comparison}, state}
-    end
   end
 
   # Private helper to get all observations from state
@@ -687,7 +686,7 @@ defmodule Tiannara.ASC.Crucible.Observatory do
     if failure_count > 0 && total > 0 do
       failure_rate = failure_count / total
       if failure_rate > 0.3 do
-        laws = laws ++ [%{
+        _laws = laws ++ [%{
           id: "law_failure_diversity",
           title: "Failure Diversity Indicates Architectural Fragility",
           statement: "Systems with high failure diversity (#{Float.round(failure_rate * 100, 1)}% failure rate) indicate architectural fragility across #{total} observations",
@@ -700,7 +699,7 @@ defmodule Tiannara.ASC.Crucible.Observatory do
     
     # Law 2: Exploit recurrence indicates security debt
     if exploit_count > 0 do
-      laws = laws ++ [%{
+      _laws = laws ++ [%{
         id: "law_exploit_recurrence",
         title: "Exploit Recurrence Indicates Security Debt",
         statement: "Recurring exploits (#{exploit_count} found) indicate accumulated security debt",
@@ -712,7 +711,7 @@ defmodule Tiannara.ASC.Crucible.Observatory do
     
     # Law 3: Build success doesn't guarantee correctness
     if success_count > 0 && failure_count > 0 do
-      laws = laws ++ [%{
+      _laws = laws ++ [%{
         id: "law_build_correctness_gap",
         title: "Build Success Doesn't Guarantee Correctness",
         statement: "Successful builds (#{success_count}) coexist with failures (#{failure_count}), indicating validation gaps",

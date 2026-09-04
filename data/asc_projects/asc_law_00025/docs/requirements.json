@@ -1,0 +1,44 @@
+{
+  "constraints": [],
+  "invariants": [
+    {
+      "id": "inv_104",
+      "domain": "general",
+      "statement": "Alerts must include context",
+      "negation_form": "Alerts must NOT include context",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Alerts must include context"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap_105",
+      "name": "alert rules",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "alert",
+      "subject": "rules",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "risks": [
+    {
+      "id": "risk_106",
+      "description": "Trigger alerts on threshold breach",
+      "category": "security",
+      "severity": 0.9,
+      "tags": [],
+      "risk_score": 0.27,
+      "probability": 0.3,
+      "source_fragment": "Trigger alerts on threshold breach",
+      "mitigation": null
+    }
+  ],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:23:12.329000Z"
+}

@@ -1,0 +1,20 @@
+{
+  "metadata": {
+    "episode": 4200,
+    "timestamp": 1778186567.6049836,
+    "max_skills": 100,
+    "decay_rate": 0.01,
+    "salience_threshold": 0.05,
+    "consolidation_threshold": 0.85
+  },
+  "statistics": {
+    "total_stored": 0,
+    "total_pruned": 0,
+    "total_consolidated": 0,
+    "active_skills_count": 0,
+    "archived_summaries_count": 0
+  },
+  "skills": {},
+  "archived_summaries": [],
+  "pruning_log": []
+}

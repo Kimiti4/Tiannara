@@ -259,7 +259,7 @@ defmodule Tiannara.REA.DomainCrucible do
     # Deterministic domain parameters
     seed = :erlang.phash2(domain)
     volatility = rem(seed, 100) / 100.0
-    complexity = rem(seed, 200) / 200.0
+    _complexity = rem(seed, 200) / 200.0
 
     # A theory fails/gets refuted if it has specialized relations that conflict with domain parameters
     refutations =
@@ -485,28 +485,5 @@ defmodule Tiannara.REA.DomainCrucible do
         domains_discovered: ["technology", "informatics"]
       }
     ]
-  end
-end
-
-defmodule Tiannara.REA.TheoryNiches do
-  @moduledoc """
-  Categorizes theories into evolutionary species and lineages based on structural VSA clustering.
-  """
-
-  @doc """
-  Classifies theories into universal, domain-specific, and refuted niches.
-  """
-  def classify_theories(theories) do
-    universal = Enum.filter(theories, fn t -> t.convergence_score >= 0.75 or (length(t.domains_discovered) >= 15 and t.transferability >= 0.75) end)
-    domain_specific = Enum.filter(theories, fn t -> length(t.domains_discovered) > 0 and length(t.domains_discovered) < 15 end)
-    refuted = Enum.filter(theories, fn t -> t.population <= 0 or t.survivability < 0.30 end)
-    generative = Enum.filter(theories, fn t -> t.generativity >= 0.70 end)
-
-    %{
-      universal: universal,
-      domain_specific: domain_specific,
-      refuted: refuted,
-      generative: generative
-    }
   end
 end

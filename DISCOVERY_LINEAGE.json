@@ -1,0 +1,62 @@
+{
+  "schema_version": "16.6.0",
+  "document_type": "DISCOVERY_LINEAGE",
+  "lineage_model": {
+    "content_addressing": {
+      "id_algorithm": "blake3_hash(canonical_serialization(artifact_without_id))",
+      "canonical_serialization_rules": [
+        "stable key ordering",
+        "canonical number formatting",
+        "deterministic array ordering or explicit ordering keys",
+        "missing vs null preserved in serialization"
+      ]
+    },
+    "node_schema": {
+      "lineage_node_id": "blake3_hash",
+      "timestamp": "ISO8601",
+      "artifact_type": "KNOWLEDGE_GAP|QUESTION|PROGRAM|EXPERIMENT|EVIDENCE|VALIDATION|THEORY_PROPOSAL|OUTCOME|CERTIFICATE",
+      "artifact_id": "blake3_hash",
+      "inputs_hashes": ["blake3_hash"],
+      "decision_context_hash": "blake3_hash",
+      "outputs_hashes": ["blake3_hash"],
+      "parents": ["lineage_node_id"]
+    },
+    "graph_constraints": [
+      "Every accepted (certified) knowledge-eligible artifact must have lineage nodes connecting back to the originating KnowledgeGap.",
+      "All lineage node fields must be replay-verifiable from immutable artifacts.",
+      "Parent ordering must be deterministic (sorted by parent lineage_node_id)."
+    ]
+  },
+  "example_lineage_chain": [
+    {
+      "lineage_node_id": "blake3_hash_example_1",
+      "timestamp": "ISO8601_EXAMPLE",
+      "artifact_type": "KNOWLEDGE_GAP",
+      "artifact_id": "blake3_hash_example_gap",
+      "inputs_hashes": [],
+      "decision_context_hash": "blake3_hash_example_ctx",
+      "outputs_hashes": ["blake3_hash_example_question"],
+      "parents": []
+    },
+    {
+      "lineage_node_id": "blake3_hash_example_2",
+      "timestamp": "ISO8601_EXAMPLE",
+      "artifact_type": "QUESTION",
+      "artifact_id": "blake3_hash_example_question",
+      "inputs_hashes": ["blake3_hash_example_gap"],
+      "decision_context_hash": "blake3_hash_example_ctx",
+      "outputs_hashes": ["blake3_hash_example_program"],
+      "parents": ["blake3_hash_example_1"]
+    },
+    {
+      "lineage_node_id": "blake3_hash_example_3",
+      "timestamp": "ISO8601_EXAMPLE",
+      "artifact_type": "PROGRAM",
+      "artifact_id": "blake3_hash_example_program",
+      "inputs_hashes": ["blake3_hash_example_question"],
+      "decision_context_hash": "blake3_hash_example_ctx",
+      "outputs_hashes": ["blake3_hash_example_evidence_bundle"],
+      "parents": ["blake3_hash_example_2"]
+    }
+  ]
+}

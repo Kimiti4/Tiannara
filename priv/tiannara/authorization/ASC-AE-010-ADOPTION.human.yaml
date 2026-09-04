@@ -1,0 +1,32 @@
+# ==============================================================================
+# TIANNARA C14 ADOPTION ARTIFACT — ASC-AE-010
+# ==============================================================================
+# Approves production merge of candidate_single_owner
+# Evidence: docs/probes/AE-010_evidence_report.md
+# Predecessor: ASC-AE-010.human.yaml (AUTHORIZED, operator schtickman)
+# ==============================================================================
+
+mission_id: "ASC-AE-010-ADOPTION"
+parent_mission: "ASC-AE-010"
+status: "AUTHORIZED"
+
+evidence_ref: "docs/probes/AE-010_evidence_report.md"
+candidate: "candidate_single_owner"
+phase_c_verdict: "PASS (all 11 gates, eos ready, discovery healthy, overall_pass true)"
+
+patches_adopted:
+  - "lib/tiannara/control_center.ex — remove DiscoveryEngine and DiscoveryScheduler from @subsystems, leave DiscoverySupervisor as sole owner"
+
+human_authorization:
+  operator_id: schtickman
+  signature: F13-ownership-fix
+  timestamp: 2026-08-21T05:30Z
+  conditions_accepted: true
+  notes: "AE-010 adoption approved — ownership correction verified, F13 will close"
+
+valid_until: 2026-09-04T05:30Z
+
+audit_trail:
+  created_by: "tiannara_os"
+  constitutional_basis: "Verification First / Minimal Change"
+  predecessor_hash: "AE-010 PASS"

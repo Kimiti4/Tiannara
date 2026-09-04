@@ -4,7 +4,7 @@ defmodule Tiannara.Audit.Tier0 do
   Ensures the system understands itself and adheres to REA principles.
   """
   require Logger
-  alias Tiannara.Specialists.{Architect, Engineer, Auditor, Researcher}
+  alias Tiannara.Specialists.{Architect, Auditor}
 
   @doc "Run all 10 foundational audit layers."
   def run_all do
@@ -57,7 +57,7 @@ defmodule Tiannara.Audit.Tier0 do
   defp audit_layer_2 do
     IO.write("Layer 2: Invariant Preservation...      ")
     # Task: Try to propose a change that violates INV-001
-    violation_proposal = %{
+    _violation_proposal = %{
       type: :system_restart,
       target: "OPC",
       requires_approval: false # This violates INV-001

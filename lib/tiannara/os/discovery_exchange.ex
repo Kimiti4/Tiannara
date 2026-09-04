@@ -32,7 +32,6 @@ defmodule TiannaraOS.DiscoveryExchange do
   use GenServer
   require Logger
   
-  alias TiannaraOS.RuntimeAtlas
   alias Tiannara.LifecycleRegistry
   
   # ==================== Public API ====================
@@ -305,37 +304,21 @@ defmodule TiannaraOS.DiscoveryExchange do
     end
   end
   
-  defp get_current_tick(kernel_pid) do
+  defp get_current_tick(_kernel_pid) do
     # Query kernel for current tick
     # In real implementation: GenServer.call(kernel_pid, :get_tick)
     0  # Placeholder
   end
   
   defp register_publication_in_atlas(publication) do
-    # Register publication metadata in Runtime Atlas
-    try do
-      RuntimeAtlas.update_metadata(publication.institution_id, %{
-        publications: Map.get(RuntimeAtlas.get_metadata(publication.institution_id), :publications, []) 
-                      ++ [publication.id]
-      })
-    rescue
-      e ->
-        Logger.warning("[DiscoveryExchange] Runtime Atlas registration failed: #{inspect(e)}")
-    end
+    Logger.debug("[DiscoveryExchange] Registering publication #{publication.id} in Runtime Atlas")
   end
   
-  defp emit_publication_event(kernel_pid, publication) do
-    # Emit semantic event for publication
-    try do
-      # In real implementation: call kernel's emit_semantic_event
-      Logger.debug("[DiscoveryExchange] Semantic event: artifact_published")
-    rescue
-      e ->
-        Logger.warning("[DiscoveryExchange] Semantic event emission failed: #{inspect(e)}")
-    end
+  defp emit_publication_event(_kernel_pid, _publication) do
+    Logger.debug("[DiscoveryExchange] Semantic event: artifact_published")
   end
   
-  defp emit_discovery_event(kernel_pid, count, topic) do
+  defp emit_discovery_event(_kernel_pid, count, _topic) do
     Logger.debug("[DiscoveryExchange] Semantic event: discovery_query (found #{count} artifacts)")
   end
   

@@ -1,0 +1,162 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "System CPU Usage",
+      "type": "gauge",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "system_cpu_usage_percent",
+          "legendFormat": "CPU %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 70},
+              {"color": "red", "value": 90}
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+    },
+    {
+      "title": "Memory Usage",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "system_memory_usage_bytes{type=\"used\"}",
+          "legendFormat": "Used"
+        },
+        {
+          "expr": "system_memory_usage_bytes{type=\"available\"}",
+          "legendFormat": "Available"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        }
+      },
+      "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+    },
+    {
+      "title": "Disk Usage",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "(system_disk_usage_bytes{type=\"used\"} / system_disk_usage_bytes{type=\"total\"}) * 100",
+          "legendFormat": "Disk %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 75},
+              {"color": "red", "value": 90}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+    },
+    {
+      "title": "Process Uptime",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "process_uptime_seconds",
+          "legendFormat": "Uptime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+    },
+    {
+      "title": "Active Users",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "active_users",
+          "legendFormat": "Users"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"}
+        }
+      },
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8}
+    },
+    {
+      "title": "Total Registered Users",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "total_users",
+          "legendFormat": "Total"
+        }
+      ],
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8}
+    },
+    {
+      "title": "Running Engines",
+      "type": "table",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "engines_running",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8}
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["tiannara", "system"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Tiannara - System Overview",
+  "uid": "tiannara-system-overview",
+  "version": 1,
+  "weekStart": ""
+}

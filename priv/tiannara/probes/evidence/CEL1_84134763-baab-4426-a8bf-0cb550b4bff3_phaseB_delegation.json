@@ -1,0 +1,94 @@
+{
+  "trace": [
+    {
+      "phase": "objective_received",
+      "objective": {
+        "derived_from_descriptor": true,
+        "objective": "achieve:create_capability",
+        "target_capability": "asc"
+      }
+    },
+    {
+      "phase": "registry_query",
+      "query": [
+        "create_capability"
+      ],
+      "results": [
+        {
+          "pid": false,
+          "found": true,
+          "provider": "asc",
+          "health": "healthy",
+          "capability": "create_capability"
+        }
+      ]
+    },
+    {
+      "phase": "candidate_set",
+      "candidates": [
+        {
+          "pid": false,
+          "found": true,
+          "provider": "asc",
+          "health": "healthy",
+          "capability": "create_capability"
+        }
+      ]
+    },
+    {
+      "phase": "health_check",
+      "checks": [
+        {
+          "pid": false,
+          "found": true,
+          "provider": "asc",
+          "health": "healthy",
+          "capability": "create_capability"
+        }
+      ]
+    },
+    {
+      "phase": "ownership_check",
+      "ownership": "single_owner"
+    },
+    {
+      "phase": "dependency_resolution",
+      "deps": []
+    },
+    {
+      "phase": "selection",
+      "selected_capability": "asc"
+    },
+    {
+      "approved": true,
+      "phase": "governance_gate",
+      "gate": {
+        "approved": true,
+        "gate": "C14",
+        "consulted": true
+      }
+    },
+    {
+      "phase": "delegation",
+      "mission_id": "mission_e212d0b97a8cfaba",
+      "delegated": "asc"
+    },
+    {
+      "phase": "execution",
+      "mission_id": "mission_e212d0b97a8cfaba",
+      "executed": true
+    },
+    {
+      "result": {
+        "status": "ok",
+        "mission_id": "mission_e212d0b97a8cfaba"
+      },
+      "phase": "result"
+    },
+    {
+      "phase": "executive_memory_update",
+      "mission_id": "mission_e212d0b97a8cfaba",
+      "updated": true
+    }
+  ]
+}

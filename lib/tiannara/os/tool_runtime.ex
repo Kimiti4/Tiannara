@@ -17,10 +17,6 @@ defmodule TiannaraOS.ToolRuntime do
   def execute_tool(%ToolGenome{} = genome, twin_path, inputs) do
     # 1. Kernel security validation hook
     case CivilizationKernel.validate_security_profile(genome.security_profile) do
-      {:error, reason} ->
-        Logger.error("🛡️ [Tool Runtime] Security validation failed for #{genome.id}: #{inspect(reason)}")
-        {:error, {:security_violation, reason}}
-
       :ok ->
         # 2. Crash safety boundary
         try do
@@ -80,11 +76,13 @@ defmodule TiannaraOS.ToolRuntime do
 
         # Boost fitness
         updated_fitness = min(1.0, (genome.fitness || 0.5) + 0.1)
-        {:ok, state} = CivilizationKernel.update_state(fn current_state ->
-          updated_genome = %{genome | fitness: updated_fitness}
-          updated_tools = Map.put(current_state.tools, genome.id, updated_genome)
-          %{current_state | tools: updated_tools}
-        end)
+        {:ok, state} = apply(TiannaraOS.CivilizationKernel, :update_state, [
+          fn current_state ->
+            updated_genome = %{genome | fitness: updated_fitness}
+            updated_tools = Map.put(current_state.tools, genome.id, updated_genome)
+            %{current_state | tools: updated_tools}
+          end
+        ])
 
         {:ok, evidence_node, state}
 
@@ -112,11 +110,13 @@ defmodule TiannaraOS.ToolRuntime do
 
         # Penalize fitness by 50%
         penalized_fitness = max(0.0, (genome.fitness || 0.5) * 0.5)
-        {:ok, _state} = CivilizationKernel.update_state(fn current_state ->
-          updated_genome = %{genome | fitness: penalized_fitness}
-          updated_tools = Map.put(current_state.tools, genome.id, updated_genome)
-          %{current_state | tools: updated_tools}
-        end)
+        {:ok, _state} = apply(TiannaraOS.CivilizationKernel, :update_state, [
+          fn current_state ->
+            updated_genome = %{genome | fitness: penalized_fitness}
+            updated_tools = Map.put(current_state.tools, genome.id, updated_genome)
+            %{current_state | tools: updated_tools}
+          end
+        ])
 
         {:error, reason, failure_evidence}
     end
@@ -161,7 +161,7 @@ defmodule TiannaraOS.ToolRuntime do
     clean_v2 = String.replace(v2, ~r/[~>=<\s]/, "")
 
     case {Version.parse(clean_v1), Version.parse(clean_v2)} do
-      {{:ok, ver1}, {{:ok, ver2}}} ->
+      {{:ok, ver1}, {:ok, ver2}} ->
         Version.compare(ver1, ver2) == :lt
 
       _ ->

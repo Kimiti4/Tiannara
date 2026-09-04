@@ -1,0 +1,9 @@
+@echo off
+echo Killing ALL Node.js processes...
+taskkill /F /IM node.exe
+echo Waiting for processes to terminate...
+timeout /t 5 /nobreak >nul
+echo Starting Next.js dev server...
+cd tiannara_saas
+npm run dev
+pause

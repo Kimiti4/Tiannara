@@ -1,0 +1,7 @@
+epoch,tick_us,mem_mb,top_table_1,size_1,top_table_2,size_2,top_table_3,size_3,max_msg_queue,queue_pid
+50,719769,79.79,Elixir.Tiannara.REA.LineageRegistry,3190,Elixir.Tiannara.REA.LineageRegistry.children,2300,code_server,809,0,{:registered_name, :init}
+100,432537,99.83,Elixir.Tiannara.REA.LineageRegistry,6190,Elixir.Tiannara.REA.LineageRegistry.children,4600,code_server,812,0,{:registered_name, :init}
+150,734412,112.41,Elixir.Tiannara.REA.LineageRegistry,9190,Elixir.Tiannara.REA.LineageRegistry.children,6900,code_server,812,1,{:registered_name, :user_drv}
+200,217497,144.94,Elixir.Tiannara.REA.LineageRegistry,12190,Elixir.Tiannara.REA.LineageRegistry.children,9200,code_server,812,0,{:registered_name, :init}
+250,417792,179.2,Elixir.Tiannara.REA.LineageRegistry,15190,Elixir.Tiannara.REA.LineageRegistry.children,11500,code_server,812,0,{:registered_name, :init}
+300,687411,181.85,Elixir.Tiannara.REA.LineageRegistry,18190,Elixir.Tiannara.REA.LineageRegistry.children,13800,code_server,812,0,{:registered_name, :init}

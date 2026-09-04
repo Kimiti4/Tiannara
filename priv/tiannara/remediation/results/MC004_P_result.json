@@ -1,0 +1,63 @@
+{
+  "gate": "MC-004-P",
+  "phase": "PILOT_EXECUTION",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "timestamp": "2026-08-31T08:00:00Z",
+  "verdict": "CERTIFIED_BOUNDED",
+  "verdict_scope": "DAMPED_HARMONIC_OSCILLATOR_REAL_PILOT_EXECUTION",
+  "verdict_note": "MC-004-P executes the human-authorized damped-harmonic-oscillator pilot through the real RK4 integrator as a genuine, real, human-granted experiment. PhysicsPilotExecution guards a human-minted Authorization grant and the :real_execution_enabled flag, runs Physics.simulate, validates structurally, builds Evidence.Provenance kind :real_execution, and records an append-only JSONL ledger + best-effort EventStore append. NO deployment, NO code-patch sandbox, NO production mutation resulted; formal verification remains unavailable (MC-001 pin); :real_execution_enabled is restored to false after this gate. MC-001 pins and prior gated behavior (MC-003-M M2 / MC-004-M) preserved.",
+  "mutation_authorized": true,
+  "authorization_status": "GRANTED",
+  "authorization_operator": "c14_ac",
+  "authorization_fabricated": false,
+  "authorization_file": "priv/tiannara/authorization/ASC-MC-004-P-DOMAIN-PHYSICS-PILOT.human.yaml",
+  "scope": "DAMPED_HARMONIC_OSCILLATOR",
+  "mutation_executed": true,
+  "pilot_executed": true,
+  "real_execution_enabled_flag": true,
+  "authorization_required_for_pilot": true,
+  "pilot": {
+    "module": "Tiannara.Phase4.PhysicsPilotExecution",
+    "experiment": "Tiannara.Domains.Physics.pilot_experiment/0",
+    "hypothesis": {"subject": "mechanics", "object": "damped_oscillation"},
+    "context": {"boundary_conditions": [1.0, 0.0], "time_span": {"duration": 10.0, "dt": 0.01}},
+    "system": {"m": 1.0, "c": 0.5, "k": 4.0, "damping": "underdamped"}
+  },
+  "provenance": {
+    "kind": ":real_execution",
+    "harness": ":real_simulation",
+    "method": ":rk4",
+    "ledger": "priv/tiannara/real_execution/executions.jsonl",
+    "event_store_append": "experiment.real_execution.completed"
+  },
+  "execution_path": "Physics.execute_experiment/1 routes to PhysicsPilotExecution.execute/1 ONLY when spec.grant present AND RealExecution.enabled?() true; otherwise the gated submit_experiment/1 path is preserved unmodified",
+  "deployment_performed": false,
+  "sandbox_patch_performed": false,
+  "production_mutation_from_pilot": false,
+  "formal_verification_revived": false,
+  "real_primitive_contracts_preserved": true,
+  "canonical_ontology_unchanged": true,
+  "canonical_registry_unchanged": true,
+  "fabricated_success_remaining_in_targets": 0,
+  "evidence": {
+    "static_verification": "PASS — verifier checks + ledger probe",
+    "compile": "PASS — app generated (pre-existing warnings unchanged)",
+    "targeted_suite": "PASS — 80 tests, 0 failures (test/tiannara/math, test/tiannara/domains, test/tiannara/physics; includes 7 new MC-004-P tests)",
+    "mc001_pins": "PASS — solve_ode(%{}, %{}, 1.0) == {:error, :ode_solver_unavailable}; validate(%{model: %{}}) == {:error, :formal_verification_unavailable}",
+    "ledger": "PASS — executions.jsonl contains a real physics_pilot entry (type real_execution, harness real_simulation)",
+    "full_suite_regression": "NOT_RUN — full one-shot suite >30 min on this machine (environmental); per-directory suites standard; touched dirs above green",
+    "pre_existing_failures": "none within the three targeted directories; corpus-wide pre-existing failures (activation_engine :already_started, cognition :already_started, dead constitutional probes, ASC supervisor/port races) identically recorded in MC-003-M matrix and not touched by this gate",
+    "verifier": "PASS — priv/tiannara/remediation/verifiers/MC004_P_pilot_execution.py exit 0"
+  },
+  "certification_boundary": "Single damped-harmonic-oscillator pilot executed as a real, human-granted experiment with :real_execution provenance and append-only JSONL evidence. NO deployment, NO code-patch sandbox, NO production mutation. Formal verification remains unavailable. :real_execution_enabled restored to false after this gate; no autonomous pilot authorized without a fresh grant.",
+  "deferred_technical_debt": [
+    "TD-MC004-M-FORMAL_VERIFICATION: formal verification remains unavailable by MC-001 binding; structural checks are the current bound",
+    "TD-MC004-M-SUBSYSTEM_ENGINES: OPC/NDE/IRD/TWP engine submodules remain dormant servers (documented)",
+    "TD-MC004-P-FORECAST: pilot not forecast/benchmarked/deployed — out of scope, forbidden by contract"
+  ],
+  "final_architectural_question": {
+    "did_gate_increase_ability_to_distinguish_compute_from_claim": true,
+    "basis": "The physics pilot's result is now a computed trajectory from a real bounded RK4 solver, executed only under a human-minted Authorization grant, carrying :real_execution provenance and persisted in an append-only JSONL ledger with best-effort event-store records — while every prior truthfulness boundary (no deployment, no formal verification revival, no fabrication, flag restored false) is preserved."
+  },
+  "contract_hash": null
+}

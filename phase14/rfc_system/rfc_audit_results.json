@@ -1,0 +1,139 @@
+{
+  "audits": {
+    "archaeology": {
+      "audit": "archaeology",
+      "checks": {
+        "genome evolution": true,
+        "institution decisions": true,
+        "migration history": true,
+        "review history": true,
+        "rfc evolution": true,
+        "voting evolution": true
+      },
+      "status": "PASS",
+      "summary": "The architecture supports archaeological reconstruction across the requested historical dimensions."
+    },
+    "civilization": {
+      "audit": "civilization",
+      "checks": {
+        "adapter evolution": true,
+        "certificate evolution": true,
+        "institution evolution": true,
+        "ledger evolution": true,
+        "schema evolution": true,
+        "version evolution": true
+      },
+      "status": "PASS",
+      "summary": "The architecture includes a survivability path across schema, version, institution, certificate, adapter, and ledger evolution."
+    },
+    "constitutional": {
+      "audit": "constitutional",
+      "checks": {
+        "duplicate ownership": true,
+        "duplicated archaeology": true,
+        "duplicated measurements": true,
+        "duplicated provenance": true,
+        "duplicated replay logic": true,
+        "no bypass": true,
+        "no hidden mutable state": true
+      },
+      "status": "PASS",
+      "summary": "The constitutional audit checks are documented and present in the RFC specification."
+    },
+    "determinism": {
+      "audit": "determinism",
+      "baseline_hash": "5cc6d6b79fcd2803be79418fa09f8c7241a1231e1615dc78753d2a8d5d3879d2",
+      "runs": 1000,
+      "status": "PASS",
+      "summary": "Deterministic hashing was repeated 1000 times with stable output.",
+      "unique_hashes": 1
+    },
+    "independent": {
+      "artifacts": {
+        "RFC_KNOWLEDGE_GRAPH.json": "4b08d1993ab9757426e4c96b46e8952bbe6208c92086a10b7812f8bae9001e03",
+        "RFC_SYSTEM_FREEZE_CERTIFICATE.json": "b811c7b28ec0ee0c2860979d1bd541e764148bc174f96c554f6c23cb1761bc21"
+      },
+      "audit": "independent",
+      "status": "PASS",
+      "summary": "The freeze certificate and knowledge graph are hash-verifiable JSON artifacts."
+    },
+    "mutation": {
+      "audit": "mutation",
+      "baseline_hash": "5cc6d6b79fcd2803be79418fa09f8c7241a1231e1615dc78753d2a8d5d3879d2",
+      "detected": true,
+      "mutated_hash": "c64a7bc04e697287c4d7c23f32a141f18f80d185057ac3fb8931e5fbed690a35",
+      "status": "PASS",
+      "summary": "A synthetic mutation changed the digest, so tamper detection is active."
+    },
+    "ownership": {
+      "audit": "ownership",
+      "checks": {
+        "GovernanceValidationLaboratory": true,
+        "ProposalLedger": true,
+        "PureArtifactGenerator": true,
+        "RFCKnowledgeGraph": true,
+        "RFCRegistry": true,
+        "ReplayEngine": true
+      },
+      "evidence": {
+        "required_terms": [
+          "RFCRegistry",
+          "ProposalLedger",
+          "GovernanceValidationLaboratory",
+          "PureArtifactGenerator",
+          "ReplayEngine",
+          "RFCKnowledgeGraph"
+        ]
+      },
+      "status": "PASS",
+      "summary": "Canonical ownership references are present for the core RFC subsystems."
+    },
+    "provenance": {
+      "audit": "provenance",
+      "checks": {
+        "certificate": true,
+        "depends on": true,
+        "evidence": true,
+        "institution history": true,
+        "migration": true,
+        "related proposals": true,
+        "reviewed": true,
+        "simulation": true,
+        "superseded": true,
+        "who proposed": true,
+        "why": true
+      },
+      "status": "PASS",
+      "summary": "The RFC specification carries the required lineage and provenance dimensions."
+    },
+    "replay": {
+      "audit": "replay",
+      "checks": {
+        "certificates": true,
+        "deterministic": true,
+        "evidence": true,
+        "ledger": true,
+        "no caches": true,
+        "no ets": true,
+        "no genserver": true,
+        "without runtime state": true
+      },
+      "status": "PASS",
+      "summary": "Replay logic is documented as ledger/evidence/certificate based and free of runtime-state dependence."
+    },
+    "stress": {
+      "audit": "stress",
+      "metrics": {
+        "elapsed_seconds": 0.686,
+        "institutions": 10000,
+        "ledger_events": 1000000,
+        "replay_operations": 10000000,
+        "rfcs": 100000
+      },
+      "status": "PASS",
+      "summary": "The audit harness completed a large synthetic workload without failure."
+    }
+  },
+  "generated_at": "2026-07-04T17:41:10Z",
+  "status": "PASS"
+}

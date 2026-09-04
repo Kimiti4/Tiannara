@@ -298,7 +298,7 @@ defmodule Tiannara.Core.WorldModel.CausalEngine do
   end
 
   @impl true
-  def handle_call({:infer_effects, entity_id, change_description}, _from, state) do
+  def handle_call({:infer_effects, entity_id, _change_description}, _from, state) do
     # Find all causal paths starting from entity_id
     causal_paths = find_all_causal_paths(state.relationships, entity_id)
     
@@ -349,7 +349,7 @@ defmodule Tiannara.Core.WorldModel.CausalEngine do
     "intervention:#{System.system_time(:millisecond)}:#{:crypto.strong_rand_bytes(8) |> Base.encode16()}"
   end
 
-  defp calculate_relationship_confidence(relationship, all_relationships) do
+  defp calculate_relationship_confidence(relationship, _all_relationships) do
     # Base confidence on relationship strength and evidence from interventions
     base_confidence = relationship.confidence
     
@@ -410,7 +410,7 @@ defmodule Tiannara.Core.WorldModel.CausalEngine do
     Map.put(confidence_index, confidence_bucket, updated_ids)
   end
 
-  defp rebuild_entity_index(relationships, relationship) do
+  defp rebuild_entity_index(relationships, _relationship) do
     # Rebuild the entire entity index from all relationships
     entity_index = %{"outgoing" => %{}, "incoming" => %{}}
     

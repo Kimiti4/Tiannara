@@ -1,0 +1,977 @@
+{
+  "characterize": {
+    "mode": "characterize",
+    "phase": {
+      "ok": {
+        "boot_report_services": [
+          [
+            "executive_memory",
+            "failed"
+          ],
+          [
+            "event_store",
+            "failed"
+          ],
+          [
+            "executive_service_bus",
+            "skipped"
+          ],
+          [
+            "constitutional_score_pipeline",
+            "ok"
+          ],
+          [
+            "capability_graph",
+            "skipped"
+          ],
+          [
+            "resource_manager",
+            "skipped"
+          ],
+          [
+            "identity_trust_manager",
+            "skipped"
+          ],
+          [
+            "priority_engine",
+            "skipped"
+          ],
+          [
+            "executive_scheduler",
+            "ok"
+          ],
+          [
+            "executive_metrics",
+            "skipped"
+          ],
+          [
+            "runtime_policy_engine",
+            "skipped"
+          ],
+          [
+            "unified_reality_graph",
+            "skipped"
+          ],
+          [
+            "world_mutation_engine",
+            "skipped"
+          ],
+          [
+            "provenance_engine",
+            "skipped"
+          ],
+          [
+            "unified_world_model",
+            "failed"
+          ],
+          [
+            "version_manager",
+            "skipped"
+          ],
+          [
+            "ontology_manager",
+            "skipped"
+          ],
+          [
+            "snapshot_manager",
+            "skipped"
+          ],
+          [
+            "replay_engine",
+            "degraded"
+          ],
+          [
+            "conflict_resolution_engine",
+            "skipped"
+          ],
+          [
+            "conflict_detector",
+            "skipped"
+          ],
+          [
+            "knowledge_coordinator",
+            "skipped"
+          ],
+          [
+            "knowledge_flow_engine",
+            "skipped"
+          ],
+          [
+            "epistemic_integrity_service",
+            "skipped"
+          ],
+          [
+            "autonomous_research_engine",
+            "skipped"
+          ],
+          [
+            "experiment_orchestrator",
+            "skipped"
+          ],
+          [
+            "discovery_supervisor",
+            "skipped"
+          ],
+          [
+            "mission_director",
+            "skipped"
+          ],
+          [
+            "workflow_engine",
+            "skipped"
+          ],
+          [
+            "executive_state_manager",
+            "skipped"
+          ],
+          [
+            "decision_predictor",
+            "skipped"
+          ],
+          [
+            "executive_digital_twin",
+            "skipped"
+          ]
+        ],
+        "boot_report_status": "failed",
+        "dets_info_closed_shape": "undefined",
+        "dets_info_open_shape": [
+          [
+            "type",
+            "set"
+          ],
+          [
+            "keypos",
+            1
+          ],
+          [
+            "size",
+            22
+          ],
+          [
+            "file_size",
+            29378
+          ],
+          [
+            "filename",
+            [
+              46,
+              47,
+              116,
+              101,
+              115,
+              116,
+              95,
+              100,
+              97,
+              116,
+              97,
+              47,
+              100,
+              101,
+              116,
+              115,
+              47,
+              49,
+              57,
+              50,
+              50,
+              47,
+              100,
+              101,
+              116,
+              115,
+              47,
+              116,
+              101,
+              115,
+              116,
+              47,
+              99,
+              101,
+              108,
+              95,
+              101,
+              118,
+              101,
+              110,
+              116,
+              95,
+              115,
+              116,
+              111,
+              114,
+              101,
+              46,
+              100,
+              101,
+              116,
+              115
+            ]
+          ]
+        ],
+        "event_store_health": "healthy",
+        "event_store_healthy": false,
+        "event_store_live": true,
+        "executive_memory_health": "unhealthy",
+        "executive_memory_live": true,
+        "failed_critical": [
+          "unified_world_model",
+          "event_store",
+          "executive_memory"
+        ],
+        "failed_gate_evidence": [
+          {
+            "gate_results": {},
+            "service": "unified_world_model",
+            "whereis_alive": true
+          },
+          {
+            "gate_results": {},
+            "service": "event_store",
+            "whereis_alive": true
+          },
+          {
+            "gate_results": {},
+            "service": "executive_memory",
+            "whereis_alive": true
+          }
+        ],
+        "gate_results": {
+          "constitutional_score_pipeline": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "event_store": {},
+          "executive_memory": {},
+          "executive_scheduler": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "replay_engine": {},
+          "unified_world_model": {}
+        },
+        "mode": "characterize",
+        "runtime_state": "emergency",
+        "unified_world_model_live": true
+      }
+    },
+    "status": "complete"
+  },
+  "candidate_f12": {
+    "mode": "candidate_f12",
+    "phase": {
+      "ok": {
+        "mode": "candidate_f12",
+        "sensitivity": {
+          "classifier_sensitivity_lost": false,
+          "eos_legacy_classifier": "healthy",
+          "eos_normalized_classifier": "unhealthy",
+          "executive_memory_whereis_after_kill": false,
+          "health_endpoint_after_kill": {
+            "ok": "unhealthy"
+          }
+        },
+        "specificity": {
+          "boot_report_status": "degraded",
+          "dets_info_open_shape": [
+            [
+              "type",
+              "set"
+            ],
+            [
+              "keypos",
+              1
+            ],
+            [
+              "size",
+              28
+            ],
+            [
+              "file_size",
+              37529
+            ],
+            [
+              "filename",
+              [
+                46,
+                47,
+                116,
+                101,
+                115,
+                116,
+                95,
+                100,
+                97,
+                116,
+                97,
+                47,
+                100,
+                101,
+                116,
+                115,
+                47,
+                49,
+                57,
+                50,
+                50,
+                47,
+                100,
+                101,
+                116,
+                115,
+                47,
+                116,
+                101,
+                115,
+                116,
+                47,
+                99,
+                101,
+                108,
+                95,
+                101,
+                118,
+                101,
+                110,
+                116,
+                95,
+                115,
+                116,
+                111,
+                114,
+                101,
+                46,
+                100,
+                101,
+                116,
+                115
+              ]
+            ]
+          ],
+          "event_store_health": "healthy",
+          "event_store_healthy": true,
+          "executive_memory_health": "healthy",
+          "runtime_state": "recovery"
+        }
+      }
+    },
+    "status": "complete"
+  },
+  "candidate_f12_eos": {
+    "mode": "candidate_f12_eos",
+    "phase": {
+      "ok": {
+        "mode": "candidate_f12_eos",
+        "recovery": {
+          "boot_report_status": "degraded",
+          "event_store_healthy": true,
+          "executive_memory_health": "healthy",
+          "failed_critical": [],
+          "not_stuck_in_emergency": true,
+          "recovery_applied": {
+            "ok": "ok"
+          },
+          "runtime_state": "recovery"
+        },
+        "sensitivity": {
+          "boot_report_status": "failed",
+          "event_store_health": {
+            "ok": "healthy"
+          },
+          "event_store_healthy": {
+            "ok": false
+          },
+          "event_store_stats": {
+            "ok": {
+              "degradation_reason": [
+                "file_error",
+                [
+                  46,
+                  47,
+                  116,
+                  101,
+                  115,
+                  116,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97,
+                  47,
+                  100,
+                  101,
+                  116,
+                  115,
+                  47,
+                  49,
+                  57,
+                  50,
+                  50,
+                  47,
+                  100,
+                  101,
+                  116,
+                  115,
+                  47,
+                  116,
+                  101,
+                  115,
+                  116,
+                  47,
+                  99,
+                  101,
+                  108,
+                  95,
+                  101,
+                  118,
+                  101,
+                  110,
+                  116,
+                  95,
+                  115,
+                  116,
+                  111,
+                  114,
+                  101,
+                  46,
+                  100,
+                  101,
+                  116,
+                  115
+                ],
+                "eisdir"
+              ],
+              "degraded": true,
+              "event_count": 0,
+              "latest_offset": 0
+            }
+          },
+          "failed_critical": [
+            "knowledge_coordinator",
+            "conflict_detector",
+            "conflict_resolution_engine",
+            "event_store"
+          ],
+          "fault_applied": {
+            "ok": "ok"
+          },
+          "runtime_state": "emergency"
+        },
+        "specificity": {
+          "boot_report_services": [
+            [
+              "executive_memory",
+              "ok"
+            ],
+            [
+              "event_store",
+              "ok"
+            ],
+            [
+              "executive_service_bus",
+              "ok"
+            ],
+            [
+              "constitutional_score_pipeline",
+              "degraded"
+            ],
+            [
+              "capability_graph",
+              "ok"
+            ],
+            [
+              "resource_manager",
+              "ok"
+            ],
+            [
+              "identity_trust_manager",
+              "ok"
+            ],
+            [
+              "priority_engine",
+              "ok"
+            ],
+            [
+              "executive_scheduler",
+              "ok"
+            ],
+            [
+              "executive_metrics",
+              "ok"
+            ],
+            [
+              "runtime_policy_engine",
+              "ok"
+            ],
+            [
+              "unified_reality_graph",
+              "ok"
+            ],
+            [
+              "world_mutation_engine",
+              "ok"
+            ],
+            [
+              "provenance_engine",
+              "ok"
+            ],
+            [
+              "unified_world_model",
+              "ok"
+            ],
+            [
+              "version_manager",
+              "ok"
+            ],
+            [
+              "ontology_manager",
+              "ok"
+            ],
+            [
+              "snapshot_manager",
+              "ok"
+            ],
+            [
+              "replay_engine",
+              "ok"
+            ],
+            [
+              "conflict_resolution_engine",
+              "ok"
+            ],
+            [
+              "conflict_detector",
+              "ok"
+            ],
+            [
+              "knowledge_coordinator",
+              "ok"
+            ],
+            [
+              "knowledge_flow_engine",
+              "ok"
+            ],
+            [
+              "epistemic_integrity_service",
+              "ok"
+            ],
+            [
+              "autonomous_research_engine",
+              "ok"
+            ],
+            [
+              "experiment_orchestrator",
+              "ok"
+            ],
+            [
+              "discovery_supervisor",
+              "ok"
+            ],
+            [
+              "mission_director",
+              "ok"
+            ],
+            [
+              "workflow_engine",
+              "ok"
+            ],
+            [
+              "executive_state_manager",
+              "ok"
+            ],
+            [
+              "decision_predictor",
+              "degraded"
+            ],
+            [
+              "executive_digital_twin",
+              "ok"
+            ]
+          ],
+          "boot_report_status": "degraded",
+          "dets_path": "./test_data/dets/1922/dets/test/cel_event_store.dets",
+          "event_store_health": "healthy",
+          "event_store_healthy": true,
+          "executive_memory_health": "healthy",
+          "failed_critical": [],
+          "runtime_state": "recovery"
+        }
+      }
+    },
+    "status": "complete"
+  },
+  "candidate_eos_full": {
+    "mode": "candidate_eos_full",
+    "phase": {
+      "ok": {
+        "boot_report_services": [
+          [
+            "executive_memory",
+            "ok"
+          ],
+          [
+            "event_store",
+            "ok"
+          ],
+          [
+            "executive_service_bus",
+            "ok"
+          ],
+          [
+            "constitutional_score_pipeline",
+            "ok"
+          ],
+          [
+            "capability_graph",
+            "ok"
+          ],
+          [
+            "resource_manager",
+            "ok"
+          ],
+          [
+            "identity_trust_manager",
+            "ok"
+          ],
+          [
+            "priority_engine",
+            "ok"
+          ],
+          [
+            "executive_scheduler",
+            "ok"
+          ],
+          [
+            "executive_metrics",
+            "ok"
+          ],
+          [
+            "runtime_policy_engine",
+            "ok"
+          ],
+          [
+            "unified_reality_graph",
+            "ok"
+          ],
+          [
+            "world_mutation_engine",
+            "ok"
+          ],
+          [
+            "provenance_engine",
+            "ok"
+          ],
+          [
+            "unified_world_model",
+            "ok"
+          ],
+          [
+            "version_manager",
+            "ok"
+          ],
+          [
+            "ontology_manager",
+            "ok"
+          ],
+          [
+            "snapshot_manager",
+            "ok"
+          ],
+          [
+            "replay_engine",
+            "ok"
+          ],
+          [
+            "conflict_resolution_engine",
+            "ok"
+          ],
+          [
+            "conflict_detector",
+            "ok"
+          ],
+          [
+            "knowledge_coordinator",
+            "ok"
+          ],
+          [
+            "knowledge_flow_engine",
+            "ok"
+          ],
+          [
+            "epistemic_integrity_service",
+            "ok"
+          ],
+          [
+            "autonomous_research_engine",
+            "ok"
+          ],
+          [
+            "experiment_orchestrator",
+            "ok"
+          ],
+          [
+            "discovery_supervisor",
+            "degraded"
+          ],
+          [
+            "mission_director",
+            "ok"
+          ],
+          [
+            "workflow_engine",
+            "ok"
+          ],
+          [
+            "executive_state_manager",
+            "ok"
+          ],
+          [
+            "decision_predictor",
+            "ok"
+          ],
+          [
+            "executive_digital_twin",
+            "ok"
+          ]
+        ],
+        "boot_report_status": "degraded",
+        "event_bus_health": "healthy",
+        "event_store_health": "healthy",
+        "event_store_healthy": true,
+        "executive_memory_health": "healthy",
+        "f9_resolved": false,
+        "failed_critical": [],
+        "gate_results": {
+          "autonomous_research_engine": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "capability_graph": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "conflict_detector": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "conflict_resolution_engine": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "constitutional_score_pipeline": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "decision_predictor": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "discovery_supervisor": {},
+          "epistemic_integrity_service": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "event_store": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "executive_digital_twin": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "executive_memory": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "executive_metrics": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "executive_scheduler": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "executive_service_bus": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "executive_state_manager": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "experiment_orchestrator": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "identity_trust_manager": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "knowledge_coordinator": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "knowledge_flow_engine": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "mission_director": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "ontology_manager": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "priority_engine": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "provenance_engine": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "replay_engine": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "resource_manager": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "runtime_policy_engine": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "snapshot_manager": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "unified_reality_graph": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "unified_world_model": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "version_manager": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "workflow_engine": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          },
+          "world_mutation_engine": {
+            "capability": "pass",
+            "constitution": "pass",
+            "dependency": "pass",
+            "health": "pass",
+            "resource": "pass"
+          }
+        },
+        "mode": "candidate_eos_full",
+        "runtime_state": "recovery"
+      }
+    },
+    "status": "complete"
+  }
+}

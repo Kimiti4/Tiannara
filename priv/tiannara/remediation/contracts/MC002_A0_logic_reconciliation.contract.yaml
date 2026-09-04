@@ -1,0 +1,74 @@
+gate_id: "MC-002-A0"
+phase: "RECONCILIATION"
+campaign: "Tiannara Remediation + Substrate Integration"
+class: "OBSERVATIONAL"
+mode: "READ_ONLY"
+
+bounded_proposition: >
+  The logical substrate is inventoried, truth-classified, consumer-mapped, and
+  bottleneck-ranked from source evidence. No capability is certified from API
+  existence. No mutation is performed or authorized by this artifact.
+
+requires:
+  - "MC-001-M CERTIFIED (BOUNDED)"
+  - "AC-001 FINAL CERTIFIED (BOUNDED)"
+
+forbids:
+  - "production_mutation"
+  - "api_changes"
+  - "module_deletion"
+  - "test_changes"
+  - "supervision_changes"
+  - "config_changes"
+  - "ontology_changes"
+  - "theatrical_replacement"
+  - "new_logic_infrastructure"
+  - "modifying_MC-001"
+  - "modifying_AC-001"
+  - "fabricating_c14_signature"
+
+truth_classes: [REAL, PARTIAL, THEATRICAL, FABRICATED, DUPLICATE, UNKNOWN, NO]
+
+# Reconciliation findings (source-grounded, file:line evidence in INVENTORY/TRUTH)
+key_findings:
+  - id: F1
+    claim: "Tiannara.Graph.Audit provides lineage/2, blast_radius/2, has_cycle?/1 (REAL sound graph algorithms)"
+    evidence: "lib/tiannara/graph/audit.ex:11-31"
+  - id: F2
+    claim: "constitution/registry.ex:118 calls Audit.find_contradictions/1; Graph.Audit lacks this function -> UndefinedFunctionError if probe runs"
+    evidence: "lib/tiannara/constitution/registry.ex:118; lib/tiannara/graph/audit.ex (no such def)"
+  - id: F3
+    claim: "Contradiction.Engine.detect/1 sound pairwise value-conflict detection (list-wise Records)"
+    evidence: "lib/tiannara/contradiction/engine.ex:38-48"
+  - id: F4
+    claim: "BeliefSystem negation matcher is semantically broken (keyword matching, both-must-contain)"
+    evidence: "lib/tiannara/core/world_model/belief_system.ex:345-356"
+  - id: F5
+    claim: "CTL.ParadoxResolver is theatrical: reads flags, no logical analysis, pushes fabricated metric"
+    evidence: "lib/tiannara/ctl/paradox_resolver.ex:7-24"
+  - id: F6
+    claim: "substrate/*.ex expose theatrical Logger+Aggregator.push_event capabilities with hardcoded values"
+    evidence: "lib/tiannara/substrate/gck.ex, osk.ex, mcal.ex, euf.ex, cof.ex, opc.ex, ose.ex, hsv.ex"
+  - id: F7
+    claim: "OSK.IdentityEquivalence.check_equivalence/2 returns :ok unconditionally (theatrical)"
+    evidence: "lib/tiannara/substrate/osk.ex:85-89"
+  - id: F8
+    claim: "No proof/prover/theorem-proving/SAT/SMT layer exists in lib/"
+    evidence: "no defmodule.*Prover/*TheoremProver; no check_proof/verify_proof (search count 0)"
+  - id: F9
+    claim: "Logic sits distributed: >=5 contradiction-detection implementations, 2+ conflict resolvers"
+    evidence: "contradiction/engine.ex, sentinel/verification.ex:307, epistemic/debugger.ex:123, discovery/contradiction_analyzer.ex, core/world_model/belief_system.ex:284, world/conflict_resolver.ex, stabilization/ocm/conflict_resolver.ex"
+  - id: F10
+    claim: "DiscoveryScheduler feeds contradictions into the discovery/gap question-stream (Loop B), so kernel adoption changes question stream"
+    evidence: "lib/tiannara/discovery/discovery_scheduler.ex:256-267"
+
+certification_rule: >
+  CERTIFIED (RECONCILIATION ONLY) iff: inventory complete; classifications
+  source-grounded; consumers mapped; architecture evidence-backed; verification
+  claims distinguished; discovery implications assessed; bottlenecks ranked;
+  mutations remain recommendations; no mutation occurred; verifier passes;
+  limitations recorded.
+
+verdict_space: [CERTIFIED_RECONCILIATION_ONLY, PENDING_EXECUTION, NOT_CERTIFIED]
+
+contract_hash: null

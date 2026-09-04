@@ -1,0 +1,15 @@
+{
+  "domain": "autonomy",
+  "timestamp": "2026-05-10T01:22:02.550545",
+  "total_tests": 0,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 0,
+  "pass_rate": 0.0,
+  "coverage_percent": null,
+  "duration_seconds": 7.37775444984436,
+  "missing_dependencies": [],
+  "installed_dependencies": [],
+  "auto_fixes_applied": [],
+  "test_results": []
+}

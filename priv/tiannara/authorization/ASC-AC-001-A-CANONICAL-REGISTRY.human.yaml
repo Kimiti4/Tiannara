@@ -1,0 +1,105 @@
+authorization:
+  id: ASC-AC-001-A-CANONICAL-REGISTRY
+  mission: "Tiannara Remediation + Substrate Integration Campaign"
+  gate: AC-001
+  mutation_group: AC-001-A
+  action: create_canonical_identity_registry
+  status: PENDING_HUMAN_AUTHORIZATION
+
+  scope:
+    description: >
+      Create the canonical domain identity registry with the frozen 20-domain
+      ontology. This is an ADDITIVE change that establishes the identity layer
+      without modifying supervision, consumers, or legacy registries.
+
+    files_to_create:
+      - "lib/tiannara/domains/canonical_registry.ex"
+      - "test/tiannara/domains/canonical_registry_test.exs"
+
+    files_to_modify: []
+
+  frozen_ontology:
+    - engineering
+    - physics
+    - chemistry
+    - medicine
+    - cybernetics
+    - governance
+    - computation
+    - agriculture
+    - energy
+    - logistics
+    - cognition
+    - materials
+    - robotics
+    - economics
+    - philosophy
+    - sociology
+    - linguistics
+    - aerospace
+    - ecology
+    - architecture
+
+  excluded_from_registry:
+    science: "methodology, not domain"
+    mathematics: "epistemic substrate"
+    logic: "epistemic substrate"
+    cs: "merged into computation"
+
+  computerscience_disposition: "MERGED into :computation"
+
+  permitted_mutation:
+    - "Create Tiannara.Domains.CanonicalRegistry GenServer"
+    - "Define frozen 20-domain ontology"
+    - "Implement all/0, get/1, get_metadata/1, get_module/1, get_lifecycle/1, ontology_version/0"
+    - "Create comprehensive unit tests"
+
+  prohibited_mutation:
+    - "Modify supervision tree (belongs to AC-001-B)"
+    - "Migrate consumers (belongs to AC-001-C)"
+    - "Deprecate legacy registries (belongs to AC-001-D)"
+    - "Resolve orphans (belongs to AC-001-E)"
+    - "Alter knowledge capital storage"
+    - "Alter portfolio vector storage"
+    - "Modify domain implementations"
+    - "Implement domain execution"
+    - "Modify Mathematics substrate"
+    - "Modify Logic substrate"
+
+  governance:
+    required: true
+    authority: C14
+    purpose: "Establish canonical domain identity as foundation for MC-001/MC-002/MC-003/MC-004"
+    on_deny: BLOCKED
+
+  certification_criterion:
+    - "All tests pass"
+    - "20 canonical domains present"
+    - ":science excluded"
+    - ":mathematics excluded"
+    - ":cs excluded"
+    - "API contract internally coherent"
+    - "No consumer migration claimed"
+    - "No supervision claimed"
+    - "No legacy deprecation claimed"
+
+  verdict_space: [CERTIFIED, QUALIFIED_PARTIAL, NOT_CERTIFIED, BLOCKED]
+
+  human_authorization:
+    status: PENDING_HUMAN_AUTHORIZATION
+    operator_id: null
+    signature: null
+    timestamp: null
+    conditions_accepted: false
+    notes: null
+
+  valid_until: null
+
+  audit_trail:
+    created_by: "tiannara_os"
+    creation_timestamp: "2026-08-26T00:00:00Z"
+    lineage:
+      - "R0 CERTIFIED (evidence truth established)"
+      - "AC-001-A0 COMPLETE (reconciliation done)"
+      - "Contract boundary CONFIRMED (identity only, not knowledge capital)"
+      - "ComputerScience decision: MERGE into :computation"

@@ -26,13 +26,13 @@ defmodule Tiannara.ASC.ResearchBridge do
   require Logger
 
   alias Tiannara.KnowledgeGraph.Registry, as: KG
-  alias Tiannara.Domains.Registry, as: DomReg
+  alias Tiannara.Domains.PortfolioBoundary
   alias Tiannara.ASC.KnowledgeArchive
   alias Tiannara.ASC.KnowledgeArchive.Entry
 
   @poll_interval_ms 30_000
   # Domains whose discoveries seed ASC architecture evolution
-  @seed_domains [:computation, :cybernetics, :mathematics, :engineering]
+  @seed_domains [:computation, :cybernetics, :engineering]
 
   # ---------------------------------------------------------------------------
   # Public API
@@ -137,7 +137,7 @@ defmodule Tiannara.ASC.ResearchBridge do
     vectors = Enum.reduce(@seed_domains, %{}, fn domain_id, acc ->
       vector =
         try do
-          DomReg.get_portfolio_vector(domain_id)
+          PortfolioBoundary.get(domain_id)
         rescue
           _ -> nil
         end

@@ -196,8 +196,8 @@ defmodule Tiannara.Stabilization.OCM do
       {:failed, _} -> false
     end)
     
-    failed_count = length(resolved) - length(successful_resolutions)
-    
+    _failed_count = length(resolved) - length(successful_resolutions)
+
     Logger.info("Resolved #{length(successful_resolutions)}/#{length(conflicts)} semantic conflicts")
     
     case length(successful_resolutions) do
@@ -283,7 +283,7 @@ defmodule Tiannara.Stabilization.OCM do
   @impl true
   def handle_call({:get_concept_consensus, concept_id}, _from, state) do
     case :ets.lookup(:concept_votes, concept_id) do
-      votes when length(votes) > 0 ->
+      [_ | _] = votes ->
         # Analyze votes
         consensus_result = analyze_concept_votes(votes, state.config)
         {:reply, {:ok, consensus_result}, state}
@@ -387,7 +387,7 @@ defmodule Tiannara.Stabilization.OCM do
     grouped_votes = Enum.group_by(votes, &elem(&1, 0))
     
     # Analyze each concept
-    consensus_results = Enum.map(grouped_votes, fn {concept_id, concept_votes} ->
+    consensus_results = Enum.map(grouped_votes, fn {_concept_id, concept_votes} ->
       analyze_concept_concept_votes(concept_votes, config)
     end)
     
@@ -543,7 +543,7 @@ defmodule Tiannara.Stabilization.OCM do
     end
   end
 
-  defp reconcile_concept_instances(concept_id, instances, config) do
+  defp reconcile_concept_instances(concept_id, instances, _config) do
     # Find the most common version of the concept
     version_counts = Enum.reduce(instances, %{}, fn instance, counts ->
       version = get_concept_version(instance)
@@ -582,7 +582,7 @@ defmodule Tiannara.Stabilization.OCM do
     end
   end
 
-  defp calculate_ontology_agreement(ontology, config) do
+  defp calculate_ontology_agreement(ontology, _config) do
     # Compare ontology with consensus
     consensus_concepts = get_consensus_concepts()
     
@@ -627,7 +627,7 @@ defmodule Tiannara.Stabilization.OCM do
     end
   end
 
-  defp calculate_vote_weight(ontology_id) do
+  defp calculate_vote_weight(_ontology_id) do
     # Calculate vote weight based on ontology importance
     # In production, use more sophisticated weighting
     1.0  # Default weight
@@ -635,7 +635,7 @@ defmodule Tiannara.Stabilization.OCM do
 
   defp check_concept_consensus(concept_id, config) do
     case :ets.lookup(:concept_votes, concept_id) do
-      votes when length(votes) > 0 ->
+      [_ | _] = votes ->
         votes = Enum.map(votes, fn {_, vote_data} -> vote_data end)
         analyze_concept_votes([concept_id | votes], config)
         

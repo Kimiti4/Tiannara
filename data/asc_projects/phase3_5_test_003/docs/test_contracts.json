@@ -1,0 +1,47 @@
+[
+  {
+    "id": "tc_20",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: add products inventory",
+    "source_ref": "cap_17",
+    "tags": [],
+    "source_type": "capability",
+    "test_module_name": "AddProductsInventoryTest",
+    "test_function_name": "test add products inventory succeeds with valid inputs",
+    "property_spec": null,
+    "expected_behavior": "add products inventory completes successfully with valid inputs",
+    "coverage_dimension": "capabilities"
+  },
+  {
+    "id": "tc_21",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: update stock quantities",
+    "source_ref": "cap_18",
+    "tags": [],
+    "source_type": "capability",
+    "test_module_name": "UpdateStockQuantitiesTest",
+    "test_function_name": "test update stock quantities succeeds with valid inputs",
+    "property_spec": null,
+    "expected_behavior": "update stock quantities completes successfully with valid inputs",
+    "coverage_dimension": "capabilities"
+  },
+  {
+    "id": "tc_22",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: list low-stock items",
+    "source_ref": "cap_19",
+    "tags": [],
+    "source_type": "capability",
+    "test_module_name": "ListLowStockTest",
+    "test_function_name": "test list low-stock items succeeds with valid inputs",
+    "property_spec": null,
+    "expected_behavior": "list low-stock items completes successfully with valid inputs",
+    "coverage_dimension": "capabilities"
+  }
+]

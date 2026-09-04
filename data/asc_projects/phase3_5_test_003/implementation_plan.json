@@ -1,0 +1,174 @@
+{
+  "dependencies": [
+    {
+      "type": "calls",
+      "to": "low-stock itemsRepository",
+      "from": "low-stock itemsService"
+    },
+    {
+      "type": "calls",
+      "to": "low-stock itemsValidator",
+      "from": "low-stock itemsService"
+    },
+    {
+      "type": "calls",
+      "to": "products inventoryRepository",
+      "from": "products inventoryService"
+    },
+    {
+      "type": "calls",
+      "to": "products inventoryValidator",
+      "from": "products inventoryService"
+    },
+    {
+      "type": "calls",
+      "to": "stock quantitiesRepository",
+      "from": "stock quantitiesService"
+    },
+    {
+      "type": "calls",
+      "to": "stock quantitiesValidator",
+      "from": "stock quantitiesService"
+    }
+  ],
+  "components": [
+    {
+      "name": "low-stock itemsService",
+      "dependencies": [],
+      "interfaces": [
+        "list_low-stock items"
+      ],
+      "responsibilities": [
+        "list low-stock items"
+      ]
+    },
+    {
+      "name": "products inventoryService",
+      "dependencies": [],
+      "interfaces": [
+        "add_products inventory"
+      ],
+      "responsibilities": [
+        "add products inventory"
+      ]
+    },
+    {
+      "name": "stock quantitiesService",
+      "dependencies": [],
+      "interfaces": [
+        "update_stock quantities"
+      ],
+      "responsibilities": [
+        "update stock quantities"
+      ]
+    }
+  ],
+  "project_id": "phase3_5_test_003",
+  "architecture_style": "modular_monolith",
+  "interfaces": [
+    {
+      "name": "add_products inventory",
+      "path": "/products inventory",
+      "protocol": "http",
+      "method": "POST",
+      "input_schema": {
+        "params": "map()"
+      },
+      "output_schema": {
+        "result": "{:ok, term()} | {:error, term()}"
+      }
+    },
+    {
+      "name": "update_stock quantities",
+      "path": "/stock quantities",
+      "protocol": "http",
+      "method": "PUT",
+      "input_schema": {
+        "params": "map()"
+      },
+      "output_schema": {
+        "result": "{:ok, term()} | {:error, term()}"
+      }
+    },
+    {
+      "name": "list_low-stock items",
+      "path": "/low-stock items",
+      "protocol": "http",
+      "method": "GET",
+      "input_schema": {
+        "params": "map()"
+      },
+      "output_schema": {
+        "result": "{:ok, term()} | {:error, term()}"
+      }
+    }
+  ],
+  "validation_rules": [],
+  "storage_models": [
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "primary_key": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "entity": "products inventory"
+    },
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "primary_key": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "entity": "stock quantities"
+    },
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "primary_key": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "entity": "low-stock items"
+    }
+  ],
+  "deployment_units": [],
+  "workflows": [],
+  "confidence": 0.65,
+  "complexity_score": 15.0,
+  "created_at": "2026-06-18T02:37:48.607000Z"
+}

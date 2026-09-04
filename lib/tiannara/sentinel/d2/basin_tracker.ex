@@ -76,7 +76,7 @@ defmodule Tiannara.Sentinel.D2.BasinTracker do
     fp = payload["fingerprint"]
     epoch = payload["epoch"]
     
-    match = :ets.match_object(@table, {'$1', node_id, '$2', '$3', '$4'})
+    match = :ets.match_object(@table, {~c"$1", node_id, ~c"$2", ~c"$3", ~c"$4"})
     case match do
       [{lineage_id, ^node_id, age, _old_fp, _last_seen}] ->
         new_age = age + 50
@@ -96,7 +96,7 @@ defmodule Tiannara.Sentinel.D2.BasinTracker do
     node_id = payload["node_id"]
     epoch = payload["epoch"]
     
-    match = :ets.match_object(@table, {'$1', node_id, '$2', '$3', '$4'})
+    match = :ets.match_object(@table, {~c"$1", node_id, ~c"$2", ~c"$3", ~c"$4"})
     case match do
       [{lineage_id, ^node_id, age, fp, _last_seen}] ->
         :ets.delete(@table, lineage_id)

@@ -27,11 +27,13 @@ defmodule Tiannara.Sentinel.TelemetryHub do
 
   @impl true
   def handle_cast({:broadcast, subsystem, signal_type, data}, state) do
-    # Log the incoming signal
     Logger.debug("[SENTINEL] Signal from #{subsystem}: #{signal_type} -> #{inspect(data)}")
 
-    # Route to relevant monitors/detectors (to be implemented)
-    Tiannara.Sentinel.AnomalyDetector.analyze(subsystem, signal_type, data)
+    # Route through Universal Observation System
+    Tiannara.Sentinel.Observatory.observe(signal_type, subsystem, data,
+      stream: "#{signal_type}:#{subsystem}",
+      tags: ["telemetry_hub", "raw_signal"]
+    )
 
     {:noreply, state}
   end

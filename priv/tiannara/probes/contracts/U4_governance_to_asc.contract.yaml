@@ -1,0 +1,46 @@
+probe_id: "U4_governance_to_asc"
+audit: "U0"
+mode: "CERTIFICATION"
+
+# What is being tested
+capabilities_under_test: [C3, C8, C14, C9]
+integration_edges_under_test:
+  - edge: "C3 → C8"
+    question: "Does knowledge/context reach the world/engineering model?"
+  - edge: "C8 → C14"
+    question: "Does engineering context reach governance for evaluation?"
+  - edge: "C14 → C9"
+    question: "Does ASC consume the governance decision before generating consequential state?"
+
+# Bounded proposition (NOT "ASC is governed")
+bounded_proposition: >
+  Under this tested execution path, ASC consumed the authoritative C14
+  governance decision before producing the tested consequential state.
+
+# Certification bounds — ALL must be false to proceed without C14 authorization
+mutation_allowed: false
+service_bootstrap_allowed: false
+external_calls_allowed: false
+production_adoption_allowed: false
+
+# Permitted side effects (exhaustive — anything else is a contract violation)
+declared_side_effects:
+  - evidence_artifacts
+  - certification_records
+  - temporary_probe_state
+
+# Verdict scope
+verdict_scope: "epistemic_status_only"
+verdict_targets: "integration_edges"  # upgrades edges, not entire capabilities
+
+# Controls
+controls:
+  positive:
+    governance_decision: "ALLOW"
+    expected: "candidate MAY become eligible for next phase"
+  negative:
+    governance_decision: "DENY"
+    expected: "candidate must NOT become executable or adoptable"
+
+# Contract hash (fill via: python tools/hash_contract.py <this-file>)
+contract_hash: "bc39ada54bd649ea2c8a2a4814549da98fd1bd244f9664cbc1653d4403f96453"

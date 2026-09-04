@@ -1,0 +1,39 @@
+# ==============================================================================
+# TIANNARA C14 ADOPTION ARTIFACT — ASC-AE-004
+# ==============================================================================
+# Approves production merge of candidate_f12_plus_eos_adjustment
+# Evidence: docs/probes/AE-004_evidence_report.md
+# Predecessor: ASC-AE-004.human.yaml (AUTHORIZED, operator schtickman)
+# ==============================================================================
+
+mission_id: "ASC-AE-004-ADOPTION"
+parent_mission: "ASC-AE-004"
+status: "AUTHORIZED"
+
+# Evidence that passed Phase C gates
+evidence_ref: "docs/probes/AE-004_evidence_report.md"
+candidate: "candidate_f12_plus_eos_adjustment"
+phase_c_verdict: "PASS (T1 Specificity, T2 Sensitivity, T3 Recovery, Causal Discrimination)"
+
+# Adopted patch set (6 lines, in-memory proven -> disk)
+patches_adopted:
+  - "lib/tiannara/cel/services/event_store.ex:175 — EventStore.healthy?/0 stale {:ok,_} -> is_list(:dets.info)"
+  - "lib/tiannara/cel/services/executive_memory.ex:57 — ExecutiveMemory.health/0 same family"
+  - "lib/tiannara/cel/services/event_bus.ex:48 — EventBus.health/0 same family"
+  - "lib/tiannara/cel/kernel.ex:112 — start_service already_started -> {:ok, pid} (F9)"
+  - "lib/tiannara/cel/kernel.ex:117 — check_health truthiness -> normalized case"
+  - "lib/tiannara/cel/kernel/service_registry.ex:108 — EventStore health_check {health,[]} -> {healthy?,[]}"
+
+human_authorization:
+  operator_id: schtickman
+  signature: f9/f12
+  timestamp: 2026-08-21T01:45Z
+  conditions_accepted: true
+  notes: "Adoption approved — proceed per AE-004 evidence report"
+
+valid_until: 2026-09-04T01:45Z
+
+audit_trail:
+  created_by: "tiannara_os"
+  constitutional_basis: "rules.md -> Evidence Before Confidence"
+  predecessor_hash: "f9/f12 evidence report PASS"

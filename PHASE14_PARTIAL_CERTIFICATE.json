@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-07-02T18:03:30.421000Z",
+  "version": "14.0.99",
+  "sha256": "365d6c75bd0db582e9076228d639d7ae3162869f12fde02fd4a05865b0e1b7a1",
+  "certificate_type": "governance_constitutional_certification_partial",
+  "campaigns_executed": 2,
+  "campaigns_passed": 2,
+  "campaigns_pending": 10,
+  "results": {
+    "gc_001_replay": {
+      "failures": 0,
+      "success_rate": 1.0,
+      "successes": 1000,
+      "sample_size": 1000,
+      "determinism_verified": true,
+      "campaign": "gc_001_replay"
+    },
+    "gc_002_authority_fuzzing": {
+      "tests_performed": 5000,
+      "rejections": 5000,
+      "bypasses": 0,
+      "authority_enforced": true,
+      "campaign": "gc_002_authority_fuzzing"
+    }
+  },
+  "governance_version": "14.0.99",
+  "certification_status": "partial_execution_complete",
+  "note": "GC-003 through GC-012 pending GovernanceState API completion"
+}

@@ -235,7 +235,7 @@ defmodule Tiannara.ASC.Implementation.Planner do
     end)
   end
 
-  defp generate_fields_for_subject(subject) do
+  defp generate_fields_for_subject(_subject) do
     [
       %{name: "id", type: "string", primary_key: true},
       %{name: "created_at", type: "datetime"},
@@ -317,7 +317,7 @@ defmodule Tiannara.ASC.Implementation.Planner do
   # Step 7: Dependency Construction
   # ---------------------------------------------------------------------------
 
-  defp build_dependencies(components, capabilities) do
+  defp build_dependencies(components, _capabilities) do
     # Simple heuristic: services depend on repositories and validators
     Enum.flat_map(components, fn component ->
       service_name = component.name

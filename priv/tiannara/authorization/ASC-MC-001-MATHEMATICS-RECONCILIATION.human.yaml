@@ -1,0 +1,66 @@
+authorization:
+  id: "ASC-MC-001-MATHEMATICS-RECONCILIATION"
+  mission: "Tiannara Remediation + Substrate Integration Campaign"
+  gate: "MC-001"
+  phase: "RECONCILIATION"
+  action: "mathematics_substrate_reconciliation"
+  status: "PENDING_HUMAN_AUTHORIZATION"
+  created_at: "2026-08-27"
+
+  scope:
+    description: >
+      Inventory, classify, and assess all existing mathematical capabilities
+      from actual source. Establish truth classification. Assess substrate
+      readiness. Propose a mutation plan for separate authorization. No
+      production mutation.
+
+  authorized_actions:
+    - "Repository reconnaissance (read-only)"
+    - "Capability inventory"
+    - "Truth classification"
+    - "Architecture assessment"
+    - "Verification assessment"
+    - "Discovery readiness assessment"
+    - "Bottleneck analysis"
+    - "Mutation plan proposal (no execution)"
+
+  prohibited:
+    - "Production mutation"
+    - "Creating :mathematics as canonical domain"
+    - "Fabricating mathematical capabilities"
+    - "Upgrading STRUCTURAL/THEATRICAL to REAL without evidence"
+    - "Implementing new mathematical infrastructure"
+    - "MC-002/MC-003/MC-004 work"
+
+  predecessor_gates:
+    - "R0: CERTIFIED"
+    - "AC-001 FINAL: CERTIFIED (BOUNDED)"
+
+  governance:
+    required: true
+    authority: "C14"
+    policy: "POL-CERT_AUTH_001"
+    purpose: "Mathematics substrate reconciliation"
+    on_deny: "BLOCKED"
+
+  certification_contract:
+    path: "priv/tiannara/remediation/contracts/MC001_mathematics_reconciliation.contract.yaml"
+    hash: null
+
+  human_authorization:
+    status: "PENDING_HUMAN_AUTHORIZATION"
+    operator_id: null
+    signature: null
+    timestamp: null
+    conditions_accepted: false
+    notes: "Reconciliation (A0-A6) is observational and does not require mutation authorization. A separate ASC-MC-001-MUTATION artifact is required before any production mutation."
+
+  valid_until: null
+
+  audit_trail:
+    created_by: "tiannara_os"
+    creation_timestamp: "2026-08-27T00:00:00Z"
+    lineage:
+      - "R0 CERTIFIED"
+      - "AC-001 FINAL CERTIFIED (BOUNDED)"
+      - "Mathematics established as epistemic substrate (AC-001)"

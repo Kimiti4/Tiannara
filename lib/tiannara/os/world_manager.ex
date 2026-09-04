@@ -9,7 +9,6 @@ defmodule TiannaraOS.WorldManager do
 
   alias TiannaraOS.World
   alias TiannaraOS.WorldTemplate
-  alias TiannaraOS.CivilizationKernel
   alias Tiannara.REA.Epistemic.Institution
 
   # Domain mapping helper for labs
@@ -24,11 +23,11 @@ defmodule TiannaraOS.WorldManager do
     perception_lab: :cognition,
     planning_lab: :logistics,
     safety_lab: :cybernetics,
-    # Mathematics labs
-    number_theory_lab: :mathematics,
-    topology_lab: :mathematics,
-    analysis_lab: :mathematics,
-    logic_lab: :mathematics
+    # Computation labs
+    number_theory_lab: :computation,
+    topology_lab: :computation,
+    analysis_lab: :computation,
+    logic_lab: :computation
   }
 
   @doc """
@@ -65,15 +64,14 @@ defmodule TiannaraOS.WorldManager do
         }
 
         # 4. Transactionally commit to Civilization Kernel
-        update_result =
-          CivilizationKernel.update_state(fn state ->
-            # Merge new institutions, theories, and the world itself into state
+        update_result = apply(TiannaraOS.CivilizationKernel, :update_state, [
+          fn state ->
             updated_worlds = Map.put(state.worlds, world_id, new_world)
             updated_insts = Map.merge(state.institutions, insts)
             updated_theories = Map.merge(state.theories, theories)
-
             %{state | worlds: updated_worlds, institutions: updated_insts, theories: updated_theories}
-          end)
+          end
+        ])
 
         case update_result do
           {:ok, _state} ->
@@ -93,26 +91,21 @@ defmodule TiannaraOS.WorldManager do
   @spec destroy_world(atom()) :: {:ok, atom()} | {:error, any()}
   def destroy_world(world_id) do
     # Fetch world first to get related institution & theory IDs
-    state = CivilizationKernel.get_state()
+    state = apply(TiannaraOS.CivilizationKernel, :get_state, [])
 
     case Map.get(state.worlds, world_id) do
       nil ->
         {:error, :world_not_found}
 
       world ->
-        update_result =
-          CivilizationKernel.update_state(fn current_state ->
-            # Delete world
+        update_result = apply(TiannaraOS.CivilizationKernel, :update_state, [
+          fn current_state ->
             updated_worlds = Map.delete(current_state.worlds, world_id)
-            
-            # Delete institutions belonging to this world
             updated_insts = Map.drop(current_state.institutions, world.institutions)
-
-            # Delete theories belonging to this world
             updated_theories = Map.drop(current_state.theories, world.theories)
-
             %{current_state | worlds: updated_worlds, institutions: updated_insts, theories: updated_theories}
-          end)
+          end
+        ])
 
         case update_result do
           {:ok, _state} ->
@@ -131,7 +124,7 @@ defmodule TiannaraOS.WorldManager do
   defp create_lab_institutions(labs, world_id) do
     Enum.reduce(labs, {%{}, []}, fn lab, {insts_acc, ids_acc} ->
       inst_id = String.to_atom("inst_#{lab.id}_#{world_id}")
-      domain = Map.get(@lab_domains, lab.id, :science)
+      domain = Map.get(@lab_domains, lab.id, :engineering)
 
       new_inst = %Institution{
         id: inst_id,

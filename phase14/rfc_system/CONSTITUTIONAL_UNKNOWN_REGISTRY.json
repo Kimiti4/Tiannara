@@ -1,0 +1,45 @@
+{
+  "unknowns": [
+    {
+      "confidence": "Medium",
+      "evidence": "Low",
+      "id": "UNK-001",
+      "owner": "Replay Council",
+      "review": "Phase 15",
+      "topic": "Distributed replay"
+    },
+    {
+      "confidence": "Medium",
+      "evidence": "Partial",
+      "id": "UNK-002",
+      "owner": "Certification Council",
+      "review": "Phase 15",
+      "topic": "Certificate lineage completeness"
+    },
+    {
+      "confidence": "Medium",
+      "evidence": "Partial",
+      "id": "UNK-003",
+      "owner": "Governance Review Board",
+      "review": "Phase 15",
+      "topic": "Independent audit boundary"
+    },
+    {
+      "confidence": "Medium",
+      "evidence": "Partial",
+      "id": "UNK-004",
+      "owner": "Schema Council",
+      "review": "Phase 15",
+      "topic": "Multi-runtime compatibility"
+    },
+    {
+      "confidence": "Low",
+      "evidence": "Low",
+      "id": "UNK-005",
+      "owner": "Civilization Review Board",
+      "review": "Phase 15",
+      "topic": "Long-horizon migration durability"
+    }
+  ],
+  "version": "14.1.2"
+}

@@ -1,0 +1,39 @@
+{
+  "fitness_functions": [
+    {
+      "id": "FIT-001",
+      "name": "Causal Coherence",
+      "metric": "percentage of valid causal links after change",
+      "threshold": 0.99,
+      "subsystems": ["CTL"]
+    },
+    {
+      "id": "FIT-002",
+      "name": "Novelty Gradient",
+      "metric": "rate of new unique attractors generated",
+      "threshold": 0.05,
+      "subsystems": ["GRCC", "NDE"]
+    },
+    {
+      "id": "FIT-003",
+      "name": "Stability Margin",
+      "metric": "distance from MSCL constraint limits",
+      "threshold": 0.20,
+      "subsystems": ["MSCL", "OLEF"]
+    },
+    {
+      "id": "FIT-004",
+      "name": "Complexity Index",
+      "metric": "cyclomatic complexity of modified modules",
+      "threshold": 15,
+      "subsystems": ["General"]
+    },
+    {
+      "id": "FIT-005",
+      "name": "Reversibility",
+      "metric": "time/steps required to rollback change",
+      "threshold": 3,
+      "subsystems": ["REA"]
+    }
+  ]
+}

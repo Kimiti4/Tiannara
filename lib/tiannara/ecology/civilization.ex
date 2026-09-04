@@ -11,10 +11,11 @@ defmodule Tiannara.Ecology.Civilization do
   alias Tiannara.REA.{EvolutionaryIdentity, EvolutionaryRuin, LineageRegistry, EvolutionaryEnvironment}
   
   @domains [
-    :engineering, :medicine, :governance, :computation, :science,
+    :engineering, :medicine, :governance, :computation,
     :agriculture, :energy, :logistics, :cognition, :materials,
     :robotics, :economics, :philosophy, :sociology, :linguistics,
-    :aerospace, :ecology, :cybernetics, :architecture, :mathematics
+    :aerospace, :ecology, :cybernetics, :architecture, :physics,
+    :chemistry
   ]
 
   defstruct [
@@ -228,9 +229,7 @@ defmodule Tiannara.Ecology.Civilization do
   end
   
   defp current_epoch do
-    if Code.ensure_loaded?(Tiannara.SOPL.Clock),
-      do: Tiannara.SOPL.Clock.now(),
-      else: System.system_time(:second)
+    DateTime.utc_now()
   end
   
   defp clamp(v, lo, hi), do: v |> max(lo) |> min(hi)

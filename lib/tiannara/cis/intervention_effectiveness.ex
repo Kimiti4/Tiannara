@@ -3,8 +3,6 @@ defmodule Tiannara.Cis.InterventionEffectiveness do
   Tracks intervention effectiveness and predicts collapse probabilities.
   """
 
-  @telemetry_prefix "tiannara.cis.intervention_effectiveness"
-
   use GenServer
 
   @type intervention_id :: String.t()
@@ -21,6 +19,8 @@ defmodule Tiannara.Cis.InterventionEffectiveness do
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
+
+  def init(args), do: {:ok, args}
 
   @spec record_intervention(intervention_record()) :: {:ok, intervention_id()} | {:error, term()}
   def record_intervention(intervention) do

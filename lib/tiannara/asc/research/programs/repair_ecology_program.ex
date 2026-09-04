@@ -15,8 +15,7 @@ defmodule Tiannara.ASC.Research.Programs.RepairEcologyProgram do
       budget: 1000
     }
     
-    {:ok, program_id} = ResearchRegistry.register_program(program)
-    program_id
+    ResearchRegistry.register_program(program)
   end
 
   def run_epoch(program_id, budget) do
@@ -30,7 +29,14 @@ defmodule Tiannara.ASC.Research.Programs.RepairEcologyProgram do
     
     if Enum.empty?(patterns) do
       Logger.warning("  ⚠️ RepairLibrary is empty. Seeding base pattern.")
-      RepairLibrary.learn(%{id: "base_seed", domain: :compute, steps: []})
+      RepairLibrary.learn(%Tiannara.ASC.Crucible.RepairPattern{
+        id: "base_seed",
+        failure_signature: "compute.synthetic.seed",
+        repair_strategy: "Base seed pattern for repair library bootstrap",
+        repair_category: :configuration,
+        success_rate: 0.5,
+        reuse_count: 0
+      })
     else
       Enum.each(1..cycles, fn _ ->
         # Pick a random existing pattern and mutate it

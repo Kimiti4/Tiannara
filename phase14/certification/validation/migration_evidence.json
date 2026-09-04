@@ -1,0 +1,6 @@
+{
+  "rollback_available": true,
+  "data_loss_risk": "none",
+  "migration_plan_valid": true,
+  "steps_completed": 4
+}

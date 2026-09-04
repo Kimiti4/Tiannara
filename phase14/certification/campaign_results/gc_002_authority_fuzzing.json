@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "campaign": "gc_002_authority_fuzzing",
+  "authority_enforced": true,
+  "bypasses": 0,
+  "rejections": 5000,
+  "tests_performed": 5000
+}

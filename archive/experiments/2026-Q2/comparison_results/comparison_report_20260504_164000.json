@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-05-04 16:40:45",
+  "summary": {
+    "baseline_mode": {
+      "domains": [
+        "algorithm",
+        "logic",
+        "reverse_engineering",
+        "causal"
+      ],
+      "total_episodes": 80,
+      "success_rate": 0.0,
+      "elapsed_time": 0.35832858085632324
+    },
+    "enhanced_mode": {
+      "domains": [
+        "algorithm",
+        "logic",
+        "reverse_engineering",
+        "causal",
+        "temporal",
+        "combinatorial"
+      ],
+      "total_episodes": 120,
+      "success_rate": 0.0,
+      "elapsed_time": 38.87671685218811
+    },
+    "improvements": {
+      "success_rate_absolute": 0.0,
+      "success_rate_percentage": 0,
+      "transfer_rate_baseline": 0.0,
+      "transfer_rate_enhanced": 0.0,
+      "transfer_improvement": 0.0
+    }
+  },
+  "domain_comparison": {
+    "algorithm": {
+      "baseline_success_rate": 0.0,
+      "enhanced_success_rate": 0.0,
+      "improvement": 0.0,
+      "baseline_correctness": 0.0,
+      "enhanced_correctness": 0.0
+    },
+    "causal": {
+      "baseline_success_rate": 0.0,
+      "enhanced_success_rate": 0.0,
+      "improvement": 0.0,
+      "baseline_correctness": 0.0,
+      "enhanced_correctness": 0.0
+    },
+    "logic": {
+      "baseline_success_rate": 0.0,
+      "enhanced_success_rate": 0.0,
+      "improvement": 0.0,
+      "baseline_correctness": 0.0,
+      "enhanced_correctness": 0.0
+    },
+    "reverse_engineering": {
+      "baseline_success_rate": 0.0,
+      "enhanced_success_rate": 0.0,
+      "improvement": 0.0,
+      "baseline_correctness": 0.0,
+      "enhanced_correctness": 0.0
+    }
+  },
+  "new_domains_in_enhanced": {
+    "combinatorial": {
+      "success_rate": 0.0,
+      "avg_correctness": 0.0
+    },
+    "temporal": {
+      "success_rate": 0.0,
+      "avg_correctness": 0.0
+    }
+  },
+  "abstraction_engine_performance": {
+    "patterns_extracted": 0,
+    "meta_patterns": 0,
+    "avg_pattern_success_rate": 0.0,
+    "avg_cross_domain_score": 0.0,
+    "total_skills_processed": 0
+  },
+  "key_findings": [
+    "\u26a0\ufe0f Overall success rate decreased by 0.0% (needs investigation)",
+    "\u2705 Successfully expanded from 4 to 6 domains"
+  ]
+}

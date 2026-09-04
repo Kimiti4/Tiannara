@@ -3,8 +3,6 @@ defmodule Tiannara.CivilizationAtlas do
   Civilization Atlas module for tracking and visualizing civilizational evolution.
   """
   
-  @telemetry_prefix "tiannara.civilization_atlas"
-  
   @spec show_discoveries_by_domain(String.t()) :: {:ok, [map()]}
   def show_discoveries_by_domain(_domain) do
     # Implementation would query discoveries by domain

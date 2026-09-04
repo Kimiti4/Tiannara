@@ -1,0 +1,89 @@
+{
+  "gate": "MC-001-M",
+  "phase": "MUTATION_TRUTHFULNESS",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "timestamp": "2026-08-27T00:00:00Z",
+  "verdict": "CERTIFIED_BOUNDED",
+  "verdict_scope": "DECOMMISSION_ONLY_M3_M5",
+  "verdict_note": "Decommission-only truthfulness mutation executed. Theatrical math capabilities (verify_invariants, solve_ode, gradient_descent, nash_equilibrium) and fabricated metrics (Physics.metrics, Mathematics dashboard) truthfully decommissioned. Targeted tests 10/10 pass; app compiles and boots. Bounded: full cross-repo suite regression NOT_EXECUTED due to environment/time limits. No new mathematical capability is certified.",
+  "mutation_authorized": true,
+  "authorization_status": "GRANTED",
+  "authorization_operator": "c14_ac",
+  "authorization_fabricated": false,
+  "authorization_file": "priv/tiannara/authorization/ASC-MC-001-M-MUTATION.human.yaml",
+  "scope": "DECOMMISSION_ONLY",
+  "scope_expansion_to_other_domain_metrics": false,
+  "deferred_technical_debt": [
+    "TD-MC001-M5-DOMAINS: remaining 19 domain metrics/0 still contain hardcoded fabrication; requires separate authorized mutation"
+  ],
+  "m3_decommissioned": {
+    "formal_verification": {
+      "module": "Tiannara.Foundations.FormalVerification.verify_invariants/2",
+      "previous": "{:ok, %{verified: true, counterexamples: [], mock: true}}",
+      "now": "{:error, :formal_verification_unavailable}",
+      "status": "DECOMMISSIONED"
+    },
+    "ode_solver": {
+      "module": "Tiannara.Foundations.Mathematics.Calculus.solve_ode/3",
+      "previous": "{:ok, %{trajectory: mock, steps: 1000, mock: true}}",
+      "now": "{:error, :ode_solver_unavailable}",
+      "status": "DECOMMISSIONED"
+    },
+    "gradient_descent": {
+      "module": "Tiannara.Math.Optimization.gradient_descent/4",
+      "previous": "{:ok, %{params: ..., loss: 0.0, mock: true}}",
+      "now": "{:error, :gradient_descent_unavailable}",
+      "status": "DECOMMISSIONED"
+    },
+    "nash_equilibrium": {
+      "module": "Tiannara.Math.Optimization.nash_equilibrium/2",
+      "previous": "{:ok, %{equilibrium: :mixed_strategy, payoff: 0.5, mock: true}}",
+      "now": "{:error, :nash_equilibrium_unavailable}",
+      "status": "DECOMMISSIONED"
+    }
+  },
+  "m5_decommissioned": {
+    "physics_metrics": {
+      "module": "Tiannara.Domains.Physics.metrics/0",
+      "previous": "hardcoded 142/38/4/0.88 literals",
+      "now": "truthful state-derived map, metrics_source: :state_derived, discoveries_this_cycle derived from discover/1",
+      "status": "DECOMMISSIONED",
+      "boundary_semantics": "OPTION_B_PRESERVE_MAP_CONTRACT"
+    },
+    "math_dashboard": {
+      "module": "Tiannara.Observatory.Metrics.Mathematics.get_dashboard_data/0",
+      "previous": "hardcoded subsystem metrics literals",
+      "now": "{:error, :mathematics_dashboard_unavailable}",
+      "status": "DECOMMISSIONED",
+      "boundary_semantics": "OPTION_A_EXPLICIT_UNAVAILABLE_DEAD_CODE"
+    }
+  },
+  "consumers_remediated": {
+    "autonomous_discovery_execute_experiment": "REWRITTEN to handle {:ok, verified:true} / {:ok, validation} / {:error, reason}; unavailable verification never treated as validated",
+    "physics_validate": "propagates error (no change needed)",
+    "physics_simulate": "propagates error (no change needed)",
+    "economics_evaluate": "propagates error (no change needed)",
+    "research_director_get_all_metrics": "map contract preserved (no change needed)",
+    "bottleneck_detector": "map fields preserved (no change needed)"
+  },
+  "real_primitive_contracts_preserved": true,
+  "canonical_ontology_unchanged": true,
+  "canonical_registry_unchanged": true,
+  "mocks_remaining_in_targets": 0,
+  "fabricated_metrics_remaining_in_targets": 0,
+  "evidence": {
+    "static_verification": "PASS — 12/12 invariants",
+    "compile": "PASS — app generated, boot ok, all services ok",
+    "targeted_tests": "PASS — 10 tests, 0 failures",
+    "regression_subset_asc": "38 failures = documented pre-existing boot-infra baseline; 0 new failures attributable to mutation",
+    "full_suite_regression": "NOT_EXECUTED",
+    "runtime": "PASS — boot success, no supervisor failure from mutation",
+    "verifier": "PASS"
+  },
+  "certification_boundary": "Mathematical truthfulness remediation certified based on static verification, passing targeted tests, and successful compile/boot. Full cross-repo suite regression NOT_EXECUTED (environment/time) and recorded as such, never as PASS. This gate certifies no new mathematical capability; unavailable capabilities remain unavailable.",
+  "final_architectural_question": {
+    "did_mutation_increase_ability_to_distinguish_compute_from_claim": true,
+    "basis": "Theatrical capabilities now return explicit {:error, :*_unavailable}; Physics.metrics derives discoveries from real state; autonomous discovery can no longer treat unavailable verification as validated; all verified by source inspection and passing targeted tests."
+  },
+  "contract_hash": null
+}

@@ -1,0 +1,32 @@
+# ==============================================================================
+# TIANNARA C14 ADOPTION ARTIFACT — ASC-AE-007
+# ==============================================================================
+# Approves production merge of candidate_residency
+# Evidence: docs/probes/AE-007_evidence_report.md
+# Predecessor: ASC-AE-007.human.yaml (AUTHORIZED, operator schtickman)
+# ==============================================================================
+
+mission_id: "ASC-AE-007-ADOPTION"
+parent_mission: "ASC-AE-007"
+status: "AUTHORIZED"
+
+evidence_ref: "docs/probes/AE-007_evidence_report.md"
+candidate: "candidate_residency"
+phase_c_verdict: "PASS (T1-T9 all pass, overall_pass true)"
+
+patches_adopted:
+  - "lib/tiannara/application.ex — core_children add Tiannara.CIS.Supervisor after Tiannara.Sentinel.Supervisor (F11 residency)"
+
+human_authorization:
+  operator_id: schtickman
+  signature: F11-topology
+  timestamp: 2026-08-21T03:45Z
+  conditions_accepted: true
+  notes: "AE-007 adoption approved — CIS residency verified, F12/F9 regression green"
+
+valid_until: 2026-09-04T03:45Z
+
+audit_trail:
+  created_by: "tiannara_os"
+  constitutional_basis: "Verification First / Safety and Reliability"
+  predecessor_hash: "AE-007 PASS"

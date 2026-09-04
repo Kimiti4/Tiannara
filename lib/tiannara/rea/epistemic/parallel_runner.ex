@@ -11,10 +11,9 @@ defmodule Tiannara.REA.Epistemic.ParallelRunner do
   """
   
   alias Tiannara.REA.{
-    SimulationRunner, LineageRegistry, ArchaeologyRegistry,
     UniversalEvolutionEngine
   }
-  alias Tiannara.REA.Causal.{Graph, ChannelMonitor, Topology, Channel}
+  alias Tiannara.REA.Causal.{Graph, Topology, Channel}
   alias Tiannara.REA.Epistemic.{Audit, EcologicalMemory, ReflexivityObservatory}
   
   @type topology_config :: %{
@@ -76,7 +75,7 @@ defmodule Tiannara.REA.Epistemic.ParallelRunner do
     compare_results(results)
   end
   
-  defp run_single_topology(topology, seed, epochs, snapshot_interval) do
+  defp run_single_topology(topology, _seed, epochs, snapshot_interval) do
     # Reset all state
     reset_all_state()
     
@@ -93,7 +92,7 @@ defmodule Tiannara.REA.Epistemic.ParallelRunner do
     # Initialize universe
     universe = initialize_universe(0)
     
-    {final_universe, reports} = Enum.reduce(1..epochs, {universe, []}, fn epoch, {u, reps} ->
+    {_final_universe, reports} = Enum.reduce(1..epochs, {universe, []}, fn epoch, {u, reps} ->
       next_u = UniversalEvolutionEngine.tick(u)
       
       new_reps = if rem(epoch, snapshot_interval) == 0 do

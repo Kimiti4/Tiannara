@@ -1,0 +1,15 @@
+{
+  "schema_version": "15.0.0",
+  "status": "PROVISIONAL_NOT_FINAL",
+  "source_graph": "CONSTITUTIONAL_KNOWLEDGE_GRAPH.json",
+  "source_scientific_graph": "SCIENTIFIC_KNOWLEDGE_GRAPH.json",
+  "ratified_nodes": 0,
+  "candidate_nodes": 11,
+  "finalization_gates": {
+    "campaign_evidence": "BLOCKED",
+    "law_validation": "BLOCKED",
+    "independent_audit": "BLOCKED",
+    "deterministic_replay": "NOT_RUN",
+    "cryptographic_manifest": "NOT_SIGNED"
+  }
+}

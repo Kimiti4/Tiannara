@@ -4,13 +4,16 @@ defmodule Tiannara.MixProject do
   def project do
     [
       app: :tiannara,
-      version: "0.1.0",
+      version: "0.3.5",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       compilers: Mix.compilers(),
       elixirc_paths: elixirc_paths(Mix.env()),
       aliases: aliases(),
+      releases: releases(),
+      consolidate_protocols: Mix.env() != :test,
+      build_embedded: false,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
@@ -22,6 +25,20 @@ defmodule Tiannara.MixProject do
         plt_add_apps: [:erts, :kernel, :stdlib, :eex, :gettext, :jason],
         plt_core_path: "_build/plts",
         plt_file: "_build/plts/dialyzer.plt"
+      ]
+    ]
+  end
+
+  defp releases do
+    [
+      tiannara: [
+        include_executables_for: [:unix, :windows],
+        applications: [
+          tiannara: :permanent,
+          phoenix: :permanent,
+          plug_cowboy: :permanent
+        ],
+        steps: [:assemble, :tar]
       ]
     ]
   end
@@ -58,6 +75,7 @@ defmodule Tiannara.MixProject do
       {:phoenix_live_view, "~> 1.0"},
       {:phoenix_html, "~> 4.0"},
       {:plug_cowboy, "~> 2.7"},
+      {:cors_plug, "~> 3.0"},
       {:protobuf, "~> 0.13"},
       {:gen_stage, "~> 1.2"},
       {:broadway, "~> 1.0"},
@@ -74,7 +92,9 @@ defmodule Tiannara.MixProject do
       {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
-      {:recon, "~> 2.5"}
+      {:recon, "~> 2.5"},
+      {:stream_data, "~> 1.0", only: [:dev, :test]},
+      {:benchee, "~> 1.3", only: [:dev]}
     ]
   end
 
@@ -83,7 +103,17 @@ defmodule Tiannara.MixProject do
 
   defp aliases do
     [
-      test: ["test"]
+      test: ["test"],
+      "compile.profile": ["compile --long-compilation-threshold 2 --warnings-as-errors"],
+      "test.phase3": [
+        "test test/tiannara/world/property/ --trace",
+        "test test/tiannara/world/integration/ --trace",
+        "test test/tiannara/world/chaos/ --trace",
+        "test test/tiannara/world/epistemic/ --trace"
+      ],
+      "test.properties": ["test test/tiannara/world/property/ --trace"],
+      "validate.phase3": ["compile", "test.phase3"],
+      "clean.all": ["clean", "deps.clean --all", "deps.get", "compile"]
     ]
   end
 end

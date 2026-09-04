@@ -2,8 +2,6 @@ defmodule Tiannara.ASC.Crucible.PatternMutator do
   @moduledoc """
   Handles the evolutionary mechanics: mutation and crossover of repair patterns.
   """
-  alias Tiannara.ASC.Crucible.RepairPattern
-  
   def mutate(%{steps: steps} = pattern) do
     new_steps = 
       case :rand.uniform(3) do

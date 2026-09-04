@@ -1,0 +1,173 @@
+{
+  "artifacts": {
+    "docs/remediation/MC003_A0_REAL_EXECUTION_RECONCILIATION_PROTOCOL.md": true,
+    "priv/tiannara/remediation/contracts/MC003_A0_real_execution_reconciliation.contract.yaml": true,
+    "priv/tiannara/authorization/ASC-MC-003-A0-REAL-EXECUTION-RECONCILIATION.human.yaml": true,
+    "certification/remediation/MC003-A0-EXECUTION-INVENTORY.md": true,
+    "certification/remediation/MC003-A0-TRUTH-CLASSIFICATION.md": true,
+    "certification/remediation/MC003-A0-CONSUMER-MAP.md": true,
+    "certification/remediation/MC003-A0-ARCHITECTURE.md": true,
+    "certification/remediation/MC003-A0-VERIFICATION.md": true,
+    "certification/remediation/MC003-A0-SAFETY-RELIABILITY.md": true,
+    "certification/remediation/MC003-A0-BOTTLENECKS.md": true,
+    "certification/remediation/MC003-A0-MUTATION-PLAN.md": true,
+    "certification/remediation/MC003-A0-RECONCILIATION-CERTIFICATION.md": true,
+    "priv/tiannara/remediation/results/MC003_A0_result.json": true,
+    "priv/tiannara/remediation/verifiers/MC003_A0_real_execution_reconciliation.py": true
+  },
+  "result_json": {
+    "valid": true,
+    "verdict_in_allowed_set": true,
+    "mutation_executed": false,
+    "authorization_required_for_mutation": true,
+    "status_report_present": true,
+    "status_report_keys": [
+      "compile_status",
+      "runtime_status",
+      "static_scan_status",
+      "test_status",
+      "verifier_status"
+    ]
+  },
+  "real_sites": {
+    "experiment_step_real_measurement": {
+      "exists": true,
+      "pats": {
+        "def execute(input, _ctx)": true,
+        "produced_by: __MODULE__": true,
+        "evidence_routed()": true,
+        "measurement:": true
+      }
+    },
+    "local_backend_system_cmd": {
+      "exists": true,
+      "pats": {
+        "System.cmd": true,
+        ":brutal_kill": true,
+        "Task.async": true
+      }
+    },
+    "container_backend_isolated": {
+      "exists": true,
+      "pats": {
+        "--network": true,
+        "none": true
+      }
+    },
+    "real_harness_benchmark": {
+      "exists": true,
+      "pats": {
+        "def run(backend, baseline, patch": true,
+        "compare_benchmarks": true
+      }
+    },
+    "world_state_sync_real_integration": {
+      "exists": true,
+      "pats": {
+        "create_entity": true,
+        "retry": true
+      }
+    },
+    "knowledge_integrator_gate": {
+      "exists": true,
+      "pats": {
+        ":real_execution": true
+      }
+    },
+    "provenance_gate": {
+      "exists": true,
+      "pats": {
+        "def ": true,
+        "execution_id": true
+      }
+    }
+  },
+  "theatrical_sites": {
+    "sandbox_simulates": {
+      "exists": true,
+      "pats": {
+        "For now, we simulate": true,
+        ":rand.uniform() < success_prob": true
+      }
+    },
+    "simulation_manager_fabricates": {
+      "exists": true,
+      "pats": {
+        "500 + :rand.uniform(200)": true,
+        "throughput_ops_sec: 5000 + :rand.uniform(2000)": true
+      }
+    },
+    "deployment_pipeline_flips_status": {
+      "exists": true,
+      "pats": {
+        "checkpoint_id = Types.new_id()": true,
+        "stage: :monitoring": true
+      }
+    },
+    "rollback_is_fake": {
+      "exists": true,
+      "pats": {
+        ":timer.sleep(10)": true,
+        "checkpoint_id = Types.new_id()": true
+      }
+    },
+    "repair_stub_success": {
+      "exists": true,
+      "pats": {
+        "{:ok, :pass}": true,
+        "def validate(_project, _patch), do: {:ok, :pass}": true
+      }
+    },
+    "repair_canary_stub": {
+      "exists": true,
+      "pats": {
+        "{:ok, :canary_deployed}": true,
+        "def release(_project, _patch), do: {:ok, :canary_deployed}": true
+      }
+    },
+    "repair_rollout_stub": {
+      "exists": true,
+      "pats": {
+        "{:ok, :rolled_out}": true,
+        "def rollout(_project), do: {:ok, :rolled_out}": true
+      }
+    },
+    "verifier_hardcoded": {
+      "exists": true,
+      "pats": {
+        "reproduced: true": true,
+        "confidence: 0.95": true,
+        "all_passing: true": true
+      }
+    },
+    "certifier_gates_preopen": {
+      "exists": true,
+      "pats": {
+        ":gate_open": true,
+        "sandbox_validated: :gate_open": true
+      }
+    },
+    "httpoison_stub": {
+      "exists": true,
+      "pats": {
+        "status_code: 200": true,
+        "body: \"\"": true
+      }
+    }
+  },
+  "gate_wiring": {
+    "approval_decide_defined": true,
+    "approval_decide_callers_in_lib": 0,
+    "submit_experiment_defined": true,
+    "submit_experiment_callers_in_lib": 0
+  },
+  "p16_unmet_evidence": {
+    "p16_d_fixed_delta_still_present": true,
+    "execution_cycle_status_executed_present": true
+  },
+  "authorization": {
+    "exists": true,
+    "sig_null": true,
+    "read_only": true
+  }
+}

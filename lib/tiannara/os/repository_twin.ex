@@ -490,7 +490,7 @@ defmodule TiannaraOS.RepositoryTwin do
 
     # 4. Generate mix.exs from dependencies if not already manually written
     mix_exs_path = Path.join(path, "mix.exs")
-    unless File.exists?(mix_exs_path) or Map.size(artifacts.dependencies) == 0 do
+    unless File.exists?(mix_exs_path) or map_size(artifacts.dependencies) == 0 do
       deps_string =
         artifacts.dependencies
         |> Enum.map(fn {pkg, ver} -> "{:#{pkg}, \"#{ver}\"}" end)

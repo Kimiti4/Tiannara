@@ -6,7 +6,6 @@ defmodule Tiannara.REL.CivilizationFitness do
 
   alias Tiannara.REL.EconomyEngine
   alias Tiannara.REL.DiscoveryLedger
-  alias Tiannara.OMCS.Engine, as: OMCSEngine
 
   @doc "Calculate fitness score [0.0, 1.0] for a civilization."
   def calculate(civ_id) do
@@ -47,7 +46,11 @@ defmodule Tiannara.REL.CivilizationFitness do
         nil -> nil
         pid ->
           if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
+            try do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            rescue
+              _ -> nil
+            end
           else
             nil
           end

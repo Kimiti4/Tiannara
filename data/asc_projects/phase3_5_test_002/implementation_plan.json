@@ -1,0 +1,226 @@
+{
+  "dependencies": [
+    {
+      "type": "calls",
+      "to": "new usersRepository",
+      "from": "new usersService"
+    },
+    {
+      "type": "calls",
+      "to": "new usersValidator",
+      "from": "new usersService"
+    },
+    {
+      "type": "calls",
+      "to": "password strengthRepository",
+      "from": "password strengthService"
+    },
+    {
+      "type": "calls",
+      "to": "password strengthValidator",
+      "from": "password strengthService"
+    },
+    {
+      "type": "calls",
+      "to": "user managementRepository",
+      "from": "user managementService"
+    },
+    {
+      "type": "calls",
+      "to": "user managementValidator",
+      "from": "user managementService"
+    },
+    {
+      "type": "calls",
+      "to": "users byRepository",
+      "from": "users byService"
+    },
+    {
+      "type": "calls",
+      "to": "users byValidator",
+      "from": "users byService"
+    }
+  ],
+  "components": [
+    {
+      "name": "new usersService",
+      "dependencies": [],
+      "interfaces": [
+        "register_new users"
+      ],
+      "responsibilities": [
+        "register new users"
+      ]
+    },
+    {
+      "name": "password strengthService",
+      "dependencies": [],
+      "interfaces": [
+        "validate_password strength"
+      ],
+      "responsibilities": [
+        "validate password strength"
+      ]
+    },
+    {
+      "name": "user managementService",
+      "dependencies": [],
+      "interfaces": [
+        "create_user management"
+      ],
+      "responsibilities": [
+        "create user management"
+      ]
+    },
+    {
+      "name": "users byService",
+      "dependencies": [],
+      "interfaces": [
+        "list_users by"
+      ],
+      "responsibilities": [
+        "list users by"
+      ]
+    }
+  ],
+  "project_id": "phase3_5_test_002",
+  "architecture_style": "modular_monolith",
+  "interfaces": [
+    {
+      "name": "create_user management",
+      "path": "/user management",
+      "protocol": "http",
+      "method": "POST",
+      "input_schema": {
+        "params": "map()"
+      },
+      "output_schema": {
+        "result": "{:ok, term()} | {:error, term()}"
+      }
+    },
+    {
+      "name": "register_new users",
+      "path": "/new users",
+      "protocol": "http",
+      "method": "POST",
+      "input_schema": {
+        "params": "map()"
+      },
+      "output_schema": {
+        "result": "{:ok, term()} | {:error, term()}"
+      }
+    },
+    {
+      "name": "list_users by",
+      "path": "/users by",
+      "protocol": "http",
+      "method": "GET",
+      "input_schema": {
+        "params": "map()"
+      },
+      "output_schema": {
+        "result": "{:ok, term()} | {:error, term()}"
+      }
+    },
+    {
+      "name": "validate_password strength",
+      "path": "/password strength",
+      "protocol": "http",
+      "method": "POST",
+      "input_schema": {
+        "params": "map()"
+      },
+      "output_schema": {
+        "result": "{:ok, term()} | {:error, term()}"
+      }
+    }
+  ],
+  "validation_rules": [],
+  "storage_models": [
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "primary_key": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "entity": "user management"
+    },
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "primary_key": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "entity": "new users"
+    },
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "primary_key": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "entity": "users by"
+    },
+    {
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "primary_key": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "constraints": [],
+      "indexes": [],
+      "entity": "password strength"
+    }
+  ],
+  "deployment_units": [],
+  "workflows": [],
+  "confidence": 0.65,
+  "complexity_score": 20.0,
+  "created_at": "2026-06-18T02:37:43.510000Z"
+}

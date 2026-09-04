@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiannara MindCache - Advanced AI Reasoning Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 150px 0 100px;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .hero-buttons .btn {
+            background: white;
+            color: #667eea;
+        }
+
+        .hero-buttons .btn-outline {
+            background: transparent;
+            border-color: white;
+            color: white;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            background: white;
+            padding: 3rem 0;
+            margin-top: -50px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            border-radius: 10px;
+            background: #f8f9fa;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 100px 0;
+            background: #f8f9fa;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border: 3px solid #667eea;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: "MOST POPULAR";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .price {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin: 1.5rem 0;
+        }
+
+        .price span {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .pricing-features li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        .pricing-features li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        /* Footer */
+        footer {
+            background: #2d3748;
+            color: white;
+            padding: 3rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: #cbd5e0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #4a5568;
+            color: #cbd5e0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">Tiannara MindCache</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#docs">Documentation</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <a href="#signup" class="btn">Get Started</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>AI Reasoning That Actually Thinks</h1>
+            <p>Cross-domain skill transfer, causal reasoning, and continuous learning. Solve problems current AI systems can't handle.</p>
+            <div class="hero-buttons">
+                <a href="#signup" class="btn">Start Free Trial</a>
+                <a href="#demo" class="btn btn-outline">View Demo</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <div class="container">
+        <div class="stats-bar">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>92%</h3>
+                    <p>Success Rate Across Domains</p>
+                </div>
+                <div class="stat-item">
+                    <h3>183+</h3>
+                    <p>Skills Extracted & Transferable</p>
+                </div>
+                <div class="stat-item">
+                    <h3>>97%</h3>
+                    <p>Cross-Domain Transfer Success</p>
+                </div>
+                <div class="stat-item">
+                    <h3>4</h3>
+                    <p>Reasoning Domains Active</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Tiannara is Different</h2>
+                <p>Current AI systems have fundamental limitations. Tiannara solves them with novel architecture.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Cross-Domain Learning</h3>
+                    <p>Skills learned in one domain automatically help others. No more training from scratch for every new problem.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Continuous Improvement</h3>
+                    <p>Self-improving system that detects stagnation and adapts strategies automatically. Gets better over time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Explainable Reasoning</h3>
+                    <p>Track every decision path. Understand why the AI made each choice. Full transparency and auditability.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Causal Understanding</h3>
+                    <p>Goes beyond correlations to identify true cause-effect relationships. Make interventions that actually work.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Sample Efficient</h3>
+                    <p>Learn from few examples using transferred knowledge. Effective with <100 examples vs. millions needed by others.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Robust Performance</h3>
+                    <p>Graceful degradation on edge cases. Multiple fallback strategies ensure reliability in production.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-title">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the plan that fits your needs. All plans include cross-domain skill transfer.</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <div class="price">$49<span>/month</span></div>
+                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">Perfect for developers and small teams exploring cross-domain AI reasoning.</p>
+                    <ul class="pricing-features">
+                        <li>5,000 API requests/month</li>
+                        <li>4 reasoning domains (Algorithm, Logic, RE, Causal)</li>
+                        <li>Cross-domain skill transfer (>97% success)</li>
+                        <li>Stagnation detection & adaptive strategies</li>
+                        <li>Standard email support</li>
+                        <li>API documentation access</li>
+                        <li>Community forum access</li>
+                    </ul>
+                    <a href="#signup" class="btn btn-outline">Get Started</a>
+                </div>
+                <div class="pricing-card featured">
+                    <h3>Professional</h3>
+                    <div class="price">$199<span>/month</span></div>
+                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">Built for growing businesses requiring reliable AI reasoning at scale.</p>
+                    <ul class="pricing-features">
+                        <li>50,000 API requests/month</li>
+                        <li>10 reasoning domains</li>
+                        <li>Priority API processing (faster response)</li>
+                        <li>Advanced analytics dashboard</li>
+                        <li>Custom domain configuration</li>
+                        <li>Priority email support (24-hour response)</li>
+                        <li>Webhook notifications</li>
+                        <li>SLA guarantee (99.5% uptime)</li>
+                        <li>Monthly performance reports</li>
+                    </ul>
+                    <a href="#signup" class="btn">Get Started</a>
+                </div>
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">$999<span>/month</span></div>
+                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">Complete AI reasoning infrastructure for mission-critical applications.</p>
+                    <ul class="pricing-features">
+                        <li>Unlimited API requests</li>
+                        <li>Unlimited reasoning domains</li>
+                        <li>Custom model training & fine-tuning</li>
+                        <li>Dedicated account manager</li>
+                        <li>24/7 phone & email support</li>
+                        <li>Custom SLA (99.9% uptime)</li>
+                        <li>On-premise deployment option</li>
+                        <li>EU AI Act compliance tools</li>
+                        <li>Explainable AI reports</li>
+                        <li>Quarterly strategy reviews</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-outline">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Transform Your AI Reasoning?</h2>
+            <p>Join developers and enterprises solving problems current AI can't handle.</p>
+            <a href="#signup" class="btn" style="background: white; color: #667eea;">Start Free Trial</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#docs">Documentation</a></li>
+                        <li><a href="#api">API Reference</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#blog">Blog</a></li>
+                        <li><a href="#careers">Careers</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#docs">Documentation</a></li>
+                        <li><a href="#tutorials">Tutorials</a></li>
+                        <li><a href="#community">Community</a></li>
+                        <li><a href="#support">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                        <li><a href="#security">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Tiannara MindCache. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

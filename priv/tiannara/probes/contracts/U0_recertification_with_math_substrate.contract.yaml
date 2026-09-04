@@ -1,0 +1,97 @@
+probe_id: "U0_recertification_with_math_substrate"
+audit: "Full Closed-Loop Organism Certification"
+mode: "CERTIFICATION"                        # observational; no production mutation
+class: "organism_recertification_with_substrate"
+
+bounded_proposition: >
+  The unified Tiannara organism loop remains causally closed when Constitutional
+  Mathematics v1 participates as a foundational substrate consumed by C4/C8/C14/CEL,
+  with mathematics causally integrated into perception → knowledge → reasoning →
+  governance → executive delegation → adaptation → homeostasis → continuity.
+
+baseline_evidence:
+  - "AE-004..AE-010: RESOLVED (F8/F10/F11/F12/F13 remediated/adopted)"
+  - "CEL-1: PASS (ASC via CapabilityGraph)"
+  - "CEL-2: PASS (constitutional_mathematics discovered + delegated)"
+  - "U1x: PASS (13-phase causal chain)"
+  - "U1x-R2: PASS (CEL-1 + CEL-2 composition)"
+  - "Constitutional Mathematics v1: CERTIFIED (BOUNDED)"
+
+math_substrate_integration_points:
+  - "C4 epistemic reasoning consumes math for uncertainty quantification"
+  - "C8 world context consumes math for constraint derivation"
+  - "C14 governance consumes math for risk assessment"
+  - "CEL discovery uses math for provider selection criteria"
+
+required_trace_phases_in_order:
+  - c11_ingress
+  - c1_perception
+  - c2_reality
+  - c3_knowledge
+  - c4_epistemics_with_math              # math substrate consumed here
+  - c5_mathematics_substrate             # explicit substrate phase
+  - c8_context_with_math                 # math consumed for constraints
+  - c14_governance_with_math             # math consumed for risk
+  - cel_discovery_asc
+  - cel_delegation_asc
+  - cel_discovery_math
+  - cel_delegation_math
+  - c9_asc
+  - c12_homeostasis
+  - c15_continuity
+  - c11_egress
+  - pollution_check
+
+trace_phase_required_fields:
+  [phase, order, correlation_id, input_ref, output_ref,
+   provider_ref, governance_ref, provenance_hash, math_consumed]
+
+required_checks:
+  R1:  "C11 ingress exists"
+  R2:  "C1 perception causally linked"
+  R3:  "C2 reality state produced"
+  R4:  "C3 knowledge persisted with lineage"
+  R5:  "C4 epistemics consumes math substrate"
+  R6:  "C5 mathematics substrate phase present"
+  R7:  "C8 context consumes math results"
+  R8:  "C14 governance consumes math for risk"
+  R9:  "Math output ≠ authorization (C14 remains authoritative)"
+  R10: "CEL-1 discovers ASC via CapabilityGraph"
+  R11: "CEL-2 discovers math via CapabilityGraph"
+  R12: "Both selections registry-derived"
+  R13: "C14 governance precedes both delegations"
+  R14: "bayes_update invoked through discovered provider"
+  R15: "Math result deterministic + baseline match"
+  R16: "C9 ASC consumes governed result"
+  R17: "C12 homeostasis operational"
+  R18: "C15 continuity preserves math/epistemic state"
+  R19: "C11 egress dry-run + governance-bounded"
+  R20: "No hardcoded math path"
+  R21: "Complete causal trace reconstructible"
+  R22: "No production mutation"
+  R23: "Pollution check clean"
+
+# Certification bounds (POL-CERT-AUTH-001)
+production_mutation_allowed: false
+registry_mutation_allowed: false
+external_mutations_allowed: false
+production_adoption_allowed: false
+egress_mode: "dry_run"
+canonical_topology_attach_allowed: true
+isolated_test_namespace_allowed: true
+no_pollution_required: true
+
+verdict_space: [CERTIFIED, QUALIFIED_PARTIAL, NOT_CERTIFIED, BLOCKED]
+verdict_rules:
+  CERTIFIED: "all R1-R23 pass; math demonstrated as cross-subsystem substrate"
+  QUALIFIED_PARTIAL: "loop holds but math integration conditional/limited"
+  NOT_CERTIFIED: "math substrate cannot compose with organism loop"
+  BLOCKED: "canonical path cannot be exercised without unauthorized mutation"
+
+post_certification_claim: >
+  On CERTIFIED: "Tiannara is not merely a unified system with a mathematics
+  capability; its mathematical substrate participates causally in perception →
+  knowledge → reasoning → governance → executive delegation → adaptation →
+  homeostasis → continuity."
+
+contract_hash: "3f14e669726db272a0dadf19e8b32796763e1b95575d6e23e1db7d6637d6cdda"                          # fill via tools/hash_contract.py; freeze

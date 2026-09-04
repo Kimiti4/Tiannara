@@ -19,6 +19,11 @@ defmodule TiannaraWeb.Endpoint do
     gzip: false,
     only: ~w(assets fonts images favicon.ico robots.txt data)
 
+  plug Plug.Static,
+    at: "/coa",
+    from: Path.expand("../../../tiannara_observatory/apps/observatory_ui/public/coa", __DIR__),
+    gzip: false
+
   if code_reloading? do
     plug Phoenix.CodeReloader
   end
@@ -30,6 +35,11 @@ defmodule TiannaraWeb.Endpoint do
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Phoenix.json_library()
+
+  plug CORSPlug,
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    headers: ["Content-Type", "Authorization", "X-Request-Id"]
 
   plug Plug.MethodOverride
   plug Plug.Head

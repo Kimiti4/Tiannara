@@ -31,7 +31,7 @@ defmodule Tiannara.Runtime.CIS do
   """
 
   @doc "Monitor runtime system health."
-  def monitor_health(runtime_state) do
+  def monitor_health(_runtime_state) do
     %{
       entropy_level: 0.5,
       dominance_risk: false,

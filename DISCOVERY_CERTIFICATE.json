@@ -1,0 +1,7 @@
+{
+  "schema_version": "15.0.0",
+  "certificate_id": "phase15-provisional-2026-07-05",
+  "canonical_certificate": "SCIENTIFIC_CERTIFICATE.json",
+  "status": "NOT_CERTIFIED",
+  "reason": "Mandatory campaign, validation, audit, replay, and signature gates are open."
+}

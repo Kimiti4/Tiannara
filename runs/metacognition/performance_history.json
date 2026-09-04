@@ -1,0 +1,32 @@
+{
+  "temporal": [
+    {
+      "timestamp": "2026-05-13T18:02:04.760137",
+      "metric_type": "success_rate",
+      "value": 100.0,
+      "metadata": {}
+    },
+    {
+      "timestamp": "2026-05-13T18:02:04.760168",
+      "metric_type": "latency_ms",
+      "value": 89.0,
+      "metadata": {}
+    }
+  ],
+  "combinatorial": [
+    {
+      "timestamp": "2026-05-13T18:02:04.760204",
+      "metric_type": "success_rate",
+      "value": 100.0,
+      "metadata": {}
+    }
+  ],
+  "reverse_engineering": [
+    {
+      "timestamp": "2026-05-13T18:02:04.760215",
+      "metric_type": "success_rate",
+      "value": 100.0,
+      "metadata": {}
+    }
+  ]
+}

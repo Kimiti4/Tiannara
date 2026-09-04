@@ -4,10 +4,8 @@ defmodule Tiannara.Principles do
   Persists principles in NDJSON format for long-term scientific governance.
   """
 
-  @telemetry_prefix "tiannara.principles"
-
   @spec register_principle(String.t(), map()) :: :ok
-  def register_principle(name, data) do
+  def register_principle(_name, _data) do
     # Implementation would persist to data/principles.ndjson
     :ok
   end
@@ -19,7 +17,7 @@ defmodule Tiannara.Principles do
   end
 
   @spec get_principle(String.t()) :: {:ok, map()} | {:error, :not_found}
-  def get_principle(name) do
+  def get_principle(_name) do
     # Implementation would retrieve specific principle
     :ok
   end

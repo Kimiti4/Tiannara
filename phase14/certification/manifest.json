@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-01-01T00:00:00.001Z",
+  "type": "pure_artifact_package",
+  "version": "14.0.999",
+  "artifacts": [
+    "certificate.json",
+    "manifest.json",
+    "hashes.json"
+  ],
+  "base_time": "2026-01-01T00:00:00Z",
+  "campaigns_executed": 0,
+  "campaigns_passed": 0,
+  "campaigns_failed": 0,
+  "certification_status": "unknown",
+  "governance_version": "unknown",
+  "deterministic_seed": 42,
+  "generated_by": "PureArtifactGenerator"
+}

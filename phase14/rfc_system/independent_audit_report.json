@@ -1,0 +1,31 @@
+{
+  "artifact_hashes": {
+    "CONSTITUTIONAL_CONFIDENCE_PROPAGATION.json": "e95fbeb1a36776d197d516c0844e8faae66e12541a1e153325693cc046c5653f",
+    "CONSTITUTIONAL_DEBT_LEDGER.json": "b2fc0e544f8ec1fc4c9fbf71ddedc68cf8d45181e29209adea5c7ec1f33b0421",
+    "CONSTITUTIONAL_EVIDENCE_GRAPH.json": "a9244cae365fca5ceebf237d007e666dcf9dfc6e36ae24b2549f636df59292e6",
+    "CONSTITUTIONAL_EVIDENCE_SUFFICIENCY.json": "93de514be5bb3cc7e868689f8af9133288e73d04483bb4edd291494801cf00e1",
+    "CONSTITUTIONAL_EXPERIMENTS.md": "90681a290d190158160f8284cf447845823e6b3c1d0cf0f5d687067392cdca30",
+    "CONSTITUTIONAL_METRICS.json": "ad5bd93566c9f25fb8ef60dbec59771c36aaa9777731a472437f7754a8f365d0",
+    "CONSTITUTIONAL_UNKNOWN_REGISTRY.json": "bfbc6afe0c8ffa3ba09e953516fd47ef412469cd20f769cffe660ab10499cee8",
+    "INDEPENDENT_REVIEW_HISTORY.json": "24bc2a5b5ba567cc988e5a20a78eaa8b726d919af460f4d26f5c5b501c5f8d42",
+    "certificate_hash": "",
+    "genome_hash": "1a54fced9961ba03bf3f69b755639d0bba13f5d52a44ba2f36e19e63427dcc2d",
+    "knowledge_graph_hash": "4b08d1993ab9757426e4c96b46e8952bbe6208c92086a10b7812f8bae9001e03",
+    "ledger_hash": "5ef5089f2257796b889646c746ec33c64eecac7a271a19f9fc807fad5f1400a5",
+    "replay_hash": "b78b70fd95c1fa37c7d33866e0e2d9cbcad153fe3091df6c8c354c724d57227a",
+    "runtime_freeze_hash": "17a367b36d1a14d73247f07071d45e87cc11770a6ca0b6cd5756b631c45cc6f2",
+    "schema_hash": "f4f9097b397921eb2f8a7d2b8c7d75275ce496b6bb7c3ddb503a689d69d992f4",
+    "simulation_hash": "5584412a7ae0cb7e3051d251d456ad96b8a254e6dbaf172e0cb0524d4592e34f",
+    "validation_hash": "8afc5956c1ce91ca6c35fb110bb6f4d35947608d0dcf1bf167281a8384b4c60f"
+  },
+  "audit": "independent",
+  "constraints": [
+    "JSON",
+    "Certificates",
+    "Evidence",
+    "SHA256",
+    "ReplayArtifacts"
+  ],
+  "status": "PASS",
+  "summary": "An external auditor can validate the freeze using only hash-verified artifacts and replay evidence."
+}

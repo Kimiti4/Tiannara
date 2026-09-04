@@ -1,0 +1,68 @@
+{
+  "boot_order": [
+    {
+      "layer": "Kernel",
+      "components": ["BEAM Kernel", "Registry", "Telemetry", "Scheduler"]
+    },
+    {
+      "layer": "Distributed Runtime",
+      "components": ["Tiannara.ROS.Registry", "Tiannara.ROS.ShardSupervisor", "Tiannara.ROS.ShardManager", "Tiannara.ROS.EvolutionEngine"]
+    },
+    {
+      "layer": "Economics",
+      "components": ["Tiannara.REL.EconomyEngine", "Tiannara.REL.DiscoveryLedger", "Tiannara.REL.ProductionEngine"]
+    },
+    {
+      "layer": "Memory",
+      "components": ["Tiannara.OMCS.Supervisor"]
+    },
+    {
+      "layer": "Core (Mind)",
+      "components": ["Tiannara.Core.Supervisor"]
+    },
+    {
+      "layer": "Stabilization (Body)",
+      "components": [
+        "Tiannara.Stabilization.HSV.Supervisor",
+        "Tiannara.Stabilization.OCM.Supervisor",
+        "Tiannara.Stabilization.OLEF.Supervisor"
+      ]
+    },
+    {
+      "layer": "Physics (Reality)",
+      "components": [
+        "Tiannara.Physics.OPC.Supervisor",
+        "Tiannara.Physics.NDE.Supervisor",
+        "Tiannara.Physics.TWP.Supervisor",
+        "Tiannara.Physics.IRD.Supervisor"
+      ]
+    },
+    {
+      "layer": "Topology",
+      "components": ["Tiannara.Topology.Supervisor"]
+    },
+    {
+      "layer": "Sentinel (Knowledge)",
+      "components": [
+        "Tiannara.Sentinel.EpistemologyArchive",
+        "Tiannara.Sentinel.EpistemologyAtlas",
+        "Tiannara.Sentinel.DiscoveryGenealogy",
+        "Tiannara.Sentinel.EpistemicArchaeology",
+        "Tiannara.Sentinel.DiseaseGenealogy",
+        "Tiannara.Sentinel.D2.EpistemologyGraph",
+        "Tiannara.Sentinel.D2.OperatorGenealogy",
+        "Tiannara.Sentinel.D2.TruthRetentionMatrix",
+        "Tiannara.Sentinel.D2.BreakthroughAnalyzer",
+        "Tiannara.Sentinel.D2.FailedMetaArchive"
+      ]
+    },
+    {
+      "layer": "AAL (Command)",
+      "components": ["Tiannara.AAL.CommandLoom"]
+    },
+    {
+      "layer": "Hardware Meta",
+      "components": ["Tiannara.Meta.Hardware.Supervisor"]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "artifacts": {
+    "docs/remediation/MC002_A0_LOGIC_RECONCILIATION_PROTOCOL.md": true,
+    "priv/tiannara/remediation/contracts/MC002_A0_logic_reconciliation.contract.yaml": true,
+    "priv/tiannara/authorization/ASC-MC-002-A0-LOGIC-RECONCILIATION.human.yaml": true,
+    "certification/remediation/MC002-A0-LOGIC-INVENTORY.md": true,
+    "certification/remediation/MC002-A0-LOGIC-TRUTH-CLASSIFICATION.md": true,
+    "certification/remediation/MC002-A0-LOGIC-CONSUMER-MAP.md": true,
+    "certification/remediation/MC002-A0-LOGIC-ARCHITECTURE.md": true,
+    "certification/remediation/MC002-A0-LOGIC-VERIFICATION.md": true,
+    "certification/remediation/MC002-A0-LOGIC-DISCOVERY-READINESS.md": true,
+    "certification/remediation/MC002-A0-LOGIC-BOTTLENECKS.md": true,
+    "certification/remediation/MC002-A0-LOGIC-MUTATION-PLAN.md": true,
+    "certification/remediation/MC002-A0-RECONCILIATION-CERTIFICATION.md": true,
+    "priv/tiannara/remediation/results/MC002_A0_result.json": true,
+    "priv/tiannara/remediation/verifiers/MC002_A0_logic_reconciliation.py": true
+  },
+  "result_json": {
+    "valid": true,
+    "mutation_performed": false,
+    "verdict": "CERTIFIED_RECONCILIATION_ONLY"
+  },
+  "ontology": {
+    "exists": true,
+    "domain_count": 20,
+    "excluded_in_domain_list": [],
+    "unchanged": true
+  },
+  "real_sites": {
+    "graph_audit_lineage": true,
+    "graph_audit_blast": true,
+    "graph_audit_cycle": true,
+    "engine_detect": true,
+    "sentinel_find_contradict": true
+  },
+  "theatrical_sites": {
+    "lib/tiannara/ctl/paradox_resolver.ex": {
+      "logs": true,
+      "hardcoded_metric": true
+    },
+    "lib/tiannara/substrate/gck.ex": {
+      "logs": true,
+      "hardcoded_metric": true
+    },
+    "lib/tiannara/substrate/mcal.ex": {
+      "logs": true,
+      "hardcoded_metric": true
+    },
+    "lib/tiannara/substrate/osk.ex": {
+      "logs": true,
+      "hardcoded_metric": true
+    },
+    "lib/tiannara/substrate/euf.ex": {
+      "logs": true,
+      "hardcoded_metric": true
+    },
+    "lib/tiannara/substrate/cof.ex": {
+      "logs": true,
+      "hardcoded_metric": true
+    },
+    "lib/tiannara/substrate/opc.ex": {
+      "logs": true,
+      "hardcoded_metric": true
+    },
+    "lib/tiannara/substrate/ose.ex": {
+      "logs": true,
+      "hardcoded_metric": true
+    },
+    "lib/tiannara/substrate/hsv.ex": {
+      "logs": true,
+      "hardcoded_metric": true
+    }
+  },
+  "broken_ref": {
+    "registry_calls_it": true,
+    "audit_defines_it": false,
+    "broken": true
+  },
+  "authorization": {
+    "exists": true,
+    "sig_null": true,
+    "read_only": true
+  },
+  "proof_absence": {
+    "suspicious": [],
+    "note": "SAT/SMT substring matches are expected noise"
+  }
+}

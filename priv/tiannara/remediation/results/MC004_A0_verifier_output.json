@@ -1,0 +1,328 @@
+{
+  "gate": "MC-004-A0",
+  "phase": "RECONCILIATION_ONLY",
+  "timestamp": "2026-08-31T00:22:13.612837+00:00",
+  "exit": 0,
+  "verdict": "PASS",
+  "checks": [
+    {
+      "name": "result_json_exists",
+      "ok": true,
+      "detail": "C:\\Users\\user\\Tiannara\\Tiannara-MindCache-Prosthetic\\priv\\tiannara\\remediation\\results\\MC004_A0_result.json"
+    },
+    {
+      "name": "result_json_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "result_gate",
+      "ok": true,
+      "detail": "MC-004-A0"
+    },
+    {
+      "name": "result_verdict",
+      "ok": true,
+      "detail": "CERTIFIED_RECONCILIATION"
+    },
+    {
+      "name": "result_verdict_certified",
+      "ok": true,
+      "detail": "CERTIFIED_RECONCILIATION"
+    },
+    {
+      "name": "result_physics_capability",
+      "ok": true,
+      "detail": "THEATRICAL"
+    },
+    {
+      "name": "flag_mutation_false",
+      "ok": true,
+      "detail": "False"
+    },
+    {
+      "name": "flag_pilot_false",
+      "ok": true,
+      "detail": "False"
+    },
+    {
+      "name": "flag_real_exec_false",
+      "ok": true,
+      "detail": "False"
+    },
+    {
+      "name": "flag_authz_mutation_required",
+      "ok": true,
+      "detail": "True"
+    },
+    {
+      "name": "flag_authz_pilot_required",
+      "ok": true,
+      "detail": "True"
+    },
+    {
+      "name": "result_constitutional_answer",
+      "ok": true,
+      "detail": "NO"
+    },
+    {
+      "name": "result_authorization_status",
+      "ok": true,
+      "detail": "GRANTED_READ_ONLY"
+    },
+    {
+      "name": "result_authorization_operator",
+      "ok": true,
+      "detail": "c14_ac"
+    },
+    {
+      "name": "protocol_exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "protocol_read_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "protocol_no_capability_cert",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "contract_exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "contract_gate",
+      "ok": true,
+      "detail": "MC-004-A0"
+    },
+    {
+      "name": "contract_mode",
+      "ok": true,
+      "detail": "READ_ONLY"
+    },
+    {
+      "name": "contract_no_mutation",
+      "ok": true,
+      "detail": "False"
+    },
+    {
+      "name": "contract_no_live_execution",
+      "ok": true,
+      "detail": "False"
+    },
+    {
+      "name": "authz_exists",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "authz_granted",
+      "ok": true,
+      "detail": "GRANTED"
+    },
+    {
+      "name": "authz_operator",
+      "ok": true,
+      "detail": "c14_ac"
+    },
+    {
+      "name": "authz_kind",
+      "ok": true,
+      "detail": "READ_ONLY_RECONCILIATION"
+    },
+    {
+      "name": "authz_forbids_mutation",
+      "ok": true,
+      "detail": "ANY production mutation (no code changes to domain modules, math substrate, phys"
+    },
+    {
+      "name": "authz_no_fabrication",
+      "ok": true,
+      "detail": "None"
+    },
+    {
+      "name": "registry_physics_present",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "registry_20_domains",
+      "ok": true,
+      "detail": "count=20"
+    },
+    {
+      "name": "registry_binding",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "domain_behaviour",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "domain_8_callbacks_impl",
+      "ok": true,
+      "detail": "@impl count=8"
+    },
+    {
+      "name": "domain_no_theatrics",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "domain_simulate_to_calculus",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "domain_validate_to_fv",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "domain_honest_empty_discover",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "domain_metrics_truthful",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "calculus_unavailable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "fv_unavailable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no_ode_integrator_added",
+      "ok": true,
+      "detail": "no rk4/ode45/integrate_ode"
+    },
+    {
+      "name": "physics_no_provenance_exec",
+      "ok": true,
+      "detail": "no refs"
+    },
+    {
+      "name": "domains_no_provenance_exec",
+      "ok": true,
+      "detail": "no refs"
+    },
+    {
+      "name": "subsystem_theatrics_present",
+      "ok": true,
+      "detail": "files=2"
+    },
+    {
+      "name": "ade_dead",
+      "ok": true,
+      "detail": "occurrences=1 (lib\\tiannara\\asc\\autonomous_discovery.ex:15)"
+    },
+    {
+      "name": "no_pilot_artifacts",
+      "ok": true,
+      "detail": "found=0"
+    },
+    {
+      "name": "pilot_doc_not_executed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "pilot_status_not_executed",
+      "ok": true,
+      "detail": "NOT_EXECUTED"
+    },
+    {
+      "name": "cert_doc_MC004-A0-PHYSICS-INVENTORY.md",
+      "ok": true,
+      "detail": "MC004-A0-PHYSICS-INVENTORY.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-TRUTH-CLASSIFICATION.md",
+      "ok": true,
+      "detail": "MC004-A0-TRUTH-CLASSIFICATION.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-CONSUMER-MAP.md",
+      "ok": true,
+      "detail": "MC004-A0-CONSUMER-MAP.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-WORKFLOW-TRACE.md",
+      "ok": true,
+      "detail": "MC004-A0-WORKFLOW-TRACE.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-ARCHITECTURE.md",
+      "ok": true,
+      "detail": "MC004-A0-ARCHITECTURE.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-VERIFICATION-PROVENANCE.md",
+      "ok": true,
+      "detail": "MC004-A0-VERIFICATION-PROVENANCE.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-SAFETY-EXECUTION.md",
+      "ok": true,
+      "detail": "MC004-A0-SAFETY-EXECUTION.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-METRICS-DISCOVERY.md",
+      "ok": true,
+      "detail": "MC004-A0-METRICS-DISCOVERY.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-PILOT-DEFINITION.md",
+      "ok": true,
+      "detail": "MC004-A0-PILOT-DEFINITION.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-BOTTLENECKS.md",
+      "ok": true,
+      "detail": "MC004-A0-BOTTLENECKS.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-MUTATION-PLAN.md",
+      "ok": true,
+      "detail": "MC004-A0-MUTATION-PLAN.md"
+    },
+    {
+      "name": "cert_doc_MC004-A0-CERTIFICATION.md",
+      "ok": true,
+      "detail": "MC004-A0-CERTIFICATION.md"
+    },
+    {
+      "name": "certification_not_capability",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "certification_verdict",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "subsystem_theatrical_files": [
+    "lib\\tiannara\\physics\\ird.ex",
+    "lib\\tiannara\\physics\\opc.ex"
+  ],
+  "notes": [
+    "Static reconciliation verification only. No source modified (A0 read-only).",
+    "Full-runtime side-effect observation NOT_EXECUTED in this environment.",
+    "git-diff baseline unavailable (pre-existing working-tree state)."
+  ]
+}

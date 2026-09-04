@@ -91,7 +91,7 @@ defmodule Tiannara.REA.Epistemic.ReflexivityObservatory do
   defp build_profile(lineage_id, events) do
     proposals = Enum.filter(events, &(&1.event_type == :proposal_made))
     successes = Enum.filter(events, &(&1.event_type == :proposal_succeeded))
-    failures = Enum.filter(events, &(&1.event_type == :proposal_failed))
+    _failures = Enum.filter(events, &(&1.event_type == :proposal_failed))
     tunes = Enum.filter(events, &(&1.event_type == :parametric_tune))
     
     proposal_count = length(proposals)

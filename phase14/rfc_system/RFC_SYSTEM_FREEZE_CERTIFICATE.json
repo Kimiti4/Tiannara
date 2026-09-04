@@ -1,0 +1,50 @@
+{
+  "artifacts": {
+    "constitutional_architecture_review": "RFC_CONSTITUTIONAL_ARCHITECTURE_REVIEW.md",
+    "genome": "RFC_ARCHITECTURE.md",
+    "knowledge_graph": "RFC_KNOWLEDGE_GRAPH.json",
+    "ledger": "RFC_LIFECYCLE.md",
+    "replay": "RFC_REPLAY_MODEL.md",
+    "runtime_freeze": "RFC_RUNTIME_FREEZE.md",
+    "schema": "RFC_DATA_MODEL.md",
+    "simulation": "RFC_CERTIFICATION_FLOW.md",
+    "validation": "PHASE14_1_PRE_FREEZE_AUDIT_PLAN.md"
+  },
+  "audit_results": {
+    "archaeology": "PASS",
+    "civilization": "PASS",
+    "constitutional": "PASS",
+    "determinism": "PASS",
+    "independent": "PASS",
+    "mutation": "PASS",
+    "ownership": "PASS",
+    "provenance": "PASS",
+    "replay": "PASS",
+    "stress": "PASS"
+  },
+  "certificate_hash": "b33b9cd205ab9349e1132352297b4afb859c96836b9ef213da3e6a939c1a57da",
+  "date": "2026-07-04T17:41:08+00:00",
+  "entropy_baseline": 0.0,
+  "fitness_baseline": 0.0,
+  "genome_hash": "1a54fced9961ba03bf3f69b755639d0bba13f5d52a44ba2f36e19e63427dcc2d",
+  "knowledge_graph_hash": "4b08d1993ab9757426e4c96b46e8952bbe6208c92086a10b7812f8bae9001e03",
+  "ledger_hash": "5ef5089f2257796b889646c746ec33c64eecac7a271a19f9fc807fad5f1400a5",
+  "replay_hash": "b78b70fd95c1fa37c7d33866e0e2d9cbcad153fe3091df6c8c354c724d57227a",
+  "schema_hash": "f4f9097b397921eb2f8a7d2b8c7d75275ce496b6bb7c3ddb503a689d69d992f4",
+  "signatures": [
+    "76ad70110c6a8e96783409864e6b03b9a9b42038a2b3ae3f1f630095fa505784"
+  ],
+  "simulation_hash": "5584412a7ae0cb7e3051d251d456ad96b8a254e6dbaf172e0cb0524d4592e34f",
+  "support_artifacts": {
+    "constitutional_confidence_propagation": "CONSTITUTIONAL_CONFIDENCE_PROPAGATION.json",
+    "constitutional_debt_ledger": "CONSTITUTIONAL_DEBT_LEDGER.json",
+    "constitutional_evidence_graph": "CONSTITUTIONAL_EVIDENCE_GRAPH.json",
+    "constitutional_evidence_sufficiency": "CONSTITUTIONAL_EVIDENCE_SUFFICIENCY.json",
+    "constitutional_experiments": "CONSTITUTIONAL_EXPERIMENTS.md",
+    "constitutional_metrics": "CONSTITUTIONAL_METRICS.json",
+    "constitutional_unknown_registry": "CONSTITUTIONAL_UNKNOWN_REGISTRY.json",
+    "independent_review_history": "INDEPENDENT_REVIEW_HISTORY.json"
+  },
+  "validation_hash": "8afc5956c1ce91ca6c35fb110bb6f4d35947608d0dcf1bf167281a8384b4c60f",
+  "version": "14.1.0"
+}

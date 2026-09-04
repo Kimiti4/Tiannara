@@ -1,0 +1,71 @@
+authorization:
+  id: "ASC-AC-001-C1-CONSUMER-MIGRATION"
+  mission: "Tiannara Remediation + Substrate Integration Campaign"
+  gate: "AC-001"
+  mutation_group: "AC-001-C1"
+  action: "consumer_migration_to_canonical_registry"
+  status: "PENDING_HUMAN_AUTHORIZATION"
+
+  scope:
+    description: >
+      Migrate all production consumers from legacy domain registries to
+      Tiannara.Domains.CanonicalRegistry. Establish explicit unavailable
+      boundaries for knowledge capital and portfolio state. Retire or
+      migrate DomainProjectionTest per C0 disposition.
+
+  authorized_sub_gates:
+    - "C1-A: Atomic all_records/0"
+    - "C1-B: Domain-ID consumer migration"
+    - "C1-C: Domain-record consumer migration"
+    - "C1-D: Knowledge-capital boundary migration"
+    - "C1-E: Portfolio boundary migration"
+    - "C1-F: Test migration/retirement"
+    - "C1-G: Limited identity reclassification"
+    - "C1-H: Independent verification"
+
+  prohibited:
+    - "AC-001-D legacy registry deletion"
+    - "AC-001-E broad ontology cleanup"
+    - "MC-001 mathematics changes"
+    - "MC-002 logic changes"
+    - "New research-domain capabilities"
+    - "Knowledge-capital implementation"
+    - "Portfolio implementation"
+    - "Research metrics implementation"
+
+  predecessor_gates:
+    - "R0: CERTIFIED"
+    - "AC-001-A0: COMPLETE"
+    - "AC-001-A: CERTIFIED"
+    - "AC-001-B: CERTIFIED"
+    - "AC-001-C0: COMPLETE"
+
+  governance:
+    required: true
+    authority: "C14"
+    purpose: "Migrate domain identity consumers to canonical registry"
+    on_deny: "BLOCKED"
+
+  certification_contract:
+    path: "priv/tiannara/remediation/contracts/AC001_C1_consumer_migration.contract.yaml"
+    hash: null
+
+  human_authorization:
+    status: "AUTHORIZED"
+    operator_id: "c14_ac"
+    signature: "c14_ac"
+    timestamp: "2026-08-26T22:30:00Z"
+    conditions_accepted: true
+    notes: "AC-001-C1 CERTIFIED. 40/40 call sites. All evidence verified."
+
+  valid_until: null
+
+  audit_trail:
+    created_by: "tiannara_os"
+    creation_timestamp: "2026-08-26T00:00:00Z"
+    lineage:
+      - "R0 CERTIFIED (evidence truth)"
+      - "AC-001-A0 COMPLETE (reconciliation)"
+      - "AC-001-A CERTIFIED (canonical registry)"
+      - "AC-001-B CERTIFIED (supervision)"
+      - "AC-001-C0 COMPLETE (semantic analysis)"

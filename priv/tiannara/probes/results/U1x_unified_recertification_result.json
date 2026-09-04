@@ -1,0 +1,15 @@
+{
+  "status": "IN_PROGRESS",
+  "reason": "U1x probe scaffold created. Real integration checks require wiring to live C11 ingress, C2/C3, C4, C8, C14, CEL-1, C9, C12, C15.",
+  "contract_hash": "a5d7a517ade64899108c05c5266336fae90cec7354525c1cb0cd826c489e506b",
+  "next_steps": [
+    "Wire C11 ingress via signed external event",
+    "Verify C1\u2192C2\u2192C3 with ExecutiveMemory lineage",
+    "Verify C4 epistemic interpretation",
+    "Verify C8\u2192C14 governance",
+    "Verify CEL-1 dynamic delegation (already PASS for tested path)",
+    "Verify C9 ASC execution",
+    "Verify C12 homeostasis and C15 continuity"
+  ],
+  "evidence_files": []
+}

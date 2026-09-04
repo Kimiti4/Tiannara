@@ -1,0 +1,14 @@
+{
+  "schema_version": "15.0.0",
+  "scope": "Tiannara.Discovery.ConstitutionalValidation entities",
+  "status": "PASSED_IN_SCOPE",
+  "tests": {
+    "canonical_serialization": "PASS",
+    "deterministic_fingerprints": "PASS",
+    "content_addressed_ids": "PASS",
+    "entity_validation": "PASS",
+    "serialization_ambiguities": 0
+  },
+  "evidence": "test/tiannara/discovery/constitutional_validation_test.exs",
+  "test_result": {"tests": 11, "failures": 0}
+}

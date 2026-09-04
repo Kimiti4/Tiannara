@@ -236,11 +236,11 @@ defmodule Tiannara.Stabilization.OLEF.Cache do
     end)
   end
 
-  defp update_cache_stats(%{cache_hits: hits, cache_misses: misses} = state, :hit) do
+  defp update_cache_stats(%{cache_hits: hits, cache_misses: _misses} = state, :hit) do
     %{state | cache_hits: hits + 1}
   end
 
-  defp update_cache_stats(%{cache_hits: hits, cache_misses: misses} = state, :miss) do
+  defp update_cache_stats(%{cache_hits: _hits, cache_misses: misses} = state, :miss) do
     %{state | cache_misses: misses + 1}
   end
 

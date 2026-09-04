@@ -8,8 +8,9 @@ defmodule Tiannara.REA.Epistemic.ConstitutionalImmuneSystem do
   using the EcologicalMemory, completely bypassing the MetaGenomes' consent.
   """
   use GenServer
+  require Logger
 
-  alias Tiannara.REA.Epistemic.{ConstitutionKernel, EcologicalMemory, Audit}
+  alias Tiannara.REA.Epistemic.{ConstitutionKernel, EcologicalMemory}
   alias Tiannara.REA.Causal.Graph
 
   @type immune_state :: %{
@@ -68,7 +69,7 @@ defmodule Tiannara.REA.Epistemic.ConstitutionalImmuneSystem do
   @impl true
   def handle_call(:get_state, _from, state), do: {:reply, state, state}
 
-  defp trigger_rollback(snapshot, epoch, reason) do
+  defp trigger_rollback(_snapshot, epoch, reason) do
     IO.puts("\n🚨 [CONSTITUTIONAL IMMUNE SYSTEM] TRIGGERING ROLLBACK 🚨")
     IO.puts("   Reason: #{reason}")
     IO.puts("   Epoch: #{epoch}")
@@ -90,7 +91,7 @@ defmodule Tiannara.REA.Epistemic.ConstitutionalImmuneSystem do
     end
   end
 
-  defp apply_historical_channels(channel_snapshot) do
+  defp apply_historical_channels(_channel_snapshot) do
     # In a real system, this would deserialize and re-register the exact channel configs
     # For now, we log the action. The Graph would be flushed and re-loaded.
     Graph.flush()
@@ -98,7 +99,7 @@ defmodule Tiannara.REA.Epistemic.ConstitutionalImmuneSystem do
     IO.puts("   ✅ Graph reloaded with historical constitutional channels.")
   end
 
-  defp record_rollback_event(epoch, reason, memory_id) do
+  defp record_rollback_event(_epoch, _reason, _memory_id) do
     # Append to a persistent audit log
     # Logger.warning("Rollback triggered at #{epoch}: #{reason}. Restored from #{memory_id}")
     :ok

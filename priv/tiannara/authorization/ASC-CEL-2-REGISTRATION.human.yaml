@@ -1,0 +1,64 @@
+authorization:
+  id: ASC-CEL-2-REGISTRATION
+  mission: CEL-2
+  action: register_capability
+  status: AUTHORIZED
+
+  capability:
+    id: constitutional_mathematics
+    purpose: >
+      Register the EXISTING foundational mathematics implementation as a
+      CEL-discoverable capability for certification only. No new mathematics
+      is created. This exposes an existing substrate to executive discovery.
+    module: Tiannara.Math.Probability
+    function: bayes_update
+    arity: 3
+    task_requirement: bayesian_update
+
+  permitted_mutation:
+    target: CapabilityRegistry
+    operation: register
+    descriptor:
+      - constitutional_mathematics
+  prohibited_mutations:
+    - mathematics_implementation
+    - existing_capabilities
+    - production_topology
+    - unrelated_registry_state
+    - direct_provider_routing
+
+  governance:
+    required: true
+    authority: C14
+    purpose: CEL-2_positive_control
+    on_deny: BLOCKED
+
+  certification_contract:
+    path: priv/tiannara/probes/contracts/CEL-2_constitutional_mathematics.contract.yaml
+    hash: null
+
+  evidence:
+    negative_control:
+      path: priv/tiannara/probes/results/u1x_trace.json
+      expected: MATH_NOT_REGISTERED
+      math_discoverable: false
+    registration_trace:
+      path: priv/tiannara/probes/results/CEL-2_registration_trace.json
+    positive_trace:
+      path: priv/tiannara/probes/results/CEL-2_trace_positive.json
+
+  human_authorization:
+    status: AUTHORIZED
+    authorized_by: schtickman
+    signature: C14-CEL2-register
+    timestamp: 2026-08-23T00:00:00Z
+
+  audit_trail:
+    created_by: tiannara_os
+    created_timestamp: 2026-08-23T00:00:00Z
+    constitutional_basis: >
+      rules.md: "Capability must never outpace verification." /
+      "Tiannara augments human intelligence rather than replaces human judgment."
+    lineage:
+      - "U1x PASS (MATH_NOT_REGISTERED recorded as honest gap)"
+      - "CEL-1 PASS (registry-mediated discovery for certified providers)"

@@ -282,7 +282,7 @@ defmodule Tiannara.Core.WorldModel.PredictionEngine do
     end
   end
 
-  defp calculate_weighted_probability(factors, historical_patterns) do
+  defp calculate_weighted_probability(factors, _historical_patterns) do
     # Calculate weighted probability based on factor weights and confidences
     weighted_sum = Enum.reduce(factors, 0.0, fn factor, acc ->
       factor_weight = factor.weight * factor.confidence

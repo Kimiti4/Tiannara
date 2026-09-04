@@ -1,0 +1,17 @@
+[
+  {
+    "id": "tc_47",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: retrieve cached values",
+    "source_ref": "cap_46",
+    "test_module_name": "RetrieveCachedValuesTest",
+    "test_function_name": "test retrieve cached values succeeds with valid inputs",
+    "expected_behavior": "retrieve cached values completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

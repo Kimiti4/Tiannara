@@ -1,0 +1,70 @@
+[
+  {
+    "id": "tc_5",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Balance cannot go below zero",
+    "source_ref": "inv_1",
+    "tags": [
+      "business_logic"
+    ],
+    "source_type": "invariant",
+    "test_module_name": "BalanceCannotBelowInvariantTest",
+    "test_function_name": "property Balance cannot go below zero",
+    "property_spec": {
+      "domain": "business_logic",
+      "generator": "StreamData.term()",
+      "assertion": "Balance cannot go below zero",
+      "runs": 1000,
+      "shrink": true
+    },
+    "expected_behavior": "Balance cannot go below zero",
+    "coverage_dimension": "invariants"
+  },
+  {
+    "id": "tc_6",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: create accounts unique",
+    "source_ref": "cap_2",
+    "tags": [],
+    "source_type": "capability",
+    "test_module_name": "CreateAccountsUniqueTest",
+    "test_function_name": "test create accounts unique succeeds with valid inputs",
+    "property_spec": null,
+    "expected_behavior": "create accounts unique completes successfully with valid inputs",
+    "coverage_dimension": "capabilities"
+  },
+  {
+    "id": "tc_7",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: list all accounts",
+    "source_ref": "cap_3",
+    "tags": [],
+    "source_type": "capability",
+    "test_module_name": "ListAllAccountsTest",
+    "test_function_name": "test list all accounts succeeds with valid inputs",
+    "property_spec": null,
+    "expected_behavior": "list all accounts completes successfully with valid inputs",
+    "coverage_dimension": "capabilities"
+  },
+  {
+    "id": "tc_8",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: update account balance",
+    "source_ref": "cap_4",
+    "tags": [],
+    "source_type": "capability",
+    "test_module_name": "UpdateAccountBalanceTest",
+    "test_function_name": "test update account balance succeeds with valid inputs",
+    "property_spec": null,
+    "expected_behavior": "update account balance completes successfully with valid inputs",
+    "coverage_dimension": "capabilities"
+  }
+]

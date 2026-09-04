@@ -1,0 +1,71 @@
+gate: MC-004-SETTLEMENT
+phase: SETTLEMENT
+campaign: Tiannara Remediation + Substrate Integration
+authorization: ASC-MC-004-SETTLEMENT.human.yaml
+authorization_status: GRANTED
+operator: c14_ac
+date: 2026-08-31
+authorization_kind: SETTLEMENT
+verifier_mode: independent_no_trust
+required_disposition: CERTIFIED_BOUNDED (expected; see certification boundary)
+
+purpose: >
+  Settle MC-004 by independently establishing whether the completed MC-004-M mutation and
+  MC-004-P live pilot satisfy their authorized contracts, and whether the evidence is
+  sufficient for final certification. This gate adds NO capability and performs NO production
+  mutation.
+
+governing_principles:
+  - "Truth > apparent capability"
+  - "Evidence > confidence"
+  - "Verification > autonomy"
+  - "Reuse > duplication"
+  - "Stable migration > broad rewrite"
+
+prohibitions:
+  - "Manufacture missing evidence"
+  - "Convert NOT_EXECUTED into PASS"
+  - "Broaden scope"
+  - "Perform additional production mutation"
+
+phases:
+  phase_1: HUMAN_REVIEW_AND_RECONCILIATION
+  phase_2: INDEPENDENT_VERIFICATION (V1-V9, no-trust)
+  phase_3: CERTIFICATION_DECISION (CERTIFIED | CERTIFIED_BOUNDED | NOT_CERTIFIED)
+  phase_4: CAMPAIGN_SETTLEMENT
+
+verification_claims:
+  V1_REAL_SOLVER: "RK4 exists; solve_ode/2,3 + rk4_step/4 real; step bound 2000000; trajectory bound 10000; bounded failure paths; no mock trajectory"
+  V2_MC001_PIN: "solve_ode(%{},%{},1.0) == {:error,:ode_solver_unavailable}; validate(%{model:%{}}) == {:error,:formal_verification_unavailable}; no verified:true theatrical result"
+  V3_PHYSICS_SIMULATION: "simulate invokes real RK4; output computation-derived; provenance kind :simulation; evidence hash generated"
+  V4_STRUCTURAL_VALIDATION: "validate performs structural checks on real results; distinct from formal proof; formal verification stays unavailable"
+  V5_PILOT: "PhysicsPilotExecution exists; requires valid human Authorization (granted+unexpired); gated by :real_execution_enabled; flag restored false"
+  V6_LIVE_EVIDENCE: "executions.jsonl has physics_pilot entry with harness real_simulation, method rk4, provenance :real_execution (read directly, not trusted)"
+  V7_GATEWAY: "execute_experiment routes to pilot only under required conditions; gated Phase-4 path intact; DeploymentGateway only deployment boundary; no sandbox bypass"
+  V8_REGRESSION: "reproduce targeted suite; record PASS/FAIL/NOT_EXECUTED/ENVIRONMENT_BLOCKED explicitly"
+  V9_SCOPE: "ontology preserved; no :science/:mathematics/:logic/:cs; no theatrical verification; no unrestricted real execution; no deployment; no unrelated mutation; no auth bypass"
+
+expected_settlement: >
+  MC-004-M CERTIFIED_BOUNDED; MC-004-P CERTIFIED_BOUNDED; MC-004 CERTIFIED_BOUNDED.
+  Real bounded physics computation VERIFIED; Authorized live pilot VERIFIED; Durable
+  provenance/evidence VERIFIED; Structural validation VERIFIED; Formal verification
+  UNAVAILABLE; Unrestricted real execution DISABLED; Autonomous physics discovery NOT
+  ESTABLISHED; Deployment NOT PERFORMED.
+
+certification_boundary: >
+  The strongest truthful outcome is CERTIFIED_BOUNDED. The pilot proves one authorized,
+  bounded, real numerical physics execution — NOT formal mathematical proof, unrestricted
+  autonomous experimentation, production deployment, or general scientific discovery.
+
+artifacts:
+  human_review_protocol: docs/remediation/MC004_SETTLEMENT_HUMAN_REVIEW_PROTOCOL.md
+  verification_protocol: docs/remediation/MC004_INDEPENDENT_VERIFICATION_PROTOCOL.md
+  authorization: priv/tiannara/authorization/ASC-MC-004-SETTLEMENT.human.yaml
+  human_review: certification/remediation/MC004-HUMAN-REVIEW.md
+  evidence_matrix: certification/remediation/MC004-INDEPENDENT-EVIDENCE-MATRIX.md
+  reconciliation: certification/remediation/MC004-PILOT-EVIDENCE-RECONCILIATION.md
+  residual_risks: certification/remediation/MC004-RESIDUAL-RISKS.md
+  verifier: priv/tiannara/remediation/verifiers/MC004_independent_verification.py
+  verifier_output: priv/tiannara/remediation/verifiers/MC004_independent_verification_output.json
+  certification: certification/remediation/MC004-CERTIFICATION.md
+  result: priv/tiannara/remediation/results/MC004_result.json

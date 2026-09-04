@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-08-30T05:25:11.365000Z",
+  "signature": "ab4cc84fd2cd820ef2cbe9a8f0bf7b16aeac2f23d2c99d0fffca0f14bc4ee551",
+  "content": {
+    "data": {
+      "value": 2
+    }
+  },
+  "content_hash": "a97b8af8553b029206a0676314e584e2fc2895988fcd32a575be860097c4b2d7",
+  "campaign_id": "TEST",
+  "campaign_version": "1.0.0"
+}

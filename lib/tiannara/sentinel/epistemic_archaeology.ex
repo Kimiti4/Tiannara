@@ -12,6 +12,8 @@ defmodule Tiannara.Sentinel.EpistemicArchaeology do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
+  def init(args), do: {:ok, args}
+
   @doc "Analyzes a new discovery to see if it is a rediscovery of lost ancient knowledge."
   def analyze_for_precursors(discovery) do
     if DiscoveryGenealogy.is_rediscovery?(discovery) do

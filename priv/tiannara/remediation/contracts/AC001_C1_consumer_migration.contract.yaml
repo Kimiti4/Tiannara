@@ -1,0 +1,72 @@
+gate_id: "AC-001-C1"
+parent_gate: "AC-001"
+campaign: "Tiannara Remediation + Substrate Integration"
+class: "CONSUMER_MIGRATION"
+mode: "AUTHORIZED_MUTATION"
+
+bounded_proposition: >
+  All production consumers that previously depended on the two non-canonical
+  domain registries are migrated to Tiannara.Domains.CanonicalRegistry without
+  semantic loss, fabricated data, compatibility theater, or hidden fallback
+  behavior. Knowledge capital and portfolio state remain explicitly unavailable
+  boundaries, not fabricated capabilities.
+
+requires:
+  - "AC-001-A (CERTIFIED)"
+  - "AC-001-B (CERTIFIED)"
+  - "C0 semantic analysis (COMPLETE)"
+
+forbids:
+  - "legacy_registry_authority"
+  - "fabricated_capital"
+  - "fabricated_portfolio"
+  - "broad_domain_reclassification"
+  - "N_plus_1_GenServer_patterns"
+  - "fake_default_values"
+  - "compatibility_theater"
+
+required_evidence:
+  - "atomic_all_records"
+  - "complete_consumer_inventory_40_sites"
+  - "semantic_preservation_per_site"
+  - "explicit_unavailable_boundaries"
+  - "compile_success"
+  - "test_success"
+  - "runtime_verification"
+  - "static_legacy_scan_zero"
+
+sub_gates:
+  C1-A: "Atomic all_records/0"
+  C1-B: "Domain-ID consumer migration"
+  C1-C: "Domain-record consumer migration"
+  C1-D: "Knowledge-capital boundary migration"
+  C1-E: "Portfolio boundary migration"
+  C1-F: "Test migration/retirement"
+  C1-G: "Limited identity reclassification"
+  C1-H: "Independent verification"
+
+verdict_space: [CERTIFIED, QUALIFIED_PARTIAL, NOT_CERTIFIED, BLOCKED]
+
+certified_requires:
+  - "40/40 call sites accounted for in migration ledger"
+  - "all applicable consumers migrated to canonical API"
+  - "all_records/0 implemented as atomic GenServer operation"
+  - "zero unexplained legacy production references"
+  - "zero fabricated capability"
+  - "knowledge capital explicitly unavailable"
+  - "portfolio explicitly unavailable"
+  - "DomainProjectionTest disposition documented and justified with evidence"
+  - "compile PASS"
+  - "relevant tests PASS"
+  - "runtime verification PASS"
+  - "authorization/hash valid"
+  - "migration ledger complete"
+
+constitutional_basis:
+  - "Evidence Before Confidence"
+  - "Uncertainty should never be hidden"
+  - "Truth has priority over confidence"
+  - "Capability must never outpace verification"
+  - "Every architectural decision should remain traceable"
+
+contract_hash: null

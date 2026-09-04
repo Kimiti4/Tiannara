@@ -17,7 +17,7 @@ defmodule Tiannara.ASC.Crucible.TransferEcology do
 
   use GenServer
 
-  alias Tiannara.ASC.Crucible.{TransferObservation, TransferMatrix, KnowledgeDiffusion, TransferAdaptation}
+  alias Tiannara.ASC.Crucible.{TransferObservation, TransferAdaptation}
   alias Tiannara.ASC.Laws.QueryEngine
   alias Tiannara.ASC.Crucible.SpeciesFitness  # Phase 5C.6 - Species fitness tracking
 
@@ -75,7 +75,7 @@ defmodule Tiannara.ASC.Crucible.TransferEcology do
   @doc """
   Start the Transfer Ecology observer.
   """
-  def start_link(opts \\ []) do
+  def start_link(_opts \\ []) do
     GenServer.start_link(__MODULE__, %__MODULE__{started_at: DateTime.utc_now()}, name: __MODULE__)
   end
 
@@ -406,10 +406,10 @@ defmodule Tiannara.ASC.Crucible.TransferEcology do
     
     # Phase 5C.6 - Species fitness calculation
     species_fitness_map = calculate_species_fitness_map(state)
-    species_entropy = SpeciesFitness.calculate_species_entropy(species_fitness_map)
-    dominant_species = SpeciesFitness.get_dominant_species(species_fitness_map)
-    declining_species = SpeciesFitness.get_declining_species(species_fitness_map)
-    extinction_watch_species = SpeciesFitness.get_extinction_watch_species(species_fitness_map)
+    _species_entropy = SpeciesFitness.calculate_species_entropy(species_fitness_map)
+    _dominant_species = SpeciesFitness.get_dominant_species(species_fitness_map)
+    _declining_species = SpeciesFitness.get_declining_species(species_fitness_map)
+    _extinction_watch_species = SpeciesFitness.get_extinction_watch_species(species_fitness_map)
 
     metrics = %{
       # Basic metrics

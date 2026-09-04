@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-07-03T16:32:35.175000Z",
+  "audit_type": "independent_artifact_only",
+  "runtime_imports_used": false,
+  "artifacts_audited": [
+    "certificate.json",
+    "manifest.json"
+  ],
+  "artifact_fingerprints": {
+    "certificate_sha256": "b69fee34460012f2c521bbd7f8325c1739a79f677499a5ba5a941bad44d77d8a",
+    "manifest_sha256": "ffb09a902619bb4997d60ada30bc12733a8b77dda5dd1c180e27b02a10771e5c"
+  },
+  "campaign_verification": {
+    "failed": 0,
+    "passed": 12,
+    "total_campaigns": 12,
+    "all_passed": true
+  },
+  "constitutional_invariants": {
+    "replay_determinism": true,
+    "authority_enforcement": true,
+    "capability_conservation": true,
+    "institution_conservation": true,
+    "no_drift": true,
+    "entropy_stability": true,
+    "fitness_stability": true,
+    "long_horizon_stability": true
+  },
+  "overall_audit_result": "PASSED",
+  "phase_14_status": "CONSTITUTIONALLY_FROZEN"
+}

@@ -1,0 +1,176 @@
+{
+  "certificate_type": "RuntimeFreezeCertificate",
+  "certificate_id": "RFC-14.0.96-001",
+  "issued_at": "2026-06-13T00:00:00Z",
+  "phase": "14.0.96",
+  "phase_name": "Validation Runtime Freeze",
+  
+  "runtime_components": {
+    "total_count": 11,
+    "components": [
+      "CampaignRegistry",
+      "CampaignPlanner",
+      "CampaignScheduler",
+      "CampaignExecutor",
+      "EvidenceCollector",
+      "EvidenceSigner",
+      "EvidenceVerifier",
+      "EvidenceAggregator",
+      "ReportGenerator",
+      "AdapterRegistry",
+      "GovernanceValidationLaboratory"
+    ]
+  },
+
+  "frozen_schemas": {
+    "total_count": 8,
+    "schemas": [
+      "CampaignSpec",
+      "EvidenceArtifact",
+      "EvidenceSummary",
+      "FailureRecord",
+      "ValidationSummary",
+      "ExecutionPlan",
+      "ExecutionPhase",
+      "AdapterCertificate"
+    ],
+    "freeze_date": "2026-06-13",
+    "change_policy": "Requires constitutional amendment via RFC → Review Board → Governance Council → Archive"
+  },
+
+  "frozen_apis": {
+    "total_count": 9,
+    "modules": [
+      "CampaignRegistry",
+      "CampaignPlanner",
+      "CampaignScheduler",
+      "CampaignExecutor",
+      "EvidenceCollector",
+      "EvidenceSigner",
+      "EvidenceVerifier",
+      "EvidenceAggregator",
+      "ReportGenerator"
+    ],
+    "freeze_date": "2026-06-13",
+    "change_policy": "No parameter additions, no return changes, no renaming without freeze amendment"
+  },
+
+  "frozen_behaviours": {
+    "total_count": 10,
+    "behaviours": [
+      "LedgerAdapterBehaviour",
+      "ReplayAdapterBehaviour",
+      "StateAdapterBehaviour",
+      "GraphAdapterBehaviour",
+      "CertificateAdapterBehaviour",
+      "FingerprintAdapterBehaviour",
+      "FitnessAdapterBehaviour",
+      "EntropyAdapterBehaviour",
+      "CostAdapterBehaviour",
+      "ArchaeologyAdapterBehaviour"
+    ],
+    "freeze_date": "2026-06-13",
+    "change_policy": "Interface methods frozen; implementations can evolve independently"
+  },
+
+  "registries": {
+    "campaign_registry": {
+      "document": "GOVERNANCE_CAMPAIGN_REGISTRY.md",
+      "total_campaigns": 12,
+      "versioning": "Semantic versioning (campaign_id, campaign_version, introduced_in, deprecated_in)"
+    },
+    "failure_registry": {
+      "document": "GOVERNANCE_FAILURE_REGISTRY.md",
+      "total_failures": 48,
+      "versioning": "Immutable failure IDs (FAIL-001 to FAIL-048)"
+    },
+    "evidence_registry": {
+      "document": "GOVERNANCE_EVIDENCE_REGISTRY.md",
+      "total_evidence_types": 12,
+      "versioning": "Immutable evidence IDs (EVID-001 to EVID-012)"
+    },
+    "adapter_registry": {
+      "module": "TiannaraOS.Governance.Validation.AdapterRegistry",
+      "hot_swapping": true,
+      "indirection": "Campaigns reference adapters by name, not module"
+    }
+  },
+
+  "dependency_graph": {
+    "acyclic": true,
+    "max_depth": 5,
+    "total_edges": 23,
+    "visualization_files": [
+      "docs/validation_runtime.dot",
+      "docs/validation_runtime.svg"
+    ],
+    "phases": {
+      "phase_1": ["GV-001", "GV-002", "GV-005", "GV-009", "GV-010"],
+      "phase_2": ["GV-003", "GV-006", "GV-011"],
+      "phase_3": ["GV-004", "GV-007"],
+      "phase_4": ["GV-008"],
+      "phase_5": ["GV-012"]
+    }
+  },
+
+  "runtime_archaeology": {
+    "purpose_field": "Every component exposes 'purpose' field",
+    "introduced_in_field": "Every component tracks introduction phase",
+    "depends_on_field": "Every component declares dependencies",
+    "constitution_reference_field": "Every component references constitutional section",
+    "owner_field": "Every component has designated owner",
+    "documentation": "PHASE14_0_96_RUNTIME_FREEZE.md Section 7"
+  },
+
+  "runtime_entropy_baseline": {
+    "score": 0.25,
+    "metrics": {
+      "component_coupling": 0.3,
+      "registry_growth": 0.2,
+      "adapter_count": 10,
+      "execution_complexity": 150.0,
+      "dag_depth": 5,
+      "dependency_fanout": 2.5,
+      "api_count": 45,
+      "interface_churn": 0.1
+    },
+    "threshold": 0.7,
+    "status": "healthy"
+  },
+
+  "runtime_fitness_baseline": {
+    "score": 0.93,
+    "metrics": {
+      "simplicity": 0.85,
+      "replayability": 0.95,
+      "determinism": 0.98,
+      "replaceability": 0.90,
+      "adapter_isolation": 0.92,
+      "dependency_purity": 1.0,
+      "api_stability": 0.95
+    },
+    "threshold": 0.8,
+    "status": "fit"
+  },
+
+  "freeze_checklist": {
+    "runtime_dag_acyclic": true,
+    "registry_schemas_frozen": true,
+    "evidence_schemas_frozen": true,
+    "failure_schemas_frozen": true,
+    "campaign_schema_frozen": true,
+    "behaviours_frozen": true,
+    "runtime_entropy_baseline_recorded": true,
+    "runtime_fitness_baseline_recorded": true,
+    "runtime_archaeology_complete": true,
+    "runtime_replay_deterministic": true,
+    "runtime_certificate_generated": true,
+    "all_checks_passed": true
+  },
+
+  "certification_statement": "This certificate attests that the Governance Validation Runtime has been frozen at Phase 14.0.96. All schemas, APIs, behaviours, and contracts are immutable unless amended through constitutional process. Adapter implementations may proceed against these frozen interfaces.",
+
+  "next_phase": "14.0.97 - Adapter Implementation",
+  "authorized_by": "Governance Council",
+  "signature": "SHA256(RUNTIME_FREEZE_CERTIFICATE_CONTENT)"
+}

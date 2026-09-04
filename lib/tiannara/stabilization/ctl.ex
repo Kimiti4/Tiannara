@@ -232,7 +232,7 @@ defmodule Tiannara.Stabilization.CTL do
     
     # Validate causal structure first
     case validate_causal_structure(causal_graph, state.config) do
-      {:valid, score} ->
+      {:valid, _score} ->
         # Apply stabilization algorithms
         stabilized_graph = apply_stabilization_algorithms(causal_graph, state.config)
         
@@ -396,7 +396,7 @@ defmodule Tiannara.Stabilization.CTL do
     end
   end
 
-  defp repair_causal_structure(causal_graph, config) do
+  defp repair_causal_structure(causal_graph, _config) do
     # Simplified causal repair algorithm
     repaired = Map.new(causal_graph, fn {node, links} ->
       # Normalize weights and remove inconsistent links
@@ -449,7 +449,7 @@ defmodule Tiannara.Stabilization.CTL do
     end
   end
 
-  defp recombine_branches(timeline_ids, config) do
+  defp recombine_branches(timeline_ids, _config) do
     # Simplified branch recombination
     # In production, use proper merge algorithms
     

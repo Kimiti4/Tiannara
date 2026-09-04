@@ -6,12 +6,14 @@ defmodule TiannaraOS.Discovery do
   @derive Jason.Encoder
   defstruct [
     :id,                    # atom() - unique identifier
+    :world_id,              # atom() - world ID where discovery originated (used by dependency graph)
     :source_world,          # atom() - world ID where discovery originated
     :evidence_ids,          # list(atom()) - evidence IDs supporting this discovery
     :theory_ids,            # list(atom()) - related theory IDs
     :origin_program_id,     # atom() | nil
     :origin_institution_id, # atom() | nil
     :origin_world_id,       # atom() | nil
+    domain_vector: %{},     # map() - domain capability weights for dependency graph
     validation_level: :l1,  # atom() - :l1, :l2, :l3, :l4, :l5
     status: :candidate,     # atom() - :candidate, :validated, :retired
     evidence_score: 0.0,    # float()
@@ -29,12 +31,14 @@ defmodule TiannaraOS.Discovery do
 
   @type t :: %__MODULE__{
     id: atom(),
+    world_id: atom(),
     source_world: atom(),
     evidence_ids: [atom()],
     theory_ids: [atom()],
     origin_program_id: atom() | nil,
     origin_institution_id: atom() | nil,
     origin_world_id: atom() | nil,
+    domain_vector: map(),
     validation_level: :l1 | :l2 | :l3 | :l4 | :l5,
     status: :candidate | :validated | :retired,
     evidence_score: float(),

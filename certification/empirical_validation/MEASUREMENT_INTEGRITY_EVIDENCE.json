@@ -1,0 +1,98 @@
+{
+  "mission": "TIANNARA_EMPIRICAL_VALIDATION_MEASUREMENT_INTEGRITY_REMEDIATION",
+  "phase": "R7_certification_gate",
+  "head": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+  "date": "2026-09-03",
+  "remediation_scope": "Tiannara.Forecasting.StrategicPlanner.evaluate_and_act/2 only",
+  "remediation_option": "A+C",
+  "files_modified": [
+    "lib/tiannara/forecasting/planner.ex"
+  ],
+  "files_added": [
+    "test/tiannara/forecasting/measurement_integrity_planner_test.exs",
+    "certification/empirical_validation/verifiers/MEASUREMENT_INTEGRITY_verifier.py"
+  ],
+  "files_unchanged_but_verified": [
+    "lib/tiannara/forecasting/auditor.ex (DecisionArchive remains a logger-only stub)",
+    "lib/tiannara/evidence/provenance.ex (Provenance.acceptable_as_evidence?/1 unchanged)",
+    "lib/tiannara/forecasting/d5.ex (D5 verdict/0 still returns :d5_certified_bounded)",
+    "lib/tiannara/discovery/engine.ex (E06 falsification preserved)",
+    "lib/tiannara/archaeology/archaeology.ex (E07 falsification preserved)"
+  ],
+  "test_results": {
+    "r4_adversarial": {
+      "file": "test/tiannara/forecasting/measurement_integrity_planner_test.exs",
+      "test_count": 23,
+      "test_failures": 0
+    },
+    "forecasting_suite": {
+      "test_count": 377,
+      "test_failures": 0,
+      "breakdown": "354 D1-D5 (preserved) + 23 R4 adversarial (new)"
+    },
+    "d5_baseline_preserved": true
+  },
+  "r5_reprobe": {
+    "script": "r5_reprobe.exs (mix run --no-start)",
+    "assertions_total": 9,
+    "assertions_passed": 9,
+    "assertions_failed": 0,
+    "key_results": [
+      "Three contradictory payloads all return the same {:ok, %{kind: :simulation, provenance_hash, scenario}} shape",
+      "Function body contains none of the 9 pre-R3 hardcoded strings",
+      "Provenance.acceptable_as_evidence?(:simulation) = false",
+      "Provenance.acceptable_as_evidence?(:real_execution + execution_id) = true",
+      "Returned envelope is not acceptable as evidence"
+    ]
+  },
+  "r6_verifier": {
+    "script": "certification/empirical_validation/verifiers/MEASUREMENT_INTEGRITY_verifier.py",
+    "gates_total": 12,
+    "gates_passed": 12,
+    "gates_failed": 0,
+    "overall": "MEASUREMENT_INTEGRITY_CERTIFIED",
+    "exit_code": 0,
+    "gates": {
+      "V1_NO_HARDCODED_FABRICATION_IN_PLANNER_FN_BODY": "PASS",
+      "V2_PLANNER_FN_NARROW_WELL_TYPED": "PASS",
+      "V3_PLANNER_SPEC_RESTRICTIVE": "PASS",
+      "V4_DECISION_ARCHIVE_UNCHANGED_LOGGING_FACADE": "PASS",
+      "V5_PROVENANCE_GATE_UNCHANGED_AND_CORRECT": "PASS",
+      "V6_MODULEDOC_NAMES_REMEDIATION": "PASS",
+      "V7_R4_ADVERSARIAL_TESTS_PRESENT": "PASS",
+      "V8_R4_TESTS_PASS_LIVE": "PASS",
+      "V9_D1_D5_BASELINE_PRESERVED": "PASS",
+      "V10_D5_FACADE_UNCHANGED_CERTIFIED_BOUNDED": "PASS",
+      "V11_E06_E07_DISCOVERY_ARCHAEOLOGY_UNCHANGED": "PASS",
+      "V12_R3_CHANGE_LOCALLY_SCOPED": "PASS"
+    }
+  },
+  "r7_certification_gate": {
+    "condition_1_fabricated_planner_records_cannot_masquerade_as_real_evidence": "PASS",
+    "condition_2_synthetic_records_remain_explicitly_identifiable": "PASS",
+    "condition_3_missing_provenance_does_not_become_real_evidence": "PASS",
+    "condition_4_downstream_consumers_reject_fabricated_records": "PASS",
+    "condition_5_phase3_findings_unchanged": "PASS",
+    "condition_6_D1_D5_frozen": "PASS",
+    "condition_7_no_unauthorized_architecture": "PASS",
+    "condition_8_adversarial_tests_pass": "PASS",
+    "condition_9_independent_verifier_passes": "PASS",
+    "condition_10_phase3_probes_reproduce_integrity_behavior": "PASS"
+  },
+  "invariants_enforced": [
+    "No measured record is emitted. Return shape is a metadata envelope: %{scenario, kind: :simulation, provenance_hash}.",
+    "Provenance.acceptable_as_evidence?/1 always returns false for the attached record (kind: :simulation).",
+    "No Aggregator.push_event(_, hardcoded) call exists in the function.",
+    "The function does not call DecisionArchive.record.",
+    "Non-atom inputs are rejected with FunctionClauseError (when is_atom(scenario) guard).",
+    "The @spec restricts the return shape to the documented envelope.",
+    "The moduledoc declares the non-measurement contract and names the remediation (Option A+C, R1, R3)."
+  ],
+  "phase3_findings_preserved": {
+    "E06_novelty_sustained": "FALSIFIED (at the discovery-engine level)",
+    "E07_semantic_continuity": "FALSIFIED (at the archaeology/discovery surface)",
+    "note": "The R3 remediation touched only StrategicPlanner.evaluate_and_act/2. Discovery.Engine and Archaeology are unchanged. The Phase 3 FALSIFIED findings stand."
+  },
+  "verdict": "MEASUREMENT_INTEGRITY_CERTIFIED",
+  "stop_condition": "STOP at R7. Do not auto-launch E03. A separate authorization is required for the Stabilizer-Only Emergence Campaign."
+}

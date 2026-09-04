@@ -1,0 +1,2 @@
+{"name":"llm_dep_drift","reason":"Capability extinct. Used in 10 missions. Failures: 7. Overall Fitness: 0.1. High extinction risk (0.92) triggered culling.","timestamp":1782101276110,"type":"extinct_capability"}
+{"name":"transfer_ecology","reason":"Extinction triggered by Immune System: Reward Hacking detected.","timestamp":1782134237281,"type":"extinct_capability"}

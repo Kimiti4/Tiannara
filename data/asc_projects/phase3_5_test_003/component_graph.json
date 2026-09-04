@@ -1,0 +1,71 @@
+{
+  "nodes": [
+    "low-stock itemsService",
+    "products inventoryService",
+    "stock quantitiesService"
+  ],
+  "edges": [
+    {
+      "type": "calls",
+      "to": "low-stock itemsRepository",
+      "from": "low-stock itemsService"
+    },
+    {
+      "type": "calls",
+      "to": "low-stock itemsValidator",
+      "from": "low-stock itemsService"
+    },
+    {
+      "type": "calls",
+      "to": "products inventoryRepository",
+      "from": "products inventoryService"
+    },
+    {
+      "type": "calls",
+      "to": "products inventoryValidator",
+      "from": "products inventoryService"
+    },
+    {
+      "type": "calls",
+      "to": "stock quantitiesRepository",
+      "from": "stock quantitiesService"
+    },
+    {
+      "type": "calls",
+      "to": "stock quantitiesValidator",
+      "from": "stock quantitiesService"
+    }
+  ],
+  "complexity": 2.5,
+  "critical_paths": [
+    [
+      "low-stock itemsService",
+      "low-stock itemsValidator"
+    ],
+    [
+      "low-stock itemsService",
+      "low-stock itemsRepository"
+    ],
+    [
+      "products inventoryService",
+      "products inventoryValidator"
+    ]
+  ],
+  "bottlenecks": [],
+  "fan_in": {
+    "low-stock itemsRepository": 1,
+    "low-stock itemsService": 0,
+    "low-stock itemsValidator": 1,
+    "products inventoryRepository": 1,
+    "products inventoryService": 0,
+    "products inventoryValidator": 1,
+    "stock quantitiesRepository": 1,
+    "stock quantitiesService": 0,
+    "stock quantitiesValidator": 1
+  },
+  "fan_out": {
+    "low-stock itemsService": 2,
+    "products inventoryService": 2,
+    "stock quantitiesService": 2
+  }
+}

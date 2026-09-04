@@ -1,0 +1,15 @@
+{
+  "status": "valid",
+  "type": "authority_enforcement",
+  "signature": "1CFCB038C31DC22EA03F25606E1EDA053FA3C934E97C94014102A5C79A2E5073",
+  "metadata": {
+    "campaign": "gc_002_authority_fuzzing",
+    "rejections": 5000,
+    "tests": 5000
+  },
+  "signed_at": "2026-07-02T19:26:12.337000Z",
+  "certificate_id": "cert-authority-002",
+  "issued_at": "2026-07-02T19:26:12.337000Z",
+  "issuer": "GovernanceCertificationLaboratory",
+  "subject": "Authority Fuzzing Test Results"
+}

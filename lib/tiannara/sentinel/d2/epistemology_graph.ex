@@ -65,14 +65,14 @@ defmodule Tiannara.Sentinel.D2.EpistemologyGraph do
     {:reply, state.epistemologies, state}
   end
 
-  @doc "Retrieves the pairwise synergies and antagonisms."
-  def get_ecology_map do
-    GenServer.call(__MODULE__, :get_ecology_map, :infinity)
-  end
-
   @impl true
   def handle_call(:get_ecology_map, _from, state) do
     {:reply, state.pair_relationships, state}
+  end
+
+  @doc "Retrieves the pairwise synergies and antagonisms."
+  def get_ecology_map do
+    GenServer.call(__MODULE__, :get_ecology_map, :infinity)
   end
 
   defp update_pairs(signature, pair_map, is_positive, is_negative) do

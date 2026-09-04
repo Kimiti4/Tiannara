@@ -9,9 +9,6 @@ defmodule TiannaraWeb.OrbitMemoryLive do
   alias Tiannara.REA.OrbitGenesis.Causal
   alias Tiannara.REA.OrbitMemory
   alias Tiannara.REA.OrbitMemory.Decay
-  alias Tiannara.REA.OrbitMemory.Transfer
-  alias Tiannara.REA.OrbitMemory.Merge
-  alias Tiannara.REA.OrbitMemory.Reset
   alias Tiannara.REA.OrbitMemory.Synthesis
   alias Tiannara.REA.OrbitMemory.Compression
 
@@ -84,11 +81,6 @@ defmodule TiannaraWeb.OrbitMemoryLive do
     {:noreply,
      assign(socket, synthesis_signature: sig)
      |> trigger_synthesis()}
-  end
-
-  defp trigger_prediction(socket) do
-    # Placeholder trigger helper if needed
-    socket
   end
 
   defp trigger_synthesis(socket) do

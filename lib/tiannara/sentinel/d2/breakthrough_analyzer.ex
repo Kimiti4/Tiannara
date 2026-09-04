@@ -70,11 +70,6 @@ defmodule Tiannara.Sentinel.D2.BreakthroughAnalyzer do
     {:reply, state.records, state}
   end
 
-  @doc "Calculates the Directed Advantage Ratio (DAR)."
-  def calculate_dar do
-    GenServer.call(__MODULE__, :calculate_dar, :infinity)
-  end
-
   @impl true
   def handle_call(:calculate_dar, _from, state) do
     meta_count = Enum.count(state.records, fn r -> r.context.origin_type == :meta_derived end)
@@ -87,5 +82,10 @@ defmodule Tiannara.Sentinel.D2.BreakthroughAnalyzer do
     end
     
     {:reply, dar, state}
+  end
+
+  @doc "Calculates the Directed Advantage Ratio (DAR)."
+  def calculate_dar do
+    GenServer.call(__MODULE__, :calculate_dar, :infinity)
   end
 end

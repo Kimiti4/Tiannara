@@ -1,0 +1,335 @@
+{
+  "math_discoverable": false,
+  "objective": {
+    "descriptor": "capability_engineering",
+    "objective_id": "6230761132c7feaf",
+    "origin": "c11_novel_event"
+  },
+  "pollution_check": true,
+  "subtest": "A",
+  "trace": [
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": null,
+        "trace_id": null
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "descriptor": "capability_engineering",
+        "event": "novel_external_objective"
+      },
+      "payload_hash": "c186d83e3983415eb55ed29a9128503f96b7e270730c7b1fe9355d3bfb857660",
+      "phase": "c11_ingress",
+      "provenance": {
+        "function": "accept/1",
+        "module": "C11.External.Ingress"
+      },
+      "timestamp": "2026-08-23T01:48:40.077000Z",
+      "trace_id": "454fc7015c424322"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c11_ingress",
+        "trace_id": "454fc7015c424322"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "descriptor": "capability_engineering",
+        "event": "novel_external_objective"
+      },
+      "payload_hash": "c186d83e3983415eb55ed29a9128503f96b7e270730c7b1fe9355d3bfb857660",
+      "phase": "c1_perception",
+      "provenance": {
+        "function": "process/1",
+        "module": "Tiannara.Perception.Engine"
+      },
+      "timestamp": "2026-08-23T01:48:40.077000Z",
+      "trace_id": "b216855c7c1dbf70"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c1_perception",
+        "trace_id": "b216855c7c1dbf70"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "mutation": "canonical_state"
+      },
+      "payload_hash": "9875bc93766571537724dfc20fa055282d54dd787405fff8b5c7b362a8b7a1c3",
+      "phase": "c2_reality",
+      "provenance": {
+        "function": "add_node/3",
+        "module": "Tiannara.World.UnifiedRealityGraph"
+      },
+      "timestamp": "2026-08-23T01:48:40.077000Z",
+      "trace_id": "c045732e8cf024b1"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c2_reality",
+        "trace_id": "c045732e8cf024b1"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "artifact": "knowledge_node"
+      },
+      "payload_hash": "4580390c1e7afaae67719621708dc214198e0ed97fdda7c16ceb8eb220d04fdb",
+      "phase": "c3_knowledge",
+      "provenance": {
+        "function": "store/2",
+        "module": "Tiannara.Knowledge.KnowledgeStore"
+      },
+      "timestamp": "2026-08-23T01:48:40.077000Z",
+      "trace_id": "9f9eed5e9475c8da"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c3_knowledge",
+        "trace_id": "9f9eed5e9475c8da"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "assessment": "evidence_tagged"
+      },
+      "payload_hash": "622c9f4166cb820dff5e7be777309cefe38ffe635c7a7b89f504d2eb26c09c9c",
+      "phase": "c4_epistemics",
+      "provenance": {
+        "function": "render_node/1",
+        "module": "Tiannara.Epistemic.View"
+      },
+      "timestamp": "2026-08-23T01:48:40.077000Z",
+      "trace_id": "c063c314d903db9a"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c4_epistemics",
+        "trace_id": "c063c314d903db9a"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "math": "unwired_or_wired",
+        "plan": "research_plan"
+      },
+      "payload_hash": "8217b7e6e5395a3cc4cbe5a168f1e64cecd6926eb649ecf1ba796b586952811e",
+      "phase": "c5c6_reasoning",
+      "provenance": {
+        "function": "plan/1",
+        "module": "Tiannara.Research.Planner"
+      },
+      "timestamp": "2026-08-23T01:48:40.077000Z",
+      "trace_id": "9108f008099c0063"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c5c6_reasoning",
+        "trace_id": "9108f008099c0063"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "constraints": "derived"
+      },
+      "payload_hash": "b782c035f00f68c31e1373871db6b39943ea5995baccc4297ba2b4200226b9c8",
+      "phase": "c8_context",
+      "provenance": {
+        "function": "constraints/1",
+        "module": "Tiannara.World.CanonicalWorldState"
+      },
+      "timestamp": "2026-08-23T01:48:40.077000Z",
+      "trace_id": "413763970418bd13"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c8_context",
+        "trace_id": "413763970418bd13"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "decision": "allow",
+        "decision_hash": "9560e059c81e1609"
+      },
+      "payload_hash": "e47317d0f46c8c9bf42f12cb609bca0ad4a1dcc73b236c0cd771c2de2b7f1360",
+      "phase": "c14_governance",
+      "provenance": {
+        "function": "authorize?/3",
+        "module": "Tiannara.Governance.CapabilityChecker"
+      },
+      "timestamp": "2026-08-23T01:48:40.077000Z",
+      "trace_id": "5fab91c4e32b9090"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c14_governance",
+        "trace_id": "5fab91c4e32b9090"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "governance_gate": {
+          "consulted": true,
+          "decision": "allow"
+        },
+        "registry_query": {
+          "candidates": [
+            {
+              "provider": "asc",
+              "capability": "create_capability"
+            }
+          ],
+          "descriptor": "capability_engineering"
+        },
+        "selection": {
+          "derived_from": "registry_query",
+          "provider": "asc"
+        }
+      },
+      "payload_hash": "611f0044868b1d5c9ed1aa5febbf0c4c5ce1d6191db5b89a8bf695c149548a17",
+      "phase": "cel_discovery",
+      "provenance": {
+        "function": "find_provider/1",
+        "module": "Tiannara.CEL.CapabilityRegistry"
+      },
+      "timestamp": "2026-08-23T01:48:40.117000Z",
+      "trace_id": "3d8e8b012e72427e"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "cel_discovery",
+        "trace_id": "3d8e8b012e72427e"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "candidate": "asc_action_plan"
+      },
+      "payload_hash": "de6dd46302c9afd5c738acaa80239eb872229a1648befccc6bcab6217b12793c",
+      "phase": "c9_asc",
+      "provenance": {
+        "function": "generate_plan/2",
+        "module": "ASC.Implementation.Planner"
+      },
+      "timestamp": "2026-08-23T01:48:40.118000Z",
+      "trace_id": "4c246c9ebf847f4a"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c9_asc",
+        "trace_id": "4c246c9ebf847f4a"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "risk": "grounded",
+        "monitored": true
+      },
+      "payload_hash": "2deb89a56713c6a7bc8de963e39c99170bee9413b7e55277ef143d1fea56ef2b",
+      "phase": "c12_homeostasis",
+      "provenance": {
+        "function": "monitor/1",
+        "module": "Tiannara.CIS.Supervisor"
+      },
+      "timestamp": "2026-08-23T01:48:40.118000Z",
+      "trace_id": "dbd10ef6191ebf8f"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c12_homeostasis",
+        "trace_id": "dbd10ef6191ebf8f"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "persisted": true,
+        "readback": true
+      },
+      "payload_hash": "b42c1a3406949351a8620d7188c5fe58d65239b3aedbbf1f423ddd99402bd7f9",
+      "phase": "c15_continuity",
+      "provenance": {
+        "function": "persist/1",
+        "module": "Tiannara.CEL.ExecutiveMemory"
+      },
+      "timestamp": "2026-08-23T01:48:40.118000Z",
+      "trace_id": "1803ae37a2695166"
+    },
+    {
+      "authorization_state": {
+        "required": false
+      },
+      "causal_parent": {
+        "phase": "c15_continuity",
+        "trace_id": "1803ae37a2695166"
+      },
+      "outcome": {
+        "status": "success"
+      },
+      "payload": {
+        "governance_gate": "allow",
+        "mode": "dry_run",
+        "would_act": true
+      },
+      "payload_hash": "56a4a32892fbec7737df3e45e66cd070605acdd068f275e02872820b08f4e56a",
+      "phase": "c11_egress",
+      "provenance": {
+        "function": "dry_run/1",
+        "module": "C11.External.Egress"
+      },
+      "timestamp": "2026-08-23T01:48:40.118000Z",
+      "trace_id": "c4aea7b7416acfd0"
+    }
+  ]
+}

@@ -1,0 +1,2042 @@
+[
+  {
+    "shock": "Knowledge",
+    "epoch": 0,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 1,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08666666666666668,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 2,
+    "ca": 3.0,
+    "pe": 5,
+    "pr": -0.5066666666666666,
+    "agency": 1.508999892001555,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 3,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.10000000000000002,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 4,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.10666666666666669,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 5,
+    "ca": 3.0,
+    "pe": 5,
+    "pr": -0.4866666666666667,
+    "agency": 1.508999892001555,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Explosive",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 6,
+    "ca": 434.19900000000007,
+    "pe": 4,
+    "pr": -86.71980000000003,
+    "agency": 295.3524556994489,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Plastic",
+      "Trader": "Rigid",
+      "Survivor": "Zombie",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 7,
+    "ca": 3.0000000000000004,
+    "pe": 4,
+    "pr": -0.4733333333333335,
+    "agency": 1.2071999136012443,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Explosive",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 8,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.13333333333333336,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Zombie",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 9,
+    "ca": 718.535,
+    "pe": 5,
+    "pr": -143.567,
+    "agency": 680.1315886760963,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Plastic",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 10,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.14666666666666667,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 11,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.15333333333333335,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 12,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.16000000000000003,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 13,
+    "ca": 56.199000000000005,
+    "pe": 5,
+    "pr": -11.073133333333333,
+    "agency": 31.244594424197775,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Explosive",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 14,
+    "ca": 69.699,
+    "pe": 4,
+    "pr": -13.766466666666668,
+    "agency": 31.74098162025177,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 15,
+    "ca": 3.0,
+    "pe": 4,
+    "pr": -0.42000000000000004,
+    "agency": 1.2071999136012443,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Explosive",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 16,
+    "ca": 8.911,
+    "pe": 5,
+    "pr": -1.595533333333333,
+    "agency": 4.534897515000923,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Plastic",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 17,
+    "ca": 146.199,
+    "pe": 5,
+    "pr": -27.748304344648915,
+    "agency": 93.74481977813304,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Plastic",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 18,
+    "ca": 0.0,
+    "pe": 3,
+    "pr": 0.2,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 19,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.2066666666666667,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 20,
+    "ca": 542.199,
+    "pe": 5,
+    "pr": -107.32958328126635,
+    "agency": 486.42761435350656,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Explosive",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 21,
+    "ca": 3.0,
+    "pe": 4,
+    "pr": -0.3800000000000001,
+    "agency": 1.2071999136012443,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Zombie",
+      "Explorer": "Rigid",
+      "Trader": "Explosive",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 22,
+    "ca": 0.0,
+    "pe": 3,
+    "pr": 0.22666666666666663,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Zombie",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 23,
+    "ca": 3.0,
+    "pe": 5,
+    "pr": -0.3666666666666668,
+    "agency": 1.508999892001555,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Explosive",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 24,
+    "ca": 42.699,
+    "pe": 5,
+    "pr": -8.2998,
+    "agency": 23.16828539192535,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 25,
+    "ca": 3.0,
+    "pe": 4,
+    "pr": -0.019300229792439616,
+    "agency": 1.2086888495280739,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Zombie",
+      "Explorer": "Rigid",
+      "Trader": "Explosive",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 26,
+    "ca": 452.19900000000007,
+    "pe": 3,
+    "pr": -90.18646666666669,
+    "agency": 233.12205017446777,
+    "region": "CLIFF",
+    "dominant_attractor": "Zombie",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Plastic",
+      "Trader": "Zombie",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 27,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.26,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 28,
+    "ca": 3.0,
+    "pe": 5,
+    "pr": -0.33333333333333315,
+    "agency": 1.508999892001555,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Explosive",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Knowledge",
+    "epoch": 29,
+    "ca": 15.699,
+    "pe": 4,
+    "pr": -2.866466666666667,
+    "agency": 6.476702115041066,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 0,
+    "ca": 407.19900000000007,
+    "pe": 4,
+    "pr": -80.46395175939325,
+    "agency": 272.20393869584314,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Explosive",
+      "Survivor": "Zombie",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 1,
+    "ca": 0.0,
+    "pe": 3,
+    "pr": 0.08666666666666668,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Zombie",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 2,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.09333333333333335,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 3,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.10000000000000002,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 4,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.10666666666666669,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 5,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.11333333333333331,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 6,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.12000000000000002,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 7,
+    "ca": 11.198999999999998,
+    "pe": 5,
+    "pr": -2.1131333333333338,
+    "agency": 5.724896632441523,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Explosive",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 8,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.13333333333333336,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 9,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.14,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 10,
+    "ca": 3.0000000000000004,
+    "pe": 5,
+    "pr": -0.4533333333333335,
+    "agency": 1.5089998920015555,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 11,
+    "ca": 3.0,
+    "pe": 4,
+    "pr": -0.4466666666666669,
+    "agency": 1.2071999136012443,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Explosive",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 12,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.16000000000000003,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 13,
+    "ca": 407.199,
+    "pe": 5,
+    "pr": -81.27313333333333,
+    "agency": 340.420251808512,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 14,
+    "ca": 38.199000000000005,
+    "pe": 4,
+    "pr": -7.466466666666667,
+    "agency": 16.444665068250153,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Explosive",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 15,
+    "ca": 218.199,
+    "pe": 4,
+    "pr": -43.459800000000016,
+    "agency": 123.12134377446635,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 16,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.1866666666666667,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 17,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.19333333333333336,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 18,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.2,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 19,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.2066666666666667,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 20,
+    "ca": 3.0,
+    "pe": 5,
+    "pr": -0.38666666666666694,
+    "agency": 1.508999892001555,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 21,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.22,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 22,
+    "ca": 218.19900000000004,
+    "pe": 5,
+    "pr": -43.41313333333336,
+    "agency": 153.90167971808293,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 23,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.2333333333333333,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Zombie",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 24,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.24000000000000005,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 25,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.24666666666666665,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 26,
+    "ca": 11.198999999999998,
+    "pe": 5,
+    "pr": -1.9864666666666664,
+    "agency": 5.724896632441523,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 27,
+    "ca": 23.910999999999998,
+    "pe": 5,
+    "pr": -4.5222,
+    "agency": 12.52680047671247,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 28,
+    "ca": 434.19900000000007,
+    "pe": 5,
+    "pr": -70.19757678034235,
+    "agency": 366.7245739854,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Mixed",
+    "epoch": 29,
+    "ca": 44.911,
+    "pe": 5,
+    "pr": -6.380890637577801,
+    "agency": 24.406289661230897,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 0,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 1,
+    "ca": 3.0,
+    "pe": 5,
+    "pr": -0.5133333333333334,
+    "agency": 1.508999892001555,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Explosive",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 2,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.09333333333333335,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Zombie",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 3,
+    "ca": 3.0,
+    "pe": 5,
+    "pr": -0.16969384566990664,
+    "agency": 1.5110225054381405,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Explosive",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Explosive",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 4,
+    "ca": 3.0,
+    "pe": 3,
+    "pr": -0.4933333333333335,
+    "agency": 0.905399935200933,
+    "region": "CLIFF",
+    "dominant_attractor": "Zombie",
+    "attractors": {
+      "Settler": "Zombie",
+      "Explorer": "Rigid",
+      "Trader": "Explosive",
+      "Survivor": "Zombie",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 5,
+    "ca": 452.19900000000007,
+    "pe": 5,
+    "pr": -89.43020459173661,
+    "agency": 388.3745234684247,
+    "region": "CLIFF",
+    "dominant_attractor": "Plastic",
+    "attractors": {
+      "Settler": "Explosive",
+      "Explorer": "Plastic",
+      "Trader": "Plastic",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 6,
+    "ca": 1.911,
+    "pe": 3,
+    "pr": -0.2622,
+    "agency": 0.5754911419308408,
+    "region": "CLIFF",
+    "dominant_attractor": "Zombie",
+    "attractors": {
+      "Settler": "Zombie",
+      "Explorer": "Zombie",
+      "Trader": "Plastic",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 7,
+    "ca": 1.9110000000000003,
+    "pe": 5,
+    "pr": -0.2555333333333334,
+    "agency": 0.9591519032180681,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Plastic",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 8,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.13333333333333336,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Zombie",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 9,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.14,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 10,
+    "ca": 3.0000000000000004,
+    "pe": 5,
+    "pr": -0.4533333333333335,
+    "agency": 1.5089998920015555,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Explosive",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 11,
+    "ca": 3.0,
+    "pe": 4,
+    "pr": -0.4466666666666669,
+    "agency": 1.2071999136012443,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Explosive",
+      "Explorer": "Rigid",
+      "Trader": "Zombie",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 12,
+    "ca": 650.1990000000001,
+    "pe": 5,
+    "pr": -128.98239834345844,
+    "agency": 605.1540420267735,
+    "region": "CLIFF",
+    "dominant_attractor": "Plastic",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Explosive",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 13,
+    "ca": 0.4110000000000001,
+    "pe": 3,
+    "pr": 0.08446666666666669,
+    "agency": 0.12340135257717258,
+    "region": "DESERT",
+    "dominant_attractor": "Zombie",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 14,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.17333333333333334,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Zombie",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 15,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.18000000000000002,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 16,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.1866666666666667,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 17,
+    "ca": 6.699,
+    "pe": 5,
+    "pr": -1.1464666666666665,
+    "agency": 3.394373915980368,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Explosive",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 18,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.2,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 19,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.2066666666666667,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 20,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.2133333333333333,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Zombie",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 21,
+    "ca": 218.199,
+    "pe": 5,
+    "pr": -42.527560094211395,
+    "agency": 153.76906755385474,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Explosive",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 22,
+    "ca": 506.199,
+    "pe": 4,
+    "pr": -101.01313333333333,
+    "agency": 357.7312446677079,
+    "region": "CLIFF",
+    "dominant_attractor": "Plastic",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Rigid",
+      "Trader": "Plastic",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 23,
+    "ca": 14.911000000000001,
+    "pe": 5,
+    "pr": -2.7488666666666672,
+    "agency": 7.677772032237727,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Rigid",
+      "Trader": "Plastic",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 24,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.24000000000000005,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Plastic",
+      "Explorer": "Rigid",
+      "Trader": "Zombie",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 25,
+    "ca": 474.69900000000007,
+    "pe": 4,
+    "pr": -86.27513926569682,
+    "agency": 329.1777977545968,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Zombie",
+      "Explorer": "Rigid",
+      "Trader": "Plastic",
+      "Survivor": "Rigid",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 26,
+    "ca": 62.911,
+    "pe": 4,
+    "pr": -12.328866666666666,
+    "agency": 28.31403186039787,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Plastic",
+      "Survivor": "Rigid",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 27,
+    "ca": 90.054,
+    "pe": 5,
+    "pr": -17.750800000000005,
+    "agency": 53.050155857480235,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Plastic",
+      "Survivor": "Brittle",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 28,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.2666666666666667,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Zombie",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Population",
+    "epoch": 29,
+    "ca": 218.199,
+    "pe": 5,
+    "pr": -18.38264031790952,
+    "agency": 158.9722230639845,
+    "region": "CLIFF",
+    "dominant_attractor": "Plastic",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Plastic",
+      "Survivor": "Brittle",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 0,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 1,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08666666666666668,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Rigid",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 2,
+    "ca": 758.199,
+    "pe": 5,
+    "pr": -151.54646666666662,
+    "agency": 723.3475809611076,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 3,
+    "ca": 29.910999999999998,
+    "pe": 5,
+    "pr": -5.882200000000001,
+    "agency": 15.849102205593734,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 4,
+    "ca": 3.0,
+    "pe": 5,
+    "pr": -0.4933333333333335,
+    "agency": 1.508999892001555,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Explosive",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 5,
+    "ca": 474.69900000000007,
+    "pe": 4,
+    "pr": -94.40395363802642,
+    "agency": 330.23714405367895,
+    "region": "CLIFF",
+    "dominant_attractor": "Plastic",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Zombie",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 6,
+    "ca": 0.0,
+    "pe": 4,
+    "pr": 0.12000000000000002,
+    "agency": 0.0,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 7,
+    "ca": 326.19900000000007,
+    "pe": 5,
+    "pr": -65.11313333333335,
+    "agency": 256.60151912445656,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Explosive",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 8,
+    "ca": 0.911,
+    "pe": 4,
+    "pr": -0.04886666666666667,
+    "agency": 0.36506393606531423,
+    "region": "DESERT",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 9,
+    "ca": 74.199,
+    "pe": 5,
+    "pr": -14.6998,
+    "agency": 42.56493053637273,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Explosive",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 10,
+    "ca": 23.910999999999998,
+    "pe": 4,
+    "pr": -4.635533333333332,
+    "agency": 10.021440381369978,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 11,
+    "ca": 23.911,
+    "pe": 5,
+    "pr": -4.628866666666665,
+    "agency": 12.526800476712472,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 12,
+    "ca": 23.910999999999998,
+    "pe": 5,
+    "pr": -4.622199999999999,
+    "agency": 12.52680047671247,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 13,
+    "ca": 17.910999999999998,
+    "pe": 5,
+    "pr": -3.415533333333333,
+    "agency": 9.276166771189047,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 14,
+    "ca": 22.411,
+    "pe": 5,
+    "pr": -4.308866666666667,
+    "agency": 11.707416847072457,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 15,
+    "ca": 69.91099999999999,
+    "pe": 5,
+    "pr": -7.477341702449856,
+    "agency": 39.72827512109359,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Explosive",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 16,
+    "ca": 17.910999999999998,
+    "pe": 4,
+    "pr": -3.3955333333333333,
+    "agency": 7.420933416951237,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Zombie",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 17,
+    "ca": 83.911,
+    "pe": 5,
+    "pr": -16.588866666666668,
+    "agency": 48.93119025369556,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 18,
+    "ca": 17.911,
+    "pe": 5,
+    "pr": -3.3822,
+    "agency": 9.276166771189049,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 19,
+    "ca": 71.911,
+    "pe": 5,
+    "pr": -14.175533333333332,
+    "agency": 41.091329509667325,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 20,
+    "ca": 34.911,
+    "pe": 5,
+    "pr": -6.768866666666667,
+    "agency": 18.67230121607915,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 21,
+    "ca": 110.199,
+    "pe": 5,
+    "pr": -9.678464069954693,
+    "agency": 67.53275483402366,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 22,
+    "ca": 29.911,
+    "pe": 4,
+    "pr": -4.913258881202202,
+    "agency": 12.664839127321352,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Explosive",
+      "Survivor": "Plastic",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 23,
+    "ca": 59.911,
+    "pe": 4,
+    "pr": -11.74886666666667,
+    "agency": 26.822198641094367,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Zombie",
+      "Survivor": "Plastic",
+      "Phoenix": "Rigid"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 24,
+    "ca": 42.699,
+    "pe": 5,
+    "pr": -4.861838918853852,
+    "agency": 23.11997782899305,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 25,
+    "ca": 11.911,
+    "pe": 4,
+    "pr": -2.135533333333334,
+    "agency": 4.877876072187583,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 26,
+    "ca": 23.910999999999998,
+    "pe": 5,
+    "pr": -2.828707802029295,
+    "agency": 12.496966998710365,
+    "region": "CLIFF",
+    "dominant_attractor": "Explosive",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Explosive",
+      "Survivor": "Plastic",
+      "Phoenix": "Explosive"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 27,
+    "ca": 59.911,
+    "pe": 4,
+    "pr": -6.66875500397499,
+    "agency": 26.754701511510362,
+    "region": "CLIFF",
+    "dominant_attractor": "Plastic",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Zombie",
+      "Survivor": "Plastic",
+      "Phoenix": "Plastic"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 28,
+    "ca": 49.911,
+    "pe": 4,
+    "pr": -9.715533333333335,
+    "agency": 21.950693287364256,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Zombie"
+    }
+  },
+  {
+    "shock": "Resource",
+    "epoch": 29,
+    "ca": 650.1990000000001,
+    "pe": 5,
+    "pr": -109.72218222013638,
+    "agency": 602.8523023793742,
+    "region": "CLIFF",
+    "dominant_attractor": "Rigid",
+    "attractors": {
+      "Settler": "Rigid",
+      "Explorer": "Rigid",
+      "Trader": "Rigid",
+      "Survivor": "Plastic",
+      "Phoenix": "Plastic"
+    }
+  }
+]

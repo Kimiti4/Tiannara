@@ -19,7 +19,6 @@ defmodule Tiannara.Core.GoalSystem do
     :achievement_tracking
   ]
 
-  alias Tiannara.Core.WorldModel
   alias Tiannara.Core.WorldModel.API
 
   @doc "Create a new goal system."

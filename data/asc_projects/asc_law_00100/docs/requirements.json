@@ -1,0 +1,10 @@
+{
+  "constraints": [],
+  "risks": [],
+  "invariants": [],
+  "capabilities": [],
+  "acceptance_criteria": [
+    "Prevent split-brain scenarios"
+  ],
+  "extracted_at": "2026-06-17T22:48:42.933000Z"
+}

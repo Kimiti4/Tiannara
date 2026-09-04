@@ -1,0 +1,150 @@
+{
+  "capabilities": [
+    {
+      "name": "asc",
+      "descriptor": [
+        "create_capability",
+        "improve_institution",
+        "govern"
+      ],
+      "interfaces": [
+        "create_capability",
+        "improve_institution",
+        "govern"
+      ],
+      "health": "healthy",
+      "ownership": false,
+      "raw": {
+        "id": "asc",
+        "pid": null,
+        "capabilities": [
+          "create_capability",
+          "improve_institution",
+          "govern"
+        ],
+        "descriptor": [
+          "create_capability",
+          "improve_institution",
+          "govern"
+        ],
+        "health_detail": "healthy",
+        "health": "healthy",
+        "ownership": false,
+        "workload": 0.0
+      }
+    },
+    {
+      "name": "agency",
+      "descriptor": [
+        "investigate",
+        "generate_hypothesis",
+        "validate"
+      ],
+      "interfaces": [
+        "investigate",
+        "generate_hypothesis",
+        "validate"
+      ],
+      "health": "healthy",
+      "ownership": false,
+      "raw": {
+        "id": "agency",
+        "pid": null,
+        "capabilities": [
+          "investigate",
+          "generate_hypothesis",
+          "validate"
+        ],
+        "descriptor": [
+          "investigate",
+          "generate_hypothesis",
+          "validate"
+        ],
+        "health_detail": "healthy",
+        "health": "healthy",
+        "ownership": false,
+        "workload": 0.0
+      }
+    },
+    {
+      "name": "cci",
+      "descriptor": [
+        "forecast",
+        "governance_cycle",
+        "risk_assess"
+      ],
+      "interfaces": [
+        "forecast",
+        "governance_cycle",
+        "risk_assess"
+      ],
+      "health": "healthy",
+      "ownership": false,
+      "raw": {
+        "id": "cci",
+        "pid": null,
+        "capabilities": [
+          "forecast",
+          "governance_cycle",
+          "risk_assess"
+        ],
+        "descriptor": [
+          "forecast",
+          "governance_cycle",
+          "risk_assess"
+        ],
+        "health_detail": "healthy",
+        "health": "healthy",
+        "ownership": false,
+        "workload": 0.0
+      }
+    },
+    {
+      "name": "sentinel",
+      "descriptor": [
+        "detect",
+        "classify",
+        "monitor",
+        "alert"
+      ],
+      "interfaces": [
+        "detect",
+        "classify",
+        "monitor",
+        "alert"
+      ],
+      "health": "healthy",
+      "ownership": false,
+      "raw": {
+        "id": "sentinel",
+        "pid": null,
+        "capabilities": [
+          "detect",
+          "classify",
+          "monitor",
+          "alert"
+        ],
+        "descriptor": [
+          "detect",
+          "classify",
+          "monitor",
+          "alert"
+        ],
+        "health_detail": "healthy",
+        "health": "healthy",
+        "ownership": false,
+        "workload": 0.0
+      }
+    }
+  ],
+  "hardcoded_dispatch": {
+    "control_center": "@subsystems map in lib/tiannara/control_center.ex:9",
+    "mission_director": "hardcoded via ControlCenter @subsystems and MissionDirector"
+  },
+  "novel_objective": {
+    "objective": "achieve:create_capability",
+    "target_capability": "asc",
+    "derived_from_descriptor": true
+  },
+  "dynamic_testable": true
+}

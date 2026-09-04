@@ -58,7 +58,6 @@ defmodule Tiannara.Core do
   alias Tiannara.Identity
   alias Tiannara.Cognition
   alias Tiannara.MetaCognition
-  alias Tiannara.DomainCortex
   alias Tiannara.Core.GRCCIdentityEcology
   alias Tiannara.Core.GoalSystem
   alias Tiannara.Core.WorldModel

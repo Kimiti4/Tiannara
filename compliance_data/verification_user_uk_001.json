@@ -1,0 +1,15 @@
+{
+  "user_id": "user_uk_001",
+  "verification": {
+    "verified": true,
+    "age": 27,
+    "required_age": 18,
+    "country": "GB",
+    "region": null,
+    "timestamp": "2026-05-07T06:37:27.449117",
+    "status": "approved",
+    "message": "Age verified: 27 years old (minimum: 18)"
+  },
+  "verified_at": "2026-05-07T06:37:27.450158",
+  "expires_at": "2027-05-07T06:37:27.450170"
+}

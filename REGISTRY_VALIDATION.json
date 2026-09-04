@@ -1,0 +1,14 @@
+{
+  "schema_version": "15.0.0",
+  "scope": "generic Phase 15 append-only validation ledger",
+  "status": "PASSED_IN_SCOPE",
+  "properties": {
+    "append_only_hash_chain": "PASS",
+    "deterministic_ids": "PASS",
+    "immutable_ownership_attribution": "PASS",
+    "replay_compatible": "PASS",
+    "mutation_detection": "PASS"
+  },
+  "limitations": "Individual legacy registry modules were not all migrated to this kernel.",
+  "evidence": "test/tiannara/discovery/constitutional_validation_test.exs"
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "tc_175",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: authenticate users credentials",
+    "source_ref": "cap_173",
+    "test_module_name": "AuthenticateUsersCredentialsTest",
+    "test_function_name": "test authenticate users credentials succeeds with valid inputs",
+    "expected_behavior": "authenticate users credentials completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_176",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: generate access tokens",
+    "source_ref": "cap_174",
+    "test_module_name": "GenerateAccessTokensTest",
+    "test_function_name": "test generate access tokens succeeds with valid inputs",
+    "expected_behavior": "generate access tokens completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

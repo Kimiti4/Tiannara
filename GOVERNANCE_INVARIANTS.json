@@ -1,0 +1,14 @@
+{
+  "schema_version": "15.0.0",
+  "status": "SPECIFIED_NOT_PROVEN",
+  "invariants": [
+    {"id":"GI-001","name":"Canonical ownership"},
+    {"id":"GI-002","name":"Provenance"},
+    {"id":"GI-003","name":"Evidence before ratification"},
+    {"id":"GI-004","name":"Deterministic replay"},
+    {"id":"GI-005","name":"Append-only history"},
+    {"id":"GI-006","name":"Explicit uncertainty"},
+    {"id":"GI-007","name":"Refutation preservation"},
+    {"id":"GI-008","name":"Authorization"}
+  ]
+}

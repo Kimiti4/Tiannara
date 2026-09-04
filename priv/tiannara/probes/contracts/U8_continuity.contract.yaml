@@ -1,0 +1,44 @@
+probe_id: "U8_continuity"
+audit: "U0"
+mode: "CERTIFICATION"
+
+capabilities_under_test: [C15, C7, C3]
+integration_edges_under_test:
+  - edge: "C3/C7 → Failure → Recovery → C3/C7"
+    question: "Does the system preserve identity, causality, and epistemic continuity across a crash/restart cycle?"
+
+bounded_proposition: >
+  Under a tested failure and recovery cycle, the system preserves canonical 
+  identity and causal history. Where continuity cannot be recovered (e.g., F8 
+  lineage retrieval crash), the system explicitly reports the break rather 
+  than fabricating a plausible-looking history.
+
+# Certification bounds (POL-CERT-AUTH-001)
+production_mutation_allowed: false
+production_service_bootstrap_allowed: false
+external_mutations_allowed: false
+production_adoption_allowed: false
+
+# Test Harness Bounds (Required to simulate failure)
+test_topology_bootstrap_allowed: true
+test_fault_injection_allowed: true   # Permitted to kill the test topology
+test_state_corruption_allowed: false # Must not maliciously corrupt DETS/ETS on disk
+
+declared_side_effects:
+  - evidence_artifacts
+  - certification_records
+  - temporary_probe_state
+  - test_topology_process_spawn_and_teardown
+  - incidental_f8_lineage_crash      # Expected during Recovery Honesty test
+
+verdict_scope: "epistemic_status_only"
+verdict_targets: "integration_edges"
+
+# U8 Test Plan (The 4 Questions)
+test_phases:
+  U8_1_identity: "Does the recovered entity retain its canonical identity?"
+  U8_2_causality: "Can the post-recovery state still be traced to the original event?"
+  U8_3_epistemic_continuity: "Does C3 retain only knowledge supported by the surviving causal chain?"
+  U8_4_recovery_honesty: "If continuity cannot be recovered (F8), does it report the break?"
+
+contract_hash: "f8066b67ff0299048845373fec88c6667603c4fdece03df936a56f36db035085"

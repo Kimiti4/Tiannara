@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-07-21T23:55:50.162000Z",
+  "overall_score": 0.7666666666666666,
+  "total_passed": 50,
+  "overall_status": "degraded",
+  "total_exercises": 65,
+  "tiers": {
+    "scientific": {
+      "status": "degraded",
+      "total": 10,
+      "passed": 7,
+      "score": 0.7
+    },
+    "discovery": {
+      "status": "passing",
+      "total": 10,
+      "passed": 10,
+      "score": 1.0
+    },
+    "cognitive": {
+      "status": "degraded",
+      "total": 10,
+      "passed": 9,
+      "score": 0.9
+    },
+    "constitutional": {
+      "status": "degraded",
+      "total": 10,
+      "passed": 7,
+      "score": 0.7
+    },
+    "civilizational": {
+      "status": "degraded",
+      "total": 15,
+      "passed": 12,
+      "score": 0.8
+    },
+    "autonomous_runtime": {
+      "status": "failing",
+      "total": 10,
+      "passed": 5,
+      "score": 0.5
+    }
+  }
+}

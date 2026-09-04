@@ -7,8 +7,9 @@ defmodule Tiannara do
   """
 
   alias Tiannara.Core.{Ontology, Causality, Observer}
-  alias Tiannara.Stabilization.{HSV, CTL, OCM, TWP, OSL, NDE, RRG, IRD, DFG}
-  alias Tiannara.Physics.{OPC, ACF, CCR}
+  alias Tiannara.Stabilization.{HSV, CTL, OCM}
+
+  require Logger
 
   # Ontology management
   defdelegate create_ontology(concepts, metadata), to: Ontology
@@ -29,21 +30,6 @@ defmodule Tiannara do
   defdelegate archive_singularity(region), to: HSV
   defdelegate stabilize_causality(causal_graph), to: CTL
   defdelegate achieve_consensus(ontologies), to: OCM
-  defdelegate prune_timelines(timelines), to: TWP
-  defdelegate sandbox_observer(observer), to: OSL
-  defdelegate inject_novelty(ecology), to: NDE
-  defdelegate govern_recursion(activity), to: RRG
-  defdelegate coordinate_interventions(interventions), to: IRD
-  defdelegate fold_reality(reality), to: DFG
-
-  # Physics compilation
-  defdelegate compile_physics(observer_ontology), to: OPC
-  defdelegate validate_conservation(physics), to: ACF
-  defdelegate reflect_cosmology(compilation_trace), to: CCR
-
-  # System monitoring
-  defdelegate get_system_metrics(), to: Tiannara.Metrics
-  defdelegate run_chaos_audit(), to: Tiannara.Audit
 
   @doc """
   Initialize the Tiannara system with default configuration.
@@ -56,9 +42,6 @@ defmodule Tiannara do
     {:ok, _} = Tiannara.Core.Supervisor.start_link(config)
     {:ok, _} = Tiannara.Stabilization.Supervisor.start_link(config)
     {:ok, _} = Tiannara.Physics.Supervisor.start_link(config)
-    
-    # Initialize NATS connection
-    {:ok, _} = Tiannara.Nats.Connection.start_link(config)
     
     Logger.info("Tiannara system initialized")
     :ok
@@ -77,9 +60,6 @@ defmodule Tiannara do
     Supervisor.stop(Tiannara.Core.Supervisor)
     Supervisor.stop(Tiannara.Stabilization.Supervisor)
     Supervisor.stop(Tiannara.Physics.Supervisor)
-    
-    # Close NATS connection
-    Tiannara.Nats.Connection.stop()
     
     Logger.info("Tiannara system shutdown complete")
     :ok

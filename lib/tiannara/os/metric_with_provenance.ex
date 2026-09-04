@@ -29,7 +29,7 @@ defmodule TiannaraOS.MetricWithProvenance do
   Constructs a provenance-traced metric from the active State.
   """
   def from_state(value, state) do
-    theories_count = Map.size(state.theories)
+    theories_count = map_size(state.theories)
     
     evidence_nodes_count =
       state.evidence_graph

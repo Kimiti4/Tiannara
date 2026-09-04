@@ -1,0 +1,13 @@
+{
+  "audit": "archaeology",
+  "checks": {
+    "genome evolution": true,
+    "institution decisions": true,
+    "migration history": true,
+    "review history": true,
+    "rfc evolution": true,
+    "voting evolution": true
+  },
+  "status": "PASS",
+  "summary": "The architecture supports archaeological reconstruction across the requested historical dimensions."
+}

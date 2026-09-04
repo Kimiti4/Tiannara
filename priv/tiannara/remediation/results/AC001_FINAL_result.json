@@ -1,0 +1,95 @@
+{
+  "gate": "AC-001-FINAL",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "timestamp": "2026-08-27T00:00:00Z",
+  "verdict": "CERTIFIED",
+  "certification_boundary": "BOUNDED",
+  "ontology_count": 20,
+  "ontology_exact": true,
+  "ontology_unique": true,
+  "canonical_domains": [
+    "engineering", "physics", "chemistry", "medicine", "cybernetics",
+    "governance", "computation", "agriculture", "energy", "logistics",
+    "cognition", "materials", "robotics", "economics", "philosophy",
+    "sociology", "linguistics", "aerospace", "ecology", "architecture"
+  ],
+  "canonical_registry": true,
+  "canonical_registry_supervised": true,
+  "canonical_registry_api": {
+    "all_0": true,
+    "all_records_0": true,
+    "all_records_atomic": true,
+    "get_1": true,
+    "get_metadata_1": true,
+    "get_module_1": true,
+    "get_lifecycle_1": true,
+    "ontology_version_0": true
+  },
+  "excluded_identities": {
+    "science": "methodology_not_domain",
+    "mathematics": "epistemic_substrate_not_domain",
+    "logic": "epistemic_substrate_not_domain",
+    "cs": "merged_into_computation"
+  },
+  "sub_gates": {
+    "AC-001-A0": "COMPLETE",
+    "AC-001-A": "CERTIFIED",
+    "AC-001-B": "CERTIFIED",
+    "AC-001-C0": "COMPLETE",
+    "AC-001-C1": "CERTIFIED",
+    "AC-001-D": "CERTIFIED",
+    "AC-001-E": "CERTIFIED"
+  },
+  "consumer_migration": "CERTIFIED",
+  "consumer_migration_sites": "40/40",
+  "legacy_authority": "CLOSED",
+  "legacy_registries": {
+    "Tiannara.Domains.Registry": "DEPRECATED_NON_AUTHORITATIVE",
+    "TiannaraOS.DomainRegistry": "DEPRECATED_NON_AUTHORITATIVE"
+  },
+  "orphan_resolution": "CERTIFIED",
+  "unexplained_orphans": 0,
+  "semantic_closure": "CERTIFIED",
+  "science_domain_misuse": 0,
+  "mathematics_domain_misuse": 0,
+  "logic_domain_misuse": 0,
+  "cs_domain_misuse": 0,
+  "computer_science_disposition": "MERGED",
+  "knowledge_capital_boundary": "PRESERVED",
+  "knowledge_capital_unavailable_value": "nil",
+  "portfolio_boundary": "PRESERVED",
+  "portfolio_unavailable_value": "nil",
+  "fabricated_values_introduced": false,
+  "production_legacy_references": 0,
+  "invalid_domain_identity_references": 0,
+  "residual_finding_resolved": {
+    "file": "lib/tiannara/os/program_registry.ex",
+    "line": 876,
+    "issue": "domain_id: :mathematics",
+    "correction": "domain_id: :computation",
+    "detected_by": "AC001_E_verifier",
+    "resolved": true
+  },
+  "authorization": {
+    "authority": "c14_ac",
+    "policy": "POL-CERT_AUTH_001",
+    "artifacts_attributable": true,
+    "final_authorization": "GRANTED"
+  },
+  "runtime_verification": {
+    "registry_compile": "PASS",
+    "registry_starts": "NOT_FRESHLY_EXECUTED",
+    "registry_supervised": "PASS_SOURCE",
+    "registry_queryable": "NOT_FRESHLY_EXECUTED",
+    "registry_returns_20": "PASS_SOURCE",
+    "boundary_modules_no_fabrication": "PASS_SOURCE",
+    "legacy_not_supervised": "PASS_SOURCE",
+    "survives_restart": "NOT_FRESHLY_EXECUTED"
+  },
+  "full_compile_after_final_mutation": "NOT_EXECUTED",
+  "full_regression_after_final_mutation": "NOT_EXECUTED",
+  "environment_limitation": "Massive codebase exceeds compile/test timeout. Live boot blocked by port 4000 occupation.",
+  "certification_boundary_note": "Certification bounded to verified architectural/semantic claims (static + source + sub-gate evidence). Fresh full runtime regression and full compile after final trivial atom swap not executed due to environment constraint. Boundary narrowed rather than evidence invented. No unexecuted validation represented as PASS.",
+  "mc_001_unlocked": true,
+  "mc_001_implemented": false
+}

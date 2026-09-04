@@ -7,7 +7,7 @@ defmodule Tiannara.ASC.Laws.TargetedHypothesisCampaign do
   """
   
   alias Tiannara.ASC.Laws.{ExperimentDesigner, Discoverer}
-  alias Tiannara.ASC.Crucible.{TransferAdaptation, TransferEcology}
+  alias Tiannara.ASC.Crucible.TransferEcology
   alias Tiannara.ASC.Runtime
   alias Tiannara.ASC.Crucible.TransferObservation # For mocking the observation if needed, though TransferAdaptation should generate it
   require Logger

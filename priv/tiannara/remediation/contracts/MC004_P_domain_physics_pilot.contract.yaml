@@ -1,0 +1,71 @@
+gate: MC-004-P
+phase: PILOT_EXECUTION
+campaign: Tiannara Remediation + Substrate Integration
+authorization: ASC-MC-004-P-DOMAIN-PHYSICS-PILOT.human.yaml
+authorization_status: GRANTED
+operator: c14_ac
+date: 2026-08-31
+authorization_kind: BOUNDED_EXECUTION
+verifier_mode: static_evidence_plus_probe
+required_verdict: CERTIFIED_BOUNDED
+
+goal: >
+  Execute the authorized damped-harmonic-oscillator physics pilot through the real
+  RK4 integrator as a genuinely real, human-authorized experiment, and record it
+  with :real_execution provenance and durable, append-only evidence.
+
+pilot:
+  module: Tiannara.Phase4.PhysicsPilotExecution
+  experiment: Tiannara.Domains.Physics.pilot_experiment/0
+  hypothesis:
+    subject: mechanics
+    object: damped_oscillation
+    description: "MC-004-P damped harmonic oscillator (underdamped)"
+  context:
+    boundary_conditions: [1.0, 0.0]
+    time_span: {duration: 10.0, dt: 0.01}
+  system:
+    m: 1.0
+    c: 0.5
+    k: 4.0
+    damping: underdamped
+
+execution_path: >
+  Physics.execute_experiment(spec) routes to PhysicsPilotExecution.execute(spec)
+  ONLY when spec carries a human-minted :grant AND :real_execution_enabled is true;
+  otherwise the pre-existing gated behavior (submit_experiment refusal while the
+  flag is false) is preserved unmodified.
+
+evidence:
+  provenance_kind: :real_execution
+  ledger: priv/tiannara/real_execution/executions.jsonl
+  harness: :real_simulation
+  method: :rk4
+  event_store: best-effort Tiannara.Executive.EventStore.append
+
+invariants:
+  - "MC-001 pin preserved: Calculus.solve_ode(%{}, %{}, 1.0) == {:error, :ode_solver_unavailable}"
+  - "MC-001 pin preserved: Physics.validate(%{model: %{}}) == {:error, :formal_verification_unavailable}"
+  - "No deployment, no sandbox patch, no production mutation as a result of the pilot"
+  - "Zero :rand.uniform in lib/tiannara/physics/**"
+  - "Grant must be human-minted (Authorization.human_grant) prior to execution"
+
+bounded_scope:
+  - "Single experiment: damped harmonic oscillator"
+  - "Flag :real_execution_enabled set true for this gate only"
+  - "No other canonical domain, no other pilot"
+
+forbidden:
+  - "Deployment of any candidate or mutation of production code from the pilot"
+  - "Routing through RealHarness/DeploymentGateway (simulation is the experiment)"
+  - "Reviving formal verification"
+  - "Fabricating provenance, ledger entries, verifier output, or c14 signatures"
+  - "Expanding scope beyond the single pilot"
+
+artifacts:
+  authorization: priv/tiannara/authorization/ASC-MC-004-P-DOMAIN-PHYSICS-PILOT.human.yaml
+  protocol: docs/remediation/MC004_P_PILOT_EXECUTION_PROTOCOL.md
+  verifier: priv/tiannara/remediation/verifiers/MC004_P_pilot_execution.py
+  evidence_matrix: certification/remediation/MC004-P-EVIDENCE-MATRIX.md
+  certification: certification/remediation/MC004-P-CERTIFICATION.md
+  result: priv/tiannara/remediation/results/MC004_P_result.json

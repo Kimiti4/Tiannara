@@ -45,19 +45,8 @@ defmodule TiannaraOS.CivilizationScheduler do
   @needs_evolution_interval 5000
   # Reduced from 5000 (less frequent)
   @world_memory_interval 5000
-  # Keep same
-  @reproduction_interval 100
   # Increased from 10000 (fewer reports)
   @metrics_reporting_interval 20000
-
-  # FOUR-STAGE DEVELOPMENTAL LIFECYCLE ⭐
-  # Maturation thresholds (age in ticks)
-  # newborn → juvenile at 1000 ticks
-  @stage_newborn_end 1_000
-  # juvenile → apprentice at 5000 ticks
-  @stage_juvenile_end 5_000
-  # apprentice → adult at 8000 ticks
-  @stage_apprentice_end 8_000
 
   # Budget burn rates per stage relative to adult (1.0)
   # newborns consume 10% of adult burn
@@ -621,8 +610,8 @@ defmodule TiannaraOS.CivilizationScheduler do
 
     final_tick = state.economy[:tick] || 0
     k_ticks = if final_tick > 0, do: final_tick / 1000, else: 1.0
-    births_per_k = Float.round(capability_births / k_ticks, 2)
-    extinctions_per_k = Float.round(capability_extinctions / k_ticks, 2)
+    _births_per_k = Float.round(capability_births / k_ticks, 2)
+    _extinctions_per_k = Float.round(capability_extinctions / k_ticks, 2)
     promotions_per_k = Float.round(capability_promotions / k_ticks, 2)
 
     avg_depth =
@@ -634,7 +623,7 @@ defmodule TiannaraOS.CivilizationScheduler do
             2
           )
 
-    rediscovery_ratio =
+    _rediscovery_ratio =
       if total_capabilities > 0,
         do: Float.round(capability_births / total_capabilities, 2),
         else: 0.0
@@ -676,7 +665,7 @@ defmodule TiannaraOS.CivilizationScheduler do
     # NEW: Population by world with max generation
     population_by_world =
       worlds
-      |> Map.new(fn {world_id, world} ->
+      |> Map.new(fn {world_id, _world} ->
         world_programs =
           programs
           |> Map.values()
@@ -2008,7 +1997,7 @@ defmodule TiannaraOS.CivilizationScheduler do
   end
 
   @spec calculate_esr(State.t()) :: float()
-  defp calculate_esr(state) do
+  defp calculate_esr(_state) do
     # Simplified ESR calculation
     # In production, would track total royalty income vs resource consumption
     # Placeholder
@@ -2016,7 +2005,7 @@ defmodule TiannaraOS.CivilizationScheduler do
   end
 
   @spec calculate_afg(State.t()) :: float()
-  defp calculate_afg(state) do
+  defp calculate_afg(_state) do
     # Simplified AFG calculation
     # In production, would compare current ESR to historical average
     # Placeholder

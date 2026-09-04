@@ -42,9 +42,6 @@ defmodule Tiannara.ASC.Crucible.LawFalsificationLedger do
           last_updated_at: DateTime.t() | nil
         }
 
-  @doc """
-  Law record structure.
-  """
   defmodule LawRecord do
     @derive Jason.Encoder
     defstruct [
@@ -300,7 +297,7 @@ defmodule Tiannara.ASC.Crucible.LawFalsificationLedger do
     end
   end
 
-  defp replace_law_in_list(ledger, updated_law, source_list, target_atom) do
+  defp replace_law_in_list(ledger, updated_law, source_list, _target_atom) do
     # Remove old version from source list
     cleaned_ledger = case source_list do
       :candidate_laws ->

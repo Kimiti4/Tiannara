@@ -1,0 +1,91 @@
+gate_id: "AC-001-D"
+parent_gate: "AC-001"
+campaign: "Tiannara Remediation + Substrate Integration"
+class: "DEPRECATION"
+mode: "AUTHORIZED_MUTATION"
+
+bounded_proposition: >
+  Tiannara no longer maintains competing executable domain-registry authorities.
+  The canonical registry is the sole authoritative domain-identity mechanism.
+  Legacy registries and APIs have explicit, auditable dispositions. All production
+  consumers have migrated. No compatibility theater or fabricated capability has
+  been introduced. Migration lineage is preserved. No ontology, knowledge-capital,
+  portfolio, or substrate boundaries were altered by this gate.
+
+requires:
+  - "AC-001-A CERTIFIED"
+  - "AC-001-B CERTIFIED"
+  - "AC-001-C1 CERTIFIED"
+
+forbids:
+  - "ontology_mutation"
+  - "knowledge_capital_absorption"
+  - "portfolio_absorption"
+  - "compatibility_theater"
+  - "untracked_deletion"
+  - "new_domain_capabilities"
+  - "broad_science_mathematics_reclassification"
+  - "authority_duplication"
+
+mutation_groups:
+  D1:
+    name: "Legacy Registry Freeze"
+    class: "OBSERVATIONAL"
+    risk: LOW
+  D2:
+    name: "Legacy Registry Deprecation"
+    class: "BEHAVIOR_CHANGE"
+    risk: MEDIUM
+  D3:
+    name: "Legacy API Disposition"
+    class: "DOCUMENTATION"
+    risk: LOW
+  D4:
+    name: "Deprecation Verification and Sealing"
+    class: "OBSERVATIONAL"
+    risk: LOW
+
+legacy_targets:
+  registry_a: "Tiannara.Domains.Registry"
+  registry_b: "TiannaraOS.DomainRegistry"
+
+canonical_authority: "Tiannara.Domains.CanonicalRegistry"
+
+api_dispositions:
+  list_all_0: "MIGRATED to CanonicalRegistry.all/0 or all_records/0"
+  get_1: "MIGRATED to CanonicalRegistry.get/1"
+  get_knowledge_capital_1: "NOT_CARRIED_FORWARD — explicit boundary"
+  get_portfolio_vector_1: "NOT_CARRIED_FORWARD — explicit boundary"
+  add_program_2: "DEAD — RETIRED"
+  record_activity_3: "DEAD — RETIRED"
+  get_all_domain_ids_0: "DEAD — RETIRED"
+  all_domains_0: "REPLACED by CanonicalRegistry.all/0"
+  domain_names_0: "REPLACED by CanonicalRegistry.all/0"
+
+verification_requirements:
+  - "canonical_registry_live_process"
+  - "canonical_registry_returns_20_domains"
+  - "legacy_registry_a_not_supervised"
+  - "legacy_registry_b_not_supervised"
+  - "zero_production_legacy_refs"
+  - "zero_runtime_legacy_calls"
+  - "zero_supervision_legacy_refs"
+  - "compile_pass"
+  - "tests_pass"
+  - "no_new_regressions"
+  - "api_dispositions_complete"
+  - "migration_lineage_complete"
+
+hard_stops:
+  - "legacy_registry_determines_domain_identity"
+  - "production_code_calls_legacy_registry"
+  - "old_APIs_recreated_for_test_passage"
+  - "legacy_deleted_without_disposition"
+  - "frozen_20_domain_ontology_changed"
+  - "knowledge_capital_absorbed_into_registry"
+  - "portfolio_absorbed_into_registry"
+  - "new_D_induced_test_failure"
+
+verdict_space: [CERTIFIED, QUALIFIED_PARTIAL, NOT_CERTIFIED, BLOCKED]
+
+contract_hash: null

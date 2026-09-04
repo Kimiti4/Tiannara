@@ -13,48 +13,48 @@ defmodule Tiannara.Physics.IRD do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def register_intervention(intervention_id, intervention_data, opts \\ []) do
-    GenServer.call(__MODULE__, {:register_intervention, intervention_id, intervention_data, opts})
+  def register_intervention(_intervention_id, _intervention_data, _opts \\ []) do
+    {:error, :physics_substrate_unavailable}
   end
 
-  def dampen_resonance(intervention_id, resonance_data, opts \\ []) do
-    GenServer.call(__MODULE__, {:dampen_resonance, intervention_id, resonance_data, opts})
+  def dampen_resonance(_intervention_id, _resonance_data, _opts \\ []) do
+    {:error, :physics_substrate_unavailable}
   end
 
-  def get_intervention_status(intervention_id) do
-    GenServer.call(__MODULE__, {:get_intervention_status, intervention_id})
+  def get_intervention_status(_intervention_id) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_all_interventions() do
-    GenServer.call(__MODULE__, :get_all_interventions)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def coordinate_distributed_intervention(target_systems, intervention_data) do
-    GenServer.call(__MODULE__, {:coordinate_distributed_intervention, target_systems, intervention_data})
+  def coordinate_distributed_intervention(_target_systems, _intervention_data) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_resonance_damping_metrics() do
-    GenServer.call(__MODULE__, :get_resonance_damping_metrics)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def validate_intervention_safety(intervention_data) do
-    GenServer.call(__MODULE__, {:validate_intervention_safety, intervention_data})
+  def validate_intervention_safety(_intervention_data) do
+    {:error, :physics_substrate_unavailable}
   end
 
-  def calculate_resonance_potential(target_system) do
-    GenServer.call(__MODULE__, {:calculate_resonance_potential, target_system})
+  def calculate_resonance_potential(_target_system) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_system_coordination_status() do
-    GenServer.call(__MODULE__, :get_system_coordination_status)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def publish_coordination_event(event_data) do
-    GenServer.call(__MODULE__, {:publish_coordination_event, event_data})
+  def publish_coordination_event(_event_data) do
+    {:error, :physics_substrate_unavailable}
   end
 
-  def subscribe_to_coordination_events(subscription_id, filters \\ []) do
-    GenServer.call(__MODULE__, {:subscribe_to_coordination_events, subscription_id, filters})
+  def subscribe_to_coordination_events(_subscription_id, _filters \\ []) do
+    {:error, :physics_substrate_unavailable}
   end
 
   # Server callbacks
@@ -182,7 +182,7 @@ defmodule Tiannara.Physics.IRD do
   end
 
   @impl true
-  def handle_call({:dampen_resonance, intervention_id, resonance_data, opts}, _from, state) do
+  def handle_call({:dampen_resonance, intervention_id, resonance_data, _opts}, _from, state) do
     case :ets.lookup(:interventions, intervention_id) do
       [{^intervention_id, intervention}] ->
         # Validate safety
@@ -463,32 +463,22 @@ defmodule Tiannara.Physics.IRD do
   end
 
   defp calculate_resonance_potential_for_system(target_systems) when is_list(target_systems) do
-    # Calculate overall resonance potential for target systems
-    system_potentials = Enum.map(target_systems, fn system ->
-      calculate_system_resonance_potential(system, %{})
-    end)
-    
-    if length(system_potentials) > 0 do
-      Enum.sum(system_potentials) / length(system_potentials)
-    else
-      0.0
+    # MC-004-M (MU-3): resonance estimation decommissioned with the theatrical
+    # substrate; no numeric resonance value may be fabricated. Unreachable from
+    # the quarantined client surface.
+    system_potentials =
+      Enum.map(target_systems, fn system ->
+        calculate_system_resonance_potential(system, %{})
+      end)
+
+    case Enum.reject(system_potentials, &match?({:error, _}, &1)) do
+      [] -> {:error, :physics_substrate_unavailable}
+      finite when is_list(finite) -> Enum.sum(finite) / length(finite)
     end
   end
 
-  defp calculate_system_resonance_potential(target_system, config) do
-    # Simplified resonance potential calculation
-    # In production would use more sophisticated algorithms
-    
-    # Base potential calculation
-    base_potential = :rand.uniform() * 0.5 + 0.3
-    
-    # Apply system-specific factors
-    case target_system do
-      "core_system" -> base_potential * 1.2
-      "memory_system" -> base_potential * 0.8
-      "processing_system" -> base_potential * 1.0
-      _ -> base_potential
-    end
+  defp calculate_system_resonance_potential(_target_system, _config) do
+    {:error, :physics_substrate_unavailable}
   end
 
   defp validate_intervention_safety_for_dampening(intervention, resonance_data) do
@@ -592,7 +582,8 @@ defmodule Tiannara.Physics.IRD do
   end
 
   defp attempt_system_coordination(_system, _intervention_data, _config) do
-    if :rand.uniform() > 0.8, do: :success, else: :failure
+    # MU-3: random coordination coin-flip decommissioned; no fabricated success.
+    :failure
   end
 
   defp generate_coordination_id() do
@@ -677,7 +668,7 @@ defmodule Tiannara.Physics.IRD do
     }
   end
 
-  defp perform_safety_validation(intervention_data, config) do
+  defp perform_safety_validation(intervention_data, _config) do
     # Simplified safety validation
     # In production would use sophisticated safety algorithms
     
@@ -688,7 +679,7 @@ defmodule Tiannara.Physics.IRD do
       %{parameters: params} ->
         case params do
           %{force: force} when force > 100 -> 
-            risks = risks ++ ["High force parameter: #{force}"]
+            _risks = risks ++ ["High force parameter: #{force}"]
           _ -> :ok
         end
       _ -> :ok
@@ -705,7 +696,7 @@ defmodule Tiannara.Physics.IRD do
     }
   end
 
-  defp start_nats_connection(config) do
+  defp start_nats_connection(_config) do
     # Initialize NATS/JetStream connection
     # This is a placeholder - in production would use actual NATS client
     Logger.info("Starting NATS/JetStream connection")

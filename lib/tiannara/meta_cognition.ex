@@ -7,7 +7,7 @@ defmodule Tiannara.MetaCognition do
   but rather proposes new variants to be spawned into the ecology.
   """
   
-  alias Tiannara.Sentinel.D2.{SpeciesAtlas, OperatorEcology, EpistemicAttractor}
+  alias Tiannara.Sentinel.D2.{SpeciesAtlas, OperatorEcology}
   alias Tiannara.EDM.DiseaseEngine
 
   defstruct [
@@ -150,4 +150,6 @@ defmodule Tiannara.MetaCognition do
     # Further probabilistic scoring could happen here.
     # For now, if it passes precheck, we return it as a viable proposal.
   end
+
+  def consult_world_model(_query, _opts), do: {:ok, :stub}
 end

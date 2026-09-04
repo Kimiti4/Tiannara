@@ -1,0 +1,58 @@
+{
+  "constraints": [],
+  "invariants": [
+    {
+      "id": "inv_149",
+      "domain": "business_logic",
+      "statement": "Prices must be positive",
+      "negation_form": "Prices must NOT be positive",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Prices must be positive"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap_150",
+      "name": "create product entries",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "create",
+      "subject": "product entries",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_151",
+      "name": "search products by",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "search",
+      "subject": "products by",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_152",
+      "name": "update prices dynamically",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "update",
+      "subject": "prices dynamically",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:23:18.684000Z"
+}

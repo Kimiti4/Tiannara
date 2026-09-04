@@ -94,7 +94,7 @@ defmodule Tiannara.ASC.Crucible.ABTestingCampaign do
   defp append_distance(ctx) do
     # Pseudo-distance logic for deterministic A/B testing:
     # Use the target domain string length as a deterministic pseudo-random seed
-    domain_str = to_string(ctx.target_domain)
+    _domain_str = to_string(ctx.target_domain)
     hash = :erlang.phash2({ctx.source_domain, ctx.target_domain}, 100)
     dist = hash / 100.0
     Map.put(ctx, :semantic_distance, dist)
@@ -113,14 +113,14 @@ defmodule Tiannara.ASC.Crucible.ABTestingCampaign do
     %{attempts: 0, executed: 0, aborted: 0, compute_cycles: 0, law_invocations: %{}, successes: 0}
   end
 
-  defp update_telemetry(acc, outcome, compute_cost, invoked_laws) do
+  defp update_telemetry(acc, outcome, compute_cost, _invoked_laws) do
     acc = %{acc | 
       attempts: acc.attempts + 1,
       compute_cycles: acc.compute_cycles + compute_cost
     }
     
     # Calculate organic success based on viability
-    {outcome_type, cost, laws, context} = outcome
+    {outcome_type, _cost, laws, context} = outcome
     is_viable = context.semantic_distance < 0.7 and context.source_domain == context.target_domain
     
     acc = case outcome_type do

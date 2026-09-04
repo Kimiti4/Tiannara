@@ -1,0 +1,107 @@
+{
+  "timestamp": "2026-05-07T05:41:27.229029",
+  "overall_success_rate": 99.92,
+  "total_tests_run": 1250,
+  "total_tests_passed": 1249,
+  "domain_performance": {
+    "algorithm": 100.0,
+    "combinatorial": 100.0,
+    "causal": 100.0,
+    "temporal": 100.0,
+    "re": 100.0,
+    "nlp": 100.0,
+    "logic": 100.0,
+    "prediction": 99.5
+  },
+  "detailed_results": {
+    "algorithm": {
+      "test_method": "test_sorting_algorithms",
+      "success_rate": 100.0,
+      "total_tests": 200,
+      "passed": 200,
+      "failed": 0,
+      "avg_response_time_ms": 3.3364200592041016,
+      "duration_seconds": 0.6682498455047607,
+      "status": "PASS",
+      "sample_failures": []
+    },
+    "combinatorial": {
+      "test_method": "test_knapsack_problems",
+      "success_rate": 100.0,
+      "total_tests": 100,
+      "passed": 100,
+      "failed": 0,
+      "avg_response_time_ms": 51.30255460739136,
+      "duration_seconds": 5.13047194480896,
+      "status": "PASS",
+      "sample_failures": []
+    },
+    "causal": {
+      "test_method": "test_causal_discovery",
+      "success_rate": 100.0,
+      "total_tests": 100,
+      "passed": 100,
+      "failed": 0,
+      "avg_response_time_ms": 3.7010717391967773,
+      "duration_seconds": 0.37029480934143066,
+      "status": "PASS",
+      "sample_failures": []
+    },
+    "temporal": {
+      "test_method": "test_time_series_forecasting",
+      "success_rate": 100.0,
+      "total_tests": 100,
+      "passed": 100,
+      "failed": 0,
+      "avg_response_time_ms": 0.20174026489257812,
+      "duration_seconds": 0.020284652709960938,
+      "status": "PASS",
+      "sample_failures": []
+    },
+    "re": {
+      "test_method": "test_function_inference",
+      "success_rate": 100.0,
+      "total_tests": 200,
+      "passed": 200,
+      "failed": 0,
+      "avg_response_time_ms": 0.9105157852172852,
+      "duration_seconds": 0.1823291778564453,
+      "status": "PASS",
+      "sample_failures": []
+    },
+    "nlp": {
+      "test_method": "test_email_generation",
+      "success_rate": 100.0,
+      "total_tests": 150,
+      "passed": 150,
+      "failed": 0,
+      "avg_response_time_ms": 0.014651616414388021,
+      "duration_seconds": 0.0022630691528320312,
+      "status": "PASS",
+      "sample_failures": []
+    },
+    "logic": {
+      "test_method": "test_logical_puzzles",
+      "success_rate": 100.0,
+      "total_tests": 200,
+      "passed": 200,
+      "failed": 0,
+      "avg_response_time_ms": 0.11249423027038574,
+      "duration_seconds": 0.022609710693359375,
+      "status": "PASS",
+      "sample_failures": []
+    },
+    "prediction": {
+      "test_method": "run_all_tests",
+      "success_rate": 99.5,
+      "total_tests": 200,
+      "passed": 199,
+      "failed": 1,
+      "avg_response_time_ms": 0,
+      "duration_seconds": 0.00802159309387207,
+      "status": "PASS",
+      "sample_failures": []
+    }
+  },
+  "target_met": true
+}

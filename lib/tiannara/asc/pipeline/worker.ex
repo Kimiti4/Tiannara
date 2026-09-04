@@ -24,7 +24,6 @@ defmodule Tiannara.ASC.Pipeline.Worker do
   alias Tiannara.ASC.Pipeline.Phases
   alias Tiannara.ASC.Observatory.ProjectObservatory
 
-  @phase_timeout_ms 300_000   # 5 minutes per phase max (configurable)
 
   # ---------------------------------------------------------------------------
   # Public API
@@ -144,14 +143,12 @@ defmodule Tiannara.ASC.Pipeline.Worker do
   end
 
   defp execute_phase(project) do
-    case Phases.handler(project.phase) do
-      nil -> {:ok, :stub}
-      mod ->
-        if Code.ensure_loaded?(mod) and function_exported?(mod, :run, 1) do
-          mod.run(project)
-        else
-          {:ok, :stub}
-        end
+    with mod when not is_nil(mod) <- Phases.handler(project.phase),
+         true <- Code.ensure_loaded?(mod),
+         true <- function_exported?(mod, :run, 1) do
+      mod.run(project)
+    else
+      _ -> {:ok, :stub}
     end
   end
 

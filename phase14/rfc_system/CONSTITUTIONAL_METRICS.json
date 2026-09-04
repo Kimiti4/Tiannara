@@ -1,0 +1,55 @@
+{
+  "metrics": [
+    {
+      "name": "Replay Complexity",
+      "status": "measured",
+      "value": 0.62
+    },
+    {
+      "name": "Replay Depth",
+      "status": "partial",
+      "value": 0.48
+    },
+    {
+      "name": "Certificate Density",
+      "status": "measured",
+      "value": 0.71
+    },
+    {
+      "name": "Governance Entropy",
+      "status": "partial",
+      "value": 0.44
+    },
+    {
+      "name": "Knowledge Connectivity",
+      "status": "measured",
+      "value": 0.67
+    },
+    {
+      "name": "Lineage Completeness",
+      "status": "partial",
+      "value": 0.39
+    },
+    {
+      "name": "Evidence Completeness",
+      "status": "partial",
+      "value": 0.53
+    },
+    {
+      "name": "Audit Coverage",
+      "status": "measured",
+      "value": 0.76
+    },
+    {
+      "name": "Mutation Coverage",
+      "status": "measured",
+      "value": 0.8
+    },
+    {
+      "name": "Operational Coverage",
+      "status": "partial",
+      "value": 0.41
+    }
+  ],
+  "version": "14.1.2"
+}

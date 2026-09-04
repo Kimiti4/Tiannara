@@ -1,0 +1,70 @@
+[
+  {
+    "id": "tc_153",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Prices must be positive",
+    "source_ref": "inv_149",
+    "test_module_name": "PricesMustPositiveInvariantTest",
+    "test_function_name": "property Prices must be positive",
+    "expected_behavior": "Prices must NOT be positive",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "business_logic",
+      "generator": "StreamData.term()",
+      "assertion": "Prices must NOT be positive",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "business_logic"
+    ],
+    "source_type": "invariant"
+  },
+  {
+    "id": "tc_154",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: create product entries",
+    "source_ref": "cap_150",
+    "test_module_name": "CreateProductEntriesTest",
+    "test_function_name": "test create product entries succeeds with valid inputs",
+    "expected_behavior": "create product entries completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_155",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: search products by",
+    "source_ref": "cap_151",
+    "test_module_name": "SearchProductsTest",
+    "test_function_name": "test search products by succeeds with valid inputs",
+    "expected_behavior": "search products by completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_156",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: update prices dynamically",
+    "source_ref": "cap_152",
+    "test_module_name": "UpdatePricesDynamicallyTest",
+    "test_function_name": "test update prices dynamically succeeds with valid inputs",
+    "expected_behavior": "update prices dynamically completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

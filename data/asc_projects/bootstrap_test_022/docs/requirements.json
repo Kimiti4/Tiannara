@@ -1,0 +1,74 @@
+{
+  "constraints": [],
+  "risks": [],
+  "invariants": [],
+  "capabilities": [
+    {
+      "id": "cap_153",
+      "name": "create user management",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "create",
+      "subject": "user management",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "user"
+    },
+    {
+      "id": "cap_154",
+      "name": "register new users",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "register",
+      "subject": "new users",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "user"
+    },
+    {
+      "id": "cap_155",
+      "name": "list users by",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "list",
+      "subject": "users by",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "user"
+    },
+    {
+      "id": "cap_156",
+      "name": "validate password strength",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "validate",
+      "subject": "password strength",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_157",
+      "name": "delete inactive users",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "delete",
+      "subject": "inactive users",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "user"
+    }
+  ],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:34:17.572000Z"
+}

@@ -49,24 +49,6 @@ defmodule Tiannara.Sentinel.DiscoveryGenealogy do
   end
 
   @impl true
-  def handle_call({:get_ancestry, discovery_id}, _from, state) do
-    path = trace_ancestry(discovery_id, state.by_id, [])
-    {:reply, path, state}
-  end
-  
-  @impl true
-  def handle_call({:is_rediscovery, discovery}, _from, state) do
-    # If we have this exact name already from a DIFFERENT civ, it's a rediscovery
-    existing_ids = Map.get(state.by_name, discovery.name, [])
-    is_rediscovery = Enum.any?(existing_ids, fn id -> 
-      old = state.by_id[id]
-      old != nil and old.originator_civ_id != discovery.originator_civ_id
-    end)
-    
-    {:reply, is_rediscovery, state}
-  end
-  
-  @impl true
   def handle_cast({:increment_prestige, discovery_name}, state) do
     # Find all IDs for this name
     ids = Map.get(state.by_name, discovery_name, [])
@@ -80,6 +62,23 @@ defmodule Tiannara.Sentinel.DiscoveryGenealogy do
     
     Logger.info("🌟 [Discovery Genealogy] Prestige of '#{discovery_name}' increased due to rediscovery.")
     {:noreply, %{state | by_id: new_by_id}}
+  end
+
+  @impl true
+  def handle_call({:get_ancestry, discovery_id}, _from, state) do
+    path = trace_ancestry(discovery_id, state.by_id, [])
+    {:reply, path, state}
+  end
+  
+  @impl true
+  def handle_call({:is_rediscovery, discovery}, _from, state) do
+    existing_ids = Map.get(state.by_name, discovery.name, [])
+    is_rediscovery = Enum.any?(existing_ids, fn id -> 
+      old = state.by_id[id]
+      old != nil and old.originator_civ_id != discovery.originator_civ_id
+    end)
+    
+    {:reply, is_rediscovery, state}
   end
   
   defp trace_ancestry(id, graph, acc) do

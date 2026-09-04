@@ -1,0 +1,4 @@
+epoch,system_mem_mb,proc_count,top1_name,top1_mem_mb,top1_heap,top1_q,top2_name,top2_mem_mb,top2_heap,top2_q,top3_name,top3_mem_mb,top3_heap,top3_q
+50,78.19,241,Tiannara.REA.ArchaeologyRegistry,13.08,1714395,0,Tiannara.REA.Causal.Graph,9.13,1196407,0,:code_server,2.78,364609,0
+100,104.46,241,Tiannara.REA.ArchaeologyRegistry,30.4,3984509,0,Tiannara.REA.Causal.Graph,15.61,2045716,0,:code_server,2.78,364609,0
+150,109.15,241,Tiannara.REA.ArchaeologyRegistry,32.79,4298223,0,Tiannara.REA.Causal.Graph,15.61,2045782,0,:code_server,2.78,364609,0

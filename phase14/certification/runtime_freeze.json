@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-07-02T20:06:58.939000Z",
+  "sha256": "3fe9bf3f5ab01bcc4174db9bc108dfdfefe6f4b40d3178dcd160b1d004cdde01",
+  "freeze_type": "phase_14_constitutional_governance",
+  "frozen_components": [
+    "governance_state_schema",
+    "governance_ledger_schema",
+    "governance_archaeology_api",
+    "governance_fitness_evaluator_api",
+    "governance_entropy_tracker_api",
+    "governance_cost_ledger_api",
+    "certification_laboratory_api",
+    "independent_auditor_api",
+    "proof_object_schemas",
+    "trust_stack_layers",
+    "confidence_engine_model"
+  ],
+  "schema_versions": {
+    "governance_state": "14.0.999",
+    "governance_ledger": "14.0.999",
+    "governance_archaeology": "14.0.999",
+    "governance_fitness": "14.0.999",
+    "governance_entropy": "14.0.999",
+    "governance_cost": "14.0.999",
+    "certification": "14.0.999"
+  },
+  "api_stability": "frozen",
+  "backward_compatibility": "guaranteed"
+}

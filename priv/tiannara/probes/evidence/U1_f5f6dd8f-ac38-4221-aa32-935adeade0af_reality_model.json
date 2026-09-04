@@ -1,0 +1,21 @@
+{
+  "phase": "reality_model",
+  "trace_id": "f5f6dd8f-ac38-4221-aa32-935adeade0af",
+  "ok": false,
+  "chain_result": {
+    "add_node": {
+      "error": "exit :exit: {{:noproc, {GenServer, :call, [Tiannara.CEL.Services.ExecutiveMemory, {:record, :reality_graph, %{metadata: %{source: :unified_reality_graph}, action: :node_added, payload: %{stage: :information, node_id: \"repo_tiannara\"}}, %{}}, 5000]}}, {GenServer, :call, [Tiannara.Graph.UnifiedRealityGraph, {:add_node, \"repo_tiannara\", :information, %{data: %{\"author\" => \"researcher_42\", \"commit_hash\" => \"HEAD\", \"files_changed\" => 3, \"message\" => \"Add epistemic tracer module\"}, type: \"repository_commit\", source: :probe_u1, payload_hash: \"b6fea8bc0fa9228d4a5870782cb3820e10313696cb5fe6250b07dd2a486a648c\", observed_at: \"2026-08-20T02:54:17.032818+00:00\"}}, 5000]}}"
+    },
+    "graph_stats": {
+      "error": "exit :exit: {:noproc, {GenServer, :call, [Tiannara.Graph.UnifiedRealityGraph, :stats, 5000]}}"
+    },
+    "payload_hash": "b6fea8bc0fa9228d4a5870782cb3820e10313696cb5fe6250b07dd2a486a648c",
+    "read_back": {
+      "error": "exit :exit: {:noproc, {GenServer, :call, [Tiannara.Graph.UnifiedRealityGraph, {:get_node, \"repo_tiannara\"}, 5000]}}"
+    },
+    "shadow_world_model": {
+      "error": "exit :exit: {:noproc, {GenServer, :call, [Tiannara.World.UnifiedWorldModel, {:get_entity, \"repo_tiannara\"}, 5000]}}"
+    }
+  },
+  "payload_hash": "b6fea8bc0fa9228d4a5870782cb3820e10313696cb5fe6250b07dd2a486a648c"
+}

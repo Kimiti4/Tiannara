@@ -1,0 +1,70 @@
+gate: MC-004-M
+name: domain_physics_mutation
+campaign: Tiannara Remediation + Substrate Integration
+phase: MUTATION_TRUTHFULNESS
+date: 2026-08-31
+predecessors:
+  - MC-004-A0 (CERTIFIED_RECONCILIATION)
+  - MC-003-M (CERTIFIED_BOUNDED)
+
+scope_units:
+  - MU-1: "REAL bounded RK4 solve_ode for :first_order_system specs; unsupported specs -> {:error, :ode_solver_unavailable}"
+  - MU-2: "Physics domain: real simulate for supported specs; structural validate; provenance attachment; pilot_experiment/0"
+  - MU-3: "Quarantine OPC/NDE/IRD/TWP client surfaces -> {:error, :physics_substrate_unavailable}; remove :rand.uniform from opc/ird"
+  - MU-4: "Physics->Phase4 bridge execute_experiment/1 (flag-gated); replace ADE placeholder with pilot model"
+
+boundaries:
+  mutation_authorized: true
+  real_execution_enabled_unchanged: false
+  live_experiment_execution_allowed: false
+  formal_verification_revival: false
+  ode_library_dependency: false
+  all_20_domains_remediation: false
+  linear_algebra_module: false
+  subsystem_rewrite: false
+  modify_prior_gate_artifacts: false
+
+minimal_targets:
+  - lib/tiannara/foundations/mathematics/calculus.ex
+  - lib/tiannara/domains/physics.ex
+  - lib/tiannara/asc/autonomous_discovery.ex
+  - lib/tiannara/physics/opc.ex
+  - lib/tiannara/physics/ird.ex
+  - lib/tiannara/physics/nde.ex
+  - lib/tiannara/physics/twp.ex
+tests:
+  - test/tiannara/math/mc004_m_calculus_rk4_test.exs
+  - test/tiannara/domains/mc004_m_physics_domain_test.exs
+  - test/tiannara/physics/mc004_m_subsystem_quarantine_test.exs
+
+truthfulness_invariants:
+  - "Calculus.solve_ode(%{}, %{}, 1.0) -> {:error, :ode_solver_unavailable}"
+  - "Physics.simulate(%{equations: []}, %{boundary_conditions: []}) -> {:error, :ode_solver_unavailable}"
+  - "Physics.validate(%{model: %{}}) -> {:error, :formal_verification_unavailable}"
+  - "zero :rand.uniform in lib/tiannara/physics"
+  - "simulated physics results carry provenance kind :simulation via Evidence.Provenance.build"
+  - ":real_execution_enabled stays false"
+
+verification:
+  verifier: priv/tiannara/remediation/verifiers/MC004_M_domain_physics_mutation.py
+  verifier_mode: static_evidence_plus_probe
+  required_verdict: CERTIFIED_BOUNDED
+  result_artifact: priv/tiannara/remediation/results/MC004_M_result.json
+  flags:
+    mutation_executed: true
+    pilot_executed: false
+    real_execution_enabled: false
+    authorization_required_for_pilot: true
+
+authorization:
+  status: GRANTED
+  operator: c14_ac
+  file: priv/tiannara/authorization/ASC-MC-004-M-DOMAIN-PHYSICS-MUTATION.human.yaml
+
+settlement:
+  sequence:
+    - MC-004-M
+    - HUMAN_REVIEW
+    - MC-004-P (separate authorization; pilot execution)
+    - INDEPENDENT_VERIFICATION
+    - MC-004_CERTIFICATION

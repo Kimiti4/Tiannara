@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-07-03T20:28:54.197000Z",
+  "proposal_id": "test_proposal_001",
+  "reviews": [
+    {
+      "timestamp": "2026-07-03T20:28:54.193000Z",
+      "proposal_id": "test_proposal_001",
+      "board_id": "domain_review_board",
+      "rationale": "Domain expertise review",
+      "event_hash": "f1b8a41cc47439907558431c82fe3a3bde89735fbc4f913ea029a1723d65f8ff",
+      "decision": "approve",
+      "reviewer_ids": [
+        "reviewer_domain_review_board"
+      ],
+      "event_id": "f1b8a41cc47439907558431c82fe3a3bde89735fbc4f913ea029a1723d65f8ff"
+    },
+    {
+      "timestamp": "2026-07-03T20:28:54.193000Z",
+      "proposal_id": "test_proposal_001",
+      "board_id": "constitutional_review_board",
+      "rationale": "Constitutional compliance review",
+      "event_hash": "a6d167ce59c23e2218af5705e58c25e854355b535705f3302f9da2892f110b20",
+      "decision": "approve",
+      "reviewer_ids": [
+        "reviewer_constitutional_review_board"
+      ],
+      "event_id": "a6d167ce59c23e2218af5705e58c25e854355b535705f3302f9da2892f110b20"
+    },
+    {
+      "timestamp": "2026-07-03T20:28:54.197000Z",
+      "proposal_id": "test_proposal_001",
+      "board_id": "scientific_review_board",
+      "rationale": "Scientific methodology review",
+      "event_hash": "8b5c5abe522de461542298ac69b7f80afd48028e73220ce9d3e6607f1508a24d",
+      "decision": "approve",
+      "reviewer_ids": [
+        "reviewer_scientific_review_board"
+      ],
+      "event_id": "8b5c5abe522de461542298ac69b7f80afd48028e73220ce9d3e6607f1508a24d"
+    }
+  ],
+  "quorum_met": true,
+  "review_count": 3,
+  "approval_count": 3,
+  "rejection_count": 0
+}

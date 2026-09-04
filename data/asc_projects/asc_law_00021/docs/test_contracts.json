@@ -1,0 +1,56 @@
+[
+  {
+    "id": "tc_89",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: calculate percentiles",
+    "source_ref": "cap_86",
+    "test_module_name": "CalculatePercentilesTest",
+    "test_function_name": "test calculate percentiles succeeds with valid inputs",
+    "expected_behavior": "calculate percentiles completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_90",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: query metrics by",
+    "source_ref": "cap_87",
+    "test_module_name": "QueryMetricsTest",
+    "test_function_name": "test query metrics by succeeds with valid inputs",
+    "expected_behavior": "query metrics by completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_91",
+    "priority": "high",
+    "status": "pending",
+    "type": "load",
+    "description": "Load: response_time <= 60.0 s",
+    "source_ref": "con_88",
+    "test_module_name": null,
+    "test_function_name": "test response_time satisfies latency constraint",
+    "expected_behavior": "response_time <= 60.0 s",
+    "coverage_dimension": "performance",
+    "property_spec": {
+      "type": "latency",
+      "unit": "s",
+      "value": 60.0,
+      "operator": "lte",
+      "metric": "response_time"
+    },
+    "tags": [
+      "latency",
+      "non_functional"
+    ],
+    "source_type": "constraint"
+  }
+]

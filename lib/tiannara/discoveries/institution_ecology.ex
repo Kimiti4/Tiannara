@@ -203,7 +203,7 @@ defmodule Tiannara.REA.Epistemic.InstitutionRegistry do
         id: :exploration_institute,
         name: "Frontier Exploration Institute",
         type: :evolvable,
-        focus_domain: :science,
+        focus_domain: :engineering,
         specialization_coordinates: %{volatility: 0.7, complexity: 0.6, adversariality: 0.3, security_pressure: 0.2},
         compute_share: 0.15,
         attention_share: 0.15,
@@ -357,7 +357,7 @@ defmodule Tiannara.REA.Epistemic.InstitutionEcology do
     Float.round(alignment * efficiency * risk_factor, 4)
   end
 
-  defp split_institution(inst, epoch) do
+  defp split_institution(inst, _epoch) do
     # Mutate culture & duplicate memory
     credits_half = inst.credits_held / 2.0
     c1 = mutate_culture(inst.culture)
@@ -475,7 +475,7 @@ defmodule Tiannara.REA.Epistemic.InstitutionEcology do
     }
   end
 
-  defp check_and_found_institutions(list, epoch, env_context) do
+  defp check_and_found_institutions(list, _epoch, _env_context) do
     active_goals =
       if Code.ensure_loaded?(Tiannara.REA.Epistemic.GoalRegistry) do
         Tiannara.REA.Epistemic.GoalRegistry.active_goals()

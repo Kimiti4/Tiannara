@@ -1,0 +1,80 @@
+{
+  "gate": "AC-001-D",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "timestamp": "2026-08-26T22:15:00Z",
+  "verdict": "CERTIFIED",
+  "verdict_determination": {
+    "certified_requires": {
+      "canonical_registry_sole_authority": true,
+      "legacy_registry_a_deprecated": true,
+      "legacy_registry_b_deprecated": true,
+      "production_legacy_refs": 0,
+      "runtime_legacy_calls": 0,
+      "supervision_legacy_refs": 0,
+      "api_dispositions_complete": true,
+      "migration_lineage_complete": true,
+      "compile": "PASS",
+      "tests_domains": "43/43 PASS",
+      "tests_web_discoveries": "127/127 PASS",
+      "new_regressions": false,
+      "ontology_unchanged": true,
+      "boundary_intact": true
+    },
+    "blocking_findings": [],
+    "d1_discovery": {
+      "description": "autonomous_discovery.ex:48 had live call to Registry.all_domains() missed by C1",
+      "resolution": "Migrated to CanonicalRegistry.all_records() during D2"
+    }
+  },
+  "evidence": {
+    "legacy_modules": {
+      "Tiannara.Domains.Registry": {
+        "status": "DEPRECATED",
+        "raises_on_call": true,
+        "production_consumers": 0,
+        "test_consumers": 0
+      },
+      "TiannaraOS.DomainRegistry": {
+        "status": "DEPRECATED",
+        "raises_on_call": true,
+        "genserver_removed": true,
+        "production_consumers": 0,
+        "test_consumers": 0
+      }
+    },
+    "compile": "PASS",
+    "tests": {
+      "domains": {"total": 43, "passed": 43, "failed": 0},
+      "web": {"total": 13, "passed": 13, "failed": 0},
+      "discoveries": {"total": 114, "passed": 114, "failed": 0}
+    },
+    "runtime": {
+      "canonical_registry_supervised": true,
+      "legacy_a_supervised": false,
+      "legacy_b_supervised": false
+    }
+  },
+  "api_dispositions": {
+    "list_all_0": "MIGRATED",
+    "get_1": "MIGRATED",
+    "get_knowledge_capital_1": "NOT_CARRIED_FORWARD",
+    "get_portfolio_vector_1": "NOT_CARRIED_FORWARD",
+    "add_program_2": "DEAD_RETIRED",
+    "record_activity_3": "DEAD_RETIRED",
+    "get_all_domain_ids_0": "DEAD_RETIRED",
+    "all_domains_0": "REPLACED",
+    "domain_names_0": "REPLACED"
+  },
+  "boundaries": {
+    "knowledge_capital": "EXPLICITLY_UNAVAILABLE",
+    "portfolio": "EXPLICITLY_UNAVAILABLE"
+  },
+  "ontology_invariant": {
+    "domain_count": 20,
+    "unchanged": true,
+    "excluded": [":science", ":mathematics", ":logic", ":cs"]
+  },
+  "contract_hash": null,
+  "authorization_ref": "priv/tiannara/authorization/ASC-AC-001-D-LEGACY-DEPRECATION.human.yaml",
+  "commit_sha": null
+}

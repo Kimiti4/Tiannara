@@ -1,0 +1,25 @@
+{
+  "lineage": {
+    "pass": true,
+    "problems": []
+  },
+  "cel_bridge": {
+    "pass": true,
+    "provider": "asc"
+  },
+  "governance": {
+    "pass": true
+  },
+  "no_hardcoded": {
+    "pass": true
+  },
+  "continuity": {
+    "pass": true
+  },
+  "egress": {
+    "pass": true
+  },
+  "pollution": {
+    "pass": true
+  }
+}

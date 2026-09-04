@@ -213,7 +213,7 @@ defmodule Tiannara.ASC.Implementation.ComponentGraph do
           end
         end)
 
-        rec_stack = MapSet.delete(rec_stack, node)
+        _rec_stack = MapSet.delete(rec_stack, node)
         result
     end
   end

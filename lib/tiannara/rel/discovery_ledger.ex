@@ -116,7 +116,7 @@ defmodule Tiannara.REL.DiscoveryLedger do
       disc = Map.get(state.discoveries, disc_id)
       if disc do
         for disease_id <- Map.get(disc, :infected_by, []) do
-          Logger.warn("🦠 [EDM] Disease #{disease_id} transmitted via license of #{disc_id} to #{licensee}!")
+          Logger.warning("🦠 [EDM] Disease #{disease_id} transmitted via license of #{disc_id} to #{licensee}!")
           # A fully realized engine would register the infection on the licensee side.
           # We'll just log the transmission here.
         end
@@ -175,7 +175,7 @@ defmodule Tiannara.REL.DiscoveryLedger do
              |> Enum.reject(fn {_id, lic} -> lic.licensee_civ_id == civ_id and lic.discovery_id == forgotten_id end)
              |> Enum.into(%{})
 
-             Logger.warn("🌑 [REL] Dark Age! Civilization #{civ_id} forgot discovery #{state.discoveries[forgotten_id].name} due to lack of resources. Associated licenses terminated.")
+             Logger.warning("🌑 [REL] Dark Age! Civilization #{civ_id} forgot discovery #{state.discoveries[forgotten_id].name} due to lack of resources. Associated licenses terminated.")
              {:noreply, %{state | ownership: new_ownership, licenses: new_licenses}}
           else
              {:noreply, state}

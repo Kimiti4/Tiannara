@@ -229,7 +229,7 @@ defmodule Tiannara.ASC.Crucible.RepairEcology.RepairTransfer do
         max(min(avg_delta + 0.5, 1.0), 0.0) * 0.2
       )
 
-      Float.clamp(score, 0.0, 1.0)
+      min(max(score, 0.0), 1.0)
     end
   end
 

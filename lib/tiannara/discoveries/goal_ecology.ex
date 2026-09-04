@@ -126,10 +126,10 @@ defmodule Tiannara.REA.Epistemic.GoalEcology do
 
   # All 20 research domains dynamically loaded from registry (with static fallback if registry fails)
   def list_domains do
-    if Code.ensure_loaded?(Tiannara.Domains.Registry) do
-      Tiannara.Domains.Registry.all() |> Enum.map(& &1.id)
+    if Code.ensure_loaded?(Tiannara.Domains.CanonicalRegistry) do
+      Tiannara.Domains.CanonicalRegistry.all()
     else
-      [:engineering, :medicine, :governance, :computation, :science, :agriculture, :energy, :logistics, :cognition, :materials, :robotics, :economics, :philosophy, :sociology, :linguistics, :aerospace, :ecology, :cybernetics, :architecture, :mathematics]
+      [:engineering, :medicine, :governance, :computation, :agriculture, :energy, :logistics, :cognition, :materials, :robotics, :economics, :philosophy, :sociology, :linguistics, :aerospace, :ecology, :cybernetics, :architecture]
     end
   end
 
@@ -185,9 +185,6 @@ defmodule Tiannara.REA.Epistemic.GoalEcology do
     Float.round(eig * priority * alignment, 4)
   end
 
-  defp reproduce_goals([], epoch, env) do
-    generate_founding_goals(5, epoch, env)
-  end
   defp reproduce_goals(selected, epoch) do
     Enum.flat_map(selected, fn g ->
       # Mutate goal coordinates
@@ -223,8 +220,8 @@ defmodule Tiannara.REA.Epistemic.GoalEcology do
       
       # Calculate dynamic expected info gain (uncertainty index)
       eig =
-        if Code.ensure_loaded?(Tiannara.Domains.Registry) do
-          case Tiannara.Domains.Registry.get_portfolio_vector(domain) do
+        if Code.ensure_loaded?(Tiannara.Domains.PortfolioBoundary) do
+          case Tiannara.Domains.PortfolioBoundary.get(domain) do
             %{uncertainty: u} -> u
             _ -> 0.5
           end

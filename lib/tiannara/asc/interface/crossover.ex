@@ -18,7 +18,7 @@ defmodule Tiannara.ASC.Interface.Crossover do
 
   """
 
-  alias Tiannara.ASC.Interface.{Genome, Contract, Event, Protocol}
+  alias Tiannara.ASC.Interface.Genome
 
   @doc """
   Perform semantic crossover between two parent genomes.
@@ -181,8 +181,12 @@ defmodule Tiannara.ASC.Interface.Crossover do
     case {protocols_a, protocols_b} do
       {[proto_a], [proto_b]} when proto_a.type != proto_b.type ->
         # Create hybrid protocol
-        hybrid = Protocol.hybrid(proto_a.type, proto_b.type)
-        [hybrid]
+        hybrid = if function_exported?(Tiannara.ASC.Interface.Protocol, :hybrid, 2) do
+          Tiannara.ASC.Interface.Protocol.hybrid(proto_a.type, proto_b.type)
+        else
+          nil
+        end
+        if hybrid, do: [hybrid], else: []
 
       _ ->
         # Union of all protocols

@@ -15,7 +15,7 @@ defmodule Tiannara.ASC.Interface.LawCandidates do
 
   """
 
-  alias Tiannara.ASC.Interface.{Mutation, Transfer}
+  alias Tiannara.ASC.Interface.Mutation
 
   @derive Jason.Encoder
   defstruct [

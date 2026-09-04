@@ -1,0 +1,11 @@
+{
+  "agency_loops": 4171,
+  "recoveries": 458,
+  "restraints": 17,
+  "improvement_cycles": 834,
+  "self_diagnoses": 894,
+  "workflow_crashes": 878,
+  "mints": 911,
+  "source": "scripts/audit_soak_signals.exs on frozen soak72.log (135647 lines)",
+  "generated_at": "2026-08-16"
+}

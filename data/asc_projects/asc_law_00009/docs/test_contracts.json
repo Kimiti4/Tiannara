@@ -1,0 +1,25 @@
+[
+  {
+    "id": "tc_54",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Tasks must complete within deadline",
+    "source_ref": "inv_53",
+    "test_module_name": "TasksMustCompleteInvariantTest",
+    "test_function_name": "property Tasks must complete within deadline",
+    "expected_behavior": "Tasks must NOT complete within deadline",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "general",
+      "generator": "StreamData.term()",
+      "assertion": "Tasks must NOT complete within deadline",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "general"
+    ],
+    "source_type": "invariant"
+  }
+]

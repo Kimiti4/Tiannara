@@ -4,12 +4,12 @@ defmodule Tiannara.CIS.ImmuneMemory do
   """
   require Logger
 
-  def recognized?(pathogen_type) do
+  def recognized?(_pathogen_type) do
     # Simulates memory matching
     true
   end
   
-  def store_outcome(pathogen_type, outcome) do
+  def store_outcome(pathogen_type, _outcome) do
     Logger.debug("🧠 [CIS] Storing intervention outcome for #{pathogen_type} into Immune Memory.")
     Tiannara.Metrics.Aggregator.push_event([:tiannara, :cis, :immune_memory_strength], 1.0)
     :ok

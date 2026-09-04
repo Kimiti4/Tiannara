@@ -5,12 +5,12 @@ defmodule TiannaraWeb.ResearchMapLive do
   use Phoenix.LiveView
 
   alias Tiannara.KnowledgeGraph.Registry, as: KG
-  alias Tiannara.Domains.Registry, as: DomReg
+  alias Tiannara.Domains.CanonicalRegistry
   alias Tiannara.Discoveries.Discovery
 
   def mount(_params, _session, socket) do
     nodes = KG.all()
-    domains = DomReg.all()
+    domains = CanonicalRegistry.all()
     principles = Enum.filter(nodes, & &1.type == :principle)
     orbits = Discovery.load_orbits()
 

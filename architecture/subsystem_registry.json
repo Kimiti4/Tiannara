@@ -1,0 +1,58 @@
+{
+  "subsystems": [
+    {
+      "id": "MSCL",
+      "role": "Constraint budget and divergence control",
+      "failure_mode": "Constraint overflow → OLEF dampening",
+      "credits": 100
+    },
+    {
+      "id": "OLEF",
+      "role": "Environmental pressure field",
+      "failure_mode": "Pressure singularity → field freeze",
+      "credits": 100
+    },
+    {
+      "id": "GRCC",
+      "role": "Ecological diversity and adaptation",
+      "failure_mode": "Monoculture collapse → CIS takeover",
+      "credits": 100
+    },
+    {
+      "id": "CTL",
+      "role": "Causal timeline integrity",
+      "failure_mode": "Branch explosion → global causal reset",
+      "credits": 30
+    },
+    {
+      "id": "OCM",
+      "role": "Semantic coherence across ecosystem",
+      "failure_mode": "Semantic drift → embedding recompute",
+      "credits": 40
+    },
+    {
+      "id": "CIS",
+      "role": "Immune system — detect and regulate",
+      "failure_mode": "Autoimmune collapse → soft recalibration",
+      "credits": 50
+    },
+    {
+      "id": "AEO",
+      "role": "Goal decomposition and agent routing",
+      "failure_mode": "Planner deadlock → task destruction",
+      "credits": 60
+    },
+    {
+      "id": "OED",
+      "role": "Ontology stress-testing and validation",
+      "failure_mode": "OAVL false validation → hard shutdown",
+      "credits": 20
+    },
+    {
+      "id": "OPC",
+      "role": "Physics compilation and deployment",
+      "failure_mode": "Invalid physics → global freeze",
+      "credits": 0
+    }
+  ]
+}

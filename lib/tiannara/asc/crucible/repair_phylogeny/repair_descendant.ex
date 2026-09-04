@@ -12,8 +12,7 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairDescendant do
   This is the fundamental unit of evolutionary branching analysis.
   """
 
-  alias Tiannara.ASC.Crucible.RepairPattern
-  alias __MODULE__
+
 
   @derive Jason.Encoder
   defstruct [
@@ -61,9 +60,6 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairDescendant do
     }
   end
 
-  @doc """
-  Classify the type of mutation between parent and child patterns.
-  """
   defp classify_mutation(parent, child) do
     cond do
       # Strategy change

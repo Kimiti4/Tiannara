@@ -1,0 +1,71 @@
+{
+  "nodes": [
+    "account balanceService",
+    "accounts uniqueService",
+    "all accountsService"
+  ],
+  "edges": [
+    {
+      "type": "calls",
+      "to": "account balanceRepository",
+      "from": "account balanceService"
+    },
+    {
+      "type": "calls",
+      "to": "account balanceValidator",
+      "from": "account balanceService"
+    },
+    {
+      "type": "calls",
+      "to": "accounts uniqueRepository",
+      "from": "accounts uniqueService"
+    },
+    {
+      "type": "calls",
+      "to": "accounts uniqueValidator",
+      "from": "accounts uniqueService"
+    },
+    {
+      "type": "calls",
+      "to": "all accountsRepository",
+      "from": "all accountsService"
+    },
+    {
+      "type": "calls",
+      "to": "all accountsValidator",
+      "from": "all accountsService"
+    }
+  ],
+  "complexity": 2.5,
+  "critical_paths": [
+    [
+      "account balanceService",
+      "account balanceValidator"
+    ],
+    [
+      "account balanceService",
+      "account balanceRepository"
+    ],
+    [
+      "accounts uniqueService",
+      "accounts uniqueValidator"
+    ]
+  ],
+  "bottlenecks": [],
+  "fan_in": {
+    "account balanceRepository": 1,
+    "account balanceService": 0,
+    "account balanceValidator": 1,
+    "accounts uniqueRepository": 1,
+    "accounts uniqueService": 0,
+    "accounts uniqueValidator": 1,
+    "all accountsRepository": 1,
+    "all accountsService": 0,
+    "all accountsValidator": 1
+  },
+  "fan_out": {
+    "account balanceService": 2,
+    "accounts uniqueService": 2,
+    "all accountsService": 2
+  }
+}

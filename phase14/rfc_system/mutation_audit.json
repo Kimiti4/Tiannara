@@ -1,0 +1,8 @@
+{
+  "audit": "mutation",
+  "baseline_hash": "5cc6d6b79fcd2803be79418fa09f8c7241a1231e1615dc78753d2a8d5d3879d2",
+  "detected": true,
+  "mutated_hash": "c64a7bc04e697287c4d7c23f32a141f18f80d185057ac3fb8931e5fbed690a35",
+  "status": "PASS",
+  "summary": "A synthetic mutation changed the digest, so tamper detection is active."
+}

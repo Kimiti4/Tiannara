@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "certificate": {
+    "status": "passed",
+    "verified_at": "2026-07-02T20:06:58.815000Z"
+  },
+  "confidence": 0.99,
+  "sample_size": 1000,
+  "campaign": "gc_010_fitness_stability",
+  "failure_modes": [
+    {
+      "mode": "fitness_volatility",
+      "probability": 0.01
+    }
+  ],
+  "statistical_power": 0.98,
+  "supporting_evidence": [
+    "fitness_evaluations",
+    "statistical_analysis"
+  ],
+  "std_deviation": 0.0,
+  "fitness_stable": true,
+  "mean_fitness": 0.807
+}

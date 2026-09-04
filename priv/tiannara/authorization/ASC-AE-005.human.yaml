@@ -1,0 +1,88 @@
+# ==============================================================================
+# TIANNARA C14 AUTHORIZATION ARTIFACT: EVOLUTIONARY EXPERIMENT
+# ==============================================================================
+# Mission:    ASC-AE-005 — Epistemic Grounding Remediation (F10)
+# Predecessor: AE-004 (Observability Contract Fidelity)
+# ==============================================================================
+
+mission_id: "ASC-AE-005"
+status: "AUTHORIZED"
+
+# ------------------------------------------------------------------------------
+# 1. MISSION OBJECTIVE (Falsifiable & Epistemically Strict)
+# ------------------------------------------------------------------------------
+objective: >
+  Ground the CollapsePredictor in actual observed telemetry. If sufficient 
+  evidence cannot be established to derive a risk score, quarantine the 
+  capability to return explicit UNKNOWN/UNASSESSED rather than authoritative-looking 
+  random probabilities.
+
+constitutional_basis:
+  - "Truth has priority over confidence."
+  - "Uncertainty should never be hidden."
+  - "Evidence Before Confidence."
+
+# ------------------------------------------------------------------------------
+# 2. STRICT SCOPE & BOUNDARIES
+# ------------------------------------------------------------------------------
+scope:
+  permitted_targets:
+    - "F10: CollapsePredictor.assess_risk/1 epistemic grounding"
+  explicitly_forbidden:
+    - "F8: Lineage retrieval (Deferred to AE-006)"
+    - "F11: CIS production residency (Deferred to AE-007)"
+    - "F13: Discovery supervisor degradation (Deferred to AE-008)"
+    - "Production mutation (Isolated experiment only)"
+
+# ------------------------------------------------------------------------------
+# 3. MISSION GATES (The Epistemic Verification Protocol)
+# ------------------------------------------------------------------------------
+gates:
+  Phase_A_Telemetry_Mapping:
+    description: "Map the exact input vectors currently consumed by CollapsePredictor."
+    requirement: "Identify whether the predictor is receiving real telemetry or falling back to a default/random seed."
+  
+  Phase_B_Candidate_Generation:
+    description: "Generate isolated candidates."
+    candidates:
+      - "baseline (untouched)"
+      - "candidate_grounding_fix (derives risk from specific telemetry weights)"
+      - "candidate_quarantine (returns {:unknown, :insufficient_evidence} if telemetry is missing)"
+  
+  Phase_C_Epistemic_Verification:
+    description: "The candidate must pass all four epistemic tests."
+    tests:
+      - name: "Determinism"
+        condition: "Identical telemetry + identical config"
+        requirement: "Output risk score must be identical. No random variance."
+      - name: "Sensitivity"
+        condition: "Materially degraded telemetry (e.g., high memory pressure, failing health checks)"
+        requirement: "Output risk score must increase. The mathematical reason for the increase must be traceable to the degraded inputs."
+      - name: "Grounding"
+        condition: "Normal telemetry"
+        requirement: "Output must include a provenance map showing which telemetry fields contributed to the score."
+      - name: "Bounded Uncertainty (Negative Case)"
+        condition: "Missing, nil, or stale telemetry"
+        requirement: "Output MUST be {:unknown, :insufficient_evidence}. It MUST NOT invent a probability (e.g., 0.5 or 0.249)."
+
+# ------------------------------------------------------------------------------
+# 4. ADOPTION GATE
+# ------------------------------------------------------------------------------
+no_automatic_adoption:
+  rule: >
+    This authorization permits ISOLATED EXPERIMENTATION only. 
+    If a candidate passes Phase C, it must generate an EVIDENCE REPORT.
+    Merging to production requires a SEPARATE C14 authorization artifact 
+    (ASC-AE-005-ADOPTION.human.yaml).
+
+# ------------------------------------------------------------------------------
+# 5. HUMAN AUTHORIZATION BLOCK
+# ------------------------------------------------------------------------------
+human_authorization:
+  operator_id: schtickman
+  signature: f9/f12/f10    # Tier 1 per DEC-U0-U1-SIG-TIER, extends AE-004 chain
+  timestamp: 2026-08-21T02:00Z
+  conditions_accepted: true
+  notes: "AE-005 authorized — proceed with epistemic grounding remediation"
+
+valid_until: 2026-09-04T02:00Z

@@ -8,7 +8,7 @@ defmodule Tiannara.DomainCortex do
     :system_admin,       # Maps to Troubleshooting
     :perception,         # Maps to Vision / Audio
     :engineering, :construction, :robotics, :transport,
-    :medicine, :governance, :science, :mathematics,
+    :medicine, :governance, :physics, :chemistry,
     :agriculture, :energy, :logistics, :finance, :cognition,
     :materials_science, :manufacturing, :education, :ecology, :law
   ]

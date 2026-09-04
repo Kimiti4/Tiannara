@@ -14,6 +14,15 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
   - Query by transferability score
   - Automatic pattern statistics updates
 
+  ## Memory Bound
+
+  The ETS cache is a bounded active working set: when the configured bound
+  (`:repair_library_max_patterns` in `config :tiannara, :asc`) is exceeded,
+  the oldest-inserted pattern is evicted deterministically and a
+  `[:tiannara, :repair_library, :eviction]` telemetry event is emitted.
+  The NDJSON archive remains append-only durable history and is never
+  truncated; only the active ETS working set is bounded.
+
   ## Example
 
       iex> {:ok, library} = Tiannara.ASC.Crucible.RepairLibrary.start_link()
@@ -31,6 +40,12 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
   # ETS table name
   @table_name :repair_library
 
+  # Insertion-order index for deterministic oldest-first eviction
+  @seq_table :repair_library_seq
+
+  # Metadata table (monotonic sequence counter)
+  @meta_table :repair_library_meta
+
   # Persistence file
   @persistence_file "data/repair_patterns.ndjson"
 
@@ -40,29 +55,20 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
 
   @impl true
   def init(_) do
-    # Load and deduplicate persisted patterns
-    {patterns, is_compacted} = load_persisted_patterns()
+    # Idempotent table creation across restarts
+    ensure_table(@table_name, [:set, :public, :named_table, read_concurrency: true])
+    ensure_table(@seq_table, [:ordered_set, :public, :named_table])
+    ensure_table(@meta_table, [:set, :public, :named_table])
 
-    # Create ETS table for O(1) reads
-    :ets.new(@table_name, [:set, :public, :named_table, read_concurrency: true])
+    :ets.insert(@meta_table, {:seq, 0})
 
-    # Populate ETS cache
-    Enum.each(patterns, fn pattern ->
-      :ets.insert(@table_name, {pattern.id, pattern})
-    end)
-    
-    # Store initial metrics
-    persisted_count = length(patterns)
+    # Stream the archive into a bounded active working set (archive untouched)
+    {raw_loaded, _} = load_persisted_patterns()
+
     ets_count = :ets.info(@table_name, :size)
-    IO.puts("📚 RepairLibrary initialized with #{length(patterns)} patterns")
-    IO.puts("📊 [RepairLibrary] :ets.info reports #{ets_count} patterns (Compacted: #{is_compacted})")
-    
-    if length(patterns) != ets_count do
-      IO.puts("⚠️  [CRITICAL BUG] ETS POPULATION MISMATCH!")
-      IO.puts("   Loaded #{length(patterns)} patterns but ETS contains #{ets_count}")
-    end
-    
-    # Show sample signatures from ETS
+    IO.puts("📚 RepairLibrary initialized with #{ets_count} patterns (raw archive lines: #{raw_loaded})")
+    IO.puts("📊 [RepairLibrary] :ets.info reports #{ets_count} patterns (bounded: #{max_patterns()})")
+
     if ets_count > 0 do
       sample = :ets.first(@table_name)
       case :ets.lookup(@table_name, sample) do
@@ -74,10 +80,10 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
           IO.puts("❌ [RepairLibrary] Could not read sample pattern from ETS")
       end
     end
-    
+
     IO.puts("✅ [RepairLibrary] ETS inspection complete\n")
 
-    {:ok, %{pattern_count: ets_count, initial_persisted: persisted_count}}
+    {:ok, %{pattern_count: ets_count, initial_persisted: raw_loaded}}
   end
 
   @doc """
@@ -207,6 +213,17 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
   end
 
   @doc """
+  Bounded sample of currently loaded patterns (at most `limit` entries).
+  Safe replacement for full-table materialization in diagnostic paths.
+  """
+  def get_patterns_sample(limit \\ 100) do
+    case :ets.select(@table_name, [{{:"$1", :"$2"}, [], [:"$2"]}], limit) do
+      {patterns, _cont} -> patterns
+      :"$end_of_table" -> []
+    end
+  end
+
+  @doc """
   Learns a new pattern. Optimized for high-throughput ingestion during 5C.9.
   """
   def learn(%{id: id} = pattern) when is_binary(id) do
@@ -237,8 +254,8 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
   @impl true
   def handle_call({:add_pattern, pattern}, _from, state) do
     IO.puts("     📥 [RepairLibrary] Adding pattern #{pattern.id} with signature: #{pattern.failure_signature}")
-    # Insert into ETS
-    :ets.insert(@table_name, {pattern.id, pattern})
+    # Insert into ETS (bounded working set with oldest-first eviction)
+    insert_bounded(pattern)
     
     # Verify insertion
     case :ets.lookup(@table_name, pattern.id) do
@@ -256,7 +273,7 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
 
   def handle_call({:learn, pattern}, _from, state) do
     # Fast path for high-throughput learning during 5C.9
-    :ets.insert(@table_name, {pattern.id, pattern})
+    insert_bounded(pattern)
     persist_pattern(pattern)
     {:reply, :ok, %{state | pattern_count: state.pattern_count + 1}}
   end
@@ -264,19 +281,16 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
   def handle_call({:query_by_signature, signature}, _from, state) do
     IO.puts("     🔎 [RepairLibrary] Querying for signature: #{signature}")
     
-    # Get total pattern count for debugging
-    all_patterns = :ets.tab2list(@table_name)
-    IO.puts("     📊 [RepairLibrary] Total patterns in ETS: #{length(all_patterns)}")
-    
-    # Show all signatures for debugging (first 5)
-    if length(all_patterns) > 0 do
-      sample_signatures = Enum.take(all_patterns, 5) |> Enum.map(fn {_id, p} -> p.failure_signature end)
-      IO.puts("     📋 [RepairLibrary] Sample signatures: #{inspect(sample_signatures)}")
-    end
-    
+    # Bounded diagnostics: table size via info, sample via limited select
+    total = :ets.info(@table_name, :size)
+    IO.puts("     📊 [RepairLibrary] Total patterns in ETS: #{total}")
+
+    sample_signatures = get_patterns_sample(5) |> Enum.map(& &1.failure_signature)
+    IO.puts("     📋 [RepairLibrary] Sample signatures: #{inspect(sample_signatures)}")
+
     # Query ETS for matching signatures
     matches = :ets.select(@table_name, [
-      {{:"$1", :"$2"}, [{:==, {:element, 2, :"$2"}, signature}], [:"$2"]}
+      {{:"$1", :"$2"}, [{:==, {:map_get, :failure_signature, :"$2"}, signature}], [:"$2"]}
     ])
     
     IO.puts("     📊 [RepairLibrary] Found #{length(matches)} matching patterns")
@@ -287,7 +301,7 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
   def handle_call({:query_by_category, category}, _from, state) do
     # Query ETS for matching categories
     matches = :ets.select(@table_name, [
-      {{:"$1", :"$2"}, [{:==, {:element, 4, :"$2"}, category}], [:"$2"]}
+      {{:"$1", :"$2"}, [{:==, {:map_get, :repair_category, :"$2"}, category}], [:"$2"]}
     ])
 
     {:reply, matches, state}
@@ -323,8 +337,8 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
         # Update pattern statistics
         updated_pattern = RepairPattern.update_statistics(pattern, success?, project_id)
 
-        # Update ETS
-        :ets.insert(@table_name, {pattern_id, updated_pattern})
+        # Update ETS (refreshes insertion order)
+        insert_bounded(updated_pattern)
 
         # Persist update
         persist_pattern(updated_pattern)
@@ -346,21 +360,19 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
   end
 
   def handle_call(:verify_integrity, _from, state) do
-    report = generate_population_report(state.initial_persisted)
+    report = generate_population_report(state.pattern_count)
     
-    healthy = report.ets_count == report.persisted_count and 
-              report.unique_ids == report.ets_count and 
-              not report.has_corruption
+    healthy = report.unique_ids == report.ets_count and not report.has_corruption
               
     {:reply, healthy, state}
   end
 
   def handle_call(:population_report, _from, state) do
-    {:reply, generate_population_report(state.initial_persisted), state}
+    {:reply, generate_population_report(state.pattern_count), state}
   end
 
   def handle_call(:detect_corruption, _from, state) do
-    report = generate_population_report(state.initial_persisted)
+    report = generate_population_report(state.pattern_count)
     
     corruption_details = []
     
@@ -371,7 +383,7 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
     end
     
     corruption_details = if report.has_corruption do
-      [{:mismatch, "ets_count != persisted_count or unique_ids != ets_count"} | corruption_details]
+      [{:mismatch, "unique_ids != ets_count or nil_ids > 0"} | corruption_details]
     else
       corruption_details
     end
@@ -389,9 +401,7 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
     unique_ids = MapSet.new(ids)
     nil_ids = Enum.count(ids, &is_nil/1)
     
-    has_corruption = ets_count != persisted_count or 
-                     MapSet.size(unique_ids) != ets_count or 
-                     nil_ids > 0
+    has_corruption = MapSet.size(unique_ids) != ets_count or nil_ids > 0
                      
     %{
       persisted_count: persisted_count,
@@ -404,114 +414,166 @@ defmodule Tiannara.ASC.Crucible.RepairLibrary do
 
 
   defp load_persisted_patterns do
-    if File.exists?(@persistence_file) do
-      patterns = @persistence_file
-      |> File.read!()
-      |> String.split("\n", trim: true)
-      |> Enum.map(&Jason.decode!/1)
-      |> Enum.map(fn json_map ->
-        # Convert string keys to atom keys for struct conversion
-        # Handle nested maps (like failure_classification) recursively
-        struct_keys = Map.keys(%RepairPattern{})
-        
-        atom_key_map = 
-          for {key, val} <- json_map,
-              key in Enum.map(struct_keys, &Atom.to_string/1),
-              into: %{} do
-            atom_key = String.to_existing_atom(key)
-            
-            # Convert nested map keys to atoms if needed
-            converted_val = 
-              case val do
-                %{} = nested_map when atom_key == :failure_classification ->
-                  # Convert nested classification map keys AND values to atoms
-                  for {nk, nv} <- nested_map, into: %{} do
-                    # Safely convert key to atom (create if doesn't exist)
-                    atom_nk = 
-                      try do
-                        String.to_existing_atom(nk)
-                      rescue
-                        ArgumentError -> String.to_atom(nk)
-                      end
-                    
-                    # Convert string values to atoms for known atom fields
-                    atom_nv = 
-                      if atom_nk in [:domain, :category, :subcategory] and is_binary(nv) do
-                        # Safely convert value to atom (create if doesn't exist)
-                        try do
-                          String.to_existing_atom(nv)
-                        rescue
-                          ArgumentError -> String.to_atom(nv)
-                        end
-                      else
-                        nv
-                      end
-                    
-                    {atom_nk, atom_nv}
-                  end
-                _ ->
-                  val
-              end
-            
-            {atom_key, converted_val}
-          end
-        
-        struct(RepairPattern, atom_key_map)
-      end)
-      
-      # Check IDs to find out how many were actually loaded
-      ids = Enum.map(patterns, & &1.id)
-      unique_ids = MapSet.new(ids)
-      
-      # Deduplicate (keep latest)
-      unique_patterns = patterns
-      |> Enum.reverse()
-      |> Enum.uniq_by(& &1.id)
-      |> Enum.reverse()
+    path = persistence_file()
 
-      is_compacted = if length(patterns) > length(unique_patterns) do
-        compact_persistence_file(unique_patterns)
-        true
-      else
-        false
-      end
+    if File.exists?(path) do
+      raw_loaded =
+        path
+        |> File.stream!([], :line)
+        |> bulk_gc_ingest()
 
-      # DEBUG: Inspect loaded patterns
-      IO.puts("\n🔍 [RepairLibrary] Memory Integrity Report...")
-      IO.puts("📊 Raw loaded: #{length(patterns)}")
-      IO.puts("📊 Unique IDs: #{MapSet.size(unique_ids)}")
-      IO.puts("📊 Deduplicated: #{length(unique_patterns)}")
-      
-      nil_ids = Enum.count(unique_patterns, &is_nil(&1.id))
-      if nil_ids > 0 do
-        IO.puts("⚠️  [CRITICAL BUG] #{nil_ids} patterns have nil IDs!")
-      end
-      
-      {unique_patterns, is_compacted}
+      {raw_loaded, :ets.info(@table_name, :size)}
     else
-      {[], false}
+      {0, 0}
     end
   end
 
-  defp compact_persistence_file(patterns) do
-    # Ensure data directory exists
-    File.mkdir_p!(Path.dirname(@persistence_file))
-    
-    # Overwrite with compacted NDJSON
-    lines = Enum.map(patterns, fn pattern ->
-      Jason.encode!(Map.from_struct(pattern)) <> "\n"
-    end)
-    
-    File.write!(@persistence_file, lines, [:write])
-    IO.puts("📦 [RepairLibrary] Compacted persistence file from to #{length(patterns)} entries.")
+  defp decode_archive_line(line) do
+    case Jason.decode(line) do
+      {:ok, json_map} -> {:ok, pattern_from_json(json_map)}
+      _ -> :error
+    end
+  end
+
+  defp pattern_from_json(json_map) do
+    # Convert string keys to atom keys for struct conversion
+    # Handle nested maps (like failure_classification) recursively
+    struct_keys = Map.keys(%RepairPattern{})
+
+    atom_key_map =
+      for {key, val} <- json_map,
+          key in Enum.map(struct_keys, &Atom.to_string/1),
+          into: %{} do
+        atom_key = String.to_existing_atom(key)
+
+        # Convert nested map keys to atoms if needed
+        converted_val =
+          case val do
+            %{} = nested_map when atom_key == :failure_classification ->
+              # Convert nested classification map keys AND values to atoms
+              for {nk, nv} <- nested_map, into: %{} do
+                # Safely convert key to atom (create if doesn't exist)
+                atom_nk =
+                  try do
+                    String.to_existing_atom(nk)
+                  rescue
+                    ArgumentError -> String.to_atom(nk)
+                  end
+
+                # Convert string values to atoms for known atom fields
+                atom_nv =
+                  if atom_nk in [:domain, :category, :subcategory] and is_binary(nv) do
+                    # Safely convert value to atom (create if doesn't exist)
+                    try do
+                      String.to_existing_atom(nv)
+                    rescue
+                      ArgumentError -> String.to_atom(nv)
+                    end
+                  else
+                    nv
+                  end
+
+                {atom_nk, atom_nv}
+              end
+
+            _ ->
+              val
+          end
+
+        {atom_key, converted_val}
+      end
+
+    struct(RepairPattern, atom_key_map)
+  end
+
+  defp insert_bounded(%{id: id} = pattern) do
+    seq = :ets.update_counter(@meta_table, :seq, {2, 1})
+
+    # Re-insert of an existing id replaces the old entry: retire its old seq key
+    :ets.match_delete(@seq_table, {:"$1", id})
+
+    :ets.insert(@table_name, {id, pattern})
+    :ets.insert(@seq_table, {seq, id})
+
+    if :ets.info(@table_name, :size) > max_patterns() do
+      evict_oldest()
+    end
+
+    :ok
+  end
+
+  defp evict_oldest do
+    case :ets.first(@seq_table) do
+      :"$end_of_table" ->
+        :ok
+
+      oldest_seq ->
+        case :ets.lookup(@seq_table, oldest_seq) do
+          [{^oldest_seq, id}] ->
+            :ets.delete(@table_name, id)
+            :ets.delete(@seq_table, oldest_seq)
+            :telemetry.execute(
+              [:tiannara, :repair_library, :eviction],
+              %{count: 1},
+              %{reason: :max_patterns_exceeded}
+            )
+
+          [] ->
+            :ok
+        end
+    end
+  end
+
+  defp max_patterns do
+    Application.get_env(:tiannara, :asc, [])
+    |> Keyword.get(:repair_library_max_patterns, 20_000)
+  end
+
+  defp persistence_file do
+    Application.get_env(:tiannara, :asc, [])
+    |> Keyword.get(:repair_library_persistence_file, @persistence_file)
+  end
+
+  defp ensure_table(name, opts) do
+    case :ets.whereis(name) do
+      :undefined -> :ets.new(name, opts)
+      _ -> :ok
+    end
   end
 
   defp persist_pattern(pattern) do
     # Ensure data directory exists
-    File.mkdir_p!(Path.dirname(@persistence_file))
+    File.mkdir_p!(Path.dirname(persistence_file()))
 
     # Append pattern as NDJSON line
     json_line = Jason.encode!(Map.from_struct(pattern))
-    File.write!(@persistence_file, json_line <> "\n", [:append])
+    File.write!(persistence_file(), json_line <> "\n", [:append])
+  end
+
+  # AE-003 candidate B: bulk insertion + one forced GC at the end of init.
+  defp bulk_gc_ingest(stream) do
+    {count, rows, seq_rows} =
+      Enum.reduce(stream, {0, %{}, %{}}, fn line, {acc, rows, seq_rows} ->
+        case decode_archive_line(line) do
+          {:ok, %{id: id} = pattern} when is_binary(id) ->
+            seq = acc + 1
+            {seq, Map.put(rows, id, pattern), Map.put(seq_rows, id, seq)}
+
+          _ ->
+            {acc, rows, seq_rows}
+        end
+      end)
+
+    if count > 0 do
+      :ets.insert(@table_name, Map.to_list(rows))
+      :ets.insert(@seq_table, Enum.map(seq_rows, fn {id, seq} -> {seq, id} end))
+      :ets.insert(@meta_table, {:seq, count})
+
+      overflow = count - max_patterns()
+      if overflow > 0, do: Enum.each(1..overflow, fn _ -> evict_oldest() end)
+    end
+
+    :erlang.garbage_collect()
+    count
   end
 end

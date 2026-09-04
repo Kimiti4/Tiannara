@@ -1,0 +1,99 @@
+{
+  "gate": "MC-002-M",
+  "phase": "MUTATION_TRUTHFULNESS",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "timestamp": "2026-08-29T00:00:00Z",
+  "verdict": "CERTIFIED_BOUNDED",
+  "verdict_scope": "L4_L1_L2_L3_LOGIC_KERNEL",
+  "verdict_note": "Logic truthfulness mutation executed under authorized scope L4+L1+L2+L3. Six-function logic kernel created and all contradiction/reasoning sites delegated to it (Engine shim, Audit.find_contradictions/1 resolving the registry probe, BeliefSystem delegate, DiscoveryScheduler routing). Theatrical logic decommissioned (CTL.ParadoxResolver -> unavailable; nine Substrate.* fabricated families removed). Fabricated substrate metric clauses removed from the Metrics.Aggregator. Targeted acceptance tests (L-AT-1..5) and touched suites PASS; app compiles. Bounded: full cross-repo suite regression NOT_EXECUTED due to environment/time limits. L5 (proof/inference) not authorized and not mutated.",
+  "mutation_authorized": true,
+  "authorization_status": "GRANTED",
+  "authorization_operator": "c14_ac",
+  "authorization_fabricated": false,
+  "authorization_file": "priv/tiannara/authorization/ASC-MC-002-M-LOGIC-MUTATION.human.yaml",
+  "scope": "L4_L1_L2_L3",
+  "scope_l5_proof_inference": "EXCLUDED_BY_AUTHORIZATION",
+  "scope_expansion_to_other_domain_metrics": false,
+  "deferred_technical_debt": [
+    "TD-MC002-M-RUNTIME_ATLAS: runtime_atlas.ex still lists Tiannara.Substrate.*.Supervisor documentation strings for removed modules (strings only, no behavioral impact)",
+    "TD-MC002-M-AGGREGATOR_CLONES: remaining no-op aggregator clauses for real-but-unverified subsystems (twp/cis/mirror/forecasting/governance/discovery/archaeology) tracked under MC-003/MC-004",
+    "TD-MC002-M-INVARIANT_AGGREGATION: CEL gates / sentinel invariant evaluation sites keep their own reduce loops; kernel Invariant.check_all/2 now standardizes collect-all semantics and is the canonical evaluator for new code (full rewire deferred to MC-003)"
+  ],
+  "l4_kernel": {
+    "module": "lib/tiannara/logic/",
+    "status": "CREATED",
+    "functions": [
+      "Tiannara.Logic.Contradiction.detect/2",
+      "Tiannara.Logic.Contradiction.from_refutations/1",
+      "Tiannara.Logic.Invariant.check/2",
+      "Tiannara.Logic.Invariant.check_all/2",
+      "Tiannara.Logic.Rule.evaluate/2",
+      "Tiannara.Logic.Transition.valid?/3",
+      "Tiannara.Logic.Complementarity.holds?/2"
+    ],
+    "sits_above_math": true,
+    "computes_confidence": false
+  },
+  "l1_delegation": {
+    "engine_detect": "SHIM over kernel (classification/severity/confidence/lifecycle preserved)",
+    "audit_find_contradictions": "NEW — resolves registry.ex:118 probe :no_contradiction_silently_discarded == :ok",
+    "belief_system": "DELEGATED to kernel; fabricated negation/topic matcher deleted; false-positive drop",
+    "discovery_scheduler": "ROUTED through kernel via contradiction_pairs/1",
+    "sentinel_verification": "KEPT — real evidence-link mechanism; from_refutations/1 is the canonical map adapter"
+  },
+  "l2_decommissioned": {
+    "paradox_resolver": {
+      "module": "Tiannara.CTL.ParadoxResolver.resolve/2",
+      "previous": "{:ok, :resolved} | {:error, ...} + fabricated metrics (:paradox_detected, collapse_probability 0.9)",
+      "now": "{:error, :paradox_resolver_unavailable}",
+      "status": "DECOMMISSIONED"
+    },
+    "substrate_families": {
+      "previous": "nine Substrate.* fabricated subsystem files returning success + hardcoded metric pushes",
+      "now": "all nine files REMOVED from disk; substrate dir removed",
+      "status": "REMOVED"
+    }
+  },
+  "l3_decommissioned": {
+    "aggregator_substrate_clauses": {
+      "domains": [":euf", ":gck", ":hsv", ":mcal", ":opc", ":oed", ":ose", ":osk", ":cof"],
+      "previous": "no-op handle_cast clauses swallowing fabricated substrate metric pushes",
+      "now": "removed; fallback clause retained; real emitters (:coherence, :iv) preserved",
+      "status": "REMOVED"
+    }
+  },
+  "consumers_remediated": {
+    "branch_reconciliation_attempt_merge": "already routes {:error,_} -> HistoryIsolation.isolate/1 (no change needed)",
+    "constitution_registry_probe": "resolves via new Audit.find_contradictions/1",
+    "world_model_api_add_belief": "contract preserved (delegated verdict logic)",
+    "discovery_output_maps": "shape preserved (kernel verdict internal)",
+    "aggregator_push_event": "interface unchanged; fallback prevents crash",
+    "substrate_consumers": "none exist in lib/ or test/"
+  },
+  "real_primitive_contracts_preserved": true,
+  "canonical_ontology_unchanged": true,
+  "canonical_registry_unchanged": true,
+  "l5_proof_or_inference_implemented": false,
+  "fabricated_success_remaining_in_targets": 0,
+  "evidence": {
+    "static_verification": "PASS — verifier checks",
+    "compile": "PASS — app generated",
+    "logic_kernel_tests": "PASS — 22 tests, 0 failures",
+    "contradiction_engine_tests": "PASS — 11 tests, 0 failures",
+    "graph_tests": "PASS",
+    "discovery_suite": "PASS — 39 properties, 181 tests, 0 failures",
+    "ctl_tests": "PASS",
+    "metrics_tests": "PASS",
+    "world_model_integration": "PASS — 7 tests, 0 failures",
+    "acceptance_tests": "L-AT-1..5 PASS",
+    "full_suite_regression": "NOT_EXECUTED",
+    "pre_existing_failures": "constitutional_invariant_suite_test.exs references nonexistent Sentinel.Authority/Research.Authority (untracked infra test debt, not mutation-introduced)",
+    "verifier": "PASS"
+  },
+  "certification_boundary": "Logic truthfulness remediation certified based on static verification, passing targeted acceptance tests, and clean compile. Full cross-repo suite regression NOT_EXECUTED (environment/time) and recorded as such, never as PASS. This gate certifies no proof/inference (L5) capability; L5 remains closed by authorization.",
+  "final_architectural_question": {
+    "did_mutation_increase_ability_to_distinguish_compute_from_claim": true,
+    "basis": "A single six-function logic kernel now produces every structural verdict (:contradiction/:consistent/:unknown, :pass/:fail/:undetermined); the fabricated substrate families and their metric pushes are gone; ParadoxResolver returns an explicit unavailable state instead of fabricated resolution; all verified by source inspection and passing targeted tests."
+  },
+  "contract_hash": null
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "15.0.0",
+  "status": "TEMPLATES",
+  "patterns": [
+    {"id":"GP-001","name":"Safety override"},
+    {"id":"GP-002","name":"Gradual migration"},
+    {"id":"GP-003","name":"Evidence quarantine"},
+    {"id":"GP-004","name":"Theory competition"},
+    {"id":"GP-005","name":"Contradiction escalation"},
+    {"id":"GP-006","name":"Archaeological recovery"}
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "probe": "CEL-2",
+  "overall": "PASS",
+  "negative_control": {
+    "pass": true,
+    "expected": "MATH_NOT_REGISTERED",
+    "note": "negative control immutable"
+  },
+  "positive_control": {
+    "status": "PASS",
+    "checks": {
+      "objective_clean": true,
+      "P1": true,
+      "P2": true,
+      "P3": true,
+      "P4": true,
+      "P5": true,
+      "P6": true,
+      "P7": true,
+      "P8": true,
+      "P9": true,
+      "P10": true,
+      "P11": true,
+      "TRACE": true
+    },
+    "hard_fails": []
+  },
+  "bounded_proposition": "Given an objective requiring mathematics (without naming a provider), CEL discovers an eligible mathematics provider from live CapabilityRegistry state, validates health/ownership/dependency/interface, obtains C14 approval, delegates to the registered Tiannara.Math.Probability.bayes_update/3, receives a deterministic result, and preserves the complete causal evidence.\n",
+  "post_verdict_language": "On PASS: \"CEL demonstrates registry-mediated discovery for the certified constitutional_mathematics provider; generalized runtime capability ingestion remains an architectural expansion.\" Do NOT claim the registry is fully dynamic.\n"
+}

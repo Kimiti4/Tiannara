@@ -1,0 +1,41 @@
+probe_id: "U5_U6_external_reality_ingress"
+audit: "U0"
+mode: "CERTIFICATION"
+
+capabilities_under_test: [C11, C1, C2, C3]
+integration_edges_under_test:
+  - edge: "C11 → C1"
+    question: "Does the external boundary capture events with provenance and emit a trace envelope?"
+  - edge: "C1 → C2"
+    question: "Does perception mutate the canonical reality model?"
+  - edge: "C2 → C3"
+    question: "Does the reality model propagate to knowledge?"
+
+bounded_proposition: >
+  Under this tested execution path, an external reality event received at the C11 
+  boundary propagates through C1 (and C2 if operable) into C3 with intact 
+  cryptographic provenance, without creating unauthorized side channels or shadow state.
+
+# Certification bounds
+mutation_allowed: false
+service_bootstrap_allowed: false
+external_mutations_allowed: false  # C11 Egress is ACTION, not certification
+external_reads_allowed: true       # C11 Ingress is permitted for certification
+production_adoption_allowed: false
+
+declared_side_effects:
+  - evidence_artifacts
+  - certification_records
+  - temporary_probe_state
+  - incidental_c2_process_exit   # Carried forward from U1 F2 (honest declaration)
+
+verdict_scope: "epistemic_status_only"
+verdict_targets: "integration_edges"
+
+# Explicit handling of the known C2 gap
+known_dependencies:
+  - capability: C2
+    status: "deferred"
+    expected_behavior: "Probe must attempt C2, catch the known failure, and honestly record the causal chain as broken at C1->C2 without masking the error."
+
+contract_hash: "dd416de37d049a929e58759945645b11deecfb6a6b5d32ed53482087fc2d7d14"

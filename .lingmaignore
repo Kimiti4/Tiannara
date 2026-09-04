@@ -1,0 +1,117 @@
+# Specify files or folders to ignore during indexing. The same as .gitignore rules, glob patterns like *.log，my-security/ are supported.
+
+# Build artifacts and dependencies
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+pytest-cache-files-*/
+
+# Large data and log files
+logs/
+*.log
+*.jsonl
+checkpoints/
+data/
+runs/
+test_reports/
+test_results/
+compliance_data/
+
+# Generated and temporary files
+.hypothesis/
+archive/
+validation/
+monitoringgrafana/
+monitoringgrafanadashboards/
+monitoringgrafanaprovisioning/
+
+# Test files and scripts (high volume, low priority for indexing)
+test_*.py
+tests/
+benchmarks/
+benchmarksreal_world_scenarios/
+
+# Documentation and markdown files (large volume)
+markdown/
+docs/
+*.md
+*.txt
+*.png
+*.jpg
+*.jpeg
+
+# Database and binary files
+*.db
+*.exe
+
+# Empty or duplicate directories
+cUsersuserTiannaraTiannara-MindCache-Prosthetictiannara_coremetacognition/
+cUsersuserTiannaraTiannara-MindCache-Prosthetictiannara_corereasoning/
+cUsersuserTiannaraTiannara-SaaS/
+tiannara_corecognitive_domains/
+tiannara_coreevaluationtest_suites/
+tiannara_coresandbox/
+testsintegrationcross_domain/
+monitoringgrafana/
+monitoringgrafanadashboards/
+monitoringgrafanaprovisioning/
+benchmarksreal_world_scenarios/
+
+# Docker and deployment files
+docker/
+.dockerignore
+Dockerfile.production
+docker-compose.yml
+docker-entrypoint.sh
+nginx.conf
+Procfile
+
+# Environment and configuration files
+.env
+.env.example
+.env.production
+.env.template
+setup.cfg
+pytest.ini
+.coveragerc
+runtime.txt
+package.json
+package-lock.json
+requirements.txt
+requirements-production.txt
+
+# Scripts and migration files
+scripts/
+migrate_*.py
+setup_*.py
+deploy-quickstart.sh
+start_production.sh
+restart_backend.bat
+restart_frontend.bat
+
+# Result and output files
+*_output.txt
+*_results.txt
+*_results.json
+*_episodes.jsonl
+metrics_export.csv
+scalability_test_output.log
+profile_results.txt
+skill_population_*.json
+refined_experiments_*.json
+re_improvement_test_*.json
+causal_improvement_test_*.json
+comparative_results_*.json
+extended_transfer_experiment_*.json
+demonstration_results.json
+long_horizon_*_output.txt
+test_500_*.txt
+test_1000_output.txt
+login*.json
+token*.txt
+audit_output.txt
+belief_audit_results.txt
+jagged_audit_report.txt
+explanation_audit.db
+nul

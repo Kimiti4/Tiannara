@@ -93,7 +93,7 @@ defmodule Tiannara.ASC.Interface.KnowledgeArchive do
   Returns all genomes within the specified fitness bounds.
   Useful for identifying high-performing interface patterns.
   """
-  def query_genomes_by_fitness(min_fitness \\ 0.0, max_fitness \\ 1.0) do
+  def query_genomes_by_fitness(_min_fitness \\ 0.0, _max_fitness \\ 1.0) do
     # TODO: Implement ETS query when Registry supports filtering
     # For now, return empty list
     []
@@ -105,7 +105,7 @@ defmodule Tiannara.ASC.Interface.KnowledgeArchive do
   Returns all mutations of a specific type (e.g., :split_contract).
   Enables analysis of mutation effectiveness across generations.
   """
-  def query_mutations_by_type(type) do
+  def query_mutations_by_type(_type) do
     # TODO: Implement ETS query when Registry supports filtering
     # For now, return empty list
     []

@@ -1,0 +1,26 @@
+{
+  "reviews": [
+    {
+      "id": "review-1",
+      "outcome": "Baseline assessment",
+      "phase": "14.1",
+      "purpose": "Artifact-based constitutional review",
+      "status": "completed"
+    },
+    {
+      "id": "review-2",
+      "outcome": "Stronger evidence framing",
+      "phase": "14.1",
+      "purpose": "Evidence-first constitutional review",
+      "status": "completed"
+    },
+    {
+      "id": "review-3",
+      "outcome": "Pending",
+      "phase": "15",
+      "purpose": "Large-scale replay and distributed audit",
+      "status": "planned"
+    }
+  ],
+  "version": "14.1.2"
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": "15.0.0",
+  "status": "PARTIAL",
+  "validation_kernel": {
+    "public_functions_exercised": ["canonical_binary/1","fingerprint/1","build_entity/2","validate_entity/1","append/3","validate_ledger/1","replay/1","graph_hash/2","validate_statistical_claim/1","sign_certificate/2","verify_certificate/2"],
+    "violations": 0
+  },
+  "frozen_runtime_apis": "NOT_EXHAUSTIVELY_VERIFIED",
+  "reason": "The repository contains multiple legacy discovery implementations; a complete frozen-API conformance inventory is still required."
+}

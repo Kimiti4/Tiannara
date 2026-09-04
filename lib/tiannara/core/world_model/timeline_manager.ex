@@ -287,7 +287,7 @@ defmodule Tiannara.Core.WorldModel.TimelineManager do
         {:reply, {:error, :epoch_not_found}, state}
       {_, nil} ->
         {:reply, {:error, :event_not_found}, state}
-      {epoch, event} ->
+      {epoch, _event} ->
         updated_epoch = %{epoch | events: [event_id | epoch.events]}
         updated_epochs = Map.put(state.epochs, epoch_id, updated_epoch)
         

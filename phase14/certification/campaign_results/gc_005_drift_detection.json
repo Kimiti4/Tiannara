@@ -1,0 +1,32 @@
+{
+  "status": "passed",
+  "certificate": {
+    "status": "passed",
+    "verified_at": "2026-07-02T20:06:58.755000Z"
+  },
+  "confidence": 0.99,
+  "threshold": 0.6,
+  "campaign": "gc_005_drift_detection",
+  "failure_modes": [
+    {
+      "mode": "entropy_spike",
+      "probability": 0.01
+    }
+  ],
+  "statistical_power": 0.95,
+  "supporting_evidence": [
+    "entropy_measurement",
+    "threshold_definition"
+  ],
+  "total_entropy": 0.11,
+  "drift_detected": false,
+  "entropy_components": {
+    "dependency_count": 0.08,
+    "unused_capabilities": 0.15,
+    "duplicate_authority": 0.05,
+    "institution_overlap": 0.1,
+    "proposal_backlog": 0.05,
+    "graph_density": 0.2,
+    "review_complexity": 0.12
+  }
+}

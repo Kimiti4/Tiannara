@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-07-02T20:17:16.620000Z",
+  "sha256": "2aeabb0325db0a5630c193c6d8b23a7c511fa966ea4c1c38e7bd2fd81170d89d",
+  "test_type": "long_horizon_replay",
+  "iterations": 10000,
+  "entropy_stable": true,
+  "fitness_stable": true,
+  "overall_stable": true,
+  "sample_interval": 100,
+  "entropy_analysis": {
+    "max": 0.11,
+    "min": 0.11,
+    "stable": true,
+    "mean": 0.11,
+    "std_dev": 0.0,
+    "trend_slope": 0.0,
+    "samples": 100
+  },
+  "fitness_analysis": {
+    "max": 0.807,
+    "min": 0.807,
+    "stable": true,
+    "mean": 0.807,
+    "std_dev": 0.0,
+    "trend_slope": -0.0,
+    "samples": 100
+  },
+  "samples_collected": 100,
+  "elapsed_time_ms": 36
+}

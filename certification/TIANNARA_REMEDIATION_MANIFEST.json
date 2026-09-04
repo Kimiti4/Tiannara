@@ -1,0 +1,54 @@
+{
+  "manifest": "TIANNARA_REMEDIATION_MANIFEST",
+  "version": 1,
+  "campaign": "Remediation Architecture & Epistemic Foundation Certification",
+  "mode": "READ_ONLY_AUDIT_NO_PRODUCTION_MUTATION",
+  "generated_date": "2026-08-25",
+  "baseline_commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+  "head_commit_at_audit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+  "working_tree_note": "Pre-existing unrelated modifications present during audit; excluded from evidence set.",
+  "predecessor_manifest": "certification/TIANNARA_CERTIFICATION_MANIFEST.json",
+  "policy_constraints": {
+    "POL_CERT_AUTH_001": "honored - no ACTION taken; all recommendations require future ASC-*.human.yaml human authorization",
+    "read_only_scope": ["lib/", "tests/", "config/", "schemas/", "registries"],
+    "verdict_preselection": "none - verdict derived from evidence"
+  },
+  "id_mapping": {
+    "prior_register": {"MC-001": "Domain Execution", "MC-002": "Math Proof Kernel", "MC-003": "Logic Substrate", "MC-004": "Phase16 Execution"},
+    "this_campaign": {"MC-001": "Mathematical substrate", "MC-002": "Logic substrate", "MC-003": "Phase16 execution", "MC-004": "Domain execution", "AC-001": "DomainRegistry ontology mismatch"},
+    "resolution_policy": "cross-referenced by content; both numberings preserved"
+  },
+  "artifacts": [
+    {"file": "certification/TIANNARA_REMEDIATION_ARCHITECTURE_REPORT.md", "sha256": "2e137620047cf4866e42ae1e805bc575c5a8365c7987a7a5cdfbd11446b6fc53"},
+    {"file": "certification/TIANNARA_MATHEMATICAL_ARCHAEOLOGY.md", "sha256": "766b039bdfbbd452a4f0f0568e76f84fdd0ec65e979fd60cacb84124f22e08c5"},
+    {"file": "certification/TIANNARA_LOGIC_ARCHAEOLOGY.md", "sha256": "36fe0246978720a4f0f0568e76f84fdd0ec65e979fd60cacb84124f22e08c5"},
+    {"file": "certification/TIANNARA_PHASE16_EXECUTION_AUDIT.md", "sha256": "2f351a2c13c4feae3dea1e8cbc37c664ac1f6c1b1ca91f66cbb732e7713e7eb7"},
+    {"file": "certification/TIANNARA_DOMAIN_EXECUTION_AUDIT.md", "sha256": "5599691fe1bb864d1c7a917d5106cdcfb2311cc654544b1f15605b7e384e24ab"},
+    {"file": "certification/TIANNARA_REMEDIATION_DEPENDENCY_GRAPH.json", "sha256": "b28ebc3232bb0df23c13e93aabe976edcddcbf58ff0027c9df2603fb2dba3171"},
+    {"file": "certification/TIANNARA_REMEDIATION_MATRIX.md", "sha256": "b54a7c0bc2bebb7a6ba52f54dbbfdb92db146273577a34ead010f89893f6edbd"},
+    {"file": "certification/TIANNARA_ARCHITECTURAL_DECISIONS.md", "sha256": "1b06344fdb0a9ac1b4ed4da6b8da6b572ca0a7512cc4dce68546632725ddc727"}
+  ],
+  "gap_verdicts": {
+    "MC-001_mathematics": "DISTRIBUTED_INFRASTRUCTURE_THIN_PARTLY_MOCKED_CORE_B_C_D",
+    "MC-002_logic": "DISTRIBUTED_PARTIALLY_THEATRICAL_B_PARTIAL_E",
+    "MC-003_phase16_execution": "BREAK_AT_STAGE_7_THREE_EXECUTOR_TIERS_TWO_LIVE_LOOPS_DIVERGENT_INTEGRITY",
+    "MC-004_domain_execution": "UNIVERSAL_STUBS_ALL_MODULES_RETURN_OK_EMPTY",
+    "AC-001_registry_contradiction": "CONFIRMED_AND_EXTENDED"
+  },
+  "new_findings": [
+    {"id": "F-NEW-1", "severity": "CRITICAL", "summary": "Live heartbeat loop fabricates experiment results and persists them into persistent memory", "evidence": "lib/tiannara/research/research_director.ex:142-171; lib/tiannara/cel/workflow/steps/experiment.ex:49-57"},
+    {"id": "F-NEW-2", "severity": "HIGH", "summary": "Provenance theater: ledger identity hashes literal module-name string; two competing ScientificCapitalLedgers", "evidence": "os/recursive_civilization_runner.ex:352,725-728; os/kernel/scientific_capital_ledger.ex"},
+    {"id": "F-NEW-3", "severity": "HIGH", "summary": "Fully built resource-validated orchestrator has zero callers of submit_experiment", "evidence": "cel/kernel/service_registry.ex:295 + repo-wide grep"},
+    {"id": "F-NEW-4", "severity": "MEDIUM", "summary": "Uncertainty updates are fixed +/-0.1 constants, not evidence-derived", "evidence": "discovery/discovery_scheduler.ex:200-204"},
+    {"id": "F-NEW-5", "severity": "MEDIUM", "summary": "constitution/registry.ex:118 calls nonexistent Graph.Audit.find_contradictions/1", "evidence": "direct read"},
+    {"id": "F-NEW-6", "severity": "LOW", "summary": "Dead math modules (compile warnings) and latent self-call deadlock in orphaned OS ResearchDirector", "evidence": "math/optimization.ex; os/research_director.ex:377-381 vs :96-98"}
+  ],
+  "remediation_order": ["R0_quarantine_fabricated_evidence_loop", "AC-001_canonical_domain_ontology", "MC-001_math_consolidation", "MC-002_logic_kernel_extraction", "MC-003_execution_gateway_and_registry_stack", "MC-004_physics_pilot_then_chemistry_then_ecology_economics_pair"],
+  "final_recommendation": "PROCEED TO REMEDIATION",
+  "recommendation_conditions": [
+    "sequence enforced via TIANNARA_REMEDIATION_DEPENDENCY_GRAPH.json critical path",
+    "each gate closes only on its defined acceptance tests (M-AT/L-AT/P16-AT/D-AT)",
+    "every production mutation individually human-authorized via ASC-*.human.yaml",
+    "acceptance reruns use hashed contracts per house convention"
+  ]
+}

@@ -535,7 +535,7 @@ defmodule Tiannara.Topology.DFG do
   defp validate_transformation_matrix(matrix) when is_list(matrix) do
     # Validate transformation matrix dimensions and properties
     case matrix do
-      matrix when length(matrix) > 0 ->
+      matrix when matrix != [] ->
         # Check if it's a square matrix
         matrix_size = length(matrix)
         row_lengths = Enum.map(matrix, &length/1)

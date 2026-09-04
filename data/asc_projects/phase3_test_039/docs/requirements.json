@@ -1,0 +1,22 @@
+{
+  "constraints": [],
+  "capabilities": [
+    {
+      "id": "cap_276",
+      "name": "publish messages topics",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "publish",
+      "subject": "messages topics",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "invariants": [],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-18T00:41:25.438000Z"
+}

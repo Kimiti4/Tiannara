@@ -1,0 +1,68 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile.*
+docker-compose*.yml
+.dockerignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+*.egg-info/
+dist/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentation
+*.md
+docs/
+!README.md
+
+# Tests
+tests/
+pytest.ini
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+.env.*
+!.env.production
+
+# Data
+runs/
+*.jsonl
+*.db
+*.sqlite
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Node modules (if any)
+node_modules/
+package-lock.json

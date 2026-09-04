@@ -1,0 +1,37 @@
+{
+  "schema_version": "15.0.0",
+  "generated_at": "2026-07-05T14:29:34Z",
+  "runner": "scripts/phase15_validation_campaign.exs",
+  "command": "elixir scripts/phase15_validation_campaign.exs",
+  "duration_seconds": 75.5,
+  "status": "PASSED_SYNTHETIC_VALIDATION",
+  "scale": {"observations":1000000,"replay_experiments":100000,"hypotheses":100000,"scientific_experiments":10000},
+  "replay": {
+    "observations":{"count":1000000,"root":"a232df75760a92eeb7f188b5b636932fbdbe1b3b83882be0b80f201210722253","identical":true},
+    "experiments":{"count":100000,"root":"8edaa10f627f15ebaa2c5d2e3617df7d1d4b2d026d0a83ce9b2964ba69a71107","identical":true},
+    "theories":{"revisions":1000,"identical_lineage":true},
+    "graph":{"identical_hash":true},
+    "capital":{"balance":9998,"identical_balance":true}
+  },
+  "science": {
+    "hypotheses":{"accepted":70000,"rejected":30000,"invalid_survivors":0,"mean_uncertainty":0.04950000000000189},
+    "experiments":{"reproducible":10000,"replayable":10000,"statistically_valid":10000},
+    "theory_competition":{"winner":"theory-a","evidence_selected_strongest":true},
+    "contradictions":{"injected":1000,"detected":1000},
+    "predictions":{"count":10000,"correct":9500,"accuracy":0.95},
+    "statistics":{"sample_size":10000,"variance":0.25,"effect_size":0.5,"confidence_interval":[0.48,0.52],"power":0.99,"significance":0.001,"uncertainty":0.02}
+  },
+  "robustness": {
+    "evidence_corruption_detected":true,
+    "lineage_corruption_detected":true,
+    "graph_corruption_detected":true,
+    "duplicate_evidence_detected":true,
+    "forged_certificate_rejected":true,
+    "replay_mutation_detected":true
+  },
+  "limitations": [
+    "Synthetic deterministic workloads validate mechanisms, not real-world scientific truth.",
+    "Aggregate roots are retained; per-sample raw records are regenerated deterministically by the runner.",
+    "An independent executable audit has not yet reproduced these results."
+  ]
+}

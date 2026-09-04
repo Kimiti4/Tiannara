@@ -2,7 +2,19 @@ defmodule Tiannara.ASC.Research.Supervisor do
   use Supervisor
   def start_link(opts \\ []), do: Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
   @impl true
-  def init(_), do: Supervisor.init([Tiannara.ASC.Research.Civilization], strategy: :one_for_one)
+  def init(_) do
+    children = [
+      Tiannara.ASC.Research.Civilization,
+      {Tiannara.ASC.Research.Director, []},
+      {Tiannara.ASC.Research.Portfolio, []},
+      {Tiannara.ASC.Research.ReplicationEngine, []},
+      {Tiannara.ASC.Research.InstitutionManager, []},
+      {Tiannara.ASC.Research.Economics, []},
+      {Tiannara.ASC.Research.DiscoveryMarketplace, []}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
 end
 
 defmodule Tiannara.ASC.Research.Civilization do

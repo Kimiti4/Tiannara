@@ -1,0 +1,78 @@
+probe_id: "constitutional_mathematics_v1"
+audit: "Foundational Substrate Certification"
+mode: "CERTIFICATION"                     # observational; no production mutation
+class: "substrate_certification"
+
+bounded_proposition: >
+  Constitutional Mathematics (Tiannara.Math.Probability.bayes_update/3) functions
+  as a causally grounded, constitutionally governed, failure-honest foundational
+  substrate used within Tiannara's own epistemic loop — discovered via the live
+  CapabilityGraph, composed with C4/C8/C14, and capable of grounded
+  self-measurement — not merely a discoverable capability.
+
+existing_math_implementation: "Tiannara.Math.Probability.bayes_update/3"
+do_not_replace_or_extend: true
+cel2_baseline_result: 2.25                # certified input -> certified value
+independent_verification_basis:            # M10: non-circular
+  - determinism_repetition
+  - cel2_baseline_consistency
+  - provenance_audibility
+  - verifier_independent_recomputation_where_possible
+  - never_trust_helper_pass_field
+
+dimensions: [M1,M2,M3,M4,M5,M6,M7,M8,M9,M10]
+assertions: [P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,P11,P12,P13,P14,P15,P16,P17,P18]
+negative_controls: [N1,N2,N3,N4]
+
+required_trace_phases_in_order:
+  - evidence
+  - perception
+  - reality_knowledge
+  - epistemic_interpretation        # C4
+  - mathematical_premises
+  - cel_discovery                    # CapabilityGraph
+  - provider_selection
+  - c14_governance
+  - mathematical_delegation
+  - mathematical_result
+  - downstream_consumption           # C8 + C14 consume the result
+  - final_governed_outcome
+
+trace_phase_required_fields:
+  [phase, order, correlation_id, input_ref, output_ref,
+   provider_ref, governance_ref, provenance_hash]
+
+m2_m8_policy: >
+  Observe the REAL behavior of bayes_update/3 under inadequate/malformed premises.
+  Do NOT assume a bounded-uncertainty API. Classify: explicit bounded/error/
+  insufficiency state = honest; crash = finding (record); fabricated authoritative
+  number = FAIL.
+
+m6_policy: >
+  Self-measurement MUST be grounded in real organism telemetry (F10 lesson).
+  Random or ungrounded diagnostic output is a hard fail.
+
+# Certification bounds (POL-CERT-AUTH-001)
+production_mutation_allowed: false
+registry_mutation_allowed: false
+external_mutations_allowed: false
+production_adoption_allowed: false
+egress_mode: "none"
+canonical_topology_attach_allowed: true
+isolated_test_namespace_allowed: true
+no_pollution_required: true
+
+verdict_space: [CERTIFIED, QUALIFIED_PARTIAL, NOT_CERTIFIED, BLOCKED]
+verdict_rules:
+  CERTIFIED: "all dispositive assertions pass; math demonstrated as cross-subsystem substrate"
+  QUALIFIED_PARTIAL: "integrated+governed but one or more dimensions conditional/topology-dependent"
+  NOT_CERTIFIED: "math works but cannot demonstrate substrate composition/grounding/governance/failure-honesty"
+  BLOCKED: "canonical path cannot be exercised without unauthorized mutation"
+
+constitutional_basis_refs:
+  - "Evidence Before Confidence / truth over confidence"
+  - "Uncertainty should never be hidden"
+  - "Capability must never outpace verification"
+  - "Augment human intelligence; human judgment remains authoritative"
+
+contract_hash: "7bf983d5d46fb782238c90327a113c44354134ec98177c4c6bdfebd524a0fe18"

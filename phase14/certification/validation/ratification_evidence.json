@@ -1,0 +1,9 @@
+{
+  "no": 1,
+  "yes": 4,
+  "threshold": "supermajority (>=66%) with no vetoes",
+  "total_votes": 5,
+  "ratified": false,
+  "supermajority_achieved": true,
+  "veto_exists": true
+}

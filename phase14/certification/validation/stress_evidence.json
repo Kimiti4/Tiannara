@@ -1,0 +1,6 @@
+{
+  "failed": 0,
+  "successful": 5,
+  "concurrent_proposals": 5,
+  "handles_concurrency": true
+}

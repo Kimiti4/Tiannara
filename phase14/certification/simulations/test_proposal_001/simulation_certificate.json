@@ -1,0 +1,128 @@
+{
+  "timestamp": "2026-07-03T20:28:54.098000Z",
+  "proposal_id": "test_proposal_001",
+  "all_passed": true,
+  "results": [
+    {
+      "status": "pass",
+      "timestamp": "2026-07-03T20:28:54.098000Z",
+      "metrics": {
+        "architectural_coherence": 0.95,
+        "circular_dependencies": 0,
+        "dependency_depth": 3,
+        "module_coupling": 0.15,
+        "structural_integrity_score": 0.92
+      },
+      "proposal_id": "test_proposal_001",
+      "certificate_hash": "",
+      "simulation_type": "structural",
+      "evidence_artifact_hash": "d64cbd9bc1986fc9b918fc30efa6aaedaf3187abab6063cbbfa3e0df24f370da"
+    },
+    {
+      "status": "pass",
+      "timestamp": "2026-07-03T20:28:54.098000Z",
+      "metrics": {
+        "safety_score": 0.88,
+        "data_integrity": 0.98,
+        "governance_stability": 0.85,
+        "kernel_risk": 0.2,
+        "rollback_feasibility": 0.9
+      },
+      "proposal_id": "test_proposal_001",
+      "certificate_hash": "",
+      "simulation_type": "safety",
+      "evidence_artifact_hash": "835333e75ff2d67b8bdfd8b3ebfe400f597525e5fff054d02b188ca85db286f4"
+    },
+    {
+      "status": "pass",
+      "timestamp": "2026-07-03T20:28:54.098000Z",
+      "metrics": {
+        "governance_compliance_score": 0.95,
+        "authority_graph_integrity": 0.95,
+        "capability_graph_consistency": 0.93,
+        "constitutional_alignment": 0.92,
+        "invariant_preservation": 1.0
+      },
+      "proposal_id": "test_proposal_001",
+      "certificate_hash": "",
+      "simulation_type": "governance",
+      "evidence_artifact_hash": "2f313da0fab9f14dd6872941ebd5c11f91993618fa127712a0c6808095a965f7"
+    },
+    {
+      "status": "pass",
+      "timestamp": "2026-07-03T20:28:54.098000Z",
+      "metrics": {
+        "scientific_impact_score": 0.85,
+        "epistemic_resilience": 0.88,
+        "knowledge_accumulation": 0.1,
+        "research_trajectory": "accelerating",
+        "scientific_capital_change": 0.05
+      },
+      "proposal_id": "test_proposal_001",
+      "certificate_hash": "",
+      "simulation_type": "scientific",
+      "evidence_artifact_hash": "4498345d1f579a01e4fcda8d3960401458c8293723c0f0f3cd7e5fb1fe0aae5d"
+    },
+    {
+      "status": "pass",
+      "timestamp": "2026-07-03T20:28:54.098000Z",
+      "metrics": {
+        "economic_viability_score": 0.92,
+        "budget_available": 1.0e4,
+        "cost_benefit_ratio": 3.5,
+        "estimated_cost": 500.0,
+        "roi_percentage": 250.0
+      },
+      "proposal_id": "test_proposal_001",
+      "certificate_hash": "",
+      "simulation_type": "economic",
+      "evidence_artifact_hash": "8d8ec689c56f31385972110934edf106e7ee4ca49935b6899c06fcfbe4f67b38"
+    },
+    {
+      "status": "pass",
+      "timestamp": "2026-07-03T20:28:54.098000Z",
+      "metrics": {
+        "performance_score": 0.87,
+        "complexity_impact": 0.15,
+        "latency_impact": -0.02,
+        "memory_impact": 0.03,
+        "throughput_impact": 0.05
+      },
+      "proposal_id": "test_proposal_001",
+      "certificate_hash": "",
+      "simulation_type": "performance",
+      "evidence_artifact_hash": "2e71a2b8796eeba6eef34e3740bc81b7964dd9cf3b4ff44a7c180093071ce0cd"
+    },
+    {
+      "status": "pass",
+      "timestamp": "2026-07-03T20:28:54.098000Z",
+      "metrics": {
+        "migration_success_probability": 0.95,
+        "data_migration_required": false,
+        "estimated_downtime_minutes": 5,
+        "migration_complexity": "moderate",
+        "rollback_available": true
+      },
+      "proposal_id": "test_proposal_001",
+      "certificate_hash": "",
+      "simulation_type": "migration",
+      "evidence_artifact_hash": "79900128fee49c2e86be41fe92b704df48b3184f98d249e90c6b60e74e915ab4"
+    },
+    {
+      "status": "pass",
+      "timestamp": "2026-07-03T20:28:54.098000Z",
+      "metrics": {
+        "replay_impact_score": 0.98,
+        "entropy_impact": -0.05,
+        "replay_determinism": 1.0,
+        "reproducibility_score": 1.0,
+        "seed_dependency_preserved": true
+      },
+      "proposal_id": "test_proposal_001",
+      "certificate_hash": "",
+      "simulation_type": "replay",
+      "evidence_artifact_hash": "7f3ef37f52a33a031957e88ddc17e69da177eb617c434e34bb140f6974c47c8e"
+    }
+  ],
+  "simulation_count": 8
+}

@@ -1,0 +1,18 @@
+{
+  "constraints": [],
+  "invariants": [
+    {
+      "id": "inv_202",
+      "domain": "general",
+      "statement": "Sagas must complete or rollback fully",
+      "negation_form": "Sagas must NOT complete or rollback fully",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Sagas must complete or rollback fully"
+    }
+  ],
+  "capabilities": [],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:23:27.751000Z"
+}

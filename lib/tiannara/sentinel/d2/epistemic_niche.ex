@@ -13,7 +13,7 @@ defmodule Tiannara.Sentinel.D2.EpistemicNiche do
   defp niches do
     %{
       science_math_comp: %__MODULE__{
-        domain: :science,
+        domain: :engineering,
         preferred_operator_patterns: ["symbolic", "recursive", "formal"],
         fitness_multiplier: 1.5
       },

@@ -24,9 +24,6 @@ defmodule TiannaraOS.WorldMemory do
   alias TiannaraOS.ResearchProgram
   
   # Threshold for detecting recurring bottleneck (ticks)
-  @bottleneck_threshold_ticks 20_000
-  
-  # Minimum memory updates before considering pattern reliable
   @min_memory_updates 3
   
   # Weight given to world memory when biasing genomes
@@ -198,7 +195,7 @@ defmodule TiannaraOS.WorldMemory do
   Boolean indicating if world is stuck.
   """
   @spec stuck_in_bottleneck?(map(), list()) :: boolean()
-  def stuck_in_bottleneck?(world, graveyard) do
+  def stuck_in_bottleneck?(world, _graveyard) do
     recurring = Map.get(world.memory || %{}, :recurring_bottlenecks, [])
     
     # If same bottleneck persists across multiple memory updates
@@ -373,7 +370,7 @@ defmodule TiannaraOS.WorldMemory do
   end
   
   @spec adjust_genome_for_domain(map(), atom(), float()) :: map()
-  defp adjust_genome_for_domain(genome, domain, influence \\ @world_memory_influence) do
+  defp adjust_genome_for_domain(genome, domain, influence) do
     # Compute target adjustment for the given domain
     adjusted = case domain do
       :exploration    -> %{genome | exploration_rate:        min(1.0, genome.exploration_rate + 0.1)}

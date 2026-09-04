@@ -1,0 +1,10 @@
+{:ok, _} = Supervisor.start_link([Tiannara.CEL.Services.EventStore, Tiannara.CEL.Services.ExecutiveMemory], strategy: :one_for_one, name: :verify_f8_sup)
+corr = "verify_f8_#{:crypto.strong_rand_bytes(4) |> Base.encode16(case: :lower)}"
+{:ok, _} = Tiannara.CEL.Services.ExecutiveMemory.record_event(:test_event, %{data: "a"}, %{correlation_id: corr})
+{:ok, _} = Tiannara.CEL.Services.ExecutiveMemory.record_event(:test_event, %{data: "b"}, %{correlation_id: corr})
+Process.sleep(300)
+lineage = Tiannara.CEL.Services.ExecutiveMemory.get_lineage(corr)
+empty = Tiannara.CEL.Services.ExecutiveMemory.get_lineage("nonexistent_#{corr}")
+lessons = Tiannara.CEL.Services.ExecutiveMemory.find_lessons([:test])
+snap = Tiannara.CEL.Services.ExecutiveMemory.snapshot()
+IO.puts("VERIFY_F8 lineage_len=#{if is_list(lineage), do: length(lineage), else: inspect(lineage)} empty=#{inspect(empty)} lessons_len=#{if is_list(lessons), do: length(lessons), else: inspect(lessons)} snap_total=#{snap.total_events} ok=#{is_list(lineage) and length(lineage)==2 and empty==[]}")

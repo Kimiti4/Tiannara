@@ -11,7 +11,6 @@ defmodule Tiannara.ASC.Crucible.RepairPhylogeny.RepairPhylogeny do
   This is the top-level data structure for engineering evolution analysis.
   """
 
-  alias __MODULE__
   alias Tiannara.ASC.Crucible.RepairPhylogeny.{RepairLineage, RepairClade}
 
   @derive Jason.Encoder

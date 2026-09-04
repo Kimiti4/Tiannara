@@ -1,0 +1,14 @@
+{
+  "audit": "constitutional",
+  "checks": {
+    "duplicate ownership": true,
+    "duplicated archaeology": true,
+    "duplicated measurements": true,
+    "duplicated provenance": true,
+    "duplicated replay logic": true,
+    "no bypass": true,
+    "no hidden mutable state": true
+  },
+  "status": "PASS",
+  "summary": "The constitutional audit checks are documented and present in the RFC specification."
+}

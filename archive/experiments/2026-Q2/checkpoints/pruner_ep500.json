@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "episode": 500,
+    "timestamp": 1778186596.4318914,
+    "prune_threshold": 0.3,
+    "exploration_weight": 2.0
+  },
+  "statistics": {
+    "total_mutations_evaluated": 0,
+    "total_mutations_pruned": 0
+  },
+  "surrogate_model": {
+    "operator_history": {},
+    "operator_stats": {}
+  },
+  "ucb_selector": {
+    "operator_counts": {
+      "correct_graph": 0,
+      "correct_optimize": 0,
+      "correct_sort": 0,
+      "correct_search": 0,
+      "correct_transform": 0,
+      "correct_arith": 0
+    },
+    "operator_rewards": {},
+    "total_selections": 0
+  },
+  "cache_size": 0
+}

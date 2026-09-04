@@ -74,14 +74,6 @@ defmodule TiannaraOS.ReproductionEngine do
     end)
   end
   
-  @doc """
-  Check if program can reproduce.
-  
-  Requirements:
-  - Active status
-  - Minimum age (100 ticks)
-  - Not already at max children (5)
-  """
   @spec can_reproduce?(ResearchProgram.t()) :: boolean()
   defp can_reproduce?(%ResearchProgram{} = program) do
     current_tick = program.metadata[:created_at_tick] || 0
@@ -93,11 +85,6 @@ defmodule TiannaraOS.ReproductionEngine do
     age > 100 and current_children < max_children
   end
   
-  @doc """
-  Calculate raw portfolio value for a program.
-  
-  Sum of all asset valuations owned by this program.
-  """
   @spec calculate_portfolio_value(ResearchProgram.t(), State.t()) :: float()
   defp calculate_portfolio_value(%ResearchProgram{} = program, %State{} = state) do
     assets = state.discovery_assets || %{}
@@ -115,18 +102,12 @@ defmodule TiannaraOS.ReproductionEngine do
     end
   end
   
-  @doc """
-  Generate unique child program ID.
-  """
   @spec generate_child_id(atom()) :: atom()
   defp generate_child_id(parent_id) do
     generation_suffix = :rand.uniform(9999)
     String.to_atom("#{parent_id}_gen_#{generation_suffix}")
   end
   
-  @doc """
-  Check if asset is owned by program (via transaction history).
-  """
   @spec owns_asset?(map(), atom()) :: boolean()
   defp owns_asset?(asset, program_id) do
     Enum.any?(asset.transaction_history || [], fn txn ->
@@ -134,12 +115,6 @@ defmodule TiannaraOS.ReproductionEngine do
     end)
   end
   
-  @doc """
-  Mutate parent traits and spawn child program.
-  
-  Uses institutional wisdom to guide mutation away from fatal strategies.
-  Child starts with 15% of parent's wealth.
-  """
   @spec mutate_and_spawn(ResearchProgram.t(), atom(), State.t(), map()) :: ResearchProgram.t()
   defp mutate_and_spawn(%ResearchProgram{} = parent, child_id, %State{} = state, wisdom) do
     # Get parent's world physics for context-aware mutation

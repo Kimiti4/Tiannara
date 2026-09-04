@@ -1,0 +1,32 @@
+[
+  {
+    "id": "tc_61",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: create audit log",
+    "source_ref": "cap_59",
+    "test_module_name": "CreateAuditLogTest",
+    "test_function_name": "test create audit log succeeds with valid inputs",
+    "expected_behavior": "create audit log completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_62",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: query logs by",
+    "source_ref": "cap_60",
+    "test_module_name": "QueryLogsTest",
+    "test_function_name": "test query logs by succeeds with valid inputs",
+    "expected_behavior": "query logs by completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

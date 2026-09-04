@@ -1,0 +1,9 @@
+{
+  "phase": "c3_knowledge",
+  "ok": false,
+  "chain_result": {
+    "reason": "canonical C2 mutation failed; no shadow state created",
+    "skipped": "true"
+  },
+  "payload_hash": "dd016c9ee9585932f3eecc9275bd6fd62f1024b4ce43664a70ae05e57648b69d"
+}

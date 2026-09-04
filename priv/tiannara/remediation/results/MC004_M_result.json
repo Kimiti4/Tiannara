@@ -1,0 +1,75 @@
+{
+  "gate": "MC-004-M",
+  "phase": "MUTATION_TRUTHFULNESS",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "timestamp": "2026-08-31T06:00:00Z",
+  "verdict": "CERTIFIED_BOUNDED",
+  "verdict_scope": "MU1_MU2_MU3_MU4_REAL_PHYSICS_SIMULATION",
+  "verdict_note": "DOMAIN-PHYSICS PILOT MUTATION COMPLETE under authorized scope MU-1..MU-4. Placeholder mathematics replaced with a real, bounded RK4 integrator (Calculus.solve_ode); Physics.simulate now produces genuine trajectories with :simulation provenance and sha256 evidence hashes; Physics.validate performs structural checks on real results (formal-verification remains unavailable by MC-001 pin); Physics.pilot_experiment defines a damped harmonic oscillator pilot; OPC/NDE/IRD/TWP theatrical client APIs quarantined to explicit {:error, :physics_substrate_unavailable}; zero :rand.uniform left in lib/tiannara/physics/**; ASC physics candidate now sourced from the real pilot. :real_execution_enabled stays FALSE — NO live pilot executed (MC-004-P REQUIRES fresh authorization).",
+  "mutation_authorized": true,
+  "authorization_status": "GRANTED",
+  "authorization_operator": "c14_ac",
+  "authorization_fabricated": false,
+  "authorization_file": "priv/tiannara/authorization/ASC-MC-004-M-DOMAIN-PHYSICS-MUTATION.human.yaml",
+  "scope": "MU1_MU2_MU3_MU4",
+  "mutation_executed": true,
+  "pilot_executed": false,
+  "real_execution_enabled_flag": false,
+  "authorization_required_for_pilot": true,
+  "mu1_integrator": {
+    "module": "Tiannara.Foundations.Mathematics.Calculus",
+    "method": "first_order_system RK4",
+    "public_api": ["solve_ode/2", "solve_ode/3", "rk4_step/4"],
+    "bounds": {"max_steps": 2000000, "default_divisions": 1000, "max_dimension": 1024, "max_trajectory_points": 10000},
+    "result_shape": "%{type: :trajectory, method: :rk4, order: 4, trajectory: [%{t: float, x: [float]}], steps: pos_integer, dt: float, t0: float, t_end: float, initial_state: [float], final_state: [float], params: map}",
+    "error_paths": ["{:error, :ode_solver_unavailable}", "{:error, :invalid_equation_spec}", "{:error, :invalid_initial_conditions}", "{:error, :non_finite_state}", "{:error, :dimension_mismatch}"],
+    "mc001_pin_preserved": true
+  },
+  "mu2_physics_domain": {
+    "simulate": "reads equations/boundary_conditions/time_span from context; runs Calculus.solve_ode; returns {:ok, %{result: trajectory_result, provenance: %{kind: :simulation, evidence_hash: sha256}}}",
+    "validate": "structural_checks on integrated result (verification_method :structural_checks, invariants [:energy_bounded]) ; else {:error, :formal_verification_unavailable}",
+    "pilot_experiment": "damped harmonic oscillator m=1.0 c=0.5 k=4.0 (underdamped) x0=1.0 v0=0.0 duration 10.0 dt 0.01",
+    "provenance_kind": ":simulation",
+    "mc001_validate_pin_preserved": true
+  },
+  "mu3_quarantine": {
+    "opc": "10 client functions -> {:error, :physics_substrate_unavailable}; start_link retained",
+    "nde": "10 client functions -> {:error, :physics_substrate_unavailable}; start_link retained",
+    "ird": "11 client functions -> {:error, :physics_substrate_unavailable}; calculate_system_resonance_potential error-tolerant; attempt_system_coordination -> deterministic :failure; start_link retained",
+    "twp": "9 client functions -> {:error, :physics_substrate_unavailable}; start_link retained",
+    "rand_uniform_in_lib_tiannara_physics": 0,
+    "boot_healthy": true
+  },
+  "mu4_phase4_bridge": {
+    "execute_experiment": "builds phase4 spec via to_phase4_spec/1 and submits via Tiannara.Phase4.ExperimentOrchestrator.submit_experiment/1",
+    "flag_off_behavior": "{:error, :real_execution_not_enabled}",
+    "asc_candidate": "generate_candidate_experiments/1 physics candidate = Physics.pilot_experiment() (placeholder replaced)",
+    "live_run": "PENDING (requires MC-004-P authorization + flag flip)"
+  },
+  "real_primitive_contracts_preserved": true,
+  "canonical_ontology_unchanged": true,
+  "canonical_registry_unchanged": true,
+  "fabricated_success_remaining_in_targets": 0,
+  "evidence": {
+    "static_verification": "PASS — verifier checks",
+    "compile": "PASS — app generated (pre-existing warnings unchanged)",
+    "applications_and_boot": "PASS — app boots; PhaseΩ 15/15 healthy; OPC/NDE/TWP/IRD initialized",
+    "targeted_suite": "PASS — 73 tests, 0 failures (test/tiannara/math, test/tiannara/domains, test/tiannara/physics; full output captured in priv/tiannara/remediation/results/MC004_M_suite_output.txt)",
+    "mc001_pins": "PASS — solve_ode(%{}, %{}, 1.0) == {:error, :ode_solver_unavailable}; validate(%{model: %{}}) == {:error, :formal_verification_unavailable}",
+    "analytics": "PASS — RK4 harmonic-oscillator accuracy within tolerance; underdamped decay bounded by e^(-c*t/2m) envelope",
+    "full_suite_regression": "NOT_RUN — full one-shot suite >30 min on this machine (environmental); per-directory suites standard; touched dirs above green",
+    "pre_existing_failures": "none within the three targeted directories; corpus-wide pre-existing failures (activation_engine :already_started, cognition :already_started, dead constitutional probes, ASC supervisor/port races) identically recorded in MC-003-M matrix and not touched by this gate",
+    "verifier": "PASS — priv/tiannara/remediation/verifiers/MC004_M_domain_physics_mutation.py exit 0"
+  },
+  "certification_boundary": "Domain-physics mutation certified based on static verification, passing targeted acceptance tests, clean compile, and honest unavailability surfaces. NO pilot executed and :real_execution_enabled remains false — live pilot is PENDING a fresh MC-004-P human grant (operator c14_ac) and flag flip. No formal-verification claim is made; the integrator is proven only against analytic pins in its tests.",
+  "deferred_technical_debt": [
+    "TD-MC004-M-P_LIVE_PILOT: executing Physics.pilot_experiment() against REAMS REAL PHYSICS requires MC-004-P authorization + :real_execution_enabled true",
+    "TD-MC004-M-SUBSYSTEM_ENGINES: ~16 engine submodules under physics/{opc,nde,ird,twp}/ remain booting servers with no callers; documented, intentionally not decommissioned",
+    "TD-MC004-M-FORMAL_VERIFICATION: formal verification remains unavailable by MC-001 binding; structural checks are the current bound"
+  ],
+  "final_architectural_question": {
+    "did_mutation_increase_ability_to_distinguish_compute_from_claim": true,
+    "basis": "The physics pilot's claimed outputs — trajectories, decay behavior, candidate hypotheses, subsystem 'results' — are now either (a) computed by a real, bounded RK4 integrator with provenance-kind :simulation and evidence hashes, (b) explicitly unavailable ({:error, :physics_substrate_unavailable} / {:error, :formal_verification_unavailable}), or (c) deterministically honest (deterministic :failure, success: false steps). Nothing on the audited physics surfaces can fabricate a plausible-but-uncomputed number."
+  },
+  "contract_hash": null
+}

@@ -13,44 +13,44 @@ defmodule Tiannara.Physics.NDE do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def differentiate_chaotic_state(chaotic_data) do
-    GenServer.call(__MODULE__, {:differentiate_chaotic_state, chaotic_data})
+  def differentiate_chaotic_state(_chaotic_data) do
+    {:error, :physics_substrate_unavailable}
   end
 
-  def create_negentropic_pattern(pattern_id, chaotic_elements, opts \\ []) do
-    GenServer.call(__MODULE__, {:create_negentropic_pattern, pattern_id, chaotic_elements, opts})
+  def create_negentropic_pattern(_pattern_id, _chaotic_elements, _opts \\ []) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_negentropic_patterns() do
-    GenServer.call(__MODULE__, :get_negentropic_patterns)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def calculate_negentropy_level(pattern_id) do
-    GenServer.call(__MODULE__, {:calculate_negentropy_level, pattern_id})
+  def calculate_negentropy_level(_pattern_id) do
+    {:error, :physics_substrate_unavailable}
   end
 
-  def optimize_negentropic_structure(pattern_id) do
-    GenServer.call(__MODULE__, {:optimize_negentropic_structure, pattern_id})
+  def optimize_negentropic_structure(_pattern_id) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_negentropy_metrics() do
-    GenServer.call(__MODULE__, :get_negentropy_metrics)
+    {:error, :physics_substrate_unavailable}
   end
 
   def validate_negentropic_integrity() do
-    GenServer.call(__MODULE__, :validate_negentropic_integrity)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def simulate_negentropic_process(chaotic_input, steps \\ 1000) do
-    GenServer.call(__MODULE__, {:simulate_negentropic_process, chaotic_input, steps})
+  def simulate_negentropic_process(_chaotic_input, _steps \\ 1000) do
+    {:error, :physics_substrate_unavailable}
   end
 
   def get_chaos_reduction_statistics() do
-    GenServer.call(__MODULE__, :get_chaos_reduction_statistics)
+    {:error, :physics_substrate_unavailable}
   end
 
-  def export_negentropic_model(model_id) do
-    GenServer.call(__MODULE__, {:export_negentropic_model, model_id})
+  def export_negentropic_model(_model_id) do
+    {:error, :physics_substrate_unavailable}
   end
 
   # Server callbacks
@@ -625,18 +625,18 @@ defmodule Tiannara.Physics.NDE do
     # Check negentropy consistency
     negentropy_score = calculate_negentropy_score(pattern_data.differentiated_elements)
     if negentropy_score < 0.5 do
-      issues = issues ++ ["Low negentropy score: #{negentropy_score}"]
+      _issues = issues ++ ["Low negentropy score: #{negentropy_score}"]
     end
     
     # Check chaos reduction
     if pattern_data.chaos_reduction < 0.1 do
-      issues = issues ++ ["Insufficient chaos reduction: #{pattern_data.chaos_reduction}"]
+      _issues = issues ++ ["Insufficient chaos reduction: #{pattern_data.chaos_reduction}"]
     end
     
     # Check element consistency
     element_count = length(pattern_data.differentiated_elements)
     if element_count == 0 do
-      issues = issues ++ ["No differentiated elements"]
+      _issues = issues ++ ["No differentiated elements"]
     end
     
     %{
@@ -650,13 +650,13 @@ defmodule Tiannara.Physics.NDE do
     }
   end
 
-  defp simulate_negentropic_evolution(chaotic_input, steps, config) do
+  defp simulate_negentropic_evolution(chaotic_input, steps, _config) do
     # Simulate evolution over multiple steps
     current_state = chaotic_input
     total_energy = 0.0
     convergence_count = 0
     
-    Enum.reduce(1..steps, {current_state, total_energy, convergence_count}, fn step, {state, energy, convergence} ->
+    Enum.reduce(1..steps, {current_state, total_energy, convergence_count}, fn _step, {state, energy, convergence} ->
       # Apply negentropic transformation
       chaos_analysis = analyze_chaotic_state(state)
       differentiated = apply_negentropic_differentiation(state, chaos_analysis)

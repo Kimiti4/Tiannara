@@ -46,7 +46,7 @@ defmodule Tiannara.LEOC.CompressionEngine do
   defp extract_discovery_affinities(discovery_ids) do
     discovery_ids
     |> Enum.map(fn _id -> 
-      %{domain: Enum.random([:engineering, :construction, :materials_science, :science, :cognition, :agriculture]), impact_score: 0.7}
+      %{domain: Enum.random([:engineering, :construction, :materials_science, :cognition, :agriculture]), impact_score: 0.7}
     end)
     |> Enum.filter(&(&1 != nil and &1.impact_score > 0.6))
     |> Enum.group_by(& &1.domain)

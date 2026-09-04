@@ -205,7 +205,7 @@ defmodule Tiannara.KnowledgeGraph.Registry do
         type: :discovery,
         name: "Generative Orbit Equivalence",
         description: "Phoenix and Settler families converge onto equivalent orbit geometries, proving Navigators are search heuristics.",
-        domains: [:mathematics, :engineering, :computation],
+        domains: [:computation, :engineering],
         parents: ["structured_forgetting", "scp_retention_boundary"],
         children: [],
         metadata: %{

@@ -56,6 +56,16 @@ defmodule Tiannara.ASC.Supervisor do
 
       # Phase 6 & 8: Research Registry for tracking methodologies
       Tiannara.ASC.Research.ResearchRegistry,
+
+      # Phase Ω.3 — Civilizational Systems
+      {Tiannara.ASC.CivilizationManager, name: :asc_civilization_manager},
+      {Tiannara.ASC.KnowledgeEconomy, name: :asc_knowledge_economy},
+      {Tiannara.ASC.CapabilityEvolution, name: :asc_capability_evolution},
+      {Tiannara.ASC.InstitutionEngine, name: :asc_institution_engine},
+      {Tiannara.ASC.ResourceAllocator, name: :asc_resource_allocator},
+      {Tiannara.ASC.ResearchPlanner, name: :asc_research_planner},
+      {Tiannara.ASC.CivilizationMemory, name: :asc_civilization_memory},
+      {Tiannara.ASC.CivilizationMetrics, name: :asc_civilization_metrics},
     ]
 
     Supervisor.init(children, strategy: :rest_for_one)

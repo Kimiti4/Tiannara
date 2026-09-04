@@ -1,0 +1,69 @@
+authorization:
+  id: "ASC-AC-001-FINAL"
+  mission: "Tiannara Remediation + Substrate Integration Campaign"
+  gate: "AC-001-FINAL"
+  action: "canonical_domain_registry_remediation_closure"
+  status: "GRANTED"
+
+  scope:
+    description: >
+      Certify closure of the AC-001 sequence. Establish CanonicalRegistry as
+      sole domain authority. Verify canonical 20-domain ontology. Confirm
+      legacy authority elimination, orphan resolution, semantic closure, and
+      boundary integrity. Unlock MC-001 Mathematics. Do NOT implement MC-001.
+
+  authorized_actions:
+    - "Final evidence aggregation"
+    - "Final invariant verification"
+    - "Final certification artifact production"
+    - "Campaign state update (AC-001 → CERTIFIED)"
+    - "MC-001 unlock (state change only, no implementation)"
+
+  prohibited:
+    - "Implementing MC-001 Mathematics"
+    - "Modifying frozen 20-domain ontology"
+    - "Fabricating unexecuted evidence"
+    - "Claiming PASS for unexecuted checks"
+    - "Broad rewrites or unrelated cleanup"
+
+  predecessor_gates:
+    - "R0: CERTIFIED"
+    - "AC-001-A0: COMPLETE"
+    - "AC-001-A: CERTIFIED"
+    - "AC-001-B: CERTIFIED"
+    - "AC-001-C0: COMPLETE"
+    - "AC-001-C1: CERTIFIED"
+    - "AC-001-D: CERTIFIED"
+    - "AC-001-E: CERTIFIED"
+
+  governance:
+    required: true
+    authority: "C14"
+    policy: "POL-CERT_AUTH_001"
+    purpose: "AC-001 campaign closure and MC-001 unlock"
+    on_deny: "BLOCKED"
+
+  certification_contract:
+    path: "priv/tiannara/remediation/contracts/AC001_FINAL_certification.contract.yaml"
+    hash: null
+
+  human_authorization:
+    status: "GRANTED"
+    operator_id: "c14_ac"
+    signature: "authorized"
+    timestamp: "2026-08-27"
+    conditions_accepted: true
+    notes: "Human operator authorized AC-001 FINAL closure and MC-001 unlock."
+
+  valid_until: null
+
+  audit_trail:
+    created_by: "tiannara_os"
+    creation_timestamp: "2026-08-27T00:00:00Z"
+    lineage:
+      - "R0 CERTIFIED"
+      - "AC-001-A CERTIFIED"
+      - "AC-001-B CERTIFIED"
+      - "AC-001-C1 CERTIFIED"
+      - "AC-001-D CERTIFIED"
+      - "AC-001-E CERTIFIED"

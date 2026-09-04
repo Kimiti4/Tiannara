@@ -1,0 +1,12 @@
+{
+  "audit": "stress",
+  "metrics": {
+    "elapsed_seconds": 0.686,
+    "institutions": 10000,
+    "ledger_events": 1000000,
+    "replay_operations": 10000000,
+    "rfcs": 100000
+  },
+  "status": "PASS",
+  "summary": "The audit harness completed a large synthetic workload without failure."
+}

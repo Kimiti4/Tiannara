@@ -36,6 +36,7 @@ defmodule Tiannara.ASC.Crucible.RepairPattern do
   defstruct [
     # Identity
     id: nil,
+    failure_context: nil,
     failure_signature: nil,
     failure_classification: nil,  # Phase 5 - Hierarchical classification
     failure_type: nil,
@@ -198,34 +199,6 @@ defmodule Tiannara.ASC.Crucible.RepairPattern do
     "pattern_#{:crypto.strong_rand_bytes(8) |> Base.encode16(case: :lower)}"
   end
 
-  defp generate_failure_signature(observation) do
-    # Generate deterministic failure signature from observation
-    # Format: "category:specific_issue"
-
-    category = case observation.origin do
-      :requirements -> "requirement"
-      :architecture -> "architecture"
-      :interface -> "interface"
-      :implementation -> "implementation"
-      :deployment -> "deployment"
-      :operations -> "operations"
-      _ -> "unknown"
-    end
-
-    # Extract specific issue from evidence
-    specific = case observation.evidence do
-      [first_evidence | _] when is_binary(first_evidence) ->
-        first_evidence
-        |> String.downcase()
-        |> String.replace(~r/[^a-z0-9_]/, "_")
-        |> String.slice(0..30)
-      _ ->
-        "unknown"
-    end
-
-    "#{category}:#{specific}"
-  end
-
   defp classify_failure_type(observation) do
     # Classify failure into repair categories
     case {observation.source, observation.observation_type} do
@@ -342,7 +315,7 @@ defmodule Tiannara.ASC.Crucible.RepairPattern do
 
   - Updated pattern with ecology metrics
   """
-  def update_ecology(%__MODULE__{} = pattern, success?, regression?, recovery_time_ms, generation, epoch_id) do
+  def update_ecology(%__MODULE__{} = pattern, success?, regression?, recovery_time_ms, generation, _epoch_id) do
     now = DateTime.utc_now()
 
     # Update total counts

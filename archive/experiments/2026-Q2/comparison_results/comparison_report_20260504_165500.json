@@ -1,0 +1,89 @@
+{
+  "timestamp": "2026-05-04 16:56:09",
+  "summary": {
+    "baseline_mode": {
+      "domains": [
+        "algorithm",
+        "logic",
+        "reverse_engineering",
+        "causal"
+      ],
+      "total_episodes": 80,
+      "success_rate": 1.0,
+      "elapsed_time": 1.4609615802764893
+    },
+    "enhanced_mode": {
+      "domains": [
+        "algorithm",
+        "logic",
+        "reverse_engineering",
+        "causal",
+        "temporal",
+        "combinatorial"
+      ],
+      "total_episodes": 120,
+      "success_rate": 1.0,
+      "elapsed_time": 56.94102215766907
+    },
+    "improvements": {
+      "success_rate_absolute": 0.0,
+      "success_rate_percentage": 0.0,
+      "transfer_rate_baseline": 0.16,
+      "transfer_rate_enhanced": 0.4444444444444444,
+      "transfer_improvement": 0.2844444444444444
+    }
+  },
+  "domain_comparison": {
+    "algorithm": {
+      "baseline_success_rate": 1.0,
+      "enhanced_success_rate": 1.0,
+      "improvement": 0.0,
+      "baseline_correctness": 1.0,
+      "enhanced_correctness": 1.0
+    },
+    "causal": {
+      "baseline_success_rate": 1.0,
+      "enhanced_success_rate": 1.0,
+      "improvement": 0.0,
+      "baseline_correctness": 1.0,
+      "enhanced_correctness": 1.0
+    },
+    "logic": {
+      "baseline_success_rate": 1.0,
+      "enhanced_success_rate": 1.0,
+      "improvement": 0.0,
+      "baseline_correctness": 1.0,
+      "enhanced_correctness": 1.0
+    },
+    "reverse_engineering": {
+      "baseline_success_rate": 1.0,
+      "enhanced_success_rate": 1.0,
+      "improvement": 0.0,
+      "baseline_correctness": 1.0,
+      "enhanced_correctness": 1.0
+    }
+  },
+  "new_domains_in_enhanced": {
+    "combinatorial": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0
+    },
+    "temporal": {
+      "success_rate": 1.0,
+      "avg_correctness": 1.0
+    }
+  },
+  "abstraction_engine_performance": {
+    "patterns_extracted": 2,
+    "meta_patterns": 0,
+    "avg_pattern_success_rate": 1.0,
+    "avg_cross_domain_score": 0.8,
+    "total_skills_processed": 120
+  },
+  "key_findings": [
+    "\u26a0\ufe0f Overall success rate decreased by 0.0% (needs investigation)",
+    "\u2705 Cross-domain transfer success rate improved from 16.00% to 44.44%",
+    "\u2705 Abstraction engine extracted 2 abstract patterns and 0 meta-patterns",
+    "\u2705 Successfully expanded from 4 to 6 domains"
+  ]
+}

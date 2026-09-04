@@ -1,5 +1,5 @@
 defmodule Tiannara.REA.Topo.ChannelEvolutionEngine do
-  alias Tiannara.REA.Topo.{ChannelApplicator, ReplacementRegistry}
+  alias Tiannara.REA.Topo.ReplacementRegistry
   alias Tiannara.REA.Causal.Graph
 
   @spec evolve(non_neg_integer(), [map()]) :: {:ok, list()}

@@ -1,0 +1,18 @@
+{
+  "constraints": [],
+  "invariants": [
+    {
+      "id": "inv_338",
+      "domain": "general",
+      "statement": "Traces must propagate context",
+      "negation_form": "Traces must NOT propagate context",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Traces must propagate context"
+    }
+  ],
+  "capabilities": [],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:25:35.474000Z"
+}

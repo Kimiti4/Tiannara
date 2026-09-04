@@ -1,0 +1,46 @@
+probe_id: "U7_homeostasis"
+audit: "U0"
+mode: "CERTIFICATION"
+
+capabilities_under_test: [C12, C15]
+integration_edges_under_test:
+  - edge: "C2/C14 → C12"
+    question: "Does the Cognitive Immune System (CIS) accurately observe the canonical state and governance boundaries?"
+  - edge: "C12 → Diagnosis"
+    question: "Can C12 distinguish between genuine failure, degradation, recovery, and false-emergency (F9)?"
+
+bounded_proposition: >
+  Under this tested execution path, C12 accurately detects injected faults
+  and state anomalies (including F9 false-emergency signals) without
+  executing unauthorized corrective mutations outside the isolated test harness.
+
+# Strict Production Bounds (POL-CERT-AUTH-001)
+production_mutation_allowed: false
+production_service_bootstrap_allowed: false
+external_mutations_allowed: false
+production_adoption_allowed: false
+
+# Test Harness Bounds (Required for U7 fault injection)
+test_topology_bootstrap_allowed: true
+test_fault_injection_allowed: true
+
+declared_side_effects:
+  - evidence_artifacts
+  - certification_records
+  - temporary_probe_state
+  - test_topology_process_spawn_and_teardown
+  - incidental_f8_lineage_crash   # Expected when testing lineage retrieval
+  - incidental_f9_false_emergency # Expected when testing EOS state classification
+
+verdict_scope: "epistemic_status_only"
+verdict_targets: "integration_edges"
+
+# U7 Test Plan
+test_phases:
+  U7_A: "Healthy-state detection (baseline)"
+  U7_B: "Fault detection (injected bounded failure)"
+  U7_C: "Recovery observation (does C12 trigger correct recovery protocol?)"
+  U7_D: "False-emergency resistance (F9 validation)"
+  U7_E: "Autonomy boundary check (observation != authorization)"
+
+contract_hash: "28eb43ab36fd8a066416b622fd5eda092be7e519ea38884c17ca57d6116aacb8"

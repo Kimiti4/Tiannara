@@ -1,0 +1,5 @@
+tick,average_theory_confidence,total_nodes,theories_count,discoveries_count,evidence_count
+500,0.458,300,100,50,150
+1000,0.458,300,100,50,150
+1500,0.458,300,100,50,150
+2000,0.458,300,100,50,150

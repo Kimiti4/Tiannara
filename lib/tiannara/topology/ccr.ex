@@ -317,6 +317,18 @@ defmodule Tiannara.Topology.CCR do
     :ets.insert(:compilation_metrics, {metrics_record})
   end
 
+  defp record_compilation_metrics(performance_analysis) when is_map(performance_analysis) do
+    metrics_record = {
+      System.system_time(:millisecond),
+      :performance_analysis,
+      performance_analysis.total_compilations,
+      performance_analysis.success_rate,
+      performance_analysis.average_duration,
+      performance_analysis.performance_assessment
+    }
+    :ets.insert(:compilation_metrics, {metrics_record})
+  end
+
   defp reflect_on_compilation_data(compilation_data) when is_map(compilation_data) do
     # Reflect on compilation data
     start_time = compilation_data.start_time || 0
@@ -677,18 +689,6 @@ defmodule Tiannara.Topology.CCR do
       :moderate -> 0.15  # Moderate improvement expected
       :poor -> 0.25      # Significant improvement expected
     end
-  end
-
-  defp record_compilation_metrics(performance_analysis) when is_map(performance_analysis) do
-    metrics_record = {
-      System.system_time(:millisecond),
-      :performance_analysis,
-      performance_analysis.total_compilations,
-      performance_analysis.success_rate,
-      performance_analysis.average_duration,
-      performance_analysis.performance_assessment
-    }
-    :ets.insert(:compilation_metrics, {metrics_record})
   end
 
   defp record_compilation_optimization(optimization_result) when is_map(optimization_result) do

@@ -1,0 +1,12 @@
+{
+  "certification_baseline": {
+    "commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+    "elixir_version": "Elixir 1.18.4 (compiled with Erlang/OTP 28)",
+    "mix_env": "dev",
+    "mix_lock_hash_sha256": "ef49f19d889809595736316798b468e8c0f4e0b167ebfa3785aa1ee341404231",
+    "timestamp": "2026-08-25T00:15:00Z"
+  },
+  "phases": {
+    "phase_0": "COMPLETE"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "metadata": {
+    "serializer_version": "1.0",
+    "serialization_format": "canonical_json",
+    "hash_algorithm": "SHA256"
+  },
+  "constraints": [
+    "No external injection of capital allowed",
+    "No capital destruction permitted",
+    "Policy changes require governance approval"
+  ],
+  "policy_hash": "0dca691f676ec3e320946a6946b6d31d12ad974460ea1079d158ba69ae13e197",
+  "rules": [
+    "Capital must be conserved across generations",
+    "All deltas must be non-negative",
+    "Only canonical contributions count toward capital"
+  ],
+  "approved_by": "TiannaraOS.ConstitutionalGovernance",
+  "coefficients": {
+    "discovery_value": 100,
+    "theory_value": 250,
+    "law_value": 500,
+    "application_value": 150,
+    "unknown_resolution_value": 200
+  },
+  "justification": "Establish scientific capital as constitutional conserved quantity derived exclusively from canonical transactions.",
+  "effective_date": "2026-06-30T00:00:00Z"
+}

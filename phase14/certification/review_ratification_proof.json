@@ -1,0 +1,27 @@
+{
+  "status": "APPROVED",
+  "timestamp": "2026-07-03T20:28:54.414000Z",
+  "phase": "14.1.7",
+  "proposal_id": "test_proposal_001",
+  "review": {
+    "certificate_hash": "754cfc47fe7b758b2aa0afb637c1423e644519add85b25bf33be1209e22aac0c",
+    "approvals": 3,
+    "rejections": 0,
+    "quorum_met": true,
+    "boards": 3
+  },
+  "simulations": {
+    "count": 8,
+    "certificate_hash": "a347421e1db8fddc798e57552439fc1da54f11fc2002c871c5e72ad96717774a",
+    "all_passed": true
+  },
+  "ratification": {
+    "approved": true,
+    "threshold": "supermajority",
+    "no_votes": 0,
+    "total_votes": 5,
+    "certificate_hash": "db04f2a2561e939a126df98d7612bba29d4983c44cead8dbaff4e316fb7dab51",
+    "yes_votes": 5
+  },
+  "next_phase": "14.1.8"
+}

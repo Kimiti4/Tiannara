@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-05-07T00:35:02.263179",
+  "total_demo_time_seconds": 6.167040586471558,
+  "demonstrations": [
+    {
+      "tier": "Starter",
+      "use_case": "Customer Segmentation",
+      "company": "ShopSmart (5-person startup)",
+      "time_seconds": 1.5018014907836914,
+      "time_human": "2 hours",
+      "api_calls": 150,
+      "cost_usd": 0.75,
+      "accuracy": 0.89,
+      "business_impact": {
+        "conversion_increase": "35%",
+        "roi_increase": "42%",
+        "retention_increase": "28%"
+      },
+      "vs_traditional": {
+        "time_improvement": "99%",
+        "cost_improvement": "99.995%",
+        "accuracy_improvement": "+11%"
+      }
+    },
+    {
+      "tier": "Professional",
+      "use_case": "Production Fraud Detection",
+      "company": "PaySecure (30-person fintech)",
+      "time_seconds": 1.7468879222869873,
+      "time_human": "2 weeks",
+      "transactions_processed": 300000,
+      "annual_cost": 2388,
+      "metrics": {
+        "precision": 0.91,
+        "recall": 0.94,
+        "f1_score": 0.925,
+        "false_positive_rate": 0.1,
+        "response_time_ms": 45
+      },
+      "business_impact": {
+        "fraud_prevented_usd": 840000,
+        "cost_reduction_usd": 120000,
+        "productivity_increase": "3x"
+      },
+      "vs_traditional": {
+        "first_year_savings_usd": 77612,
+        "ongoing_savings_usd": 27612,
+        "total_value_first_year_usd": 917612
+      }
+    },
+    {
+      "tier": "Enterprise",
+      "use_case": "Compliant Claims Processing",
+      "company": "SecureLife Insurance (2,000 employees)",
+      "time_seconds": 2.917259693145752,
+      "time_human": "3 months",
+      "claims_processed_annually": 500000,
+      "annual_cost": 11988,
+      "metrics": {
+        "processing_time_days": 2.8,
+        "fraud_accuracy": 0.96,
+        "customer_satisfaction": 4.7,
+        "compliance_score": 0.98,
+        "uptime_achieved": 0.9997
+      },
+      "business_impact": {
+        "cost_savings_usd": 2300000,
+        "fraud_prevention_usd": 840000,
+        "risk_mitigation_eur": 20000000,
+        "customer_retention_increase": "18%",
+        "productivity_increase": "45%"
+      },
+      "vs_traditional": {
+        "first_year_savings_usd": 7288012,
+        "ongoing_savings_usd": 2288012,
+        "five_year_value_usd": 16440060,
+        "roi_percent": 221788.55522188856
+      }
+    }
+  ],
+  "summary": {
+    "tiers_demonstrated": 3,
+    "use_cases_built": 3,
+    "total_value_created_usd": 27362612,
+    "average_roi_percent": 94024,
+    "capabilities_showcased": 6
+  }
+}

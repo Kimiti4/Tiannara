@@ -12,7 +12,7 @@ defmodule Tiannara.Constitution.Laws do
     ]
   end
 
-  def validate_action(action, action_data) do
+  def validate_action(action, _action_data) do
     law = Enum.find(get_constitution(), fn l -> l.id == action end)
     if is_nil(law), do: {:error, :law_not_found}, else: {:ok, action}
   end

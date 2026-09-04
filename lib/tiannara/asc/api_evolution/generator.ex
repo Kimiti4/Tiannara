@@ -42,9 +42,6 @@ defmodule Tiannara.ASC.APIEvolution.Generator do
     }
   end
 
-  @doc """
-  Build OpenAPI spec from plan map.
-  """
   defp build_openapi_spec_from_map(plan_map) do
     interfaces = Map.get(plan_map, "interfaces", [])
     storage_models = Map.get(plan_map, "storage_models", [])
@@ -136,9 +133,6 @@ defmodule Tiannara.ASC.APIEvolution.Generator do
     }
   end
 
-  @doc """
-  Build OpenAPI 3.0 specification structure.
-  """
   defp build_openapi_spec(%Plan{} = plan) do
     paths = generate_paths(plan.interfaces)
     schemas = generate_schemas(plan.storage_models)
@@ -157,9 +151,6 @@ defmodule Tiannara.ASC.APIEvolution.Generator do
     }
   end
 
-  @doc """
-  Generate API paths from interfaces.
-  """
   defp generate_paths(interfaces) do
     Enum.reduce(interfaces, %{}, fn interface, acc ->
       path = interface.path || "/"
@@ -193,9 +184,6 @@ defmodule Tiannara.ASC.APIEvolution.Generator do
     end)
   end
 
-  @doc """
-  Generate request body schema from interface input schema.
-  """
   defp generate_request_body(interface) do
     if interface.input_schema && map_size(interface.input_schema) > 0 do
       %{
@@ -211,9 +199,6 @@ defmodule Tiannara.ASC.APIEvolution.Generator do
     end
   end
 
-  @doc """
-  Generate component schemas from storage models.
-  """
   defp generate_schemas(storage_models) do
     Enum.reduce(storage_models, %{}, fn model, acc ->
       schema_name = Macro.camelize(model.entity)
@@ -237,9 +222,6 @@ defmodule Tiannara.ASC.APIEvolution.Generator do
     end)
   end
 
-  @doc """
-  Convert Elixir type strings to OpenAPI types.
-  """
   defp elixir_type_to_openapi(type) do
     case String.downcase(type) do
       "string" -> "string"

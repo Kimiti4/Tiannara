@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-07-03T20:28:54.381000Z",
+  "approved": true,
+  "threshold": "supermajority",
+  "votes": [
+    {
+      "timestamp": "2026-07-03T20:28:54.262000Z",
+      "vote": "yes",
+      "voter_id": "voter_inst_001",
+      "proposal_id": "test_proposal_001",
+      "event_hash": "4141c2a99e9bf9a2ac3b67518bb7616acc023b166ac7264f4ba891555b9d1c5b",
+      "vote_period_id": "vote_period_test_proposal_001",
+      "event_id": "4141c2a99e9bf9a2ac3b67518bb7616acc023b166ac7264f4ba891555b9d1c5b",
+      "institution_id": "inst_001"
+    },
+    {
+      "timestamp": "2026-07-03T20:28:54.264000Z",
+      "vote": "yes",
+      "voter_id": "voter_inst_002",
+      "proposal_id": "test_proposal_001",
+      "event_hash": "d0eb1f7d7a3a04c9e52d6359fd1f48a5464af712beee301d82cf12519de929e6",
+      "vote_period_id": "vote_period_test_proposal_001",
+      "event_id": "d0eb1f7d7a3a04c9e52d6359fd1f48a5464af712beee301d82cf12519de929e6",
+      "institution_id": "inst_002"
+    },
+    {
+      "timestamp": "2026-07-03T20:28:54.264000Z",
+      "vote": "yes",
+      "voter_id": "voter_inst_003",
+      "proposal_id": "test_proposal_001",
+      "event_hash": "581f5ca3cf8aabb5102a54e426436adc79129e6b7d53652063a8a5a57b1769f4",
+      "vote_period_id": "vote_period_test_proposal_001",
+      "event_id": "581f5ca3cf8aabb5102a54e426436adc79129e6b7d53652063a8a5a57b1769f4",
+      "institution_id": "inst_003"
+    },
+    {
+      "timestamp": "2026-07-03T20:28:54.298000Z",
+      "vote": "yes",
+      "voter_id": "voter_inst_004",
+      "proposal_id": "test_proposal_001",
+      "event_hash": "3480c575110f3eebaf18625dc50c1858d4ca87815ba0d5eb748159a4e6f795fa",
+      "vote_period_id": "vote_period_test_proposal_001",
+      "event_id": "3480c575110f3eebaf18625dc50c1858d4ca87815ba0d5eb748159a4e6f795fa",
+      "institution_id": "inst_004"
+    },
+    {
+      "timestamp": "2026-07-03T20:28:54.298000Z",
+      "vote": "yes",
+      "voter_id": "voter_inst_005",
+      "proposal_id": "test_proposal_001",
+      "event_hash": "e096ee627acbdd5e7ded1f95e38703e96ae735c8c2dd65a483be204ffb036734",
+      "vote_period_id": "vote_period_test_proposal_001",
+      "event_id": "e096ee627acbdd5e7ded1f95e38703e96ae735c8c2dd65a483be204ffb036734",
+      "institution_id": "inst_005"
+    }
+  ],
+  "no_votes": 0,
+  "total_votes": 5,
+  "proposal_id": "test_proposal_001",
+  "vote_period_id": "vote_period_test_proposal_001",
+  "yes_votes": 5,
+  "abstain_votes": 0
+}

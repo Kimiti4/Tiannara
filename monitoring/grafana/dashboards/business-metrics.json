@@ -1,0 +1,180 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Total Predictions",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(predictions_total)",
+          "legendFormat": "Total"
+        }
+      ],
+      "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0}
+    },
+    {
+      "title": "Prediction Success Rate",
+      "type": "gauge",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "(sum(predictions_total{success=\"True\"}) / sum(predictions_total)) * 100",
+          "legendFormat": "Success %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "red", "value": null},
+              {"color": "yellow", "value": 70},
+              {"color": "green", "value": 90}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0}
+    },
+    {
+      "title": "Avg Prediction Confidence",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "rate(prediction_confidence_sum[5m]) / rate(prediction_confidence_count[5m])",
+          "legendFormat": "Confidence"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0}
+    },
+    {
+      "title": "Active Engines",
+      "type": "stat",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(engines_running)",
+          "legendFormat": "Engines"
+        }
+      ],
+      "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0}
+    },
+    {
+      "title": "Predictions by Domain",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (domain) (rate(predictions_total[5m]))",
+          "legendFormat": "{{domain}}"
+        }
+      ],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6}
+    },
+    {
+      "title": "Prediction Confidence Distribution",
+      "type": "heatmap",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum(rate(prediction_confidence_bucket[5m])) by (le)",
+          "format": "heatmap"
+        }
+      ],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6}
+    },
+    {
+      "title": "API Calls by Tier",
+      "type": "table",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (tier) (rate(api_calls_by_tier_total[5m]))",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14}
+    },
+    {
+      "title": "Cache Performance",
+      "type": "timeseries",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "sum by (cache_name) (rate(cache_hits_total[5m]))",
+          "legendFormat": "{{cache_name}} hits"
+        },
+        {
+          "expr": "sum by (cache_name) (rate(cache_misses_total[5m]))",
+          "legendFormat": "{{cache_name}} misses"
+        }
+      ],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14}
+    },
+    {
+      "title": "Quota Usage by User",
+      "type": "bargauge",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "quota_usage_percentage",
+          "legendFormat": "{{user_id}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 75},
+              {"color": "red", "value": 90}
+            ]
+          }
+        }
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 22}
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["tiannara", "business"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Tiannara - Business Metrics",
+  "uid": "tiannara-business-metrics",
+  "version": 1,
+  "weekStart": ""
+}

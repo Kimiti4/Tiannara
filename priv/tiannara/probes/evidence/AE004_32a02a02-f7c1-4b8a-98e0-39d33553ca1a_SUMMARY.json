@@ -1,0 +1,153 @@
+{
+  "mission": "ASC-AE-004",
+  "trace_id": "32a02a02-f7c1-4b8a-98e0-39d33553ca1a",
+  "timestamp": "2026-08-20T23:02:36.632358+00:00",
+  "authorization": {
+    "status": "AUTHORIZED",
+    "operator": "schtickman",
+    "signature": "f9/f12",
+    "valid_until": "8-27-2026T2322"
+  },
+  "phase_c": [
+    {
+      "test": "T1 Specificity (healthy topology)",
+      "status": "PASS",
+      "checks": [
+        {
+          "label": true,
+          "ok": "baseline F9 reproduced (status failed / emergency)"
+        },
+        {
+          "label": true,
+          "ok": "F12 fixed at EventStore.healthy?/0 (candidate_f12)"
+        },
+        {
+          "label": true,
+          "ok": "F12 fixed at ExecutiveMemory.health/0 (candidate_f12)"
+        },
+        {
+          "label": true,
+          "ok": "EOS candidate: EventStore.healthy?/0 true on healthy topology"
+        },
+        {
+          "label": true,
+          "ok": "EOS candidate: no critical failures on healthy isolated topology"
+        },
+        {
+          "label": true,
+          "ok": "EOS candidate full boot: no critical failures (false emergency eliminated)"
+        },
+        {
+          "label": true,
+          "ok": "EOS candidate full boot: runtime no longer emergency"
+        },
+        {
+          "label": true,
+          "ok": "EOS candidate full boot: all health endpoints honest"
+        }
+      ]
+    },
+    {
+      "test": "T2 Sensitivity (injected storage fault)",
+      "status": "PASS",
+      "checks": [
+        {
+          "label": true,
+          "ok": "F12 endpoint detects killed service (:unhealthy)"
+        },
+        {
+          "label": true,
+          "ok": "LEGACY EOS classifier SILENCES the fault (:healthy despite :unhealthy)"
+        },
+        {
+          "label": true,
+          "ok": "NORMALIZED EOS classifier preserves the fault (:unhealthy)"
+        },
+        {
+          "label": true,
+          "ok": "F12-only candidate FAILS the EOS-level gate (classifier lost sensitivity)"
+        },
+        {
+          "label": true,
+          "ok": "storage fault injected (EventStore degraded: eisdir)"
+        },
+        {
+          "label": true,
+          "ok": "EOS candidate preserves alarm: EventStore.healthy?/0 false under fault"
+        },
+        {
+          "label": true,
+          "ok": "EOS candidate preserves alarm: event_store in failed_critical"
+        },
+        {
+          "label": true,
+          "ok": "EOS candidate preserves alarm: emergency raised"
+        }
+      ]
+    },
+    {
+      "test": "T3 Recovery Honesty",
+      "status": "PASS",
+      "checks": [
+        {
+          "label": true,
+          "ok": "fault removed (recovery applied)"
+        },
+        {
+          "label": true,
+          "ok": "EventStore healthy again after recovery"
+        },
+        {
+          "label": true,
+          "ok": "storage alarm cleared (event_store absent from failed_critical)"
+        },
+        {
+          "label": true,
+          "ok": "EOS not stuck in emergency"
+        }
+      ]
+    },
+    {
+      "test": "Causal Discrimination (F12 -> F9)",
+      "status": "PASS",
+      "checks": [
+        {
+          "label": "F9 reproduced with start gate collision",
+          "ok": true
+        },
+        {
+          "label": "F9 failed services were live",
+          "ok": true
+        },
+        {
+          "label": "F12 is systemic family",
+          "ok": true
+        },
+        {
+          "label": "F12 contract only is insufficient at EOS level",
+          "ok": true
+        },
+        {
+          "label": "F12 plus EOS adjustment resolves false emergency",
+          "ok": true
+        },
+        {
+          "label": "full boot status is honest after fix",
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "causal_discrimination": {
+    "F9_reproduced_with_start_gate_collision": true,
+    "F9_failed_services_were_live": true,
+    "F12_is_systemic_family": true,
+    "F12_contract_only_is_insufficient_at_EOS_level": true,
+    "F12_plus_EOS_adjustment_resolves_false_emergency": true,
+    "full_boot_status_is_honest_after_fix": true
+  },
+  "verdict": "candidate_f12_plus_eos_adjustment PASSES Phase C gates",
+  "adoption_executed": false,
+  "production_mutation": false,
+  "evidence_report": "C:\\Users\\user\\Tiannara\\Tiannara-MindCache-Prosthetic\\docs\\probes\\AE-004_evidence_report.md"
+}

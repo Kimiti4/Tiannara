@@ -1,0 +1,147 @@
+# ==============================================================================
+# TIANNARA C14 AUTHORIZATION ARTIFACT: DIAGNOSTIC / REMEDIATION-DECISION MISSION
+# ==============================================================================
+# Mission:    ASC-AE-008 — Discovery Supervisor Diagnosis (F13)
+# Predecessor: AE-007 (CIS Production Residency)
+# Class:      DIAGNOSTIC-FIRST MISSION (remediation only if verdict justifies)
+# ==============================================================================
+
+mission_id: "ASC-AE-008"
+status: "AUTHORIZED"
+
+# ------------------------------------------------------------------------------
+# 1. MISSION OBJECTIVE
+# ------------------------------------------------------------------------------
+objective: >
+  Establish the truth about why canonical boot classifies Discovery as
+  degraded. Distinguish among the five hypotheses (duplicate ownership,
+  expected nested startup, incorrect topology, lifecycle contract mismatch,
+  real Discovery failure) and produce a verdict. Remediation is authorized
+  ONLY if the verdict justifies it.
+
+mission_class_note: >
+  This is a DIAGNOSIS mission, not a patch mission. The primary deliverable
+  is a VERDICT. A correct diagnosis concluding "Discovery is legitimately
+  degraded" is a SUCCESSFUL outcome and requires NO code change. We do not
+  optimize for making EOS green; we optimize for making EOS true.
+
+constitutional_basis:
+  - "Evidence Before Confidence. Never optimize for appearing correct. Optimize for being correct."
+  - "Uncertainty should never be hidden."
+  - "Distinguish clearly between Facts, Evidence, Assumptions, Hypotheses."
+  - "Truth has priority over confidence."
+
+# ------------------------------------------------------------------------------
+# 2. THE FIVE HYPOTHESES (authorized scope of discrimination)
+# ------------------------------------------------------------------------------
+hypotheses:
+  H1_duplicate_ownership:
+    claim: "Two supervisors believe they own the same Discovery process."
+  H2_expected_nested_startup:
+    claim: >
+      Discovery is intentionally started elsewhere; EOS misinterprets the
+      resulting already_started as degradation. Classification bug, not failure.
+  H3_incorrect_topology:
+    claim: "Discovery is genuinely outside its intended parent supervisor."
+  H4_lifecycle_contract_mismatch:
+    claim: >
+      The Discovery health/boot contract disagrees with the implementation
+      (analogous to F12's stale match pattern).
+  H5_real_failure:
+    claim: >
+      already_started is merely the visible symptom of a deeper Discovery
+      lifecycle failure.
+
+# ------------------------------------------------------------------------------
+# 3. STRICT SCOPE & BOUNDARIES
+# ------------------------------------------------------------------------------
+scope:
+  permitted_targets:
+    - "Diagnosis of Discovery supervisor lifecycle and classification"
+    - "Inspection of supervision tree, ServiceRegistry health_check, EOS classification logic"
+    - "IF verdict justifies: generation of an isolated remediation candidate"
+  explicitly_forbidden:
+    - "Suppressing or silencing the degraded signal to make EOS green"
+    - "Patching Discovery before the verdict is recorded"
+    - "CEL-1: registry-driven delegation, capability discovery, or dynamic selection"
+    - "Reopening U0 certification"
+    - "Production mutation (diagnosis is read-only; remediation candidates are isolated)"
+
+  hard_prohibition: >
+    The F9/F12 lesson is binding: a fix that makes EOS report healthy while
+    the underlying state is unchanged is a REGRESSION, not a fix. Any candidate
+    that reduces classification accuracy is REJECTED regardless of other results.
+
+# ------------------------------------------------------------------------------
+# 4. MISSION GATES
+# ------------------------------------------------------------------------------
+gates:
+  Phase_A_Symptom_Characterization:
+    description: "Reproduce the degraded classification on canonical boot."
+    requirements:
+      - "Capture the exact EOS boot report line classifying Discovery as degraded"
+      - "Capture the exact already_started context (which start call, which return)"
+      - "Record Discovery's registered name, PID, and liveness"
+      - "Establish baseline BEFORE any change"
+
+  Phase_B_Hypothesis_Discrimination:
+    description: "Run the decision-tree protocol to isolate the cause."
+    reference: "docs/probes/AE-008_discovery_diagnosis_protocol.md"
+    tests:
+      - "Step 1: Functionality probe (is Discovery actually functional?)"
+      - "Step 2: Ownership audit (how many supervisors claim it?)"
+      - "Step 3: Topology check (is it under its intended parent?)"
+      - "Step 4: Contract check (does health_check/boot contract match?)"
+      - "Step 5: Nested-startup check (is already_started expected?)"
+
+  Phase_C_Verdict_And_Remedy_Decision:
+    description: "Produce the verdict and decide whether remediation is warranted."
+    verdict_branches:
+      legitimately_degraded:
+        action: "NO code change. Record the truth. Mission closes as SUCCESS."
+        note: "If Discovery is genuinely degraded, degraded is the correct EOS output."
+      classification_bug:
+        action: "Generate isolated contract/classification fix candidate (H2/H4)."
+        adoption: "Requires SEPARATE adoption artifact."
+      topology_defect:
+        action: "Generate isolated topology remediation candidate (H1/H3)."
+        adoption: "Requires SEPARATE adoption artifact."
+      real_failure:
+        action: >
+          Do NOT surface-patch. Escalate to a dedicated remediation mission.
+          Record the deeper lifecycle problem as a new finding.
+
+# ------------------------------------------------------------------------------
+# 5. ADOPTION GATE
+# ------------------------------------------------------------------------------
+no_automatic_adoption:
+  rule: >
+    Diagnosis is read-only and requires no adoption. IF the verdict requires a
+    code or topology change, that change is generated as an ISOLATED candidate
+    and requires a SEPARATE C14 adoption artifact (ASC-AE-008-ADOPTION.human.yaml).
+    IF the verdict is 'legitimately degraded', NO adoption artifact is created
+    and the mission closes on diagnostic evidence alone.
+
+# ------------------------------------------------------------------------------
+# 6. HUMAN AUTHORIZATION BLOCK
+# ------------------------------------------------------------------------------
+human_authorization:
+  operator_id: schtickman
+  signature: F13-diagnosis
+  timestamp: 2026-08-21T04:00Z
+  conditions_accepted: true
+  notes: "AE-008 authorized — ensure diagnosis is discovered, not hardcoded"
+
+valid_until: 2026-09-04T04:00Z
+
+# ------------------------------------------------------------------------------
+# 7. AUDIT TRAIL
+# ------------------------------------------------------------------------------
+audit_trail:
+  created_by: "tiannara_os"
+  creation_timestamp: "2026-08-21T00:00:00Z"
+  constitutional_basis: "rules.md -> Scientific Method / Evidence Before Confidence"
+  lineage:
+    - "AE-004 (F12/F9 observability — the lesson that binds this mission)"
+    - "AE-007 (F11 — exposed F13 by clearing the global false emergency)"
+    - "F13 baseline: EOS status=degraded, failed_critical=[], discovery_supervisor medium"

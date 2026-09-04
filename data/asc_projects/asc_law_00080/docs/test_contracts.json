@@ -1,0 +1,25 @@
+[
+  {
+    "id": "tc_321",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Sagas must complete or rollback fully",
+    "source_ref": "inv_320",
+    "test_module_name": "SagasMustCompleteInvariantTest",
+    "test_function_name": "property Sagas must complete or rollback fully",
+    "expected_behavior": "Sagas must NOT complete or rollback fully",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "general",
+      "generator": "StreamData.term()",
+      "assertion": "Sagas must NOT complete or rollback fully",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "general"
+    ],
+    "source_type": "invariant"
+  }
+]

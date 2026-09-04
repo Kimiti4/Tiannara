@@ -262,14 +262,18 @@ defmodule Tiannara.Topology.ACF.IntegrityEnforcer do
 
   defp check_component_integrity(_component) do
     state =
-      case Process.whereis(TiannaraOS.CivilizationKernel) do
-        nil -> nil
-        pid ->
-          if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
-          else
-            nil
-          end
+      try do
+        case Process.whereis(TiannaraOS.CivilizationKernel) do
+          nil -> nil
+          pid ->
+            if Process.alive?(pid) do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            else
+              nil
+            end
+        end
+      rescue
+        _ -> nil
       end
 
     if state do
@@ -313,14 +317,18 @@ defmodule Tiannara.Topology.ACF.IntegrityEnforcer do
 
   defp check_global_integrity(_system_state) do
     state =
-      case Process.whereis(TiannaraOS.CivilizationKernel) do
-        nil -> nil
-        pid ->
-          if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
-          else
-            nil
-          end
+      try do
+        case Process.whereis(TiannaraOS.CivilizationKernel) do
+          nil -> nil
+          pid ->
+            if Process.alive?(pid) do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            else
+              nil
+            end
+        end
+      rescue
+        _ -> nil
       end
 
     if state do
@@ -339,14 +347,18 @@ defmodule Tiannara.Topology.ACF.IntegrityEnforcer do
 
   defp check_law_integrity(_system_state) do
     state =
-      case Process.whereis(TiannaraOS.CivilizationKernel) do
-        nil -> nil
-        pid ->
-          if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
-          else
-            nil
-          end
+      try do
+        case Process.whereis(TiannaraOS.CivilizationKernel) do
+          nil -> nil
+          pid ->
+            if Process.alive?(pid) do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            else
+              nil
+            end
+        end
+      rescue
+        _ -> nil
       end
 
     if state do
@@ -365,14 +377,18 @@ defmodule Tiannara.Topology.ACF.IntegrityEnforcer do
 
   defp check_causal_integrity(_system_state) do
     state =
-      case Process.whereis(TiannaraOS.CivilizationKernel) do
-        nil -> nil
-        pid ->
-          if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
-          else
-            nil
-          end
+      try do
+        case Process.whereis(TiannaraOS.CivilizationKernel) do
+          nil -> nil
+          pid ->
+            if Process.alive?(pid) do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            else
+              nil
+            end
+        end
+      rescue
+        _ -> nil
       end
 
     if state do

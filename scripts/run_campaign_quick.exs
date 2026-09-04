@@ -1,0 +1,6 @@
+IO.puts("Running full Phase 6-10 campaign...")
+result = Tiannara.ASC.CivilizationRunner.run_all()
+IO.inspect(result, label: "Result", width: 120)
+IO.puts("\nTopology: #{inspect(Tiannara.Operations.CampaignIntegration.topology())}")
+IO.puts("FeedbackLoop: #{inspect(Tiannara.Operations.FeedbackLoop.state())}")
+IO.puts("Scheduler: #{inspect(Tiannara.Operations.CampaignScheduler.status())}")

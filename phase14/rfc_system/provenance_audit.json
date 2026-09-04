@@ -1,0 +1,18 @@
+{
+  "audit": "provenance",
+  "checks": {
+    "certificate": true,
+    "depends on": true,
+    "evidence": true,
+    "institution history": true,
+    "migration": true,
+    "related proposals": true,
+    "reviewed": true,
+    "simulation": true,
+    "superseded": true,
+    "who proposed": true,
+    "why": true
+  },
+  "status": "PASS",
+  "summary": "The RFC specification carries the required lineage and provenance dimensions."
+}

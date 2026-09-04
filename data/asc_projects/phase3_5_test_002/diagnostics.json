@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-06-18T02:37:48.437000Z",
+  "success": false,
+  "warnings": [],
+  "compile_errors": [
+    "** (ArgumentError) invalid module name: {:-, [line: 1, column: 24], [{:-, [line: 1, column: 19], [{:-, [line: 1, column: 17], [{:__aliases__, [line: 1, column: 11], [:Phase3]}, 5]}, {:test, [line: 1, column: 20], nil}]}, {:__aliases__, [line: 1, column: 28], [2, :MixProject]}]}"
+  ],
+  "test_pass_count": 0,
+  "test_fail_count": 0,
+  "duration_ms": 4833
+}

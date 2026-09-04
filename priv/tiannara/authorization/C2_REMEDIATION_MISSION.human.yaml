@@ -1,0 +1,108 @@
+# ==============================================================================
+# TIANNARA C14 AUTHORIZATION ARTIFACT: ENGINEERING MISSION
+# ==============================================================================
+# Mission:    C2 Remediation (Unified Reality Graph)
+# ID:         C2-REM-001
+# Predecessor: U5/U6 PARTIAL_SUCCESS_CAUSAL_BREAK (F6)
+# ==============================================================================
+
+mission_id: "C2-REM-001"
+status: "AUTHORIZED"
+
+# ------------------------------------------------------------------------------
+# 1. MISSION OBJECTIVE (Falsifiable)
+# ------------------------------------------------------------------------------
+objective: >
+  Determine whether C2's `ExecutiveMemory` dependency is an intentional
+  supervised-runtime invariant or an accidental standalone-operability defect.
+  If defective, identify the minimum change that restores the C1 → C2 → C3
+  causal edge without weakening C14/C15/C16 guarantees.
+
+# ------------------------------------------------------------------------------
+# 2. SCOPE & BOUNDARIES
+# ------------------------------------------------------------------------------
+scope:
+  permitted_actions:
+    - "Dependency characterization (M1)"
+    - "Candidate generation in isolated branches (M2)"
+    - "Isolated testing and benchmarking (M3, M4)"
+    - "Causal verification via probe (M5)"
+  forbidden_actions:
+    - "Production mutation"
+    - "Merging to main/master without separate adoption authorization"
+    - "Weakening C14 governance boundaries"
+    - "Creating shadow state in C3 to bypass C2"
+
+# ------------------------------------------------------------------------------
+# 3. MISSION GATES (M1 - M6)
+# ------------------------------------------------------------------------------
+gates:
+  M1_dependency_characterization:
+    description: "Map exact lifecycle: UnifiedRealityGraph -> ExecutiveMemory -> DETS/ETS."
+    question: "Is C2 supposed to require the production supervisor topology?"
+
+  M2_candidate_generation:
+    description: "Generate and compare architectural candidates."
+    candidates_to_evaluate:
+      - "Supervised bootstrap (require full app start)"
+      - "Explicit dependency injection (pass ExecutiveMemory as arg)"
+      - "Safe lazy initialization (start ExecutiveMemory on-demand)"
+      - "Architecture-preserving alternative"
+
+  M3_correctness:
+    description: "Every candidate must preserve:"
+    invariants:
+      - "Canonical world state (no shadow state)"
+      - "Lineage and provenance"
+      - "Knowledge consistency"
+      - "Failure semantics (graceful degradation)"
+      - "Existing C14 governance boundaries"
+
+  M4_performance_resource:
+    description: "Avoid AE-003-style hidden regressions."
+    metrics:
+      - "latency"
+      - "memory footprint"
+      - "ETS/DETS footprint"
+      - "boot behavior"
+      - "failure recovery time"
+
+  M5_causal_verification:
+    description: "Decisive test: C1 event -> C2 mutation -> C3 persistence."
+    requirement: "Single trace envelope connecting all three phases."
+
+  M6_no_automatic_adoption:
+    description: "Certification cannot authorize production mutation."
+    rule: "Even if a candidate wins all gates, adoption requires a SEPARATE C14 authorization artifact (C2-ADOPTION-001)."
+
+# ------------------------------------------------------------------------------
+# 4. RISK ASSESSMENT
+# ------------------------------------------------------------------------------
+risks:
+  - level: "MEDIUM"
+    description: "Mission involves code modification and service bootstrapping in isolated environments."
+    mitigation: "Strict isolation; no production merge permitted under this authorization."
+
+# ------------------------------------------------------------------------------
+# 5. HUMAN AUTHORIZATION BLOCK (TWO-KEY PATTERN)
+# ------------------------------------------------------------------------------
+human_authorization:
+  operator_id: schtickman
+  signature: mock_test_c2
+  timestamp: 2026-08-20T16:00:00Z
+  conditions_accepted: true
+  notes: C2 remediation
+
+valid_until: 2026-08-27T16:00:00Z
+
+# ------------------------------------------------------------------------------
+# 6. AUDIT TRAIL
+# ------------------------------------------------------------------------------
+audit_trail:
+  created_by: "tiannara_os"
+  creation_timestamp: "2026-08-20T00:00:00Z"
+  constitutional_basis: "rules.md -> Verification First / Capability must never outpace verification"
+  lineage:
+    - "U1 PARTIAL_FAILURE (C2 blocked)"
+    - "DEC-U1-C2-DEFER-003 (C2 deferred)"
+    - "U5/U6 PARTIAL_SUCCESS_CAUSAL_BREAK (C2 confirmed as closed-loop blocker)"

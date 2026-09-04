@@ -80,7 +80,7 @@ defmodule Tiannara.EDM.DiseaseEngine do
     Tiannara.REL.EconomyEngine.consume(civ_id, %{energy: drain})
   end
 
-  defp apply_class_effect(civ_id, budget, :conservatism, virulence) do
+  defp apply_class_effect(civ_id, _budget, :conservatism, virulence) do
     # Declines fitness / stagnates discovery.
     Logger.debug("🦠 [EDM] #{civ_id} suffering Conservatism: Stagnation.")
     # E.g. penalizing compute so they can't make discoveries

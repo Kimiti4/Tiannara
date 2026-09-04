@@ -1,0 +1,693 @@
+[
+  {
+    "record_id": "TEL_3e2d806ceff7",
+    "metric_type": "epistemic_recovery",
+    "value": 0.2,
+    "timestamp": 1778861258.2302337,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_aa31adece94e",
+    "metric_type": "epistemic_recovery",
+    "value": 0.77,
+    "timestamp": 1778861258.195821,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_d1f082bd61ea",
+    "metric_type": "epistemic_recovery",
+    "value": 0.76,
+    "timestamp": 1778861258.159526,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_b3169e603d26",
+    "metric_type": "epistemic_recovery",
+    "value": 0.75,
+    "timestamp": 1778861258.1222212,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_8c538ba68e1f",
+    "metric_type": "epistemic_recovery",
+    "value": 0.74,
+    "timestamp": 1778861258.088306,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_7fc8bfc6f759",
+    "metric_type": "epistemic_recovery",
+    "value": 0.73,
+    "timestamp": 1778861258.0588386,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_299408120ef0",
+    "metric_type": "epistemic_recovery",
+    "value": 0.77,
+    "timestamp": 1778861258.0292416,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_91a6a79b00c2",
+    "metric_type": "epistemic_recovery",
+    "value": 0.76,
+    "timestamp": 1778861257.9993024,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_bb26eaff88d4",
+    "metric_type": "epistemic_recovery",
+    "value": 0.75,
+    "timestamp": 1778861257.9659507,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_e3ee5863ed8f",
+    "metric_type": "epistemic_recovery",
+    "value": 0.74,
+    "timestamp": 1778861257.9355981,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_5d37fcf9a977",
+    "metric_type": "epistemic_recovery",
+    "value": 0.73,
+    "timestamp": 1778861257.9055927,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_ce32034d137c",
+    "metric_type": "epistemic_recovery",
+    "value": 0.77,
+    "timestamp": 1778861257.8769686,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_46fe5c2d08dc",
+    "metric_type": "epistemic_recovery",
+    "value": 0.76,
+    "timestamp": 1778861257.8443944,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_9953f33e1a43",
+    "metric_type": "epistemic_recovery",
+    "value": 0.75,
+    "timestamp": 1778861257.8103447,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_ef2dc98d42ba",
+    "metric_type": "epistemic_recovery",
+    "value": 0.74,
+    "timestamp": 1778861257.763661,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_19e7e485dabb",
+    "metric_type": "epistemic_recovery",
+    "value": 0.73,
+    "timestamp": 1778861257.7285583,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_51dc66cfd955",
+    "metric_type": "epistemic_recovery",
+    "value": 0.77,
+    "timestamp": 1778861257.6918528,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_55d6b322bcca",
+    "metric_type": "epistemic_recovery",
+    "value": 0.76,
+    "timestamp": 1778861257.6595368,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_af2638437c69",
+    "metric_type": "epistemic_recovery",
+    "value": 0.75,
+    "timestamp": 1778861257.6300776,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_6c774f63b63c",
+    "metric_type": "epistemic_recovery",
+    "value": 0.74,
+    "timestamp": 1778861257.5987556,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_614e734592ae",
+    "metric_type": "epistemic_recovery",
+    "value": 0.73,
+    "timestamp": 1778861257.5607672,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_b4158c952af1",
+    "metric_type": "epistemic_recovery",
+    "value": 0.77,
+    "timestamp": 1778861257.5268254,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_ea0e7c3759b1",
+    "metric_type": "epistemic_recovery",
+    "value": 0.76,
+    "timestamp": 1778861257.4831293,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_326d328e6abd",
+    "metric_type": "epistemic_recovery",
+    "value": 0.75,
+    "timestamp": 1778861257.4487617,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_1b85ba65ba97",
+    "metric_type": "epistemic_recovery",
+    "value": 0.74,
+    "timestamp": 1778861257.3936532,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_68df4ee63e9c",
+    "metric_type": "epistemic_recovery",
+    "value": 0.73,
+    "timestamp": 1778861257.3555806,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_5806d560d9b5",
+    "metric_type": "epistemic_recovery",
+    "value": 0.77,
+    "timestamp": 1778861257.3107646,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_d26284f05c1f",
+    "metric_type": "epistemic_recovery",
+    "value": 0.76,
+    "timestamp": 1778861257.2806423,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_94d3e3dda1b5",
+    "metric_type": "epistemic_recovery",
+    "value": 0.75,
+    "timestamp": 1778861257.2462008,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_d79affdf6e7d",
+    "metric_type": "epistemic_recovery",
+    "value": 0.74,
+    "timestamp": 1778861257.2150688,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_3aa1ac34be53",
+    "metric_type": "epistemic_recovery",
+    "value": 0.73,
+    "timestamp": 1778861257.175563,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_11e5a2036256",
+    "metric_type": "epistemic_recovery",
+    "value": 0.77,
+    "timestamp": 1778861257.14415,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_f211cd509590",
+    "metric_type": "epistemic_recovery",
+    "value": 0.76,
+    "timestamp": 1778861257.1121087,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_7014f8283c67",
+    "metric_type": "epistemic_recovery",
+    "value": 0.75,
+    "timestamp": 1778861256.975388,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_1db4dde4efdc",
+    "metric_type": "epistemic_recovery",
+    "value": 0.74,
+    "timestamp": 1778861256.9439173,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_7175e82e35c1",
+    "metric_type": "epistemic_recovery",
+    "value": 0.73,
+    "timestamp": 1778861256.911672,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_9149f4c4d06d",
+    "metric_type": "epistemic_recovery",
+    "value": 0.77,
+    "timestamp": 1778861256.8794873,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_7bce258b2b46",
+    "metric_type": "epistemic_recovery",
+    "value": 0.76,
+    "timestamp": 1778861256.7987072,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_fb7eabb06584",
+    "metric_type": "epistemic_recovery",
+    "value": 0.75,
+    "timestamp": 1778861256.7150643,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_37e9816ec009",
+    "metric_type": "epistemic_recovery",
+    "value": 0.74,
+    "timestamp": 1778861256.6329055,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_5f568e81e987",
+    "metric_type": "epistemic_recovery",
+    "value": 0.73,
+    "timestamp": 1778861256.6066582,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_0199aceb9250",
+    "metric_type": "epistemic_recovery",
+    "value": 0.77,
+    "timestamp": 1778861256.5728486,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_867b6da20d54",
+    "metric_type": "epistemic_recovery",
+    "value": 0.76,
+    "timestamp": 1778861256.5338585,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_3464873060cb",
+    "metric_type": "epistemic_recovery",
+    "value": 0.75,
+    "timestamp": 1778861256.507842,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_25c9d0161623",
+    "metric_type": "epistemic_recovery",
+    "value": 0.74,
+    "timestamp": 1778861256.4760797,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_b63b2eb8cd5f",
+    "metric_type": "epistemic_recovery",
+    "value": 0.73,
+    "timestamp": 1778861256.4491863,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_ffe7387f5551",
+    "metric_type": "epistemic_recovery",
+    "value": 0.77,
+    "timestamp": 1778861256.4282105,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_cd3a6bded855",
+    "metric_type": "epistemic_recovery",
+    "value": 0.76,
+    "timestamp": 1778861256.393816,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_870a97a02cef",
+    "metric_type": "epistemic_recovery",
+    "value": 0.75,
+    "timestamp": 1778861256.359379,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_bfb66a22b1b6",
+    "metric_type": "epistemic_recovery",
+    "value": 0.74,
+    "timestamp": 1778861256.3129075,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_396305e96f39",
+    "metric_type": "epistemic_recovery",
+    "value": 0.73,
+    "timestamp": 1778861256.2822537,
+    "domain": null,
+    "session_id": "ANOMALY_TEST",
+    "metadata": {},
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_071ec5c065b2",
+    "metric_type": "causal_consistency",
+    "value": 0.78,
+    "timestamp": 1778861256.233519,
+    "domain": "reasoning",
+    "session_id": "TEST_SESSION_001",
+    "metadata": {
+      "test": true
+    },
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_f94b69298a6a",
+    "metric_type": "communication_entropy",
+    "value": 0.65,
+    "timestamp": 1778861256.2080052,
+    "domain": "multi-agent",
+    "session_id": "TEST_SESSION_001",
+    "metadata": {
+      "test": true
+    },
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_b4c580bb35eb",
+    "metric_type": "confidence_calibration",
+    "value": 0.92,
+    "timestamp": 1778861256.1782267,
+    "domain": null,
+    "session_id": "TEST_SESSION_001",
+    "metadata": {
+      "test": true
+    },
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_ec28fa1193bc",
+    "metric_type": "confidence_calibration",
+    "value": 0.88,
+    "timestamp": 1778861256.145691,
+    "domain": null,
+    "session_id": "TEST_SESSION_001",
+    "metadata": {
+      "test": true
+    },
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_8f162856d8a1",
+    "metric_type": "confidence_calibration",
+    "value": 0.9,
+    "timestamp": 1778861256.1107755,
+    "domain": null,
+    "session_id": "TEST_SESSION_001",
+    "metadata": {
+      "test": true
+    },
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_d6be6aebb2c7",
+    "metric_type": "synthesis_convergence",
+    "value": 0.82,
+    "timestamp": 1778861256.0797198,
+    "domain": "ml",
+    "session_id": "TEST_SESSION_001",
+    "metadata": {
+      "test": true
+    },
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_c15dc08aa07d",
+    "metric_type": "synthesis_convergence",
+    "value": 0.85,
+    "timestamp": 1778861256.048213,
+    "domain": "ml",
+    "session_id": "TEST_SESSION_001",
+    "metadata": {
+      "test": true
+    },
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_81d1cc54995d",
+    "metric_type": "contradiction_density",
+    "value": 0.12,
+    "timestamp": 1778861255.9848373,
+    "domain": "economics",
+    "session_id": "TEST_SESSION_001",
+    "metadata": {
+      "test": true
+    },
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_eff0fa1e5b48",
+    "metric_type": "contradiction_density",
+    "value": 0.18,
+    "timestamp": 1778861255.9298458,
+    "domain": "physics",
+    "session_id": "TEST_SESSION_001",
+    "metadata": {
+      "test": true
+    },
+    "confidence": 0.9,
+    "sample_size": 1
+  },
+  {
+    "record_id": "TEL_3f3c00142862",
+    "metric_type": "contradiction_density",
+    "value": 0.15,
+    "timestamp": 1778861255.8995652,
+    "domain": "physics",
+    "session_id": "TEST_SESSION_001",
+    "metadata": {
+      "test": true
+    },
+    "confidence": 0.9,
+    "sample_size": 1
+  }
+]

@@ -1,0 +1,11 @@
+{:ok, _} = Application.ensure_all_started(:tiannara)
+Process.sleep(1500)
+IO.puts("CIS present production: #{Process.whereis(Tiannara.CIS.Supervisor) != nil}")
+IO.puts("CIS pid: #{inspect(Process.whereis(Tiannara.CIS.Supervisor))}")
+# check parentage
+children = Supervisor.which_children(Tiannara.Application)
+IO.puts("In Tiannara.Application children: #{Enum.any?(children, fn {id, _, _, _} -> id == Tiannara.CIS.Supervisor end)}")
+IO.puts("EventStore healthy: #{inspect(Tiannara.CEL.Services.EventStore.healthy?())}")
+IO.puts("ExecutiveMemory health: #{inspect(Tiannara.CEL.Services.ExecutiveMemory.health())}")
+report = Tiannara.CEL.Kernel.boot_report()
+IO.puts("EOS status: #{report.status} failed_critical: #{inspect(report.failed_critical)}")

@@ -1,0 +1,46 @@
+{
+  "characterize": {
+    "mode": "characterize",
+    "phase": {
+      "ok": {
+        "cis_present": false,
+        "collapse_predictor_grounded": "error",
+        "discovery_supervisor_state": "degraded",
+        "eos_status": "degraded",
+        "event_store_healthy": true,
+        "executive_memory_health": "healthy",
+        "f11_baseline_absent": true,
+        "failed_critical": [],
+        "mode": "characterize",
+        "runtime_state": "recovery"
+      }
+    },
+    "status": "complete"
+  },
+  "candidate": {
+    "mode": "candidate",
+    "phase": {
+      "ok": {
+        "cis_pid": true,
+        "discovery_supervisor_state": "degraded",
+        "eos_status": "degraded",
+        "event_store_healthy": true,
+        "executive_memory_health": "healthy",
+        "failed_critical": [],
+        "mode": "candidate",
+        "overall_pass": true,
+        "runtime_state": "recovery",
+        "t1_residency": true,
+        "t2_parentage": true,
+        "t3_restart": true,
+        "t4_grounded": true,
+        "t5_fault_detection": true,
+        "t6_bounded_recovery": true,
+        "t7_continuity": true,
+        "t8_eos_accuracy": true,
+        "t9_f12_f9_regression": true
+      }
+    },
+    "status": "complete"
+  }
+}

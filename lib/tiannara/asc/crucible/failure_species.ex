@@ -256,7 +256,7 @@ defmodule Tiannara.ASC.Crucible.FailureSpecies do
     {:ok, Enum.random(failures)}
   end
 
-  def calculate_species_fitness(species_id, transfer_successes, transfer_attempts) do
+  def calculate_species_fitness(_species_id, transfer_successes, transfer_attempts) do
     if transfer_attempts > 0 do
       transfer_successes / transfer_attempts
     else

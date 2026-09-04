@@ -26,6 +26,8 @@ defmodule Tiannara.ASC.Interface.Protocol do
 
   """
 
+  use Tiannara.Stub, subsystem: :asc, phase: "Omega+", priority: :high
+
   @derive Jason.Encoder
   defstruct [
     # Identity
@@ -215,6 +217,10 @@ defmodule Tiannara.ASC.Interface.Protocol do
   # ---------------------------------------------------------------------------
   # Private helpers
   # ---------------------------------------------------------------------------
+
+  def hybrid(type_a, type_b) do
+    stub_result(:hybrid, [type_a, type_b], {:ok, %{type: :hybrid, components: [type_a, type_b]}})
+  end
 
   defp migrate_capabilities(capabilities, from_type, to_type) do
     # Map capabilities between protocol types

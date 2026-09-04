@@ -222,9 +222,6 @@ defmodule Tiannara.ASC.Crucible.SpeciesFitness do
     normalize_budgets(constrained)
   end
   
-  @doc """
-  Normalize budgets to sum to 100%.
-  """
   defp normalize_budgets(budget_map) do
     total = Enum.sum(Map.values(budget_map))
     if total > 0 do
@@ -237,9 +234,6 @@ defmodule Tiannara.ASC.Crucible.SpeciesFitness do
     end
   end
   
-  @doc """
-  Apply constraints iteratively until all budgets satisfy min/max bounds.
-  """
   defp apply_constraints_iteratively(budget_map, iterations) when iterations < 10 do
     min_budget = 5.0
     max_budget = 35.0

@@ -1,0 +1,7 @@
+{
+  "threshold": "majority (>=50%)",
+  "approvals": 2,
+  "quorum_met": true,
+  "rejections": 1,
+  "reviews_count": 3
+}

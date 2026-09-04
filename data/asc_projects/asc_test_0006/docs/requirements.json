@@ -1,0 +1,35 @@
+{
+  "constraints": [],
+  "risks": [],
+  "invariants": [],
+  "capabilities": [
+    {
+      "id": "cap_36",
+      "name": "create pub/sub system",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "create",
+      "subject": "pub/sub system",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "system"
+    },
+    {
+      "id": "cap_37",
+      "name": "publish events channels",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "publish",
+      "subject": "events channels",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:29:28.728000Z"
+}

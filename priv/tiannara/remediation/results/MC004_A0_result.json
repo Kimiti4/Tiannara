@@ -1,0 +1,83 @@
+{
+  "gate": "MC-004-A0",
+  "phase": "RECONCILIATION_ONLY",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "timestamp": "2026-08-31T00:00:00Z",
+  "verdict": "CERTIFIED_RECONCILIATION",
+  "verdict_note": "Canonical :physics domain reconciled from repository evidence. Domain module Tiannara.Domains.Physics is honest-empty / honest-unavailable (no fabrication); simulate -> {:error, :ode_solver_unavailable} (calculus.ex:5), validate -> {:error, :formal_verification_unavailable} (formal_verification.ex:5). Subsystem Tiannara.Physics.* (OPC/NDE/IRD/TWP) is THEATRICAL (:rand.uniform + canned constants, opc.ex:472-475, ird.ex:483/595) and disconnected from domain/pipeline. Scientific workflow chain MISSING/dead (autonomous_discovery.ex:15 zero callers). Real-execution/provenance disconnected (0 refs). Verifies reconciliation evidence quality ONLY — no capability certified, no mutation, no execution.",
+  "constitutional_question": "Can Tiannara today produce one bounded Physics result whose computation, execution, observation, provenance, and verification status are all demonstrably truthful and independently reproducible?",
+  "constitutional_answer": "NO",
+  "constitutional_basis": [
+    "simulate -> {:error, :ode_solver_unavailable} (physics.ex:17-18; foundations/mathematics/calculus.ex:5) — no computation possible",
+    "validate -> {:error, :formal_verification_unavailable} (physics.ex:28-29; foundations/formal_verification.ex:5) — no verification possible",
+    "No provenance path: zero Provenance references across lib/tiannara/physics/** and lib/tiannara/domains/**",
+    "Real execution disconnected: zero RealExecution/Phase4 references in physics/domains; :real_execution_enabled false",
+    "Subsystem theatrics (opc.ex:472-475; ird.ex:483; ird.ex:595) cannot be used as truth"
+  ],
+  "constitutional_feasibility_note": "Feasible after authorized bounded mutation (MC-004-M): REAL substrates exist (probability, numerics error-modes, information theory, Evidence.Provenance, MC-003-M Phase4 gate, logic kernel). Pilot defined in PILOT-DEFINITION; status NOT_EXECUTED.",
+  "physics_capability": "THEATRICAL",
+  "physics_capability_breakdown": {
+    "domain_module": "NO for simulate/validate (honest errors); PARTIAL honest-empty for discover/hypotheses/design/translate; REAL only for evaluate (Bayes)",
+    "physics_subsystem": "THEATRICAL (random + canned constants; NDE/TWP broken KeyError paths; supervised but disconnected)",
+    "math_substrate": "Probability/Statistics/Graphs/Numerics(type-safe)/InformationTheory REAL; Calculus (ODE)/FormalVerification/Optimization NO; linear algebra NO",
+    "verification_substrate": "NO (formal verification decommissioned; no independent verifier for physics)",
+    "provenance_integration": "DISCONNECTED (Evidence.Provenance real, unused by physics)",
+    "real_execution_integration": "DISCONNECTED (MC-003-M gateway exists; no physics producer)"
+  },
+  "reconciliation_inventory": "CERTIFIED_COMPLETE",
+  "workflow_trace": "MISSING (primary chain dead: autonomous_discovery.ex:15 zero callers; steps 1,3,4,5,6,7,8 absent; step 2 stub placeholder; steps 6-7 theatrical in disconnected subsystem)",
+  "metrics_truthfulness": "physics metrics truthful-zero (physics.ex:37-49); TD-MC001-M5-DOMAINS (19/20 domains) deferred to domain-wide gate",
+  "safety": "LOW operating risk (dead/disconnected); latent HIGH if wired ungated (no authz/sandbox/timeout/audit on physics paths)",
+  "mutation_authorized": false,
+  "authorization_status": "GRANTED_READ_ONLY",
+  "authorization_operator": "c14_ac",
+  "authorization_fabricated": false,
+  "authorization_file": "priv/tiannara/authorization/ASC-MC-004-A0-DOMAIN-PHYSICS-RECONCILIATION.human.yaml",
+  "flags": {
+    "mutation_executed": false,
+    "pilot_executed": false,
+    "real_execution_enabled": false,
+    "authorization_required_for_mutation": true,
+    "authorization_required_for_live_pilot": true
+  },
+  "bottlenecks_ranked": [
+    "B-1 CRITICAL: no real ODE/integrator substrate (calculus.ex:5; no RK4/Euler in lib)",
+    "B-2 CRITICAL: no real verification substrate (formal_verification.ex:5)",
+    "B-3 HIGH: theatrical supervised subsystem (opc.ex:472-475/576-577; ird.ex:483/595; nde.ex:344-345; twp.ex:411; broken KeyError paths)",
+    "B-4 HIGH: no provenance path for physics results",
+    "B-5 HIGH: real-execution integration disconnected",
+    "B-6 MEDIUM: dead consumer path with hardcoded placeholder experiment (autonomous_discovery.ex:68)",
+    "B-7 MEDIUM deferred: TD-MC001-M5-DOMAINS (19/20 domains)",
+    "B-8 MEDIUM deferred: no linear algebra module",
+    "B-9 MEDIUM latent HIGH: un-audited ungated physics surfaces"
+  ],
+  "mutation_plan": "RECOMMENDATIONS_ONLY (MU-1 real bounded RK4; MU-2 domain workflow truthfulness + provenance; MU-3 quarantine theatrical subsystem; MU-4 Phase4 bridge + placeholder replacement). NO mutation permitted from A0.",
+  "pilot_definition": {
+    "name": "MC004-P",
+    "model": "damped harmonic oscillator (m x'' + c x' + k x = 0, underdamped)",
+    "computation": "bounded RK4, pure Elixir, deterministic",
+    "verification_method": "energy bound E(t)<=E(0)+eps; analytic-reference tolerance; reproducibility re-run",
+    "provenance": "Evidence.Provenance kind :computed; config+seed+step hash",
+    "execution": "via Phase4 gated gateway ONLY under separate MC-004-P authorization",
+    "status": "NOT_EXECUTED"
+  },
+  "evidence": {
+    "static_verification": "PASS — verifier checks",
+    "verifier": "priv/tiannara/remediation/verifiers/MC004_A0_domain_physics_reconciliation.py",
+    "verifier_exit": 0,
+    "runtime_side_effect_observation": "NOT_EXECUTED (out of A0 scope, READ-ONLY)",
+    "compile_or_test_execution": "NOT_RUN (A0 is read-only reconciliation; no source modified)"
+  },
+  "deferred_technical_debt": [
+    "TD-MC001-M5-DOMAINS: 19/20 canonical domains metric fabrication census — deferred to domain-wide gate",
+    "TD-MC004-A0-LINEAR_ALGEBRA: no linear algebra module in lib — deferred (not pilot-critical)",
+    "TD-MC004-A0-FORMAL_VERIFICATION: formal verification remains NO unless separately authorized",
+    "TD-MC004-A0-SUBSYSTEM_QUARANTINE: theatrical OPC/NDE/IRD/TWP internals staged for MC-004-M MU-3"
+  ],
+  "certification_boundary": "CERTIFIED_RECONCILIATION certifies reconciliation evidence quality and completeness only. Physics capability NOT certified. No mutation (source tree fingerprint unchanged). No real execution enabled. No live experiment. Next: HUMAN REVIEW then separately authorized MC-004-M, then MC-004-P.",
+  "final_architectural_question": {
+    "did_reconciliation_increase_ability_to_distinguish_compute_from_claim": true,
+    "basis": "Every physics surface is now classified by file:line into REAL/PARTIAL/THEATRICAL/NO with the caveat that the supervised OPC/NDE/IRD/TWP theater must never be read as physics capability; the canonical domain's honest unavailability is the current truth boundary, and the pilot definition specifies exactly what must be real before any physics result may carry a truth claim."
+  },
+  "contract_hash": null
+}

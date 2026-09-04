@@ -100,7 +100,7 @@ defmodule Tiannara.Core.Ontology.Index do
     # Search for concepts containing the term
     matches = :ets.match_object(:search_terms, {:"$1", term})
     
-    results = Enum.map(matches, fn {concept_id, term_data} ->
+    results = Enum.map(matches, fn {concept_id, _term_data} ->
       case :ets.lookup(:concept_index, concept_id) do
         [{^concept_id, entries}] ->
           Enum.map(entries, fn {ontology_id, metadata} ->
@@ -195,7 +195,7 @@ defmodule Tiannara.Core.Ontology.Index do
   end
 
   # Helper functions
-  defp update_stats(%{total_concepts: current} = state) do
+  defp update_stats(%{total_concepts: _current} = state) do
     total_concepts = :ets.info(:concept_index, :size)
     %{state | total_concepts: total_concepts}
   end

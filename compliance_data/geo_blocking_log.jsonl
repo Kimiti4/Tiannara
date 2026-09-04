@@ -1,0 +1,5 @@
+{"timestamp": "2026-05-07T06:37:27.399904", "access_granted": true, "country": "GB", "region": null, "ip_address": "81.2.69.142", "status": "allowed", "reason": "No restrictions"}
+{"timestamp": "2026-05-07T06:37:27.455520", "access_granted": false, "country": "AE", "region": null, "ip_address": "5.62.60.1", "status": "blocked", "reason": "Gambling/predictions prohibited in United Arab Emirates"}
+{"timestamp": "2026-05-07T06:37:27.462927", "access_granted": true, "country": "US", "region": "NJ", "ip_address": "72.229.28.185", "status": "allowed", "reason": "No restrictions"}
+{"timestamp": "2026-05-07T06:37:27.474458", "access_granted": false, "country": "US", "region": "HI", "ip_address": "72.193.253.1", "status": "blocked", "reason": "Online betting restricted in Hawaii"}
+{"timestamp": "2026-05-07T06:37:27.491145", "access_granted": true, "country": "US", "region": "NJ", "ip_address": "72.229.28.185", "status": "allowed", "reason": "No restrictions"}

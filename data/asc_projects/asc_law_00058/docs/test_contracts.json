@@ -1,0 +1,17 @@
+[
+  {
+    "id": "tc_230",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: create streaming processor",
+    "source_ref": "cap_229",
+    "test_module_name": "CreateStreamingProcessorTest",
+    "test_function_name": "test create streaming processor succeeds with valid inputs",
+    "expected_behavior": "create streaming processor completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

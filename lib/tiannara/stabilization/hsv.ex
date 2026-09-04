@@ -366,7 +366,7 @@ defmodule Tiannara.Stabilization.HSV do
     }
   end
 
-  defp compress_archived_data(density_data, config) do
+  defp compress_archived_data(density_data, _config) do
     # Simplified compression - in production, use proper compression algorithms
     compressed = %{
       density: density_data.overall_density,

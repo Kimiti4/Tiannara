@@ -17,8 +17,7 @@ defmodule Tiannara.ASC.Research.Programs.ArchitectureEvolutionProgram do
       budget: 1000
     }
     
-    {:ok, program_id} = ResearchRegistry.register_program(program)
-    program_id
+    ResearchRegistry.register_program(program)
   end
 
   def run_epoch(program_id, budget) do

@@ -1,0 +1,591 @@
+{
+  "timestamp": "2026-07-21T23:36:58.032000Z",
+  "duration_ms": 36726,
+  "tiers": [
+    {
+      "name": "Cognitive",
+      "total": 10,
+      "passed": 9,
+      "tier": 1,
+      "score": 0.9,
+      "pct": 90.0,
+      "exercises": [
+        {
+          "error": null,
+          "id": "1.1",
+          "name": "Nested negation logic",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "1.2",
+          "name": "Contradiction detection",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 410
+        },
+        {
+          "error": null,
+          "id": "1.3",
+          "name": "Consistency repair",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 102
+        },
+        {
+          "error": null,
+          "id": "1.4",
+          "name": "Causal DAG construction",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "1.5",
+          "name": "Counterfactual reasoning",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "1.6",
+          "name": "Budget planning",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "1.7",
+          "name": "Multi-objective optimization",
+          "passed": false,
+          "confidence": 0.4,
+          "duration_us": 103
+        },
+        {
+          "error": null,
+          "id": "1.8",
+          "name": "Hypothesis generation",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "1.9",
+          "name": "Cross-domain transfer",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "1.10",
+          "name": "Tool dependency resolution",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 102
+        }
+      ]
+    },
+    {
+      "name": "Scientific",
+      "total": 10,
+      "passed": 7,
+      "tier": 2,
+      "score": 0.7,
+      "pct": 70.0,
+      "exercises": [
+        {
+          "error": null,
+          "id": "2.1",
+          "name": "Statistical hypothesis testing",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 205
+        },
+        {
+          "error": null,
+          "id": "2.2",
+          "name": "Experimental design validation",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "2.3",
+          "name": "Polynomial interpolation",
+          "passed": false,
+          "confidence": 0.8,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "2.4",
+          "name": "Linear regression",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 103
+        },
+        {
+          "error": null,
+          "id": "2.5",
+          "name": "Bayesian inference",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "2.6",
+          "name": "Error propagation",
+          "passed": false,
+          "confidence": 0.0,
+          "duration_us": 227840
+        },
+        {
+          "error": null,
+          "id": "2.7",
+          "name": "Sample size calculation",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 102
+        },
+        {
+          "error": null,
+          "id": "2.8",
+          "name": "Confound detection",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "2.9",
+          "name": "Meta-analysis",
+          "passed": false,
+          "confidence": 0.0,
+          "duration_us": 47514
+        },
+        {
+          "error": null,
+          "id": "2.10",
+          "name": "Causal inference",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        }
+      ]
+    },
+    {
+      "name": "Constitutional",
+      "total": 10,
+      "passed": 7,
+      "tier": 3,
+      "score": 0.7,
+      "pct": 70.0,
+      "exercises": [
+        {
+          "error": null,
+          "id": "3.1",
+          "name": "Ethical dilemma resolution",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 204
+        },
+        {
+          "error": null,
+          "id": "3.2",
+          "name": "Harm minimization",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "3.3",
+          "name": "Rights conflict resolution",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 102
+        },
+        {
+          "error": null,
+          "id": "3.4",
+          "name": "Transparency audit",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 103
+        },
+        {
+          "error": null,
+          "id": "3.5",
+          "name": "Bias detection",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "3.6",
+          "name": "Privacy enforcement",
+          "passed": false,
+          "confidence": 0.0,
+          "duration_us": 221491
+        },
+        {
+          "error": null,
+          "id": "3.7",
+          "name": "Consent verification",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "3.8",
+          "name": "Fairness metrics",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 102
+        },
+        {
+          "error": null,
+          "id": "3.9",
+          "name": "Accountability chain",
+          "passed": false,
+          "confidence": 0.6666666666666666,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "3.10",
+          "name": "Value alignment",
+          "passed": false,
+          "confidence": 0.0,
+          "duration_us": 0
+        }
+      ]
+    },
+    {
+      "name": "Civilizational",
+      "total": 15,
+      "passed": 12,
+      "tier": 4,
+      "score": 0.8,
+      "pct": 80.0,
+      "exercises": [
+        {
+          "error": null,
+          "id": "4.1",
+          "name": "Resource allocation",
+          "passed": true,
+          "confidence": 0.8,
+          "duration_us": 205
+        },
+        {
+          "error": null,
+          "id": "4.2",
+          "name": "Intergenerational equity",
+          "passed": false,
+          "confidence": 0.0,
+          "duration_us": 32973
+        },
+        {
+          "error": null,
+          "id": "4.3",
+          "name": "Institutional design",
+          "passed": false,
+          "confidence": 0.75,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "4.4",
+          "name": "Technology impact",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 102
+        },
+        {
+          "error": null,
+          "id": "4.5",
+          "name": "Governance evaluation",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 103
+        },
+        {
+          "error": null,
+          "id": "4.6",
+          "name": "Ecological capacity",
+          "passed": false,
+          "confidence": 0.7142857142857143,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "4.7",
+          "name": "Cultural preservation",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "4.8",
+          "name": "Conflict resolution",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "4.9",
+          "name": "Information ecosystem",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "4.10",
+          "name": "Economic stability",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 102
+        },
+        {
+          "error": null,
+          "id": "4.11",
+          "name": "Democratic participation",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "4.12",
+          "name": "Coordination game",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "4.13",
+          "name": "Existential risk",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 205
+        },
+        {
+          "error": null,
+          "id": "4.14",
+          "name": "Constitutional amendment",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 102
+        },
+        {
+          "error": null,
+          "id": "4.15",
+          "name": "Phase transition",
+          "passed": true,
+          "confidence": 1.0,
+          "duration_us": 103
+        }
+      ]
+    },
+    {
+      "name": "Autonomous Runtime",
+      "total": 10,
+      "passed": 5,
+      "tier": 5,
+      "score": 0.5,
+      "pct": 50.0,
+      "exercises": [
+        {
+          "error": null,
+          "id": "5.1",
+          "name": "Memory Stability Under Load",
+          "passed": true,
+          "confidence": 0.85,
+          "duration_us": 5220352
+        },
+        {
+          "error": null,
+          "id": "5.2",
+          "name": "Self-Healing Under Supervisor Kill",
+          "passed": false,
+          "confidence": 0.0,
+          "duration_us": 5032141
+        },
+        {
+          "error": null,
+          "id": "5.3",
+          "name": "Hot-Swap Ontology Module",
+          "passed": true,
+          "confidence": 0.8,
+          "duration_us": 1002393
+        },
+        {
+          "error": "Insufficient nodes for distributed test (need >= 2, have 0)",
+          "id": "5.4",
+          "name": "Distributed Node Sync",
+          "passed": false,
+          "confidence": 0.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "5.5",
+          "name": "Scheduler Fairness",
+          "passed": false,
+          "confidence": 0.0,
+          "duration_us": 10015335
+        },
+        {
+          "error": null,
+          "id": "5.6",
+          "name": "Observatory Consistency",
+          "passed": true,
+          "confidence": 0.75,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "5.7",
+          "name": "Backpressure Handling",
+          "passed": false,
+          "confidence": 0.0,
+          "duration_us": 7112908
+        },
+        {
+          "error": "Need distributed nodes for clock skew test",
+          "id": "5.8",
+          "name": "Clock Skew Tolerance",
+          "passed": false,
+          "confidence": 0.0,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "5.9",
+          "name": "Chaos Resilience",
+          "passed": true,
+          "confidence": 0.6,
+          "duration_us": 7305933
+        },
+        {
+          "error": null,
+          "id": "5.10",
+          "name": "Complete Audit",
+          "passed": true,
+          "confidence": 0.78,
+          "duration_us": 66253
+        }
+      ]
+    },
+    {
+      "name": "Discovery",
+      "total": 10,
+      "passed": 10,
+      "tier": 6,
+      "score": 1.0,
+      "pct": 100.0,
+      "exercises": [
+        {
+          "error": null,
+          "id": "6.1",
+          "name": "Novel Hypothesis Generation",
+          "passed": true,
+          "confidence": 0.75,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "6.2",
+          "name": "Model Invalidation",
+          "passed": true,
+          "confidence": 0.7,
+          "duration_us": 102
+        },
+        {
+          "error": null,
+          "id": "6.3",
+          "name": "Engineering Optimization",
+          "passed": true,
+          "confidence": 0.8,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "6.4",
+          "name": "Patent-Worthy Design",
+          "passed": true,
+          "confidence": 0.72,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "6.5",
+          "name": "Mathematical Identity Discovery",
+          "passed": true,
+          "confidence": 0.9,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "6.6",
+          "name": "Experimental Protocol Design",
+          "passed": true,
+          "confidence": 0.82,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "6.7",
+          "name": "Cross-Domain Transfer",
+          "passed": true,
+          "confidence": 0.68,
+          "duration_us": 103
+        },
+        {
+          "error": null,
+          "id": "6.8",
+          "name": "Causal Preservation",
+          "passed": true,
+          "confidence": 0.85,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "6.9",
+          "name": "Falsification Under Contradictory Evidence",
+          "passed": true,
+          "confidence": 0.88,
+          "duration_us": 0
+        },
+        {
+          "error": null,
+          "id": "6.10",
+          "name": "Cumulative Discovery Chain",
+          "passed": true,
+          "confidence": 0.85,
+          "duration_us": 102
+        }
+      ]
+    }
+  ],
+  "total_exercises": 65,
+  "total_passed": 50,
+  "overall_status": "DEGRADED ⚠",
+  "overall_score": 0.7666666666666666,
+  "overall_pct": 76.7
+}

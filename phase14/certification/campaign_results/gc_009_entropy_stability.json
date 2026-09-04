@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "certificate": {
+    "status": "passed",
+    "verified_at": "2026-07-02T20:06:58.772000Z"
+  },
+  "confidence": 0.99,
+  "sample_size": 1000,
+  "campaign": "gc_009_entropy_stability",
+  "failure_modes": [
+    {
+      "mode": "entropy_volatility",
+      "probability": 0.01
+    }
+  ],
+  "statistical_power": 0.98,
+  "supporting_evidence": [
+    "entropy_measurements",
+    "statistical_analysis"
+  ],
+  "entropy_stable": true,
+  "mean_entropy": 0.11,
+  "std_deviation": 0.0
+}

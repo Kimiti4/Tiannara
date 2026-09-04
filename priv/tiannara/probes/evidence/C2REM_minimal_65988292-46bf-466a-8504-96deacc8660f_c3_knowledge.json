@@ -1,0 +1,16 @@
+{
+  "phase": "c3_knowledge",
+  "ok": true,
+  "chain_result": {
+    "ok": {
+      "append_latency_us": 3276,
+      "append_result": "ok",
+      "artifacts_written": 1,
+      "knowledge_id": "mem-2be80dbee8a8",
+      "payload_hash": "d519ca0fa3e8302e85f628d50ebc807de196be581571653e16e58cac99dddbd7",
+      "provenance": "Tiannara.Memory.KnowledgeStore.open/1 + append/2 + all/1",
+      "timestamp": "2026-08-20T15:03:36.903000Z"
+    }
+  },
+  "payload_hash": "d519ca0fa3e8302e85f628d50ebc807de196be581571653e16e58cac99dddbd7"
+}

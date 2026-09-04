@@ -1,0 +1,6 @@
+{
+  "causal_chain_valid": true,
+  "complete_history": true,
+  "events_count": 4,
+  "no_orphaned_states": true
+}

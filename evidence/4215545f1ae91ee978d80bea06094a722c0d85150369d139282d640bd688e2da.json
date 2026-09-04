@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-07-02T16:11:47.745000Z",
+  "signature": "90273f3ac76a45cb6d211b92fc1920d9b5b5aa387e340dc7ff0e399dfefe7d36",
+  "content": {
+    "data": {
+      "success": true
+    },
+    "measurements": {
+      "duration_ms": 0,
+      "execution_success": true,
+      "records_processed": 0
+    },
+    "timings": {
+      "start_time": 1783008707745,
+      "duration_ms": 0,
+      "end_time": 1783008707745
+    },
+    "logs": []
+  },
+  "content_hash": "4215545f1ae91ee978d80bea06094a722c0d85150369d139282d640bd688e2da",
+  "campaign_id": "GV-003",
+  "campaign_version": "1.0.0",
+  "input_fingerprint": "6b9f4772d804ee5c54a0fcbcd6d775c4a248b8018bde6493b4a3078b81acd315",
+  "output_fingerprint": "80d2252b04c4809c2291009084ad3da991c8bb8a12c68a32998d1533ce130b4e"
+}

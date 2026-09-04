@@ -1,0 +1,32 @@
+[
+  {
+    "id": "tc_218",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: create log aggregation",
+    "source_ref": "cap_216",
+    "test_module_name": "CreateLogAggregationTest",
+    "test_function_name": "test create log aggregation succeeds with valid inputs",
+    "expected_behavior": "create log aggregation completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_219",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: search logs by",
+    "source_ref": "cap_217",
+    "test_module_name": "SearchLogsTest",
+    "test_function_name": "test search logs by succeeds with valid inputs",
+    "expected_behavior": "search logs by completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

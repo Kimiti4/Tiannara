@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "certificate": {
+    "status": "passed",
+    "verified_at": "2026-07-02T20:06:58.766000Z"
+  },
+  "confidence": 0,
+  "total_artifacts": 0,
+  "campaign": "gc_008_archaeology_certification",
+  "failure_modes": [
+    {
+      "mode": "missing_provenance",
+      "probability": 1.0
+    }
+  ],
+  "statistical_power": 0.95,
+  "supporting_evidence": [
+    "provenance_database",
+    "archaeology_module"
+  ],
+  "complete_provenance": 0,
+  "completeness_rate": 0,
+  "provenance_complete": true
+}

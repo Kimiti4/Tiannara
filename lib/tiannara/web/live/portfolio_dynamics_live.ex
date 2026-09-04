@@ -7,11 +7,9 @@ defmodule TiannaraWeb.PortfolioDynamicsLive do
 
   alias Tiannara.REA.TheorySelection
   alias Tiannara.REA.MetaTheoryExtractor
-  alias Tiannara.REA.MetaTheoryPredictor
   alias Tiannara.REA.DomainCrucible
   alias Tiannara.REA.TheoryPortfolio
   alias Tiannara.REA.PortfolioRebalancer
-  alias Tiannara.REA.PortfolioRiskAnalyzer
 
   def mount(_params, _session, socket) do
     theories = TheorySelection.load_theories()
@@ -474,7 +472,11 @@ defmodule TiannaraWeb.PortfolioDynamicsLive do
         nil -> nil
         pid ->
           if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
+            try do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            rescue
+              _ -> nil
+            end
           else
             nil
           end

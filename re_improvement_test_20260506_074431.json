@@ -1,0 +1,829 @@
+{
+  "episodes": [
+    {
+      "episode": 1,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 2,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 3,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 4,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 5,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 6,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 7,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 8,
+      "task_type": "piecewise",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 9,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 10,
+      "task_type": "piecewise",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 11,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 12,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 13,
+      "task_type": "polynomial",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 14,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 15,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 16,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 17,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 18,
+      "task_type": "modulo_pattern",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 19,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 20,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 21,
+      "task_type": "modulo_pattern",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 22,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 23,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 24,
+      "task_type": "modulo_pattern",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 25,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 26,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 27,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 28,
+      "task_type": "polynomial",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 29,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 30,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 31,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 32,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 33,
+      "task_type": "piecewise",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 34,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 35,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 36,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 37,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 38,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 39,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 40,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 41,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 42,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 43,
+      "task_type": "piecewise",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 44,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 45,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 46,
+      "task_type": "piecewise",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 47,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 48,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 49,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 50,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 51,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 52,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 53,
+      "task_type": "piecewise",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 54,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 55,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 56,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 57,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 58,
+      "task_type": "modulo_pattern",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 59,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 60,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 61,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 62,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 63,
+      "task_type": "piecewise",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 64,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 65,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 66,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 67,
+      "task_type": "piecewise",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 68,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 69,
+      "task_type": "piecewise",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 70,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 71,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 72,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 73,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 74,
+      "task_type": "modulo_pattern",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 75,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 76,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 77,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 78,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 79,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 80,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 81,
+      "task_type": "modulo_pattern",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 82,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 83,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 84,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 85,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 86,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 87,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 88,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 89,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 90,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 91,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 92,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 93,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 94,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 95,
+      "task_type": "modulo_pattern",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 96,
+      "task_type": "piecewise",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 97,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 98,
+      "task_type": "linear_function",
+      "correctness": 1.0,
+      "success": true,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 99,
+      "task_type": "piecewise",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    },
+    {
+      "episode": 100,
+      "task_type": "polynomial",
+      "correctness": 0.0,
+      "success": false,
+      "quality_level": 0.99
+    }
+  ],
+  "success_rates_by_type": {
+    "linear_function": {
+      "successes": 27,
+      "total": 27,
+      "success_rate": 1.0
+    },
+    "modulo_pattern": {
+      "successes": 6,
+      "total": 34,
+      "success_rate": 0.17647058823529413
+    },
+    "piecewise": {
+      "successes": 7,
+      "total": 11,
+      "success_rate": 0.6363636363636364
+    },
+    "polynomial": {
+      "successes": 2,
+      "total": 28,
+      "success_rate": 0.07142857142857142
+    }
+  },
+  "overall_success_rate": 0.42,
+  "quality_trajectory": [
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99,
+    0.99
+  ]
+}

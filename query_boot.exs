@@ -1,0 +1,1 @@
+IO.inspect(:rpc.call(:nonode@nohost, Tiannara.CEL.Kernel, :boot_report, []), pretty: true, limit: :infinity)

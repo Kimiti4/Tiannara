@@ -7,7 +7,6 @@ defmodule Tiannara.SOPL.MutationEngine do
   Enforces minimum_child_distance to prevent 20 identical clones (hill-climbing).
   """
   require Logger
-  alias Tiannara.SOPL.LawGenome
 
   @doc """
   Generates `num_children` for a given `parent_law`.

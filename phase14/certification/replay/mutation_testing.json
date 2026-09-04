@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-07-02T20:15:26.843000Z",
+  "sha256": "4b8a3ed72a59bcfb4cf55b18edf0bc94f01b8f37abd91ac38fc59ec2174f7144",
+  "test_type": "mutation_test",
+  "mutations_tested": [
+    {
+      "status": "detected",
+      "description": "Break authority relationships between institutions and capabilities",
+      "mutation": "authority_graph_corruption",
+      "expected_campaign": "gc_002_authority_fuzzing",
+      "detection_expected": true,
+      "detection_achieved": true
+    },
+    {
+      "status": "detected",
+      "description": "Introduce non-determinism in state reconstruction",
+      "mutation": "replay_determinism_failure",
+      "expected_campaign": "gc_001_replay",
+      "detection_expected": true,
+      "detection_achieved": true
+    },
+    {
+      "status": "detected",
+      "description": "Modify immutable ledger events",
+      "mutation": "ledger_tampering",
+      "expected_campaign": "gc_004_institution_conservation",
+      "detection_expected": true,
+      "detection_achieved": true
+    },
+    {
+      "status": "detected",
+      "description": "Create orphaned capabilities without proper authority",
+      "mutation": "capability_graph_inconsistency",
+      "expected_campaign": "gc_003_capability_conservation",
+      "detection_expected": true,
+      "detection_achieved": true
+    },
+    {
+      "status": "detected",
+      "description": "Invalidate evidence artifact signatures",
+      "mutation": "evidence_signer_compromise",
+      "expected_campaign": "gc_007_evidence_verification",
+      "detection_expected": true,
+      "detection_achieved": true
+    },
+    {
+      "status": "detected",
+      "description": "Accept certificates with invalid signatures",
+      "mutation": "certificate_verifier_bypass",
+      "expected_campaign": "gc_006_certificate_verification",
+      "detection_expected": true,
+      "detection_achieved": true
+    }
+  ],
+  "overall_robustness": 1.0,
+  "total_mutations": 6,
+  "mutations_detected": 6
+}

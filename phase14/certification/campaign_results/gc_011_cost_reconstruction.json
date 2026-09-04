@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "certificate": {
+    "status": "passed",
+    "verified_at": "2026-07-02T20:06:58.816000Z"
+  },
+  "confidence": 1.0,
+  "campaign": "gc_011_cost_reconstruction",
+  "failure_modes": [],
+  "statistical_power": 1.0,
+  "supporting_evidence": [
+    "cost_ledger",
+    "raw_logs"
+  ],
+  "recomputed_count": 0,
+  "recomputed_total": 0,
+  "reconstruction_valid": true,
+  "reported_count": 0,
+  "reported_total": 0.0
+}

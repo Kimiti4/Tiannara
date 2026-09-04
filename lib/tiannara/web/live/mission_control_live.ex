@@ -5,7 +5,7 @@ defmodule TiannaraWeb.MissionControlLive do
   use Phoenix.LiveView
 
   alias Tiannara.KnowledgeGraph.Registry, as: KG
-  alias Tiannara.Domains.Registry, as: DomReg
+  alias Tiannara.Domains.{CanonicalRegistry, KnowledgeCapitalBoundary, PortfolioBoundary}
   alias Tiannara.Domains.TransferMatrix
   alias Tiannara.Discoveries.Unknown
   alias Tiannara.REA.Intervention
@@ -16,7 +16,7 @@ defmodule TiannaraWeb.MissionControlLive do
     # Fetch unified nodes and transfers
     nodes = KG.all()
     transfers = TransferMatrix.all()
-    domains = DomReg.all()
+    domains = CanonicalRegistry.all_records()
 
     # Pre-seed discoveries and theories from unified registry
     discoveries = Enum.filter(nodes, & &1.type == :discovery or &1.type == :law)
@@ -40,8 +40,8 @@ defmodule TiannaraWeb.MissionControlLive do
 
     # Precompute Domain Portfolio Metrics
     domain_portfolio_scores = Enum.map(domains, fn dom ->
-      capital = DomReg.get_knowledge_capital(dom.id)
-      vector = DomReg.get_portfolio_vector(dom.id)
+      capital = KnowledgeCapitalBoundary.get(dom.id)
+      vector = PortfolioBoundary.get(dom.id)
       %{dom: dom, capital: capital, vector: vector}
     end)
 
@@ -110,7 +110,11 @@ defmodule TiannaraWeb.MissionControlLive do
         nil -> nil
         pid ->
           if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
+            try do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            rescue
+              _ -> nil
+            end
           else
             nil
           end
@@ -118,7 +122,7 @@ defmodule TiannaraWeb.MissionControlLive do
 
     {dvr, surprise_index} =
       if state do
-        total_disc = Map.size(state.discoveries)
+        total_disc = map_size(state.discoveries)
         val_disc = Enum.count(Map.values(state.discoveries), &(&1.status == :validated))
         computed_dvr = if total_disc > 0, do: val_disc / total_disc, else: 1.0
 

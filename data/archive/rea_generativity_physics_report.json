@@ -1,0 +1,317 @@
+{
+  "metadata": {
+    "timestamp": "2026-06-11T03:20:04.321783",
+    "version": "11.6",
+    "contrast_score": 612800.0,
+    "contrast_label": "STRONG"
+  },
+  "donor_fingerprint": {
+    "archetype": "Explorer",
+    "epoch": 70,
+    "pe": 4,
+    "ca": 0.3865,
+    "pr": 0.1915,
+    "pdr": 0.8,
+    "oi": 0.3314,
+    "rv": 0.4681,
+    "agency": 0.3092,
+    "region": "CORRIDOR",
+    "oi_values": {
+      "Settler": 0.278,
+      "Explorer": 0.0816,
+      "Trader": 0.4087,
+      "Survivor": 0.4681,
+      "Phoenix": 0.4209
+    },
+    "gy": 0.6128,
+    "ghl": 5,
+    "generator_score": 1.098
+  },
+  "recipient_fingerprint": {
+    "archetype": "baseline",
+    "epoch": 0,
+    "pe": 0,
+    "ca": 0.0,
+    "pr": 0.08,
+    "pdr": 0.0,
+    "oi": 0.08,
+    "rv": 0.08,
+    "agency": 0.0,
+    "region": "DESERT",
+    "oi_values": {
+      "Settler": 0.08,
+      "Explorer": 0.08,
+      "Trader": 0.08,
+      "Survivor": 0.08,
+      "Phoenix": 0.08
+    }
+  },
+  "peak_retention_points": {
+    "topology_pe": {
+      "retention_pct": 26.6,
+      "value": 1.4067
+    },
+    "topology_ca": {
+      "retention_pct": 29.6,
+      "value": 0.1455
+    },
+    "topology_pr": {
+      "retention_pct": 36.7,
+      "value": 0.0858
+    },
+    "topology_ghl": {
+      "retention_pct": 50.0,
+      "value": 5.0
+    },
+    "topology_gy": {
+      "retention_pct": 31.2,
+      "value": 0.0779
+    },
+    "topology_pdr": {
+      "retention_pct": 26.6,
+      "value": 0.2813
+    },
+    "history_pe": {
+      "retention_pct": 32.2,
+      "value": 0.9684
+    },
+    "history_ca": {
+      "retention_pct": 32.2,
+      "value": 0.2265
+    },
+    "history_pr": {
+      "retention_pct": 0.0,
+      "value": 0.0854
+    },
+    "history_ghl": {
+      "retention_pct": 50.0,
+      "value": 5.0
+    },
+    "history_gy": {
+      "retention_pct": 32.2,
+      "value": 0.0125
+    },
+    "history_pdr": {
+      "retention_pct": 32.2,
+      "value": 0.1937
+    },
+    "constitution_pe": {
+      "retention_pct": 67.8,
+      "value": 1.4526
+    },
+    "constitution_ca": {
+      "retention_pct": 67.8,
+      "value": 0.1493
+    },
+    "constitution_pr": {
+      "retention_pct": 100.0,
+      "value": 0.0815
+    },
+    "constitution_ghl": {
+      "retention_pct": 50.0,
+      "value": 5.0
+    },
+    "constitution_gy": {
+      "retention_pct": 67.8,
+      "value": 0.0583
+    },
+    "constitution_pdr": {
+      "retention_pct": 67.8,
+      "value": 0.2905
+    },
+    "identity_pe": {
+      "retention_pct": 22.6,
+      "value": 1.1688
+    },
+    "identity_ca": {
+      "retention_pct": 22.6,
+      "value": 0.0967
+    },
+    "identity_pr": {
+      "retention_pct": 80.9,
+      "value": 0.0831
+    },
+    "identity_ghl": {
+      "retention_pct": 50.0,
+      "value": 5.0
+    },
+    "identity_gy": {
+      "retention_pct": 22.6,
+      "value": 0.031
+    },
+    "identity_pdr": {
+      "retention_pct": 22.6,
+      "value": 0.2338
+    }
+  },
+  "critical_thresholds": {
+    "topology": null,
+    "history": null,
+    "constitution": null,
+    "identity": null
+  },
+  "response_classifications": {
+    "topology_pe": "inverted_u",
+    "topology_ca": "flat",
+    "topology_pr": "monotonic_increasing",
+    "topology_ghl": "flat",
+    "topology_gy": "flat",
+    "topology_pdr": "inverted_u",
+    "history_pe": "inverted_u",
+    "history_ca": "inverted_u",
+    "history_pr": "monotonic_increasing",
+    "history_ghl": "flat",
+    "history_gy": "monotonic_increasing",
+    "history_pdr": "inverted_u",
+    "constitution_pe": "inverted_u",
+    "constitution_ca": "inverted_u",
+    "constitution_pr": "monotonic_increasing",
+    "constitution_ghl": "flat",
+    "constitution_gy": "flat",
+    "constitution_pdr": "inverted_u",
+    "identity_pe": "inverted_u",
+    "identity_ca": "flat",
+    "identity_pr": "monotonic_increasing",
+    "identity_ghl": "flat",
+    "identity_gy": "flat",
+    "identity_pdr": "flat"
+  },
+  "dominant_causal_factors": [
+    {
+      "component": "topology",
+      "peak_gy": 0.1629
+    },
+    {
+      "component": "constitution",
+      "peak_gy": 0.1203
+    },
+    {
+      "component": "identity",
+      "peak_gy": 0.053
+    },
+    {
+      "component": "history",
+      "peak_gy": 0.0257
+    }
+  ],
+  "generativity_potential_model": {
+    "dominant_component": "topology",
+    "peak_gys": {
+      "topology": 0.16294420129112028,
+      "history": 0.025723470052479592,
+      "constitution": 0.1203284605158173,
+      "identity": 0.05303409460645819
+    },
+    "note": "GP = f(Topology, History, Constitution, Identity)"
+  },
+  "discoveries": [
+    {
+      "component": "topology",
+      "metric": "pe",
+      "peak_retention_pct": 26.6,
+      "peak_value": 1.4067,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "topology",
+      "metric": "pr",
+      "peak_retention_pct": 36.7,
+      "peak_value": 0.0858,
+      "type": "Memory-Capital"
+    },
+    {
+      "component": "topology",
+      "metric": "pdr",
+      "peak_retention_pct": 26.6,
+      "peak_value": 0.2813,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "history",
+      "metric": "pe",
+      "peak_retention_pct": 32.2,
+      "peak_value": 0.9684,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "history",
+      "metric": "ca",
+      "peak_retention_pct": 32.2,
+      "peak_value": 0.2265,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "history",
+      "metric": "pr",
+      "peak_retention_pct": 0.0,
+      "peak_value": 0.0854,
+      "type": "Memory-Capital"
+    },
+    {
+      "component": "history",
+      "metric": "gy",
+      "peak_retention_pct": 32.2,
+      "peak_value": 0.0125,
+      "type": "Memory-Capital"
+    },
+    {
+      "component": "history",
+      "metric": "pdr",
+      "peak_retention_pct": 32.2,
+      "peak_value": 0.1937,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "constitution",
+      "metric": "pe",
+      "peak_retention_pct": 67.8,
+      "peak_value": 1.4526,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "constitution",
+      "metric": "ca",
+      "peak_retention_pct": 67.8,
+      "peak_value": 0.1493,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "constitution",
+      "metric": "pr",
+      "peak_retention_pct": 100.0,
+      "peak_value": 0.0815,
+      "type": "Memory-Capital"
+    },
+    {
+      "component": "constitution",
+      "metric": "pdr",
+      "peak_retention_pct": 67.8,
+      "peak_value": 0.2905,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "identity",
+      "metric": "pe",
+      "peak_retention_pct": 22.6,
+      "peak_value": 1.1688,
+      "type": "Inverted-U"
+    },
+    {
+      "component": "identity",
+      "metric": "pr",
+      "peak_retention_pct": 80.9,
+      "peak_value": 0.0831,
+      "type": "Memory-Capital"
+    },
+    {
+      "type": "Emergent",
+      "note": "Multiple components contribute to GY \u2014 emergent",
+      "peak_gys": {
+        "topology": 0.16294420129112028,
+        "history": 0.025723470052479592,
+        "constitution": 0.1203284605158173,
+        "identity": 0.05303409460645819
+      }
+    }
+  ]
+}

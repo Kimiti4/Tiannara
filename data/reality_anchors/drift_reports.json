@@ -1,0 +1,37 @@
+[
+  {
+    "report_id": "DRIFT_7d410d68",
+    "severity": "minor",
+    "drift_score": 0.3833333333333334,
+    "affected_claims": [
+      "Perpetual motion machines can generate infinite energy"
+    ],
+    "drift_patterns": [],
+    "recommended_actions": [
+      "Monitor closely and increase validation sampling"
+    ],
+    "timestamp": 1778854173.7912412
+  },
+  {
+    "report_id": "DRIFT_0002aade",
+    "severity": "moderate",
+    "drift_score": 0.58125,
+    "affected_claims": [
+      "Perpetual motion machines can generate infinite energy",
+      "Synthetic claim 1 with low validation",
+      "Synthetic claim 2 with low validation",
+      "Synthetic claim 3 with low validation",
+      "Synthetic claim 4 with low validation",
+      "Synthetic claim 5 with low validation"
+    ],
+    "drift_patterns": [
+      "Consistent low validation scores across multiple claims",
+      "High proportion of poorly validated claims"
+    ],
+    "recommended_actions": [
+      "Increase frequency of external validation checks",
+      "Review and strengthen evidence requirements"
+    ],
+    "timestamp": 1778854173.79136
+  }
+]

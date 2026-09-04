@@ -1,0 +1,75 @@
+authorization:
+  id: "ASC-MC-001-M-MUTATION"
+  mission: "Tiannara Remediation + Substrate Integration Campaign"
+  gate: "MC-001-M"
+  action: "mathematics_capability_truthfulness_mutation"
+  status: "GRANTED"
+
+  scope:
+    description: >
+      Decommission-only truthfulness mutation for MC-001 Mathematics.
+      Decommission identified theatrical mathematical capabilities (M3) and
+      fabricated mathematical metrics (M5). No new mathematical implementation
+      is authorized. No semantic re-contracting of REAL primitives is authorized.
+      The 20-domain ontology, CanonicalRegistry, and AC-001 boundaries are out
+      of scope.
+
+  authorized_actions:
+    - "M3: decommission FormalVerification.verify_invariants -> {:error, :formal_verification_unavailable}"
+    - "M3: decommission Calculus.solve_ode -> {:error, :ode_solver_unavailable}"
+    - "M3: decommission Optimization.gradient_descent -> {:error, :gradient_descent_unavailable}"
+    - "M3: decommission Optimization.nash_equilibrium -> {:error, :nash_equilibrium_unavailable}"
+    - "M3: remediate affected consumers (Physics, autonomous_discovery) to handle unavailable states"
+    - "M5: decommission Physics.metrics fabricated literals -> truthful state-derived map"
+    - "M5: decommission Observatory.Metrics.Mathematics fabricated dashboard -> explicit unavailable"
+    - "Add regression tests proving decommissions and consumer safety"
+    - "Produce MC-001-M certification artifacts and independent verifier"
+
+  prohibited:
+    - "Implementing any replacement ODE solver / formal verification / optimization / game theory"
+    - "Implementing symbolic mathematics or theorem proving"
+    - "Altering REAL math primitive return contracts (bayes_update {:ok,_}, shannon_entropy, variance, cosine)"
+    - "Modifying the canonical 20-domain ontology"
+    - "Modifying CanonicalRegistry or AC-001 boundaries"
+    - "Modifying unrelated domain metrics beyond the authorized M5 targets"
+    - "Silently converting unavailable -> success"
+    - "Silently converting unavailable -> failure"
+    - "Fabricating verification/complilation evidence"
+    - "Broad rewrites or unrelated cleanup"
+
+  predecessor_gates:
+    - "R0: CERTIFIED"
+    - "AC-001 FINAL: CERTIFIED (BOUNDED)"
+    - "MC-001 Reconciliation: CERTIFIED"
+
+  governance:
+    required: true
+    authority: "C14"
+    policy: "POL-CERT_AUTH_001"
+    purpose: "Mathematical capability truthfulness remediation (decommission-only)"
+    on_deny: "BLOCKED"
+
+  certification_contract:
+    path: "priv/tiannara/remediation/contracts/MC001_M_mutation.contract.yaml"
+    hash: null
+
+  human_authorization:
+    status: "GRANTED"
+    operator_id: "c14_ac"
+    signature: "authorized"
+    timestamp: "2026-08-27"
+    conditions_accepted: true
+    notes: >
+      Human operator directed decommission-only (M3+M5) mutation scope and
+      provided the MC-001-M implementation authorization. Scope limited to
+      theatrical capability decommissioning and fabricated metrics removal.
+
+  valid_until: null
+
+  audit_trail:
+    created_by: "tiannara_os"
+    creation_timestamp: "2026-08-27T00:00:00Z"
+    lineage:
+      - "R0 CERTIFIED"
+      - "AC-001 FINAL CERTIFIED (BOUNDED)"
+      - "MC-001 Reconciliation CERTIFIED"

@@ -1,0 +1,36 @@
+# Trace Envelope Schema — Milestone U0 (Substrate + Circulatory Integrity)
+# Mandatory metadata for every transition (arrow) in the Unified Tiannara
+# closed-loop causal trace. No phase transition is valid without a conformant
+# envelope. Includes explicit causal ancestry (causal_parent).
+
+trace_envelope:
+  trace_id: "uuid-v4"          # Immutable identifier for the entire end-to-end mission
+  causal_parent:               # Explicit causal ancestry between transitions
+    trace_id: "uuid-v4 | null" # Parent trace ID (null for root observation)
+    phase: "string | null"     # Parent phase (e.g., "reality_model", "governance")
+  phase: "string"              # Current phase (e.g., "perception", "asc_candidate")
+  timestamp: "iso8601"         # Precise UTC timestamp of the transition
+  provenance:
+    module: "string"           # e.g., "Tiannara.Epistemic.View"
+    function: "string"         # e.g., "evaluate_hypothesis/2"
+    commit_hash: "string"      # Git hash of the executing code
+  evidence_ref: "string"       # Pointer to artifact (e.g., "priv/asc/audit/ae003_day1.json")
+  confidence_level:
+    value: "float"             # 0.0 to 1.0
+    justification: "string"    # Brief epistemic basis for this confidence
+  authorization_state:
+    required: "boolean"        # Does this transition require human/constitutional gate?
+    granted_by: "string"       # e.g., "human_operator_id_42", "constitutional_rule_C14.3"
+    timestamp: "iso8601"       # Time of authorization
+  outcome:
+    status: "success | partial | failure"
+    payload_hash: "string"     # Cryptographic hash of the output state mutation
+  failure_state:
+    detected: "boolean"
+    error_class: "string"      # e.g., "epistemic_contradiction", "timeout", "schema_violation"
+    severity: "low | medium | critical"
+  recovery_behavior:
+    action: "string"           # e.g., "rollback_to_snapshot", "degrade_gracefully", "halt_and_alert"
+    executed: "boolean"
+    success: "boolean"
+  next_phase: "string"         # The explicit next phase in the causal chain

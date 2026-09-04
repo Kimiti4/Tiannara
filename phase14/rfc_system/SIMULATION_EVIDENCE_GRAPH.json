@@ -1,0 +1,110 @@
+{
+  "edges": [
+    {
+      "from": "RFC",
+      "to": "Experiment",
+      "type": "produces"
+    },
+    {
+      "from": "Experiment",
+      "to": "Simulation",
+      "type": "uses"
+    },
+    {
+      "from": "Experiment",
+      "to": "Benchmark",
+      "type": "uses"
+    },
+    {
+      "from": "Experiment",
+      "to": "Counterfactual",
+      "type": "uses"
+    },
+    {
+      "from": "Simulation",
+      "to": "Evidence",
+      "type": "produces"
+    },
+    {
+      "from": "Benchmark",
+      "to": "Evidence",
+      "type": "produces"
+    },
+    {
+      "from": "Counterfactual",
+      "to": "Evidence",
+      "type": "produces"
+    },
+    {
+      "from": "Evidence",
+      "to": "Statistics",
+      "type": "supports"
+    },
+    {
+      "from": "Statistics",
+      "to": "Certificate",
+      "type": "supports"
+    },
+    {
+      "from": "Certificate",
+      "to": "Replay",
+      "type": "supports"
+    },
+    {
+      "from": "Replay",
+      "to": "Audit",
+      "type": "supports"
+    },
+    {
+      "from": "Audit",
+      "to": "Ratification",
+      "type": "supports"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "RFC",
+      "type": "artifact"
+    },
+    {
+      "id": "Experiment",
+      "type": "artifact"
+    },
+    {
+      "id": "Simulation",
+      "type": "artifact"
+    },
+    {
+      "id": "Benchmark",
+      "type": "artifact"
+    },
+    {
+      "id": "Counterfactual",
+      "type": "artifact"
+    },
+    {
+      "id": "Evidence",
+      "type": "artifact"
+    },
+    {
+      "id": "Statistics",
+      "type": "artifact"
+    },
+    {
+      "id": "Certificate",
+      "type": "artifact"
+    },
+    {
+      "id": "Replay",
+      "type": "artifact"
+    },
+    {
+      "id": "Audit",
+      "type": "artifact"
+    },
+    {
+      "id": "Ratification",
+      "type": "artifact"
+    }
+  ]
+}

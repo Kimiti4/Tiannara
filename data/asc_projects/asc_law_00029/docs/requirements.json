@@ -1,0 +1,18 @@
+{
+  "constraints": [],
+  "invariants": [
+    {
+      "id": "inv_113",
+      "domain": "general",
+      "statement": "Jobs must complete within SLA",
+      "negation_form": "Jobs must NOT complete within SLA",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Jobs must complete within SLA"
+    }
+  ],
+  "capabilities": [],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-17T23:23:12.626000Z"
+}

@@ -1,0 +1,147 @@
+# ==============================================================================
+# TIANNARA C14 AUTHORIZATION ARTIFACT: PRODUCTION TOPOLOGY MISSION
+# ==============================================================================
+# Mission:    ASC-AE-007 — CIS Production Residency (F11)
+# Predecessor: AE-006 (Lineage Retrieval)
+# Class:      PRODUCTION TOPOLOGY MISSION (not a capability probe)
+# ==============================================================================
+
+mission_id: "ASC-AE-007"
+status: "AUTHORIZED"
+
+# ------------------------------------------------------------------------------
+# 1. MISSION OBJECTIVE
+# ------------------------------------------------------------------------------
+objective: >
+  Establish that CIS.Supervisor is genuinely resident in the canonical
+  production supervision tree — supervised by the intended parent, with
+  correct restart semantics, using the grounded assess_risk/1 (F10) — and
+  that its residency does not regress F12/F9 observability or corrupt
+  C2/C3 continuity.
+
+mission_class_note: >
+  Unlike AE-004/005/006 (code corrections), F11 is a TOPOLOGY INTEGRATION.
+  The "candidate" is a modified supervision tree. The mission must demonstrate
+  actual residency under a canonical production boot, not merely that
+  CIS.Supervisor.start_link/1 works in isolation.
+
+constitutional_basis:
+  - "Capability must never outpace verification."
+  - "Prefer many specialized components cooperating through well-defined interfaces."
+  - "Recover gracefully. Preserve previous stable states."
+  - "Maintain audit trails. Support reproducibility."
+
+# ------------------------------------------------------------------------------
+# 2. STRICT SCOPE & BOUNDARIES
+# ------------------------------------------------------------------------------
+scope:
+  permitted_targets:
+    - "F11: Insertion of CIS.Supervisor into the canonical production supervision tree"
+    - "Supervision parent assignment and restart semantics for CIS.Supervisor"
+    - "Wiring of grounded assess_risk/1 (F10) as CIS's risk implementation"
+  explicitly_forbidden:
+    - "CEL-1: Dynamic capability discovery / delegation / registry-driven behavior"
+    - "F13: Modifying discovery_supervisor lifecycle (deferred to AE-008)"
+    - "Reopening the U0 certification"
+    - "Building or modifying the capability registry"
+    - "Any change that reintroduces stochastic/un-grounded risk output (F10 regression)"
+
+  boundary_note: >
+    F11 proves CIS LIVES WHERE IT IS SUPPOSED TO LIVE.
+    CEL-1 proves CEL can discover and delegate capabilities.
+    These are separate architectural claims. This mission addresses ONLY F11.
+
+# ------------------------------------------------------------------------------
+# 3. MISSION GATES
+# ------------------------------------------------------------------------------
+gates:
+  Phase_A_Topology_Characterization:
+    description: "Map the current canonical production supervision tree."
+    requirements:
+      - "Identify the intended production parent for CIS.Supervisor"
+      - "Document current boot order and service dependencies"
+      - "Confirm CIS.Supervisor is currently ABSENT (F11 baseline: whereis -> nil)"
+      - "Record discovery_supervisor's current state (F13 baseline) so F11 does not silently alter it"
+
+  Phase_B_Candidate_Topology_Generation:
+    description: "Generate the candidate supervision-tree modification."
+    candidates:
+      - "baseline (CIS absent)"
+      - "candidate_residency (CIS.Supervisor added under intended parent with restart spec)"
+    constraints:
+      - "Must use one_for_one or rest_for_one consistent with sibling services"
+      - "Restart intensity must be bounded to prevent crash-loop storms"
+      - "Must NOT reorder existing critical services unless evidence requires it"
+
+  Phase_C_Residency_And_Behavior_Verification:
+    description: "Run the 9 acceptance criteria under a canonical production boot."
+    tests:
+      - id: "T1_residency"
+        criterion: "CIS.Supervisor is present after canonical production boot"
+        method: "whereis(CIS.Supervisor) != nil post-boot"
+      - id: "T2_supervision_parentage"
+        criterion: "CIS.Supervisor is supervised by the intended production parent"
+        method: "Inspect supervisor child specs; verify parent PID lineage"
+      - id: "T3_restart_semantics"
+        criterion: "Restart semantics are correct"
+        method: "Kill CIS.Supervisor; verify supervisor restarts it per spec; verify bounded restart intensity"
+      - id: "T4_implementation_fidelity"
+        criterion: "Grounded assess_risk/1 (F10) is the implementation CIS actually uses"
+        method: "Verify no :rand.uniform path; verify telemetry-weighted + quarantine path is live"
+      - id: "T5_fault_detection_boundary"
+        criterion: "A fault is detected without bypassing C14"
+        method: "Inject bounded fault; verify CIS detects it; verify no C14 bypass"
+      - id: "T6_bounded_recovery"
+        criterion: "Recovery remains constitutionally bounded"
+        method: "Verify CIS emits recovery PROPOSALS, not autonomous production mutations"
+      - id: "T7_continuity_isolation"
+        criterion: "CIS failure/restart does not corrupt C2/C3 continuity"
+        method: "Kill CIS; verify C2 canonical state and C3 knowledge/lineage remain intact"
+      - id: "T8_eos_accuracy"
+        criterion: "EOS health reports the topology accurately"
+        method: "Boot healthy topology; verify EOS classifies all live services as healthy"
+      - id: "T9_f12_f9_regression"
+        criterion: "No false emergency; F12/F9 regression remains green"
+        method: "Verify EventStore.healthy?/0 and ExecutiveMemory.health/0 remain true on healthy boot; verify no failed_critical on healthy topology"
+
+  regression_guard:
+    description: >
+      This mission integrates the subsystem that ACTS ON health telemetry
+      immediately after repairing the telemetry itself (F12/F9). T9 is a
+      HARD GATE: if integrating CIS reintroduces a false emergency or stale
+      telemetry behavior, the candidate is REJECTED regardless of other results.
+
+# ------------------------------------------------------------------------------
+# 4. ADOPTION GATE
+# ------------------------------------------------------------------------------
+no_automatic_adoption:
+  rule: >
+    This authorization permits ISOLATED/STAGING TOPOLOGY VERIFICATION only.
+    If the candidate passes all Phase C tests, it must generate an EVIDENCE
+    REPORT. Applying the topology change to production requires a SEPARATE
+    C14 authorization artifact (ASC-AE-007-ADOPTION.human.yaml).
+
+# ------------------------------------------------------------------------------
+# 5. HUMAN AUTHORIZATION BLOCK
+# ------------------------------------------------------------------------------
+human_authorization:
+  operator_id: schtickman
+  signature: F11-topology
+  timestamp: 2026-08-21T03:30Z
+  conditions_accepted: true
+  notes: "AE-007 authorized — CIS production residency topology mission"
+
+valid_until: 2026-09-04T03:30Z
+
+# ------------------------------------------------------------------------------
+# 6. AUDIT TRAIL
+# ------------------------------------------------------------------------------
+audit_trail:
+  created_by: "tiannara_os"
+  creation_timestamp: "2026-08-21T00:00:00Z"
+  constitutional_basis: "rules.md -> Verification First / Safety and Reliability"
+  lineage:
+    - "U7 (C12 capability proven in test topology)"
+    - "F11 (CIS.Supervisor whereis -> nil on production boot)"
+    - "AE-005 (F10 grounded assess_risk — must be the live implementation)"
+    - "AE-004 (F12/F9 observability — must remain green)"

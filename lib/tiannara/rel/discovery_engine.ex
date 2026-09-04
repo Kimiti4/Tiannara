@@ -47,7 +47,7 @@ defmodule Tiannara.REL.DiscoveryEngine do
     end
   end
 
-  defp attempt_quantum_leap(civ_id, shard_id, genome) do
+  defp attempt_quantum_leap(civ_id, shard_id, _genome) do
     Logger.info("🌌 [DiscoveryEngine] #{civ_id} is attempting a Quantum Leap!")
     cost = %{compute: 2000, attention: 1000}
     
@@ -74,7 +74,7 @@ defmodule Tiannara.REL.DiscoveryEngine do
     end
   end
 
-  defp attempt_recombination(civ_id, shard_id, known, genome) do
+  defp attempt_recombination(civ_id, shard_id, known, _genome) do
     parent_a = Enum.random(known)
     parent_b = Enum.random(known)
     
@@ -106,7 +106,7 @@ defmodule Tiannara.REL.DiscoveryEngine do
     end
   end
 
-  defp attempt_normal_discovery(civ_id, shard_id, genome) do
+  defp attempt_normal_discovery(civ_id, shard_id, _genome) do
     cost = %{compute: 100, attention: 50}
     case EconomyEngine.consume(civ_id, cost) do
       :ok ->

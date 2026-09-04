@@ -28,7 +28,6 @@ defmodule Tiannara.ASC.Crucible.Attacker do
   """
 
   alias Tiannara.ASC.Interface.Genome
-  alias Tiannara.ASC.Observatory.ProjectObservatory
 
   @derive Jason.Encoder
   defstruct [

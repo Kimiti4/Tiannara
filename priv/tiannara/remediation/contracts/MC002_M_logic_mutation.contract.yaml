@@ -1,0 +1,100 @@
+gate_id: "MC-002-M"
+parent_gate: "MC-002"
+campaign: "Tiannara Remediation + Substrate Integration"
+class: "MUTATION_TRUTHFULNESS"
+mode: "MUTATING"
+created_at: "2026-08-29"
+
+bounded_proposition: >
+  Logic truthfulness mutation (authorized scope L4+L1+L2+L3, L5 excluded).
+  A canonical logic kernel is created (Logic.Contradiction, Logic.Invariant,
+  Logic.Rule, Logic.Transition, Logic.Complementarity — six functions) and the
+  entire contradiction/invariant/rule/transition/complementarity surface is
+  delegated to it (L1). Theatrical logical capabilities are decommissioned
+  (L2): CTL.ParadoxResolver becomes explicitly unavailable, and the nine
+  fabricated Substrate.* subsystem files are removed. Fabricated substrate
+  metric clauses are removed from the Metrics.Aggregator (L3). No proof or
+  inference capability (L5) is introduced. No new mathematical capability is
+  introduced. REAL primitives keep their contracts.
+
+requires:
+  - "MC-002-A0 Reconciliation CERTIFIED"
+  - "AC-001 FINAL CERTIFIED (BOUNDED)"
+  - "ASC-MC-002-M-LOGIC-MUTATION.human.yaml status GRANTED"
+
+verifies:
+  - "logic_kernel_six_functions_exist"
+  - "engine_detect_delegates_to_kernel"
+  - "audit_find_contradictions_resolves_registry_probe"
+  - "belief_system_delegates_to_kernel_no_false_positives"
+  - "discovery_scheduler_routes_through_kernel"
+  - "sentinel_evidence_link_mechanism_kept"
+  - "paradox_resolver_explicitly_unavailable"
+  - "substrate_families_removed"
+  - "substrate_metric_clauses_removed_from_aggregator"
+  - "no_fake_replacement_logic_introduced"
+  - "no_l5_proof_or_inference_implemented"
+  - "no_real_primitive_contract_changed"
+  - "canonical_ontology_unchanged"
+
+forbids:
+  - "new_proof_or_inference_engine"
+  - "symbolic_reasoning_engine"
+  - "substrate_replacement_implementation"
+  - "new_math_implementation"
+  - "real_primitive_semantic_change"
+  - "revising_20_domain_ontology"
+  - "modifying_CanonicalRegistry"
+  - "AC-001_boundary_violation"
+  - "broad_refactor"
+  - "silent_unavailable_to_success"
+  - "silent_unavailable_to_failure"
+  - "fabricated_replacement_behavior"
+  - "claiming_PASS_for_unexecuted_checks"
+
+targets:
+  L4:
+    - "Tiannara.Logic.Contradiction.detect/2"
+    - "Tiannara.Logic.Contradiction.from_refutations/1"
+    - "Tiannara.Logic.Invariant.check/2"
+    - "Tiannara.Logic.Rule.evaluate/2"
+    - "Tiannara.Logic.Transition.valid?/3"
+    - "Tiannara.Logic.Complementarity.holds?/2"
+  L1:
+    - "Tiannara.Contradiction.Engine.detect/1 -> kernel shim"
+    - "Tiannara.Graph.Audit.find_contradictions/1 (NEW, kernel-backed)"
+    - "Tiannara.Core.WorldModel.BeliefSystem contradiction detection -> kernel"
+    - "Tiannara.Discovery.DiscoveryScheduler.contradiction_pairs -> kernel"
+  L2:
+    - "Tiannara.CTL.ParadoxResolver.resolve/2 -> {:error, :paradox_resolver_unavailable}"
+    - "Tiannara.Substrate.{COF,EUF,GCK,HSV,MCAL,OED,OPC,OSE,OSK}.* -> REMOVED"
+  L3:
+    - "Tiannara.Metrics.Aggregator :euf/:gck/:hsv/:mcal/:opc/:oed/:ose/:osk/:cof clauses -> REMOVED"
+
+epistemic_semantics:
+  Available: "capability actually executed and produced evidence"
+  Failed: "capability executed but failed"
+  Unavailable: "no truthful implementation exists"
+  Unknown: "evidence insufficient"
+  Removed: "module no longer exists; access raises (truthful absence)"
+  Simulated: "explicitly simulated, never presented as real"
+
+verdict_space: [CERTIFIED, CERTIFIED_BOUNDED, NOT_CERTIFIED]
+
+certification_boundary: >
+  Certification certifies the authorized L4+L1+L2+L3 logic truthfulness
+  mutation based on static verification, the passing targeted acceptance tests
+  (L-AT-1..5 plus engine/graph/discovery/metrics/ctl suites), and a clean
+  compile. If a fresh full-suite regression cannot be executed in the
+  environment, that gap is recorded as NOT_EXECUTED, never as PASS. This gate
+  does NOT certify any proof or inference capability (L5 remains out of scope).
+
+constitutional_basis:
+  - "Evidence Before Confidence"
+  - "Uncertainty should never be hidden"
+  - "Truth has priority over confidence"
+  - "Capability must never outpace verification"
+  - "Stable migration > broad rewrite"
+  - "Reuse > duplication"
+
+contract_hash: null

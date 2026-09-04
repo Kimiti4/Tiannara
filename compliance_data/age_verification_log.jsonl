@@ -1,0 +1,3 @@
+{"timestamp": "2026-05-07T06:37:27.449117", "verified": true, "age": 27, "required_age": 18, "country": "GB", "region": null, "status": "approved"}
+{"timestamp": "2026-05-07T06:37:27.464151", "verified": false, "age": 18, "required_age": 21, "country": "US", "region": "NJ", "status": "rejected"}
+{"timestamp": "2026-05-07T06:37:27.494164", "verified": true, "age": 26, "required_age": 21, "country": "US", "region": "NJ", "status": "approved"}

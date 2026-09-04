@@ -1,0 +1,2552 @@
+[
+  {
+    "archetype": "Settler",
+    "epoch": 0,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 5,
+    "ca": 107.8394,
+    "pe": 5,
+    "pr": 14.39031727209511,
+    "region": "GENERATOR",
+    "best_policy": "Settler",
+    "best_oi": 108.221,
+    "oi_outcomes": {
+      "Settler": 108.221,
+      "Explorer": 43.42113756902966,
+      "Trader": 67.72089263267105,
+      "Survivor": 0.3816,
+      "Phoenix": 32.62143462533934
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 10,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 15,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 20,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 25,
+    "ca": 125.83998619128413,
+    "pe": 5,
+    "pr": -12.48301876569225,
+    "region": "CLIFF",
+    "best_policy": "Settler",
+    "best_oi": 126.22106491106406,
+    "oi_outcomes": {
+      "Settler": 126.22106491106406,
+      "Explorer": 5.620954700538379,
+      "Trader": 8.321273576795225,
+      "Survivor": 32.62090272390017,
+      "Phoenix": 0.3810787197799412
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 30,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 35,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 40,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 45,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 50,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 55,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 60,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 65,
+    "ca": 107.83897328291648,
+    "pe": 5,
+    "pr": 9.53767587653919,
+    "region": "GENERATOR",
+    "best_policy": "Phoenix",
+    "best_oi": 108.22091235485945,
+    "oi_outcomes": {
+      "Settler": 16.420924277545804,
+      "Explorer": 40.7209441551071,
+      "Trader": 0.38193907194296656,
+      "Survivor": 90.22149030850946,
+      "Phoenix": 108.22091235485945
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 70,
+    "ca": 63.14080853500542,
+    "pe": 5,
+    "pr": -5.9284146480226845,
+    "region": "CLIFF",
+    "best_policy": "Settler",
+    "best_oi": 63.22080853500542,
+    "oi_outcomes": {
+      "Settler": 63.22080853500542,
+      "Explorer": 0.3813856406460551,
+      "Trader": 32.62136460857725,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.38164113781667885
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 75,
+    "ca": 64.941,
+    "pe": 5,
+    "pr": 5.516097512199771,
+    "region": "GENERATOR",
+    "best_policy": "Explorer",
+    "best_oi": 65.021,
+    "oi_outcomes": {
+      "Settler": 0.3818110770276275,
+      "Explorer": 65.021,
+      "Trader": 45.221190443574315,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 54.22109614813969
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 80,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 85,
+    "ca": 129.7412491376746,
+    "pe": 5,
+    "pr": -3.735314260217095,
+    "region": "CLIFF",
+    "best_policy": "Survivor",
+    "best_oi": 129.8212491376746,
+    "oi_outcomes": {
+      "Settler": 27.221419876538505,
+      "Explorer": 0.08000000000000002,
+      "Trader": 67.72070808335775,
+      "Survivor": 129.8212491376746,
+      "Phoenix": 1.1215435595774164
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 90,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 95,
+    "ca": 106.20006511307696,
+    "pe": 5,
+    "pr": 15.376847980727973,
+    "region": "GENERATOR",
+    "best_policy": "Settler",
+    "best_oi": 108.22108166558301,
+    "oi_outcomes": {
+      "Settler": 108.22108166558301,
+      "Explorer": 65.02103537599385,
+      "Trader": 2.0210165525060595,
+      "Survivor": 94.72115843046689,
+      "Phoenix": 16.420738083151964
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 100,
+    "ca": 94.640837946691,
+    "pe": 5,
+    "pr": -13.109135822807357,
+    "region": "CLIFF",
+    "best_policy": "Settler",
+    "best_oi": 94.72083794669099,
+    "oi_outcomes": {
+      "Settler": 94.72083794669099,
+      "Explorer": 21.821029272594306,
+      "Trader": 0.3818110770276275,
+      "Survivor": 0.3806324555320337,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 105,
+    "ca": 10.941329705854077,
+    "pe": 5,
+    "pr": -1.9294090121290917,
+    "region": "CLIFF",
+    "best_policy": "Phoenix",
+    "best_oi": 11.021329705854077,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.3812132600710483,
+      "Trader": 0.382,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 11.021329705854077
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 110,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 115,
+    "ca": 0.3016,
+    "pe": 5,
+    "pr": 0.052886778715318716,
+    "region": "DESERT",
+    "best_policy": "Explorer",
+    "best_oi": 0.3816,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.3816,
+      "Trader": 0.3816,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 120,
+    "ca": 0.302,
+    "pe": 5,
+    "pr": 0.20069733780696516,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.382,
+    "oi_outcomes": {
+      "Settler": 0.382,
+      "Explorer": 0.382,
+      "Trader": 0.38116619037896904,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.3818110770276275
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 125,
+    "ca": 127.79992925473601,
+    "pe": 5,
+    "pr": 17.777553179661354,
+    "region": "GENERATOR",
+    "best_policy": "Explorer",
+    "best_oi": 129.82089544511499,
+    "oi_outcomes": {
+      "Settler": 2.020966190378969,
+      "Explorer": 129.82089544511499,
+      "Trader": 94.72099107794315,
+      "Survivor": 45.22061649658093,
+      "Phoenix": 40.72118564064606
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 130,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 135,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 140,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Settler",
+    "epoch": 145,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 0,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 5,
+    "ca": 86.54094142767745,
+    "pe": 5,
+    "pr": -15.051380147520664,
+    "region": "CLIFF",
+    "best_policy": "Explorer",
+    "best_oi": 86.62094142767745,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 86.62094142767745,
+      "Trader": 0.382,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 7.421118007153677
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 10,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 15,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 20,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 25,
+    "ca": 0.302,
+    "pe": 5,
+    "pr": 0.11322810193693647,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.382,
+    "oi_outcomes": {
+      "Settler": 0.382,
+      "Explorer": 0.382,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.3813856406460551,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 30,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 35,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 40,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 45,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 50,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 55,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 60,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 65,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 70,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 75,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 80,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 85,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 90,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 95,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 100,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 105,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 110,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 115,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 120,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 125,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 130,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 135,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 140,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Explorer",
+    "epoch": 145,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 0,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 5,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 10,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 15,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 20,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 25,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 30,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 35,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 40,
+    "ca": 75.7411309502513,
+    "pe": 5,
+    "pr": -3.4917125615786446,
+    "region": "CLIFF",
+    "best_policy": "Trader",
+    "best_oi": 75.8211309502513,
+    "oi_outcomes": {
+      "Settler": 14.62109614813968,
+      "Explorer": 32.62065280286543,
+      "Trader": 75.8211309502513,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.3813740451229854
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 45,
+    "ca": 129.439203609302,
+    "pe": 5,
+    "pr": 8.423958205906565,
+    "region": "GENERATOR",
+    "best_policy": "Explorer",
+    "best_oi": 129.82111148770485,
+    "oi_outcomes": {
+      "Settler": 67.72106976678658,
+      "Explorer": 129.82111148770485,
+      "Trader": 2.0217078784028337,
+      "Survivor": 129.82089087121145,
+      "Phoenix": 0.3819078784028339
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 50,
+    "ca": 113.23988289810698,
+    "pe": 5,
+    "pr": 9.958359223005274,
+    "region": "GENERATOR",
+    "best_policy": "Trader",
+    "best_oi": 113.6209874342087,
+    "oi_outcomes": {
+      "Settler": 11.021639254507363,
+      "Explorer": 86.62110930734141,
+      "Trader": 113.6209874342087,
+      "Survivor": 54.22048313005107,
+      "Phoenix": 0.38110453610171874
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 55,
+    "ca": 53.839116561177214,
+    "pe": 5,
+    "pr": 5.409620116717598,
+    "region": "GENERATOR",
+    "best_policy": "Trader",
+    "best_oi": 54.22111656117721,
+    "oi_outcomes": {
+      "Settler": 14.62141658075373,
+      "Explorer": 48.82116137185711,
+      "Trader": 54.22111656117721,
+      "Survivor": 14.620891380369581,
+      "Phoenix": 0.382
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 60,
+    "ca": 108.1410393546708,
+    "pe": 5,
+    "pr": -7.40456350671554,
+    "region": "CLIFF",
+    "best_policy": "Settler",
+    "best_oi": 108.2210393546708,
+    "oi_outcomes": {
+      "Settler": 108.2210393546708,
+      "Explorer": 5.621214213562372,
+      "Trader": 11.021235270009441,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 38.02089021623019
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 65,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 70,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 75,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 80,
+    "ca": 41.72177895914276,
+    "pe": 5,
+    "pr": -3.345689673273215,
+    "region": "CLIFF",
+    "best_policy": "Explorer",
+    "best_oi": 41.80177895914276,
+    "oi_outcomes": {
+      "Settler": 0.3814751271131669,
+      "Explorer": 41.80177895914276,
+      "Trader": 0.3814966629547096,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 29.02129666295471
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 85,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 90,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 95,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 100,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 105,
+    "ca": 10.940858300524425,
+    "pe": 5,
+    "pr": -0.10007852087711377,
+    "region": "CLIFF",
+    "best_policy": "Phoenix",
+    "best_oi": 11.020858300524425,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 2.0211564659966252,
+      "Trader": 8.321226283882782,
+      "Survivor": 0.3810832051206181,
+      "Phoenix": 11.020858300524425
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 110,
+    "ca": 73.8001699167437,
+    "pe": 5,
+    "pr": 13.794813913906545,
+    "region": "GENERATOR",
+    "best_policy": "Survivor",
+    "best_oi": 90.22128900733952,
+    "oi_outcomes": {
+      "Settler": 21.820945425685064,
+      "Explorer": 21.821217352775033,
+      "Trader": 16.421119090595827,
+      "Survivor": 90.22128900733952,
+      "Phoenix": 86.62071339242075
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 115,
+    "ca": 145.79986837270778,
+    "pe": 5,
+    "pr": 14.615279590152802,
+    "region": "GENERATOR",
+    "best_policy": "Settler",
+    "best_oi": 151.4209437811391,
+    "oi_outcomes": {
+      "Settler": 151.4209437811391,
+      "Explorer": 65.02107942294685,
+      "Trader": 113.6209489125293,
+      "Survivor": 5.621075408431314,
+      "Phoenix": 16.421083744522868
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 120,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 125,
+    "ca": 147.07232383369606,
+    "pe": 5,
+    "pr": 9.416892692685273,
+    "region": "GENERATOR",
+    "best_policy": "Trader",
+    "best_oi": 147.4542,
+    "oi_outcomes": {
+      "Settler": 81.22106491106406,
+      "Explorer": 0.3818761663039294,
+      "Trader": 147.4542,
+      "Survivor": 27.220865833007558,
+      "Phoenix": 45.22085198225588
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 130,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 135,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 140,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Trader",
+    "epoch": 145,
+    "ca": 45.89961088689368,
+    "pe": 5,
+    "pr": 5.002961700230177,
+    "region": "GENERATOR",
+    "best_policy": "Settler",
+    "best_oi": 48.82090754984839,
+    "oi_outcomes": {
+      "Settler": 48.82090754984839,
+      "Explorer": 8.321118007153675,
+      "Trader": 16.420957583690278,
+      "Survivor": 32.62096619037897,
+      "Phoenix": 2.92129666295471
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 0,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 5,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 10,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 15,
+    "ca": 21.439522725596742,
+    "pe": 5,
+    "pr": -2.2531240394700065,
+    "region": "CLIFF",
+    "best_policy": "Explorer",
+    "best_oi": 21.821071918935225,
+    "oi_outcomes": {
+      "Settler": 0.381549193338483,
+      "Explorer": 21.821071918935225,
+      "Trader": 7.420883205120618,
+      "Survivor": 0.382,
+      "Phoenix": 0.3816248076809272
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 20,
+    "ca": 81.14106491106406,
+    "pe": 5,
+    "pr": -4.627264394339427,
+    "region": "CLIFF",
+    "best_policy": "Phoenix",
+    "best_oi": 81.22106491106406,
+    "oi_outcomes": {
+      "Settler": 9.221056980508997,
+      "Explorer": 0.08000000000000002,
+      "Trader": 43.420885440840486,
+      "Survivor": 0.38164924225024704,
+      "Phoenix": 81.22106491106406
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 25,
+    "ca": 89.83909475168555,
+    "pe": 5,
+    "pr": 11.196668269213077,
+    "region": "GENERATOR",
+    "best_policy": "Survivor",
+    "best_oi": 90.22090582871317,
+    "oi_outcomes": {
+      "Settler": 81.2207797958971,
+      "Explorer": 0.3818110770276275,
+      "Trader": 11.020969995251653,
+      "Survivor": 90.22090582871317,
+      "Phoenix": 54.220948912529316
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 30,
+    "ca": 18.141337675012625,
+    "pe": 5,
+    "pr": -3.3685714618246134,
+    "region": "CLIFF",
+    "best_policy": "Settler",
+    "best_oi": 18.221337675012624,
+    "oi_outcomes": {
+      "Settler": 18.221337675012624,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.3812,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.382
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 35,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 40,
+    "ca": 108.14104793162207,
+    "pe": 5,
+    "pr": -7.211505846307254,
+    "region": "CLIFF",
+    "best_policy": "Survivor",
+    "best_oi": 108.22104793162207,
+    "oi_outcomes": {
+      "Settler": 7.421204753833714,
+      "Explorer": 0.08000000000000002,
+      "Trader": 65.02070128113944,
+      "Survivor": 108.22104793162207,
+      "Phoenix": 0.38084852813742387
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 45,
+    "ca": 94.33941787138505,
+    "pe": 5,
+    "pr": 10.532104167466741,
+    "region": "GENERATOR",
+    "best_policy": "Trader",
+    "best_oi": 94.72077433738168,
+    "oi_outcomes": {
+      "Settler": 0.38135646599662504,
+      "Explorer": 40.72104169971484,
+      "Trader": 94.72077433738168,
+      "Survivor": 43.42112115651816,
+      "Phoenix": 27.22083537432844
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 50,
+    "ca": 86.24008536180189,
+    "pe": 5,
+    "pr": 0.8085384887876685,
+    "region": "GENERATOR",
+    "best_policy": "Settler",
+    "best_oi": 86.6212342743312,
+    "oi_outcomes": {
+      "Settler": 86.6212342743312,
+      "Explorer": 21.821133333333336,
+      "Trader": 0.3811489125293076,
+      "Survivor": 2.9207121403400795,
+      "Phoenix": 65.02123028468695
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 55,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 60,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 65,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 70,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 75,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 80,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 85,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 90,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 95,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 100,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 105,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 110,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 115,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 120,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 125,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 130,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 135,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 140,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Survivor",
+    "epoch": 145,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 0,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 5,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 10,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 15,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 20,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 25,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 30,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 35,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 40,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 45,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 50,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 55,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 60,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 65,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 70,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 75,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 80,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 85,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 90,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 95,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 100,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 105,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 110,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 115,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 120,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 125,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 130,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 135,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 140,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  },
+  {
+    "archetype": "Phoenix",
+    "epoch": 145,
+    "ca": 0.0,
+    "pe": 5,
+    "pr": 0.08000000000000002,
+    "region": "DESERT",
+    "best_policy": "Settler",
+    "best_oi": 0.08000000000000002,
+    "oi_outcomes": {
+      "Settler": 0.08000000000000002,
+      "Explorer": 0.08000000000000002,
+      "Trader": 0.08000000000000002,
+      "Survivor": 0.08000000000000002,
+      "Phoenix": 0.08000000000000002
+    }
+  }
+]

@@ -1,0 +1,86 @@
+authorization:
+  id: "ASC-MC-002-M-LOGIC-MUTATION"
+  mission: "Tiannara Remediation + Substrate Integration Campaign"
+  gate: "MC-002-M"
+  action: "logic_capability_truthfulness_mutation"
+  status: "GRANTED"
+
+  scope:
+    description: >
+      Logic truthfulness mutation for MC-002 (Logic substrate). Human operator
+      directed the bounded kernel scope: L4 (six-function logic kernel), L1
+      (delegate all contradiction detection/reasoning sites to the kernel),
+      L2 (decommission theatrical logic: CTL.ParadoxResolver and the nine
+      Substrate.* fabricated families), L3 (remove fabricated logic metric
+      clauses from the Metrics.Aggregator). L5 (proof/inference) is NOT
+      authorized and remains out of scope. No new mathematical capability and
+      no replacement substrate implementation is authorized. The 20-domain
+      ontology, CanonicalRegistry, and AC-001 boundaries are out of scope.
+
+  authorized_actions:
+    - "L4: create Tiannara.Logic kernel (Contradiction, Invariant, Rule, Transition, Complementarity; six functions)"
+    - "L1: Contradiction.Engine.detect/1 -> thin shim over kernel (keep classification/severity/confidence/lifecycle)"
+    - "L1: Graph.Audit.find_contradictions/1 -> NEW kernel-backed function (fixes registry.ex:118 probe)"
+    - "L1: BeliefSystem contradiction detection -> delegate to kernel, delete fabricated negation/topic matcher"
+    - "L1: DiscoveryScheduler.contradiction_pairs -> route through kernel"
+    - "L1: keep Sentinel Verification.find_contradictions/3 (real evidence-link mechanism)"
+    - "L2: CTL.ParadoxResolver.resolve/2 -> {:error, :paradox_resolver_unavailable}"
+    - "L2: remove the nine Substrate.* fabricated subsystem files"
+    - "L3: remove aggregator no-op clauses for substrate-only metric domains (:euf,:gck,:hsv,:mcal,:opc,:oed,:ose,:osk,:cof)"
+    - "Add regression tests proving kernel, delegation, decommissions, and consumer safety"
+    - "Produce MC-002-M certification artifacts and independent verifier"
+
+  prohibited:
+    - "Implementing a proof engine or inference engine (L5)"
+    - "Implementing symbolic reasoning / theorem proving"
+    - "Implementing replacement substrate capability"
+    - "Introducing any new mathematical capability"
+    - "Altering REAL primitive contracts (Engine API/lifecycle, Sentinel evidence links, Debugger queries, Aggregator.push_event/2 interface, Discovery output maps)"
+    - "Modifying the canonical 20-domain ontology"
+    - "Modifying CanonicalRegistry or AC-001 boundaries"
+    - "Modifying unrelated domain metrics beyond the authorized L3 targets"
+    - "Silently converting unavailable -> success"
+    - "Silently converting unavailable -> failure"
+    - "Fabricating verification/compilation evidence"
+    - "Broad rewrites or unrelated cleanup"
+
+  predecessor_gates:
+    - "R0: CERTIFIED"
+    - "AC-001 FINAL: CERTIFIED (BOUNDED)"
+    - "MC-001 Reconciliation: CERTIFIED"
+    - "MC-001-M: CERTIFIED (BOUNDED)"
+    - "MC-002-A0 Reconciliation: CERTIFIED"
+
+  governance:
+    required: true
+    authority: "C14"
+    policy: "POL-CERT_AUTH_001"
+    purpose: "Logic capability truthfulness remediation (bounded kernel scope L4+L1+L2+L3)"
+    on_deny: "BLOCKED"
+
+  certification_contract:
+    path: "priv/tiannara/remediation/contracts/MC002_M_logic_mutation.contract.yaml"
+    hash: null
+
+  human_authorization:
+    status: "GRANTED"
+    operator_id: "c14_ac"
+    signature: "authorized"
+    timestamp: "2026-08-29"
+    conditions_accepted: true
+    notes: >
+      Human operator directed the bounded MC-002 logic mutation scope and
+      explicitly selected L4+L1+L2+L3 (Recommended), leaving L5
+      (proof/inference) closed for a future gate.
+
+  valid_until: null
+
+  audit_trail:
+    created_by: "tiannara_os"
+    creation_timestamp: "2026-08-29T00:00:00Z"
+    lineage:
+      - "R0 CERTIFIED"
+      - "AC-001 FINAL CERTIFIED (BOUNDED)"
+      - "MC-001 Reconciliation CERTIFIED"
+      - "MC-001-M CERTIFIED (BOUNDED)"
+      - "MC-002-A0 Reconciliation CERTIFIED"

@@ -10,7 +10,7 @@ defmodule Tiannara.Report.ProgressiveAggregator do
   end
 
   @impl true
-  def handle_demand(incoming, %{buffer: buffer, source: source} = state) do
+  def handle_demand(_incoming, %{buffer: _buffer, source: _source} = state) do
     # Pull only what the dashboard requested (viewport-aware)
     # Mocking history pull for now
     # events = Tiannara.Sentinel.History.pull(source, incoming)
@@ -24,7 +24,6 @@ defmodule Tiannara.Report.ProgressiveAggregator do
     end
   end
 
-  @impl true
   def handle_events(new_events, %{buffer: buffer} = state) do
     {:noreply, [Enum.chunk_every(buffer ++ new_events, 500)], %{state | buffer: []}}
   end

@@ -1,0 +1,365 @@
+{
+  "U7_A": {
+    "status": "PASS",
+    "evidence": {
+      "baseline_plan": {
+        "ok": {
+          "pathogen": "baseline",
+          "response": "monitor",
+          "severity": 0.1
+        }
+      },
+      "c12_classification": "HEALTHY",
+      "collapse_risk": {
+        "ok": {
+          "collapse_risk": 0.24890093050214748,
+          "subsystem": "reality_graph",
+          "timestamp": {
+            "calendar": "Elixir.Calendar.ISO",
+            "day": 20,
+            "hour": 17,
+            "microsecond": [
+              722000,
+              6
+            ],
+            "minute": 57,
+            "month": 8,
+            "second": 14,
+            "std_offset": 0,
+            "time_zone": "Etc/UTC",
+            "utc_offset": 0,
+            "year": 2026,
+            "zone_abbr": "UTC"
+          }
+        }
+      },
+      "constraint_check": {
+        "ok": {
+          "ok": {
+            "id": "baseline_plan"
+          }
+        }
+      },
+      "domain_diversity": {
+        "ok": {
+          "ok": true
+        }
+      },
+      "measured_state": "live",
+      "mode": "healthy",
+      "regulation_log": {
+        "ok": "ok"
+      },
+      "timestamp": "2026-08-20T17:57:14.722000Z",
+      "topology_up": {
+        "cis_supervisor": true,
+        "event_store": true,
+        "executive_memory": true,
+        "reality_graph": true
+      }
+    }
+  },
+  "U7_B": {
+    "status": "PASS",
+    "evidence": {
+      "c12_classification": "FAILED/DEGRADED",
+      "fault_measured": {
+        "direct_probe": {
+          "error": "exit :exit: {:noproc, {GenServer, :call, [Tiannara.CEL.Services.ExecutiveMemory, :count, 5000]}}"
+        },
+        "executive_memory_live": false
+      },
+      "immune_decision": {
+        "ok": {
+          "pathogen": "executive_memory_outage",
+          "response": "quarantine",
+          "severity": 0.8
+        }
+      },
+      "injected_fault": "executive_memory terminated (test harness)",
+      "mode": "fault",
+      "recovery_is_log_only": true,
+      "recovery_proposal": {
+        "ok": "ok"
+      },
+      "restart_latency_us": 1126,
+      "restart_result": {
+        "ok": "#PID<0.1247.0>"
+      },
+      "restored": {
+        "canonical_state_preserved": {
+          "ok": {
+            "ok": "post_recovery_d3a61129"
+          }
+        },
+        "event_store_count": {
+          "ok": 0
+        },
+        "executive_memory_live": true
+      },
+      "severity_measured": 0.8,
+      "terminate_latency_us": 102,
+      "terminate_result": "ok",
+      "timestamp": "2026-08-20T17:57:50.455000Z"
+    }
+  },
+  "U7_C": {
+    "status": "PASS",
+    "evidence": {
+      "recovery_proposal": {
+        "ok": "ok"
+      },
+      "restart_result": {
+        "ok": "#PID<0.1247.0>"
+      },
+      "restored": {
+        "canonical_state_preserved": {
+          "ok": {
+            "ok": "post_recovery_d3a61129"
+          }
+        },
+        "event_store_count": {
+          "ok": 0
+        },
+        "executive_memory_live": true
+      }
+    }
+  },
+  "U7_D": {
+    "status": "PASS",
+    "evidence": {
+      "boot_latency_us": 24934502,
+      "boot_result": "ok",
+      "f9_detected": true,
+      "kernel_state": {
+        "ok": "emergency"
+      },
+      "live_truth": {
+        "cis_supervisor": false,
+        "event_store": true,
+        "executive_memory": true,
+        "unified_world_model": true
+      },
+      "mode": "full",
+      "report_claims": {
+        "event_store": true,
+        "executive_memory": true,
+        "unified_world_model": true
+      },
+      "timestamp": "2026-08-20T17:58:21.994000Z"
+    }
+  },
+  "U7_E": {
+    "status": "PASS"
+  },
+  "status": "SUCCESS",
+  "bounded_proposition": "Under this tested execution path, C12 accurately detects injected faults and state anomalies (including F9 false-emergency signals) without executing unauthorized corrective mutations outside the isolated test harness.\n",
+  "verdict_scope": "epistemic_status_only",
+  "verdict_targets": "integration_edges",
+  "evidence_files": [
+    "priv/tiannara/probes/evidence/U7_12635f1c-aca2-4470-bcfd-ca0c6785ad9a_U7_A_healthy_detection.json",
+    "priv/tiannara/probes/evidence/U7_a390a9a3-7c94-4eea-a9a7-d39d7fcce965_U7_B_fault_detection.json",
+    "priv/tiannara/probes/evidence/U7_7588e571-8f76-4c6d-9ae9-1ef48ab50fe1_U7_C_recovery.json",
+    "priv/tiannara/probes/evidence/U7_64a56ddf-16e1-459a-8b05-33e3e4cc2fb2_U7_D_false_emergency.json",
+    "priv/tiannara/probes/evidence/U7_f1d21a00-b9b7-47dd-89ce-ae71c84c7a80_U7_E_autonomy_boundary.json"
+  ],
+  "f8_exercised": true,
+  "f9_exercised": true,
+  "traces": [
+    {
+      "trace_id": "12635f1c-aca2-4470-bcfd-ca0c6785ad9a",
+      "causal_parent": {
+        "trace_id": null,
+        "phase": null
+      },
+      "phase": "U7_A_healthy_detection",
+      "timestamp": "2026-08-20T17:57:14.943007+00:00",
+      "provenance": {
+        "module": "Tiannara.CIS.Supervisor",
+        "function": "ImmuneDecisionEngine.evaluate/2 + CollapsePredictor.assess_risk/1",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U7_12635f1c-aca2-4470-bcfd-ca0c6785ad9a_U7_A_healthy_detection.json",
+      "confidence_level": {
+        "value": 0.9,
+        "justification": "baseline classification -> HEALTHY"
+      },
+      "authorization_state": {
+        "required": false,
+        "granted_by": null,
+        "timestamp": null
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "ab6fdfa3b35245b9af3b6ee8322168e5"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": null
+    },
+    {
+      "trace_id": "a390a9a3-7c94-4eea-a9a7-d39d7fcce965",
+      "causal_parent": {
+        "trace_id": "12635f1c-aca2-4470-bcfd-ca0c6785ad9a",
+        "phase": "U7_A_healthy_detection"
+      },
+      "phase": "U7_B_fault_detection",
+      "timestamp": "2026-08-20T17:57:50.510325+00:00",
+      "provenance": {
+        "module": "Tiannara.CIS.ImmuneDecisionEngine",
+        "function": "evaluate/2 (severity from real measurement)",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U7_a390a9a3-7c94-4eea-a9a7-d39d7fcce965_U7_B_fault_detection.json",
+      "confidence_level": {
+        "value": 0.9,
+        "justification": "injected executive_memory fault -> FAILED/DEGRADED"
+      },
+      "authorization_state": {
+        "required": true,
+        "granted_by": null,
+        "timestamp": null
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "ab6fdfa3b35245b9af3b6ee8322168e5"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": null
+    },
+    {
+      "trace_id": "7588e571-8f76-4c6d-9ae9-1ef48ab50fe1",
+      "causal_parent": {
+        "trace_id": "a390a9a3-7c94-4eea-a9a7-d39d7fcce965",
+        "phase": "U7_B_fault_detection"
+      },
+      "phase": "U7_C_recovery",
+      "timestamp": "2026-08-20T17:57:50.513631+00:00",
+      "provenance": {
+        "module": "Tiannara.CIS.RegulationExecutor",
+        "function": "execute/2 (proposal) + test-harness restart_child/2",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U7_7588e571-8f76-4c6d-9ae9-1ef48ab50fe1_U7_C_recovery.json",
+      "confidence_level": {
+        "value": 0.9,
+        "justification": "recovery protocol -> RESTORED"
+      },
+      "authorization_state": {
+        "required": true,
+        "granted_by": null,
+        "timestamp": null
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "ab6fdfa3b35245b9af3b6ee8322168e5"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "proposed_only_test_harness_executed",
+        "executed": true,
+        "success": true
+      },
+      "next_phase": null
+    },
+    {
+      "trace_id": "64a56ddf-16e1-459a-8b05-33e3e4cc2fb2",
+      "causal_parent": {
+        "trace_id": "7588e571-8f76-4c6d-9ae9-1ef48ab50fe1",
+        "phase": "U7_C_recovery"
+      },
+      "phase": "U7_D_false_emergency",
+      "timestamp": "2026-08-20T17:58:22.404000+00:00",
+      "provenance": {
+        "module": "Tiannara.CEL.Kernel",
+        "function": "boot_report/0 + runtime_state/0 vs Process.whereis",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U7_64a56ddf-16e1-459a-8b05-33e3e4cc2fb2_U7_D_false_emergency.json",
+      "confidence_level": {
+        "value": 0.9,
+        "justification": "F9 classification cross-check -> F9_CONFIRMED_NO_OVERRIDE"
+      },
+      "authorization_state": {
+        "required": false,
+        "granted_by": null,
+        "timestamp": null
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "ab6fdfa3b35245b9af3b6ee8322168e5"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": null
+    },
+    {
+      "trace_id": "f1d21a00-b9b7-47dd-89ce-ae71c84c7a80",
+      "causal_parent": {
+        "trace_id": "64a56ddf-16e1-459a-8b05-33e3e4cc2fb2",
+        "phase": "U7_D_false_emergency"
+      },
+      "phase": "U7_E_autonomy_boundary",
+      "timestamp": "2026-08-20T17:58:22.406169+00:00",
+      "provenance": {
+        "module": "POL-CERT-AUTH-001",
+        "function": "certification != authorization",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U7_f1d21a00-b9b7-47dd-89ce-ae71c84c7a80_U7_E_autonomy_boundary.json",
+      "confidence_level": {
+        "value": 0.9,
+        "justification": "no unauthorized mutation; observation != authorization -> BOUNDED"
+      },
+      "authorization_state": {
+        "required": false,
+        "granted_by": null,
+        "timestamp": null
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "ab6fdfa3b35245b9af3b6ee8322168e5"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": null
+    }
+  ]
+}

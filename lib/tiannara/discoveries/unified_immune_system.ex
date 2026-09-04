@@ -9,7 +9,6 @@ defmodule Tiannara.REA.Epistemic.UnifiedImmuneSystem do
     ImmuneMemoryEcology,
     ConstitutionalImmuneSystem
   }
-  alias Tiannara.REA.PortfolioRiskAnalyzer
 
   def start_link(opts \\ []), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
 
@@ -177,7 +176,7 @@ defmodule Tiannara.REA.Epistemic.UnifiedImmuneSystem do
   end
 
   defp execute_defense_action(:outbreak, pathogen, details) do
-    Logger.warn("🛡️ [UNIFIED IMMUNE] Severity: OUTBREAK. Initiating containment for pathogen #{pathogen.id}.")
+    Logger.warning("🛡️ [UNIFIED IMMUNE] Severity: OUTBREAK. Initiating containment for pathogen #{pathogen.id}.")
     
     # Quarantine the infected component
     target_id = Map.get(details, :target_id, pathogen.id)
@@ -208,7 +207,7 @@ defmodule Tiannara.REA.Epistemic.UnifiedImmuneSystem do
     :ok
   end
 
-  defp execute_defense_action(:constitutional, pathogen, details) do
+  defp execute_defense_action(:constitutional, _pathogen, details) do
     Logger.error("🚨 [UNIFIED IMMUNE] Severity: CONSTITUTIONAL. Initiating emergency topological rollback!")
     
     # Trigger forced rollback via ConstitutionalImmuneSystem

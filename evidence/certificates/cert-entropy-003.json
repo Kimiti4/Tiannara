@@ -1,0 +1,15 @@
+{
+  "status": "valid",
+  "type": "entropy_stability",
+  "signature": "E55A9D141E4CBC5F01852FE0F4B1A3CA7379C1090D6986435DD5723C6E822316",
+  "metadata": {
+    "campaign": "gc_009_entropy_stability",
+    "std_dev": 0.03,
+    "measurements": 1000
+  },
+  "signed_at": "2026-07-02T19:26:12.337000Z",
+  "certificate_id": "cert-entropy-003",
+  "issued_at": "2026-07-02T19:26:12.337000Z",
+  "issuer": "GovernanceCertificationLaboratory",
+  "subject": "Entropy Stability Verification"
+}

@@ -1,0 +1,127 @@
+gate_id: "MC-003-M"
+parent_gate: "MC-003"
+campaign: "Tiannara Remediation + Substrate Integration"
+class: "MUTATION_TRUTHFULNESS"
+mode: "MUTATING"
+created_at: "2026-08-30"
+
+bounded_proposition: >
+  Real-execution truthfulness mutation (authorized M1-M8 subset; M5 excluded).
+  Fabricated runtime theater is decommissioned: VerificationAuthority returns
+  truthful non-passing results, CertificationServer stops pre-opening gates,
+  ExecutiveCycle stops posting fabricated status, CEL constant experiment steps
+  become explicitly unavailable, the autonomous cycle is gated so it reports
+  stage :simulation / result :not_available without fabricated success, ASC.Repair
+  releases become explicit uncertainty, generated ToolForge execution bodies
+  become not_implemented, SOPL deploy becomes a STAGED no-op, and RollbackEngine
+  stops fabricating rollbacks. Discovery finalizes confidence_delta from the
+  evidence confidence distribution instead of fixed constants. The sole real
+  execution gateway is Phase4.ExperimentOrchestrator.submit_experiment, gated by
+  the :real_execution_enabled feature flag: when OFF it returns
+  {:error, :real_execution_not_enabled} and when ON it routes through the real
+  execution substrate under the DeploymentGateway with HumanDelivery
+  authorization and records event_store execution_id. The flag remains FALSE in
+  this gate; no live real experiment is executed. M5 (os/ boot wiring) and the
+  live P16 real execution are out of scope for this gate.
+
+requires:
+  - "MC-003-A0 Reconciliation CERTIFIED (RECONCILIATION ONLY)"
+  - "MC-002-M CERTIFIED (BOUNDED)"
+  - "ASC-MC-003-M-REAL-EXECUTION-MUTATION.human.yaml status GRANTED"
+
+verifies:
+  - "verification_authority_truthful_non_passing"
+  - "certification_server_honest_evaluation_no_preopened_gates"
+  - "executive_cycle_stops_fabricated_status"
+  - "cel_constant_steps_explicitly_unavailable"
+  - "autonomy_orchestrator_gated_reporting"
+  - "asc_repair_releases_explicit_unavailable"
+  - "tool_forge_template_not_implemented"
+  - "sopl_deploy_staged_noop"
+  - "rollback_engine_explicit_unavailable"
+  - "discovery_confidence_delta_evidence_derived"
+  - "experiment_orchestrator_gateway_gated_by_flag"
+  - "approval_decide_routes_to_gateway"
+  - "real_execution_records_verification_evidence"
+  - "production_observatory_external_provider_gated"
+  - "httpoison_stub_removed"
+  - "no_live_real_experiment_executed"
+  - "real_execution_enabled_flag_stays_false"
+  - "m5_os_boot_wiring_untouched"
+
+forbids:
+  - "live_real_execution_in_gate"
+  - "flipping_real_execution_enabled"
+  - "m5_os_boot_wiring"
+  - "boot_of_os_or_tiannara_runtime_subsystems"
+  - "silent_unavailable_to_success"
+  - "silent_unavailable_to_failure"
+  - "fabricated_replacement_behavior"
+  - "fabricated_verification_evidence"
+  - "real_primitive_semantic_change"
+  - "revising_20_domain_ontology"
+  - "modifying_CanonicalRegistry"
+  - "AC-001_boundary_violation"
+  - "broad_refactor"
+  - "claiming_PASS_for_unexecuted_checks"
+  - "reintroducing_recovery_of_fabricated_autonomous_success"
+
+targets:
+  M1:
+    - "Tiannara.VerificationAuthority.verify/1 -> truthful non-passing Verification.Result"
+    - "Tiannara.Verification.Result.passed?/1 -> false when not independently verified"
+    - "Tiannara.Omega.CertificationServer.handle_info :experiment_completed -> honest Pipeline.evaluate"
+    - "Tiannara.Executive.Cognitive.ExecutiveCycle.execute_phase -> no fabricated status/valid posting"
+    - "Tiannara.CEL.Workflow.Steps.{Experiment,Observation,Validation}.execute -> {:error, {:unavailable, :real_step_provider_not_wired}}"
+  M2:
+    - "Tiannara.Phase4.ExperimentOrchestrator.submit_experiment/1 -> real-execution gateway gated by :real_execution_enabled"
+    - "Tiannara.Sentinel.Activation.Approval.decide(:approve, ...) -> route through orchestrator gateway"
+    - "event_store execution_id recording on real execution (only when flag ON)"
+  M3:
+    - "Tiannara.Discovery.DiscoveryScheduler.finalize_discovery -> confidence_delta derived from evidence confidence distribution"
+  M4:
+    - "real_execution records attach verification: %{harness, method: :real_sandbox} evidence"
+  M6:
+    - "Tiannara.Reality.ProductionObservatory.run_reconciliation_cycle -> provider-gated HTTP; {:unavailable, :no_external_provider} when absent"
+    - "lib/tiannara/stubs/httpoison.ex -> REMOVED"
+    - "RealityLedger.record_revenue no longer fed fabricated numbers"
+  M7:
+    - "Tiannara.Autonomy.RollbackEngine.rollback/2 -> {:error, :rollback_unavailable}"
+    - "staleness detection: real executions tracked with start time; timeout => stale + cancel"
+  M8:
+    - "Tiannara.Autonomy.ConstitutionalAutonomy.run_cycle -> gated; stage :simulation / result :not_available when real execution not enabled"
+    - "Tiannara.ASC.Repair.{SandboxValidator,CanaryReleaser,ProductionRollout}.* -> {:error, :unavailable}"
+    - "Tiannara.ToolForge.ToolBuilder generated do_execute -> {:error, :not_implemented}"
+    - "Tiannara.SOPL.EvolutionEngine.deploy/2 -> 'STAGED (not deployed)' log (no side effect)"
+
+epistemic_semantics:
+  Available: "capability actually executed and produced evidence"
+  Failed: "capability executed but failed"
+  Unavailable: "no truthful implementation exists in this configuration"
+  Unknown: "evidence insufficient"
+  Removed: "module no longer exists; access raises (truthful absence)"
+  Simulated: "explicitly simulated, never presented as real"
+  Pending: "authorized but requires a live execution grant (P16)"
+
+verdict_space: [CERTIFIED, CERTIFIED_BOUNDED, NOT_CERTIFIED]
+
+certification_boundary: >
+  Certification certifies the authorized M1-M8 subset of the real-execution
+  truthfulness mutation based on static verification, passing targeted
+  acceptance tests and the touched suites, and a clean compile. Bounded: the
+  live P16 real execution (P16-AT(b)) is NOT executed in this gate — it is
+  PENDING and requires a fresh explicit human grant plus the
+  :real_execution_enabled flag flipped true. The flag stays false, no boot of
+  os/ or tiannara_runtime/ subsystems occurs, and M5 remains out of scope. If a
+  full-suite regression cannot be executed in the environment, that gap is
+  recorded as NOT_EXECUTED, never as PASS.
+
+constitutional_basis:
+  - "Evidence Before Confidence"
+  - "Uncertainty should never be hidden"
+  - "Truth has priority over confidence"
+  - "Capability must never outpace verification"
+  - "Stable migration > broad rewrite"
+  - "Reuse > duplication"
+
+contract_hash: null

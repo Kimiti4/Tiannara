@@ -1,0 +1,74 @@
+gate_id: "MC-001"
+phase: "RECONCILIATION"
+campaign: "Tiannara Remediation + Substrate Integration"
+class: "EVIDENCE_COLLECTION"
+mode: "OBSERVATIONAL"
+created_at: "2026-08-27"
+
+bounded_proposition: >
+  All existing mathematical capabilities in the Tiannara repository are
+  inventoried from actual source, truth-classified, and assessed for substrate
+  readiness. Mathematics is confirmed as an epistemic substrate, not a canonical
+  domain. No fabricated mathematical capability is introduced. The mutation
+  boundary is preserved. Discovery readiness is honestly assessed.
+
+requires:
+  - "AC-001 FINAL CERTIFIED (BOUNDED)"
+  - "R0 CERTIFIED"
+
+forbids:
+  - "production_mutation"
+  - "mathematics_as_canonical_domain"
+  - "capability_fabrication"
+  - "theorem_claims_without_verification"
+  - "prompt_as_mathematical_infrastructure"
+  - "mock_as_implementation"
+  - "MC-002_work"
+  - "MC-003_work"
+  - "MC-004_work"
+
+sub_gates:
+  A0: "Pre-mutation reconciliation"
+  A1: "Capability inventory"
+  A2: "Truth classification"
+  A3: "Substrate architecture assessment"
+  A4: "Verification contract assessment"
+  A5: "Discovery readiness assessment"
+  A6: "Mutation plan proposal (no execution)"
+
+truth_classification:
+  - REAL
+  - PARTIAL
+  - STRUCTURAL
+  - THEATRICAL
+  - BROKEN
+  - DEAD
+  - DUPLICATE
+  - UNKNOWN
+
+discovery_readiness_answers:
+  - "YES — demonstrated by reproducible evidence"
+  - "PARTIALLY — specific bounded capability demonstrated"
+  - "NO — infrastructure absent"
+  - "UNKNOWN — evidence insufficient"
+
+certification_rules:
+  - "all discovered capabilities inventoried from source"
+  - "capabilities truth-classified"
+  - "substrate/domain boundary preserved"
+  - "claims evidence-mapped (file:line)"
+  - "verification gaps identified"
+  - "discovery readiness explicitly assessed"
+  - "no fabricated capability introduced"
+  - "mutation boundary preserved"
+
+verdict_space: [CERTIFIED, QUALIFIED_PARTIAL, NOT_CERTIFIED]
+
+certification_boundary: >
+  This reconciliation certifies the truth classification and inventory of
+  mathematical capabilities based on actual source inspection. It does NOT
+  certify that the mathematical substrate is complete, that autonomous
+  discovery exists, or that any production mutation is authorized. No
+  capability is asserted above its evidence.
+
+contract_hash: null

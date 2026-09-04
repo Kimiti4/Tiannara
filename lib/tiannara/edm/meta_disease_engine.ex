@@ -12,15 +12,15 @@ defmodule Tiannara.EDM.MetaDiseaseEngine do
     # Assess if the recent history displays pathology
     case detect_pathology(meta_action_history) do
       :optimization_mania ->
-        Logger.warn("🧬 [MetaDisease] #{civ_id} contracted Optimization Mania. Predictability rising, novelty crashing.")
+        Logger.warning("🧬 [MetaDisease] #{civ_id} contracted Optimization Mania. Predictability rising, novelty crashing.")
         apply_optimization_mania(civ_id)
 
       :mutation_addiction ->
-        Logger.warn("🧬 [MetaDisease] #{civ_id} contracted Mutation Addiction. Operator churn critical.")
+        Logger.warning("🧬 [MetaDisease] #{civ_id} contracted Mutation Addiction. Operator churn critical.")
         apply_mutation_addiction(civ_id)
 
       :recursive_self_reference ->
-        Logger.warn("🧬 [MetaDisease] #{civ_id} contracted Recursive Self-Reference. Meta-cognition loop detected.")
+        Logger.warning("🧬 [MetaDisease] #{civ_id} contracted Recursive Self-Reference. Meta-cognition loop detected.")
         apply_recursive_self_reference(civ_id)
 
       :healthy ->

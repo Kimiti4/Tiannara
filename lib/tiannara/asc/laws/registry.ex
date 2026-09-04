@@ -47,7 +47,7 @@ defmodule Tiannara.ASC.Laws.Registry do
 
   @spec established() :: [Law.t()]
   def established do
-    all() |> Enum.filter(&(&1.status == :established))
+    all() |> Enum.filter(&(&1.status == :established_law))
   end
 
   @spec candidates() :: [Law.t()]
@@ -145,7 +145,7 @@ defmodule Tiannara.ASC.Laws.Registry do
         persist(updated_law)
 
         # Promote to KG if newly established
-        if updated_law.status == :established and law.status != :established do
+        if updated_law.status == :established_law and law.status != :established_law do
           promote_to_knowledge_graph(updated_law)
         end
 
@@ -182,16 +182,18 @@ defmodule Tiannara.ASC.Laws.Registry do
     law = if project_id not in law.supporting_project_ids and project_id != "asc_transfer_ecology" do
       Law.update_confidence(law, :confirms, project_id)
     else
-      # Recalculate status directly for ecology laws based on exact counts if it's the sentinel
+      # Recalculate status directly for ecology laws based on exact counts if it's the sentinel.
+      # Promotion tiers are checked before :under_review so strong support never
+      # gets demoted to a review state on re-mint.
       n = law.support_count + law.contradiction_count
       status = cond do
-        law.confidence < 0.20                          -> :refuted
-        law.confidence >= 0.40 and law.confidence <= 0.60
-          and n >= 5                               -> :under_review
+        law.confidence < 0.20                              -> :refuted
         law.confidence >= 0.40 and law.support_count >= 500 -> :canonical_principle
         law.confidence >= 0.25 and law.support_count >= 100 -> :established_law
-        law.support_count >= 30                      -> :candidate_law
-        true                                       -> :candidate_pattern
+        law.support_count >= 30                            -> :candidate_law
+        law.confidence >= 0.40 and law.confidence <= 0.60
+          and n >= 5                                   -> :under_review
+        true                                           -> :candidate_pattern
       end
       %{law | status: status, last_updated_at: DateTime.utc_now()}
     end

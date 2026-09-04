@@ -11,10 +11,10 @@ defmodule Tiannara.DFG.MetaRealitySpawner do
     spawn(fn -> run_latent_loop(meta_id, latent_graph) end)
   end
 
-  defp run_latent_loop(meta_id, _latent_graph) do
+  defp run_latent_loop(meta_id, latent_graph) do
     receive do
       :shutdown -> Logger.info("🌐 [DFG] Meta-reality #{meta_id} dissolved.")
-      _ -> run_latent_loop(meta_id, _latent_graph)
+      _ -> run_latent_loop(meta_id, latent_graph)
     end
   end
 end

@@ -1,0 +1,156 @@
+{
+  "min_confidence": 0.4626719445032781,
+  "final_confidence": 0.4626719445032781,
+  "dependency_events": [
+    {
+      "events": 0,
+      "tick": 10000
+    },
+    {
+      "events": 450,
+      "tick": 15000
+    },
+    {
+      "events": 450,
+      "tick": 20000
+    },
+    {
+      "events": 900,
+      "tick": 30000
+    },
+    {
+      "events": 900,
+      "tick": 40000
+    },
+    {
+      "events": 1350,
+      "tick": 50000
+    },
+    {
+      "events": 1350,
+      "tick": 60000
+    },
+    {
+      "events": 1800,
+      "tick": 70000
+    },
+    {
+      "events": 1800,
+      "tick": 80000
+    },
+    {
+      "events": 2250,
+      "tick": 85000
+    },
+    {
+      "events": 2250,
+      "tick": 90000
+    },
+    {
+      "events": 2250,
+      "tick": 100000
+    }
+  ],
+  "confidence_timeline": [
+    {
+      "tick": 10000,
+      "confidence": 0.8334719445033002
+    },
+    {
+      "tick": 15000,
+      "confidence": 0.6984719445032888
+    },
+    {
+      "tick": 20000,
+      "confidence": 0.6984719445032888
+    },
+    {
+      "tick": 30000,
+      "confidence": 0.6051719445032832
+    },
+    {
+      "tick": 40000,
+      "confidence": 0.6051719445032832
+    },
+    {
+      "tick": 50000,
+      "confidence": 0.5403719445032803
+    },
+    {
+      "tick": 60000,
+      "confidence": 0.5403719445032803
+    },
+    {
+      "tick": 70000,
+      "confidence": 0.4926719445032784
+    },
+    {
+      "tick": 80000,
+      "confidence": 0.4926719445032784
+    },
+    {
+      "tick": 85000,
+      "confidence": 0.4626719445032781
+    },
+    {
+      "tick": 90000,
+      "confidence": 0.4626719445032781
+    },
+    {
+      "tick": 100000,
+      "confidence": 0.4626719445032781
+    }
+  ],
+  "shock_events": [],
+  "max_confidence": 0.8334719445033002,
+  "recovery_velocities": [
+    {
+      "tick": 10000,
+      "velocity": 0.0
+    },
+    {
+      "tick": 15000,
+      "velocity": -0.13500000000001144
+    },
+    {
+      "tick": 20000,
+      "velocity": 0.0
+    },
+    {
+      "tick": 30000,
+      "velocity": -0.0933000000000056
+    },
+    {
+      "tick": 40000,
+      "velocity": 0.0
+    },
+    {
+      "tick": 50000,
+      "velocity": -0.06480000000000286
+    },
+    {
+      "tick": 60000,
+      "velocity": 0.0
+    },
+    {
+      "tick": 70000,
+      "velocity": -0.04770000000000191
+    },
+    {
+      "tick": 80000,
+      "velocity": 0.0
+    },
+    {
+      "tick": 85000,
+      "velocity": -0.030000000000000304
+    },
+    {
+      "tick": 90000,
+      "velocity": 0.0
+    },
+    {
+      "tick": 100000,
+      "velocity": 0.0
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "tc_312",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: create workflow engine",
+    "source_ref": "cap_310",
+    "test_module_name": "CreateWorkflowEngineTest",
+    "test_function_name": "test create workflow engine succeeds with valid inputs",
+    "expected_behavior": "create workflow engine completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  },
+  {
+    "id": "tc_313",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: cancel running workflows",
+    "source_ref": "cap_311",
+    "test_module_name": "CancelRunningWorkflowsTest",
+    "test_function_name": "test cancel running workflows succeeds with valid inputs",
+    "expected_behavior": "cancel running workflows completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

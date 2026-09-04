@@ -35,7 +35,7 @@ defmodule Tiannara.ASC.Crucible.TransferAdaptation do
   applies adaptation strategies, and validates adapted repairs.
   """
 
-  alias Tiannara.ASC.Crucible.{FailureClassifier, RepairLibrary}
+  alias Tiannara.ASC.Crucible.FailureClassifier
   alias Tiannara.ASC.Crucible.TransferAdaptation.AdaptationRecord
 
   @doc """

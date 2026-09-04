@@ -1,0 +1,49 @@
+authorization:
+  id: ASC-U1X-R2-GRAPH-REGISTRATION
+  mission: U1x-R2
+  action: register_capability_in_live_graph
+  status: PENDING_HUMAN_AUTHORIZATION      # the C14 key; do NOT auto-change
+
+  capability:
+    id: constitutional_mathematics
+    target_substrate: Tiannara.CEL.Services.CapabilityGraph   # LIVE graph, not stub
+    purpose: >
+      Register constitutional_mathematics into the SAME live CapabilityGraph used
+      for executive discovery, so CEL-2's certified provider is actually
+      discoverable by the canonical runtime. Certification-only intent.
+    module: Tiannara.Math.Probability
+    function: bayes_update
+    arity: 3
+
+  permitted_mutation:
+    target: CapabilityGraph
+    operation: register_capability
+    descriptor: [constitutional_mathematics]     # exactly one
+  prohibited_mutations:
+    - mathematics_implementation
+    - existing_capabilities
+    - production_topology
+    - capability_registry_stub                   # do NOT touch the stub
+    - direct_provider_routing
+
+  governance:
+    required: true
+    authority: C14
+    purpose: U1x-R2_positive_math_discovery
+    on_deny: BLOCKED
+
+  rationale: >
+    CEL-2 registered into the stub CapabilityRegistry; the live discovery
+    substrate is CapabilityGraph. Registration into the live graph is a mutation
+    and requires C14. This does NOT modify bayes_update/3.
+
+  human_authorization:
+    status: PENDING_HUMAN_AUTHORIZATION
+    authorized_by: null
+    signature: null
+    timestamp: null
+
+  audit_trail:
+    lineage:
+      - "U1x-R2 HARNESS_WIRING_FAILURE (CapabilityRegistry not started)"
+      - "Topology finding: CEL-2 registration targeted stub, not live graph"

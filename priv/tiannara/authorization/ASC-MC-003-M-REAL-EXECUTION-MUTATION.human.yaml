@@ -1,0 +1,100 @@
+authorization:
+  id: "ASC-MC-003-M-REAL-EXECUTION-MUTATION"
+  mission: "Tiannara Remediation + Substrate Integration Campaign"
+  gate: "MC-003-M"
+  action: "real_execution_truthfulness_mutation"
+  status: "GRANTED"
+
+  scope:
+    description: >
+      Real-execution truthfulness mutation for MC-003, executing the authorized
+      subset of the documented M1-M8 mutation plan (certification/remediation/
+      MC003-A0-MUTATION-PLAN.md) that does NOT require flipping optional feature
+      flags or booting new subsystems. Human operator authorized the truth-first
+      decommissioning of fabricated runtime theater, evidence-derived discovery
+      uncertainty, provenance enforcement, and the wiring of the Phase-4
+      experiment submission surface to the REAL execution substrate. M5 (os/
+      UnknownRegistry boot wiring) is NOT authorized and remains out of scope for
+      this gate. The feature flag :real_execution_enabled stays FALSE; no live
+      real experiment is executed within this gate. Phase-16 live execution
+      certification (P16-AT(b)) requires a fresh explicit human grant.
+
+  authorized_actions:
+    - "M1: VerificationAuthority.verify -> truthful non-passing Verification.Result (no fabricated reproduced/regression)"
+    - "M1: CertificationServer.handle_info :experiment_completed -> honest Certification.Pipeline evaluation (no pre-opened :gate_open)"
+    - "M1: ExecutiveCycle -> stop posting fabricated status: :executed/valid true; keep phase machine + :ok advance"
+    - "M1: CEL constant steps (Experiment/Observation/Validation) -> {:error, {:unavailable, :real_step_provider_not_wired}}"
+    - "M2: Phase4.ExperimentOrchestrator.submit_experiment -> sole real-execution gateway gated by :real_execution_enabled; when OFF return {:error, :real_execution_not_enabled}; when ON use real execution substrate under DeploymentGateway + HumanDelivery authorization, record event_store execution_id"
+    - "M2: Sentinel Approval.decide(:approve) -> route to the Phase-4 orchestrator gate (no direct Tiannara.Sandbox.execute)"
+    - "M2: register/start the real execution path only when :real_execution_enabled (boot stays passive; config NOT flipped in this gate)"
+    - "M3: DiscoveryScheduler.finalize_discovery -> confidence_delta derived from evidence confidence distribution (no fixed 0.1/0.0)"
+    - "M4: real execution records attach verification: %{harness:, method: :real_sandbox} evidence from the substrate"
+    - "M6: ProductionObservatory -> gate HTTP behind a real provider config; no provider => {:unavailable, :no_external_provider}; stop feeding RealityLedger fabricated revenue"
+    - "M6: delete lib/tiannara/stubs/httpoison.ex (no hex dependency; only observatory caller, whose calls are gated)"
+    - "M7: RollbackEngine -> {:error, :rollback_unavailable} (no fabricated rollback); staleness detection for real executions (track start, timeout => stale + cancel)"
+    - "M8: ConstitutionalAutonomy orchestrator -> gate autonomous cycle behind real execution enablement; report stage :simulation, result :not_available without fabricated success"
+    - "M8: ASC.Repair validate/release/rollout -> {:error, :unavailable}"
+    - "M8: ToolForge generated template do_execute -> {:error, :not_implemented}"
+    - "M8: SOPL EvolutionEngine deploy -> log 'STAGED (not deployed)' (no deployment side effect)"
+    - "Update the enumerated regression tests to assert truthful behavior"
+    - "Produce MC-003-M certification artifacts and independent verifier"
+
+  prohibited:
+    - "Flipping :real_execution_enabled to true or running any live real experiment"
+    - "Executing M5 (os/ boot wiring) or any subsystem boot wiring not already active"
+    - "Starting recovery of the fabricated simulation loop (autonomous success reporting)"
+    - "Silently converting unavailable -> success or unavailable -> failure"
+    - "Fabricating verification/compilation/execution evidence"
+    - "Changing real primitive contracts (Engine API, Sentinel evidence links, aggregator interfaces, WorldModel, WorkflowEngine, KnowledgeCoordinator, CapabilityGraph, Council)"
+    - "Modifying the canonical 20-domain ontology or CanonicalRegistry / AC-001 boundaries"
+    - "Modifying unrelated domain code beyond the authorized M1-M8 targets"
+    - "Broad rewrites or unrelated cleanup"
+    - "Claiming PASS for unexecuted checks"
+
+  predecessor_gates:
+    - "R0: CERTIFIED"
+    - "AC-001 FINAL: CERTIFIED (BOUNDED)"
+    - "MC-001 Reconciliation: CERTIFIED"
+    - "MC-001-M: CERTIFIED (BOUNDED)"
+    - "MC-002-A0 Reconciliation: CERTIFIED"
+    - "MC-002-M: CERTIFIED (BOUNDED)"
+    - "MC-003-A0 Reconciliation: CERTIFIED (RECONCILIATION ONLY)"
+
+  governance:
+    required: true
+    authority: "C14"
+    policy: "POL-CERT_AUTH_001"
+    purpose: "Real-execution truthfulness remediation (authorized M1-M8 subset; M5 excluded)"
+    on_deny: "BLOCKED"
+
+  certification_contract:
+    path: "priv/tiannara/remediation/contracts/MC003_M_real_execution_mutation.contract.yaml"
+    hash: null
+
+  human_authorization:
+    status: "GRANTED"
+    operator_id: "c14_ac"
+    signature: "authorized"
+    timestamp: "2026-08-30"
+    conditions_accepted: true
+    notes: >
+      Human operator authorized MC-003-M following delivery of the MC-003-A0
+      reconciliation report. The authorized scope is the mutation plan's M1-M8
+      truth-first mutations with M5 (os/ boot wiring) explicitly out of scope.
+      No live real execution is authorized inside this gate; the P16 real
+      experiment will be executed only under a fresh explicit human grant with
+      :real_execution_enabled flipped true.
+
+  valid_until: null
+
+  audit_trail:
+    created_by: "tiannara_os"
+    creation_timestamp: "2026-08-30T00:00:00Z"
+    lineage:
+      - "R0 CERTIFIED"
+      - "AC-001 FINAL CERTIFIED (BOUNDED)"
+      - "MC-001 Reconciliation CERTIFIED"
+      - "MC-001-M CERTIFIED (BOUNDED)"
+      - "MC-002-A0 Reconciliation CERTIFIED"
+      - "MC-002-M CERTIFIED (BOUNDED)"
+      - "MC-003-A0 Reconciliation CERTIFIED (RECONCILIATION ONLY)"

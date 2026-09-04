@@ -1,0 +1,183 @@
+{
+  "status": "PARTIAL_FAILURE",
+  "payload_hash": "e8685a073040186157d71865a6af330f80945fdc022d9f462c4fb56eba480c26",
+  "traces": [
+    {
+      "trace_id": "32b25a3d-7810-47b6-a561-6719a173f4af",
+      "causal_parent": {
+        "trace_id": null,
+        "phase": null
+      },
+      "phase": "perception",
+      "timestamp": "2026-08-20T05:01:32.374721+00:00",
+      "provenance": {
+        "module": "Tiannara.Sentinel.Activation.Event",
+        "function": "new/1 + Engine.process/1",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U1_32b25a3d-7810-47b6-a561-6719a173f4af_perception.json",
+      "confidence_level": {
+        "value": 0.95,
+        "justification": "Real module transition succeeded"
+      },
+      "authorization_state": {
+        "required": false,
+        "granted_by": null,
+        "timestamp": "2026-08-20T05:01:32.374738+00:00"
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "e8685a073040186157d71865a6af330f80945fdc022d9f462c4fb56eba480c26"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": "reality_model"
+    },
+    {
+      "trace_id": "9263d3ba-4a29-413e-aeb6-03fc94dac82e",
+      "causal_parent": {
+        "trace_id": "32b25a3d-7810-47b6-a561-6719a173f4af",
+        "phase": "perception"
+      },
+      "phase": "reality_model",
+      "timestamp": "2026-08-20T05:01:32.376452+00:00",
+      "provenance": {
+        "module": "Tiannara.Graph.UnifiedRealityGraph",
+        "function": "add_node/3",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U1_9263d3ba-4a29-413e-aeb6-03fc94dac82e_reality_model.json",
+      "confidence_level": {
+        "value": 0.0,
+        "justification": "Real module transition failed"
+      },
+      "authorization_state": {
+        "required": false,
+        "granted_by": null,
+        "timestamp": "2026-08-20T05:01:32.376475+00:00"
+      },
+      "outcome": {
+        "status": "failure",
+        "payload_hash": "e8685a073040186157d71865a6af330f80945fdc022d9f462c4fb56eba480c26"
+      },
+      "failure_state": {
+        "detected": true,
+        "error_class": "phase_error",
+        "severity": "medium"
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": "knowledge_storage"
+    },
+    {
+      "trace_id": "6dca5c3b-3846-4f34-a7ef-21c35a348b8a",
+      "causal_parent": {
+        "trace_id": "9263d3ba-4a29-413e-aeb6-03fc94dac82e",
+        "phase": "reality_model"
+      },
+      "phase": "knowledge_storage",
+      "timestamp": "2026-08-20T05:01:32.378472+00:00",
+      "provenance": {
+        "module": "Tiannara.Memory.KnowledgeStore",
+        "function": "open/1 + append/2",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U1_6dca5c3b-3846-4f34-a7ef-21c35a348b8a_knowledge_storage.json",
+      "confidence_level": {
+        "value": 0.95,
+        "justification": "Real module transition succeeded"
+      },
+      "authorization_state": {
+        "required": false,
+        "granted_by": null,
+        "timestamp": "2026-08-20T05:01:32.378493+00:00"
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "e8685a073040186157d71865a6af330f80945fdc022d9f462c4fb56eba480c26"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": "epistemic_tagging"
+    },
+    {
+      "trace_id": "13a9ac78-14dc-4300-876f-ed970b14ca5c",
+      "causal_parent": {
+        "trace_id": "6dca5c3b-3846-4f34-a7ef-21c35a348b8a",
+        "phase": "knowledge_storage"
+      },
+      "phase": "epistemic_tagging",
+      "timestamp": "2026-08-20T05:01:32.379586+00:00",
+      "provenance": {
+        "module": "Tiannara.Epistemic.Node",
+        "function": "struct + View.render_node/1",
+        "commit_hash": "HEAD"
+      },
+      "evidence_ref": "priv/tiannara/probes/evidence/U1_13a9ac78-14dc-4300-876f-ed970b14ca5c_epistemic_tagging.json",
+      "confidence_level": {
+        "value": 0.95,
+        "justification": "Real module transition succeeded"
+      },
+      "authorization_state": {
+        "required": false,
+        "granted_by": null,
+        "timestamp": "2026-08-20T05:01:32.379606+00:00"
+      },
+      "outcome": {
+        "status": "success",
+        "payload_hash": "e8685a073040186157d71865a6af330f80945fdc022d9f462c4fb56eba480c26"
+      },
+      "failure_state": {
+        "detected": false,
+        "error_class": null,
+        "severity": null
+      },
+      "recovery_behavior": {
+        "action": "none",
+        "executed": false,
+        "success": true
+      },
+      "next_phase": null
+    }
+  ],
+  "evidence_files": [
+    "priv/tiannara/probes/evidence/U1_32b25a3d-7810-47b6-a561-6719a173f4af_perception.json",
+    "priv/tiannara/probes/evidence/U1_9263d3ba-4a29-413e-aeb6-03fc94dac82e_reality_model.json",
+    "priv/tiannara/probes/evidence/U1_6dca5c3b-3846-4f34-a7ef-21c35a348b8a_knowledge_storage.json",
+    "priv/tiannara/probes/evidence/U1_13a9ac78-14dc-4300-876f-ed970b14ca5c_epistemic_tagging.json"
+  ],
+  "verification": {
+    "lineage_chain_intact": true,
+    "payload_hash_consistent": true,
+    "evidence_files_written": 4,
+    "elixir_lineage_chain_verified": true,
+    "shadow_world_model": {
+      "error": "exit :exit: {:noproc, {GenServer, :call, [Tiannara.World.UnifiedWorldModel, {:get_entity, \"repo_tiannara\"}, 5000]}}"
+    },
+    "phase_ok": {
+      "perception": true,
+      "reality_model": false,
+      "knowledge_storage": true,
+      "epistemic_tagging": true
+    }
+  }
+}

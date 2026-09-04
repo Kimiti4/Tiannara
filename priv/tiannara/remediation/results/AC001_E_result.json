@@ -1,0 +1,48 @@
+{
+  "gate_id": "AC-001-E",
+  "class": "SEMANTIC_CLOSURE",
+  "campaign": "Tiannara Remediation + Substrate Integration",
+  "verdict": "CERTIFIED",
+  "issued_at": "2026-08-27",
+  "authorizer": "c14_ac",
+  "sub_gates": {
+    "E1": {
+      "status": "PASS",
+      "orphan_count": 0,
+      "computer_science_removed": true,
+      "canonical_domains": 20,
+      "infrastructure_modules_accounted": 11
+    },
+    "E2": {
+      "status": "PASS",
+      "science_code_occurrences_remaining": 0,
+      "science_reclassified_to_methodology": 6,
+      "science_reclassified_to_physics": 4,
+      "science_reclassified_to_engineering": 6,
+      "documentation_preserved": 4
+    },
+    "E3": {
+      "status": "PASS",
+      "mathematics_code_occurrences_remaining": 0,
+      "mathematics_reclassified_to_computation": 21,
+      "mathematics_substrate_label_preserved": 1,
+      "logic_non_domain_roles_only": true,
+      "cs_removed": true,
+      "verifier_caught_program_registry_876": "domain_id :mathematics -> :computation at E4"
+    },
+    "E4": {
+      "status": "PASS",
+      "domain_count": 20,
+      "excluded_atoms_in_domains": [],
+      "fake_domain_modules": 0,
+      "closure_verified": true
+    }
+  },
+  "evidence": {
+    "compile": "PASS",
+    "static_scan": "documentation_and_substrate_only",
+    "orphan_inventory": "zero_unclassified",
+    "ontology_closure": "20_of_20",
+    "authorization": "ASC-AC-001-E-ORPHAN-RECLASSIFICATION.human.yaml"
+  }
+}

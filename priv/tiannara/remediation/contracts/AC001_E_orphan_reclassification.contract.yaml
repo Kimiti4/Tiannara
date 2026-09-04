@@ -1,0 +1,69 @@
+gate_id: "AC-001-E"
+parent_gate: "AC-001"
+campaign: "Tiannara Remediation + Substrate Integration"
+class: "SEMANTIC_CLOSURE"
+mode: "AUTHORIZED_MUTATION"
+
+bounded_proposition: >
+  The canonical 20-domain ontology is closed. Orphans are resolved,
+  `:cs` is fully merged into `:computation` with no dead stub remaining,
+  and every `:science`/`:mathematics`/`:logic` occurrence surviving in
+  lib/ is classified by semantic context. Domain-identity misuse is
+  reclassified to a canonical domain or internal `:methodology` role;
+  legitimate substrate, methodology, and documentation references are
+  preserved verbatim. No fake domain modules are created. E is a semantic
+  closure gate, not a textual cleanup gate.
+
+requires:
+  - "AC-001-A (CERTIFIED)"
+  - "AC-001-B (CERTIFIED)"
+  - "AC-001-C1 (CERTIFIED)"
+  - "AC-001-D (CERTIFIED)"
+
+forbids:
+  - "broad_semantic_rewrite_for_clean_grep"
+  - "mechanical_global_replacement"
+  - "creation_of_fake_domain_modules"
+  - "new_orphan_modules"
+  - "retention_of_cs_as_domain_identity"
+  - "fabricated_domain_boundaries"
+
+required_evidence:
+  - "orphan_inventory_zero_unclassified"
+  - "computer_science_removed"
+  - "semantic_classification_ledger"
+  - "science_reclassification"
+  - "mathematics_reclassification"
+  - "logic_classification"
+  - "ontology_closure_20"
+  - "compile_success"
+  - "static_scan_documentation_only"
+
+sub_gates:
+  E1: "Orphan inventory and resolution"
+  E2: ":science semantic reclassification"
+  E3: ":mathematics semantic reclassification"
+  E4: "Canonical ontology closure verification"
+
+verdict_space: [CERTIFIED, QUALIFIED_PARTIAL, NOT_CERTIFIED, BLOCKED]
+
+certified_requires:
+  - "zero unclassified or unresolved orphans in the domain module tree"
+  - "ComputerScience module removed with no registered binding loss"
+  - "every code occurrence of :science reclassified to canonical domain or :methodology"
+  - "every code occurrence of :mathematics reclassified to :computation or preserved as substrate label"
+  - ":logic classified and confined to non-domain roles (operators, failure taxonomy, vocabulary)"
+  - "no fake domain modules created"
+  - "compile PASS"
+  - "static scan confirms only documentation/substrate references remain"
+  - "authorization/hash valid"
+  - "reclassification ledger complete"
+
+constitutional_basis:
+  - "Truth Before Apparent Capability"
+  - "Evidence Before Confidence"
+  - "Reuse Over Duplication"
+  - "Stable Migration Over Broad Rewrite"
+  - "Verification Over Autonomy"
+
+contract_hash: null

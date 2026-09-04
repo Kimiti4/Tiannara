@@ -1,0 +1,45 @@
+authorization:
+  id: "ASC-MC-003-A0-REAL-EXECUTION-RECONCILIATION"
+  gate: "MC-003-A0"
+  phase: "RECONCILIATION"
+  action: "real_execution_substrate_reconciliation"
+  class: "OBSERVATIONAL"
+
+  # Observational gate: read-only. No C14 signature is fabricated (POL-CERT_AUTH_001).
+  status: "OBSERVATIONAL_READ_ONLY"
+
+  human_authorization:
+    status: "NOT_REQUIRED_FOR_READ_ONLY"
+    operator_id: null
+    signature: null          # NOT fabricated
+    timestamp: null
+
+  permitted:
+    - "repository reads"
+    - "static searches"
+    - "source inspection"
+    - "AST/dependency analysis"
+    - "test inventory"
+    - "read-only execution"
+
+  prohibited:
+    - "any production mutation"
+    - "creating an execution engine"
+    - "implementing missing execution capabilities"
+    - "replacing theatrical implementations"
+    - "expanding P16 into general autonomous agency"
+    - "any authorization fabrication"
+    - "creating a fake verifier"
+
+  predecessor_gates:
+    - "MC-002-M: CERTIFIED (BOUNDED)"
+    - "MC-002-A0: CERTIFIED (RECONCILIATION ONLY)"
+    - "AC-001 FINAL: CERTIFIED (BOUNDED)"
+    - "R0: OPEN-CRITICAL (fabricated-evidence loop acknowledged)"
+
+  note: >
+    Reconciliation is observational; it performs no writes to production source,
+    tests, supervision, config, or ontology. It creates ONLY the certification
+    artifacts enumerated in the MC-003-A0 protocol. MC-003 (P16) mutation is a
+    separate gate and requires explicit human authorization; this record opens
+    no mutation gate.

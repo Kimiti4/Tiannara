@@ -1,0 +1,37 @@
+{
+  "verdict": "CERTIFIED",
+  "checks": {
+    "R1": true,
+    "R2": true,
+    "R3": true,
+    "R4": true,
+    "R5": true,
+    "R6": true,
+    "R7": true,
+    "R8": true,
+    "R9": true,
+    "R10": true,
+    "R11": true,
+    "R12": true,
+    "R13": true,
+    "R14": true,
+    "R15": true,
+    "R16": true,
+    "R17": true,
+    "R18": true,
+    "R19": true,
+    "R20": true,
+    "R21": true,
+    "R22": true,
+    "R23": true
+  },
+  "lineage_problems": [],
+  "trace_hash": "3b6a9e3539097466b52d5ed1938ad9e2c3f4b463155f188af70a2fce1f8e955c",
+  "contract_hash": "3f14e669726db272a0dadf19e8b32796763e1b95575d6e23e1db7d6637d6cdda",
+  "bounded_claim": "The unified Tiannara organism loop remains causally closed when Constitutional Mathematics v1 participates as a foundational substrate consumed by C4/C8/C14/CEL, with mathematics causally integrated into perception \u2192 knowledge \u2192 reasoning \u2192 governance \u2192 executive delegation \u2192 adaptation \u2192 homeostasis \u2192 continuity.\n",
+  "post_certification_claim": "On CERTIFIED: \"Tiannara is not merely a unified system with a mathematics capability; its mathematical substrate participates causally in perception \u2192 knowledge \u2192 reasoning \u2192 governance \u2192 executive delegation \u2192 adaptation \u2192 homeostasis \u2192 continuity.\"\n",
+  "claims": {
+    "math_is_substrate": true,
+    "registry_fully_dynamic": false
+  }
+}

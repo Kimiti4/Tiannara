@@ -1,0 +1,109 @@
+{
+  "evidence": [
+    {
+      "id": "EVID-0001",
+      "claim": "Mathematics is partially implemented as a substrate but remains distributed.",
+      "source": [
+        "lib/tiannara/math/probability.ex",
+        "lib/tiannara/math/optimization.ex"
+      ],
+      "test": "N/A",
+      "runtime": "N/A",
+      "commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+      "observed": "Mathematical functions (e.g. Probability, Calculus) exist but are heavily embedded directly into core reasoners (e.g., engineering/optimization, twp/wavefunction_pruner.ex, world/belief_state.ex) rather than acting solely as an isolated substrate.",
+      "verdict": "PARTIAL"
+    },
+    {
+      "id": "EVID-0002",
+      "claim": "Logic is not implemented as a distinct substrate.",
+      "source": [
+        "lib/tiannara/reasoning/belief_systems.ex",
+        "lib/tiannara/core/world_model/causal_engine.ex"
+      ],
+      "test": "N/A",
+      "runtime": "N/A",
+      "commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+      "observed": "No module 'Tiannara.Logic' exists. Logical inference is distributed as behavior across CausalEngine, BeliefSystems, and Constraint engines.",
+      "verdict": "MISSING"
+    },
+    {
+      "id": "EVID-0003",
+      "claim": "Information is heavily implemented as a coherent substrate.",
+      "source": [
+        "lib/tiannara/world/provenance_engine.ex",
+        "lib/tiannara/provenance/discovery_ledger.ex",
+        "lib/tiannara/stabilization/olef/entropy_tracker.ex",
+        "lib/tiannara/memory/coherence_engine.ex"
+      ],
+      "test": "N/A",
+      "runtime": "N/A",
+      "commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+      "observed": "Robust systems for tracking entropy, provenance, causal history, and epoch sanity checks exist.",
+      "verdict": "IMPLEMENTED"
+    },
+    {
+      "id": "EVID-0004",
+      "claim": "Meta-Science Research Director performs scientific optimization algorithms.",
+      "source": [
+        "lib/tiannara/os/research_director.ex"
+      ],
+      "test": "N/A",
+      "runtime": "N/A",
+      "commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+      "observed": "The Research Director queries UnknownDependencyGraph to find bottlenecks, calculates priority scores (debt + critical + bottlenecks - penalty), and allocates resources. However, it operates on primarily heuristic metrics.",
+      "verdict": "IMPLEMENTED"
+    },
+    {
+      "id": "EVID-0005",
+      "claim": "Domain implementation contradicts architecture (Science/Math vs Physics/Chemistry).",
+      "source": [
+        "lib/tiannara/os/domain_registry.ex",
+        "lib/tiannara/domains/physics.ex"
+      ],
+      "test": "N/A",
+      "runtime": "N/A",
+      "commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+      "observed": "DomainRegistry hardcodes '@twenty_domains' including :science and :mathematics, while excluding :physics and :chemistry. Yet, 'lib/tiannara/domains/physics.ex' exists as a behaviour stub.",
+      "verdict": "CONTRADICTED"
+    },
+    {
+      "id": "EVID-0006",
+      "claim": "Domains act as stubs with hardcoded metrics rather than real research execution.",
+      "source": [
+        "lib/tiannara/domains/physics.ex",
+        "lib/tiannara/domains/medicine.ex"
+      ],
+      "test": "N/A",
+      "runtime": "N/A",
+      "commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+      "observed": "Domain implementations return hardcoded maps for metrics (e.g. active_hypotheses: 142) and empty lists for discovery/simulation.",
+      "verdict": "PLACEHOLDER"
+    },
+    {
+      "id": "EVID-0007",
+      "claim": "Phase 16 (Autonomous Constitutional Research) is partially implemented.",
+      "source": [
+        "lib/tiannara/os/research_director.ex",
+        "lib/tiannara/os/research_plan_result.ex"
+      ],
+      "test": "N/A",
+      "runtime": "N/A",
+      "commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+      "observed": "Research Director prioritizes unknowns and generates recommendations. But actual autonomous experimentation loops executing and returning knowledge are heavily stubbed (via the domain mocks).",
+      "verdict": "PARTIAL"
+    },
+    {
+      "id": "EVID-0008",
+      "claim": "World Model is architecturally split but unifies Reality Graph.",
+      "source": [
+        "lib/tiannara/world/unified_world_model.ex",
+        "lib/tiannara/world/unified_reality_graph.ex"
+      ],
+      "test": "N/A",
+      "runtime": "N/A",
+      "commit": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+      "observed": "Both UnifiedWorldModel and UnifiedRealityGraph exist alongside WorldStateSynchronizer, showing Phase 17 structures are implemented.",
+      "verdict": "IMPLEMENTED"
+    }
+  ]
+}

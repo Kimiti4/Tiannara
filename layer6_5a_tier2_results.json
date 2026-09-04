@@ -1,0 +1,61 @@
+{
+  "min_confidence": 0.7004065208412787,
+  "final_confidence": 0.7004065208412787,
+  "pre_shock_confidence": 0.712212460489562,
+  "post_shock_confidence": null,
+  "recovery_percentage": 0.0,
+  "recovery_time": null,
+  "shock_absorption": 1.7,
+  "dependency_events": [
+    {
+      "events": 0,
+      "tick": 2500,
+      "confidence": 0.8354065208412763
+    },
+    {
+      "events": 90,
+      "tick": 5000,
+      "confidence": 0.7004065208412787
+    },
+    {
+      "events": 90,
+      "tick": 7500,
+      "confidence": 0.7004065208412787
+    },
+    {
+      "events": 90,
+      "tick": 10000,
+      "confidence": 0.7004065208412787
+    },
+    {
+      "events": 90,
+      "tick": 12500,
+      "confidence": 0.7004065208412787
+    },
+    {
+      "events": 90,
+      "tick": 15000,
+      "confidence": 0.7004065208412787
+    },
+    {
+      "events": 90,
+      "tick": 17500,
+      "confidence": 0.7004065208412787
+    },
+    {
+      "events": 90,
+      "tick": 20000,
+      "confidence": 0.7004065208412787
+    },
+    {
+      "events": 90,
+      "tick": 22500,
+      "confidence": 0.7004065208412787
+    },
+    {
+      "events": 90,
+      "tick": 25000,
+      "confidence": 0.7004065208412787
+    }
+  ]
+}

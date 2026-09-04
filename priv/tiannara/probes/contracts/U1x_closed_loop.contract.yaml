@@ -1,0 +1,62 @@
+probe_id: "U1x_closed_loop"
+audit: "Unified Capability Certification"
+mode: "CERTIFICATION"            # auth-free, contract-bound
+class: "full_closed_loop"
+
+bounded_proposition: >
+  Under this tested execution path, a novel objective entering via C11 traverses
+  the unified cognitive substrate, is dynamically routed by CEL via the
+  CapabilityRegistry, passes constitutional governance, produces a monitored ASC
+  action, survives continuity validation, and yields a traceable dry-run egress —
+  with a continuous causal chain and no hardcoded routing.
+
+claims:
+  loop_closed:      "each phase output is the causally-relevant input to the next"
+  cel_bridge:       "CEL registry_query + selection appear inside the causal chain"
+  math_substrate:   "constitutional_mathematics discoverable via registry (reported, not gated)"
+
+# Ordered causal phases (the loop)
+phases_in_order:
+  - c11_ingress
+  - c1_perception
+  - c2_reality
+  - c3_knowledge
+  - c4_epistemics
+  - c5c6_reasoning
+  - c8_context
+  - c14_governance
+  - cel_discovery        # must contain registry_query + selection
+  - c9_asc
+  - c12_homeostasis
+  - c15_continuity
+  - c11_egress
+
+sub_tests:
+  U1x_A:
+    objective_descriptor: "capability_engineering"
+    expected_provider: "asc"
+    required_for_pass: true
+  U1x_B:
+    objective_descriptor: "constitutional_mathematics"
+    required_for_pass: false      # reports MATH_DISCOVERABLE or MATH_NOT_REGISTERED
+
+# Certification bounds (POL-CERT-AUTH-001)
+production_mutation_allowed: false
+external_mutations_allowed: false
+egress_mode: "dry_run"
+canonical_topology_attach_allowed: true
+isolated_test_namespace_allowed: true
+no_pollution_required: true
+production_adoption_allowed: false
+test_registry_entry_injection_allowed: false   # must NOT register math just to pass
+
+declared_side_effects:
+  - evidence_artifacts
+  - certification_records
+  - temporary_probe_state
+  - isolated_namespace_write_and_cleanup
+
+verdict_scope: "epistemic_status_only"
+verdict_targets: "integration_edges"
+
+contract_hash: "de944edb05d0084046b2bd06109311ce778022519dd081eddff5a02b144ede05"

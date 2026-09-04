@@ -1,0 +1,21 @@
+{
+  "phase": "perception",
+  "trace_id": "ba71a1e6-fda1-465c-939e-e395369dbf7a",
+  "ok": true,
+  "chain_result": {
+    "payload_hash": "ff8604e9ad2981d2baafce012619cbc64d6303d8a0b577b23574429cf8636b67",
+    "pipeline": {
+      "ok": "%{priority: :ignore, event: %Tiannara.Sentinel.Activation.Event{id: \"u1_c4316eb0ff796f13\", timestamp: ~U[2026-08-20 03:10:46.435000Z], source: :probe_u1, category: :runtime, severity: :info, observation: \"{\\\"data\\\":{\\\"author\\\":\\\"researcher_42\\\",\\\"commit_hash\\\":\\\"HEAD\\\",\\\"files_changed\\\":3,\\\"message\\\":\\\"Add epistemic tracer module\\\"},\\\"entity_id\\\":\\\"repo_tiannara\\\",\\\"timestamp\\\":\\\"2026-08-20T03:09:20.537041+00:00\\\",\\\"type\\\":\\\"repository_commit\\\"}\", interpretation: \"Causal analysis pending for probe_u1\", confidence: 0.3, evidence: [], causal_links: [%{path: [:probe_u1, :causal_analysis_pending], confidence: 0.3, root_cause: \"Causal analysis pending for probe_u1\"}], recommended_actions: [], requires_human: false, metadata: %{payload_hash: \"ff8604e9ad2981d2baafce012619cbc64d6303d8a0b577b23574429cf8636b67\"}}, importance: 0.0, crav_triggered: :ok, proposal: nil, recommendations: []}"
+    },
+    "raw_json_observation": {
+      "error": "rescue: key \"data\" not found"
+    },
+    "shaped_event_contract": {
+      "ok": {
+        "category": "runtime",
+        "event_id": "u1_c4316eb0ff796f13"
+      }
+    }
+  },
+  "payload_hash": "ff8604e9ad2981d2baafce012619cbc64d6303d8a0b577b23574429cf8636b67"
+}

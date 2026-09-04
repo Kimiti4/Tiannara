@@ -1,0 +1,58 @@
+{
+  "constraints": [],
+  "capabilities": [
+    {
+      "id": "cap_339",
+      "name": "add products inventory",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "add",
+      "subject": "products inventory",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_340",
+      "name": "update stock quantities",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "update",
+      "subject": "stock quantities",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    },
+    {
+      "id": "cap_341",
+      "name": "list low-stock items",
+      "description": null,
+      "outputs": [],
+      "inputs": [],
+      "verb": "list",
+      "subject": "low-stock items",
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "actor": "unknown"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "inv_338",
+      "domain": "general",
+      "statement": "Stock quantity cannot be negative",
+      "negation_form": "Stock quantity cannot be negative",
+      "strength": "must",
+      "tags": [],
+      "source_fragment": "Stock quantity cannot be negative"
+    }
+  ],
+  "risks": [],
+  "acceptance_criteria": [],
+  "extracted_at": "2026-06-18T00:41:28.298000Z"
+}

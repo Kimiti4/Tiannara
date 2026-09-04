@@ -28,8 +28,8 @@ defmodule Tiannara.Sentinel.ImmuneCoordinator do
   end
 
   @impl true
-  def handle_cast({:triage, %{type: anomaly_type, subsystem: subsystem, details: details} = anomaly}, state) do
-    Logger.warn("🛡️ [SENTINEL] Triage initiated for #{anomaly_type} in #{subsystem}.")
+  def handle_cast({:triage, %{type: anomaly_type, subsystem: subsystem, details: _details} = anomaly}, state) do
+    Logger.warning("🛡️ [SENTINEL] Triage initiated for #{anomaly_type} in #{subsystem}.")
 
     # 1. Generate a proposed intervention strategy
     proposed_cure = generate_intervention_strategy(anomaly_type, anomaly)
@@ -77,7 +77,7 @@ defmodule Tiannara.Sentinel.ImmuneCoordinator do
   end
 
   defp escalate_to_quarantine(subsystem) do
-    Logger.warn("🛑 [SENTINEL] Escalating #{subsystem} to quarantine.")
+    Logger.warning("🛑 [SENTINEL] Escalating #{subsystem} to quarantine.")
     :ok
   end
 

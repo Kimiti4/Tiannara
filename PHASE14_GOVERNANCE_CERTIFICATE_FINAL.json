@@ -1,0 +1,97 @@
+{
+  "version": "14.0.999",
+  "phase": 14,
+  "generated_at": "2026-07-03T12:23:58.309000Z",
+  "evidence_closure": {
+    "reconstruction_successful": true,
+    "runtime_state_required": false,
+    "certificate_hash_match": true,
+    "manifest_hash_match": true
+  },
+  "multi_scale_determinism": {
+    "scale_10k": {
+      "iterations": 10000,
+      "entropy_stable": true,
+      "fitness_stable": true,
+      "overall_stable": true
+    },
+    "scale_1m": {
+      "iterations": 1000000,
+      "entropy_stable": true,
+      "fitness_stable": true,
+      "overall_stable": true,
+      "samples_collected": 100,
+      "elapsed_time_ms": 104
+    }
+  },
+  "phase_name": "Constitutional Meta-Governance",
+  "governance_version": "14.0.999",
+  "certificate_type": "constitutional_freeze",
+  "campaigns_executed": 12,
+  "campaigns_passed": 12,
+  "campaigns_failed": 0,
+  "certification_status": "certified",
+  "artifact_fingerprints": {
+    "certificate_sha256": "c5896ae455825a28b868591dba62f9a97fa024ae0adca3e1c8f2b2154528a6c9",
+    "manifest_sha256": "0d26c39a9e8bfba98ccbbb398bf4e62a2ae18da828039bceb3fa7785c658eed7"
+  },
+  "tier1_validation": {
+    "details": {
+      "cold_boot_reproducibility": "PASSED",
+      "multi_seed_verification": "PASSED",
+      "multi_scale_determinism": "PASSED",
+      "adversarial_mutation_testing": "PASSED",
+      "evidence_only_reconstruction": "PASSED",
+      "independent_artifact_audit": "PASSED"
+    },
+    "requirements_met": 6,
+    "requirements_total": 6,
+    "all_passed": true
+  },
+  "adversarial_robustness": {
+    "total_mutations_tested": 6,
+    "mutations_detected": 6,
+    "detection_rate": 1.0,
+    "all_detected": true
+  },
+  "independent_audit": {
+    "audit_passed": true,
+    "runtime_imports_used": false,
+    "constitutional_invariants_verified": {
+      "authority_enforcement": true,
+      "capability_conservation": true,
+      "entropy_stability": true,
+      "fitness_stability": true,
+      "institution_conservation": true,
+      "long_horizon_stability": true,
+      "no_drift": true,
+      "replay_determinism": true
+    }
+  },
+  "constitutional_invariants": {
+    "replay_determinism": true,
+    "authority_enforcement": true,
+    "capability_conservation": true,
+    "institution_conservation": true,
+    "no_drift": true,
+    "entropy_stability": true,
+    "fitness_stability": true,
+    "long_horizon_stability": true
+  },
+  "freeze_declaration": {
+    "frozen": true,
+    "frozen_at": "2026-07-03T12:23:58.309000Z",
+    "immutable": true,
+    "trustless_verification": true,
+    "evidence_based": true
+  },
+  "verification_instructions": [
+    "1. Load certificate.json and manifest.json from phase14/certification/",
+    "2. Compute SHA-256 hash of both files",
+    "3. Verify hashes match artifact_fingerprints in this certificate",
+    "4. Verify all 12 campaigns passed (campaigns_passed == 12)",
+    "5. Verify tier1_validation.all_passed == true",
+    "6. Verify freeze_declaration.frozen == true",
+    "7. No runtime code execution required - artifacts are self-sufficient"
+  ]
+}

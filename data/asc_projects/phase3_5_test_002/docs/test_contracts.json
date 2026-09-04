@@ -1,0 +1,62 @@
+[
+  {
+    "id": "tc_13",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: create user management",
+    "source_ref": "cap_9",
+    "tags": [],
+    "source_type": "capability",
+    "test_module_name": "CreateUserManagementTest",
+    "test_function_name": "test create user management succeeds with valid inputs",
+    "property_spec": null,
+    "expected_behavior": "create user management completes successfully with valid inputs",
+    "coverage_dimension": "capabilities"
+  },
+  {
+    "id": "tc_14",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: register new users",
+    "source_ref": "cap_10",
+    "tags": [],
+    "source_type": "capability",
+    "test_module_name": "RegisterNewUsersTest",
+    "test_function_name": "test register new users succeeds with valid inputs",
+    "property_spec": null,
+    "expected_behavior": "register new users completes successfully with valid inputs",
+    "coverage_dimension": "capabilities"
+  },
+  {
+    "id": "tc_15",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: list users by",
+    "source_ref": "cap_11",
+    "tags": [],
+    "source_type": "capability",
+    "test_module_name": "ListUsersTest",
+    "test_function_name": "test list users by succeeds with valid inputs",
+    "property_spec": null,
+    "expected_behavior": "list users by completes successfully with valid inputs",
+    "coverage_dimension": "capabilities"
+  },
+  {
+    "id": "tc_16",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: validate password strength",
+    "source_ref": "cap_12",
+    "tags": [],
+    "source_type": "capability",
+    "test_module_name": "ValidatePasswordStrengthTest",
+    "test_function_name": "test validate password strength succeeds with valid inputs",
+    "property_spec": null,
+    "expected_behavior": "validate password strength completes successfully with valid inputs",
+    "coverage_dimension": "capabilities"
+  }
+]

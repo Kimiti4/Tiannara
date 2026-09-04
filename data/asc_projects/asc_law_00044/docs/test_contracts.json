@@ -1,0 +1,40 @@
+[
+  {
+    "id": "tc_183",
+    "priority": "critical",
+    "status": "pending",
+    "type": "property",
+    "description": "Property: Roles cannot have circular dependencies",
+    "source_ref": "inv_181",
+    "test_module_name": "RolesCannotHaveInvariantTest",
+    "test_function_name": "property Roles cannot have circular dependencies",
+    "expected_behavior": "Roles cannot have circular dependencies",
+    "coverage_dimension": "invariants",
+    "property_spec": {
+      "domain": "security",
+      "generator": "StreamData.term()",
+      "assertion": "Roles cannot have circular dependencies",
+      "runs": 1000,
+      "shrink": true
+    },
+    "tags": [
+      "security"
+    ],
+    "source_type": "invariant"
+  },
+  {
+    "id": "tc_184",
+    "priority": "high",
+    "status": "pending",
+    "type": "unit",
+    "description": "Unit: check permissions before",
+    "source_ref": "cap_182",
+    "test_module_name": "CheckPermissionsBeforeTest",
+    "test_function_name": "test check permissions before succeeds with valid inputs",
+    "expected_behavior": "check permissions before completes successfully with valid inputs",
+    "coverage_dimension": "capabilities",
+    "property_spec": null,
+    "tags": [],
+    "source_type": "capability"
+  }
+]

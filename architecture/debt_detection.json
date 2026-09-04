@@ -1,0 +1,28 @@
+{
+  "architectural_debt": [
+    {
+      "id": "DEBT-001",
+      "subsystem": "SENTINEL",
+      "type": "Coupling",
+      "description": "High coupling between Sentinel and specific world simulation logic.",
+      "severity": "medium",
+      "remediation_cost": "low"
+    },
+    {
+      "id": "DEBT-002",
+      "subsystem": "CTL",
+      "type": "Complexity",
+      "description": "Causal timeline pruning logic is becoming overly complex and hard to audit.",
+      "severity": "high",
+      "remediation_cost": "medium"
+    },
+    {
+      "id": "DEBT-003",
+      "subsystem": "AEO",
+      "type": "Redundancy",
+      "description": "Redundant intent parsing in AEO and DomainCortex.",
+      "severity": "low",
+      "remediation_cost": "low"
+    }
+  ]
+}

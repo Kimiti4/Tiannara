@@ -1,0 +1,4 @@
+{"id":"trans1","timestamp":null,"source_domain":"engineering","target_domain":"robotics","transfer_success":0.85,"discovery_id":"structured_forgetting"}
+{"id":"trans2","timestamp":null,"source_domain":"cognition","target_domain":"governance","transfer_success":0.75,"discovery_id":"identity_sustained_regeneration"}
+{"id":"trans3","timestamp":null,"source_domain":"ecology","target_domain":"economics","transfer_success":0.8,"discovery_id":"scp_retention_boundary"}
+{"id":"trans4","timestamp":null,"source_domain":"computation","target_domain":"engineering","transfer_success":0.9,"discovery_id":"generative_orbit_equivalence"}

@@ -32,7 +32,7 @@ defmodule Tiannara.Core.WorldModel.BeliefSystem do
   end
 
   @doc "Update an existing belief's confidence."
-  def update_belief_confidence(belief_id, new_confidence, reason \\ nil) do
+  def update_belief_confidence(_belief_id, new_confidence, reason \\ nil) do
     update_data = %{
       confidence: new_confidence,
       last_verified: DateTime.utc_now()
@@ -283,98 +283,40 @@ defmodule Tiannara.Core.WorldModel.BeliefSystem do
 
   defp find_all_contradictions(beliefs) do
     belief_list = Map.values(beliefs)
-    
-    # Find direct contradictions (opposite statements)
-    direct_contradictions = find_direct_contradictions(belief_list)
-    
-    # Find conflicting beliefs about same topic
-    topic_conflicts = find_topic_conflicts(belief_list)
-    
-    # Combine all contradictions
-    direct_contradictions ++ topic_conflicts
-  end
 
-  defp find_direct_contradictions(beliefs) do
-    pairs = for b1 <- beliefs, b2 <- beliefs, b1.id != b2.id, reduce: [] do
-      acc ->
-        if are_direct_contradictions?(b1, b2) do
-          [{b1.id, b2.id} | acc]
-        else
-          acc
-        end
+    for b1 <- belief_list,
+        b2 <- belief_list,
+        b1.id != b2.id,
+        contradictory?(b1, b2) do
+      {b1.id, b2.id}
     end
-    
-    # Remove duplicates
-    pairs |> Enum.uniq()
-  end
-
-  defp find_topic_conflicts(beliefs) do
-    # Group beliefs by topic (simplified - just look for common keywords)
-    topic_groups = beliefs
-    |> Enum.group_by(&extract_topic(&1.statement))
-    
-    # Find conflicts within topics
-    topic_groups
-    |> Enum.flat_map(fn {topic, topic_beliefs} ->
-      if has_conflicting_confidences?(topic_beliefs) do
-        # Generate conflict pairs
-        for b1 <- topic_beliefs, b2 <- topic_beliefs, b1.id != b2.id, reduce: [] do
-          acc -> [{b1.id, b2.id} | acc]
-        end
-      else
-        []
-      end
-    end)
     |> Enum.uniq()
   end
 
   defp find_contradictions_with_belief(beliefs, new_belief) do
     belief_list = Map.values(beliefs)
-    
-    direct_contradiction = Enum.find(belief_list, fn belief ->
-      are_direct_contradictions?(new_belief, belief)
-    end)
-    
-    if direct_contradiction do
-      {new_belief.id, direct_contradiction.id}
-    else
-      nil
+
+    case Enum.find(belief_list, &contradictory?(new_belief, &1)) do
+      nil -> nil
+      belief -> {new_belief.id, belief.id}
     end
   end
 
-  defp are_direct_contradictions?(belief1, belief2) do
-    # Simple contradiction detection - look for opposite statements
-    statement1 = normalize_statement(belief1.statement)
-    statement2 = normalize_statement(belief2.statement)
-    
-    # Check for negation patterns
-    negation_patterns = ["not ", "no ", "never", "false", "incorrect"]
-    
-    Enum.any?(negation_patterns, fn pattern ->
-      String.contains?(statement1, pattern) && String.contains?(statement2, pattern)
-    end)
+  # Contradiction verdicts are delegated to the canonical kernel
+  # `Tiannara.Logic.Contradiction.detect/2` (archaeology §4). The previous
+  # negation-wording / keyword-counting heuristic was fabricated: it reported
+  # contradictions from free-text vocabulary overlap and confidence deltas
+  # without any structural claim evidence, so it is removed. Beliefs without
+  # structured `subject`/`value` fields resolve to the kernel's `:unknown`
+  # verdict — no contradiction is claimed, which truthfully drops those prior
+  # false positives.
+  defp contradictory?(b1, b2) do
+    Tiannara.Logic.Contradiction.detect(claim_from_belief(b1), claim_from_belief(b2)) ==
+      :contradiction
   end
 
-  defp extract_topic(statement) do
-    # Extract main topic from statement (simplified)
-    words = String.split(statement)
-    case words do
-      [first | _] when length(words) > 3 -> String.downcase(first)
-      _ -> String.downcase(statement)
-    end
-  end
-
-  defp has_conflicting_confidences?(beliefs) do
-    if length(beliefs) < 2 do
-      false
-    else
-      confidences = Enum.map(beliefs, & &1.confidence)
-      max_conf = Enum.max(confidences)
-      min_conf = Enum.min(confidences)
-      
-      # Consider conflicting if confidence difference is significant
-      max_conf - min_conf > 0.5
-    end
+  defp claim_from_belief(belief) do
+    %{subject: Map.get(belief, :subject), value: Map.get(belief, :value)}
   end
 
   defp find_related_beliefs(beliefs, statement) do

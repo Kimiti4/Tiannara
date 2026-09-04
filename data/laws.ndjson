@@ -1,0 +1,2 @@
+{"schema_version": 1, "law": "structured_forgetting", "status": "hypothesis", "confidence": 0.9193, "evidence": {"simulation_cycles": 100, "operational_cycles": 1}, "timestamp": "2026-06-10T16:30:00Z"}
+{"schema_version": 1, "law": "asymmetric_specialization", "status": "hypothesis", "confidence": 0.85, "evidence": {"simulation_cycles": 50, "operational_cycles": 0}, "timestamp": "2026-06-10T16:30:00Z"}

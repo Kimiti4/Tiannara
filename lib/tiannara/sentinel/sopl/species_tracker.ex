@@ -7,7 +7,6 @@ defmodule Tiannara.Sentinel.SOPL.SpeciesTracker do
   It answers cosmological queries like "Which species generates the healthiest epistemologies?"
   """
   require Logger
-  alias Tiannara.SOPL.LawSpecies
 
   @doc """
   Aggregates live telemetry from all universe instances belonging to a specific LawSpecies.

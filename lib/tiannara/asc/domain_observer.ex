@@ -20,7 +20,7 @@ defmodule Tiannara.ASC.DomainObserver do
   alias Tiannara.ASC.KnowledgeArchive
   alias Tiannara.ASC.KnowledgeArchive.Entry
 
-  @seed_domains [:computation, :cybernetics, :mathematics, :engineering, :software_engineering]
+  @seed_domains [:computation, :cybernetics, :engineering, :software_engineering]
   @subscribed_topics ["discoveries:software_engineering", "asc:research:domain_vectors"]
 
   # ---------------------------------------------------------------------------

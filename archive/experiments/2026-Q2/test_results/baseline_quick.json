@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-05-07T03:35:15.089660",
+  "total_domains": 8,
+  "working_domains": 8,
+  "results": {
+    "algorithm": {
+      "success_rate": 0.0,
+      "total_tests": 200,
+      "status": "NEEDS_IMPROVEMENT"
+    },
+    "combinatorial": {
+      "success_rate": 0.0,
+      "total_tests": 100,
+      "status": "NEEDS_IMPROVEMENT"
+    },
+    "causal": {
+      "success_rate": 0.0,
+      "total_tests": 100,
+      "status": "NEEDS_IMPROVEMENT"
+    },
+    "temporal": {
+      "status": "IMPORT_OK",
+      "note": "Import successful, full testing pending"
+    },
+    "re": {
+      "status": "IMPORT_OK",
+      "note": "Import successful, full testing pending"
+    },
+    "nlp": {
+      "status": "IMPORT_OK",
+      "note": "Import successful, full testing pending"
+    },
+    "logic": {
+      "status": "IMPORT_OK",
+      "note": "Import successful, full testing pending"
+    },
+    "prediction": {
+      "status": "IMPORT_OK",
+      "note": "Import successful, full testing pending"
+    }
+  }
+}

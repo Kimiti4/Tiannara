@@ -48,19 +48,19 @@ defmodule Tiannara.RealityAdmissionControl do
   end
 
   @doc "Run ACM (Adversarial Consistency Modeling) on conclusion"
-  def acm_consistency_check(challenged_conclusion) do
+  def acm_consistency_check(_challenged_conclusion) do
     # Can another ontology independently reach the same conclusion?
     {:consistency_check, "Comparing across ontologies"}
   end
 
   @doc "Run OAVL (Ontological Adversarial Validation Layer) on conclusion"
-  def oavl_semantic_challenge(challenged_conclusion) do
+  def oavl_semantic_challenge(_challenged_conclusion) do
     # Are the semantic assumptions sound under adversarial scrutiny?
     {:semantic_challenge, "Testing assumption soundness"}
   end
 
   @doc "Run UMSC (Uncertainty-aware Model Specification Checking) on conclusion"
-  def umsc_uncertainty_check(challenged_conclusion) do
+  def umsc_uncertainty_check(_challenged_conclusion) do
     # Are uncertainty bounds respected and explicitly tracked?
     {:uncertainty_check, "Validating uncertainty model"}
   end

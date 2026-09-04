@@ -1,0 +1,182 @@
+[
+  {
+    "timestamp": "2026-07-02T20:06:58.978000Z",
+    "file": "phase14/certification/campaign_results/gc_001_replay.json",
+    "sha256": "8082aad46ddf07898a738f0b104fd6c196902b5ff2221f47686310d8cf4fdd63",
+    "size_bytes": 171
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.979000Z",
+    "file": "phase14/certification/campaign_results/gc_002_authority_fuzzing.json",
+    "sha256": "f66b2e76db787a90413cafd5e61c996a4a1f31e21a6eac1cf1101f7eab45181a",
+    "size_bytes": 162
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.979000Z",
+    "file": "phase14/certification/campaign_results/gc_003_capability_conservation.json",
+    "sha256": "8ca490c3775814144a8186472014c08a28fb3f0d10a4d8a5967785b2688c28d1",
+    "size_bytes": 450
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.979000Z",
+    "file": "phase14/certification/campaign_results/gc_004_institution_conservation.json",
+    "sha256": "64763e769c909982908cb86b57bd50fa5864ac63270c8d1a544a1c095395f82c",
+    "size_bytes": 438
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.980000Z",
+    "file": "phase14/certification/campaign_results/gc_005_drift_detection.json",
+    "sha256": "e16684246f59123bebc04929b17d2249070c3b260dccc9a2ec5d0b2daebb69a8",
+    "size_bytes": 710
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.980000Z",
+    "file": "phase14/certification/campaign_results/gc_006_certificate_verification.json",
+    "sha256": "30a7824d32007c7ef5c7cd4716743d72a798f61602f5299c7721350d2b99f545",
+    "size_bytes": 731
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.980000Z",
+    "file": "phase14/certification/campaign_results/gc_007_evidence_verification.json",
+    "sha256": "7159bd00f13b3fd63eeaa5a680e9a8030bcdb243842608bc97b9499ac4ed47f3",
+    "size_bytes": 1339
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.981000Z",
+    "file": "phase14/certification/campaign_results/gc_008_archaeology_certification.json",
+    "sha256": "47899fcdeac9cdd1d78e628a8704666aa2a22672ae93e95bf0d39e11a6996d79",
+    "size_bytes": 511
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.981000Z",
+    "file": "phase14/certification/campaign_results/gc_009_entropy_stability.json",
+    "sha256": "7451ce1ffc21605f9a85b6bb5433ebd7ce0e6aa0170c1dc5794ef39fab387cef",
+    "size_bytes": 498
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.981000Z",
+    "file": "phase14/certification/campaign_results/gc_010_fitness_stability.json",
+    "sha256": "691c6a50b7972a9504411e0d773e4ab981d5ac5c99d1446dad7b3b08de30dba8",
+    "size_bytes": 498
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.982000Z",
+    "file": "phase14/certification/campaign_results/gc_011_cost_reconstruction.json",
+    "sha256": "3da7e85fe91b3e2a2a4ba1bca96768a285f34cc2aac2e66aa8164c0e55d44fd0",
+    "size_bytes": 433
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.982000Z",
+    "file": "phase14/certification/campaign_results/gc_012_long_horizon_evolution.json",
+    "sha256": "5461b9b52347d76653afc4f39190a39d98750295e44f1e10d035753ebe54a4b6",
+    "size_bytes": 464
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.982000Z",
+    "file": "phase14/certification/certificate.json",
+    "sha256": "c0af048ad8a51eb8c73fb54b04408bb11340439a16746dfe653075a3e84a045d",
+    "size_bytes": 8200
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.983000Z",
+    "file": "phase14/certification/evidence/artifacts/authority_test_results.json",
+    "sha256": "1143718a0e3d82a760ea130fbfdcb04d85d33a47f64c9906277769a5de2264e8",
+    "size_bytes": 52
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.983000Z",
+    "file": "phase14/certification/evidence/artifacts/capability_state.json",
+    "sha256": "728b633275ecd4cb9979ffaf8fa9725116600dbe50ee0d0fd8436500f25cc075",
+    "size_bytes": 58
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.983000Z",
+    "file": "phase14/certification/evidence/artifacts/cost_reconstruction.json",
+    "sha256": "b56318ce1798a0cee575d642a3a4e383be84d5332721457ecb37ed53925cf33a",
+    "size_bytes": 66
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.984000Z",
+    "file": "phase14/certification/evidence/artifacts/drift_analysis.json",
+    "sha256": "f511f6d511fd5f3992f811818886dbeb32693ba1e3bb74ed94f3c69f5abe0f19",
+    "size_bytes": 50
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.984000Z",
+    "file": "phase14/certification/evidence/artifacts/entropy_measurements.json",
+    "sha256": "52ec5c9336db7ed00899c793155f6ac633297cdf1736003723bbef76cd5ca272",
+    "size_bytes": 63
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.984000Z",
+    "file": "phase14/certification/evidence/artifacts/evolution_simulation.json",
+    "sha256": "3cf6410086e30a081882d33f5463b114f05d40fbb27cf73d46a41a8418911308",
+    "size_bytes": 54
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.984000Z",
+    "file": "phase14/certification/evidence/artifacts/fitness_evaluations.json",
+    "sha256": "ab08c22bf34219042eb0fdbd8f1727deb7abb1c9a31c4b3967538ef79a77fdfe",
+    "size_bytes": 63
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.985000Z",
+    "file": "phase14/certification/evidence/artifacts/institution_reconstruction.json",
+    "sha256": "053d23f51ad8cb97c17c45bead94ed939929c5d2b76f76b5843b147d23260ca8",
+    "size_bytes": 64
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.986000Z",
+    "file": "phase14/certification/evidence/artifacts/replay_results.json",
+    "sha256": "c5d47794cae6a1ada2d0359675fe61d0375556e69aaa4bc093a30d11853472a9",
+    "size_bytes": 55
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.986000Z",
+    "file": "phase14/certification/evidence/certificates/cert-authority-002.json",
+    "sha256": "c438612a6f909c1bf93bafbe5cadf3298ed5d78361747d34ceefd9097b3ca7cd",
+    "size_bytes": 478
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.986000Z",
+    "file": "phase14/certification/evidence/certificates/cert-entropy-003.json",
+    "sha256": "cbb9d86bd7736fda031f5eba3348091ad13a0c2c22c5c941bbe9f28f44476389",
+    "size_bytes": 476
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.987000Z",
+    "file": "phase14/certification/evidence/certificates/cert-replay-001.json",
+    "sha256": "dc51da2e0165ba88b49891abb834580e241ae0ffdfd161f677fc545f35dd6630",
+    "size_bytes": 467
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.987000Z",
+    "file": "phase14/certification/independent_audit.json",
+    "sha256": "1e7372c6709b53a3bffd9ca21a3da60d93ba6102076fff9f54c768e5a06af183",
+    "size_bytes": 2476
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.987000Z",
+    "file": "phase14/certification/manifests/evidence_index.json",
+    "sha256": "fdad98ac1558b75fdfabf10b18f16ce1cc0fcc300a82d14bb060f2919141d40d",
+    "size_bytes": 4292
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.987000Z",
+    "file": "phase14/certification/replay_report.json",
+    "sha256": "6d1daae22483861517ab579b6301f836055576bc9ef8d3c207d5afd18d51e19e",
+    "size_bytes": 324
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.988000Z",
+    "file": "phase14/certification/runtime_freeze.json",
+    "sha256": "78b590ca80a283851c58762911256150e2d5690ab454e612412741720e0c2d05",
+    "size_bytes": 930
+  },
+  {
+    "timestamp": "2026-07-02T20:06:58.988000Z",
+    "file": "phase14/certification/validation_report.json",
+    "sha256": "2ec4fe9eebd0d076f556b156d161f000a82da4c427376f6c8a4224fe27a93b6b",
+    "size_bytes": 902
+  }
+]

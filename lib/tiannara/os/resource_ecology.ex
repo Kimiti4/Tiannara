@@ -178,10 +178,6 @@ defmodule TiannaraOS.ResourceEcology do
     end
   end
   
-  @doc """
-  Calculate average confidence of program's discoveries.
-  """
-  @spec calculate_avg_discovery_confidence(ResearchProgram.t(), State.t()) :: float()
   defp calculate_avg_discovery_confidence(%ResearchProgram{} = program, %State{} = state) do
     if length(program.discoveries) == 0 do
       0.5  # Default moderate confidence
@@ -229,10 +225,6 @@ defmodule TiannaraOS.ResourceEcology do
     %{state | research_programs: updated_programs}
   end
   
-  @doc """
-  Get all active programs in a specific world.
-  """
-  @spec get_programs_in_world(State.t(), atom()) :: [ResearchProgram.t()]
   defp get_programs_in_world(%State{} = state, world_id) do
     state.research_programs
     |> Map.values()

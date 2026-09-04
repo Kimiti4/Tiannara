@@ -1,0 +1,14 @@
+{
+  "phase": "knowledge_storage",
+  "trace_id": "c4d9439a-8a10-4876-acd6-07763f1792b8",
+  "ok": false,
+  "chain_result": {
+    "artifact_ids": [
+      "mem-4bebb8f275f8"
+    ],
+    "artifacts_written": 1,
+    "payload_hash": "b6fea8bc0fa9228d4a5870782cb3820e10313696cb5fe6250b07dd2a486a648c",
+    "store_dir": "C:\\Users\\user\\Tiannara\\Tiannara-MindCache-Prosthetic\\priv\\tiannara\\probes\\evidence\\U1_chain_681e828f/knowledge"
+  },
+  "payload_hash": "b6fea8bc0fa9228d4a5870782cb3820e10313696cb5fe6250b07dd2a486a648c"
+}

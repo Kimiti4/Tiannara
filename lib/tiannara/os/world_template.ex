@@ -101,7 +101,7 @@ defmodule TiannaraOS.WorldTemplate do
 
   defp mathematics_template do
     %__MODULE__{
-      id: :mathematics,
+      id: :computation,
       name: "Pure Mathematics Ecosystem",
       labs: [
         %{id: :number_theory_lab, name: "Algorithmic Number Theory Lab"},

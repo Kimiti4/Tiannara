@@ -7,7 +7,6 @@ defmodule Tiannara.OMCS do
   alias Tiannara.OMCS.IdentitySeed
   alias Tiannara.OMCS.Engine
   alias Tiannara.OMCS.ContinuityScorer
-  alias Tiannara.ROS.ShardManager
   
   # For fetching ontology fingerprint from WorldModel
   alias Tiannara.Core.WorldModel.BeliefSystem

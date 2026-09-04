@@ -50,7 +50,11 @@ defmodule Tiannara.REA.MetaTheoryExtractor do
         nil -> nil
         pid ->
           if Process.alive?(pid) do
-            TiannaraOS.CivilizationKernel.get_state()
+            try do
+              apply(TiannaraOS.CivilizationKernel, :get_state, [])
+            rescue
+              _ -> nil
+            end
           else
             nil
           end

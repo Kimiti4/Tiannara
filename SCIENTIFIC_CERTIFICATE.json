@@ -1,0 +1,13 @@
+{
+  "schema_version": "15.0.0",
+  "certificate_id": "phase15-provisional-2026-07-05",
+  "certificate_type": "PROVISIONAL_ASSESSMENT",
+  "status": "NOT_CERTIFIED",
+  "issued_at": "2026-07-05T00:00:00+03:00",
+  "readiness": "GSR-0",
+  "proof":"SCIENTIFIC_PROOF.json",
+  "failed_gates":["large_scale_campaign","law_validation","independent_audit","graph_replay","long_horizon_validation","authorized_signatures"],
+  "signature": null,
+  "signature_status": "UNSIGNED",
+  "supersedes": null
+}

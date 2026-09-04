@@ -1,0 +1,21 @@
+{
+  "phase": "c14_governance",
+  "trace_id": "ca27d7ae-50d9-48cf-abba-604e3aff5fc1",
+  "ok": true,
+  "chain_result": {
+    "capability": "can_review",
+    "decision": "ALLOW",
+    "decision_hash": "8aeb11c1f657c8e3b2ce83785ed471725eb0c234258548915080ec2da27230cb",
+    "domain": "science",
+    "injected": true,
+    "institution": "Review Board",
+    "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a",
+    "real_deny_sample": {
+      "error": "Institution 'Review Board' lacks capability :can_deploy"
+    },
+    "real_verdict": "ok",
+    "rule_consulted": "TiannaraOS.Governance.CapabilityChecker.authorize?/3 (Review Board, :can_review @ :science)",
+    "timestamp": "2026-08-20T12:18:25.846000Z"
+  },
+  "payload_hash": "4d154f65ff6125ba1acb1e09502920737a93bfa84c100c50fc18de517e699f3a"
+}

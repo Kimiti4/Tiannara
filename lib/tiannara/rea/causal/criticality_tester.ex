@@ -68,7 +68,7 @@ defmodule Tiannara.REA.Causal.CriticalityTester do
     elasticity = measure_elasticity(channel, baseline_config, baseline)
     
     # Replacement test & Replaceability score
-    {replaceability_score, avg_replacement_damage} = test_replacements(channel, baseline_config, baseline)
+    {replaceability_score, _avg_replacement_damage} = test_replacements(channel, baseline_config, baseline)
     
     # Bottleneck score: heuristic based on average signal throughput volume vs ecosystem size
     # High if removing the channel halts system diversity significantly compared to just weight down

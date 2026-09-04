@@ -8,7 +8,7 @@ defmodule Tiannara.ASC.MetaScience.GenomeDrivenExecutor do
   
   alias Tiannara.ASC.MetaScience.ResearchGenome
   alias Tiannara.ASC.Research.TelemetrySnapshot
-  alias Tiannara.ASC.Crucible.{TransferEcology, RepairLibrary, FailureSynthesizer, PatternMutator}
+  alias Tiannara.ASC.Crucible.{TransferEcology, RepairLibrary, PatternMutator}
   alias Tiannara.ASC.Laws.{ExperimentDesigner, Discoverer, Registry}
   require Logger
 

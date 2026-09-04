@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-05-06T16:36:51.822601",
+  "episodes_per_domain": 500,
+  "results": {
+    "Algorithm": {
+      "success_rate": 0.0,
+      "avg_correctness": 0.0,
+      "episodes": 500
+    },
+    "Logic": {
+      "success_rate": 0.0,
+      "avg_correctness": 0.0,
+      "episodes": 500
+    },
+    "Reverse Engineering": {
+      "success_rate": 0.0,
+      "avg_correctness": 0.0,
+      "episodes": 500
+    },
+    "Causal": {
+      "success_rate": 0.0,
+      "avg_correctness": 0.0,
+      "episodes": 500
+    }
+  },
+  "overall_average": 0.0,
+  "transfer_stats": {
+    "skills_extracted": {
+      "Reverse Engineering": 0
+    }
+  }
+}
