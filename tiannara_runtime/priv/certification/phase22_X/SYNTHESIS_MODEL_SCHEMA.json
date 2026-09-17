@@ -1,0 +1,19 @@
+{
+  "schema": "SYNTHESIS_MODEL_SCHEMA",
+  "version": "22.X.3",
+  "description": "Schema for a cross-domain synthesis model",
+  "synthesis_model": {
+    "fields": {
+      "synthesis_id": {"type": "string", "required": true},
+      "operation_type": {"type": "string", "required": true, "enum": ["pattern_discovery", "analogy", "unification", "transfer"]},
+      "source_domains": {"type": "array", "required": true},
+      "target_domains": {"type": "array", "required": true},
+      "input_artifacts": {"type": "array", "required": true},
+      "output_artifact": {"type": "object", "required": true},
+      "validation_status": {"type": "string", "required": true, "enum": ["verified", "pending", "failed"]},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_supported", "deterministic", "replayable"]
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PlanetaryState",
+  "description": "A reconciled planetary state at a point in time",
+  "type": "object",
+  "properties": {
+    "state_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this planetary state"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of state reconciliation"
+    },
+    "current_conditions": {
+      "type": "object",
+      "properties": {
+        "planetary_physics": {
+          "type": "object"
+        },
+        "climate": {
+          "type": "object"
+        },
+        "atmosphere": {
+          "type": "object"
+        },
+        "hydrology": {
+          "type": "object"
+        },
+        "geology": {
+          "type": "object"
+        },
+        "ecology": {
+          "type": "object"
+        },
+        "agriculture": {
+          "type": "object"
+        },
+        "energy_infrastructure": {
+          "type": "object"
+        },
+        "transportation": {
+          "type": "object"
+        },
+        "economy": {
+          "type": "object"
+        },
+        "civilizations": {
+          "type": "object"
+        },
+        "scientific_infrastructure": {
+          "type": "object"
+        }
+      }
+    },
+    "predicted_conditions": {
+      "type": "object",
+      "description": "Model predictions for current time"
+    },
+    "observed_deviations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "variable": {
+            "type": "string"
+          },
+          "predicted_value": {
+            "type": "number"
+          },
+          "observed_value": {
+            "type": "number"
+          },
+          "deviation": {
+            "type": "number"
+          },
+          "significance": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "attribution": {
+            "type": "string"
+          }
+        },
+        "required": ["variable", "predicted_value", "observed_value", "deviation", "significance"]
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 1.0
+      },
+      "description": "Confidence per layer"
+    },
+    "risk_assessment": {
+      "type": "object",
+      "properties": {
+        "overall_risk": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "risk_by_dimension": {
+          "type": "object"
+        },
+        "emerging_risks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["overall_risk"]
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Prerequisite state IDs"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["state_id", "timestamp", "current_conditions", "confidence", "fingerprint"]
+}

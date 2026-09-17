@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/optimization_candidate.json",
+  "title": "OptimizationCandidate",
+  "description": "A constitutional optimization candidate for improving an engineering system.",
+  "type": "object",
+  "properties": {
+    "candidate_id": { "type": "string", "pattern": "^optcand_[a-f0-9]{16}$" },
+    "baseline_id": { "type": "string" },
+    "bottleneck_id": { "type": "string" },
+    "improvement_type": { "type": "string", "enum": ["parametric", "topological", "material", "process", "architectural", "technology", "operational"] },
+    "description": { "type": "string" },
+    "estimated_impact": {
+      "type": "object",
+      "properties": {
+        "performance": { "type": "number" },
+        "cost": { "type": "number" },
+        "mass": { "type": "number" },
+        "energy": { "type": "number" },
+        "reliability": { "type": "number" },
+        "sustainability": { "type": "number" }
+      }
+    },
+    "estimated_impact_uncertainty": { "type": "object" },
+    "tradeoff_summary": { "type": "string" },
+    "status": { "type": "string", "enum": ["proposed", "analyzed", "verified", "certified", "deployed", "rejected"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["candidate_id", "baseline_id", "improvement_type", "description", "fingerprint"]
+}

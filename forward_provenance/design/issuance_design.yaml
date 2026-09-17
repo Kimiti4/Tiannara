@@ -1,0 +1,98 @@
+artifact: issuance_design
+stage: 8 (Implementation DESIGN — issuance architecture)
+authority: TIA Council
+posture: DESIGN ONLY
+recorded_at: 2026-09-10
+upstream: authority_policy_analysis (Q5), certificate_stack_reconciliation (Q2),
+  certificate_identity_design (r1..r5), authority_ownership_matrix
+policy_chapters: TIA_PROVENANCE_CERTIFICATION_POLICY.yaml — authority (principle,
+  authority_kind, requirements, prohibitions), issuance_conditions (all_must_hold +
+  impossible_cases), historical_firewall, human_oversight
+
+DESIGN_ONLY: true
+design_status: CONSISTENT — builds the future-realization contract on the fail-closed
+  bridge; NO A00 predicate is opened by this design.
+
+summary:
+  question: Under what (future-authorized) conditions may a forward certificate be issued,
+    and who is the issuer?
+  answer: A forward certificate may be issued ONLY by an AUTHORITY-REGISTERED issuer,
+    only when (a) the authority closure required by the accepted policy HOLDS (policy
+    acceptance exists; human ratification exists per authority_kind requirements; M7
+    disposition present or mechanism-delegation documented), (b) every acceptable
+    issuance condition (all_must_hold) is satisfied, and (c) NOT one impossible_case is
+    present. This design specifies the condition-evaluation contract; it does not make
+    any of those conditions true.
+
+issues: WHO MAY ISSUE
+  issuer_registry:
+    concept: "an authority registry records which authority (human|mechanism) may issue
+      under which authority_kind, per policy requirements (every certificate records
+      authority + authority_kind at issuance)."
+    design_rule: "mechanism-issued certificates are valid only where the registry
+      explicitly delegates to mechanism; never where human judgment is mandated (policy
+      authority.requirements)."
+    boundary: "Until M7 single-vs-distributed authority is resolved, policy requires human
+      ratification for any runtime-integrated forward certificate. The registry concept is
+      designed; NO registry is created in Stage 8."
+  not_adopted: "Certificate.issue/1's caller-supplied `:authority` string
+    (forward_provenance/lib/certificate.ex) is NOT an issuer registry; it is authority-as-
+    data with zero validation. Documented in authority_boundary_design as the NON-model."
+
+issues: WHEN ISSUANCE IS LAWFUL
+  all_must_hold (policy chapter issuance_conditions; verified design-side as conditions):
+    1. evidence chain resolves backward from decision_recorded to exactly one execution
+       (execution_started -> execution_ended, SUCCESS)
+    2. execution_id uniqueness resolved (no cross-runtime substitution)
+    3. source identity (repository+commit+tree+manifest hash) recorded, recomputable
+    4. contract identity (contract_hash+version+parameter_set) recorded, recomputable
+    5. environment identity incl deps_lock_hash; input/output manifests complete
+    6. result + payload_hash bound (DERIVED_FROM) to the execution
+    7. metric computed from persisted corpus under metric_manifest; recomputable or
+       PARTIALLY REPRODUCIBLE with exact gap stated
+    8. reproducibility class declared (FULL/CONDITIONAL/PARTIAL/NOT)
+    9. canonical serialization spec version cited; payload_hash recomputed under it
+    10. historical firewall passes (no reference to historical unverified evidence)
+  impossible_cases (each individually blocks issuance):
+    - certificate on unresolvable execution_id
+    - certificate on hash-only evidence (no lineage)
+    - certificate on PARTIAL/ABORTED execution
+    - certificate on metric without manifest/corpus
+  mapping_to_bridge:
+    - "The Stage-6 bridge preconditions PC-01..13 and the authority closure A01..A12
+      already implement the FAIL-CLOSED evaluation of these conditions for the candidate.
+      This design maps each policy condition to the corresponding bridge mechanism
+      (PC: evidence validity, source/contract presence, execution bounds, tamper check;
+      A-predicates: eligibility, transition legality, revocation conflict, supersession,
+      authorization, constitutional requisites)."
+    - "At the moment of any REALIZATION, the future implementation must OPEN a selected
+      A-predicate ONLY after a Council authorization event exists for that predicate
+      (design d3 in stage8_design_scope; the events do not exist in Stage 8)."
+
+issues: HOW ISSUANCE IS RECORDED
+  decision_record: "an issuance is a decision_recorded envelope with body
+    {certificate_id, decision, reason, authority_header, issuance_spec, policy_ref} plus
+    evidence bindings — matching the identity contract (certificate_identity_design) and
+    the policy authority principle. Audit chains are envelope-verifiable (Verifier) and,
+    in the future, bundle-representable (policy evidence_bundle)."
+  durability: "the policy states certificates are stateless (Stage-6 knowledge debt 1);
+    this design REQUIRES a future durable ledger for issued certificate ids (registry of
+    issued ids) so lifecycle states VALID/SUSPENDED/REVOKED/UNVERIFIABLE/SUPERSEDED can be
+    stored and queried; NO such ledger exists in Stage 8. Recorded as design dependency."
+
+design_dependencies (must exist in a future implementation stage, NOT here):
+  - canonical-serialization spec (identity r4; policy condition 9)
+  - authority registry (who may issue)
+  - issued-id ledger / lifecycle store (so non-VALID states have a home)
+  - Council authorization event(s) for the authority predicates to be opened (M7 human
+    ratification + policy acceptance — acceptance now exists; M7 disposition does not)
+
+verification_of_issuance_design:
+  - "Design-side check: the condition set is EXACTLY the policy's all_must_hold +
+    impossible_cases; no condition was added, dropped, or weakened by this design."
+  - "Design-side check: no impossible_case is satisfiable by the deterministic candidate
+     identity path (hash-only evidence cannot produce a candidate; PC gate prevents it)."
+  - "Stage 8 creates NO artifacts that could be mistaken for an issued certificate; this
+     document is prose/spec only."
+
+NOTHING_IMPLEMENTED: true

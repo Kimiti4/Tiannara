@@ -1,0 +1,23 @@
+{
+  "schema": "DOMAIN_READINESS_SCHEMA",
+  "version": "20.98",
+  "description": "Schema for domain-level readiness — per-research-domain constitutional readiness assessment",
+  "domain_readiness": {
+    "fields": {
+      "domain_id": {"type": "string", "required": true, "description": "Content-addressed domain readiness identifier"},
+      "domain_name": {"type": "string", "required": true},
+      "overall_score": {"type": "number", "required": true, "description": "0.0–1.0 domain readiness score"},
+      "dimension_scores": {"type": "object", "required": true, "description": "Per-dimension scores for this domain"},
+      "subdomain_scores": {"type": "object", "required": false, "description": "Per-subdomain scores (if applicable)"},
+      "artifact_count": {"type": "integer", "required": true},
+      "validation_completeness": {"type": "number", "required": true},
+      "evidence_root": {"type": "string", "required": true},
+      "deficiencies": {"type": "array", "required": false},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "domains": ["engineering", "physics", "chemistry", "medicine", "cybernetics", "governance", "computation", "agriculture", "energy", "logistics", "cognition", "materials", "robotics", "economics", "philosophy", "sociology", "linguistics", "aerospace", "ecology", "architecture"],
+    "constraints": ["deterministic_scoring", "evidence_based", "replayable", "domain_independent"]
+  }
+}

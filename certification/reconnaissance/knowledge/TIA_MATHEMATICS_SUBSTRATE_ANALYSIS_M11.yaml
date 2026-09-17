@@ -1,0 +1,33 @@
+# Move 11 — Mathematics as Substrate: Decision Analysis (no ontology change)
+# Evaluates MATHEMATICS AS DOMAIN vs MATHEMATICS AS EPISTEMIC SUBSTRATE
+# from evidence. The canonical domain model is NOT changed here.
+artifact: MATHEMATICS_SUBSTRATE_ANALYSIS_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+current_status: "MATHEMATICS AS DOMAIN (observed: mathematics appears as content records, one foundations module, one observatory metrics module, probe contracts/results; no substrate-role mechanism evidenced)"
+models_compared:
+  domain_model:
+    statement: Mathematics is one research domain among others, producing certificates and knowledge graphs
+    evidence: [MATHEMATICS_FREEZE_CERTIFICATE.json, MATHEMATICS_KNOWLEDGE_GRAPH.json, foundations/mathematics/calculus.ex in T0]
+    standing: OBSERVED (artifacts present; operational role unevidenced, consistent with all other record classes)
+  substrate_model:
+    statement: Mathematics functions as the epistemic substrate underwriting calibration, inference, and verification across domains
+    evidence: [No substrate-role mechanism found in T0 (no module consumes mathematics to ground other domains' inference as far as evidenced)]
+    standing: HYPOTHESIZED (proposal material exists in uploaded roadmap; not evidenced in T0)
+evaluation:
+  evidence: Substrate role unevidenced; domain role evidenced-as-artifacts-only (same insufficiency class as other record capabilities)
+  architectural_consequences_if_adopted:
+  - Calibration, inference, and verification modules would declare mathematical grounding interfaces
+  - Domain modules would depend on the substrate rather than sibling-positioning mathematics
+  - The D-series calibration claims would gain or lose support depending on the grounding actually demonstrated
+  dependency_structure: Would invert current flat placement (mathematics beside domains) into a layered one (mathematics beneath inference consumers); no consumer edges currently exist to invert
+  benefits_if_true: [Unified grounding for calibration claims, principled uncertainty propagation, reduced duplication of math utilities]
+  risks_if_adopted prematurely: [Ontology churn without behavioral change, false confidence laundering (calling existing code substrate-backed), migration cost across D-series modules]
+  unresolved_assumptions:
+  - That mathematical grounding would change any measured outcome (no demonstration)
+  - That current math utilities are duplicated rather than specialized (no analysis performed)
+  - That inference consumers can actually bind to substrate interfaces (no interfaces exist)
+  adoption_bar: Demonstrated binding of at least one inference consumer to a substrate interface with measured effect, plus migration analysis; none present
+determination: RETAIN DOMAIN MODEL (substrate model UNRESOLVED as hypothesis; explicitly not adopted, not rejected)

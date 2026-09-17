@@ -1,0 +1,29 @@
+{
+  "schema": "CIVILIZATION_SCHEMA",
+  "version": "22.0",
+  "description": "Schema for a civilization entity in the Constitutional Civilizational Ontology",
+  "civilization": {
+    "fields": {
+      "civilization_id": {"type": "string", "required": true},
+      "name": {"type": "string", "required": true},
+      "epoch": {"type": "string", "required": true, "enum": ["formative", "developmental", "mature", "transcendent", "legacy"]},
+      "population": {"type": "object", "required": true},
+      "knowledge_state_hash": {"type": "string", "required": true},
+      "scientific_capital": {"type": "number", "required": true},
+      "engineering_capital": {"type": "number", "required": true},
+      "energy_profile": {"type": "object", "required": true},
+      "economic_profile": {"type": "object", "required": true},
+      "governance_profile": {"type": "object", "required": true},
+      "infrastructure_profile": {"type": "object", "required": true},
+      "technological_capability": {"type": "object", "required": true},
+      "education_capability": {"type": "object", "required": true},
+      "industrial_capability": {"type": "object", "required": true},
+      "environmental_state": {"type": "object", "required": true},
+      "external_relationships": {"type": "array", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "replayable", "provenance_preserved"]
+  }
+}

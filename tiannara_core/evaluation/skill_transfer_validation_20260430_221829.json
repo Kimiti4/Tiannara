@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-04-30T22:18:29.820985",
+  "num_episodes": 50,
+  "seed": 42,
+  "results_with_transfer": {
+    "overall_rate": 0.0,
+    "domain_stats": {
+      "algorithm": {
+        "success": 0,
+        "count": 13
+      },
+      "logic": {
+        "success": 0,
+        "count": 13
+      },
+      "reverse_engineering": {
+        "success": 0,
+        "count": 12
+      },
+      "causal": {
+        "success": 0,
+        "count": 12
+      }
+    },
+    "transfer_count": 0,
+    "total_episodes": 50
+  },
+  "results_without_transfer": {
+    "overall_rate": 0.46,
+    "domain_stats": {
+      "algorithm": {
+        "success": 0,
+        "count": 13
+      },
+      "logic": {
+        "success": 0,
+        "count": 13
+      },
+      "reverse_engineering": {
+        "success": 11,
+        "count": 12
+      },
+      "causal": {
+        "success": 12,
+        "count": 12
+      }
+    },
+    "transfer_count": 0,
+    "total_episodes": 50
+  },
+  "analysis": {
+    "improvement": -0.46,
+    "relative_improvement": -100.0,
+    "z_score": -6.526300069150405,
+    "significant": true
+  },
+  "conclusion": "invalid"
+}

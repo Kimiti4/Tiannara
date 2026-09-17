@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/scientific_contribution.json",
+  "title": "ScientificContribution",
+  "description": "An immutable record of a scientific contribution within a collaboration.",
+  "type": "object",
+  "properties": {
+    "contribution_id": { "type": "string", "pattern": "^contrib_[a-f0-9]{16}$" },
+    "collaboration_id": { "type": "string" },
+    "contributor_id": { "type": "string" },
+    "contributor_type": { "type": "string" },
+    "contribution_type": { "type": "string", "enum": ["knowledge_creation", "knowledge_modification", "evidence_production", "engineering_contribution", "review_contribution", "coordination_contribution"] },
+    "artifact_ids": { "type": "array", "items": { "type": "string" } },
+    "previous_version_id": { "type": "string" },
+    "supporting_evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["contribution_id", "collaboration_id", "contributor_id", "contribution_type", "fingerprint"]
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OntologyChange",
+  "description": "A change record for an ontology evolution operation",
+  "type": "object",
+  "properties": {
+    "change_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this change"
+    },
+    "change_type": {
+      "type": "string",
+      "enum": ["concept_creation", "concept_refinement", "concept_expansion", "concept_deprecation", "concept_merge", "concept_split", "hierarchy_reorganization", "relationship_discovery", "relationship_modification", "relationship_removal"],
+      "description": "Type of ontology change"
+    },
+    "change_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of change"
+    },
+    "affected_node_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Nodes affected by this change"
+    },
+    "trigger": {
+      "type": "string",
+      "description": "Evidence or reason triggering the change"
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Evidence driving the change"
+    },
+    "details": {
+      "type": "object",
+      "description": "Change-specific details",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "previous_state": {
+          "type": "object"
+        },
+        "new_state": {
+          "type": "object"
+        }
+      },
+      "required": ["description"]
+    },
+    "governance_approval": {
+      "type": "object",
+      "properties": {
+        "approver": {
+          "type": "string"
+        },
+        "approval_date": {
+          "type": "integer"
+        },
+        "approval_type": {
+          "type": "string",
+          "enum": ["standard", "expedited"]
+        }
+      },
+      "required": ["approver", "approval_date", "approval_type"]
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["change_id", "change_type", "change_date", "affected_node_ids", "trigger", "details", "fingerprint"]
+}

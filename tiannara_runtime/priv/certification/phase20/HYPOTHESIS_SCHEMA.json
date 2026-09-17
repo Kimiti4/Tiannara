@@ -1,0 +1,38 @@
+{
+  "schema": "HYPOTHESIS_SCHEMA",
+  "version": "20.3",
+  "description": "Schema for ArchitecturalHypothesis",
+  "hypothesis": {
+    "fields": {
+      "hypothesis_id": {"type": "string", "required": true},
+      "problem": {"type": "string", "required": true},
+      "prediction": {"type": "string", "required": true},
+      "assumptions": {"type": "array", "required": true},
+      "expected_improvements": {"type": "object", "required": true},
+      "failure_conditions": {"type": "array", "required": true},
+      "dependencies": {"type": "array", "required": false},
+      "mathematical_justification": {"type": "string", "required": true},
+      "scientific_justification": {"type": "string", "required": true}
+    },
+    "lifecycle": ["draft", "validated", "tested", "confirmed", "falsified", "archived"]
+  },
+    "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": [
+    "falsifiable",
+    "measurable",
+    "bounded",
+    "deterministic"
+  ],
+  "example": {
+    "hypothesis_id": "HYP-000001",
+    "problem": "Scheduler bottleneck under high concurrency loads exceeding 10k simultaneous missions",
+    "prediction": "Adopting a work-stealing scheduler reduces average dispatch latency by 40% at 10k concurrency",
+    "assumptions": ["Workload is evenly distributed across worker pools", "No single worker becomes a hot spot"],
+    "expected_improvements": {"dispatch_latency": "-40%", "throughput": "+60%", "cpu_utilization": "+15%"},
+    "failure_conditions": ["Latency reduction < 10%", "Throughput improvement < 20%", "Hot spot emergence > 5% imbalance"],
+    "dependencies": ["Worker pool registry", "Queue implementation"],
+    "mathematical_justification": "Work-stealing reduces tail latency from O(n) to O(log n) for n workers under the assumption of independent task arrival",
+    "scientific_justification": "Work-stealing schedulers have been empirically validated across distributed systems (Blumofe & Leiserson, 1994)"
+  }
+}

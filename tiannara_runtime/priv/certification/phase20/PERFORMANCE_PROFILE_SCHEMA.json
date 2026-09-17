@@ -1,0 +1,26 @@
+{
+  "schema": "PERFORMANCE_PROFILE_SCHEMA",
+  "version": "20.8",
+  "description": "Schema for PerformanceProfile — system performance baseline",
+  "performance_profile": {
+    "fields": {
+      "profile_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "timestamp": {"type": "integer", "required": true, "description": "Profile capture timestamp"},
+      "generation": {"type": "integer", "required": true, "description": "Runtime generation at capture"},
+      "latency": {"type": "object", "required": true, "description": "Latency metrics per subsystem"},
+      "throughput": {"type": "object", "required": true, "description": "Throughput metrics per subsystem"},
+      "memory": {"type": "object", "required": true, "description": "Memory metrics per subsystem"},
+      "cpu": {"type": "object", "required": true, "description": "CPU metrics per subsystem"},
+      "storage": {"type": "object", "required": true, "description": "Storage metrics per subsystem"},
+      "network": {"type": "object", "required": true, "description": "Network metrics per subsystem"},
+      "energy": {"type": "object", "required": true, "description": "Energy metrics per subsystem"},
+      "scientific_output": {"type": "object", "required": true, "description": "Scientific productivity metrics"},
+      "engineering_output": {"type": "object", "required": true, "description": "Engineering productivity metrics"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "dimensions": ["latency", "throughput", "memory", "cpu", "storage", "network", "energy", "scientific_output", "engineering_output"],
+    "constraints": ["deterministic_metrics", "reproducible_measurements", "content_addressed"]
+  }
+}

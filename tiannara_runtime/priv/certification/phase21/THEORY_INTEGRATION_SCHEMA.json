@@ -1,0 +1,24 @@
+{
+  "schema": "THEORY_INTEGRATION_SCHEMA",
+  "version": "21.8",
+  "description": "Schema for a theory integration event into the unified reality model",
+  "theory_integration": {
+    "fields": {
+      "integration_id": {"type": "string", "required": true},
+      "theory": {"type": "string", "required": true},
+      "originating_domain": {"type": "string", "required": true},
+      "integration_type": {"type": "string", "required": true, "description": "New/Revision/Succession/Reconciliation/Emergent"},
+      "compatibility_status": {"type": "string", "required": true, "description": "Compatible/Incomplete/Competing/Contradictory/Dependent/Superseded"},
+      "evidence_hash": {"type": "string", "required": true},
+      "cross_domain_links": {"type": "array", "required": false},
+      "integration_rationale": {"type": "string", "required": true},
+      "integration_generation": {"type": "integer", "required": true},
+      "integration_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "types": ["new", "revision", "succession", "reconciliation", "emergent"],
+    "constraints": ["provenance_preserved", "deterministic", "replayable"]
+  }
+}

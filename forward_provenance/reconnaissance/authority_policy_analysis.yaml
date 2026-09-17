@@ -1,0 +1,75 @@
+artifact: authority_policy_analysis
+stage: 7 (Certificate Authority Reconciliation)
+authority: TIA Council
+posture: RECONNAISSANCE / ANALYSIS ONLY
+recorded_at: 2026-09-10
+upstream: certificate_authority_inventory, certificate_stack_reconciliation
+
+summary:
+  question: Q5 — What is the authority policy for certificates (exists? accepted? absent?)?
+  answer: A COMPLETE POLICY DRAFT EXISTS but is NOT ACCEPTED / NOT ENACTED.
+    - File: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml
+    - Status field: "POLICY COMPLETE (policy governs implementation when Council
+      authorizes it; no certificate is issued under this policy in this gate)".
+  This REFINES the Stage-6 "authority policy missing" wording: the policy is not missing
+  text; it is missing ACCEPTANCE. No accepted/enacted authority policy is evidenced for
+  any stack (root, runtime, forward authoring area). Stage 6 and Stage 7 report the SAME
+  observable (`certificate_issuable = NO_AUTHORITY_POLICY`), with the refined cause.
+
+policy_draft_contents (direct read, certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml):
+  authority:
+    principle: "A certificate is an authority-issued binding between a decision and the
+      evidence chain it certifies."
+    authority_kind: human | mechanism
+    requirements:
+      - every certificate records authority + authority_kind at issuance
+      - mechanism-issued certs valid only where the authority registry explicitly
+        delegates to mechanism (never where human judgment is mandated)
+      - until M7 single-vs-distributed is resolved, HUMAN RATIFICATION is required for
+        any runtime-integrated forward certificate
+    prohibitions: self-named meta-authority prohibited (legacy certification_certificate.json
+      case excluded from the forward model)
+  issuance_conditions:
+    all_must_hold: 10 items (unique execution chain; execution_id uniqueness; recomputable
+      source identity; recomputable contract identity; environment identity + manifests;
+      result+payload_hash bound DERIVED_FROM; metric under metric_manifest and recomputable
+      or PARTIALLY REPRODUCIBLE with gap stated; reproducibility class declared; canonical
+      serialization version cited; historical firewall passes)
+    impossible_cases: cert on unresolvable execution_id; cert on hash-only evidence; cert
+      on PARTIAL/ABORTED execution; cert on metric without manifest/corpus
+  states_and_transitions: VALID/SUSPENDED/REVOKED/UNVERIFIABLE/SUPERSEDED + rules
+    (semantics only until authorized)
+  invalidation: deletion/envelope loss; authority revocation; spec supersession; hash
+    recomputation mismatch — never auto re-validated; only full re-verification restores
+  human_oversight: authority ratification, REVOKE/SUPERSEDE decisions, UNVERIFIABLE
+    resolution are human-judgment points; Observatory NEVER issues certificates
+  historical_firewall: FORWARD_PROVENANCE_MUST_NOT_CERTIFY_HISTORICAL_UNVERIFIED_EVIDENCE;
+    CONTRA-003/RQ-001/RQ-004/RQ-010 preserved unresolved; policy adds no gc_012 verdict
+  security: hashes verify bytes; certificate chains carry authority; never conflated
+  schema_evolution: envelopes immutable; evolution = new envelope; SUPERSEDED channel
+  open_questions_it_does_not_resolve: single vs distributed authority (M7); mechanism-only
+    ratification; RQ-010; promotion-gate mechanics
+
+acceptance_gap:
+  - The ONLY acceptance gate for this policy is "Council authorizes it". No such
+    authorization record is evidenced.
+  - M7 open decision (certification single authority vs distributed model, UNRESOLVED,
+    TIA_CANONICAL_ARCHITECTURE_M7.yaml:109-111) is a stated PRECONDITION the policy itself
+    declares it cannot resolve (open_questions).
+  - Therefore: policy authority for forward provenance = ACCEPTANCE-MISSING; bridge constant
+    NO_AUTHORITY_POLICY stays accurate as an operational statement.
+
+implications (analysis only):
+  - "Issuance remains fail-closed: no accepted policy -> no authority -> no certificate."
+  - "The bridge's A01..A12 BLOCKED closure (authority_undiscovered / policy_missing
+     / lifecycle_undefined / revocation_undefined) is the machine-visible reflection of
+     this acceptance gap; patching those constants would BREAK the design contract, so
+     nothing is patched."
+  - "Council either: accepts this policy draft (possibly amended), or rejects it and
+     substitutes a design record — either way a NEW authorization record is required."
+
+verdict:
+  Q5: Policy DRAFT exists and is complete; policy ACCEPTANCE does not exist anywhere
+      evidenced. Operational status remains NO_AUTHORITY_POLICY (fail-closed). Stage 7
+      does not convert proposed -> accepted.
+  NOTHING_IMPLEMENTED: true.

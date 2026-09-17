@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/transfer_candidate.json",
+  "title": "TransferCandidate",
+  "description": "A candidate cross-domain knowledge transfer awaiting validation and adaptation.",
+  "type": "object",
+  "properties": {
+    "candidate_id": { "type": "string", "pattern": "^tc_[a-f0-9]{16}$" },
+    "source_artifact_id": { "type": "string" },
+    "target_domain": { "type": "string" },
+    "discovery_method": { "type": "string" },
+    "abstraction_level": {
+      "type": "string",
+      "enum": ["observation", "mechanism", "pattern", "law", "model", "theory", "meta_principle"]
+    },
+    "analogy_ids": { "type": "array", "items": { "type": "string" } },
+    "similarity_metrics": {
+      "type": "object",
+      "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+    },
+    "estimated_value": { "type": "number", "minimum": 0, "maximum": 1 },
+    "priority_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["discovered", "analogy_matched", "validating", "validated", "rejected", "requires_adaptation", "adapted", "integrated", "superseded"]
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["candidate_id", "source_artifact_id", "target_domain", "status", "fingerprint"]
+}

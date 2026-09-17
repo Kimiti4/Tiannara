@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/mission_lifecycle.json",
+  "title": "MissionLifecycle",
+  "description": "The lifecycle state of a scientific mission.",
+  "type": "object",
+  "properties": {
+    "mission_id": { "type": "string", "pattern": "^smiss_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "grand_challenge_id": { "type": "string" },
+    "current_stage": { "type": "string", "enum": ["proposed", "approved", "research_programs", "knowledge", "technology", "civilizational_benefit", "complete"] },
+    "stage_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": { "type": "string" },
+          "entered_at": { "type": "integer" },
+          "exited_at": { "type": "integer" },
+          "rationale": { "type": "string" }
+        }
+      }
+    },
+    "program_ids": { "type": "array", "items": { "type": "string" } },
+    "civilizational_benefit_metrics": { "type": "object" },
+    "status": { "type": "string", "enum": ["active", "paused", "redirected", "complete", "cancelled"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "proposed_at": { "type": "integer" },
+    "completed_at": { "type": "integer" }
+  },
+  "required": ["mission_id", "name", "current_stage", "status", "fingerprint"]
+}

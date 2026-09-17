@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/validation_plan.json",
+  "title": "ValidationPlan",
+  "description": "A constitutional validation plan linking mission objectives to validation methods and evidence.",
+  "type": "object",
+  "properties": {
+    "plan_id": { "type": "string", "pattern": "^valplan_[a-f0-9]{16}$" },
+    "mission_id": { "type": "string" },
+    "system_id": { "type": "string" },
+    "validation_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "objective_id": { "type": "string" },
+          "objective_type": { "type": "string", "enum": ["mission", "operational", "user", "scientific", "engineering", "civilizational"] },
+          "method": { "type": "string", "enum": ["operational_test", "field_test", "user_acceptance", "mission_simulation", "independent_assessment", "constitutional_review"] },
+          "success_criteria": { "type": "string" },
+          "status": { "type": "string", "enum": ["planned", "in_progress", "passed", "failed", "blocked"] },
+          "evidence_id": { "type": "string" }
+        },
+        "required": ["objective_id", "objective_type", "method", "success_criteria", "status"]
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["plan_id", "mission_id", "system_id", "validation_items", "fingerprint"]
+}

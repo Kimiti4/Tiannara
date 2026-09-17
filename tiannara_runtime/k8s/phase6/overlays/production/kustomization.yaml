@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- ../../base
+
+patches:
+- target:
+    kind: Deployment
+    name: tiannara-runtime
+  patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 5
+- target:
+    kind: StatefulSet
+    name: nats-cluster
+  patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 5
+
+configMapGenerator:
+- name: runtime-config
+  literals:
+  - STABILITY_MODE=production
+  - LOG_LEVEL=info
+  - METRICS_EXPORT_INTERVAL=15s
+  - SELF_COMPILATION_INTERVAL=300s
+  - OBSERVER_RECURSION_LIMIT=4
+  - SEMANTIC_DRIFT_THRESHOLD=0.35
+
+secretGenerator:
+- name: tiannara-secrets
+  literals:
+  - release-cookie=tiannara_phase6_cookie_prod_2026
+  - nats-auth-token=tiannara_nats_prod_token_2026
+  options:
+    disableNameSuffixHash: true

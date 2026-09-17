@@ -1,0 +1,29 @@
+{
+  "schema": "OPTIMIZATION_REPLAY_SCHEMA",
+  "version": "20.8",
+  "description": "Schema for optimization replay chain verification",
+  "optimization_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "optimization_session": {"type": "string", "required": true, "description": "Reference to optimization session"},
+      "replay_type": {"type": "string", "required": true, "description": "Metric/Bottleneck/Candidate/Tradeoff/Simulation/Recommendation/Full"},
+      "step_hashes": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "step": {"type": "integer"}, "stage": {"type": "string"},
+            "input_hash": {"type": "string"}, "output_hash": {"type": "string"},
+            "step_hash": {"type": "string"}
+          }
+        }
+      },
+      "root_hash": {"type": "string", "required": true, "description": "Final replay chain root"},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "replay_types": ["metric", "bottleneck", "candidate", "tradeoff", "simulation", "recommendation", "full"],
+    "constraints": ["deterministic_replay", "acyclic_steps", "cold_storage_independent"]
+  }
+}

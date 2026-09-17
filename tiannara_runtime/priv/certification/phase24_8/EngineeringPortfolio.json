@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_portfolio.json",
+  "title": "EngineeringPortfolio",
+  "description": "A constitutional engineering portfolio governing programs and projects.",
+  "type": "object",
+  "properties": {
+    "portfolio_id": { "type": "string", "pattern": "^eport_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "portfolio_type": { "type": "string", "enum": ["research", "technology", "engineering", "manufacturing", "infrastructure", "deployment", "operations"] },
+    "program_ids": { "type": "array", "items": { "type": "string" } },
+    "balance_metrics": {
+      "type": "object",
+      "properties": {
+        "risk_exposure": { "type": "number" },
+        "innovation_ratio": { "type": "number" },
+        "strategic_alignment": { "type": "number" },
+        "resource_utilization": { "type": "number" }
+      }
+    },
+    "total_resources": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["portfolio_id", "name", "portfolio_type", "fingerprint"]
+}

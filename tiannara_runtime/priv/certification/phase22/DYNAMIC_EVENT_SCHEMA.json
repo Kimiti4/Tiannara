@@ -1,0 +1,19 @@
+{
+  "schema": "DYNAMIC_EVENT_SCHEMA",
+  "version": "22.1",
+  "description": "Schema for a civilizational dynamic event (growth, innovation, collapse, recovery)",
+  "dynamic_event": {
+    "fields": {
+      "event_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "event_type": {"type": "string", "required": true, "enum": ["growth", "innovation", "knowledge_accumulation", "resilience_change", "collapse_trigger", "recovery_start", "state_transition"]},
+      "driver_interactions": {"type": "array", "required": true},
+      "magnitude": {"type": "number", "required": true},
+      "affected_dimensions": {"type": "array", "required": true},
+      "provenance_chain": {"type": "array", "required": true},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "provenance_preserved", "replayable"]
+  }
+}

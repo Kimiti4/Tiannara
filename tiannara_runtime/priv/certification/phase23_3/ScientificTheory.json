@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/scientific_theory.json",
+  "title": "ScientificTheory",
+  "description": "A coherent explanatory framework organizing models, laws, discoveries, and mechanisms.",
+  "type": "object",
+  "properties": {
+    "theory_id": { "type": "string", "pattern": "^theory_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "scope": { "type": "string" },
+    "assumptions": { "type": "array", "items": { "type": "string" } },
+    "supporting_discovery_ids": { "type": "array", "items": { "type": "string" } },
+    "supporting_law_ids": { "type": "array", "items": { "type": "string" } },
+    "supporting_model_ids": { "type": "array", "items": { "type": "string" } },
+    "predictive_capability": {
+      "type": "object",
+      "properties": {
+        "accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "coverage": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "required": ["accuracy", "coverage"]
+    },
+    "engineering_utility": { "type": "number", "minimum": 0, "maximum": 1 },
+    "uncertainty": { "type": "number", "minimum": 0, "maximum": 1 },
+    "lineage": {
+      "type": "object",
+      "properties": {
+        "parent_theory_ids": { "type": "array", "items": { "type": "string" } },
+        "child_theory_ids": { "type": "array", "items": { "type": "string" } },
+        "formation_event_id": { "type": "string" }
+      },
+      "required": ["formation_event_id"]
+    },
+    "contradiction_ids": { "type": "array", "items": { "type": "string" } },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "provisional", "certified", "superseded", "retired"]
+    },
+    "score_vector": {
+      "type": "object",
+      "properties": {
+        "predictive_accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "explanatory_power": { "type": "number", "minimum": 0, "maximum": 1 },
+        "engineering_utility": { "type": "number", "minimum": 0, "maximum": 1 },
+        "scientific_simplicity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence_strength": { "type": "number", "minimum": 0, "maximum": 1 },
+        "generality": { "type": "number", "minimum": 0, "maximum": 1 },
+        "robustness": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["theory_id", "name", "scope", "assumptions", "status", "fingerprint"]
+}

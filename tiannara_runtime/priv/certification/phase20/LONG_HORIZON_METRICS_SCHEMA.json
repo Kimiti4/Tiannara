@@ -1,0 +1,28 @@
+{
+  "schema": "LONG_HORIZON_METRICS_SCHEMA",
+  "version": "20.97",
+  "description": "Schema for long-horizon metrics collected at each generation checkpoint",
+  "long_horizon_metrics": {
+    "fields": {
+      "metrics_id": {"type": "string", "required": true, "description": "Content-addressed metrics snapshot identifier"},
+      "generation_number": {"type": "integer", "required": true},
+      "generation_id": {"type": "string", "required": true},
+      "generations_validated": {"type": "integer", "required": true},
+      "knowledge_retained": {"type": "number", "required": true, "description": "0.0–1.0 knowledge preservation score"},
+      "scientific_productivity": {"type": "integer", "required": true, "description": "Hypotheses + experiments + theories + discoveries"},
+      "engineering_productivity": {"type": "integer", "required": true, "description": "Engineering artifacts created this generation"},
+      "replay_convergence": {"type": "number", "required": true, "description": "0.0–1.0 replay hash match ratio"},
+      "generation_stability": {"type": "number", "required": true, "description": "0.0–1.0 generation chain integrity"},
+      "mathematical_consistency": {"type": "number", "required": true, "description": "0.0–1.0 proof chain integrity"},
+      "governance_integrity": {"type": "number", "required": true, "description": "0.0–1.0 constitutional invariant score"},
+      "optimization_stability": {"type": "number", "required": true, "description": "0.0–1.0 optimization chain stability"},
+      "scientific_capital_growth": {"type": "number", "required": true, "description": "Net capital change this generation"},
+      "archaeology_completeness": {"type": "number", "required": true, "description": "0.0–1.0 archaeology preservation score"},
+      "civilizational_resilience_index": {"type": "number", "required": true, "description": "0.0–1.0 composite resilience score"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic_metrics", "monotonic_generation_number", "replayable"]
+  }
+}

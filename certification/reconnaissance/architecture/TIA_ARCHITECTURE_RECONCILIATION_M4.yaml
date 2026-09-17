@@ -1,0 +1,258 @@
+# Move 4 — Architecture & Capability Reconciliation
+# Reconstruction only. No remediation, redesign, merging, migration, tests,
+# experiments, or commits. Every mapping states its evidence; gaps stay gaps.
+artifact: ARCHITECTURE_RECONCILIATION_M4
+artifact_status: POST_T0
+move: 4
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+method: T0 ls-tree structure survey; supervision-tree read (application.ex); targeted git grep caller discovery; capped git-show reads; file-inventory reuse. No call-graph generation (caller lists only, no edges file).
+control_flow_observed:
+  entry: Tiannara.Application supervision tree (lib/tiannara/application.ex in T0)
+  supervised_at_boot:
+  - Tiannara.Council.Supervisor
+  - Tiannara.Observatory.ValidationSupervisor
+  - TiannaraOS.CivilizationKernel
+  - Tiannara.ROS.ShardSupervisor
+  - Tiannara.OMCS.Supervisor
+  - Tiannara.Core.Supervisor
+  - Tiannara.Stabilization.Supervisor
+  - Tiannara.Physics.Supervisor
+  - Tiannara.Topology.Supervisor
+  - Tiannara.Sentinel.Supervisor
+  - Tiannara.CIS.Supervisor
+  - Tiannara.ExtrusionTaskSupervisor (Task.Supervisor)
+  - Tiannara.Meta.Hardware.Supervisor
+  - Tiannara.Operations.OperationsSupervisor
+  - Tiannara.Executive.Supervisor
+  - loop_children (operations loops)
+  - asc_children (conditional on asc_enabled flag; empty when disabled)
+  note: "Council supervisor boots alongside, not above, the executive supervisors in the listed order; authority semantics (who authorizes whom at runtime) not established by tree order alone"
+capability_mappings:
+- id: TIA-CAP-001
+  subsystem: lib/tiannara/forecasting/ (signal inputs; specific modules not separately mapped in this pass)
+  interfaces: D-series contracts (contracts.ex present in T0)
+  data_flow: not traced in this pass
+  control_flow: not supervised as a separate tree (forecasting runs inside executive/operations supervision)
+  governance: Council certifies envelope (Council record)
+  persistence: none evidenced for D1 inputs in this pass
+  execution: none evidenced in this pass
+  evidence: "T0 presence + Council certification record"
+- id: TIA-CAP-002
+  subsystem: lib/tiannara/forecasting/ (calibration.ex present in T0)
+  interfaces: calibration module interface (signatures not enumerated in this pass)
+  data_flow: not traced in this pass
+  control_flow: same as CAP-001
+  governance: Council certifies envelope (Council record)
+  persistence: none evidenced in this pass
+  execution: none evidenced in this pass
+  evidence: "T0 presence + Council certification record"
+- id: TIA-CAP-003
+  subsystem: lib/tiannara/forecasting/ (decision modules present in T0)
+  interfaces: not enumerated in this pass
+  data_flow: not traced in this pass
+  control_flow: same as CAP-001
+  governance: Council certifies envelope (Council record)
+  persistence: none evidenced in this pass
+  execution: none evidenced in this pass
+  evidence: "T0 presence + Council certification record"
+- id: TIA-CAP-004
+  subsystem: lib/tiannara/forecasting/ (counterfactual/attribution modules present in T0)
+  interfaces: not enumerated in this pass
+  data_flow: not traced in this pass
+  control_flow: same as CAP-001
+  governance: Council certifies envelope + temporal firewall (Council record)
+  persistence: none evidenced in this pass
+  execution: none evidenced in this pass
+  evidence: "T0 presence + Council certification record"
+- id: TIA-CAP-005
+  subsystem: "lib/tiannara/forecasting/d5/ (10 modules: thresholds, repetition, budget, perturbation, sensitivity, noise, robustness, regime, temporal, disagreement)"
+  interfaces: D5 facade verdict/0 frozen to d5_certified_bounded (verified in T0 content); Thresholds single-source with set hash
+  data_flow: perturbation plans -> sensitivity deltas -> noise classification -> robustness classes (module-name-implied flow only; not traced)
+  control_flow: analytical only (no execution authority in module surface per R7 record)
+  governance: Council certifies bounded envelope; three-valued verdict never boolean
+  persistence: none (no D5 persistence path evidenced)
+  execution: none (analytical only)
+  evidence: "T0 presence + T0 content reads (verdict line, thresholds) + Council certification record"
+- id: TIA-CAP-006
+  subsystem: none (0 runs by protocol definition)
+  interfaces: E03 frozen pre-registration (execution-start not granted)
+  data_flow: none
+  control_flow: none
+  governance: Council gate (blocked)
+  persistence: none
+  execution: none (0 runs, 0 stabilizer invocations)
+  evidence: "Council protocol record"
+- id: TIA-CAP-007
+  subsystem: lib/tiannara/forecasting/planner.ex + lib/tiannara/evidence/provenance.ex
+  interfaces: evaluate_and_act/2 returns simulation envelope with provenance hash (R3 shape in T0 content); Provenance build/unknown/acceptable_as_evidence?/hash (signatures verified in T0 content)
+  data_flow: planner narration -> provenance record (no persistence, no consumer in T0)
+  control_flow: none (scenario handler, no execution path)
+  governance: R7 boundary closed (Council record)
+  persistence: none
+  execution: none
+  evidence: "T0 content reads + Council R7 record"
+- id: TIA-CAP-008
+  subsystem: certification/reconnaissance/ (POST_T0 working tree, not T0 content)
+  interfaces: orchestrator CLI (full run + dry-run); 4 collectors; 20-test suite
+  data_flow: T0 worktree -> collector JSON -> 7 artifacts -> RI tests -> certification binding
+  control_flow: orchestrator run procedure (contract steps 1-11)
+  governance: Council Move-0 authorization + certification decision
+  persistence: 8 output JSON files (untracked working tree)
+  execution: demonstrated (20/20 RI; 2/2 canonical runs)
+  evidence: "T0_RI_CERTIFICATION.json CERTIFIED"
+- id: TIA-CAP-009
+  subsystem: lib/tiannara/stabilization/ (ctl.ex, hsv/*, ocm/*) + supervised boot via Stabilization.Supervisor
+  interfaces: module surface not enumerated in this pass
+  data_flow: not traced in this pass
+  control_flow: supervised (boots with the application tree)
+  governance: Council CIS/constitutional separation per vision (transcribed, not verified against runtime)
+  persistence: none evidenced
+  execution: none evidenced (zero T0 tests)
+  evidence: "T0 presence + supervision-tree wiring + T0 caller listing"
+- id: TIA-CAP-010
+  subsystem: lib/tiannara/evolution/ (LongHorizon, DriftAudit, Trajectory, Cycle, Metrics) + adjacent strategy_benchmarker.ex
+  interfaces: LongHorizon.run/2 generator contract (injectable); DriftAudit map-shaped metric contract; Cycle struct fields
+  data_flow: generator proposals -> DriftAudit accept/reject -> state advance -> Trajectory analysis (contract shapes from T0 content reads)
+  control_flow: cycle loop inside LongHorizon.run/2 (source-read, not executed)
+  governance: none evidenced
+  persistence: none evidenced
+  execution: none evidenced (zero evolution test files in T0)
+  evidence: "T0 presence + T0 content reads (SR-1/SR-4 record)"
+- id: TIA-CAP-011
+  subsystem: lib/tiannara/forecasting/auditor.ex (DecisionArchive logger-only facade)
+  interfaces: record/1 (logs only)
+  data_flow: none (no callers, no readers in T0)
+  control_flow: none
+  governance: none
+  persistence: none (facade has no store)
+  execution: none
+  evidence: "T0 content read"
+- id: TIA-CAP-012
+  subsystem: none identified (record only)
+  interfaces: none found
+  data_flow: none found
+  control_flow: none
+  governance: none evidenced
+  persistence: CONSTITUTIONAL_LAWS.json in T0 (unreferenced)
+  execution: none
+  evidence: "T0 presence of the record only"
+- id: TIA-CAP-013
+  subsystem: none identified (records only)
+  interfaces: none found
+  data_flow: none found
+  control_flow: none
+  governance: none evidenced
+  persistence: two JSONs in T0 (unreferenced)
+  execution: none
+  evidence: "T0 presence of the records only"
+- id: TIA-CAP-014
+  subsystem: lib/tiannara/council/ (audit_log.ex reader + amendment/constitution/monitor siblings present)
+  interfaces: DETS open/traverse/insert calls in audit_log.ex (source-read)
+  data_flow: entries -> DETS table -> traverse reads (source-read, not executed)
+  control_flow: corruption path (detect -> archive-aside with timestamped copy -> repair-or-fresh), source-read
+  governance: Council subsystem placement (supervision membership unevidenced in this pass)
+  persistence: ./council_audit_log.dets + timestamped corrupted archives in T0 (mechanism fully explains the archive naming pattern observed)
+  execution: none evidenced for the specific T0 files
+  evidence: "T0 module content + T0 files; contradiction narrowed, unresolved"
+- id: TIA-CAP-015
+  subsystem: none identified for the three specific records (concept referenced by knowledge_archive/discovery_chain/laws-registry/crav modules)
+  interfaces: none found for the files
+  data_flow: none found for the files
+  control_flow: none
+  governance: none evidenced
+  persistence: three JSONs in T0 (unconsumed)
+  execution: none
+  evidence: "T0 presence + negative grep results"
+- id: TIA-CAP-016
+  subsystem: none identified (probe script + manifest mention only)
+  interfaces: none found
+  data_flow: none found
+  control_flow: none
+  governance: none evidenced
+  persistence: none evidenced
+  execution: none
+  evidence: "T0 presence of mindcache/ paths only (weakest in catalogue)"
+- id: TIA-CAP-017
+  subsystem: certification_framework.ex (single module, zero callers in T0)
+  interfaces: module surface not enumerated (no callers to bind an interface to)
+  data_flow: none
+  control_flow: none
+  governance: none evidenced
+  persistence: none evidenced
+  execution: none
+  evidence: "T0 presence + zero-caller grep result"
+- id: TIA-CAP-018
+  subsystem: phase14/ corpus + os/governance/certification/ auditor modules
+  interfaces: independent_auditor.ex replay/authority verification entry points (signature scan only)
+  data_flow: campaign results -> evidence index -> certificate (reference linkage observed in file contents)
+  control_flow: none evidenced (no audit-run record)
+  governance: certificate claims governance linkage (self-asserted in file)
+  persistence: campaign JSONs + hash bindings + certificate + evidence index in T0
+  execution: "none evidenced (CONTRA-003: certificate/result value disagreement unresolved)"
+  evidence: "T0 files + hash format verification + capped content reads"
+- id: TIA-CAP-019
+  subsystem: "bench/ (3 scripts: graph_ingestion, mutation_throughput, query_latency)"
+  interfaces: bench script entry points (not enumerated in this pass)
+  data_flow: none evidenced
+  control_flow: none
+  governance: none evidenced
+  persistence: none (zero bound result records)
+  execution: none evidenced
+  evidence: "T0 presence of 3 scripts (corrected count)"
+- id: TIA-CAP-020
+  subsystem: none identified (records only)
+  interfaces: none found
+  data_flow: none found
+  control_flow: none
+  governance: none evidenced
+  persistence: two JSONs in T0 (no producers/consumers)
+  execution: none
+  evidence: "T0 presence of the records only"
+- id: TIA-CAP-021
+  subsystem: none identified (records only)
+  interfaces: none found
+  data_flow: none found
+  control_flow: none
+  governance: none evidenced
+  persistence: two JSONs in T0 (no builders/verifiers/schemas)
+  execution: none
+  evidence: "T0 presence of the records only"
+duplicate_overlap_clusters_identified:
+- cluster: verification machinery
+  members: [lib/tiannara/verification_authority.ex, lib/tiannara/os/governance/certification/independent_auditor.ex, certification_framework.ex, run_independent_auditor.exs]
+  relationship_observed: "Four artifacts with verification-adjacent names/purposes coexist in T0; certification_framework.ex has zero callers; independent_auditor.ex has replay/authority entry points; verification_authority.ex role unevidenced in this pass"
+  determination: IDENTIFIED ONLY (no canonical candidate, no migration, no deletion proposal)
+- cluster: ledger/record mechanisms
+  members: [DecisionArchive (forecasting/auditor.ex, logger-only), council_audit_log (council/audit_log.ex, DETS-backed), provenance/discovery_ledger.ex, evidence/ (certification_gate, historical_quarantine, provenance)]
+  relationship_observed: "Four distinct record-keeping mechanisms with different stores (log-line, DETS, ledger module, gate/quarantine/provenance modules); no cross-references evidenced in this pass"
+  determination: IDENTIFIED ONLY
+- cluster: knowledge stores
+  members: [asc/knowledge_archive.ex, asc/interface/knowledge_archive.ex, crav/discovery_chain.ex, three JSON knowledge-graph records]
+  relationship_observed: "Two similarly named archive modules plus a discovery-chain module plus three unconsumed JSON records; consumption linkage between modules and records unevidenced"
+  determination: IDENTIFIED ONLY
+orphans_identified:
+- item: certification_framework.ex
+  basis: "Zero callers and zero function-level references in T0"
+- item: phase4/ modules (autonomous_research_engine, experiment_orchestrator, physics_pilot_execution, real_execution)
+  basis: "Present in T0; caller/consumption analysis not performed in this pass; orphan status UNKNOWN (listed here as candidates for a later pass, not as determinations)"
+disconnected_claims:
+- TIA-CAP-012/013/020/021 records have no code references of the relevant kind in T0 (per tranche-3 greps)
+- TIA-CAP-015 specific files unconsumed despite concept-level references nearby
+- TIA-CAP-017 module uncalled
+contradictory_claims_carried:
+- CONTRA-001 (mix.lock T0-vs-tree): UNRESOLVED, carried
+- CONTRA-002 (runtime artifacts committed in T0): UNRESOLVED, carried
+- CONTRA-003 (gc_012 certificate/result mismatch): UNRESOLVED, carried
+intended_vs_observed:
+- vision_external_models_as_workers: OBSERVED single integration point (asc/cognition/llm_gateway.ex in T0); ownership/governance semantics unevidenced -> divergence UNKNOWN
+- vision_bounded_chaos_stabilization: OBSERVED supervised stabilizer boot + wired callers; regulation-effect unevidenced -> divergence UNKNOWN
+- vision_evidence_bound_autonomy: OBSERVED provenance gate + R7 boundary (Council-certified); historical runtime operation unevidenced -> divergence UNKNOWN
+- architecture_single_beam_supervision_tree: OBSERVED application.ex tree as listed; authority semantics (who authorizes whom at runtime) NOT established by tree order -> recorded, not inferred
+architectural_provenance:
+- application supervision membership: T0 content (application.ex)
+- module/file presence: T0 inventory + ls-tree
+- content markers (guards, verdict, narration, specs): capped T0 git-show reads
+- caller lists: T0 git-grep (reference listings, not graphs)
+- states/verdicts: Council session record (transcribed)
+- gaps/unknowns: tranche-2/3 depth records (carried, not re-litigated)

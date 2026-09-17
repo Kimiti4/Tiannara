@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "produced_by": {
+    "procedure": "CERTIFY_MOVE0.py",
+    "contract_version": "0.1.1"
+  },
+  "produced_at_t0": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+  "certification_kind": "MOVE0_RI_BINDING",
+  "started_at": "2026-09-05T21:34:44.396855+00:00",
+  "finished_at": "2026-09-05T21:37:38.078745+00:00",
+  "t0_commit": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+  "t0_tree": "06f06e5e91f33e75437a47ca901eaa7e97bb0edd",
+  "verdict": "CERTIFIED",
+  "verdict_reason": null,
+  "run_a_artifact_shas": {
+    "T0_BASELINE.json": "333d6f84cab1c17ed256f0ef753dbffde6c64c7ba6d37e766a2eb5a8deec7a95",
+    "T0_GIT.json": "bbe4a077c1824fd55bfbd7808fb42d3ec6248b6319dae6acbc88def526cee618",
+    "T0_FILES.jsonl": "beeaa0a8d3f9b99938e8b673a512592bde8084077dd1cb0f3f3a456280d1f97c",
+    "T0_HASHES.jsonl": "0c6c50fc219f180662a6242b3950b5aa4803c0e52c800039f78409bf1a6d25a8",
+    "T0_ENVIRONMENT.json": "3172e350ba513a39eb92fef98bc5879fc5a246b921f706f52a235bf7c7c53c83",
+    "T0_RUNTIMES.json": "51423c0dfc84858b3982e3104015eac9831425ce6de4ad6d6409e7bc956d19c0",
+    "T0_INTEGRITY.json": "45401be8da5f79706d5923359f5466a84caee443eccbb9e450c6bf38bdac1c82"
+  },
+  "run_b_artifact_shas": {
+    "T0_BASELINE.json": "60ba93ddcd8cfec00c7a9b1f1ae0a70eb943cc0b624dae575eb767a79b3e97e4",
+    "T0_GIT.json": "313e550900524849910f9a998423c28423731a26e4a80ffadfc72b60f244534d",
+    "T0_FILES.jsonl": "beeaa0a8d3f9b99938e8b673a512592bde8084077dd1cb0f3f3a456280d1f97c",
+    "T0_HASHES.jsonl": "0c6c50fc219f180662a6242b3950b5aa4803c0e52c800039f78409bf1a6d25a8",
+    "T0_ENVIRONMENT.json": "7722e8652b9bcee7ce5ea30aa344fd0774bd004331d2e946fd0fb04b52bfcda4",
+    "T0_RUNTIMES.json": "468edf5ebc868b749340d0af83a2686204cf6df335ab27eb207bb5962d2a5e1f",
+    "T0_INTEGRITY.json": "0e3cbcbff7706d316409413bd4d043e625e36aa9cff208bd30ba8db81ec303bf"
+  },
+  "evidence": {
+    "per_file": {
+      "T0_BASELINE.json": {
+        "run_a_sha256": "333d6f84cab1c17ed256f0ef753dbffde6c64c7ba6d37e766a2eb5a8deec7a95",
+        "run_b_sha256": "60ba93ddcd8cfec00c7a9b1f1ae0a70eb943cc0b624dae575eb767a79b3e97e4",
+        "canonical_identical": true
+      },
+      "T0_GIT.json": {
+        "run_a_sha256": "bbe4a077c1824fd55bfbd7808fb42d3ec6248b6319dae6acbc88def526cee618",
+        "run_b_sha256": "313e550900524849910f9a998423c28423731a26e4a80ffadfc72b60f244534d",
+        "canonical_identical": true
+      },
+      "T0_FILES.jsonl": {
+        "run_a_sha256": "beeaa0a8d3f9b99938e8b673a512592bde8084077dd1cb0f3f3a456280d1f97c",
+        "run_b_sha256": "beeaa0a8d3f9b99938e8b673a512592bde8084077dd1cb0f3f3a456280d1f97c",
+        "canonical_identical": true
+      },
+      "T0_HASHES.jsonl": {
+        "run_a_sha256": "0c6c50fc219f180662a6242b3950b5aa4803c0e52c800039f78409bf1a6d25a8",
+        "run_b_sha256": "0c6c50fc219f180662a6242b3950b5aa4803c0e52c800039f78409bf1a6d25a8",
+        "canonical_identical": true
+      },
+      "T0_ENVIRONMENT.json": {
+        "run_a_sha256": "3172e350ba513a39eb92fef98bc5879fc5a246b921f706f52a235bf7c7c53c83",
+        "run_b_sha256": "7722e8652b9bcee7ce5ea30aa344fd0774bd004331d2e946fd0fb04b52bfcda4",
+        "canonical_identical": true
+      },
+      "T0_RUNTIMES.json": {
+        "run_a_sha256": "51423c0dfc84858b3982e3104015eac9831425ce6de4ad6d6409e7bc956d19c0",
+        "run_b_sha256": "468edf5ebc868b749340d0af83a2686204cf6df335ab27eb207bb5962d2a5e1f",
+        "canonical_identical": true
+      },
+      "T0_INTEGRITY.json": {
+        "run_a_sha256": "45401be8da5f79706d5923359f5466a84caee443eccbb9e450c6bf38bdac1c82",
+        "run_b_sha256": "0e3cbcbff7706d316409413bd4d043e625e36aa9cff208bd30ba8db81ec303bf",
+        "canonical_identical": true
+      }
+    },
+    "all_canonical_identical": true,
+    "pytest": {
+      "exit_code": 0,
+      "ran": 20,
+      "passed": 20,
+      "failed": 0,
+      "errors": 0,
+      "output_tail": "Every T0 file is present in T0_FILES.jsonl (any bucket). Every ... ok\n\n----------------------------------------------------------------------\nRan 20 tests in 58.688s\n\nOK"
+    },
+    "test_suite_path": "certification/reconnaissance/tests/test_recon_integrity.py",
+    "test_suite_sha256": "cf98006b61c5d8040e7e0464901811ffd170f56c81ef8c3f9a6ebf64d48c84c7"
+  },
+  "binding": "This artifact binds: T0 identity + two-run canonical determinism result + pytest result + test-suite hash. It is written AFTER pytest executes, so unlike the orchestrator's T0_INTEGRITY.json (ri_status NOT_RUN by construction), this document reports the observed pytest outcome."
+}

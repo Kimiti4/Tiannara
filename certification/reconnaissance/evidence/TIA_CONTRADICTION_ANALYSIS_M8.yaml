@@ -1,0 +1,53 @@
+# Move 8 — Contradiction Analysis (recheck of CONTRA-001/002/003)
+# Allowed outcomes: RESOLVED | NARROWED | UNRESOLVED | SUPERSEDED.
+# Resolution requires direct reconciling evidence, never interpretation alone.
+artifact: CONTRADICTION_ANALYSIS_M8
+artifact_status: POST_T0
+move: 8
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+contradictions:
+- id: CONTRA-001
+  left_evidence: T0-recorded mix.lock hash 6153ab16 (T0_ENVIRONMENT.json manifest record)
+  right_evidence: Working-tree mix.lock hash ef49f19d (fresh read-only hash; file differs from T0)
+  conflict_type: version-divergence (recorded state vs observed state)
+  scope: Single manifest file; dependency set may differ between T0 and working tree
+  temporal_relationship: T0 capture (2026-09-05) precedes working-tree observation (later session state)
+  possible_reconciliation:
+  - Working-tree dependency evolution after T0 (benign, expected in a dirty tree)
+  - Uncommitted local dependency change (indistinguishable from evolution without a run ledger for the change)
+  remaining_unknown: Which of the two explanations holds; the full dependency delta
+  status: UNRESOLVED
+  status_reason: No record binds the working-tree mix.lock to an authorized change; neither side is refuted
+- id: CONTRA-002
+  left_evidence: T0 commits 8 runtime .dets databases + 16 build artifacts with git_tracked=true (T0_FILES.jsonl buckets)
+  right_evidence: Baseline hygiene convention excludes runtime/build outputs from versioned snapshots (general convention, not a Tiannara-authored requirement)
+  conflict_type: compositional-tension (observed composition vs conventional expectation)
+  scope: T0 tree composition (24 of 4756 entries)
+  temporal_relationship: Contemporaneous (both describe T0 as committed)
+  possible_reconciliation:
+  - Deliberate frozen-runtime snapshot policy (would need an explicit policy record; none found)
+  - Incidental inclusion via bulk commit (plausible given the 4127-file audit commit; unproven)
+  remaining_unknown: Intent behind the inclusion; whether any consumer depends on the committed artifacts
+  status: UNRESOLVED
+  status_reason: The conventional side is not a Tiannara requirement, so there is no true normative conflict; but the intent question is genuinely open, so UNRESOLVED (not SUPERSEDED — supersession would require evidence the question is moot)
+- id: CONTRA-003
+  left_evidence: certificate.json gc_012 block (verified_at 2026-01-01T00:00:00Z; fitness 0.8041; entropy 0.1042)
+  right_evidence: campaign_results/gc_012_long_horizon_evolution.json (verified_at 2026-07-02T20:06:58Z; fitness 0.8035; entropy 0.0746)
+  conflict_type: value-disagreement (two records, same nominal campaign, different timestamps and measured values)
+  scope: Single campaign gc_012 and its certificate entry
+  temporal_relationship: Certificate timestamp is a round placeholder predating the result timestamp by ~6 months
+  possible_reconciliation:
+  - Distinct executions at different times (re-run with different seed/conditions)
+  - Rounding/recomputation between result production and certificate issuance
+  - Placeholder timestamp in the certificate block (round value consistent with templating)
+  remaining_unknown: Which explanation holds; no run ledger binds certificate issuance to a result version; no audit-run execution record found in T0
+  status: UNRESOLVED
+  status_reason: Plausible benign explanations exist but none is evidenced; resolution requires execution records absent from T0
+aggregate:
+  reviewed: 3
+  resolved: 0
+  narrowed: 0
+  unresolved: 3
+  superseded: 0
+note: No contradiction was narrowed in this pass beyond their Move-3/4 states; the recheck confirmed each remains genuinely open under the resolution rule.

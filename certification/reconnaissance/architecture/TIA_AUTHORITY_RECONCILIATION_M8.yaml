@@ -1,0 +1,76 @@
+# Move 8 — Authority Reconciliation (actors, actions, boundaries, conflicts)
+# Read-only analysis. No precedence invented. UNKNOWN where unevidenced.
+artifact: AUTHORITY_RECONCILIATION_M8
+artifact_status: POST_T0
+move: 8
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+actors:
+- actor: Council subsystem
+  actions: [supervise AuditLog, issue five-state authorization decisions]
+  actions_evidence: supervision content; Authorization struct states; D3 contract references
+  boundary: Constitutional governance + audit trail persistence
+  conflict: none identified
+- actor: Executive subsystem
+  actions: [supervise memory subsystem, serve reflection queries]
+  actions_evidence: supervisor content; autonomy consumer references
+  boundary: Memory-subsystem supervision + reflection query interface (NOT general execution)
+  conflict: none identified (naming-vs-scope tension noted, not a conflict)
+- actor: CivilizationKernel
+  actions: [apply state transforms, evaluate adaptation, summarize civilization]
+  actions_evidence: GenServer interface (update_state/evaluate/get + handle_call clauses)
+  boundary: Kernel state boundary (interface-inferred, not declared)
+  conflict: none identified
+- actor: CIS (CISRegistry + CollapsePredictor)
+  actions: [coordinate immune response, predict collapse, regulate (mandate text)]
+  actions_evidence: supervisor content + mandate text; regulation effect unevidenced
+  boundary: UNRESOLVED (see A2)
+  conflict: A2 (with Stabilization subsystem)
+- actor: Stabilization subsystem
+  actions: [wired regulation contexts (callers evidenced); effects unevidenced]
+  actions_evidence: supervision + caller listing
+  boundary: UNRESOLVED (see A2)
+  conflict: A2 (with CIS)
+- actor: Provenance gate
+  actions: [accept/reject provenance records by predicate]
+  actions_evidence: gate signatures + R7 record
+  boundary: Scientific-artifact evidence acceptance
+  conflict: none identified
+- actor: Phase4 experiment orchestrator
+  actions: [accept experiment submissions, record experiments, cancel with reason]
+  actions_evidence: GenServer interface (submit/get/cancel + version + priority + constitutional-score callback)
+  boundary: Experiment record boundary (interface-level)
+  conflict: none identified
+- actor: Observatory validation checks
+  actions: [run named checks (memory, mailbox, scheduler, score, bus, model, replay, integrity)]
+  actions_evidence: execute/2 function names
+  boundary: Observation/measurement surface
+  conflict: none identified
+- actor: Verification actors (authority, auditor, framework, script)
+  actions: [verify proposals (runtime), audit governance certs, campaign framework (uncalled), offline JSON audit]
+  actions_evidence: entry signatures + moduledocs + zero-caller result
+  boundary: UNRESOLVED (see A1)
+  conflict: A1 (distributed, no hierarchy)
+- actor: Memory/knowledge stores
+  actions: []
+  actions_evidence: none (strongest negative result)
+  boundary: UNKNOWN
+  conflict: none identified
+- actor: Discovery modules
+  actions: []
+  actions_evidence: presence only
+  boundary: UNKNOWN
+  conflict: none identified
+conflicts:
+- id: A1-certification-distributed
+  actors: [verification_authority, independent_auditor, certification_framework, run_script]
+  question: Single authority, layers, or independent domains?
+  precedence_evidence: NONE FOUND (searched; only a test helper named test_authority_boundary exists, which tests rather than establishes precedence)
+  determination: UNRESOLVED
+- id: A2-stabilization-vs-CIS
+  actors: [Stabilization subsystem, CIS]
+  question: Which regulates what; exclusive, shared, delegated, or conditional?
+  precedence_evidence: NONE FOUND
+  determination: UNRESOLVED
+unresolved_conflicts: [A1-certification-distributed, A2-stabilization-vs-CIS]
+precedence_rule_statement: No precedence was invented. Where no evidence establishes precedence, the record states UNKNOWN.

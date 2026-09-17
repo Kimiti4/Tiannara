@@ -1,0 +1,74 @@
+# Move 9 — Runtime Reproducibility Record
+# Every runtime result reproducible from: commit + tree + command +
+# configuration + seed + environment + dependencies + inputs + outputs +
+# telemetry. Where exact reproduction is impossible, the reason is recorded.
+artifact: RUNTIME_REPRODUCIBILITY_M9
+artifact_status: POST_T0
+move: 9
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+common:
+  commit: 9753a6d08702064f4d00395a1bec1c4bf3887381
+  tree: 06f06e5e91f33e75437a47ca901eaa7e97bb0edd
+  elixir: 1.18.4
+  otp: 28
+  platform: win32
+  compiled_beams_dev: 2069
+  dependencies: mix deps tree resolves (benchee/broadway/cors_plug/credo shown; full tree in TEMP boot logs, not retained)
+  console_note: Subprocesses launched via visible consoles for early runs; hidden window used after operator notice (no behavioral difference; noted for log-timing transparency)
+runs:
+- experiment: EXP-M9-00
+  command: mix run -e Process.sleep(90000)
+  configuration: default dev env; 110s cap; stdout/stderr to TEMP (outside repo); killed after cap
+  seed: not-applicable
+  environment: as common above
+  inputs: none (boot observation)
+  outputs: TEMP tia_m9_boot2.log (boot sequence, AgencyLoop, ExecutiveCycle, PhaseΩ 1/16, metrics crash trace, repair/governance loops)
+  telemetry: application log lines captured (no separate telemetry export)
+  reproducibility: "PARTIAL (boot observed twice with variant PhaseΩ health: 1/16 vs 15/15; boot timing environment-sensitive; kill-after-cap procedure deterministic)"
+  reproduction_blockers: [PhaseΩ health variance unexplained; boot duration 60-90s environment-dependent]
+- experiment: EXP-M9-01
+  command: mix run run_independent_auditor.exs
+  configuration: default dev env; 180s cap; output to TEMP
+  seed: not-applicable (deterministic artifact read)
+  environment: as common above
+  inputs: phase14/certification/*.json (T0 content)
+  outputs: TEMP tia_m9_audit.log (full 5-step transcript)
+  telemetry: none beyond stdout
+  reproducibility: REPRODUCIBLE (deterministic read of frozen inputs; re-runnable from recorded command + T0 tree)
+  reproduction_blockers: []
+- experiment: EXP-M9-02
+  command: mix run bench/graph_ingestion_bench.exs
+  configuration: default dev env; 240s cap; output to TEMP
+  seed: harness-fixed inputs (100/1000 entities, time 5, warmup 2)
+  environment: as common above
+  inputs: bench script (T0 content)
+  outputs: TEMP tia_m9_bench.log (boot sequence only; CompileError in stderr log)
+  telemetry: none
+  reproducibility: REPRODUCIBLE (structural missing-module failure; deterministic given dev env)
+  reproduction_blockers: []
+- experiment: EXP-M9-02b
+  command: cmd /c set MIX_ENV=test && mix run bench/graph_ingestion_bench.exs
+  configuration: MIX_ENV=test; 240s cap; output to TEMP
+  seed: harness-fixed inputs
+  environment: as common above except MIX_ENV=test
+  inputs: bench script (T0 content)
+  outputs: TEMP tia_m9_bench2.log (no Benchee lines; no error lines; unclear exit path)
+  telemetry: none
+  reproducibility: NOT REPRODUCIBLE (single unclear run; output-capture gap)
+  reproduction_blockers: [Unclear exit path; needs re-run with explicit exit-code capture and full output retention]
+- experiment: EXP-M9-03
+  command: mix run TEMP/m9_probe.exs (probe sleeps 60s, inspects supervisors via which_children/whereis, prints, exits)
+  configuration: default dev env, hidden window; 150s cap; output to TEMP
+  seed: not-applicable (liveness observation)
+  environment: as common above
+  inputs: probe script (outside repo; content recorded in STOP report history, not retained as artifact)
+  outputs: TEMP tia_m9_probe.log (SUP/WHEREIS/M9PROBE-DONE lines)
+  telemetry: application log lines captured
+  reproducibility: PARTIAL (liveness facts reproducible given a booted tree; 75s window observation is single-sample)
+  reproduction_blockers: [Single 75s window; action-absence claims are window-bounded, not general]
+aggregate:
+  reproducible: 2
+  partially_reproducible: 2
+  not_reproducible: 1
+note: No result is claimed statistically significant. No run was repeated for significance; repetition discipline (deterministic vs stochastic vs failure-dependent) was not satisfiable within the observed single-sample runs except where structural determinism applies (EXP-M9-01 artifact read, EXP-M9-02 missing-module failure).

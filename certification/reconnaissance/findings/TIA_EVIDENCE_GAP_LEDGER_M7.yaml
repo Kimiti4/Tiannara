@@ -1,0 +1,76 @@
+# Move 7 — Evidence-Gap Update (carries Move 3 gaps forward; updates only where Move 7 provided evidence)
+# Rule: never silently delete historical gaps. Each carried gap keeps its
+# Move-3 text; updates are additive notes with Move-7 provenance.
+artifact: EVIDENCE_GAP_LEDGER_M7
+artifact_status: POST_T0
+move: 7
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+carried_gaps:
+- id: TIA-CAP-009
+  move3_gap: Regulation-effect demonstration; stabilizer contracts/specs
+  move7_update: Wiring/callers now evidenced (narrowing); CIS-overlap conflict identified as the specific ownership blocker; contract/spec gap unchanged (ctl.ex shows moduledoc only)
+  status: OPEN
+- id: TIA-CAP-010
+  move3_gap: Execution evidence; test-execution evidence bound to T0 content
+  move7_update: No change (ownership assigned to Evolution subsystem; execution gap untouched)
+  status: OPEN
+- id: TIA-CAP-011
+  move3_gap: Demonstration evidence; persistence contract
+  move7_update: No change (trivially canonical sole-claimant ownership does not supply demonstration)
+  status: OPEN
+- id: TIA-CAP-012
+  move3_gap: Schema, loader, consumer, enforcement evidence
+  move7_update: No change
+  status: OPEN
+- id: TIA-CAP-013
+  move3_gap: Schema, consumer, evaluation evidence
+  move7_update: No change
+  status: OPEN
+- id: TIA-CAP-014
+  move3_gap: Execution evidence attributing the specific T0 files to rotation runs
+  move7_update: Supervision ownership established (Council); rotation mechanism corroborated at source level; file-attribution gap unchanged
+  status: OPEN
+- id: TIA-CAP-015
+  move3_gap: Construction, query, freshness evidence, schema
+  move7_update: No change (concept references confirmed distinct from file consumption)
+  status: OPEN
+- id: TIA-CAP-016
+  move3_gap: Read/write module, retrieval behavior, any operational evidence
+  move7_update: No change
+  status: OPEN
+- id: TIA-CAP-017
+  move3_gap: Caller, execution evidence, output linkage
+  move7_update: Caller gap CONFIRMED ABSENT (zero callers; orphan determination recorded); remaining gap is intended-role evidence
+  status: OPEN
+- id: TIA-CAP-018
+  move3_gap: Audit-run execution record binding auditor, input, output, timestamp
+  move7_update: Auditor module capabilities + index linkage documented; run-record gap unchanged; CONTRA-003 still blocks any certification use
+  status: OPEN
+- id: TIA-CAP-019
+  move3_gap: Bound execution records (results)
+  move7_update: No change (harness confirmed as 3 scripts)
+  status: OPEN
+- id: TIA-CAP-020
+  move3_gap: Producer, consumer, generation evidence
+  move7_update: No change
+  status: OPEN
+- id: TIA-CAP-021
+  move3_gap: Builder, verifier, schema
+  move7_update: No change
+  status: OPEN
+new_gaps_from_move7:
+- id: GAP-M7-01
+  statement: Regulator boundary between Stabilization subsystem and CIS unevidenced (both claim regulation-adjacent roles; no separating text found)
+  blocks: Canonical regulator determination (M7-OWN-009 UNKNOWN)
+- id: GAP-M7-02
+  statement: Certification execution path unevidenced (references point at Council certification, but no demonstrated certification run binds any artifact)
+  blocks: Certification-authority singularity determination; CONTRA-003 resolution
+- id: GAP-M7-03
+  statement: Runtime authorization-flow evidence absent (contract text + struct exist; enforcement demonstration missing)
+  blocks: Supervision-authority divergence resolution
+aggregate:
+  carried_open: 13
+  closed: 0
+  new: 3
+  open_total: 16

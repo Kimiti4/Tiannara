@@ -1,0 +1,28 @@
+{
+  "schema": "FOUNDING_BASELINE_SCHEMA",
+  "version": "20.999",
+  "description": "Schema for FoundingBaseline — the immutable foundational baseline of CSOS v1.0",
+  "founding_baseline": {
+    "fields": {
+      "baseline_id": {"type": "string", "required": true, "description": "Content-addressed baseline identifier"},
+      "csos_version": {"type": "string", "required": true, "description": "CSOS 1.0"},
+      "contents": {
+        "type": "object", "required": true,
+        "fields": {
+          "constitutional_documents": {"type": "array"}, "architectures": {"type": "array"},
+          "schemas": {"type": "array"}, "replay_contracts": {"type": "array"},
+          "archaeology_contracts": {"type": "array"}, "certification_standards": {"type": "array"},
+          "mathematical_substrate": {"type": "array"}, "engineering_substrate": {"type": "array"},
+          "runtime_substrate": {"type": "array"}
+        }
+      },
+      "baseline_hash": {"type": "string", "required": true, "description": "SHA-256 of complete baseline"},
+      "immutable": {"type": "boolean", "required": true, "description": "Must be true — baseline is never modified"},
+      "inheritance_rule": {"type": "string", "required": true, "description": "Future generations extend, never modify"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["never_modified", "extend_only", "content_addressed", "permanent"]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "INSTITUTION_DESIGN_SCHEMA",
+  "version": "22.3",
+  "description": "Schema for an engineered institution design",
+  "institution_design": {
+    "fields": {
+      "institution_id": {"type": "string", "required": true},
+      "design_id": {"type": "string", "required": true},
+      "purpose": {"type": "string", "required": true},
+      "responsibilities": {"type": "array", "required": true},
+      "interfaces": {"type": "array", "required": true},
+      "knowledge_flows": {"type": "array", "required": true},
+      "resource_flows": {"type": "array", "required": true},
+      "governance_structure": {"type": "object", "required": true},
+      "performance_indicators": {"type": "array", "required": true},
+      "evolution_pathways": {"type": "array", "required": true},
+      "replacement_conditions": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["modular", "replaceable", "interface_contract_explicit"]
+  }
+}

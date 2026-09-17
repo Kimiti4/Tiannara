@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_replay.json",
+  "title": "EngineeringReplay",
+  "description": "A replay event recording a deterministic engineering operation.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^ereplay_[a-f0-9]{16}$" },
+    "event_type": {
+      "type": "string",
+      "enum": ["program_creation", "project_initiation", "artifact_creation", "state_transition", "change_implementation", "design_decision", "verification_execution", "certification", "deployment", "resource_allocation"]
+    },
+    "input_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "output_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "algorithm_parameters": { "type": "object" },
+    "decision_rationale": { "type": "string" },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshots", "output_snapshots", "content_hash"]
+}

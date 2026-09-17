@@ -1,0 +1,118 @@
+series: EFDI-FA-001-HARNESS-VALIDATION
+forecasts:
+  - EFDI-001-002-BTC5M
+  - EFDI-001-003-BTC5M
+  - EFDI-001-004-BTC5M
+  - EFDI-001-005-BTC5M
+  - EFDI-001-006-BTC5M
+  - EFDI-001-007-BTC5M
+  - EFDI-001-008-BTC5M
+  - EFDI-001-009-BTC5M
+  - EFDI-001-010-BTC5M
+  - EFDI-001-002-NBO60M
+  - EFDI-001-003-NBO60M
+  - EFDI-001-004-NBO60M
+  - EFDI-001-005-NBO60M
+  - EFDI-001-006-NBO60M
+  - EFDI-001-007-NBO60M
+  - EFDI-001-008-NBO60M
+  - EFDI-001-009-NBO60M
+  - EFDI-001-010-NBO60M
+recorded_at: 2026-09-13T06:07:00Z
+status: FROZEN_BEFORE_ISSUE
+
+================================================================
+SERIES-LEVEL PRE-REGISTRATION (RESOLUTION_PROTOCOL section 7, frozen)
+No element may change mid-series; a change ends the series and
+starts a new one.
+================================================================
+pre_registration:
+  question_template_BTC: >
+    Will the BTC/USD spot price at the end of the 5-minute window be >= the
+    BTC/USD spot price at window open (per the pre-declared resolution
+    source)?
+  question_template_NBO: >
+    Will measurable precipitation (>= 0.1 mm) be observed at Nairobi
+    (HKJK / Jomo Kenyatta) within the 60-minute window per the pre-declared
+    resolution source?
+  horizons: [5m, 1h]
+  resolution_rule_BTC: >
+    Up if spot_close >= spot_open else Down. No FLAT class. Source: CoinGecko
+    simple price (primary), CoinDesk (pre-declared fallback per section 5.2).
+    spot_open sampled at T0-eps; spot_close sampled at T0+5m+eps, each by the
+    one pre-declared reader after the window has elapsed.
+  resolution_rule_NBO: >
+    YES if any HKJK METAR present weather within [T0-30m, T0+60m+30m] reports
+    precip codes (RA/DZ/SN/SHRA/SHSN/TSRA/TSSN/FZRA/FZDZ/VCSH/RERA etc.),
+    else NO. Fallback (pre-declared): open-meteo hourly precip >= 0.1 mm for
+    the window per section 5.2.
+  B4_BTC: >
+    Polymarket btc-updown-5m implied probability for the SAME window at
+    data_cutoff. If not capturable within the resolution discipline: recorded
+    NOT_CAPTURED, never estimated retroactively.
+  B4_NBO: >
+    open-meteo hourly precipitation probability for the window at data_cutoff
+    (hour-bucket starting at window T0), pre-declared service.
+  B1_lock: >
+    BTC_5m: 5m-up frequency in trailing 24h observable at data_cutoff
+    (approx 0.50; 24h change near-flat). Nairobi_60m: 60m precip frequency in
+    trailing 7d, early-morning hours (approx 0.15). Fixed for the whole
+    series; never refit mid-series.
+  B3_lock: >
+    Family: moving-average/flat-trend on the frozen cutoff snapshot only.
+    No online refit. (For an N=10 pilot, decided results are dominated by
+    B1/B2/B4; B3 acts as the fixed-statistical check.)
+  issue_discipline: >
+    Each leg is frozen (written to the ledger) strictly BEFORE its T0.
+    Issuance is blocked if ANY window has already opened.
+
+================================================================
+MODEL PROBABILITY RULE (frozen, deterministic, no mid-series edit)
+Applied by the forecast generator at issuance from the frozen
+cutoff snapshot ONLY. Outcome-driven changes are prohibited.
+================================================================
+model_probability_rule:
+  BTC_5m: >
+    P(UP) = 0.5 + 0.01 = 0.505, P(DOWN) = 0.495.
+    No directional edge in frozen snapshot (24h change -0.06%); the +0.01
+    tilt is the fixed neutral tilt (same as pilot #001), never refit.
+  Nairobi_60m: >
+    P(YES) = B1_NBO + 0.5 * (ppb - B1_NBO), where ppb = open-meteo hourly
+    precipitation_probability at hour T0 (from the frozen cutoff snapshot,
+    expressed 0..1) and B1_NBO = 0.15 (trailing-7d 60m precip frequency,
+    early-morning hours). Shrinkage factor 0.5 frozen. P(NO) = 1 - P(YES).
+    Clamped to [0.02, 0.98].
+  predictabilities: { BTC_5m: 0.10, Nairobi_60m: 0.50 }
+  confidence: 0.35
+  model_disagreement: 0.10
+
+================================================================
+SAMPLING PLAN (candidate windows, frozen before issuance)
+All windows are strictly after the projected issue time (>= 06:30Z).
+================================================================
+sampling_plan:
+  BTC_5m_windows:
+    - { forecast: EFDI-001-002-BTC5M, T0: 2026-09-13T06:50:00.000Z, end: 2026-09-13T06:55:00.000Z }
+    - { forecast: EFDI-001-003-BTC5M, T0: 2026-09-13T06:55:00.000Z, end: 2026-09-13T07:00:00.000Z }
+    - { forecast: EFDI-001-004-BTC5M, T0: 2026-09-13T07:00:00.000Z, end: 2026-09-13T07:05:00.000Z }
+    - { forecast: EFDI-001-005-BTC5M, T0: 2026-09-13T07:05:00.000Z, end: 2026-09-13T07:10:00.000Z }
+    - { forecast: EFDI-001-006-BTC5M, T0: 2026-09-13T07:10:00.000Z, end: 2026-09-13T07:15:00.000Z }
+    - { forecast: EFDI-001-007-BTC5M, T0: 2026-09-13T07:15:00.000Z, end: 2026-09-13T07:20:00.000Z }
+    - { forecast: EFDI-001-008-BTC5M, T0: 2026-09-13T07:20:00.000Z, end: 2026-09-13T07:25:00.000Z }
+    - { forecast: EFDI-001-009-BTC5M, T0: 2026-09-13T07:25:00.000Z, end: 2026-09-13T07:30:00.000Z }
+    - { forecast: EFDI-001-010-BTC5M, T0: 2026-09-13T07:30:00.000Z, end: 2026-09-13T07:35:00.000Z }
+  Nairobi_60m_windows:
+    - { forecast: EFDI-001-002-NBO60M, T0: 2026-09-13T07:00:00.000Z, end: 2026-09-13T08:00:00.000Z }
+    - { forecast: EFDI-001-003-NBO60M, T0: 2026-09-13T08:00:00.000Z, end: 2026-09-13T09:00:00.000Z }
+    - { forecast: EFDI-001-004-NBO60M, T0: 2026-09-13T09:00:00.000Z, end: 2026-09-13T10:00:00.000Z }
+    - { forecast: EFDI-001-005-NBO60M, T0: 2026-09-13T10:00:00.000Z, end: 2026-09-13T11:00:00.000Z }
+    - { forecast: EFDI-001-006-NBO60M, T0: 2026-09-13T11:00:00.000Z, end: 2026-09-13T12:00:00.000Z }
+    - { forecast: EFDI-001-007-NBO60M, T0: 2026-09-13T12:00:00.000Z, end: 2026-09-13T13:00:00.000Z }
+    - { forecast: EFDI-001-008-NBO60M, T0: 2026-09-13T13:00:00.000Z, end: 2026-09-13T14:00:00.000Z }
+    - { forecast: EFDI-001-009-NBO60M, T0: 2026-09-13T14:00:00.000Z, end: 2026-09-13T15:00:00.000Z }
+    - { forecast: EFDI-001-010-NBO60M, T0: 2026-09-13T15:00:00.000Z, end: 2026-09-13T16:00:00.000Z }
+  note: >
+    All 18 windows begin after the actual issuance timestamp recorded in the
+    ledger; the issue script hard-fails if any T0 has already opened (F-05
+    forecast-leak guard). Series config hash is recorded in the ledger
+    metadata granule at issuance.

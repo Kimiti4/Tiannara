@@ -1,0 +1,79 @@
+artifact: stage8_design_scope
+stage: 8 (Implementation DESIGN — issuance, lifecycle, revocation under accepted policy)
+authority: TIA Council
+posture: DESIGN ONLY — no code, no issuance, no state mutation, no commits/pushes/index ops
+recorded_at: 2026-09-10
+acceptance: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY_ACCEPTANCE.yaml
+policy: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml
+prior_recon: forward_provenance/reconnaissance/ (Stage 7 artifacts: inventory, stack
+  reconciliation, identity analysis, lifecycle analysis, policy analysis, ownership matrix,
+  CONTRA-003 reassessment, options)
+
+summary:
+  question: What is the authorized scope for Stage 8 design?
+  answer: Design the future realization of a forward-provenance certificate authority that
+    would, WHEN SEPARATELY AUTHORIZED, (a) issue certificates binding a validated evidence
+    chain to a decision under the ACCEPTED policy, (b) manage lifecycle states
+    VALID/SUSPENDED/REVOKED/UNVERIFIABLE/SUPERSEDED with the policy's transition rules,
+    (c) revoke/supersede via authority-recorded decisions, using the bridge's deterministic
+    candidate identity (sha256 of candidate_id_spec + spine) as the certificate-identity
+    basis. Stage 8 produces CONTRACTS AND ARCHITECTURE ONLY.
+
+binding_rules:
+  - "DESIGN ONLY: every artifact in forward_provenance/design/ is a specification. No
+     module, no test, no wiring, no registry, no storage."
+  - "Identity basis: the deterministic bridge candidate_id is the ONLY identity basis.
+     No random-uuid / utc_now identity is introduced anywhere in design (matches policy
+     determinism + certificate_identity_analysis ID-M5)."
+  - "Failure mode: fail-closed is preserved IN DESIGN. A realization MAY only issue when
+     all accepted-policy issuance conditions hold AND an authority decision (human
+     ratification per policy requirements + accepted policy) exists. Until such a decision
+     exists the bridge remains SAFE-BLOCKED; design does not pre-authorize any transition."
+  - "M7 REMAINS OPEN: policy requires human ratification for any runtime-integrated forward
+     certificate until M7 single-vs-distributed is resolved. Design routes ratification to
+     a Council decision channel; it does NOT invent a mechanism-only authority."
+  - "Boundary preserved: provenance (edges/envelopes/verification) and authority
+     (decisions/certificates) stay separate. Design describes the seam; it does not fuse it."
+
+design_outputs:
+  - certificate_identity_design.yaml — canonical certificate identity contract (deterministic,
+    evidence-derived, policy-compliant; M5-derived; issuer API divergence documented)
+  - issuance_design.yaml — issuance architecture: who may issue, under what conditions
+    (all_must_hold/impossible_cases), accepting the bridge's fail-closed as the DESIGN
+    baseline and routing issuance through a future authorized realization
+  - lifecycle_design.yaml — lifecycle state machine (VALID/SUSPENDED/REVOKED/UNVERIFIABLE/
+    SUPERSEDED) + transition rules + revocation/supersession decision records (envelope-
+    bound per policy), mapped to the bridge lifecycle_table/0 as reference-only
+  - authority_boundary_design.yaml — provenance→authority boundary contract, authority
+    registry concept, human-ratification points, ownership allocation (from Stage-7
+    authority_ownership_matrix), and the NOT-AUTHORITY boundary (Certificate.issue/1
+    unvalidated string documented as the NON-model, not adopted)
+
+scope_boundaries:
+  - IN: architectures, contracts, identity spec, lifecycle spec, revocation/supersession
+    decision records spec, authority boundary spec, ownership allocation, design-only
+    consistency checks (artifact checks, not code).
+  - OUT: any implementation of the above; editing certificate_authority_bridge.ex or any
+    substrate module; creating new modules/tests; importing any existing authority;
+    touching T0/CONTRA-003/archived/phase14; resolving M7; issuing/revoking/suspending.
+
+consistency_contract:
+  - "Every design artifact cites its policy chapter (TIA_PROVENANCE_CERTIFICATION_POLICY.yaml)
+     and its prior-recon evidence rows where applicable."
+  - "Every design artifact declares DESIGN_ONLY: true and carries a design_status field."
+  - "Contradictions found during design are RECORDED in the artifact, never silently
+     smoothed (mirrors CONTRA handling)."
+
+## Design-level decisions (made here, as design, not enactment)
+- d1: certificate identity = deterministic sha256(candidate_id_spec + spine), i.e. the
+  Stage-6 bridge candidate identity is REUSED as the certificate identity basis.
+- d2: authority closure remains ALL-BLOCKED in the bridge (design does not move ANY
+  A01..A12 predicate to open; it specifies the future authorization condition for each).
+- d3: lifecycle/revocation are designed as ENVELOPE-BOUND DECISION RECORDS (the policy's
+  own wording: revocation decision is itself an envelope), co-located with the evidence
+  chain so an auditor can answer from bundle bytes alone.
+- d4: no new dependency or import contract crosses the provenance/authority seam without
+  an explicit Council authorization event; design enumerates the events, it cannot issue
+  them.
+
+NOTHING_IMPLEMENTED: true

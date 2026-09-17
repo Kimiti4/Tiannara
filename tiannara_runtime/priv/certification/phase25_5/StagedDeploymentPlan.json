@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/staged_deployment_plan.json",
+  "title": "StagedDeploymentPlan",
+  "description": "A phased deployment plan for an intervention.",
+  "type": "object",
+  "properties": {
+    "plan_id": { "type": "string", "pattern": "^deploy_[a-f0-9]{16}$" },
+    "intervention_id": { "type": "string" },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage_id": { "type": "string" },
+          "order": { "type": "integer" },
+          "trigger_conditions": { "type": "object" },
+          "actions": { "type": "array", "items": { "type": "object" } },
+          "duration_estimate": { "type": "string" },
+          "milestones": { "type": "array", "items": { "type": "string" } },
+          "evaluation_criteria": { "type": "object" },
+          "rollback_plan": { "type": "object" },
+          "next_stage_triggers": { "type": "object" }
+        },
+        "required": ["stage_id", "order", "actions", "evaluation_criteria"]
+      }
+    },
+    "current_stage": { "type": "integer" },
+    "plan_status": { "type": "string", "enum": ["draft", "approved", "active", "completed", "halted", "abandoned"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "updated_at": { "type": "integer" }
+  },
+  "required": ["plan_id", "intervention_id", "stages", "fingerprint"]
+}

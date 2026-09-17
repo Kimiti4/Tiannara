@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/theory_evolution.json",
+  "title": "TheoryEvolution",
+  "description": "An evolution event in the theory ecology — formation, unification, splitting, replacement, or retirement.",
+  "type": "object",
+  "properties": {
+    "evolution_id": { "type": "string", "pattern": "^evt_[a-f0-9]{16}$" },
+    "event_type": {
+      "type": "string",
+      "enum": ["formation", "unification", "splitting", "replacement", "retirement", "evaluation_update", "certification_change"]
+    },
+    "input_entity_ids": { "type": "array", "items": { "type": "string" } },
+    "output_entity_ids": { "type": "array", "items": { "type": "string" } },
+    "algorithm_parameters": { "type": "object" },
+    "deterministic_seed": { "type": "integer" },
+    "parent_event_ids": { "type": "array", "items": { "type": "string" } },
+    "justification": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["evolution_id", "event_type", "input_entity_ids", "output_entity_ids", "fingerprint"]
+}

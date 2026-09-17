@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PriorityRequest",
+  "description": "Research priority evaluation request submitted to the Adaptive Scientific Prioritization System",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this priority request"
+    },
+    "program_id": {
+      "type": "string",
+      "description": "Program, question, or experiment being evaluated"
+    },
+    "request_type": {
+      "type": "string",
+      "enum": ["new_program", "priority_review", "priority_increase", "priority_decrease", "suspension", "resumption", "termination", "emergency_priority"]
+    },
+    "submission_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of submission"
+    },
+    "submitter": {
+      "type": "string",
+      "description": "Governance entity submitting the request"
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Rationale for the priority request"
+    },
+    "supporting_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Evidence references supporting the request"
+    },
+    "expected_outcomes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "outcome_type": {
+            "type": "string",
+            "enum": ["discovery", "engineering_capability", "knowledge_gap_fill", "bottleneck_resolution", "uncertainty_reduction", "cross_domain_benefit"]
+          },
+          "description": {
+            "type": "string"
+          },
+          "probability": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "timeframe": {
+            "type": "string",
+            "enum": ["short_term", "medium_term", "long_term", "generational"]
+          }
+        },
+        "required": ["outcome_type", "description"]
+      }
+    },
+    "resource_requirements": {
+      "type": "object",
+      "properties": {
+        "compute": {
+          "type": "number",
+          "description": "Compute resource estimate"
+        },
+        "simulation": {
+          "type": "number",
+          "description": "Simulation resource estimate"
+        },
+        "engineering": {
+          "type": "number",
+          "description": "Engineering resource estimate"
+        },
+        "laboratory": {
+          "type": "number",
+          "description": "Laboratory resource estimate"
+        },
+        "data_collection": {
+          "type": "number",
+          "description": "Data collection resource estimate"
+        },
+        "human_review": {
+          "type": "number",
+          "description": "Human review resource estimate"
+        },
+        "validation": {
+          "type": "number",
+          "description": "Validation resource estimate"
+        }
+      },
+      "required": ["compute", "simulation", "engineering", "laboratory"]
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Prerequisite program IDs"
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Scientific or engineering domains affected"
+    },
+    "constitutional_alignment": {
+      "type": "object",
+      "properties": {
+        "constitutional_value_alignment": {
+          "type": "string"
+        },
+        "human_governance_preserved": {
+          "type": "boolean"
+        },
+        "fairness_assessment": {
+          "type": "string"
+        },
+        "sustainability_assessment": {
+          "type": "string"
+        }
+      },
+      "required": ["constitutional_value_alignment", "human_governance_preserved"]
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash of this request"
+    }
+  },
+  "required": ["request_id", "program_id", "request_type", "submission_date", "submitter", "rationale", "resource_requirements", "fingerprint"]
+}

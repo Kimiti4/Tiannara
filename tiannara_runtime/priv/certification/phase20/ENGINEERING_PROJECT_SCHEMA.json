@@ -1,0 +1,27 @@
+{
+  "schema": "ENGINEERING_PROJECT_SCHEMA",
+  "version": "20.6",
+  "description": "Schema for EngineeringProject — constitutional engineering project",
+  "project": {
+    "fields": {
+      "project_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "owner": {"type": "string", "required": true, "description": "Entity requesting the project"},
+      "purpose": {"type": "string", "required": true, "description": "Brief purpose statement"},
+      "originating_problem": {"type": "string", "required": true, "description": "Reference to problem or bottleneck"},
+      "constitutional_scope": {"type": "object", "required": true, "description": "Constitutional scope constraints"},
+      "affected_domains": {"type": "array", "required": true, "description": "Affected runtime domains"},
+      "dependencies": {"type": "array", "required": false, "description": "Project dependencies"},
+      "replay_root": {"type": "string", "required": true, "description": "Root hash of project replay chain"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Root hash of project archaeology"},
+      "certification_status": {"type": "string", "required": true, "description": "Certification status"},
+      "current_stage": {"type": "string", "required": true, "description": "Current pipeline stage"},
+      "status": {"type": "string", "required": true, "description": "Requested/InProgress/Certified/Integrated/Frozen/Abandoned"}
+    },
+    "lifecycle": ["requested", "in_progress", "certified", "integrated", "frozen", "abandoned"],
+    "stages": [
+      "engineering_request", "problem_analysis", "requirements", "architecture",
+      "design", "implementation_plan", "simulation", "verification", "validation",
+      "audit", "certification", "integration", "freeze"
+    ]
+  }
+}

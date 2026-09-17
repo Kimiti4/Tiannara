@@ -1,0 +1,31 @@
+{
+  "schema": "SYSTEM_CERTIFICATE_SCHEMA",
+  "version": "20.999",
+  "description": "Schema for SystemCertificate — the final authoritative certificate of the Constitutional Operating System (complement to CSOS_CERTIFICATE_SCHEMA — this tracks signing chain and subsystem counts; that tracks CSOS guarantees and evidence refs)",
+  "system_certificate": {
+    "fields": {
+      "certificate_id": {"type": "string", "required": true, "description": "Content-addressed certificate identifier"},
+      "certificate_type": {"type": "string", "required": true, "description": "ConstitutionalOperatingSystem"},
+      "system_name": {"type": "string", "required": true, "description": "Tiannara Constitutional Operating System"},
+      "version": {"type": "string", "required": true, "description": "20.999 — also known as CSOS 1.0"},
+      "certification_generation": {"type": "string", "required": true},
+      "freeze": {"type": "string", "required": true, "description": "Reference to ConstitutionalFreeze"},
+      "declaration": {"type": "string", "required": true, "description": "Reference to CertificationDeclaration"},
+      "signatures": {"type": "array", "required": true, "items": {"type": "string"}, "description": "References to all CertificationSignatures"},
+      "archive": {"type": "string", "required": true, "description": "Reference to ArchivalRecord"},
+      "replay": {"type": "string", "required": true, "description": "Reference to CertificationReplay"},
+      "artifact_count": {"type": "integer", "required": true},
+      "phase_count": {"type": "integer", "required": true},
+      "subsystem_count": {"type": "integer", "required": true},
+      "certificate_hash": {"type": "string", "required": true, "description": "SHA-256 of certificate canonical form"},
+      "issued_by": {"type": "string", "required": true, "description": "Constitutional Architecture Authority"},
+      "issued_at": {"type": "integer", "required": true, "description": "Deterministic issuance timestamp"},
+      "effective_date": {"type": "integer", "required": true},
+      "expiration": {"type": "string", "required": false, "description": "Permanent unless superseded by future certification"},
+      "status": {"type": "string", "required": true, "description": "Draft/Signed/Certified/Archived/Superseded"}
+    },
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": ["constitutional_authority", "deterministic_certification", "permanent_record", "archaeology_preserved"]
+  }
+}

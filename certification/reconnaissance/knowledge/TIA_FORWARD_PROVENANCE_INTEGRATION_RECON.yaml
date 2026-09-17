@@ -1,0 +1,276 @@
+program: TIA_FORENSIC_RECON_ENGINE
+move: FORWARD-PROVENANCE-INTEGRATION-CERTIFICATION-GATE
+schema_version: "1.0.0"
+method: "Read-only integration reconnaissance. Grounds the standalone forward provenance implementation (forward_provenance/, namespace TiannaraOS.Provenance, forwards-only, zero-dependency) against the canonical architecture (TIA_CANONICAL_ARCHITECTURE_M7), the runtime identity/execution subsystems, observability, the governance/certification stack, and the knowledge promotion pipeline. Validates the proposed integration-boundary diagram against canonical sources. No implementation, no test execution, no commits, no pushes."
+STATUS: "RECON COMPLETE (integration is DESIGNED and GATED, not implemented; see STOP report)"
+
+integration_boundary:
+  classification: PROVENANCE IS CROSS-CUTTING EPISTEMIC INFRASTRUCTURE - not an autonomous subsystem. It owns no campaign outcome, no runtime resource, and no result value; it binds evidence to executions immutably and forwards-only.
+  boundary_principles:
+    - "FORWARD ONLY: envelopes are created once, hash-bound at creation, never mutated; the substrate certifies only evidence it observed at event time"
+    - "OBSERVES, NEVER OWNS: execution, result, metric, and certificate objects continue to be owned by their producing subsystems; the provenance layer binds what exists rather than fabricating what should"
+    - "IDENTITY OVER INFERENCE: no relationship reconstructed from filenames, timestamps, directory placement, or value matching"
+    - "FAIL CLOSED EPISTEMICALLY: unknowns are recorded as UNKNOWN, never fabricated"
+  conceptual_basis:
+    - "The subsystem is the generalization of the existing provenance gate Tiannara.Evidence.Provenance.acceptable_as_evidence?/1 (T0: accepts only :real_execution + id or :imported_evidence + source; rejects :simulation). The forward substrate extends the same philosophy to full envelopes + graph + certificates for FUTURE evidence only."
+  diagram_validation:
+    verdict: ACCEPTED WITH AMENDMENTS
+    reasoning: "The proposed diagram (TiannaraOS.Provenance as an observation/serialization layer between runtime producers {execution, result, metric, certificate} and consumers {certification, observability, knowledge promotion, audit}) is consistent with the canonical architecture: provenance must NOT be added to the 21-capability ownership table as a domain owner, because it is a cross-cutting layer. Amendments required before any implementation: (1) identity reconciliation, not replacement - the three runtime execution_id generators must route through one uniqueness boundary, (2) the layer must remain forward-only and never emit historical certificates, (3) subsystem owners emit; the provenance layer never calls into producers to force behavior."
+    unresolved: "None identified that blocks the DESIGN; the open decision 'certification single authority vs distributed model' (M7) is unresolved and must be resolved BEFORE the forward certificate authority is wired to runtime."
+
+architecture_mapping:
+  basis: "TIA_CANONICAL_ARCHITECTURE_M7 capability_ownership + subsystem_ownership (9 CANONICAL, 1 SPECIALIZED, 1 BLOCKED, 4 disconnected, 1 ORPHAN, 5 UNKNOWN)"
+  subsystems:
+    - subsystem: "Forecasting (lib/tiannara/forecasting/)"
+      ownership: "CANONICAL (TIA-CAP-001..005, shared 007, 011)"
+      relation_to_forward_provenance: BOTH
+      note: "D1-D5 certified-bounded; certificates can CONSUME forward-verified evidence envelopes; executions under E03 will EMIT execution envelopes"
+    - subsystem: "Council (lib/tiannara/council/)"
+      ownership: "CANONICAL (TIA-CAP-014)"
+      relation_to_forward_provenance: CAN CONSUME
+      note: "gate authorizations are authority records the certificate layer may cite as authority objects; not a runtime producer"
+    - subsystem: "Evolution (lib/tiannara/evolution/)"
+      ownership: "CANONICAL (TIA-CAP-010)"
+      relation_to_forward_provenance: CAN EMIT
+      note: "substrate executions (SR) produce runs that may emit execution envelopes; currently unintegrated"
+    - subsystem: "Evidence/forensic (lib/tiannara/evidence/ + provenance/)"
+      ownership: "SPECIALIZED (TIA-CAP-008) + shared 007"
+      relation_to_forward_provenance: BOTH
+      note: "conceptual parent of the forward substrate; the existing gate is a CONSUMER of provenance claims"
+    - subsystem: "Stabilization (lib/tiannara/stabilization/)"
+      ownership: "UNASSIGNED (disputed with CIS; M7 unresolved)"
+      relation_to_forward_provenance: NEITHER TODAY
+      note: "no execution evidence; not an integration point until regulation attribution is evidenced (RQ-002)"
+    - subsystem: "Phase-4 RealExecution (lib/tiannara/phase4/real_execution.ex)"
+      ownership: "UNKNOWN (phase14 corpus linkage unevidenced, TIA-CAP-018 candidate)"
+      relation_to_forward_provenance: CAN EMIT
+      note: "JSONL ledger + EventStore experiment.real_execution.completed; the most integration-ready execution producer (id form exec_<unix>_<unique_integer>)"
+    - subsystem: "OPC ExecutionRuntime (tiannara_runtime/lib/tiannara_runtime/opc/runtime/execution_runtime.ex)"
+      ownership: UNKNOWN
+      relation_to_forward_provenance: CAN EMIT
+      note: "System.unique_integer minted ids; separate runtime tree - cross-tree integration is an open boundary question"
+    - subsystem: "Certification governance (lib/tiannara/os/governance/certification/ + phase14 corpus)"
+      ownership: "UNKNOWN (TIA-CAP-018/certificate authority unresolved)"
+      relation_to_forward_provenance: CAN CONSUME
+      note: "laboratory.ex is the existing certification actor; must be the authority bound in future forward certificates; CURRENTLY NOT INTEGRATED"
+    - subsystem: "Observability (lib/tiannara/os/provenance_tracker.ex, metric_provenance_resolver.ex, metric_with_provenance.ex)"
+      ownership: "SPECIALIZED (POST_T0 audit infrastructure)"
+      relation_to_forward_provenance: "CAN EMIT (metric lineage)"
+      note: "the tracker/resolvers map metric ids to provenance today; the forward substrate would make lineage machine-auditable"
+    - subsystem: "Knowledge promotion (lib/tiannara/world/knowledge_flow_engine.ex, knowledge_coordinator.ex, research/knowledge_integrator.ex)"
+      ownership: "UNKNOWN (TIA-CAP-012/013/015/016 candidates)"
+      relation_to_forward_provenance: CAN CONSUME
+      note: "promotion stages :pattern/:model/:principle/:generalized_understanding/:scientific_discovery; knowledge items carry lineage incl. evidence_id + experiment_id - primary evidence should be forward-certified before promotion"
+    - subsystem: "Research Director (lib/tiannara/research/evidence_driven.ex)"
+      ownership: "UNKNOWN (TIA-CAP-019 candidate)"
+      relation_to_forward_provenance: CAN CONSUME
+      note: "proposes only, never executes (Omega.4); consumes evidence to assess/rank hypotheses"
+    - subsystem: "Research Observatory (constitutional monitor role)"
+      ownership: "read-only role (INV-035; Observatory never deploys)"
+      relation_to_forward_provenance: CAN CONSUME
+      note: "observes provenance health; read-only role compatible with monitoring certificate validity without issuing"
+    - subsystem: "Institution Kernel (lib/tiannara/os/institution_kernel.ex)"
+      ownership: UNKNOWN
+      relation_to_forward_provenance: CAN EMIT
+      note: "spawns campaigns (/programs) with name-based ids - campaign_id collision/mapping risk surface"
+    - subsystem: "ValidationCampaigns (lib/tiannara/validation_campaigns.ex)"
+      ownership: UNKNOWN
+      relation_to_forward_provenance: CAN EMIT
+      note: "campaign_<12-hex-strong-random> ids, GenServer-scoped, in-memory history - no persisted ledger"
+    - subsystem: certification_framework.ex
+      ownership: "ORPHAN (M7 finding: zero callers)"
+      relation_to_forward_provenance: NEITHER
+      note: "orphan; no integration decision required (do not resurrect for forward work)"
+
+identity_mapping:
+  identity_rule: "execution_id means exactly one execution; no id class may silently mean different things across systems; where the same logical object exists in multiple systems, an explicit mapping (id + identity_hash) is required, never a shared string."
+  identities:
+    - id_class: run_id
+      observed_sources: [CI provider (lib/tiannara/ci/provider.ex, lib/tiannara/ci/github_actions.ex), soak tests, stress validation]
+      generator: "CI run id (single run may contain many executions)"
+      uniqueness: "Per CI run; NOT execution-unique"
+      conflict: "run_id groups executions; must not be used AS the execution identity in forward envelopes"
+      verdict: "MAP to execution group, never to execution identity"
+    - id_class: execution_id
+      observed_sources: [forward_provenance (lib/execution.ex:26-30), OPC ExecutionRuntime (tiannara_runtime/.../execution_runtime.ex:51), Phase-4 RealExecution (lib/tiannara/phase4/real_execution.ex:216-218)]
+      generator_note: "THREE competing generators: forward mints \"exec_\" <> monotonic_ms <> \"_\" <> uuid13; OPC mints System.unique_integer (no prefix); Phase-4 mints \"exec_\" <> unix_ms <> \"_\" <> unique_integer persisted to priv/tiannara/real_execution/executions.jsonl + EventStore experiment.real_execution.completed"
+      uniqueness: "NOT centrally enforced; prefix overlap (exec_) creates real collision risk between forward and Phase-4 id spaces"
+      conflict: "PRIMARY UNITY GAP - the forward substrate's central identity rule cannot be honored until the three generators resolve into one uniqueness boundary"
+      verdict: "Reconcile by registry/mapping at integration time; never free-mix id strings"
+    - id_class: campaign_id
+      observed_sources: [ValidationCampaigns, InstitutionKernel, Observatory.Validation, CampaignIntegration routing]
+      generator_note: "Multiple uncoordinated sites: campaign_<12-hex-random> (ValidationCampaigns), name-derived atoms (InstitutionKernel), registry handles (Observatory.Validation), route keys (CampaignIntegration)"
+      uniqueness: "Per-system only; no central registry"
+      conflict: "Same campaign referenced by 4 different id forms across systems"
+      verdict: "campaign_id is a grouping class; forward substrate must bind the campaign definition object, not assume id uniqueness across systems"
+    - id_class: experiment_id
+      observed_sources: [Phase-4 real_execution ledger, Research Director candidate archetypes (evidence_driven.ex:200), ASC research]
+      uniqueness: "Per producer"
+      conflict: "No shared experiment registry between Phase-4 and the Research Director's proposal space"
+      verdict: "Bind experiment_definition identity (definition_id + recipe_hash) as in the minimum model"
+    - id_class: result_id / metric_id / certificate_id
+      observed_sources: [forward_provenance, phase14 corpus, governance certification, OPC pipeline]
+      generator_note: "Each producer mints its own; phase14 certificate.json carries 12 campaign blocks with inline self-asserted values and no envelope refs (TIA_CERTIFICATE_TRUTH_INVESTIGATION)"
+      uniqueness: "Not cross-system"
+      conflict: "certificate_id collision space between forward substrate and legacy certification artifacts is disjoint only because there is no shared registry"
+      verdict: "Forward certificate ids remain cert_<hash>; legacy ids are historical, never re-claimed"
+    - id_class: knowledge_id / research_question_id
+      observed_sources: [KnowledgeStore knowledge items (knowledge_integrator.ex, asc probe record/2), research question ledger RQ-001..RQ-010 (certification/reconnaissance/knowledge)]
+      uniqueness: "Per store / per ledger"
+      conflict: "knowledge items carry evidence_id + experiment_id lineage but no certificate reference today"
+      verdict: "Derived-knowledge lineage must point at certified primary evidence; research_question_id remains ledger-level for now"
+  summary: "No id class is uniformly unique across the tree today. The single identity invariant the integration must preserve is execution_id = exactly one execution, enforced at the uniqueness boundary, before any forward certificate is accepted as evidence of which execution ran."
+
+runtime_boundaries:
+  classification_vocabulary: "CAN EMIT / CAN CONSUME / BOTH / NEITHER / UNKNOWN"
+  integration_points:
+    - point: Experiment scheduler / E03 harness (lib/tiannara/empirical_validation/e03/harness.ex + phase4/experiment_orchestrator.ex)
+      class: CAN EMIT
+      note: "execution_started/execution_ended; harness currently emits campaign config with id E03 - no envelope"
+    - point: Simulation runner (evolution substrate, discovery engine)
+      class: CAN EMIT
+      note: "execution + telemetry outputs; unversioned today"
+    - point: Result writer (result/artifact producers)
+      class: CAN EMIT
+      note: "result_produced; phase14 gc_* files never carried execution linkage (TIA_BINDING_INVESTIGATION, TIA_EXECUTION_RECORD_INVESTIGATION)"
+    - point: Metric calculator (metric writers, ExecutiveMetrics, metric_provenance_resolver)
+      class: CAN EMIT
+      note: "metric_computed; metric_manifest required; RQ-010 blast radius unresolved - forward substrate cannot certify legacy metric claims"
+    - point: Certificate / certification generator (os/governance/certification/laboratory.ex, phase14)
+      class: CAN CONSUME
+      note: "decision_recorded envelopes reference evidence envelopes; the authority question (single vs distributed) must be resolved first"
+    - point: Observability (provenance tracker, telemetry)
+      class: BOTH
+      note: "observes envelope/chain health; emits observations (never certificates)"
+    - point: Audit (independent auditor, governance replay)
+      class: CAN CONSUME
+      note: "recomputes every hash; mark CONTESTED on any broken edge (A-J suite)"
+    - point: Knowledge promotion (knowledge_flow_engine, knowledge_coordinator, knowledge_integrator)
+      class: CAN CONSUME
+      note: "promotes only forward-certified primary evidence; derived knowledge never self-certifies"
+
+event_model:
+  forward_order: [execution_started, execution_ended, result_produced, metric_computed, decision_recorded]
+  runtime_equivalence_required:
+    - "One execution_started -> one execution_ended (per attempt) with matching execution_id"
+    - "No certificate before a success terminal event"
+    - "Any re-run is a NEW execution_id (attempt), never an overwrite"
+  ordering_constraint: "envelope order is by parent linkage + event sequence; timestamps are audit aids, never identity"
+
+failure_semantics:
+  forward_status_vocabulary: [SUCCESS, FAILURE, PARTIAL, UNKNOWN]
+  integration_extensions: "Runtime classes TIMEOUT, CANCELLED, ABORTED are NOT yet represented in the forward vocabulary and MUST be added at integration time (see test M). Unknown execution status implies NOT CERTIFIABLE."
+
+distributed_execution:
+  finding: "Distributed/forked execution requires parent_execution_id (PARENT_OF edge, as in the minimum model). No runtime parent/child execution linkage exists today in any producer."
+  requirement: "A child whose parent_execution_id does not resolve is UNVERIFIED, never auto-attributed to the parent (test P)."
+
+reproducibility:
+  forward_demo: "CONDITIONAL - seed-anchored (trial-mean estimator over 100 uniform draws, seed :exsss {seed, seed*31, seed*17}); mean/std dev reproducible from seed + corpus"
+  runtime_recorded: "Historically NOT reproducible from records alone (seed file 0 bytes; no corpus; re-derivation impossible - TIA_CERTIFICATE_TRUTH_INVESTIGATION section D)"
+  classification: "FULL / CONDITIONAL / PARTIAL / NOT - forward certificates must declare the reproducibility class explicitly; PARTIAL/NOT classes are recordable but never certified as reproducible"
+
+evidence_bundle_contents:
+  required: [bundle_manifest, provenance_envelopes, identity_objects, manifests (input/output/metric), certificates, audit trail, schema_version + canonical_serialization_spec]
+  optional: [measurements corpus] 
+  derived: [result payloads + payload_hash, recomputed metrics]
+  external: [non-repository storable bundle; deletion of repo paths must not invalidate certification (prior bundle spec requirement)]
+  note: "Bundling at certification time, never retroactive; retroactive bundling of legacy artifacts prohibited unless every missing identity is recorded as UNKNOWN"
+
+canonicalization:
+  forward_spec: "forward_provenance/spec/canonicalization_spec.yaml (canonical map rendering, :null handling, payload_hash = sha256 over envelope minus own payload_hash field, self-hash semantics)"
+  runtime_status: "No canonicalization spec exists for legacy certificate hashing; governance self-hash MISMATCH (stored 409dbc2a.. vs recompute 0b1a6ab6..) remains intrinsic and unresolved (TIA_CERTIFICATE_TRUTH_INVESTIGATION E2)"
+  consequence: "canonical deterministic identity is defined only for the forward substrate; legacy hash semantics stay UNRESOLVED and are untouched by this gate"
+
+hash_semantics:
+  byte_integrity: "hash proves bytes were not mutated since hashing"
+  content_identity: "hash proves artifact identity, not correctness"
+  execution_provenance: "only a chain of envelopes to a recorded execution establishes provenance"
+  certification_authority: "only a certificate referencing that chain carries authority"
+  finding: "Matching hash does NOT imply correct execution; valid certificate does NOT imply real execution. Both forms must be satisfied independently (tested by the adversarial suite)."
+
+metric_lineage:
+  requirement: "metric_manifest (name, definition_version, computation_hash, input_field_list, aggregation/rounding/normalization, seed_dependence, measurement_corpus_ref, recomputed_by) per the minimum model"
+  rq_010: "ExecutiveMetrics (lib/tiannara/cel/services/executive_metrics.ex) crashes per cycle (message-protocol mismatch, deterministic); KPI consumers mapped only partly (mission_director service registry); blast radius UNMAPPED. Forward substrate makes metric lineage explicit for FUTURE metrics only; historical KPI-derived claims remain under RQ-010."
+  verdict: "RATE self-asserted confidence constants and auditor protocol divergence (gc_009/gc_010, 1000-vs-100 samples) remain historical; the forward layer never endorses them."
+
+certification_gate_conditions:
+  - "Evidence chain resolvable backward from the decision to a recorded execution (source + contract + environment + inputs + outputs)"
+  - "Certificate references exact evidence envelopes, not inline values"
+  - "Authority + authority_kind (human / mechanism) recorded; human oversight required where the authority registry demands it"
+  - "Certificate declares reproducibility class and canonicalization spec version"
+  - "Historical firewall passes: no envelope references any historical unverified evidence"
+
+certificate_invalidation_semantics:
+  note: "STATES + TRANSITIONS ARE SEMANTICS ONLY IN THIS GATE - no implementation."
+  states: [VALID, SUSPENDED, REVOKED, UNVERIFIABLE, SUPERSEDED]
+  transitions:
+    - "VALID -> SUSPENDED: chain temporarily unresolvable pending re-verification"
+    - "VALID -> REVOKED: authority decision recorded; revocation event is itself an envelope"
+    - "VALID -> SUPERSEDED: a newer certificate supersedes for the SAME execution clause under a schema/authority change"
+    - "ANY -> UNVERIFIABLE: evidence restorable only with recorded unresolved-edge (test G / S)"
+  verification_status_vocabulary: [VERIFIED, UNVERIFIED, CONTESTED, FAILED]
+
+knowledge_boundary:
+  principle: "PRIMARY EVIDENCE vs DERIVED KNOWLEDGE are distinct epistemic layers. Only forward-certified primary evidence (execution -> result -> metric chain under contract) may feed knowledge promotion; promoted knowledge ('pattern'..'scientific_discovery') is derived and inherits the primary evidence lineage, never self-asserting."
+  promotion_rule: "A.knowledge item without a resolvable certified-primary-evidence lineage is NOT promoted into the scientific stack from forward-sourced evidence; legacy-derived items are quarantined as UNRESOLVED (DQ-005 class / knowledge_integrator quarantine_historical)."
+
+human_judgment:
+  research_director: "Proposes experiment candidates, ranks hypotheses, NEVER executes (Omega.4 governance) - a CONSUMER of certified evidence"
+  observatory: "Read-only monitor; INV-035: Observatory never deploys; provenance-health observation is within its role; it does not issue certificates"
+  authority: "Certificate authority requires a recorded human or mechanism identity; where certification of forward-executed runs is first deployed, human ratification is required until the single-vs-distributed authority question (M7) is resolved"
+
+performance:
+  status: "No forward integration benchmarks exist; the substrate is O(1) per envelope/object with no external deps. Runtime integration must measure envelope append + hash/verify cost against soak/stress loads before any long-horizon campaigns adopt it."
+  failure_recovery:
+    - "Recovery FAILS CLOSED epistemically: on any unresolved identity/edge, status becomes UNVERIFIED/CONTESTED and no certificate issues; unknowns are written as UNKNOWN"
+
+schema_evolution:
+  - "canonicalization spec is versioned; schema_version pins envelope grammar"
+  - "envelope immutability means evolution = new envelope, never mutation of issued ones"
+  - "supersession transitions exist at the certificate layer (states above), not by rewriting evidence"
+
+security_model:
+  - "Hashes verify byte integrity only; certificate chains carry authority"
+  - "Canonical serialization is defined and auditable only for the forward spec"
+  - "Untrusted inputs (corpus, result bytes) are hashed as opaque bytes; interpretation separated from integrity"
+  - "No secret handling added by the substrate (zero deps; output bundles are public evidence)"
+
+historical_firewall:
+  invariant: "FORWARD_PROVENANCE_MUST_NOT_CERTIFY_HISTORICAL_UNVERIFIED_EVIDENCE"
+  prohibitions:
+    - "No certificate may reference pre-T0 or legacy unverified evidence"
+    - "No bundle may be backfilled for historical artifacts"
+    - "No historical certificate may be regenerated, repaired, or reinterpreted against the forward model"
+    - "CONTRA-003 remains UNRESOLVED: NOT reconciled by interpretation; the forward substrate adds no gc_012 verdict"
+  preservation: "T0 identity (9753a6d / 06f06e5e) and all historical gaps are OUT OF SCOPE of the forward layer by construction."
+
+verification_commands:
+  note: "These verify the STANDALONE substrate, not runtime integration; no runtime integration exists to verify."
+  commands:
+    - "mix test (forward_provenance/) - 16/16 (includes adversarial A-J)"
+    - "mix run scripts/verify_demo.exs output/demo_fps_001/bundle - independent ACCEPT 7/7 + 5/5 edges"
+    - "mix run scripts/adversarial_results.exs - A-J 10/10"
+
+unknowns:
+  - id: UNK-1
+    statement: "Exact OPC ExecutionRuntime execution_id collision probability with forward/Phase-4 prefixes (Central Uniqueness Registry absent)"
+  - id: UNK-2
+    statement: "Whether experiment/scheduler emissions can be instrumented without the runtime owner wiring (owner emits; provenance observes)"
+  - id: UNK-3
+    statement: "RQ-010 ExecutiveMetrics blast radius on recorded KPI claims"
+  - id: UNK-4
+    statement: "Single vs distributed certification authority (M7) - blocks wiring the forward certificate authority"
+  - id: UNK-5
+    statement: "KnowledgeStore promotion gate rules vs certification (no certificate reference exists in knowledge lineage today)"
+  - id: UNK-6
+    statement: "Scaling budget (append/hash/verify under soak) - unmeasured for the forward substrate at runtime scale"
+
+knowledge_changes: "NONE - no ledger item overturned; findings are additive"
+implementation: "NONE"
+remediation: "NONE"
+certificate_regeneration: "NONE"
+experiment_execution: "NONE"
+commits: "NONE"
+pushes: "NONE"
+T0_modified: "NO"

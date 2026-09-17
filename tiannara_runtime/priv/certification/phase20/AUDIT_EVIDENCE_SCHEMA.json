@@ -1,0 +1,22 @@
+{
+  "schema": "AUDIT_EVIDENCE_SCHEMA",
+  "version": "20.96",
+  "description": "Schema for evidence items reconstructed during independent audit",
+  "audit_evidence": {
+    "fields": {
+      "evidence_id": {"type": "string", "required": true, "description": "Content-addressed evidence identifier"},
+      "artifact_type": {"type": "string", "required": true, "description": "Type of artifact audited"},
+      "artifact_hash": {"type": "string", "required": true, "description": "SHA-256 of artifact from cold storage"},
+      "reconstructed_hash": {"type": "string", "required": true, "description": "SHA-256 of independent reconstruction"},
+      "hashes_match": {"type": "boolean", "required": true},
+      "reconstruction_method": {"type": "string", "required": true, "description": "How artifact was independently reconstructed"},
+      "dependencies_verified": {"type": "array", "required": true},
+      "chain_position": {"type": "object", "required": true, "description": "Position in replay/archaeology chain"},
+      "integrity_verdict": {"type": "string", "required": true, "description": "Intact/Compromised/Unverifiable"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["cold_storage_only", "no_runtime_trust", "deterministic_reconstruction"]
+  }
+}

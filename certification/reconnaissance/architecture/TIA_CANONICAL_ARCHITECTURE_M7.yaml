@@ -1,0 +1,124 @@
+# Move 7 — Canonical Architecture Decision Record
+# Scope, evidence basis, ownership decisions, subsystem ownership, overlap
+# decisions, authority boundaries, divergences, orphans, classifications,
+# unresolved decisions, alternatives, confidence, provenance.
+# Decision analysis only. Nothing here authorizes implementation.
+artifact: CANONICAL_ARCHITECTURE_M7
+artifact_status: POST_T0
+move: 7
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+scope: All 21 catalogue capabilities; 3 overlap clusters; 10 authority boundaries; 4 intended-vs-observed divergences; orphans and disconnected components identified in Moves 2-4
+evidence_basis:
+- Move 0 T0 integrity artifacts (7 files; T0_RI_CERTIFICATION CERTIFIED)
+- Move 1 baseline record (18 fields)
+- Move 2 truth model (6 files) + catalogue skeleton
+- Move 2B catalogue (21 entries) + archaeology reconciliation
+- Move 3 evidence reconciliation + matrix + transitions + contradictions + gaps
+- Move 4 architecture reconciliation (21 mappings; supervision tree; caller listings)
+- Move 6 code-quality findings (984 line-anchored signals; used only where materially informing)
+- Fresh read-only T0 inspections performed in this pass (moduledocs, supervision children, registry entries, contract texts; all cited inline)
+capability_ownership:
+- {id: TIA-CAP-001, ownership: CANONICAL, owner: Forecasting subsystem}
+- {id: TIA-CAP-002, ownership: CANONICAL, owner: Forecasting subsystem}
+- {id: TIA-CAP-003, ownership: CANONICAL, owner: Forecasting subsystem}
+- {id: TIA-CAP-004, ownership: CANONICAL, owner: Forecasting subsystem}
+- {id: TIA-CAP-005, ownership: CANONICAL, owner: Forecasting subsystem}
+- {id: TIA-CAP-006, ownership: BLOCKED, owner: none (protocol only)}
+- {id: TIA-CAP-007, ownership: CANONICAL, owner: Provenance gate + planner boundary}
+- {id: TIA-CAP-008, ownership: SPECIALIZED, owner: POST_T0 audit infrastructure}
+- {id: TIA-CAP-009, ownership: UNKNOWN, owner_candidate: "Stabilization subsystem (competing CIS regulation claim)"}
+- {id: TIA-CAP-010, ownership: CANONICAL, owner: Evolution subsystem}
+- {id: TIA-CAP-011, ownership: CANONICAL, owner: DecisionArchive facade module (trivially sole claimant)}
+- {id: TIA-CAP-012, ownership: UNKNOWN, owner_candidate: none found}
+- {id: TIA-CAP-013, ownership: UNKNOWN, owner_candidate: none found}
+- {id: TIA-CAP-014, ownership: CANONICAL, owner: Council subsystem (supervision membership)}
+- {id: TIA-CAP-015, ownership: UNKNOWN, owner_candidate: none found (concept spread, no file owner)}
+- {id: TIA-CAP-016, ownership: UNKNOWN, owner_candidate: none found}
+- {id: TIA-CAP-017, ownership: ORPHAN, owner: none (zero callers confirmed)}
+- {id: TIA-CAP-018, ownership: UNKNOWN, owner_candidate: phase14 corpus + auditor module (linkage unevidenced)}
+- {id: TIA-CAP-019, ownership: UNKNOWN, owner_candidate: bench/ harness (execution substrate unidentified)}
+- {id: TIA-CAP-020, ownership: UNKNOWN, owner_candidate: none found}
+- {id: TIA-CAP-021, ownership: UNKNOWN, owner_candidate: none found}
+subsystem_ownership:
+- subsystem: Forecasting (lib/tiannara/forecasting/)
+  owns: [TIA-CAP-001, TIA-CAP-002, TIA-CAP-003, TIA-CAP-004, TIA-CAP-005, TIA-CAP-007 (shared with evidence/), TIA-CAP-011]
+  basis: directory + facade + contracts + Council certification envelopes
+- subsystem: Council (lib/tiannara/council/)
+  owns: [TIA-CAP-014]
+  basis: supervision membership (strongest ownership evidence class)
+- subsystem: Evolution (lib/tiannara/evolution/)
+  owns: [TIA-CAP-010]
+  basis: directory + generator/drift contracts; sole claimant, no competitor
+- subsystem: Stabilization (lib/tiannara/stabilization/)
+  owns: []
+  basis: modules present and supervised, but regulation capability ownership disputed with CIS; ownership unassigned pending boundary evidence
+- subsystem: Evidence/forensic (lib/tiannara/evidence/ + provenance/ + POST_T0 recon engine)
+  owns: [TIA-CAP-007 (shared with forecasting), TIA-CAP-008]
+  basis: gate signatures + R7/Move-0 Council records
+overlap_decisions_summary:
+  verification_machinery: complementary scopes; 2 KEEP_SEPARATE, 4 UNKNOWN (see unification matrix)
+  ledger_record: complementary stores/roles; 5 KEEP_SEPARATE, 1 UNKNOWN (see unification matrix)
+  knowledge_stores: complementary domains; 3 KEEP_SEPARATE, 1 UNKNOWN (see unification matrix)
+authority_boundaries_summary:
+  established: 10
+  conflicts: [certification-distributed-unresolved, stabilization-vs-CIS-regulation-overlap]
+  unresolved: 7
+  detail: TIA_AUTHORITY_BOUNDARIES_M7.yaml
+intended_vs_observed:
+- divergence: external-model gateway
+  status: NARROWED
+  intended: external models as workers, Tiannara owning decisions
+  observed: single bridge module (API calls, token tracking, strict JSON enforcement)
+  impact: ownership semantics unevidenced; gateway existence proves neither worker-role nor owner-role
+  confidence: MEDIUM
+- divergence: bounded-chaos regulation
+  status: UNRESOLVED
+  intended: stabilizers preserve adaptive evolution without suppressing it
+  observed: supervised boot + wired callers; zero tests; zero effect demonstration
+  impact: E03 execution remains the authorized procedure (still blocked); no substitute procedure created here
+  confidence: HIGH (that the gap is real)
+- divergence: evidence-bound autonomy
+  status: UNRESOLVED
+  intended: autonomy increases paired with evidence/governance increases
+  observed: certified boundary mechanism; no historical operation evidence
+  impact: mechanism certification must not be read as operational history
+  confidence: HIGH (that the distinction holds)
+- divergence: supervision-tree authority
+  status: NARROWED
+  intended: Council authorizes, AEO executes
+  observed: Council supervises AuditLog; D3 contract text states recommendation-authorization separation with never-fabricated error; five-state decision struct
+  impact: contract corroboration narrows but does not close; runtime enforcement demonstration still absent
+  confidence: MEDIUM
+orphans_disconnected:
+  orphans_confirmed: [certification_framework.ex (zero callers, zero function-level references)]
+  orphan_candidates_open: [phase4/ four modules (registry references exist; caller/consumption analysis deferred)]
+  disconnected_records: [CONSTITUTIONAL_LAWS.json, GOVERNANCE_INVARIANTS.json, GOVERNANCE_PATTERNS.json, world_model JSONs, DISCOVERY_EVIDENCE_CHAIN.json, TIANNARA_EVIDENCE_LEDGER.json, knowledge-graph JSONs]
+  note: Disconnection is an observed edge-absence, not a uselessness verdict
+classifications_count:
+  canonical: 9
+  specialized: 1
+  blocked: 1
+  disconnected: 4
+  orphan: 1
+  unknown: 5
+unresolved_decisions:
+- question: Canonical regulator (Stabilization subsystem vs CIS)
+  status: UNRESOLVED
+  blocking_evidence: boundary text or demonstrated regulation-effect attribution per regulator
+- question: Certification single authority vs distributed model
+  status: UNRESOLVED
+  blocking_evidence: certification-execution records or an explicit distributed-authority design record
+- question: Knowledge JSON producers/consumers
+  status: UNRESOLVED
+  blocking_evidence: one producer or consumer edge per record
+- question: gc_012 value disagreement (CONTRA-003)
+  status: UNRESOLVED
+  blocking_evidence: run ledger binding certificate issuance to a result version, or equivalent reconciliation record
+alternatives_preserved:
+- certification_framework: [historical scaffold, pending-integration module, aspirational stub]
+- discovery_ledger vs evidence gate: [layered producer-consumer, independent mechanisms]
+- knowledge JSONs: [outputs of unknown producers, aspirational fixtures, archival snapshots]
+- stabilizer regulation: [genuine-but-undemonstrated, stabilizer-authored order, suppressed-by-design]
+confidence_global: MEDIUM
+provenance_global: All determinations cite T0 content reads, T0 inventory/grep evidence, or Council session records as transcribed in Moves 0-4 artifacts. No new measurements were taken beyond the cited reads.

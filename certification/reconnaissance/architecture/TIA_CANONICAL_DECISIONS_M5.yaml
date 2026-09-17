@@ -1,0 +1,106 @@
+# Move 5 — Canonical Architecture & Unification Analysis (DECISIONS ONLY)
+# Decision analysis, not implementation. No code changes, moves, deletes,
+# merges, migrations, tests, experiments, remediation, commits, or pushes.
+# Every determination cites T0 evidence; alternatives recorded where evidence
+# does not uniquely determine one interpretation.
+artifact: CANONICAL_DECISIONS_M5
+artifact_status: POST_T0
+move: 5
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+method: T0 moduledoc reads (capped); caller discovery via T0 git-grep (reference listings, not graphs); supervision-tree reads; contract-text reads. No execution. No interpretation beyond stated determinations.
+cluster_decisions:
+- cluster: verification machinery
+  members: [lib/tiannara/verification_authority.ex, lib/tiannara/os/governance/certification/independent_auditor.ex, certification_framework.ex, run_independent_auditor.exs]
+  roles_observed:
+  - member: verification_authority.ex
+    role: Runtime GenServer verifying engineering proposals (Verification-First mandate)
+  - member: independent_auditor.ex
+    role: Governance constitutional certification audit with replay/authority verification entries
+  - member: certification_framework.ex
+    role: Knowledge-architecture and capability certification campaign framework (zero callers)
+  - member: run_independent_auditor.exs
+    role: Offline JSON-artifact audit script (no runtime imports; frozen-evidence only)
+  determination: "COMPLEMENTARY (distinct scopes/inputs: live proposals vs governance certification vs campaign framework vs offline artifacts)"
+  alternative: certification_framework could be a historical campaign scaffold superseded by the auditor modules; no deprecation marker evidenced, so recorded as alternative, not determination
+  consequences: Unifying these would conflate live verification with offline audit; any future consolidation must preserve the runtime/offline separation
+  dependencies: None established between the four beyond shared vocabulary
+  unresolved: Whether certification_framework is historical, aspirational, or pending-integration (no evidence distinguishes these)
+- cluster: ledger/record mechanisms
+  members: [DecisionArchive (forecasting/auditor.ex), council_audit_log (council/audit_log.ex), provenance/discovery_ledger.ex, evidence/ (certification_gate, historical_quarantine, provenance)]
+  roles_observed:
+  - member: DecisionArchive
+    role: Logger-only facade, no callers, no store
+  - member: council_audit_log
+    role: DETS-backed audit trail with stated rotation policy, sole reader module present, supervised by Council.Supervisor
+  - member: discovery_ledger
+    role: Causal provenance records for validated discovery (moduledoc-level; callers unevidenced in this pass)
+  - member: evidence/certification_gate + historical_quarantine + provenance
+    role: Gate enforcement (reject unacceptable provenance) + quarantine scanning + acceptance predicate (signatures verified); callers unevidenced in this pass
+  determination: COMPLEMENTARY (log-line vs DETS trail vs discovery records vs gate/quarantine enforcement; different stores and purposes)
+  alternative: certification_gate parallels Provenance.acceptable_as_evidence? as a possible adapter/facade relationship; call-graph evidence would be needed to confirm (not generated in this program)
+  consequences: Consolidation would need to preserve the distinct trust roles (recording vs gating vs quarantining)
+  dependencies: None established between the four
+  unresolved: Whether discovery_ledger and evidence/ modules are live, historical, or pending (no callers evidenced)
+- cluster: knowledge stores
+  members: [asc/knowledge_archive.ex, asc/interface/knowledge_archive.ex, crav/discovery_chain.ex, three JSON records]
+  roles_observed:
+  - member: asc/knowledge_archive.ex
+    role: Persistent civilization memory (ETS + ndjson snapshots per moduledoc)
+  - member: asc/interface/knowledge_archive.ex
+    role: Interface-evolution artifact registry (genomes/mutations for law discovery)
+  - member: crav/discovery_chain.ex
+    role: Pipeline verifier checking stage presence/reachability/latency
+  - member: three JSON records
+    role: Static snapshots, unconsumed in T0 code
+  determination: COMPLEMENTARY (civilization memory vs interface-evolution registry vs pipeline verifier vs static snapshots); the two similarly named archives serve different domains
+  alternative: The JSON records could be outputs of one of these modules; no linkage evidence found, so recorded as alternative, not determination
+  consequences: Any future linkage work must first establish producer/consumer edges, which do not currently exist in T0
+  dependencies: None established
+  unresolved: Whether the JSON snapshots relate to any of the three modules
+divergence_resolutions:
+- divergence: external-model gateway (worker vs owner semantics)
+  observed: Single integration point asc/cognition/llm_gateway.ex; role is bridge handling API calls, token tracking, strict JSON enforcement
+  determination: UNKNOWN retained
+  rationale: A bridge mechanism is evidenced; decision authority semantics (who decides what) are unevidenced. Gateway existence neither confirms worker-role nor refutes owner-role.
+- divergence: bounded-chaos regulation (genuine vs stabilizer-authored order)
+  observed: Supervised stabilizer boot; wired callers; zero tests; zero effect demonstration
+  determination: UNKNOWN retained
+  rationale: Regulation machinery present and wired; regulation effect undemonstrated. E03 execution remains the authorized procedure for this question (still blocked).
+- divergence: evidence-bound autonomy (historical operation vs certified boundary)
+  observed: Provenance gate + R7 closed boundary (Council-certified); no historical runtime operation evidence
+  determination: UNKNOWN retained
+  rationale: The boundary is certified as a mechanism; its historical operation is a separate unevidenced claim.
+- divergence: supervision-tree authority semantics
+  observed: Council.Supervisor boots alongside executive supervisors; tree order established; D3 adapter contract states recommendation ≠ authorization and execution flows through AEO only after Council.authorize/3 permits (with authorization_unavailable error, never fabricated); Council.Authorization struct carries five decision states
+  determination: UNKNOWN retained
+  rationale: Contract text corroborates the intended separation but contract text is not runtime enforcement proof. Narrowed significantly from tranche-2 state, but enforcement demonstration remains absent.
+canonical_ownership:
+- owner: Council subsystem
+  owns: "council_audit_log (by supervision: Council.Supervisor children include AuditLog, rest_for_one strategy)"
+  basis: T0 supervision-tree content (strongest ownership evidence class in this pass)
+- owner: Forecasting subsystem
+  owns: D-series modules including d5/* and planner/auditor facades (by directory + facade + Council certification envelope)
+  basis: T0 directory structure + facade content + Council record
+- owner: Unknown (no determination)
+  items: [certification_framework.ex, discovery_ledger consumers, evidence/ module callers, knowledge JSON records, world-model records, phase4/ modules, verification_authority proposal flow]
+  basis: Insufficient evidence for ownership assignment; directory placement alone not used as ownership proof
+orphan_determinations:
+- item: certification_framework.ex
+  status: ORPHAN CONFIRMED (zero callers, zero function-level references in T0)
+- item: phase4/ four modules
+  status: ORPHAN UNKNOWN (presence recorded; caller analysis deferred; listed as candidates, not determinations)
+disconnected_carried:
+- note: TIA-CAP-012/013/015/017/020/021 disconnections from tranche-3 stand; this pass adds no new disconnected claims and resolves none
+contradictions_carried:
+- CONTRA-001: UNRESOLVED
+- CONTRA-002: UNRESOLVED
+- CONTRA-003: UNRESOLVED
+consequences_for_future_work:
+- Any implementation touching verification, ledgers, or knowledge stores must first resolve the complementary-vs-duplicate question per cluster with call-graph evidence (not generated here)
+- The supervision tree constrains boot order, not authority; runtime authorization-flow evidence would be needed before any governance claim
+- The gc_012 value disagreement (CONTRA-003) must be resolved before any certification conclusion cites the phase14 corpus
+dependencies_between_decisions:
+- Cluster decisions are mutually independent (no shared modules except vocabulary)
+- Divergence resolutions depend on cluster decisions only as context, not as premises
+- Canonical ownership of audit_log depends on supervision-tree evidence (strong); all other ownerships depend on directory/facade evidence (weak, so unassigned)

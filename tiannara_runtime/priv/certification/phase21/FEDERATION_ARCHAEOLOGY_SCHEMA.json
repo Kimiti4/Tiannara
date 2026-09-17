@@ -1,0 +1,27 @@
+{
+  "schema": "FEDERATION_ARCHAEOLOGY_SCHEMA",
+  "version": "21.5",
+  "description": "Schema for federation archaeology — the archaeological record of the research institute federation",
+  "federation_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true, "description": "Content-addressed archaeology identifier"},
+      "generation": {"type": "integer", "required": true},
+      "answers": {
+        "type": "object", "required": true,
+        "fields": {
+          "why_institutes_created": {"type": "array"},
+          "why_institutes_collaborated": {"type": "array"},
+          "why_discoveries_transferred": {"type": "array"},
+          "why_peer_review_requested": {"type": "array"},
+          "which_institute_originated": {"type": "array"},
+          "how_relationships_evolved": {"type": "string"}
+        }
+      },
+      "institute_registry_snapshot": {"type": "string", "required": true},
+      "active_collaborations_snapshot": {"type": "string", "required": true},
+      "archaeology_hash": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "deterministic", "independently_reconstructible"]
+  }
+}

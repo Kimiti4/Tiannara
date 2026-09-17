@@ -1,0 +1,26 @@
+{
+  "schema": "SCIENTIFIC_OPPORTUNITY_SCHEMA",
+  "version": "21.2",
+  "description": "Schema for a scientific opportunity — a prioritized region of the knowledge frontier worth investigating",
+  "scientific_opportunity": {
+    "fields": {
+      "opportunity_id": {"type": "string", "required": true, "description": "Content-addressed opportunity identifier"},
+      "scientific_question": {"type": "string", "required": true},
+      "domains": {"type": "array", "required": true, "items": {"type": "string"}},
+      "knowledge_gap": {"type": "string", "required": true, "description": "Description of the gap"},
+      "required_mathematics": {"type": "array", "required": false},
+      "required_experiments": {"type": "array", "required": false},
+      "required_engineering": {"type": "array", "required": false},
+      "expected_information_gain": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "estimated_difficulty": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "estimated_scientific_capital": {"type": "number", "required": true},
+      "priority_score": {"type": "number", "required": true},
+      "status": {"type": "string", "required": true, "description": "Identified/Verified/Ranked/Ported/MissionProposed/Scheduled/Completed/Archived"},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "lifecycle": ["identified", "verified", "ranked", "ported", "mission_proposed", "scheduled", "completed", "archived"],
+    "constraints": ["evidence_derived", "deterministic_priority", "replayable"]
+  }
+}

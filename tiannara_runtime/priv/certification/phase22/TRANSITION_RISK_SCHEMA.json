@@ -1,0 +1,19 @@
+{
+  "schema": "TRANSITION_RISK_SCHEMA",
+  "version": "22.7",
+  "description": "Schema for a Kardashev transition risk assessment",
+  "transition_risk": {
+    "fields": {
+      "risk_id": {"type": "string", "required": true},
+      "plan_id": {"type": "string", "required": true},
+      "risk_category": {"type": "string", "required": true, "enum": ["technical", "economic", "social", "environmental", "existential"]},
+      "probability": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "impact": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "risk_score": {"type": "number", "required": true, "description": "probability × impact"},
+      "mitigation_strategies": {"type": "array", "required": true},
+      "residual_risk": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "deterministic", "replayable"]
+  }
+}

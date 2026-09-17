@@ -1,0 +1,19 @@
+{
+  "schema": "MULTI_CIVILIZATION_ARCHAEOLOGY_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for multi-civilization archaeological reconstruction",
+  "multi_civilization_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true},
+      "ecosystem_ids": {"type": "array", "required": true},
+      "question_set": {"type": "array", "required": true},
+      "cooperation_records": {"type": "object", "required": true},
+      "exchange_impact": {"type": "object", "required": true},
+      "collaboration_records": {"type": "object", "required": true},
+      "relationship_timeline": {"type": "object", "required": true},
+      "resilience_assessment": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["comprehensive", "deterministic", "replayable"]
+  }
+}

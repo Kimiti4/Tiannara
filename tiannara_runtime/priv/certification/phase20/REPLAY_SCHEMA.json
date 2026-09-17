@@ -1,0 +1,9 @@
+{
+  "schema": "REPLAY_SCHEMA",
+  "version": "20.1",
+  "replay_types": ["creation", "mutation", "integration", "retirement", "generation"],
+  "ordering": ["priority", "dependency_graph", "timestamp", "content_hash"],
+  "verification": "reproduce_identical_hashes",
+  "root_field": "generation_id",
+  "constraints": ["acyclic", "deterministic", "content_addressed"]
+}

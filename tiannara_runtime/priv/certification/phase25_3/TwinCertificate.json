@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/twin_certificate.json",
+  "title": "TwinCertificate",
+  "description": "Certification for the digital twin or its layers.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^tcert_[a-f0-9]{16}$" },
+    "entity_id": { "type": "string" },
+    "entity_type": { "type": "string", "enum": ["planetary_twin", "layer", "scenario_engine", "multi_scale_coordinator", "synchronization_engine"] },
+    "certification_type": { "type": "string", "enum": ["architecture", "layer", "coordination", "scenario", "synchronization", "fidelity", "replay"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "deterministic": { "type": "boolean" },
+        "synchronized": { "type": "boolean" },
+        "uncertainty_explicit": { "type": "boolean" },
+        "replayable": { "type": "boolean" },
+        "fidelity_validated": { "type": "boolean" }
+      },
+      "required": ["deterministic", "synchronized", "uncertainty_explicit", "replayable"]
+    },
+    "certifying_authority": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "entity_id", "entity_type", "certification_type", "checks", "fingerprint"]
+}

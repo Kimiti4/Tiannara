@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/resource_allocation.json",
+  "title": "ResourceAllocation",
+  "description": "Resource budget allocation across interventions.",
+  "type": "object",
+  "properties": {
+    "allocation_id": { "type": "string", "pattern": "^alloc_[a-f0-9]{16}$" },
+    "strategy_ids": { "type": "array", "items": { "type": "string" } },
+    "resource_budget": {
+      "type": "object",
+      "properties": {
+        "energy": { "type": "number" },
+        "materials": { "type": "object" },
+        "compute": { "type": "number" },
+        "funding": { "type": "number" },
+        "human_capital": { "type": "number" },
+        "time": { "type": "string" }
+      }
+    },
+    "allocations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "intervention_id": { "type": "string" },
+          "energy_allocated": { "type": "number" },
+          "funding_allocated": { "type": "number" },
+          "compute_allocated": { "type": "number" },
+          "materials_allocated": { "type": "object" },
+          "human_capital_allocated": { "type": "number" },
+          "timeline": { "type": "string" }
+        },
+        "required": ["intervention_id"]
+      }
+    },
+    "optimization_goals": { "type": "object" },
+    "binding_constraints": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "allocated_at": { "type": "integer" }
+  },
+  "required": ["allocation_id", "strategy_ids", "allocations", "fingerprint"]
+}

@@ -1,0 +1,109 @@
+# Provenance Runtime Contract — spec v1.1 (Stages 2 + 4)
+
+spec_name: tiannara-fp-runtime-contract-v1
+version: 1.1.0
+authority: TiannaraOS.Provenance.RuntimeContract (module runtime_contract.ex)
+area: forward_provenance only
+stage: 2 + 4 (Council-authorized; Runtime Contract then Failure + Distributed)
+predecessor: Stage 1 Identity Authority (TiannaraOS.Provenance.IdentityAuthority)
+
+## Purpose
+Normalize an OPAQUE execution event emitted by ANY producer runtime (forward
+demo, Phase-4 RealExecution, OPC ExecutionRuntime, future producers) into the
+forward provenance model through exactly ONE identity authority, and bind
+execution ids used in provenance graph joins to exactly one registered
+producer. This closes the canonical-execution-id binding gap while still
+LEAVING producers untouched: Stage 3 (runtime instrumentation) calls this
+contract. Stage 2 was the contract itself; Stage 4 extends the contract with
+the failure vocabulary and distributed execution semantics.
+
+Stage 4 changes vs v1.0.0:
+- terminal vocabulary extended with timed_out / cancelled / aborted / unknown
+- failure verdicts (SUCCESS/FAILURE/PARTIAL/TIMEOUT/CANCELLED/ABORTED/UNKNOWN)
+- only `completed` is certifiable; all other terminals - including UNKNOWN -
+  are NOT CERTIFIABLE and are never silently upgraded
+- optional `parent_execution_id` on start/terminal events; PARENT_OF edge only
+  when the parent resolves in the authority; unresolvable parent => UNVERIFIED,
+  never auto-attributed; an execution with no declared parent is a ROOT
+  execution, not an orphan
+
+## Opaque id acceptance
+- A runtime event must carry `execution_id` and `producer`.
+- The id is accepted in any shape. It is classified by the authority
+  (id_format: forward_exec_v1, phase4_exec_v1, opc_integer, other).
+- Acceptance is UNCONDITIONAL on format and CONDITIONAL on authority:
+  the id must resolve or be registrable in the Identity Authority.
+- First-writer-wins (authority property). Any repeat claim means the id already
+  names an execution; the repeat is rejected.
+
+## Lifecycle normalization
+- Events are normalized to a single lifecycle stream per execution:
+  event_type `started`, then EXACTLY ONE terminal event_type from
+  `completed | failed | partial | timed_out | cancelled | aborted | unknown`.
+- `started` REQUIRES a fresh (unclaimed) execution id.
+  - id already claimed by the SAME producer -> ATTEMPT REUSE, rejected.
+  - id already claimed by a DIFFERENT producer -> SUBSTITUTION, rejected (test K).
+- A terminal event REQUIRES an open `started` for the same id + producer in the
+  supplied lifecycle.
+  - id unregistered -> ORPHAN ENDED, unverifiable.
+  - id registered, no open lifecycle -> UNKNOWN ATTEMPT, unverifiable.
+  - id registered, lifecycle already closed -> CLOSED ATTEMPT, rejected.
+  - id registered to a different producer -> SUBSTITUTION, rejected (test K).
+- An execution is a single attempt. A RETRY is a NEW execution: the retry must
+  mint a NEW execution id and open a fresh lifecycle. Reusing an id to start
+  again is collision/attempt-reuse and is rejected (test L: retry confusion ->
+  DISTINCT ATTEMPTS).
+
+## Failure vocabulary (test M)
+- One-to-one mapping terminal -> verdict:
+  completed -> SUCCESS | failed -> FAILURE | partial -> PARTIAL |
+  timed_out -> TIMEOUT | cancelled -> CANCELLED | aborted -> ABORTED |
+  unknown -> UNKNOWN.
+- SUCCESS/FAILURE/PARTIAL/UNKNOWN alone are insufficient for a runtime; every
+  runtime outcome must reduce to one of the seven terminals above.
+- ONLY `completed` is certifiable. ALL other terminals - including an `unknown`
+  status - are NOT CERTIFIABLE: a certification authority MUST refuse them and
+  MUST NOT upgrade an UNKNOWN to a certifiable outcome.
+- A partial execution (test M) records its partial outputs in the terminal
+  event and keeps the PARTIAL verdict; it is recorded but never certified.
+- `unknown` is a legal, once-only terminal: it closes the lifecycle, is not
+  certifiable, and cannot be silently reopened as `completed` (closed attempt).
+
+## Distributed semantics (test P)
+- A start or terminal event may declare an optional `parent_execution_id`.
+  The contract records it verbatim (no validation of parent existence at
+  normalization time; existence is checked at linkage time).
+- PARENT_OF edge: created ONLY when the declared parent resolves in the
+  identity authority:
+  - parent registered -> `{:ok, PARENT_OF edge}` (from parent execution to
+    child execution).
+  - parent unregistered -> `{:error, :unresolved_parent, context}`; the whole
+    child chain is UNVERIFIED. There is NO auto-attribution: an unresolvable
+    parent is never created, guessed, or silently linked.
+  - no declared parent -> root execution, NOT an orphan.
+- Distributed holders: the contract is PURE (see State), so a lifecycle map can
+  be handed between processes/nodes; any holder can normalize the next event.
+  The authority ledger is the durable cross-node registry: a parent minted on
+  node A resolves on node B after ledger replay.
+
+## Resolver binding (graph joins)
+- When a graph node joins records on an execution id, it MUST bind through the
+  authority: resolve(id) -> exactly {execution_id, producer, authority}.
+- A join that would attribute the id to a producer other than the registered
+  owner is SUBSTITUTION and must REJECT the join (test K).
+- An id the authority has never registered cannot be joined as a provenance
+  execution: it is UNREGISTERED/unverifiable.
+
+## State
+- The contract is PURE: accept/2 takes a lifecycle map (caller-owned) and
+  returns the updated lifecycle. Nothing is hidden; any instrumentation or
+  distributed holder owns the lifecycle between events.
+
+## Verification procedure (series)
+- verify_series/2 folds a chronological event list through accept/2 with one
+  lifecycle; it returns the FIRST violation (substitution, attempt reuse,
+  orphan ended, unknown attempt, closed attempt) or the normalized records.
+
+## Normative references
+- spec/canonicalization_spec.yaml (hash/rendering rules for all envelopes)
+- Stage 1 IdentityAuthority.spec/0 (authority, formats, first-writer-wins)

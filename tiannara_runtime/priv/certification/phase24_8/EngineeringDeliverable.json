@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_deliverable.json",
+  "title": "EngineeringDeliverable",
+  "description": "A constitutional deliverable produced by an engineering program or project.",
+  "type": "object",
+  "properties": {
+    "deliverable_id": { "type": "string", "pattern": "^edeliv_[a-f0-9]{16}$" },
+    "program_id": { "type": "string" },
+    "project_id": { "type": "string" },
+    "deliverable_type": { "type": "string", "enum": ["document", "model", "data", "hardware", "software", "certificate", "infrastructure"] },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "acceptance_criteria": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["planned", "in_progress", "completed", "accepted", "rejected"] },
+    "certificate_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "due_date": { "type": "integer" },
+    "completed_at": { "type": "integer" }
+  },
+  "required": ["deliverable_id", "deliverable_type", "name", "acceptance_criteria", "status", "fingerprint"]
+}

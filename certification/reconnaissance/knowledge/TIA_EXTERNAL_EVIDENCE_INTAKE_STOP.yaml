@@ -1,0 +1,250 @@
+report_id: TIA_EXTERNAL_EVIDENCE_INTAKE_STOP
+program: Tiannara Identity Assurance / Provenance Closure
+gate: EXTERNAL EVIDENCE ACQUISITION AND FORENSIC INTAKE
+status: STOP - EVIDENCE INSUFFICIENT FOR PROVENANCE CLOSURE
+termination: STOP_AFTER_BOUNDED_INTAKE
+stop_report_required_sections: 10
+
+owner_authority:
+  authorization: "AUTHORIZE - BOUNDED EXTERNAL EVIDENCE ACQUISITION AND FORENSIC INTAKE ONLY"
+  boundary: collect/preserve/inspect evidence originating OUTSIDE frozen T0
+  prohibited:
+    - modify_t0
+    - remediation
+    - implementation
+    - certificate_regeneration
+    - experiment_execution
+    - retrospective_provenance_records
+    - reconstruction_as_original_evidence
+    - commits
+    - pushes
+    - rewrite_certificates
+    - declare_contra003_resolved
+
+t0_identity:
+  commit: 9753a6d08702064f4d00395a1bec1c4bf3887381
+  tree: 06f06e5e91f33e75437a47ca901eaa7e97bb0edd
+  porcelain_count: 3366
+  t0_tag_resolves_to_same_commit: true
+  t0_modified: false
+  no_commits: true
+  no_pushes: true
+
+# =====================================================================
+# SECTION 1 - ARTIFACTS OBTAINED (via external evidence acquisition)
+# =====================================================================
+artifacts_obtained:
+  summary: "Recovered compiled certificate-generation pipeline from git object store (unreachable); byte-preserved pre-T0 runtime snapshots and DETS stores. No raw measurement corpus and no execution/run records found."
+  recovered_compiled_pipeline:
+    count_beams_relevant: 33
+    description: "Unreachable BEAM files embedding the complete certification pipeline module set (TiannaraOS namespace)"
+    key_beams:
+      - id: EXTV-001
+        git_oid: 47202322ccb2
+        size: 74708
+        module: Elixir.TiannaraOS.Governance.Certification.Laboratory
+        contains: [gc_001..gc_012 campaign dispatch, build_certification_certificate, execute_campaign, gc_009_entropy_stability, gc_010_fitness_stability, gc_012_long_horizon_evolution, final_fitness, signature]
+      - id: EXTV-002
+        git_oid: 90e0a0fd796b
+        size: 74708
+        module: Elixir.TiannaraOS.Governance.Certification.Laboratory
+        note: identical module version to EXTV-001
+      - id: EXTV-003
+        git_oid: e4e91b5381cc
+        size: 29768
+        module: Elixir.TiannaraOS.Governance.Certification (alternate build/version)
+    supporting_modules_recovered:
+      - GovernanceEntropyTracker
+      - GovernanceFitnessEvaluator
+      - ConstitutionFingerprint
+      - ConstitutionManifest
+      - DeterministicContext
+      - EpochClosure
+      - ConstitutionalAutonomy.Orchestrator
+      - InstitutionKernel
+    source_tree_equivalence:
+      note: "Recovered Laboratory beams correspond to the EXACT module compiled from T0-tracked source lib/tiannara/os/governance/certification/laboratory.ex (defmodule TiannaraOS.Governance.Certification.Laboratory)"
+      t0_tracked_source: true
+    git_storage_note: "Provenance of these objects: present in .git object store as UNREACHABLE (not reachable from any ref). Packaging in packs prevents mtime dating. Not part of T0 history or any commit tree."
+  byte_preserved_pre_t0_snapshots:
+    artifact: council_audit_log.dets.corrupted.*
+    count: 382
+    total_bytes: 307796676
+    classification: pre-T0 runtime recovery snapshots preserved by the runtime; no gc_*/certificate/metric content found in binary scans
+    evidence_ids: EXTV-SNAP-0001..EXTV-SNAP-0382
+  byte_copied_dets_stores:
+    - artifact: constitution_repository.dets
+      sha256: b8b3d22ab9d75d9e
+      content: constitution clauses (modularity_over_monolith, memory_as_reasoning, traceable_decisions, evidence_before_confidence)
+    - artifact: cel_memory_v2.dets
+      sha256: 673e39c11a543ef9
+      content: CEL memory records (mem_/discovery_id/hypothesis_id/prediction_id/confidence); no gc campaign content
+    - artifact: council_audit_log.dets
+      sha256: 159f05af7a886ef8
+      content: council-boot audit records (council_runtime_booted/constitution_version/duration_ms); no metric or certificate content
+  recovered_cel_memory_serialization:
+    id: EXTV-004
+    git_oid: 8c847b253340
+    size: 6801624
+    content: CEL memory-store serialization same format as cel_memory_v2.dets; measurement/CEL/evidence/metadata terms present but no gc_* campaign references
+  examined_untracked_external_trees:
+    - tree: tiannara_runtime/
+      note: "Separate pre-T0 TiannaraRuntime application copy (22,136 files). Own campaign suite campaign_01..27+; NO gc_009/gc_010/gc_012. All 6 checkpoint layers (2,266 files each) = event_count:0, identical state_hash b4a8f200... runtime.log (350MB) has no gc_* references. MnesiaCore and Mnesia stores present."
+    - tree: tiannara_core/ (source trees), tiannara_api/
+      note: Python trees; only phase1/week22 test generators with coincidental 0.85/0.807 values; no gc campaign data
+    - tree: dev_data/, dev_data_archive_20260816/
+      note: no qualifying gc_*/certificate evidence
+
+# =====================================================================
+# SECTION 2 - PROVENANCE AND PRESERVATION HASHES
+# =====================================================================
+preservation:
+  intake_dir: "C:/Users/user/AppData/Local/Temp/opencode/evidence_intake"
+  manifest_file: EVIDENCE_MANIFEST.yaml
+  manifest_entries: 389
+  method: byte-for-byte copy bypassing normalizations; SHA-256 per artifact; acquisition timestamp; claimed origin recorded
+  preservation_compliance:
+    byte_for_byte: true
+    evidence_id: true
+    acquisition_provenance: true
+    cryptographic_fingerprint: true
+    acquisition_timestamp: true
+    claimed_source_origin: true
+    kept_separate_from_t0: true
+    never_substituted_for_t0: true
+    never_used_to_rewrite_certs: true
+  hashes:
+    EXTV-001: 435d54187ba9008656b0af7bc0fbd7bc19cf16571ab60b959ba59236aa03dc7a
+    EXTV-002: c5072cacab4138ba08ad06c4d037e98f40e50a016b6d1295993f4d7411615528
+    EXTV-003: 060823a52b4b1f1583bc98247c6ae322abf259dde826c390875245d6618d4703
+    EXTV-004: 7aed1ad62bbd66746a1f740ccfb58779c20b6e1255d59a49740b3a60c68d0472
+
+# =====================================================================
+# SECTION 3 - REQUESTED BUT UNAVAILABLE
+# =====================================================================
+requested_but_unavailable:
+  - raw_measurement_samples_for_gc_009: "No raw entropy measurement arrays anywhere (T0 or external). Only aggregates exist."
+  - raw_measurement_samples_for_gc_010: "No raw fitness evaluation arrays anywhere (T0 or external). Only aggregates exist."
+  - raw_measurement_samples_for_gc_012: "No raw long-horizon evolution traces anywhere."
+  - execution_or_run_records: "runs/*.jsonl empty (both pre-T0 and T0); runtime checkpoint layers all event_count:0 with single repeated state_hash; council audit log has no execution/metric records; runtime.log has no gc_* references."
+  - original_certificate_generation_inputs: "No seeds/parameters/campaign-input artifacts preserved."
+  - canonicalization_or_hashing_spec: "No canonicalization specification for certificate hashing located."
+  - prior_certificate_json_or_manifest_versions: "certificate.json/manifest.json exist only at T0 commit 9753a6d; no external versions."
+  - fincert_generation_outputs: "No artifact whose recomputed hash yields stated fingerprints c5896ae4.../0d26c39a..."
+  - contra003_discriminator: "No raw data or external authority for which gc_012 value (0.8035/0.8041/0.7864) was actually generated."
+
+# =====================================================================
+# SECTION 4 - PROVENANCE GRAPH
+# =====================================================================
+provenance_graph:
+  source:
+    value: "TiannaraOS.Governance.Certification.Laboratory/IndependentAuditor source (T0) + recovered compiled beams (external)"
+    edge_to_contract: UNVERIFIED
+  contract:
+    value: "gc_009/gc_010/gc_012 campaign definitions embedded in source/beams"
+    edge_to_execution: ABSENT
+  execution:
+    value: "No execution records found in any evidence surface"
+    edge_to_result: ABSENT
+  result:
+    value: "gc_009_entropy_stability.json / gc_010_fitness_stability.json / gc_012_long_horizon_evolution.json (T0-internal, post-hoc JSON)"
+    edge_to_raw_measurements: ABSENT
+  raw_measurements:
+    value: "NOT FOUND in T0 or externally"
+    edge_to_derived_metrics: ABSENT
+  derived_metrics:
+    value: "Aggregate-only files (entropy_measurements.json, fitness_evaluations.json) - not derivable"
+    edge_to_certificate: CONTESTED
+  certificate:
+    value: "PHASE14_GOVERNANCE_CERTIFICATE_FINAL.json (stated c5896ae4.../0d26c39a...)"
+    certificate_hashes: ORPHANED
+
+# =====================================================================
+# SECTION 5 - EDGES ESTABLISHED / ABSENT / CONTESTED
+# =====================================================================
+edges:
+  established: []
+  absent:
+    - CONTRACT -> EXECUTION (no run records)
+    - EXECUTION -> RESULT (no execution records)
+    - RESULT -> RAW MEASUREMENTS (no raw corpus)
+    - RAW MEASUREMENTS -> DERIVED METRICS (no raw corpus; aggregates only)
+  unverified:
+    - SOURCE -> CONTRACT (source/beams exist; no preserved generation inputs/contracts)
+  contested:
+    - DERIVED METRICS -> CERTIFICATE (systemic metric divergence; CONTRA-003)
+  orphaned:
+    - CERTIFICATE -> stated fingerprints c5896ae4.../0d26c39a... (resolve to no artifact)
+
+# =====================================================================
+# SECTION 6 - RAW CORPUS FOR INDEPENDENT RECOMPUTATION
+# =====================================================================
+raw_corpus:
+  recomputation_possible: false
+  rationale: "No raw measurement samples, traces, or per-run records exist in T0 or in any external evidence surface. All corpus files are aggregate-only summary JSONs (mean/std/samples counts). Independent recomputation of gc_009/010/012 is impossible from available evidence."
+
+# =====================================================================
+# SECTION 7 - RECONSTRUCTION RESULTS
+# =====================================================================
+reconstruction:
+  attempts: "Full-surface reconstruction attempted: gc_009/010/012 input -> output reconstruction impossible because no raw inputs, seeds, or run records preserved."
+  result: "NOT DERIVABLE from available evidence. Reconstruction is not presented as original evidence."
+  metric_divergence_reaffirmed:
+    gc_009: "campaign result mean_entropy=0.11, std=0.0 vs evidence artifact entropy_measurements.json mean=0.25, std=0.03 (1000 samples)"
+    gc_010: "campaign result mean_fitness=0.807, std=0.0 vs evidence artifact fitness_evaluations.json mean=0.85, std=0.04 (1000 samples)"
+    gc_012: "CONTRA-003 unresolved: 0.8035 (campaign result) / 0.8041 (certificate) / 0.7864 (independent audit/REA data)."
+  coincidental_value_notes:
+    - "0.8035/0.8041/0.7864 found in phase13_5/stage6 generation_history.csv are replication_success_rate columns from unrelated REA simulations, T0-internal, NOT gc_012 fitness values."
+    - "0.85/0.25/0.11/0.807 found only in T0-internal campaign/evidence artifacts and Python test files; not corroborated externally."
+
+# =====================================================================
+# SECTION 8 - CERTIFICATE -> EXECUTION BINDING STATUS
+# =====================================================================
+certificate_execution_binding:
+  status: NOT_ESTABLISHED
+  detail: "No external evidence binds PHASE14_GOVERNANCE_CERTIFICATE_FINAL.json to an execution. Recovered compiled pipeline demonstrates the generator implementation but not that it ran, when, or with what inputs. Stated fingerprints c5896ae4.../0d26c39a... remain orphaned."
+
+# =====================================================================
+# SECTION 9 - CONTRA-003 STATUS
+# =====================================================================
+contra003:
+  status: UNRESOLVED
+  detail: "Discrimination test performed WITHOUT assuming any candidate value authoritative. External evidence provides NO raw data or historical authority establishing whether 0.8035, 0.8041, or 0.7864 was actually generated. Historically unresolvable from available evidence."
+  candidate_values: [0.8035, 0.8041, 0.7864]
+
+# =====================================================================
+# SECTION 10 - EVIDENCE SUFFICIENCY FOR IMPLEMENTATION DECISION
+# =====================================================================
+sufficiency:
+  implementation_decision_justified: false
+  finding: "Bound external evidence intake produced the compiled certificate-generation implementation and byte-preserved runtime artifacts, but NO raw measurements, NO execution/run records, and NO provenance chain to the stated certificate hashes."
+  recommendation: "Report to Council: provenance gap is HISTORICALLY UNRESOLVABLE FROM AVAILABLE EVIDENCE. Recovered-artifact corpus is preserved for any future Council-directed purposes. No separate implementation decision is justified now."
+
+# =====================================================================
+# GATE COMPLIANCE
+# =====================================================================
+gate_compliance:
+  scope_respected: true
+  evidence_originated_outside_t0: true
+  no_modify_t0: true
+  no_remediation: true
+  no_implementation: true
+  no_certificate_regeneration: true
+  no_experiment_execution: true
+  no_retrospective_records: true
+  no_reconstruction_as_original: true
+  no_commits: true
+  no_pushes: true
+  no_rewrite_certificates: true
+  contra003_not_declared_resolved: true
+  chain_edges_marked_absent_unverified_contested: true
+  reconstruction_objective_derivability_only: true
+
+# =====================================================================
+# REPORTING
+# =====================================================================
+reporting:
+  to: Council
+  type: INTENTIONAL STOP
+  gate_completed: "Bounded external evidence acquisition and forensic intake complete."
+  next_action: "Return to Council with HISTORICALLY UNRESOLVABLE characterization. No further program action without new Council authorization."

@@ -1,0 +1,24 @@
+{
+  "schema": "STRATEGIC_OBJECTIVE_SCHEMA",
+  "version": "21.7",
+  "description": "Schema for a strategic scientific objective within the civilization-scale strategy",
+  "strategic_objective": {
+    "fields": {
+      "objective_id": {"type": "string", "required": true, "description": "Content-addressed strategic objective identifier"},
+      "title": {"type": "string", "required": true},
+      "description": {"type": "string", "required": true},
+      "domains": {"type": "array", "required": true},
+      "priority_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "time_horizon": {"type": "string", "required": true, "description": "NearTerm/MediumTerm/LongTerm/MultiGenerational/CenturyScale"},
+      "prerequisite_objectives": {"type": "array", "required": false},
+      "success_criteria": {"type": "array", "required": true},
+      "status": {"type": "string", "required": true, "description": "Proposed/Active/Completed/Deprioritized/Archived"},
+      "objective_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "horizons": ["near_term", "medium_term", "long_term", "multi_generational", "century_scale"],
+    "constraints": ["evidence_derived", "deterministic", "replayable"]
+  }
+}

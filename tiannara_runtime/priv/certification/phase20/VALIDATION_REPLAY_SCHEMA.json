@@ -1,0 +1,30 @@
+{
+  "schema": "VALIDATION_REPLAY_SCHEMA",
+  "version": "20.95",
+  "description": "Schema for validation replay — deterministic replay chain for validation campaigns",
+  "validation_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true, "description": "Content-addressed replay identifier"},
+      "campaign": {"type": "string", "required": true, "description": "Campaign label (A-H)"},
+      "replay_type": {"type": "string", "required": true, "description": "Full/Campaign/Scenario/Subsystem"},
+      "step_hashes": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "step": {"type": "integer"}, "stage": {"type": "string"},
+            "input_hash": {"type": "string"}, "output_hash": {"type": "string"},
+            "step_hash": {"type": "string"}
+          }
+        }
+      },
+      "root_hash": {"type": "string", "required": true, "description": "Final replay chain root"},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "reconstructed_from_archaeology": {"type": "boolean", "required": true, "description": "Was replay reconstructed from cold storage?"},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "replay_types": ["full", "campaign", "scenario", "subsystem"],
+    "constraints": ["deterministic_replay", "identical_hashes_required", "cold_storage_independent"]
+  }
+}

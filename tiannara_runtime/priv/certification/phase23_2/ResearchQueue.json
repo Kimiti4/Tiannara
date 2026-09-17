@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ResearchQueue",
+  "description": "A deterministic, content-addressed queue of candidate experiments awaiting evaluation, prioritization, and scheduling",
+  "type": "object",
+  "properties": {
+    "queue_id": {
+      "type": "string",
+      "description": "Content-addressed unique identifier for this queue snapshot"
+    },
+    "epoch": {
+      "type": "integer",
+      "description": "Scheduling epoch this queue belongs to"
+    },
+    "entries": {
+      "type": "array",
+      "description": "Queue entries in priority order",
+      "items": {
+        "type": "object",
+        "properties": {
+          "experiment_id": { "type": "string" },
+          "queue_position": { "type": "integer" },
+          "enqueue_timestamp": { "type": "integer" },
+          "priority_score": { "type": "number" },
+          "priority_tier": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low", "deferred", "background"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["waiting", "evaluating", "ready", "scheduled", "executing", "completed", "failed", "cancelled"]
+          },
+          "status_history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "string" },
+                "timestamp": { "type": "integer" },
+                "rationale": { "type": "string" }
+              },
+              "required": ["status", "timestamp"]
+            }
+          },
+          "entry_hash": { "type": "string" }
+        },
+        "required": ["experiment_id", "queue_position", "enqueue_timestamp", "priority_score", "status", "entry_hash"]
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Queue-level metrics",
+      "properties": {
+        "depth": { "type": "integer" },
+        "average_wait_time": { "type": "number" },
+        "throughput": { "type": "number" },
+        "stale_count": { "type": "integer" }
+      }
+    },
+    "queue_hash": { "type": "string" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["queue_id", "epoch", "entries", "queue_hash", "timestamp"],
+  "additionalProperties": false
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/state_replay.json",
+  "title": "StateReplay",
+  "description": "A deterministic replay event for the state engine.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^sreplay_[a-f0-9]{16}$" },
+    "event_type": { "type": "string", "enum": ["state_reconstruction", "domain_replay", "full_replay", "cross_domain_replay"] },
+    "domain": { "type": "string" },
+    "target_time": { "type": "integer" },
+    "input_snapshot": { "type": "object" },
+    "output_snapshot": { "type": "object" },
+    "events_replayed": { "type": "integer" },
+    "accuracy_verified": { "type": "boolean" },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshot", "output_snapshot", "content_hash"]
+}

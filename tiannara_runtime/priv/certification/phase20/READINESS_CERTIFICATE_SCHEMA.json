@@ -1,0 +1,25 @@
+{
+  "schema": "READINESS_CERTIFICATE_SCHEMA",
+  "version": "20.98",
+  "description": "Schema for ReadinessCertificate — certifies the CRI assessment without issuing final certification",
+  "readiness_certificate": {
+    "fields": {
+      "certificate_id": {"type": "string", "required": true, "description": "Content-addressed certificate identifier"},
+      "cri_level": {"type": "string", "required": true, "description": "CRI-0 through CRI-6"},
+      "overall_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "index_root": {"type": "string", "required": true, "description": "Root hash of ReadinessIndex"},
+      "dimension_root": {"type": "string", "required": true, "description": "Root hash of all dimension scores"},
+      "domain_root": {"type": "string", "required": true, "description": "Root hash of all domain scores"},
+      "replay_root": {"type": "string", "required": true, "description": "Root hash of readiness replay"},
+      "certificate_hash": {"type": "string", "required": true},
+      "deficiency_count": {"type": "integer", "required": true},
+      "critical_deficiencies": {"type": "integer", "required": true},
+      "certification_eligible": {"type": "boolean", "required": true},
+      "certification_recommendation": {"type": "string", "required": true, "description": "Proceed / RemediationRequired / InsufficientEvidence"},
+      "disclaimer": {"type": "string", "required": true, "description": "This certificate measures readiness, not certification"},
+      "issued_at": {"type": "integer", "required": true},
+      "status": {"type": "string", "required": true, "description": "Draft/UnderReview/Certified/Archived"}
+    },
+    "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},`n  "constraints": ["no_certification", "deterministic_assessment", "replayable", "evidence_based"]
+  }
+}

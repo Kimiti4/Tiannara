@@ -1,0 +1,28 @@
+{
+  "schema": "DIVERSITY_PROFILE_SCHEMA",
+  "version": "21.6",
+  "description": "Schema for the scientific diversity profile of the ecosystem",
+  "diversity_profile": {
+    "fields": {
+      "profile_id": {"type": "string", "required": true, "description": "Content-addressed diversity profile identifier"},
+      "generation": {"type": "integer", "required": true},
+      "dimensions": {
+        "type": "object", "required": true,
+        "fields": {
+          "domain_diversity": {"type": "object", "fields": {"shannon_index": {"type": "number"}, "simpson_index": {"type": "number"}, "domain_count": {"type": "integer"}}},
+          "methodological_diversity": {"type": "object", "fields": {"shannon_index": {"type": "number"}, "method_count": {"type": "integer"}}},
+          "theoretical_diversity": {"type": "object", "fields": {"shannon_index": {"type": "number"}, "paradigm_count": {"type": "integer"}}},
+          "mathematical_diversity": {"type": "object", "fields": {"shannon_index": {"type": "number"}, "subfield_count": {"type": "integer"}}},
+          "engineering_diversity": {"type": "object", "fields": {"shannon_index": {"type": "number"}, "approach_count": {"type": "integer"}}},
+          "institutional_diversity": {"type": "object", "fields": {"shannon_index": {"type": "number"}, "size_gini": {"type": "number"}}}
+        }
+      },
+      "composite_diversity_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "monoculture_alerts": {"type": "array", "required": true},
+      "profile_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "comparable_across_generations", "replayable"]
+  }
+}

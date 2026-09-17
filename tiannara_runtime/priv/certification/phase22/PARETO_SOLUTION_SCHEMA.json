@@ -1,0 +1,21 @@
+{
+  "schema": "PARETO_SOLUTION_SCHEMA",
+  "version": "22.4",
+  "description": "Schema for a Pareto-optimal civilization design solution",
+  "pareto_solution": {
+    "fields": {
+      "solution_id": {"type": "string", "required": true},
+      "candidate_id": {"type": "string", "required": true},
+      "objective_vector": {"type": "object", "required": true},
+      "constraint_satisfaction": {"type": "object", "required": true},
+      "tradeoff_profile": {"type": "object", "required": true},
+      "design_reference": {"type": "string", "required": true},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "frontier_generation": {"type": "integer", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "non_dominated", "provenance_preserved"]
+  }
+}

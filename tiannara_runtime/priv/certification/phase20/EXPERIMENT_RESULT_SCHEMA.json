@@ -1,0 +1,54 @@
+{
+  "schema": "EXPERIMENT_RESULT_SCHEMA",
+  "version": "20.7",
+  "description": "Schema for ExperimentRun, StatisticalReport, and ResultClassification",
+  "experiment_run": {
+    "fields": {
+      "run_id": {"type": "string", "required": true},
+      "plan": {"type": "string", "required": true},
+      "environment": {"type": "string", "required": true},
+      "execution_trace": {"type": "array", "required": true},
+      "observations": {"type": "object", "required": true},
+      "timing_data": {"type": "object", "required": true},
+      "resource_data": {"type": "object", "required": true},
+      "error_log": {"type": "array", "required": false},
+      "execution_hash": {"type": "string", "required": true},
+      "status": {"type": "string", "required": true, "description": "Completed/Failed/Aborted"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    }
+  },
+  "statistical_report": {
+    "fields": {
+      "report_id": {"type": "string", "required": true},
+      "experiment": {"type": "string", "required": true},
+      "descriptive_statistics": {"type": "object", "required": true},
+      "assumption_verification": {"type": "object", "required": true},
+      "hypothesis_tests": {"type": "array", "required": true},
+      "multiple_comparison": {"type": "object", "required": false},
+      "power_analysis": {"type": "object", "required": true},
+      "classification": {"type": "string", "required": true, "description": "Confirmed/Refuted/Inconclusive/Ambiguous/Error"},
+      "conclusions": {"type": "string", "required": true},
+      "limitations": {"type": "array", "required": false},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    }
+  },
+  "result_classification": {
+    "fields": {
+      "classification_id": {"type": "string", "required": true},
+      "experiment": {"type": "string", "required": true},
+      "classification": {"type": "string", "required": true},
+      "confidence": {"type": "number", "required": true},
+      "effect_size": {"type": "object", "required": true},
+      "p_value": {"type": "number", "required": true},
+      "recommendations": {"type": "array", "required": false},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "classifications": ["confirmed", "refuted", "inconclusive", "ambiguous", "error"]
+  }
+}

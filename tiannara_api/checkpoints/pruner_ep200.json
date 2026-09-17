@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "episode": 200,
+    "timestamp": 1779928069.7478518,
+    "prune_threshold": 0.3,
+    "exploration_weight": 2.0
+  },
+  "statistics": {
+    "total_mutations_evaluated": 0,
+    "total_mutations_pruned": 0
+  },
+  "surrogate_model": {
+    "operator_history": {},
+    "operator_stats": {}
+  },
+  "ucb_selector": {
+    "operator_counts": {
+      "linear_fit": 0,
+      "rule_extraction": 0,
+      "piecewise_infer": 0,
+      "polynomial_fit": 0
+    },
+    "operator_rewards": {},
+    "total_selections": 0
+  },
+  "cache_size": 0
+}

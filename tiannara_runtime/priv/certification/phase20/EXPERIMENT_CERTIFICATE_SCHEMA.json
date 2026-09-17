@@ -1,0 +1,42 @@
+{
+  "schema": "EXPERIMENT_CERTIFICATE_SCHEMA",
+  "version": "20.7",
+  "description": "Schema for ExperimentCertificate — constitutional experiment certification",
+  "experiment_certificate": {
+    "fields": {
+      "certificate_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "experiment": {"type": "string", "required": true, "description": "Reference to experiment"},
+      "design_root": {"type": "string", "required": true, "description": "Root hash of design chain"},
+      "execution_root": {"type": "string", "required": true, "description": "Root hash of execution chain"},
+      "analysis_root": {"type": "string", "required": true, "description": "Root hash of analysis chain"},
+      "reproducibility_root": {"type": "string", "required": true, "description": "Root hash of reproducibility chain"},
+      "certificate_hash": {"type": "string", "required": true, "description": "SHA-256 of certificate canonical form"},
+      "classification": {"type": "string", "required": true, "description": "Confirmed/Refuted/Inconclusive"},
+      "confidence": {"type": "number", "required": true, "description": "Confidence level of result"},
+      "effect_size": {"type": "object", "required": false, "description": "Observed effect size with confidence interval"},
+      "recommendations": {"type": "array", "required": false, "description": "Recommendations for further action"},
+      "issued_by": {"type": "string", "required": true, "description": "Constitutional authority entity"},
+      "issued_at": {"type": "integer", "required": true, "description": "Deterministic timestamp"},
+      "scope": {"type": "string", "required": true, "description": "Authorized knowledge integration scope"},
+      "status": {"type": "string", "required": true, "description": "Draft/UnderReview/Certified/Integrated/Archived/Revoked"}
+    },
+    "certification_requirements": [
+      "pipeline_completeness",
+      "design_validity",
+      "execution_integrity",
+      "statistical_validity",
+      "reproducibility",
+      "constitutional_compliance",
+      "audit_clearance"
+    ],
+    "lifecycle": ["draft", "under_review", "certified", "integrated", "archived", "revoked"],
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": [
+      "time_limited_certification",
+      "renewable_certification",
+      "results_integrate_into_knowledge_only_after_certification",
+      "certification_artifacts_are_immutable"
+    ]
+  }
+}

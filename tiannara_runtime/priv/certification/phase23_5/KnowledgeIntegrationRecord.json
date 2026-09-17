@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/knowledge_integration_record.json",
+  "title": "KnowledgeIntegrationRecord",
+  "description": "A record of knowledge integrated from literature into Tiannara's constitutional knowledge ecosystem.",
+  "type": "object",
+  "properties": {
+    "integration_id": { "type": "string", "pattern": "^kir_[a-f0-9]{16}$" },
+    "source_publication_id": { "type": "string" },
+    "source_claim_ids": { "type": "array", "items": { "type": "string" } },
+    "target_systems": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["knowledge_graph", "ontology", "theory_synthesis", "cross_domain_transfer", "engineering_reasoning", "discovery"]
+      }
+    },
+    "mapped_entities": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "constitutional_compliance": { "type": "boolean" },
+    "certificate_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "integrated_at": { "type": "integer" }
+  },
+  "required": ["integration_id", "source_publication_id", "target_systems", "constitutional_compliance", "fingerprint"]
+}

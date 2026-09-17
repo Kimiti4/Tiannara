@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/theory_conflict.json",
+  "title": "TheoryConflict",
+  "description": "A contradiction or conflict between two or more scientific theories, laws, models, or evidence.",
+  "type": "object",
+  "properties": {
+    "conflict_id": { "type": "string", "pattern": "^conflict_[a-f0-9]{16}$" },
+    "conflict_type": {
+      "type": "string",
+      "enum": ["logical", "empirical", "causal", "prediction", "engineering"]
+    },
+    "conflicting_entity_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 2
+    },
+    "nature_of_conflict": { "type": "string" },
+    "supporting_evidence_per_side": {
+      "type": "object",
+      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+    },
+    "resolution": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["retain_both", "specialize_both", "merge", "split", "replace", "defer", "unknown"]
+        },
+        "justification": { "type": "string" },
+        "resolved_event_id": { "type": "string" }
+      },
+      "required": ["type", "justification"]
+    },
+    "resolution_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "previous_resolution_type": { "type": "string" },
+          "new_resolution_type": { "type": "string" },
+          "reason": { "type": "string" },
+          "changed_at": { "type": "integer" }
+        }
+      }
+    },
+    "uncertainty_weights": {
+      "type": "object",
+      "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["conflict_id", "conflict_type", "conflicting_entity_ids", "nature_of_conflict", "fingerprint"]
+}

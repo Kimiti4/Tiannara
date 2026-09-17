@@ -1,0 +1,29 @@
+{
+  "schema": "SELF_INTEGRATION_REPLAY_SCHEMA",
+  "version": "20.9",
+  "description": "Schema for self-integration replay chain verification",
+  "self_integration_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "integration_session": {"type": "string", "required": true, "description": "Reference to integration session"},
+      "replay_type": {"type": "string", "required": true, "description": "Proposal/Compatibility/Verification/Promotion/Rollforward/Freeze/Full"},
+      "step_hashes": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "step": {"type": "integer"}, "stage": {"type": "string"},
+            "input_hash": {"type": "string"}, "output_hash": {"type": "string"},
+            "step_hash": {"type": "string"}
+          }
+        }
+      },
+      "root_hash": {"type": "string", "required": true, "description": "Final replay chain root"},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "replay_types": ["proposal", "compatibility", "verification", "promotion", "rollforward", "freeze", "full"],
+    "constraints": ["deterministic_replay", "acyclic_steps", "cold_storage_independent"]
+  }
+}

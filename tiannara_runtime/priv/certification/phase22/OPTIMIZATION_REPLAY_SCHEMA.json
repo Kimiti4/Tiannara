@@ -1,0 +1,18 @@
+{
+  "schema": "OPTIMIZATION_REPLAY_SCHEMA",
+  "version": "22.4",
+  "description": "Schema for replay verification of an optimization event",
+  "optimization_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "optimization_event_type": {"type": "string", "required": true, "enum": ["candidate_generated", "constraint_evaluated", "objective_scored", "tradeoff_analyzed", "pareto_updated", "design_recommended"]},
+      "event_fingerprint": {"type": "string", "required": true},
+      "reconstructed_hash": {"type": "string", "required": true},
+      "stored_hash": {"type": "string", "required": true},
+      "verification_status": {"type": "string", "required": true, "enum": ["verified", "diverged", "incomplete"]},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "immutable", "chain_verified"]
+  }
+}

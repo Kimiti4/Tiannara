@@ -1,0 +1,28 @@
+{
+  "schema": "ORCHESTRATION_ARCHAEOLOGY_SCHEMA",
+  "version": "21.4",
+  "description": "Schema for orchestration archaeology — the archaeological record of civilization-scale research program coordination",
+  "orchestration_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true, "description": "Content-addressed archaeology identifier"},
+      "generation": {"type": "integer", "required": true},
+      "answers": {
+        "type": "object", "required": true,
+        "fields": {
+          "why_delayed": {"type": "array", "description": "Mission delays and root causes"},
+          "why_resources_reassigned": {"type": "array"},
+          "which_dependency_blocked": {"type": "array"},
+          "why_programs_synchronized": {"type": "array"},
+          "how_coordination_improved_discovery": {"type": "string"},
+          "which_discoveries_resulted": {"type": "array"},
+          "how_civilization_evolved": {"type": "string"}
+        }
+      },
+      "schedule_snapshot": {"type": "string", "required": true},
+      "coordination_snapshot": {"type": "string", "required": true},
+      "archaeology_hash": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "deterministic", "independently_reconstructible"]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/transfer_validation.json",
+  "title": "TransferValidation",
+  "description": "Validation results for a cross-domain knowledge transfer candidate.",
+  "type": "object",
+  "properties": {
+    "validation_id": { "type": "string", "pattern": "^tv_[a-f0-9]{16}$" },
+    "candidate_id": { "type": "string" },
+    "dimension_results": {
+      "type": "object",
+      "properties": {
+        "semantic": {
+          "type": "object",
+          "properties": {
+            "passed": { "type": "boolean" },
+            "score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "details": { "type": "string" }
+          },
+          "required": ["passed", "score"]
+        },
+        "causal": {
+          "type": "object",
+          "properties": {
+            "passed": { "type": "boolean" },
+            "score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "details": { "type": "string" }
+          },
+          "required": ["passed", "score"]
+        },
+        "evidence": {
+          "type": "object",
+          "properties": {
+            "passed": { "type": "boolean" },
+            "score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "details": { "type": "string" }
+          },
+          "required": ["passed", "score"]
+        },
+        "prediction": {
+          "type": "object",
+          "properties": {
+            "passed": { "type": "boolean" },
+            "score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "details": { "type": "string" }
+          },
+          "required": ["passed", "score"]
+        },
+        "engineering": {
+          "type": "object",
+          "properties": {
+            "passed": { "type": "boolean" },
+            "score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "details": { "type": "string" }
+          },
+          "required": ["passed", "score"]
+        },
+        "constitutional": {
+          "type": "object",
+          "properties": {
+            "passed": { "type": "boolean" },
+            "details": { "type": "string" }
+          },
+          "required": ["passed"]
+        }
+      }
+    },
+    "overall_outcome": {
+      "type": "string",
+      "enum": ["approved", "rejected", "requires_adaptation", "unknown", "deferred"]
+    },
+    "justification": { "type": "string" },
+    "engine_version": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "validated_at": { "type": "integer" }
+  },
+  "required": ["validation_id", "candidate_id", "dimension_results", "overall_outcome", "fingerprint"]
+}

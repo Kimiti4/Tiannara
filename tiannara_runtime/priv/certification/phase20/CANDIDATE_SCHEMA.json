@@ -1,0 +1,41 @@
+{
+  "schema": "CANDIDATE_SCHEMA",
+  "version": "20.3",
+  "description": "Schema for ArchitectureCandidate",
+  "candidate": {
+    "fields": {
+      "candidate_id": {"type": "string", "required": true},
+      "hypothesis": {"type": "string", "required": true},
+      "description": {"type": "string", "required": true},
+      "affected_components": {"type": "array", "required": true},
+      "interfaces": {"type": "object", "required": true},
+      "data_flows": {"type": "array", "required": true},
+      "dependencies": {"type": "array", "required": true},
+      "expected_metrics": {"type": "object", "required": true},
+      "risk_assessment": {"type": "object", "required": true},
+      "required_extensions": {"type": "array", "required": false},
+      "benchmark_targets": {"type": "object", "required": true},
+      "expected_cost": {"type": "object", "required": true}
+    },
+    "lifecycle": ["draft", "validated", "simulated", "benchmarked", "audited", "certified", "rejected", "deployed", "archived"]
+  },
+  "scoring_dimensions": {
+    "scientific_benefit": {"weight": 0.15, "description": "Improvement in scientific discovery capability"},
+    "engineering_benefit": {"weight": 0.15, "description": "Improvement in engineering capability"},
+    "mathematical_benefit": {"weight": 0.10, "description": "Improvement in mathematical reasoning"},
+    "complexity_cost": {"weight": 0.10, "description": "Increase in architectural complexity (inverted)"},
+    "maintainability": {"weight": 0.10, "description": "Ease of future maintenance and extension"},
+    "replay_cost": {"weight": 0.10, "description": "Impact on replay performance (inverted)"},
+    "auditability": {"weight": 0.10, "description": "Ease of independent audit"},
+    "energy_efficiency": {"weight": 0.10, "description": "Impact on energy consumption"},
+    "civilization_impact": {"weight": 0.10, "description": "Impact on civilization-scale metrics"}
+  },
+    "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": [
+    "immutable",
+    "content_addressed",
+    "replay_deterministic",
+    "archaeologically_preservable"
+  ]
+}

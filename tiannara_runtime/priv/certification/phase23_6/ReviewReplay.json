@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/review_replay.json",
+  "title": "ReviewReplay",
+  "description": "A replay event recording a deterministic peer review operation.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^rreplay_[a-f0-9]{16}$" },
+    "event_type": {
+      "type": "string",
+      "enum": ["review_assignment", "evidence_audit", "methodology_audit", "statistical_audit", "assumption_audit", "alternative_explanation", "bias_detection", "reproducibility_assessment", "critique", "objection", "consensus", "resolution", "certification"]
+    },
+    "input_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "output_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "algorithm_parameters": { "type": "object" },
+    "deterministic_seed": { "type": "integer" },
+    "parent_event_ids": { "type": "array", "items": { "type": "string" } },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshots", "output_snapshots", "content_hash"]
+}

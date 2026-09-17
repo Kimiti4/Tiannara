@@ -1,0 +1,28 @@
+{
+  "schema": "CONSTITUTIONAL_OBJECT_SCHEMA",
+  "version": "20.1",
+  "description": "Base schema for all constitutional objects",
+  "base_fields": {
+    "id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+    "fingerprint": {"type": "string", "required": true, "description": "SHA-256 of canonical form"},
+    "created_at": {"type": "integer", "required": true},
+    "owner": {"type": "string", "required": true},
+    "origin": {"type": "string", "required": true},
+    "constitutional_version": {"type": "string", "required": true},
+    "replay_root": {"type": "string", "required": false},
+    "archaeology_root": {"type": "string", "required": false},
+    "evidence_root": {"type": "string", "required": false},
+    "metadata": {"type": "object", "required": false}
+  },
+  "subtypes": [
+    "EvolutionProposal", "BottleneckReport", "ArchitectureCandidate",
+    "BenchmarkCampaign", "ValidationCampaign", "AuditCampaign",
+    "SandboxDeployment", "CanaryDeployment", "ProductionDeployment",
+    "RetirementProposal", "ExtensionProposal", "ExtensionRegistry",
+    "RuntimeGeneration", "RuntimeSnapshot", "EvolutionDecision",
+    "RollbackEvent", "ArchitecturalLineage", "EvolutionReplay",
+    "EvolutionEvidence", "EvolutionMetrics", "ConstitutionalArtifact",
+    "CivilizationSnapshot"
+  ],
+  "constraints": ["immutable", "content_addressed", "replay_deterministic"]
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/probability_model.json",
+  "title": "ProbabilityModel",
+  "description": "A probability assignment and evolution record for a scenario.",
+  "type": "object",
+  "properties": {
+    "probability_id": { "type": "string", "pattern": "^fprob_[a-f0-9]{16}$" },
+    "scenario_id": { "type": "string" },
+    "current_probability": { "type": "number", "minimum": 0, "maximum": 1 },
+    "prior_probability": { "type": "number" },
+    "evidence_updates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "evidence_id": { "type": "string" },
+          "timestamp": { "type": "integer" },
+          "likelihood_ratio": { "type": "number" },
+          "posterior_probability": { "type": "number" }
+        },
+        "required": ["evidence_id", "timestamp", "posterior_probability"]
+      }
+    },
+    "uncertainty_range": { "type": "object", "properties": { "lower": { "type": "number" }, "upper": { "type": "number" } } },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "updated_at": { "type": "integer" }
+  },
+  "required": ["probability_id", "scenario_id", "current_probability", "fingerprint"]
+}

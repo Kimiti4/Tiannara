@@ -1,0 +1,36 @@
+{
+  "schema": "VALIDATION_CERTIFICATE_SCHEMA",
+  "version": "20.95",
+  "description": "Schema for ValidationCertificate — certifies that a validation campaign passed all gates",
+  "validation_certificate": {
+    "fields": {
+      "certificate_id": {"type": "string", "required": true, "description": "Content-addressed certificate identifier"},
+      "campaign": {"type": "string", "required": true, "description": "Campaign label (A-H)"},
+      "campaign_root": {"type": "string", "required": true, "description": "Root hash of campaign replay chain"},
+      "result_root": {"type": "string", "required": true, "description": "Root hash of all result records"},
+      "metrics_root": {"type": "string", "required": true, "description": "Root hash of metrics snapshots"},
+      "failure_root": {"type": "string", "required": true, "description": "Root hash of failure records (if any)"},
+      "replay_root": {"type": "string", "required": true, "description": "Root hash of replay verification"},
+      "certificate_hash": {"type": "string", "required": true, "description": "SHA-256 of certificate canonical form"},
+      "gates_passed": {
+        "type": "array", "required": true,
+        "items": {"type": "string"},
+        "description": "List of validation gates passed"
+      },
+      "subsystems_validated": {"type": "array", "required": true, "items": {"type": "string"}},
+      "total_scenarios": {"type": "integer", "required": true},
+      "passed": {"type": "integer", "required": true},
+      "failed": {"type": "integer", "required": true},
+      "overall_verdict": {"type": "string", "required": true, "description": "Pass/ConditionalPass/Fail"},
+      "issued_by": {"type": "string", "required": true},
+      "issued_at": {"type": "integer", "required": true, "description": "Deterministic timestamp"},
+      "status": {"type": "string", "required": true, "description": "Draft/UnderReview/Certified/Failed/Archived"}
+    },
+    "validation_gates": [
+      "structural", "behavioral", "deterministic", "replay",
+      "knowledge", "scientific", "mathematical", "engineering",
+      "governance", "integration", "long_duration", "adversarial"
+    ],
+    "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},`n  "constraints": ["evidence_based", "deterministic_verdict", "replayable", "cold_storage_preserved"]
+  }
+}

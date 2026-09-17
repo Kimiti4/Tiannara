@@ -1,0 +1,21 @@
+{
+  "schema": "CAUSAL_EDGE_SCHEMA",
+  "version": "22.X.0",
+  "description": "Schema for a causal edge in the unified causal graph",
+  "causal_edge": {
+    "fields": {
+      "edge_id": {"type": "string", "required": true},
+      "cause_node": {"type": "string", "required": true},
+      "effect_node": {"type": "string", "required": true},
+      "causal_type": {"type": "string", "required": true, "enum": ["direct", "indirect", "conditional", "feedback", "constraint", "emergence"]},
+      "mechanism": {"type": "string", "required": true},
+      "evidence_hash": {"type": "string", "required": true},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "time_scale": {"type": "string", "required": false},
+      "spatial_scale": {"type": "string", "required": false},
+      "validation_status": {"type": "string", "required": true, "enum": ["unverified", "verified", "contested", "refuted"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["acyclic", "evidence_required", "deterministic"]
+  }
+}

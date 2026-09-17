@@ -1,0 +1,37 @@
+{
+  "schema": "TRADEOFF_SCHEMA",
+  "version": "20.8",
+  "description": "Schema for TradeoffReport — multi-dimension trade-off analysis",
+  "tradeoff_report": {
+    "fields": {
+      "report_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "candidate": {"type": "string", "required": true, "description": "Reference to OptimizationCandidate"},
+      "dimensions": {
+        "type": "object", "required": true,
+        "fields": {
+          "performance": {"type": "object", "fields": {"score": {"type": "integer"}, "analysis": {"type": "string"}, "confidence": {"type": "number"}}},
+          "complexity": {"type": "object", "fields": {"score": {"type": "integer"}, "analysis": {"type": "string"}, "confidence": {"type": "number"}}},
+          "energy": {"type": "object", "fields": {"score": {"type": "integer"}, "analysis": {"type": "string"}, "confidence": {"type": "number"}}},
+          "memory": {"type": "object", "fields": {"score": {"type": "integer"}, "analysis": {"type": "string"}, "confidence": {"type": "number"}}},
+          "accuracy": {"type": "object", "fields": {"score": {"type": "integer"}, "analysis": {"type": "string"}, "confidence": {"type": "number"}}},
+          "maintainability": {"type": "object", "fields": {"score": {"type": "integer"}, "analysis": {"type": "string"}, "confidence": {"type": "number"}}},
+          "scientific_impact": {"type": "object", "fields": {"score": {"type": "integer"}, "analysis": {"type": "string"}, "confidence": {"type": "number"}}},
+          "engineering_impact": {"type": "object", "fields": {"score": {"type": "integer"}, "analysis": {"type": "string"}, "confidence": {"type": "number"}}},
+          "risk": {"type": "object", "fields": {"score": {"type": "integer"}, "analysis": {"type": "string"}, "confidence": {"type": "number"}}}
+        }
+      },
+      "advantages": {"type": "array", "required": true},
+      "disadvantages": {"type": "array", "required": true},
+      "expected_gains": {"type": "object", "required": true},
+      "expected_regressions": {"type": "object", "required": true},
+      "risk_profile": {"type": "object", "required": true},
+      "confidence": {"type": "number", "required": true},
+      "overall_score": {"type": "number", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "scoring": {"+2": "significant_improvement", "+1": "moderate_improvement", "0": "no_change", "-1": "moderate_regression", "-2": "significant_regression"},
+    "constraints": ["all_dimensions_analyzed", "deterministic_scoring", "replayable"]
+  }
+}

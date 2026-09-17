@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/infrastructure_system.json",
+  "title": "InfrastructureSystem",
+  "description": "A constitutional infrastructure system within the infrastructure ecosystem.",
+  "type": "object",
+  "properties": {
+    "system_id": { "type": "string", "pattern": "^infrasys_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "domain": { "type": "string", "enum": ["energy", "transportation", "water", "agriculture", "healthcare", "manufacturing", "communications", "digital", "scientific", "education", "emergency", "space", "planetary"] },
+    "system_type": { "type": "string", "enum": ["independent_system", "subsystem_network", "regional_infrastructure", "national_infrastructure", "planetary_infrastructure", "interplanetary_infrastructure"] },
+    "constituent_systems": { "type": "array", "items": { "type": "string" } },
+    "network_id": { "type": "string" },
+    "resilience_index": { "type": "number", "minimum": 0, "maximum": 1 },
+    "interoperability_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "status": { "type": "string", "enum": ["concept", "planning", "construction", "operational", "evolution", "retired"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["system_id", "name", "domain", "system_type", "fingerprint"]
+}

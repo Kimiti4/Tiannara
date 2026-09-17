@@ -1,0 +1,149 @@
+artifact: EFDI_FA_001_FORECAST_LEDGER
+record_type: immutable forecast ledger (format + integrity rules, frozen)
+recorded_at: 2026-09-13
+governing_contract: EFDI_FA_001_AUDIT_CONTRACT
+status: FROZEN
+
+ledger_version: 1.0.0
+ledger_file: EFDI_FA_001_FORECAST_LEDGER.jsonl    # runtime artifact, canon JSONL
+ledger_spec: tiannara-efdi-fa-001-ledger-v1.0.0
+
+============================================================
+LEDGER PRINCIPLES
+============================================================
+principles:
+  - APPEND_ONLY:
+      A granule is written once, at the end of the file. NEVER rewritten,
+      NEVER deleted, NEVER reordered. Corrections to a forecast are new
+      granules (supersede/2 style, mirroring EFDI D2 Forecast versioning),
+      never edits to the original.
+  - HASH-CHAINED:
+      Each forecast granule carries prev_hash = sha256(canonical(previous
+      granule)). The first granule is the genesis anchor below. Replay
+      recomputes every hash and must reproduce the file byte-for-byte.
+  - CANONICAL:
+      All granules are single-line, deterministic canonical JSON
+      (stable key ordering), UTF-8, one granule per line. The canonical
+      serialization algorithm is pinned in this repo's canon convention
+      (forward_provenance canon-v1 style: stable sorted keys, no
+      insignificant whitespace, exact floats preserved).
+  - IMMUTABLE_HASH:
+      A forecast's immutable_hash (FORECAST_SCHEMA) is
+      sha256(canonical(pre-resolution record)). After resolution the FULL
+      record hash is sha256(canonical(entire record)) and is stored both in
+      the resolution append and verified on replay.
+  - REPRODUCIBLE:
+      Given the frozen inputs (evidence inventory, data_cutoff, random_seed,
+      model_versions) the pre-resolution record must reproduce identically.
+      Any divergence is an F-16 implementation defect and the forecast is
+      quarantined.
+
+============================================================
+GENESIS ANCHOR
+============================================================
+genesis:
+  granule_id: EFDI-FA-001-GENESIS
+  recorded_at: 2026-09-13
+  prev_hash: null
+  body: >
+    EFDI-FA-001 forecasting audit ledger. Forecast schema, metric schema,
+    baseline definitions, data-cutoff and resolution protocols frozen per
+    EFDI_FA_001_AUDIT_CONTRACT on 2026-09-13. No live forecast authorized
+    by the harness contract. FIRST forecast requires EFDI-FA-001-PILOT
+    Council authorization.
+  hash: see can-b  # computed on first write and frozen
+
+============================================================
+GRANULE TYPES
+============================================================
+granule_types:
+  - type: genesis
+    fields: [granule_id, recorded_at, prev_hash, body]
+  - type: forecast_issued
+    fields: [granule_id, type, prev_hash, forecast, immutable_hash]
+    note: >
+      forecast is the FULL pre-resolution record per FORECAST_SCHEMA.
+      The ledger line's hash = immutable_hash: specifically
+      sha256(canonical(forecast)).
+  - type: forecast_resolved
+    fields: [granule_id, type, prev_hash, forecast_id, resolution_block,
+             immutable_hash_full]
+    note: >
+      resolution_block is the post-resolution append per FORECAST_SCHEMA.
+      immutable_hash_full = sha256(canonical(forecast_issued.forecast ++
+      resolution_block)) is verified against the forecast_issued line.
+  - type: rejection
+    fields: [granule_id, type, prev_hash, attempted, failure_class, reason]
+    note: >
+      A rejected invalid forecast is still RECORDED (with failure_class and
+      reason) so that rejection counts are auditable. It does not become a
+      forecast.
+  - type: metadata
+    fields: [granule_id, type, prev_hash, note]
+
+============================================================
+REPLAY / VERIFY ALGORITHM
+============================================================
+verify:
+  - read lines in order; reject any blank/malformed line (F-10)
+  - recompute sha256(canonical(prev granule)) and compare with each granule's
+    prev_hash; mismatch --> ledger corruption detected, STOP
+  - for forecast_resolved, recompute immutable_hash_full over the stored
+    forecast + resolution_block and compare with issued immutable_hash;
+    mismatch --> contamination, the batch containing it is quarantined and
+    restarted from the last good anchor
+  - reproducibility spot-check: for a random 10% sample, re-generate the
+    pre-resolution record from frozen inputs and compare byte-for-byte
+
+integrity_error_handling:
+  - single bad granule: quarantine from that granule forward, stop scoring
+  - any retroactive rewrite detected (hash chain mismatch that cannot be
+    explained by a legitimately appended supersede/resolution): invalidate
+    the batch, notify the Council, and do not resume until cause is fixed
+
+============================================================
+SUPERSEDE SEMANTICS (corrections of PROCESS, not of forecasts)
+============================================================
+supersede:
+  - A forecast is never changed. If a process error (F-16) is found AFTER
+    issue, the forecast is NOT deleted; a new granule records the defect and
+    the affected forecast is EXCLUDED from scoring with justification.
+  - A resolution dispute follows REAL_WORLD_RESOLUTION_PROTOCOL §dispute.
+    Outcomes can be re-recorded only via a new granule + explicit reason; the
+    original resolution line remains.
+
+============================================================
+AUDIT TRAIL (per forecast, in addition to the ledger)
+============================================================
+audit_trail_fields:
+  - forecast_id
+  - created_at
+  - question
+  - domain
+  - forecast_horizon
+  - available_information
+  - data_cutoff
+  - models_used
+  - signals_used
+  - base_rates
+  - assumptions
+  - unknowns
+  - probabilities
+  - prediction_interval
+  - confidence
+  - alternative_outcomes
+  - disconfirming_evidence
+  - model_versions
+  - random_seed
+  - immutable_hash
+  - resolution_rule
+  - resolution_source
+  - outcome
+  - scores
+  - calibration_bucket
+  - postmortem
+  - failure_class
+  - lessons
+per_record_rule: >
+  Complements FORECAST_SCHEMA §5. Every field preserved; none ever
+  reinterpreted after resolution.

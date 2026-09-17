@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/runtime_recovery.json",
+  "title": "RuntimeRecovery",
+  "description": "A recovery event recording the restoration of runtime operation after failure.",
+  "type": "object",
+  "properties": {
+    "recovery_id": { "type": "string", "pattern": "^rec_[a-f0-9]{16}$" },
+    "failure_type": { "type": "string", "enum": ["subsystem", "coordinator", "memory_corruption", "storage", "full_runtime", "catastrophic"] },
+    "failure_description": { "type": "string" },
+    "checkpoint_used": { "type": "string" },
+    "events_replayed": { "type": "integer" },
+    "recovery_duration_ms": { "type": "integer" },
+    "recovery_success": { "type": "boolean" },
+    "post_recovery_verified": { "type": "boolean" },
+    "affected_subsystems": { "type": "array", "items": { "type": "string" } },
+    "root_cause": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "recovered_at": { "type": "integer" }
+  },
+  "required": ["recovery_id", "failure_type", "checkpoint_used", "recovery_success", "fingerprint"]
+}

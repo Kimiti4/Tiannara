@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/domain_state.json",
+  "title": "DomainState",
+  "description": "The state of a single planetary domain.",
+  "type": "object",
+  "properties": {
+    "domain_state_id": { "type": "string", "pattern": "^dstate_[a-f0-9]{16}$" },
+    "domain_name": { "type": "string" },
+    "version": { "type": "integer" },
+    "variables": { "type": "object" },
+    "regional_variables": { "type": "object" },
+    "completeness": { "type": "number", "minimum": 0, "maximum": 1 },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "observation_freshness": { "type": "integer" },
+    "certification_status": { "type": "string", "enum": ["uncertified", "in_review", "certified", "revoked"] },
+    "timestamp": { "type": "integer" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["domain_state_id", "domain_name", "version", "variables", "fingerprint"]
+}

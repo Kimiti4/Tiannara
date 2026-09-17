@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RecoveryEvent",
+  "description": "An event recording a recovery operation",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this event"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of the event"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": ["recovery_started", "recovery_completed", "recovery_failed"],
+      "description": "Type of recovery event"
+    },
+    "recovery_id": {
+      "type": "string",
+      "description": "Unique identifier for this recovery operation"
+    },
+    "failure_type": {
+      "type": "string",
+      "enum": ["power_failure", "kernel_panic", "runtime_crash", "process_kill", "disk_failure", "memory_corruption", "network_partition", "database_failure", "storage_failure", "unknown_failure"],
+      "description": "Type of failure that triggered recovery"
+    },
+    "checkpoint_used": {
+      "type": "string",
+      "description": "ID of the checkpoint used for recovery"
+    },
+    "domains_restored": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["runtime_state", "knowledge_graph", "ontology", "experiments", "evolution", "certification", "replay_position", "archaeology_position", "observatory_state"]
+      },
+      "description": "List of domains that were restored"
+    },
+    "recovery_status": {
+      "type": "string",
+      "enum": ["full_recovery", "partial_recovery", "recovery_failed"],
+      "description": "Status of the recovery operation"
+    },
+    "knowledge_loss": {
+      "type": "integer",
+      "description": "Number of knowledge records lost"
+    },
+    "experiment_loss": {
+      "type": "integer",
+      "description": "Number of experiments lost"
+    },
+    "replay_divergence": {
+      "type": "integer",
+      "description": "Number of replay divergences"
+    },
+    "duration_ms": {
+      "type": "integer",
+      "description": "Recovery duration in milliseconds"
+    }
+  },
+  "required": ["event_id", "timestamp", "event_type", "recovery_id", "failure_type", "recovery_status"],
+  "additionalProperties": false
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "FUTURE_WORLD_SCHEMA",
+  "version": "21.9",
+  "description": "Schema for a projected future world model at a specified time horizon",
+  "future_world": {
+    "fields": {
+      "future_id": {"type": "string", "required": true},
+      "parent_reality_model_id": {"type": "string", "required": true},
+      "time_horizon": {"type": "integer", "required": true, "description": "Target generation"},
+      "scientific_assumptions": {"type": "array", "required": true},
+      "mathematical_assumptions": {"type": "array", "required": true},
+      "engineering_assumptions": {"type": "array", "required": true},
+      "known_uncertainties": {"type": "array", "required": true},
+      "intervention_history": {"type": "array", "required": true},
+      "confidence_distribution": {"type": "object", "required": true},
+      "predicted_outcomes": {"type": "array", "required": true},
+      "risk_profile": {"type": "object", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_derived", "deterministic", "replayable", "lineage_preserved"]
+  }
+}

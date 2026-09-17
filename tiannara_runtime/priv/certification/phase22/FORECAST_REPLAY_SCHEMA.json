@@ -1,0 +1,18 @@
+{
+  "schema": "FORECAST_REPLAY_SCHEMA",
+  "version": "22.7",
+  "description": "Schema for forecast replay verification",
+  "forecast_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "forecast_ids": {"type": "array", "required": true},
+      "replay_type": {"type": "string", "required": true, "enum": ["forecast_creation", "scenario_generation", "uncertainty_propagation", "decision_point_generation", "recalibration", "full_lifecycle"]},
+      "replay_timestamp": {"type": "string", "required": true},
+      "verification_results": {"type": "object", "required": true},
+      "fingerprint_matches": {"type": "boolean", "required": true},
+      "divergence_report": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "verifiable", "replayable"]
+  }
+}

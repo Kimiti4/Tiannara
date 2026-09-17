@@ -1,0 +1,40 @@
+# Move 2 — Canonical Truth Model: REQUIREMENTS
+# Requirements are transcribed from master.md (VISION_SOURCE) or from
+# Council authorization records (COUNCIL_DECISION). A requirement is not
+# a measurement; measured compliance status is UNKNOWN until a later move
+# evaluates it against evidence.
+artifact: TRUTH_REQUIREMENTS
+artifact_status: POST_T0
+move: 2
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+spec: master.md Move 2 (section 4 onward); requirements layer only
+requirements:
+- requirement: No code modification / deletion / refactoring / commits / pushes during baseline audit (Moves 1-10 read-only posture)
+  kind: VISION_SOURCE
+  source: master.md lines 1069-1090 (section 1.3)
+  compliance_status: UNKNOWN
+- requirement: Every consequential finding carries traceable evidence (ID/Category/Severity/Status/Location/Evidence/Observed/Expected/Contract/Impact/Confidence/Action/Validation/Rollback)
+  kind: VISION_SOURCE
+  source: master.md lines 1015-1036 (section 1.1)
+  compliance_status: UNKNOWN
+- requirement: Observations classified FACT / INFERENCE / HYPOTHESIS / UNKNOWN; never convert absence of evidence into evidence of absence
+  kind: VISION_SOURCE
+  source: master.md lines 1042-1009 (sections 1.2, constitutional directive)
+  compliance_status: UNKNOWN
+- requirement: Capability promotion only through evidence-backed transitions (PENDING->IMPLEMENTED->BOUNDED->VALIDATED->CERTIFIED); DOCUMENTED->CERTIFIED invalid
+  kind: VISION_SOURCE
+  source: master.md lines 1440-1487 (section 10)
+  compliance_status: UNKNOWN
+- requirement: Tiannara must not weaken its own governance/certification/evidence mechanisms without going through governance
+  kind: VISION_SOURCE
+  source: master.md lines 551-557 (section 8)
+  compliance_status: UNKNOWN
+- requirement: Move 0 stays read-only; T0 never modified; 13 files + 7 outputs only
+  kind: COUNCIL_DECISION
+  source: Council session record (Move 0 authorization boundary; Move 0 certified closed with PRE/POST identical)
+  boundary_note: Recorded as the authorized boundary, not as a fresh compliance evaluation
+- requirement: Move 1 restricted to master.md section 3 fields; no Move 2 content
+  kind: COUNCIL_DECISION
+  source: Council session record (Move 1 scoping ruling; Move 1 accepted with zero Move-2 term hits outside the exclusion note)
+  boundary_note: Recorded as the authorized boundary, not as a fresh compliance evaluation

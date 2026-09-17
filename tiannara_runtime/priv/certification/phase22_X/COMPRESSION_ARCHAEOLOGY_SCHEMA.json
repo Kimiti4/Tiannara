@@ -1,0 +1,20 @@
+{
+  "schema": "COMPRESSION_ARCHAEOLOGY_SCHEMA",
+  "version": "22.X.2",
+  "description": "Schema for compression archaeological reconstruction",
+  "compression_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true},
+      "compression_artifact_ids": {"type": "array", "required": true},
+      "question_set": {"type": "array", "required": true},
+      "origin_records": {"type": "object", "required": true},
+      "evidence_timelines": {"type": "object", "required": true},
+      "redundancy_analyses": {"type": "object", "required": true},
+      "principle_emergence": {"type": "object", "required": false},
+      "law_discovery_records": {"type": "object", "required": false},
+      "understanding_improvement": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["comprehensive", "deterministic", "replayable"]
+  }
+}

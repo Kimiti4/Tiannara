@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/scientific_opportunity.json",
+  "title": "ScientificOpportunity",
+  "description": "An identified scientific opportunity for strategic research.",
+  "type": "object",
+  "properties": {
+    "opportunity_id": { "type": "string", "pattern": "^sopp_[a-f0-9]{16}$" },
+    "opportunity_type": { "type": "string", "enum": ["emerging_field", "neglected_field", "interdisciplinary", "paradigm_shift", "inflection_point", "reproducibility_crisis", "funding_discrepancy"] },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "domains": { "type": "array", "items": { "type": "string" } },
+    "strategic_importance": { "type": "number", "minimum": 0, "maximum": 1 },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "estimated_resource_requirements": { "type": "object" },
+    "linked_grand_challenges": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["identified", "evaluated", "pursued", "completed", "abandoned"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "identified_at": { "type": "integer" }
+  },
+  "required": ["opportunity_id", "opportunity_type", "name", "description", "fingerprint"]
+}

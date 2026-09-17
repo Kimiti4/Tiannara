@@ -1,0 +1,19 @@
+{
+  "schema": "PRIORITY_ALLOCATION_SCHEMA",
+  "version": "21.10",
+  "description": "Schema for priority allocation across domains, institutes, and programs",
+  "priority_allocation": {
+    "fields": {
+      "allocation_id": {"type": "string", "required": true},
+      "decision_id": {"type": "string", "required": true},
+      "domain_allocations": {"type": "object", "required": true},
+      "institute_allocations": {"type": "object", "required": true},
+      "temporal_allocations": {"type": "object", "required": true},
+      "balance_objectives": {"type": "object", "required": true},
+      "resource_requirements": {"type": "object", "required": true},
+      "allocation_rationale": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_informed", "constitutional", "reproducible"]
+  }
+}

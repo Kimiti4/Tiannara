@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/research_network.json",
+  "title": "ResearchNetwork",
+  "description": "A representation of the global research network structure.",
+  "type": "object",
+  "properties": {
+    "network_id": { "type": "string", "pattern": "^rnet_[a-f0-9]{16}$" },
+    "snapshot_timestamp": { "type": "integer" },
+    "participant_count": { "type": "integer" },
+    "institution_count": { "type": "integer" },
+    "collaboration_count": { "type": "integer" },
+    "network_metrics": {
+      "type": "object",
+      "properties": {
+        "density": { "type": "number", "minimum": 0, "maximum": 1 },
+        "average_path_length": { "type": "number" },
+        "clustering_coefficient": { "type": "number", "minimum": 0, "maximum": 1 },
+        "community_count": { "type": "integer" }
+      }
+    },
+    "knowledge_flows": { "type": "array", "items": { "type": "object", "properties": { "source_id": { "type": "string" }, "target_id": { "type": "string" }, "flow_type": { "type": "string" }, "volume": { "type": "number" } } } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["network_id", "snapshot_timestamp", "participant_count", "network_metrics", "fingerprint"]
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "SIMULATION_PARAMETER_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for defining simulation parameter space dimensions",
+  "simulation_parameter": {
+    "fields": {
+      "parameter_id": {"type": "string", "required": true},
+      "name": {"type": "string", "required": true},
+      "domain": {"type": "string", "required": true},
+      "data_type": {"type": "string", "required": true, "enum": ["float", "integer", "categorical", "boolean"]},
+      "minimum": {"type": "number", "required": true},
+      "maximum": {"type": "number", "required": true},
+      "default_value": {"type": "number", "required": true},
+      "constitutional_bounds": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "constitutionally_bounded", "replayable"]
+  }
+}

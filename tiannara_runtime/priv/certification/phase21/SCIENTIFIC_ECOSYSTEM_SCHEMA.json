@@ -1,0 +1,21 @@
+{
+  "schema": "SCIENTIFIC_ECOSYSTEM_SCHEMA",
+  "version": "21.6",
+  "description": "Schema for the complete scientific ecosystem state at a given generation",
+  "scientific_ecosystem": {
+    "fields": {
+      "ecosystem_id": {"type": "string", "required": true, "description": "Content-addressed ecosystem state identifier"},
+      "generation": {"type": "integer", "required": true},
+      "institute_registry": {"type": "array", "required": true},
+      "collaboration_network": {"type": "object", "required": true},
+      "diversity_profile": {"type": "object", "required": true},
+      "active_collaborations": {"type": "array", "required": true},
+      "active_programs": {"type": "integer", "required": true},
+      "total_discoveries": {"type": "integer", "required": true},
+      "ecosystem_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["complete_snapshot", "deterministic", "replayable"]
+  }
+}

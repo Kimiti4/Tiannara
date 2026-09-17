@@ -1,0 +1,12 @@
+[package]
+name = "olef_physics"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "olef_physics"
+crate-type = ["cdylib"]
+
+[dependencies]
+rand = "0.10.1"
+rustler = "0.36.0"

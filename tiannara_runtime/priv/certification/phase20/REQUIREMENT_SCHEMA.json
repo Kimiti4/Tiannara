@@ -1,0 +1,60 @@
+{
+  "schema": "REQUIREMENT_SCHEMA",
+  "version": "20.6",
+  "description": "Schema for RequirementSet — verifiable engineering requirements",
+  "requirement_set": {
+    "fields": {
+      "requirement_set_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "project": {"type": "string", "required": true, "description": "Reference to EngineeringProject"},
+      "functional": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "id": {"type": "string"}, "description": {"type": "string"},
+            "priority": {"type": "string"}, "category": {"type": "string"},
+            "verification_method": {"type": "string"}, "trace": {"type": "string"}
+          }
+        },
+        "description": "Functional requirements"
+      },
+      "non_functional": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "id": {"type": "string"}, "description": {"type": "string"},
+            "priority": {"type": "string"}, "category": {"type": "string"},
+            "metric": {"type": "string"}, "threshold": {"type": "string"},
+            "verification_method": {"type": "string"}
+          }
+        },
+        "description": "Non-functional requirements"
+      },
+      "constitutional": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "id": {"type": "string"}, "description": {"type": "string"},
+            "constraint_type": {"type": "string"}, "verification_method": {"type": "string"}
+          }
+        },
+        "description": "Constitutional constraints"
+      },
+      "performance": {"type": "array", "required": false, "description": "Performance constraints"},
+      "security": {"type": "array", "required": false, "description": "Security constraints"},
+      "mathematical": {"type": "array", "required": false, "description": "Mathematical constraints"},
+      "verification": {"type": "array", "required": false, "description": "Verification requirements"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true, "description": "SHA-256 of canonical form"}
+    },
+    "constraints": [
+      "each_requirement_is_uniquely_identifiable",
+      "each_requirement_is_testable",
+      "requirements_are_immutable_after_freeze",
+      "requirements_trace_to_originating_problem"
+    ]
+  }
+}

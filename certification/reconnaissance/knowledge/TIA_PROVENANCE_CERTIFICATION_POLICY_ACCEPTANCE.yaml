@@ -1,0 +1,51 @@
+# Policy Acceptance Record — Provenance Certification Policy
+
+artifact: TIA_PROVENANCE_CERTIFICATION_POLICY_ACCEPTANCE
+version: 1.0.0
+authority: TIA Council
+status: ACCEPTED
+accepted_policy: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml
+accepted_at: 2026-09-10
+acceptance_stage: Stage 8 (Policy acceptance + implementation-DESIGN-only gate)
+prior_record: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE7_STOP.yaml
+
+## Decision
+- The TIA Council ACCEPTS TIA_PROVENANCE_CERTIFICATION_POLICY.yaml (rev 1.0.0) as the
+  governing policy for forward-provenance certificate authority, effective immediately
+  for design purposes.
+- The policy draft file itself is NOT modified; this record is the acceptance instrument.
+- Effective scope of acceptance:
+  - authority principle (a certificate is an authority-issued binding between a decision
+    and the evidence chain it certifies)
+  - authority_kind human|mechanism; human ratification required for any runtime-integrated
+    forward certificate until the M7 single-vs-distributed authority decision is resolved
+    (M7 REMAINS OPEN; this acceptance does NOT dispose M7)
+  - issuance_conditions all_must_hold + impossible_cases
+  - certificate states VALID/SUSPENDED/REVOKED/UNVERIFIABLE/SUPERSEDED and transition rules
+    (SEMANTICS ONLY until an implementation stage is separately authorized)
+  - invalidation, evidence bundle, human oversight, historical firewall, security, schema
+    evolution
+- WHAT THIS ACCEPTANCE DOES NOT DO (binding):
+  - does NOT select a canonical authority (M7 open; no stack designated)
+  - does NOT authorize issuance/lifecycle/revocation implementation (design-only stage)
+  - does NOT authorize editing the policy file, the bridge, the substrate, or any stack
+  - does NOT modify T0 / CONTRA-003 / archived runs / certificates
+  - does NOT create, revoke, suspend, or supersede any certificate
+
+## Stage-8 Authorization
+- Scope: implementation DESIGN only — architecture/contracts for issuance, lifecycle, and
+  revocation under the accepted policy, using the deterministic candidate identity as the
+  certificate-identity basis (forward_provenance CertificateAuthorityBridge candidate_id =
+  Canon.sha256(%{"candidate_id_spec" => @candidate_spec, "spine" => spine})).
+- Prohibited: writing code that issues/mutates certificate state; wiring/importing an
+  authority; modifying existing authoring-area modules; commits/pushes/index operations.
+- Design artifacts land under forward_provenance/design/.
+
+## Audit Trail
+- acceptance request: Stage 7 STOP, Next Council Decision item (1) "accept the policy draft".
+- acceptance granted: 2026-09-10 Council decision (user authorization of "Policy acceptance
+  + design-only Stage 8").
+- M7 disposition: NOT PART OF THIS DECISION (still open; recorded in Certificate Authority
+  Inventory / M7).
+
+## NOTHING_IMPLEMENTED: true

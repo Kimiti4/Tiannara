@@ -62,6 +62,9 @@ defmodule Tiannara.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      # Forward provenance (Council-authorized Stage 1/2 substrate; wired into
+      # runtime boundaries in Stage 3)
+      {:forward_provenance, path: "forward_provenance"},
       # Core dependencies
       {:gnat, "~> 1.7"},
       {:jason, "~> 1.4"},

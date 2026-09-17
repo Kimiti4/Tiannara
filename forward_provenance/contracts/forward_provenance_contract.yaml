@@ -1,0 +1,91 @@
+# Forward Provenance Implementation & Verification Contract
+
+status: ACTIVE
+version: 1.0.0
+area: forward_provenance_only (NEW executions)
+authority: Council authorization dated 2026-09-08
+supersedes: historical T0 provenance reconstruction (NOT AUTHORIZED)
+
+## Scope
+This contract governs provenance implementation for NEW executions only. It
+does NOT (and cannot) retroactively certify T0, gc_009/gc_010/gc_012,
+CONTRA-003, or any historical certificate. Those remain UNVERIFIED/CONTESTED.
+
+## 1. Source identity
+- source object = identity over {repository, commit, tree, dirty_fingerprint,
+  source_manifest_hash} under canon v1. commit pins the exact executed tree.
+
+## 2. Contract identity
+- contract object = identity over {contract_bytes, contract_version,
+  parameter_set, schema_name} under canon v1. contract.bytes is persisted
+  byte-for-byte in the evidence bundle.
+
+## 3. Execution identity
+- execution_id is unique (fresh uuid each demo).
+- execution envelope chain: execution_started -> execution_ended, linked by
+  parent_envelope_id; both carry the same execution_id and the ended envelope
+  records status (completed/failed) + output manifest. A failed run is never
+  reported as success.
+
+## 4. Result identity
+- result_produced envelope carries payload_hash = sha256(canon(result bytes)).
+  Result bytes are persisted byte-for-byte (results/result.bytes).
+
+## 5. Metric provenance (RAW MEASUREMENTS -> DERIVED METRICS)
+- the metric envelope records corpus_sha256 over the persisted raw corpus
+  (measurements/raw_corpus.json) and the exact aggregation under a
+  computation_hash. The verifier recomputes mean/std from the corpus bytes;
+  a metric without a persisted raw corpus is UNVERIFIABLE and must be reported
+  as such (never certified).
+
+## 6. Certificate provenance
+- certificate = decision envelope binding only identity object hashes (no
+  inline values). certificate_hash is the envelope payload_hash, recomputable.
+  Certificate decision is recorded by 'independent_verifier_v1' authority and
+  its rationale states whether the chain to raw corpus validated.
+
+## 7. Provenance graph
+- typed, directed edges: contract_asserts_source, execution_under_contract,
+  result_derived_from_execution, metric_computed_from_result,
+  certificate_certifies_metric, certificate_depends_on_contract,
+  certificate_depends_on_source, execution_started_by_environment.
+- every required edge must be present and verified for ACCEPT.
+
+## 8. Independent evidence bundle
+- bundle_name: IndependentEvidenceBundle. The verifier reads ONLY bundle
+  bytes; every identity must be recomputable; manifest carries per-file
+  hashes.
+
+## 9. Adversarial verification
+- tests A-J from TIA_PROVENANCE_ADVERSARIAL_TEST_PLAN.yaml, verdicts
+  ACCEPT/REJECT/UNVERIFIED/CONTESTED.
+
+## 10. Identity uniqueness
+- no silent overwrite: each object/envelope/id registered once; duplicates
+  rejected by the Identity registry. Same semantics for certificates.
+
+## STOP conditions
+Stop and report REJECT/UNVERIFIED (no certificate) if ANY of:
+- a payload_hash does not recompute from persisted bytes
+- the raw corpus cannot reproduce the derived metric
+- an envelope payload hash fails
+- a required edge is missing
+- verification passes only by internal assertions, existence of logs, or
+  matching self-generated metadata.
+
+## Deliverables (9)
+1. implementation artifacts (this project, forward_provenance/)
+2. this explicit provenance contract
+3. spec/canonicalization_spec.yaml (canon v1)
+4. verification suite (test/ including adversarial A-J)
+5. adversarial test results (output/adversarial_results.json)
+6. independent evidence-bundle example (output/demo_*/bundle/)
+7. provenance graph for that execution (output/demo_*/provenance_graph.json)
+8. verification stop report (output/VERIFICATION_STOP_REPORT.yaml)
+9. explicit statement that historical T0 provenance remains unresolved
+   (section "Historical T0 status" in the stop report)
+
+## Historical T0 status
+T0 provenance closure FAILED; historical reconstruction NOT ESTABLISHABLE.
+This implementation neither upgrades nor reinterprets any historical
+certificate. Historical claims remain UNVERIFIED/CONTESTED indefinitely.

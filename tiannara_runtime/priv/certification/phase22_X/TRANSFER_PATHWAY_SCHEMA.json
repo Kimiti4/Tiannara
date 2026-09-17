@@ -1,0 +1,20 @@
+{
+  "schema": "TRANSFER_PATHWAY_SCHEMA",
+  "version": "22.X.3",
+  "description": "Schema for a knowledge transfer pathway between domains",
+  "transfer_pathway": {
+    "fields": {
+      "transfer_id": {"type": "string", "required": true},
+      "origin_domain": {"type": "string", "required": true},
+      "target_domain": {"type": "string", "required": true},
+      "transferred_principle": {"type": "string", "required": true},
+      "transfer_type": {"type": "string", "required": true, "enum": ["direct", "adapted", "analogical", "inspired"]},
+      "adaptation_required": {"type": "object", "required": false},
+      "validation_evidence": {"type": "array", "required": true},
+      "expected_benefit": {"type": "object", "required": false},
+      "observed_benefit": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["provenance_preserved", "deterministic", "replayable"]
+  }
+}

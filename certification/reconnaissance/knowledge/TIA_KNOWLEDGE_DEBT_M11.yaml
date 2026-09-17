@@ -1,0 +1,73 @@
+# Move 11 — Knowledge Debt Ledger (characterize only; fix nothing)
+artifact: KNOWLEDGE_DEBT_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+debt:
+- id: KD-001
+  kind: unresolved-contradiction
+  statement: CONTRA-003 value disagreement between intact records with no discriminating evidence
+  severity: HIGH
+- id: KD-002
+  kind: unresolved-contradiction
+  statement: CONTRA-001 lockfile divergence without change attribution
+  severity: MEDIUM
+- id: KD-003
+  kind: unresolved-contradiction
+  statement: CONTRA-002 compositional tension without intent evidence
+  severity: LOW
+- id: KD-004
+  kind: unverified-architectural-assumption
+  statement: Regulator (Stabilization vs CIS) jurisdiction assumed by placement, undemonstrated in behavior
+  severity: HIGH
+- id: KD-005
+  kind: implementation-exceeds-demonstration
+  statement: Evolution substrate, stabilizer modules, bench harness, knowledge records, world-model records, discovery records present without execution/consumption evidence (13 UNKNOWN capabilities)
+  severity: HIGH
+- id: KD-006
+  kind: records-without-consumers
+  statement: Constitutional laws, governance invariants, knowledge graphs, world-model profiles, discovery chains lack evidenced consumers (K-011 pattern instances)
+  severity: MEDIUM
+- id: KD-007
+  kind: consumers-without-authoritative-records
+  statement: No confirmed instance in this pass; class retained for completeness
+  severity: LOW
+- id: KD-008
+  kind: runtime-without-persistent-evidence
+  statement: Regulator liveness observed without persisted run records; boot behavior observed without retained logs as artifacts
+  severity: MEDIUM
+- id: KD-009
+  kind: persistent-records-without-demonstrated-generation
+  statement: Campaign results, knowledge snapshots, world-model profiles lack generation provenance
+  severity: MEDIUM
+- id: KD-010
+  kind: certificate-truth-unverified
+  statement: phase14 certificate content (including CONTRA-003 values) lacks independent support beyond hash integrity
+  severity: HIGH
+- id: KD-011
+  kind: authority-precedence-unresolved
+  statement: No precedence evidence for certification distribution or regulator jurisdiction
+  severity: HIGH
+- id: KD-012
+  kind: runtime-failure-blocks-validation
+  statement: Metrics-pipeline crash (GAP-M9-01) blocks any KPI-dependent validation; bench blocked at missing module
+  severity: MEDIUM
+- id: KD-013
+  kind: self-mutating-evidence
+  statement: Auditor overwrites its own report file each run (GAP-M9-04 scoped)
+  severity: MEDIUM
+- id: KD-014
+  kind: stale-or-nonreproducible-evidence
+  statement: EXP-M9-02b unclear exit path (NOT REPRODUCIBLE); PhaseΩ health variance unexplained; single-window observations ungeneralized
+  severity: MEDIUM
+- id: KD-015
+  kind: intended-exceeds-observed
+  statement: Vision claims (self-engineering, bounded chaos, evidence-bound autonomy) exceed demonstrated behavior by construction at this stage
+  severity: LOW
+aggregate:
+  critical: 0
+  high: 5
+  medium: 8
+  low: 2
+note: Severities rank knowledge risk (what misunderstanding each debt could cause), not implementation priority.

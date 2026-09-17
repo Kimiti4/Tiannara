@@ -1,0 +1,35 @@
+{
+  "schema": "CSOS_CERTIFICATE_SCHEMA",
+  "version": "20.999",
+  "description": "Schema for the Constitutional Scientific Operating System certificate — the final immutable certification record (complement to SYSTEM_CERTIFICATE_SCHEMA — this tracks CSOS guarantees and evidence refs; that tracks signing chain and subsystem counts)",
+  "csos_certificate": {
+    "fields": {
+      "certificate_id": {"type": "string", "required": true, "description": "Content-addressed certificate identifier"},
+      "csos_version": {"type": "string", "required": true, "description": "CSOS 1.0"},
+      "certification_type": {"type": "string", "required": true, "description": "ConstitutionalScientificOperatingSystem"},
+      "certification_date": {"type": "integer", "required": true, "description": "Deterministic certification timestamp"},
+      "certification_decision": {"type": "string", "required": true, "description": "Certified/Deferred/Rejected"},
+      "evidence_review_root": {"type": "string", "required": true, "description": "Root hash of all reviewed evidence"},
+      "validation_package_ref": {"type": "string", "required": true, "description": "Phase 20.95 validation root"},
+      "audit_package_ref": {"type": "string", "required": true, "description": "Phase 20.96 audit root"},
+      "long_horizon_package_ref": {"type": "string", "required": true, "description": "Phase 20.97 long-horizon root"},
+      "readiness_package_ref": {"type": "string", "required": true, "description": "Phase 20.98 readiness root"},
+      "freeze_ref": {"type": "string", "required": true, "description": "Reference to FoundationalFreeze"},
+      "baseline_ref": {"type": "string", "required": true, "description": "Reference to FoundingBaseline"},
+      "archive_ref": {"type": "string", "required": true, "description": "Reference to ArchiveIndex"},
+      "constitutional_guarantees": {"type": "array", "required": true, "description": "List of guarantees this certification confers"},
+      "certificate_hash": {"type": "string", "required": true, "description": "SHA-256 of certificate canonical form"},
+      "issued_by": {"type": "string", "required": true, "description": "Constitutional Architecture Authority"},
+      "issued_at": {"type": "integer", "required": true},
+      "status": {"type": "string", "required": true, "description": "Draft/Signed/Certified/Archived"}
+    },
+    "constitutional_guarantees": [
+      "deterministic_replay", "mathematical_integrity", "scientific_reproducibility",
+      "engineering_traceability", "governance_accountability", "evidence_first_reasoning",
+      "archaeological_reconstructibility", "human_constitutional_authority", "safe_future_evolution"
+    ],
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": ["irreversible_for_version", "evidence_only", "immutable_after_certification"]
+  }
+}

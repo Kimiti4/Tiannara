@@ -1,0 +1,42 @@
+{
+  "schema": "SELF_INTEGRATION_CERTIFICATE_SCHEMA",
+  "version": "20.9",
+  "description": "Schema for SelfIntegrationCertificate — constitutional self-integration certification",
+  "self_integration_certificate": {
+    "fields": {
+      "certificate_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "proposal": {"type": "string", "required": true, "description": "Reference to IntegrationProposal"},
+      "compatibility_root": {"type": "string", "required": true, "description": "Root hash of compatibility chain"},
+      "verification_root": {"type": "string", "required": true, "description": "Root hash of verification chain"},
+      "promotion_root": {"type": "string", "required": true, "description": "Root hash of promotion chain"},
+      "certificate_hash": {"type": "string", "required": true, "description": "SHA-256 of certificate canonical form"},
+      "promotion_state": {"type": "string", "required": true, "description": "Target promotion state"},
+      "scope": {"type": "string", "required": true, "description": "Authorized integration scope"},
+      "conditions": {"type": "array", "required": false, "description": "Any conditions or restrictions"},
+      "issued_by": {"type": "string", "required": true, "description": "Constitutional authority entity"},
+      "issued_at": {"type": "integer", "required": true, "description": "Deterministic timestamp"},
+      "expires_at": {"type": "integer", "required": true, "description": "Deterministic expiration timestamp"},
+      "status": {"type": "string", "required": true, "description": "Draft/UnderReview/Certified/Promoted/Archived/Revoked"}
+    },
+    "certification_requirements": [
+      "evidence_completeness",
+      "compatibility_clearance",
+      "mathematical_consistency",
+      "replay_continuity",
+      "knowledge_preservation",
+      "promotion_readiness",
+      "constitutional_compliance",
+      "independent_audit"
+    ],
+    "lifecycle": ["draft", "under_review", "certified", "promoted", "archived", "revoked"],
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": [
+      "stage_specific_certification",
+      "time_limited",
+      "renewable",
+      "certification_artifacts_immutable",
+      "no_direct_runtime_modification"
+    ]
+  }
+}

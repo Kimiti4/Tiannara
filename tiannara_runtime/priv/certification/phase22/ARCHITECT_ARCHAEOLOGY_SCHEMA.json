@@ -1,0 +1,19 @@
+{
+  "schema": "ARCHITECT_ARCHAEOLOGY_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for archaeological reconstruction of civilization architect evolution",
+  "architect_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "architecture_proposals": {"type": "array", "required": true},
+      "requirement_evolution": {"type": "array", "required": true},
+      "evaluation_history": {"type": "array", "required": true},
+      "constitutional_verifications": {"type": "array", "required": true},
+      "human_decisions": {"type": "array", "required": true},
+      "architecture_adaptations": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

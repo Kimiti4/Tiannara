@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/intervention_metrics.json",
+  "title": "InterventionMetrics",
+  "description": "Health metrics for CPISE.",
+  "type": "object",
+  "properties": {
+    "metrics_id": { "type": "string", "pattern": "^imet_[a-f0-9]{16}$" },
+    "strategy_quality": { "type": "number" },
+    "prediction_accuracy": { "type": "number" },
+    "uncertainty_calibration": { "type": "number" },
+    "deployment_success_rate": { "type": "number" },
+    "adaptation_speed": { "type": "number" },
+    "feedback_loop_closure": { "type": "number" },
+    "replay_accuracy": { "type": "number" },
+    "constitutional_compliance": { "type": "number" },
+    "resource_efficiency": { "type": "number" },
+    "metrics_completeness": { "type": "number" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "measured_at": { "type": "integer" }
+  },
+  "required": ["metrics_id", "prediction_accuracy", "deployment_success_rate", "fingerprint"]
+}

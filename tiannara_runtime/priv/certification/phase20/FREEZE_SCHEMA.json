@@ -1,0 +1,42 @@
+{
+  "schema": "FREEZE_SCHEMA",
+  "version": "20.5",
+  "description": "Schema for RuntimeFreeze — immutable runtime generation preservation",
+  "freeze": {
+    "fields": {
+      "freeze_id": {"type": "string", "required": true, "description": "Content-addressed freeze identifier"},
+      "generation": {"type": "string", "required": true, "description": "Reference to frozen RuntimeGeneration"},
+      "branch": {"type": "string", "required": true, "description": "Branch this freeze belongs to"},
+      "runtime_snapshot": {"type": "object", "required": true, "description": "Snapshot of all runtime module state"},
+      "knowledge_snapshot": {"type": "object", "required": true, "description": "Snapshot of knowledge graph"},
+      "mathematics_snapshot": {"type": "object", "required": true, "description": "Snapshot of mathematics framework"},
+      "world_model_snapshot": {"type": "object", "required": true, "description": "Snapshot of world models"},
+      "configuration_snapshot": {"type": "object", "required": true, "description": "Snapshot of all configuration"},
+      "registry_snapshot": {"type": "object", "required": true, "description": "Snapshot of all registries"},
+      "snapshot_hashes": {
+        "type": "object",
+        "required": true,
+        "fields": {
+          "runtime_hash": {"type": "string"},
+          "knowledge_hash": {"type": "string"},
+          "mathematics_hash": {"type": "string"},
+          "world_model_hash": {"type": "string"},
+          "configuration_hash": {"type": "string"},
+          "registry_hash": {"type": "string"}
+        }
+      },
+      "freeze_hash": {"type": "string", "required": true, "description": "SHA-256 of complete freeze record"},
+      "replay_root": {"type": "string", "required": true, "description": "Root hash of freeze replay chain"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Root hash of freeze archaeology"},
+      "certification_ref": {"type": "string", "required": true, "description": "Reference to generation certification"},
+      "frozen_at": {"type": "integer", "required": true, "description": "Deterministic freeze timestamp"},
+      "status": {"type": "string", "required": true, "description": "Active/Frozen/Historical"}
+    },
+    "constraints": [
+      "immutable_after_freeze",
+      "snapshot_hashes_must_match_generation",
+      "full_replay_from_cold_storage",
+      "no_modification_after_freeze"
+    ]
+  }
+}

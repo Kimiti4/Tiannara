@@ -1,0 +1,23 @@
+{
+  "schema": "EVOLUTION_STATE_SCHEMA",
+  "version": "22.6",
+  "description": "Schema for a civilizational evolution state at a given epoch",
+  "evolution_state": {
+    "fields": {
+      "state_id": {"type": "string", "required": true},
+      "epoch_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "scientific_state_hash": {"type": "string", "required": true},
+      "engineering_state_hash": {"type": "string", "required": true},
+      "institutional_state_hash": {"type": "string", "required": true},
+      "knowledge_state_hash": {"type": "string", "required": true},
+      "technological_state_hash": {"type": "string", "required": true},
+      "infrastructure_state_hash": {"type": "string", "required": true},
+      "governance_state_hash": {"type": "string", "required": true},
+      "environmental_state_hash": {"type": "string", "required": true},
+      "continuity_verification": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "replayable"]
+  }
+}

@@ -1,0 +1,74 @@
+# Move 3 — Evidence Reconciliation (per-capability evidence inventory)
+# For each of the 21 catalogue entries: what evidence was examined in this
+# pass and what it showed. No state changes are made here; transitions live
+# in TIA_CAPABILITY_STATE_TRANSITIONS_M3.jsonl.
+artifact: EVIDENCE_RECONCILIATION_M3
+artifact_status: POST_T0
+move: 3
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+method: T0 ls-tree presence; git grep caller/consumer discovery on T0 tree; capped git-show reads; no test execution; no implementation
+entries:
+- id: TIA-CAP-001
+  examined: "none in this pass (decided state; contradiction-check only)"
+  showed: "no contradiction found"
+- id: TIA-CAP-002
+  examined: "none in this pass (decided state; contradiction-check only)"
+  showed: "no contradiction found"
+- id: TIA-CAP-003
+  examined: "none in this pass (decided state; contradiction-check only)"
+  showed: "no contradiction found"
+- id: TIA-CAP-004
+  examined: "none in this pass (decided state; contradiction-check only)"
+  showed: "no contradiction found"
+- id: TIA-CAP-005
+  examined: "none in this pass (decided state; contradiction-check only)"
+  showed: "no contradiction found (D5 verdict line corroborated in tranche 2)"
+- id: TIA-CAP-006
+  examined: "none in this pass (decided state; contradiction-check only)"
+  showed: "no contradiction found (0 runs remains true; no execution artifacts added)"
+- id: TIA-CAP-007
+  examined: "none in this pass (decided state; contradiction-check only)"
+  showed: "no contradiction found"
+- id: TIA-CAP-008
+  examined: "none in this pass (decided state; contradiction-check only)"
+  showed: "no contradiction found"
+- id: TIA-CAP-009
+  examined: "stabilizer tests in T0 (none found); non-test callers in T0 .ex/.exs (present: application wiring, phase_omega, crav, e03 harness, intra-stabilizer); contract markers in ctl.ex (moduledoc only, no specs/behaviours shown)"
+  showed: "wiring without tests, contracts, or effect demonstration"
+- id: TIA-CAP-010
+  examined: "evolution test files in T0 (none found under any test-matching path); adjacent strategy_benchmarker.ex noted"
+  showed: "modules present with zero T0 tests; strongest insufficiency in tranche"
+- id: TIA-CAP-011
+  examined: "DecisionArchive references in T0 planner.ex (history-only R3 moduledoc notes; no live record/1 call)"
+  showed: "facade isolation corroborated; no live callers"
+- id: TIA-CAP-012
+  examined: "non-JSON references to constitutional-law records; schemas for constitutional records"
+  showed: "none in both probes (record entirely unreferenced, undescribed)"
+- id: TIA-CAP-013
+  examined: "non-JSON references to governance-invariant records; schemas for governance records"
+  showed: "none in both probes (records entirely unreferenced, undescribed)"
+- id: TIA-CAP-014
+  examined: "council_audit_log readers in T0 .ex/.exs (exactly one: council/audit_log.ex); capped read of audit_log.ex (DETS open, corruption detection, archive-damaged policy, repair-or-fresh, traverse, insert)"
+  showed: "reader exists with stated archive-not-delete rotation policy; no execution evidence for the specific T0 files"
+- id: TIA-CAP-015
+  examined: "code references to the three specific JSON records (none; only a _FINAL.json document reference); broad KNOWLEDGE_GRAPH concept references (present: knowledge_archive, discovery_chain, laws registry, crav modules)"
+  showed: "concept referenced, specific records unconsumed"
+- id: TIA-CAP-016
+  examined: "mindcache references in T0 .ex/.exs (probe script + mix.exs manifest mention only)"
+  showed: "weakest presence in tranche; no read/write module"
+- id: TIA-CAP-017
+  examined: "callers of certification_framework besides itself; function-level CertificationFramework.* references"
+  showed: "none in both probes (module uncalled)"
+- id: TIA-CAP-018
+  examined: "hash-binding files (present, '<sha>  <path>' format verified on gc_012); evidence_index.json reference; certificate.json gc_012 block; independent_auditor.ex capabilities (replay verification, authority checks, ledger-only trust)"
+  showed: "bindings + index + certificate + auditor module all present; certificate.json and campaign result disagree on verified_at and measured values (new contradiction CONTRA-003); no audit-run execution record found"
+- id: TIA-CAP-019
+  examined: "bench/ tree contents (exactly 3 scripts); recorded bench results bound to harness (none found)"
+  showed: "harness present, zero bound execution records; tranche-2 11-path count corrected to 3 scripts"
+- id: TIA-CAP-020
+  examined: "generator/consumer modules for self_profile/subsystem_beliefs in T0 .ex/.exs (none found)"
+  showed: "records with no producers or consumers"
+- id: TIA-CAP-021
+  examined: "builder/verifier modules for discovery chain/ledger records (none found); schemas/manifests for KG/discovery records (none found)"
+  showed: "records with no builders, verifiers, or schemas"

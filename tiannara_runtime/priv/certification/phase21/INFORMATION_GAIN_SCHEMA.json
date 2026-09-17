@@ -1,0 +1,29 @@
+{
+  "schema": "INFORMATION_GAIN_SCHEMA",
+  "version": "21.2",
+  "description": "Schema for information gain estimation — deterministic measurement of expected knowledge from an opportunity",
+  "information_gain": {
+    "fields": {
+      "gain_id": {"type": "string", "required": true, "description": "Content-addressed gain estimate identifier"},
+      "opportunity": {"type": "string", "required": true},
+      "dimensions": {
+        "type": "object", "required": true,
+        "fields": {
+          "novelty": {"type": "number"}, "scientific_impact": {"type": "number"},
+          "cross_domain_influence": {"type": "number"}, "engineering_utility": {"type": "number"},
+          "mathematical_depth": {"type": "number"}, "knowledge_compression": {"type": "number"},
+          "civilizational_importance": {"type": "number"},
+          "expected_uncertainty_reduction": {"type": "number"}
+        }
+      },
+      "composite_gain": {"type": "number", "required": true, "description": "Weighted composite of all dimensions"},
+      "uncertainty_range": {"type": "object", "required": true, "description": "Lower and upper bounds on gain estimate"},
+      "supporting_evidence": {"type": "array", "required": true},
+      "gain_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "dimensions": ["novelty", "scientific_impact", "cross_domain_influence", "engineering_utility", "mathematical_depth", "knowledge_compression", "civilizational_importance", "expected_uncertainty_reduction"],
+    "constraints": ["deterministic_estimate", "evidence_based", "replayable"]
+  }
+}

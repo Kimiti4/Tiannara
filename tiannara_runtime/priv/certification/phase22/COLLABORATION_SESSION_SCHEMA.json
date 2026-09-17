@@ -1,0 +1,21 @@
+{
+  "schema": "COLLABORATION_SESSION_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for a scientific or engineering collaboration session",
+  "collaboration_session": {
+    "fields": {
+      "session_id": {"type": "string", "required": true},
+      "collaboration_type": {"type": "string", "required": true, "enum": ["scientific", "engineering"]},
+      "program_type": {"type": "string", "required": true},
+      "participating_civilizations": {"type": "array", "required": true},
+      "domain": {"type": "string", "required": true},
+      "objectives": {"type": "array", "required": true},
+      "resources": {"type": "object", "required": false},
+      "outputs": {"type": "array", "required": false},
+      "milestones": {"type": "array", "required": false},
+      "status": {"type": "string", "required": true, "enum": ["planning", "active", "completed", "paused", "cancelled"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "replayable", "autonomy_preserving"]
+  }
+}

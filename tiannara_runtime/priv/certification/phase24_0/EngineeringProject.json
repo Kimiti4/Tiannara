@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_project.json",
+  "title": "EngineeringProject",
+  "description": "An executable engineering effort within a constitutional engineering program.",
+  "type": "object",
+  "properties": {
+    "project_id": { "type": "string", "pattern": "^eproj_[a-f0-9]{16}$" },
+    "program_id": { "type": "string" },
+    "name": { "type": "string" },
+    "milestones": { "type": "array", "items": { "type": "object", "properties": { "milestone": { "type": "string" }, "deadline": { "type": "integer" }, "status": { "type": "string", "enum": ["pending", "in_progress", "completed", "missed"] }, "deliverables": { "type": "array", "items": { "type": "string" } } } } },
+    "tasks": { "type": "array", "items": { "type": "string" } },
+    "artifacts": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["planning", "active", "paused", "completed", "cancelled"] },
+    "verification_status": { "type": "string", "enum": ["not_verified", "in_verification", "verified", "verification_failed"] },
+    "certification_status": { "type": "string", "enum": ["uncertified", "partially_certified", "certified"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "completed_at": { "type": "integer" }
+  },
+  "required": ["project_id", "program_id", "name", "status", "fingerprint"]
+}

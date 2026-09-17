@@ -1,0 +1,57 @@
+# Canonicalization Specification — canon v1
+
+spec_name: tiannara-fp-canon-v1
+version: 1.0.0
+authority: TiannaraOS.Provenance.Canon (module canon.ex)
+area: forward_provenance only
+
+## Purpose
+Every identity, payload, envelope and bundle hash in the forward provenance
+system is SHA-256 over `canon/1` output. This document is the normative,
+non-algorithmic statement of that rendering so an INDEPENDENT implementation
+can reproduce the same bytes.
+
+## Value domains
+- null      -> `null`
+- boolean   -> `true` / `false`
+- integer   -> decimal, no sign padding, no leading zeros
+- float     -> shortest round-trip representation (Erlang :short), with the
+               guarantee that a fractional digit is always present so `1.0`
+               can never be confused with `1`. Exponent form allowed.
+- string    -> JSON string, all mandatory escapes (", \, control chars),
+               no trailing whitespace outside string literals
+- array     -> `[a,b,c]` elements in order, single comma, no space
+- object    -> `{k:v,...}` keys are strings, ordered byte-lexicographically
+               (by UTF-8 code point), no space, deterministic key set
+
+## Composition
+- an object with keys k1..kn renders `{` then for each key in sorted order
+  `"` + escaped key + `":"` + value + (`","` between) + `}`
+- an array renders `[` value (`,` value)* `]`
+- recursion is total; every nested value obeys the same rules
+- no whitespace is emitted outside string literals
+
+## Hash
+- sha256(canon(bytes)) is the IDentity hash for a term
+- sha256(raw bytes) is the identity hash for a persisted byte payload
+  (result payload, contract bytes); the byte payload is never re-parsed.
+- an envelope's `payload_hash` is sha256(canon(envelope minus the payload_hash
+  field)) — i.e. the hash is excluded from its own input, so verification
+  recomputes over the same self-describing bytes every time.
+
+## Guarantees
+1. Determinism: same term in, identical bytes out (any process, any machine).
+2. Byte-exactness: the bundle manifest hashes files by raw byte sha256, and
+   identity objects recompute from these same bytes. No canonicalization
+   ambiguity (the T0 failure: hash "could not be reproduced").
+3. No floats in identity-critical positions unless their representation is
+   pinned by the same rules; aggregation output is rounded (see metric
+   contracts) so mean/std recompute exactly.
+
+## Verification procedure
+The independent verifier recomputes:
+- every envelope payload_hash from the envelope's own canonical bytes
+- every identity object hash from its fields
+- the metric from the raw corpus under the recorded rounding
+- the certificate payload_hash from the decision envelope bytes
+If any recomputation differs, status = REJECT.

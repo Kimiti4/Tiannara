@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/portfolio_metrics.json",
+  "title": "PortfolioMetrics",
+  "description": "Metrics tracking engineering portfolio performance and balance.",
+  "type": "object",
+  "properties": {
+    "metrics_id": { "type": "string", "pattern": "^pmet_[a-f0-9]{16}$" },
+    "portfolio_id": { "type": "string" },
+    "snapshot_timestamp": { "type": "integer" },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "program_success_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "portfolio_balance": { "type": "number", "minimum": 0, "maximum": 1 },
+        "milestone_completion": { "type": "number", "minimum": 0, "maximum": 1 },
+        "resource_utilization": { "type": "number", "minimum": 0, "maximum": 1 },
+        "engineering_throughput": { "type": "number" },
+        "capacity_efficiency": { "type": "number", "minimum": 0, "maximum": 1 },
+        "risk_exposure": { "type": "number", "minimum": 0, "maximum": 1 },
+        "certification_coverage": { "type": "number", "minimum": 0, "maximum": 1 },
+        "civilizational_engineering_roi": { "type": "number" },
+        "replay_integrity": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["metrics_id", "portfolio_id", "snapshot_timestamp", "metrics", "fingerprint"]
+}

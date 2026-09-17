@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_evolution.json",
+  "title": "EngineeringEvolution",
+  "description": "A record of engineering evolution through successive optimization cycles.",
+  "type": "object",
+  "properties": {
+    "evolution_id": { "type": "string", "pattern": "^eevol_[a-f0-9]{16}$" },
+    "system_id": { "type": "string" },
+    "cycle_number": { "type": "integer" },
+    "source_baseline_id": { "type": "string" },
+    "target_baseline_id": { "type": "string" },
+    "optimizations_applied": { "type": "array", "items": { "type": "object", "properties": { "candidate_id": { "type": "string" }, "improvement_type": { "type": "string" }, "impact_summary": { "type": "string" } } } },
+    "cumulative_improvements": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "completed_at": { "type": "integer" }
+  },
+  "required": ["evolution_id", "system_id", "cycle_number", "source_baseline_id", "target_baseline_id", "fingerprint"]
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "KARDASHEV_REPLAY_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for Kardashev transition replay verification",
+  "kardashev_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "transition_ids": {"type": "array", "required": true},
+      "replay_type": {"type": "string", "required": true, "enum": ["capability_assessment", "transition_planning", "readiness_evaluation", "progress_evaluation", "stage_transition", "full_lifecycle"]},
+      "replay_timestamp": {"type": "string", "required": true},
+      "verification_results": {"type": "object", "required": true},
+      "fingerprint_matches": {"type": "boolean", "required": true},
+      "divergence_report": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "verifiable", "replayable"]
+  }
+}

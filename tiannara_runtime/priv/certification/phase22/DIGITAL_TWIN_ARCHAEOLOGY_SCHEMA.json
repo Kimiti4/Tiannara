@@ -1,0 +1,19 @@
+{
+  "schema": "DIGITAL_TWIN_ARCHAEOLOGY_SCHEMA",
+  "version": "22.2",
+  "description": "Schema for archaeological reconstruction of digital twin evolution",
+  "digital_twin_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "twin_id": {"type": "string", "required": true},
+      "synchronization_history": {"type": "array", "required": true},
+      "state_evolution": {"type": "array", "required": true},
+      "layer_histories": {"type": "object", "required": true},
+      "intervention_simulations": {"type": "array", "required": true},
+      "accuracy_records": {"type": "array", "required": true},
+      "consistency_audits": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

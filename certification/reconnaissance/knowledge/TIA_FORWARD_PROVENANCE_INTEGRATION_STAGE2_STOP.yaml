@@ -1,0 +1,52 @@
+# Stage 2 — Provenance Runtime Contract — STOP Record
+
+artifact: TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE2_STOP
+version: 1.0.0
+authority: TIA Council
+status: AWAITING AUTHORIZATION FOR STAGE 3
+stage: 2 (Provenance Runtime Contract)
+implementation_plan: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_IMPL_PLAN.yaml
+recorded_at: 2026-09-09
+
+## Stage 2 Status
+- STATUS: COMPLETE
+- OPACLE ID ACCEPTANCE: IMPLEMENTED (first-writer-wins via Stage 1 authority)
+- RESOLVER BINDING: IMPLEMENTED (bind/2 joins an id to exactly one producer)
+- SUBSTITUTION (K): REJECT
+- ATTEMPT REUSE / RETRY CONFUSION (L): REJECT / DISTINCT ATTEMPTS
+- ORPHAN / UNKNOWN / CLOSED TERMINAL EVENT: UNVERIFIABLE / REJECT
+- RUNTIME INSTRUMENTATION (producers calling the contract): NOT YET (Stage 3)
+- MAIN APP / OPC TREE: UNTOUCHED (contract is zero-dep, forward_provenance only)
+
+## Delivered
+- spec/provenance_runtime_contract.yaml                       (normative contract spec)
+- lib/runtime_contract.ex   TiannaraOS.Provenance.RuntimeContract
+    * accept/2  pure lifecycle normalization (started -> exactly one terminal)
+    * bind/2    graph-join resolver binding (substitution rejects)
+    * verify_series/2  first-violation series fold
+    * to_envelopes/1    execution_started/execution_ended drafts
+    * spec/0            machine-readable contract descriptor
+- test/runtime_contract_test.exs  (11 tests: opaque acceptance x3 id shapes, K x2,
+  L, orphan ended, unknown attempt, closed attempt, to_envelopes, failed/partial,
+  bind unregistered)
+
+## Verification
+- mix test (forward_provenance): 37 tests, 0 failures (26 prior + 11 stage-2)
+- clean compile, no warnings
+- T0 porcelain: 3367 unchanged; no tracked file touched; no commits/pushes
+- historical firewall: untouched
+
+## Stage 1 Regression
+- Identity Authority tests still green (10/10); substrate tests (16/16) green
+
+## Bound Dependency Chain (unchanged)
+3. Runtime Instrumentation (producers call accept/2; edits to
+   lib/tiannara/phase4/real_execution.ex + OPC execution_runtime.ex via claims)
+4. Failure + Distributed Semantics
+5. Metric Lineage
+6. Certificate State / Authority
+7. K-T Adversarial Integration
+8. Independent Verification
+
+Forbidden (historical firewall): any statement that the new provenance system has
+now verified a historical artifact. This stage inferred no historical provenance.

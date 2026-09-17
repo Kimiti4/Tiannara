@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ObservatoryCertificate",
+  "description": "A certificate verifying observatory constitutional compliance",
+  "type": "object",
+  "properties": {
+    "certificate_id": {
+      "type": "string",
+      "description": "Unique identifier for this certificate"
+    },
+    "certificate_type": {
+      "type": "string",
+      "enum": ["observatory_certification"],
+      "description": "Type of certificate"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of certification"
+    },
+    "certification_level": {
+      "type": "string",
+      "enum": ["basic", "standard", "advanced", "production"],
+      "description": "Certification level achieved"
+    },
+    "certification_results": {
+      "type": "object",
+      "description": "Results of certification tests",
+      "properties": {
+        "observability_certified": {
+          "type": "boolean"
+        },
+        "instrumentation_certified": {
+          "type": "boolean"
+        },
+        "telemetry_certified": {
+          "type": "boolean"
+        },
+        "metric_certified": {
+          "type": "boolean"
+        },
+        "storage_certified": {
+          "type": "boolean"
+        },
+        "api_certified": {
+          "type": "boolean"
+        },
+        "access_control_certified": {
+          "type": "boolean"
+        },
+        "anomaly_certified": {
+          "type": "boolean"
+        },
+        "alert_certified": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "observability_certified",
+        "instrumentation_certified",
+        "telemetry_certified",
+        "metric_certified",
+        "storage_certified",
+        "api_certified",
+        "access_control_certified",
+        "anomaly_certified",
+        "alert_certified"
+      ]
+    },
+    "certification_hash": {
+      "type": "string",
+      "description": "Content-addressed hash of certification"
+    },
+    "signature": {
+      "type": "string",
+      "description": "Cryptographic signature"
+    },
+    "issued_at": {
+      "type": "integer",
+      "description": "Timestamp when certificate was issued"
+    },
+    "expires_at": {
+      "type": "integer",
+      "description": "Timestamp when certificate expires"
+    }
+  },
+  "required": [
+    "certificate_id",
+    "certificate_type",
+    "timestamp",
+    "certification_level",
+    "certification_results",
+    "certification_hash",
+    "signature",
+    "issued_at",
+    "expires_at"
+  ],
+  "additionalProperties": false
+}

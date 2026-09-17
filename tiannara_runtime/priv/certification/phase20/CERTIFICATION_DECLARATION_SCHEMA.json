@@ -1,0 +1,25 @@
+{
+  "schema": "CERTIFICATION_DECLARATION_SCHEMA",
+  "version": "20.999",
+  "description": "Schema for CertificationDeclaration — the formal declaration of the first certified Constitutional Operating System",
+  "certification_declaration": {
+    "fields": {
+      "declaration_id": {"type": "string", "required": true, "description": "Content-addressed declaration identifier"},
+      "title": {"type": "string", "required": true, "description": "Declaration of Constitutional Operating System Certification"},
+      "system_name": {"type": "string", "required": true, "description": "Tiannara Constitutional Operating System"},
+      "certification_generation": {"type": "string", "required": true},
+      "freeze": {"type": "string", "required": true, "description": "Reference to ConstitutionalFreeze"},
+      "signatures": {"type": "array", "required": true, "items": {"type": "string"}, "description": "References to CertificationSignature records"},
+      "declaration_text": {"type": "string", "required": true, "description": "The formal declaration text"},
+      "certification_scope": {"type": "string", "required": true, "description": "Scope of this certification"},
+      "effective_date": {"type": "integer", "required": true, "description": "Deterministic effective date"},
+      "expiration": {"type": "integer", "required": false, "description": "Permanent unless specified"},
+      "declaration_hash": {"type": "string", "required": true, "description": "SHA-256 of declaration canonical form"},
+      "status": {"type": "string", "required": true, "description": "Draft/Signed/Declared/Archived"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["signed_by_authority", "deterministic_declaration", "immutable_after_declaration"]
+  }
+}

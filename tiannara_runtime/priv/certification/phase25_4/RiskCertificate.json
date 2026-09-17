@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/risk_certificate.json",
+  "title": "RiskCertificate",
+  "description": "Certification for the CPRIE or its components.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^rcert_[a-f0-9]{16}$" },
+    "entity_id": { "type": "string" },
+    "entity_type": { "type": "string", "enum": ["risk_engine", "risk_domain_engine", "propagation_engine", "resilience_engine", "priority_engine"] },
+    "certification_type": { "type": "string", "enum": ["architecture", "domain_engine", "propagation", "resilience", "priority", "data", "replay"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "evidence_backed": { "type": "boolean" },
+        "uncertainty_explicit": { "type": "boolean" },
+        "human_reviewable": { "type": "boolean" },
+        "replayable": { "type": "boolean" },
+        "unknown_preserved": { "type": "boolean" }
+      },
+      "required": ["evidence_backed", "uncertainty_explicit", "replayable", "unknown_preserved"]
+    },
+    "certifying_authority": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "entity_id", "entity_type", "certification_type", "checks", "fingerprint"]
+}

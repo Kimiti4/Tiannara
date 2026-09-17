@@ -1,0 +1,28 @@
+{
+  "schema": "AUDIT_RESULT_SCHEMA",
+  "version": "20.96",
+  "description": "Schema for audit result — the outcome of auditing a single subsystem or artifact",
+  "audit_result": {
+    "fields": {
+      "result_id": {"type": "string", "required": true, "description": "Content-addressed result identifier"},
+      "scope": {"type": "string", "required": true, "description": "Reference to AuditScope"},
+      "subsystem": {"type": "string", "required": true},
+      "generation": {"type": "string", "required": true},
+      "artifact_count": {"type": "integer", "required": true},
+      "artifacts_verified": {"type": "integer", "required": true},
+      "artifacts_failed": {"type": "integer", "required": false},
+      "replay_verified": {"type": "boolean", "required": true},
+      "hash_chain_intact": {"type": "boolean", "required": true},
+      "dependencies_resolved": {"type": "boolean", "required": true},
+      "determinism_verified": {"type": "boolean", "required": true},
+      "evidence_complete": {"type": "boolean", "required": true},
+      "integrity_verdict": {"type": "string", "required": true, "description": "Intact/Compromised/Unverifiable/Partial"},
+      "findings": {"type": "array", "required": false, "items": {"type": "string"}},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "verdicts": ["intact", "compromised", "unverifiable", "partial"],
+    "constraints": ["evidence_based", "deterministic_audit", "replayable"]
+  }
+}

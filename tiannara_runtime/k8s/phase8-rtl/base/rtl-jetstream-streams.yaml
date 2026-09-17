@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rtl-jetstream-config
+  namespace: tiannara-phase8
+data:
+  streams.yaml: |
+    - name: rtl_equilibrium_state
+      subjects: ["tiannara.rtl.metrics.equilibrium.*"]
+      retention: limits
+      max_msgs: 1_000_000
+      storage: memory
+      replicas: 3
+      discard: old
+      max_age: 24h
+
+    - name: rtl_identity_persistence
+      subjects: ["tiannara.rtl.continuity.identity.*"]
+      retention: limits
+      max_msgs: 500_000
+      storage: file
+      replicas: 3
+      discard: new
+
+    - name: rtl_horizon_events
+      subjects: ["tiannara.rtl.horizon.*", "tiannara.rtl.chaos.*"]
+      retention: limits
+      max_msgs: 2_000_000
+      storage: file
+      replicas: 3
+      discard: old

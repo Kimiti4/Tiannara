@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_program.json",
+  "title": "EngineeringProgram",
+  "description": "A long-lived constitutional engineering initiative.",
+  "type": "object",
+  "properties": {
+    "program_id": { "type": "string", "pattern": "^eprog_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "mission": { "type": "string" },
+    "scope": { "type": "string" },
+    "scientific_dependencies": { "type": "array", "items": { "type": "string" } },
+    "engineering_goals": { "type": "array", "items": { "type": "string" } },
+    "technology_roadmap": { "type": "array", "items": { "type": "object", "properties": { "technology": { "type": "string" }, "target_trl": { "type": "integer", "minimum": 1, "maximum": 9 }, "target_date": { "type": "integer" } } } },
+    "resource_allocation": { "type": "object" },
+    "risk_profile": { "type": "array", "items": { "type": "object", "properties": { "risk": { "type": "string" }, "severity": { "type": "number" }, "likelihood": { "type": "number" }, "mitigation": { "type": "string" } } } },
+    "certification_status": { "type": "string", "enum": ["uncertified", "partially_certified", "certified", "recertifying"] },
+    "status": { "type": "string", "enum": ["proposed", "active", "paused", "redirected", "completed", "terminated"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "completed_at": { "type": "integer" }
+  },
+  "required": ["program_id", "name", "mission", "scope", "engineering_goals", "status", "fingerprint"]
+}

@@ -1,0 +1,65 @@
+artifact: TIA_M7_DISPOSITION
+record_type: COUNCIL DECISION (governance record)
+recorded_at: 2026-09-10
+decision_id: COUNCIL-2026-09-10-M7
+status: APPROVED (architectural/governance disposition; NOT implementation authorization)
+policy: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml (ACCEPTED)
+basis: stage9_m7_disposition.yaml (decision-support; proposed recommendation M7-HYBRID)
+
+COUNCIL DECISION:
+
+  M7 = HYBRID
+
+FORWARD-PROVENANCE AUTHORITY TOPOLOGY:
+
+  ONE FORWARD ISSUANCE AUTHORITY
+  +
+  DISTRIBUTED VERIFICATION
+
+INTERPRETATION (binding):
+  1. There is one authoritative forward issuance path.
+  2. Issuance authority is NOT distributed among competing issuers.
+  3. Independent verifiers may reproduce and verify the certificate, decision,
+     envelope, identity, and associated evidence according to the frozen
+     contracts.
+  4. Verification authority MUST NOT imply issuance authority.
+  5. A verifier MUST NOT be able to create an authoritative certificate merely
+     by successfully verifying one.
+  6. Identity, decision, authority, issuance, and verification remain separate
+     concepts (never collapsed; per policy never-conflate clause).
+  7. Distributed verification MUST NOT silently introduce a second issuance
+     authority.
+  8. Any future transition from HYBRID to SINGLE-only issuance, DISTRIBUTED
+     issuance, or any other topology requires an explicit NEW Council decision.
+
+RATIONALE:
+  HYBRID preserves deterministic forward issuance while permitting
+  independently reproduced verification. DISTRIBUTED issuance is rejected at
+  this stage: it would introduce coordination, authority ambiguity,
+  conflict-resolution, and deterministic-convergence requirements not needed
+  for the present certification boundary.
+
+EXPLICITLY OUT OF SCOPE OF THIS DISPOSITION:
+  - Authorization to implement the issuer or verifier.
+  - Opening any A-predicate.
+  - Any certificate issuance or certificate-state mutation.
+
+CONSEQUENCES (recorded for subsequent gates):
+  - Any future implementation of issuance must expose the single issuance
+    path (rp2 authorization-and-ratification seam) and MUST NOT add a second
+    issuance entry point.
+  - Distributed verification is a reader-side capability only.
+  - The single forward issuance authority itself still requires the
+    predicate-by-predicate implementation gate (see
+    predicate_authorization_template.yaml); this disposition does not
+    designate a named implementer or ratify a specific mechanism.
+
+RELATION TO CANONICAL ARCHITECTURE M7 (tiannara_runtime / root stacks):
+  - This disposition resolves M7 for the FORWARD PROVENANCE region only.
+  - The repo-wide certification scatter (tiannara_runtime issuance + root
+    certification + forward area) is unchanged by this record; non-forward
+    stacks are not governed here.
+
+NOTHING_IMPLEMENTED: true
+NO_PREDICATE_OPENED: true
+NO_CERTIFICATE_STATE_MUTATED: true

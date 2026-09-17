@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ScientificQuestion",
+  "description": "A first-class scientific artifact representing an unanswered question about reality",
+  "type": "object",
+  "properties": {
+    "question_id": { "type": "string" },
+    "text": { "type": "string" },
+    "source_observations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "domain": { "type": "string" },
+    "knowledge_gap_refs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "priority_score": { "type": "number" },
+    "status": {
+      "type": "string",
+      "enum": ["open", "investigating", "answered", "obsolete", "abandoned"]
+    },
+    "hypotheses_generated": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "confidence": { "type": "number" },
+    "created_at": { "type": "integer" },
+    "question_hash": { "type": "string" }
+  },
+  "required": ["question_id", "text", "domain", "status", "created_at", "question_hash"],
+  "additionalProperties": false
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "DISCOVERY_FRONTIER_SCHEMA",
+  "version": "21.2",
+  "description": "Schema for the discovery frontier — the active frontier of ongoing and planned discovery",
+  "discovery_frontier": {
+    "fields": {
+      "frontier_id": {"type": "string", "required": true, "description": "Content-addressed frontier identifier"},
+      "generation": {"type": "integer", "required": true},
+      "active_opportunities": {"type": "array", "required": true, "items": {"type": "string"}},
+      "pending_opportunities": {"type": "array", "required": true, "items": {"type": "string"}},
+      "completed_opportunities": {"type": "array", "required": false, "items": {"type": "string"}},
+      "frontier_velocity": {"type": "number", "required": true, "description": "Opportunities processed per generation"},
+      "frontier_coverage": {"type": "number", "required": true, "description": "0.0–1.0 fraction of frontier actively pursued"},
+      "bottlenecks": {"type": "array", "required": true, "description": "Known bottlenecks slowing frontier progress"},
+      "frontier_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic_frontier", "evidence_based", "replayable"]
+  }
+}

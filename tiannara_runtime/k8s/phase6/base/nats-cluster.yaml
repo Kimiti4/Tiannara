@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nats-cluster
+  namespace: tiannara-phase6
+  labels:
+    app: nats
+    tiannara.io/component: messaging
+spec:
+  serviceName: nats
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nats
+  template:
+    metadata:
+      labels:
+        app: nats
+        tiannara.io/component: messaging
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values: ["nats"]
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: nats
+        image: nats:2.10.4-alpine
+        ports:
+        - containerPort: 4222
+          name: client
+        - containerPort: 7422
+          name: cluster
+        - containerPort: 8222
+          name: monitoring
+        args:
+        - --config
+        - /etc/nats/nats.conf
+        - --jetstream
+        - --cluster_name=tiannara-phase6
+        - --cluster
+        - nats://0.0.0.0:7422
+        volumeMounts:
+        - name: nats-config
+          mountPath: /etc/nats
+        - name: jetstream-storage
+          mountPath: /data/jetstream
+        resources:
+          requests:
+            memory: 2Gi
+            cpu: "1"
+          limits:
+            memory: 8Gi
+            cpu: "4"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8222
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8222
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: nats-config
+        configMap:
+          name: nats-config
+      - name: jetstream-storage
+        persistentVolumeClaim:
+          claimName: jetstream-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats
+  namespace: tiannara-phase6
+  labels:
+    app: nats
+spec:
+  clusterIP: None
+  selector:
+    app: nats
+  ports:
+  - name: client
+    port: 4222
+    targetPort: 4222
+  - name: cluster
+    port: 7422
+    targetPort: 7422
+  - name: monitoring
+    port: 8222
+    targetPort: 8222

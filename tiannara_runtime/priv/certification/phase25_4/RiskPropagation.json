@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/risk_propagation.json",
+  "title": "RiskPropagation",
+  "description": "A causal propagation path from a source risk to downstream effects.",
+  "type": "object",
+  "properties": {
+    "propagation_id": { "type": "string", "pattern": "^rprop_[a-f0-9]{16}$" },
+    "source_risk_id": { "type": "string" },
+    "target_domain": { "type": "string" },
+    "mechanism": { "type": "string", "enum": ["direct_causation", "conditional_causation", "threshold_effect", "feedback_loop", "network_effect", "tipping_point"] },
+    "probability": { "type": "number", "minimum": 0, "maximum": 1 },
+    "time_delay": { "type": "string" },
+    "attenuation_factor": { "type": "number" },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "confidence": { "type": "number" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "recorded_at": { "type": "integer" }
+  },
+  "required": ["propagation_id", "source_risk_id", "target_domain", "mechanism", "probability", "fingerprint"]
+}

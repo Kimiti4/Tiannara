@@ -27,11 +27,18 @@ defmodule TiannaraRuntime.MixProject do
   # Run "mix help deps" to learn about dependencies
   defp deps do
     [
+      # Forward provenance (Council-authorized Stage 1/2 substrate; wired into
+      # the OPC ExecutionRuntime boundary in Stage 3)
+      {:forward_provenance, path: "../forward_provenance"},
+
       # Phoenix framework for API and real-time signaling
       {:phoenix, "~> 1.7.0"},
       
       # Phoenix LiveView for ecological dashboard
       {:phoenix_live_view, "~> 0.20.0"},
+
+      # HTTP server adapter for Phoenix
+      {:plug_cowboy, "~> 2.6"},
       
       # NATS client for Python/Elixir bridge (Phase 2 integration)
       {:gnat, "~> 1.0"},

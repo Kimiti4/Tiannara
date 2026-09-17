@@ -1,0 +1,36 @@
+# Move 2 — Canonical Truth Model: VISION
+# Every claim carries provenance.kind in {VISION_SOURCE, MEASURED,
+# COUNCIL_DECISION, UNKNOWN}. Claims transcribed from master.md are
+# VISION_SOURCE: they record what Tiannara is INTENDED to become, not what
+# has been measured. Nothing in this file is a measurement.
+artifact: TRUTH_VISION
+artifact_status: POST_T0
+move: 2
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+spec: master.md Move 2 (section 4 onward); vision layer only
+claims:
+- claim: Tiannara becomes a governed self-engineering scientific/engineering system
+  kind: VISION_SOURCE
+  source: master.md lines 4113-4159 (target architecture diagram HUMAN->OBSERVATORY->...->NEXT MISSION)
+  measured_status: UNKNOWN
+- claim: External models become optional computational workers, never owners of identity/architecture/governance/evidence/certification
+  kind: VISION_SOURCE
+  source: master.md lines 823-847
+  measured_status: UNKNOWN
+- claim: Every autonomy increase is accompanied by increased observability, evidence, verification, governance, reversibility
+  kind: VISION_SOURCE
+  source: master.md lines 4109-4111
+  measured_status: UNKNOWN
+- claim: The audit itself becomes the first dataset for Tiannara's Self Model (WHAT I AM / CLAIM TO BE / ACTUALLY IMPLEMENT / KNOW / DON'T KNOW / BROKEN / DUPLICATED / CANONICAL / OBSOLETE / CAPABLE OF / NOT CAPABLE OF / NEED NEXT / WHY / WHAT EVIDENCE WOULD PROVE IT)
+  kind: VISION_SOURCE
+  source: master.md lines 906-933
+  measured_status: UNKNOWN
+- claim: Unification is the first substantive audit because autonomous engineering on a fragmented codebase worsens fragmentation
+  kind: VISION_SOURCE
+  source: master.md line 935
+  measured_status: UNKNOWN
+- claim: CODE != CAPABILITY != VERIFICATION != CERTIFICATION != AUTHORITY != AUTONOMY (governing distinction chain)
+  kind: VISION_SOURCE
+  source: master.md lines 4085-4107
+  measured_status: UNKNOWN

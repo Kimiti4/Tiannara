@@ -1,0 +1,415 @@
+defmodule Tiannara.OPC.V3.OLEF.RODL do
+  @moduledoc """
+  Real-time Observer Definition Language (RODL)
+  Domain-specific language for defining observer behaviors and interactions
+  Enables autonomous operation without central runtime
+  """
+
+  alias Tiannara.OPC.V3.OLEF.{DistributedObserver, PressureMesh}
+
+  defstruct [
+    :definitions,
+    :compiled_rules,
+    :runtime_context
+  ]
+
+  @type t :: %__MODULE__{
+    definitions: list(map()),
+    compiled_rules: list(function()),
+    runtime_context: map()
+  }
+
+  @doc """
+  Creates a new RODL instance with initial definitions
+  """
+  def new(definitions \\ []) do
+    compiled_rules = compile_definitions(definitions)
+    
+    %__MODULE__{
+      definitions: definitions,
+      compiled_rules: compiled_rules,
+      runtime_context: %{
+        observers: [],
+        mesh: nil,
+        active: false
+      }
+    }
+  end
+
+  @doc """
+  Defines an observer with specific properties and behaviors
+  """
+  def define_observer(id, position, properties \\ %{}) do
+    %{
+      type: :observer,
+      id: id,
+      position: position,
+      properties: properties,
+      behaviors: [],
+      triggers: []
+    }
+  end
+
+  @doc """
+  Adds a behavior to an observer definition
+  """
+  def add_behavior(definition, behavior_name, params) do
+    updated_behaviors = 
+      Map.get(definition, :behaviors, [])
+      |> Kernel.++([
+        %{
+          name: behavior_name,
+          params: params,
+          execution_fn: behavior_function(behavior_name, params)
+        }
+      ])
+    
+    %{definition | behaviors: updated_behaviors}
+  end
+
+  @doc """
+  Adds a trigger condition to an observer definition
+  """
+  def add_trigger(definition, condition, action) do
+    updated_triggers = 
+      Map.get(definition, :triggers, [])
+      |> Kernel.++([
+        %{
+          condition: condition,
+          action: action,
+          active: true
+        }
+      ])
+    
+    %{definition | triggers: updated_triggers}
+  end
+
+  @doc """
+  Compiles RODL definitions into executable rules
+  """
+  def compile_definitions(definitions) do
+    Enum.map(definitions, fn definition ->
+      case definition.type do
+        :observer ->
+          observer_fn = fn mesh, observers ->
+            # Create the observer based on definition
+            observer_spec = %{
+              id: definition.id,
+              position: definition.position,
+              state: definition.properties,
+              capabilities: Map.get(definition.properties, :capabilities, [:observe, :report]),
+              pressure_sensitivity: Map.get(definition.properties, :pressure_sensitivity, 1.0)
+            }
+            
+            new_observer = DistributedObserver.new(observer_spec)
+            
+            # Apply behaviors
+            updated_observer = 
+              Enum.reduce(definition.behaviors, new_observer, fn behavior, obs ->
+                apply_behavior(obs, behavior, mesh)
+              end)
+            
+            # Return the new observer and the updated observers list
+            {mesh, [updated_observer | observers]}
+          end
+          
+          # Compile trigger conditions
+          trigger_fns = 
+            Enum.map(definition.triggers, fn trigger ->
+              fn mesh, observers ->
+                if evaluate_condition(trigger.condition, mesh, observers) do
+                  execute_action(trigger.action, mesh, observers)
+                else
+                  {mesh, observers}  # Return unchanged if condition not met
+                end
+              end
+            end)
+          
+          [observer_fn | trigger_fns]
+        
+        _ -> []
+      end
+    end)
+    |> List.flatten()
+  end
+
+  defp behavior_function(:pressure_response, params) do
+    fn observer, mesh ->
+      current_pressure = PressureMesh.get_pressure_at(mesh, observer.position)
+      sensitivity = Map.get(params, :sensitivity, 1.0)
+      
+      # Adjust observer based on pressure
+      if current_pressure > Map.get(params, :threshold, 0.5) do
+        # Move observer away from high pressure
+        new_position = adjust_position_for_pressure(observer.position, current_pressure, sensitivity)
+        %{observer | position: new_position}
+      else
+        observer
+      end
+    end
+  end
+
+  defp behavior_function(:cooperative_sync, params) do
+    fn observer, mesh ->
+      # Find nearby observers and synchronize with them
+      neighborhood_radius = Map.get(params, :radius, 2)
+      
+      # Get neighbors within radius
+      neighbors = find_neighbors(observer, mesh, neighborhood_radius)
+      
+      # Update connections
+      updated_observer = 
+        Enum.reduce(neighbors, observer, fn neighbor_id, obs ->
+          DistributedObserver.connect_to(obs, neighbor_id)
+        end)
+      
+      updated_observer
+    end
+  end
+
+  defp behavior_function(:adaptive_sensitivity, params) do
+    fn observer, mesh ->
+      current_pressure = PressureMesh.get_pressure_at(mesh, observer.position)
+      baseline_sensitivity = Map.get(params, :baseline_sensitivity, 1.0)
+      
+      # Adjust sensitivity based on pressure level
+      adjusted_sensitivity = 
+        case current_pressure do
+          p when p > 0.8 -> baseline_sensitivity * 0.5  # Reduce sensitivity in high pressure
+          p when p > 0.5 -> baseline_sensitivity * 0.8  # Moderate reduction
+          _ -> baseline_sensitivity  # Normal sensitivity
+        end
+      
+      %{observer | pressure_sensitivity: adjusted_sensitivity}
+    end
+  end
+
+  defp behavior_function(_, _) do
+    # Default behavior function that does nothing
+    fn observer, _mesh -> observer end
+  end
+
+  defp apply_behavior(observer, behavior, mesh) do
+    case behavior.execution_fn do
+      nil -> observer
+      func -> func.(observer, mesh)
+    end
+  end
+
+  defp adjust_position_for_pressure({x, y}, pressure, sensitivity) do
+    # Simple algorithm to move away from high pressure
+    # Direction depends on pressure gradient
+    _adjustment_factor = pressure * sensitivity * 0.1
+    
+    # Random direction adjustment (could be more sophisticated)
+    dx = :rand.uniform() * 2 - 1  # Random value between -1 and 1
+    dy = :rand.uniform() * 2 - 1  # Random value between -1 and 1
+    
+    {round(x + dx), round(y + dy)}
+  end
+
+  defp find_neighbors(observer, mesh, radius) do
+    {ox, oy} = observer.position
+    {width, height} = mesh.mesh_dimensions
+    
+    # Find observers within radius
+    positions_in_radius = 
+      for dx <- -radius..radius, dy <- -radius..radius,
+          distance({dx, dy}) <= radius,
+          nx = ox + dx, ny = oy + dy,
+          nx >= 0 and nx < width and ny >= 0 and ny < height do
+        {nx, ny}
+      end
+    
+    # In a real implementation, we'd match these positions to actual observers
+    # For now, return position-based IDs
+    Enum.map(positions_in_radius, fn pos -> "#{elem(pos, 0)}_#{elem(pos, 1)}" end)
+  end
+
+  defp distance({dx, dy}) do
+    :math.sqrt(dx * dx + dy * dy)
+  end
+
+  defp evaluate_condition(condition, mesh, observers) do
+    # Evaluate the condition against current state
+    case condition do
+      {:pressure_above, position, threshold} ->
+        current_pressure = PressureMesh.get_pressure_at(mesh, position)
+        current_pressure > threshold
+      
+      {:equilibrium_not_reached, threshold} ->
+        not PressureMesh.check_equilibrium(mesh, threshold)
+      
+      {:observer_count, min_count} ->
+        length(observers) >= min_count
+      
+      {:custom, custom_fn} when is_function(custom_fn, 3) ->
+        custom_fn.(mesh, observers, condition)
+      
+      _ ->
+        false  # Unknown condition
+    end
+  end
+
+  defp execute_action(action, mesh, observers) do
+    # Execute the specified action
+    case action do
+      {:apply_pressure, source_id, pressure_value, coordinates} ->
+        updated_mesh = PressureMesh.apply_pressure(mesh, source_id, pressure_value, coordinates)
+        {updated_mesh, observers}
+      
+      {:move_observer, observer_id, new_position} ->
+        updated_observers = 
+          Enum.map(observers, fn observer ->
+            if observer.id == observer_id do
+              %{observer | position: new_position}
+            else
+              observer
+            end
+          end)
+        
+        {mesh, updated_observers}
+      
+      {:trigger_behavior, observer_id, behavior_name, params} ->
+        updated_observers = 
+          Enum.map(observers, fn observer ->
+            if observer.id == observer_id do
+              behavior_fn = behavior_function(behavior_name, params)
+              behavior_fn.(observer, mesh)
+            else
+              observer
+            end
+          end)
+        
+        {mesh, updated_observers}
+      
+      {:custom, custom_fn} when is_function(custom_fn, 3) ->
+        custom_fn.(mesh, observers, action)
+      
+      _ ->
+        {mesh, observers}  # Unknown action
+    end
+  end
+
+  @doc """
+  Executes RODL rules against the current state
+  """
+  def execute_rules(%__MODULE__{} = rodl, mesh, observers) do
+    # Execute all compiled rules against current state
+    {_final_mesh, final_observers} = 
+      Enum.reduce(rodl.compiled_rules, {mesh, observers}, fn rule_fn, {current_mesh, current_observers} ->
+        case rule_fn do
+          rule when is_function(rule, 2) ->
+            # Rules return {mesh, observers}
+            rule.(current_mesh, current_observers)
+          
+          _ -> 
+            {current_mesh, current_observers}
+        end
+      end)
+    
+    # We only care about the final observers list from all the rule applications
+    final_mesh = mesh  # Keep original mesh for simplicity in this example
+    {final_mesh, Enum.uniq_by(final_observers, &(&1.id))}
+  end
+
+  @doc """
+  Adds a new definition to the RODL
+  """
+  def add_definition(%__MODULE__{} = rodl, definition) do
+    updated_definitions = rodl.definitions ++ [definition]
+    updated_rules = compile_definitions(updated_definitions)
+    
+    %{rodl | 
+      definitions: updated_definitions,
+      compiled_rules: updated_rules
+    }
+  end
+
+  @doc """
+  Activates the RODL system with given context
+  """
+  def activate(%__MODULE__{} = rodl, initial_mesh, initial_observers) do
+    updated_context = %{
+      observers: initial_observers,
+      mesh: initial_mesh,
+      active: true,
+      execution_counter: 0
+    }
+    
+    %{rodl | runtime_context: updated_context}
+  end
+
+  @doc """
+  Deactivates the RODL system
+  """
+  def deactivate(%__MODULE__{} = rodl) do
+    updated_context = Map.put(rodl.runtime_context, :active, false)
+    %{rodl | runtime_context: updated_context}
+  end
+
+  @doc """
+  Runs one step of the RODL execution
+  """
+  def execute_step(%__MODULE__{} = rodl) do
+    if Map.get(rodl.runtime_context, :active, false) do
+      current_mesh = rodl.runtime_context.mesh
+      current_observers = rodl.runtime_context.observers
+      
+      # Execute rules
+      {updated_mesh, updated_observers} = execute_rules(rodl, current_mesh, current_observers)
+      
+      # Update execution counter
+      updated_counter = Map.get(rodl.runtime_context, :execution_counter, 0) + 1
+      
+      updated_context = %{
+        observers: updated_observers,
+        mesh: updated_mesh,
+        active: true,
+        execution_counter: updated_counter
+      }
+      
+      %{rodl | runtime_context: updated_context}
+    else
+      rodl  # Not active, return unchanged
+    end
+  end
+
+  @doc """
+  Gets the current state of the RODL system
+  """
+  def get_state(%__MODULE__{} = rodl) do
+    %{
+      active: Map.get(rodl.runtime_context, :active, false),
+      execution_steps: Map.get(rodl.runtime_context, :execution_counter, 0),
+      observer_count: length(Map.get(rodl.runtime_context, :observers, [])),
+      definition_count: length(rodl.definitions)
+    }
+  end
+
+  @doc """
+  Example RODL program for adaptive observer swarm
+  """
+  def example_adaptive_swarm do
+    # Define a base observer with adaptive behaviors
+    base_observer = 
+      define_observer("adaptive_1", {5, 5}, %{
+        pressure_sensitivity: 1.0,
+        capabilities: [:observe, :adapt, :communicate]
+      })
+      |> add_behavior(:pressure_response, %{threshold: 0.3, sensitivity: 0.8})
+      |> add_behavior(:cooperative_sync, %{radius: 3})
+      |> add_behavior(:adaptive_sensitivity, %{baseline_sensitivity: 1.0})
+    
+    # Add a trigger that activates when pressure gets too high
+    observer_with_trigger = 
+      add_trigger(
+        base_observer, 
+        {:pressure_above, {5, 5}, 0.7}, 
+        {:move_observer, "adaptive_1", {6, 6}}
+      )
+    
+    # Create RODL with the observer definition
+    new([observer_with_trigger])
+  end
+end

@@ -1,0 +1,28 @@
+{
+  "schema": "AUDIT_FINDING_SCHEMA",
+  "version": "20.96",
+  "description": "Schema for audit findings — issues, observations, and recommendations from independent audit",
+  "audit_finding": {
+    "fields": {
+      "finding_id": {"type": "string", "required": true, "description": "Content-addressed finding identifier"},
+      "scope": {"type": "string", "required": true},
+      "subsystem": {"type": "string", "required": true},
+      "severity": {"type": "string", "required": true, "description": "Critical/Major/Minor/Observation/Info"},
+      "category": {"type": "string", "required": true, "description": "Integrity/Completeness/Determinism/Evidence/Replay/Dependency/Governance"},
+      "description": {"type": "string", "required": true},
+      "affected_artifacts": {"type": "array", "required": true, "items": {"type": "string"}},
+      "reconstructed_evidence": {"type": "string", "required": true, "description": "What the independent reconstruction showed"},
+      "expected_evidence": {"type": "string", "required": true, "description": "What the cold storage claimed"},
+      "discrepancy": {"type": "string", "required": false},
+      "recommendation": {"type": "string", "required": false},
+      "resolved": {"type": "boolean", "required": false},
+      "resolution_evidence": {"type": "string", "required": false},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "severities": ["critical", "major", "minor", "observation", "info"],
+    "categories": ["integrity", "completeness", "determinism", "evidence", "replay", "dependency", "governance"],
+    "constraints": ["evidence_based", "deterministic_finding", "archaeology_preserved"]
+  }
+}

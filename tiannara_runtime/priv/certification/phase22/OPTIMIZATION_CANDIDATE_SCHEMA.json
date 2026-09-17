@@ -1,0 +1,18 @@
+{
+  "schema": "OPTIMIZATION_CANDIDATE_SCHEMA",
+  "version": "22.4",
+  "description": "Schema for a civilization optimization candidate design",
+  "optimization_candidate": {
+    "fields": {
+      "candidate_id": {"type": "string", "required": true},
+      "design_id": {"type": "string", "required": true},
+      "search_generation": {"type": "integer", "required": true},
+      "objective_scores": {"type": "object", "required": true},
+      "constraint_satisfaction": {"type": "object", "required": true},
+      "pareto_status": {"type": "string", "required": true, "enum": ["dominated", "non_dominated", "frontier", "unknown"]},
+      "exploration_path": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "replayable", "evidence_based"]
+  }
+}

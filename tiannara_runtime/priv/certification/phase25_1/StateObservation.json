@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/state_observation.json",
+  "title": "StateObservation",
+  "description": "An observation record linked to a specific state value.",
+  "type": "object",
+  "properties": {
+    "sobservation_id": { "type": "string", "pattern": "^sobs_[a-f0-9]{16}$" },
+    "observation_id": { "type": "string" },
+    "domain": { "type": "string" },
+    "variable": { "type": "string" },
+    "region": { "type": "string" },
+    "value": {},
+    "unit": { "type": "string" },
+    "confidence": { "type": "number" },
+    "provenance_chain": { "type": "array", "items": { "type": "string" } },
+    "state_version": { "type": "integer" },
+    "timestamp": { "type": "integer" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["sobservation_id", "observation_id", "domain", "variable", "value", "fingerprint"]
+}

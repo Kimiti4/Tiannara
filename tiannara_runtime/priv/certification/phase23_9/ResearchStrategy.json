@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/research_strategy.json",
+  "title": "ResearchStrategy",
+  "description": "The current constitutional research strategy state of Tiannara.",
+  "type": "object",
+  "properties": {
+    "strategy_id": { "type": "string", "pattern": "^rstrat_[a-f0-9]{16}$" },
+    "civilizational_goals": { "type": "array", "items": { "type": "string" } },
+    "active_grand_challenges": { "type": "array", "items": { "type": "string" } },
+    "active_missions": { "type": "array", "items": { "type": "string" } },
+    "active_programs": { "type": "array", "items": { "type": "string" } },
+    "portfolio_allocation": {
+      "type": "object",
+      "properties": {
+        "basic_science": { "type": "number", "minimum": 0, "maximum": 1 },
+        "applied_science": { "type": "number", "minimum": 0, "maximum": 1 },
+        "engineering": { "type": "number", "minimum": 0, "maximum": 1 },
+        "validation": { "type": "number", "minimum": 0, "maximum": 1 },
+        "replication": { "type": "number", "minimum": 0, "maximum": 1 },
+        "exploratory": { "type": "number", "minimum": 0, "maximum": 1 },
+        "high_risk_high_reward": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "resource_allocation": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "updated_at": { "type": "integer" },
+    "valid_from": { "type": "integer" },
+    "valid_until": { "type": "integer" }
+  },
+  "required": ["strategy_id", "civilizational_goals", "portfolio_allocation", "fingerprint"]
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "EXPERIMENT_SCHEMA",
+  "version": "20.7",
+  "description": "Core schema for ExperimentProposal and experiment lifecycle",
+  "experiment_proposal": {
+    "fields": {
+      "experiment_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "origin": {"type": "string", "required": true, "description": "Originating subsystem (engineering/discovery/research/evolution)"},
+      "purpose": {"type": "string", "required": true, "description": "Question the experiment answers"},
+      "hypothesis": {"type": "string", "required": true, "description": "Falsifiable hypothesis"},
+      "prediction": {"type": "object", "required": true, "description": "Quantitative predicted outcome"},
+      "variables": {
+        "type": "object", "required": true,
+        "fields": {
+          "independent": {"type": "array"}, "dependent": {"type": "array"},
+          "controlled": {"type": "array"}, "confounding": {"type": "array"}
+        }
+      },
+        "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": {"type": "object", "required": true, "description": "Resource, safety, scope constraints"},
+      "safety_assumptions": {"type": "array", "required": true},
+      "required_resources": {"type": "object", "required": true},
+      "mathematical_justification": {"type": "string", "required": true},
+      "statistical_assumptions": {"type": "object", "required": true},
+      "expected_confidence": {"type": "number", "required": true},
+      "status": {"type": "string", "required": true, "description": "Proposed/Approved/Rejected/Executing/Completed/Frozen"}
+    },
+    "lifecycle": ["proposed", "approved", "rejected", "executing", "completed", "frozen"],
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": ["falsifiable_hypothesis", "deterministic_variables", "constitutional_compliance"]
+  }
+}

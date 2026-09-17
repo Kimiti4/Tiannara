@@ -1,0 +1,65 @@
+# Move 9 — Evidence Gap Ledger Update (Move 3 gaps carried; Move 9 updates appended)
+# Rule preserved: gaps are evidence requirements, never task lists. No gap
+# deleted. Updates are additive notes with Move-9 provenance.
+artifact: EVIDENCE_GAP_LEDGER_M9
+artifact_status: POST_T0
+move: 9
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+carried_gaps_open_unchanged:
+- TIA-CAP-012 (consumer reference still absent; no new evidence)
+- TIA-CAP-013 (consumer reference still absent; no new evidence)
+- TIA-CAP-015 (query path still absent; no new evidence)
+- TIA-CAP-016 (memory module still absent; no new evidence)
+- TIA-CAP-017 (caller still absent; no new evidence)
+- TIA-CAP-020 (producer/consumer still absent; no new evidence)
+- TIA-CAP-021 (builder/verifier/schema still absent; no new evidence)
+carried_gaps_with_move9_updates:
+- id: TIA-CAP-009
+  move3_gap: Regulation-effect demonstration; stabilizer contracts/specs
+  move9_update: Liveness demonstrated for both regulators (all children alive); zero regulation actions in 75s window; CTL confirmed absent from supervised children. Gap REMAINS (liveness is not behavior).
+  status: OPEN
+- id: TIA-CAP-010
+  move3_gap: Execution evidence; test-execution evidence bound to T0 content
+  move9_update: None (no Move-9 execution targeted evolution substrate)
+  status: OPEN
+- id: TIA-CAP-011
+  move3_gap: Demonstration evidence; persistence contract
+  move9_update: None (no Move-9 execution targeted the facade)
+  status: OPEN
+- id: TIA-CAP-014
+  move3_gap: Execution evidence attributing the specific T0 files to rotation runs
+  move9_update: Boot runs WROTE council_audit_log.dets in the working tree (tracked file modified), demonstrating the rotation path is live; but no record attributes the T0-committed files (incl. corrupted variants) to specific runs. Gap REMAINS, narrowed to file-attribution specifically.
+  status: OPEN
+- id: TIA-CAP-018
+  move3_gap: Audit-run execution record binding auditor, input, output, timestamp
+  move9_update: Auditor execution demonstrated (completes, self-consistent); but it performs fingerprint + status echo, not re-derivation; CONTRA-003 undiscriminated. Gap REMAINS, narrowed to independent-derivation evidence specifically.
+  status: OPEN
+- id: TIA-CAP-019
+  move3_gap: Bound execution records (results)
+  move7_update: Harness confirmed present with fixed inputs; dev-env execution BLOCKED at missing test-support module (CompileError, deterministic); test-env attempt inconclusive. Gap REMAINS.
+  status: OPEN
+new_gaps_from_move9:
+- id: GAP-M9-01
+  statement: ExecutiveStateManager :state FunctionClauseError crashes the metrics pipeline at runtime (ExecutiveMetrics terminates cascading from collect_kpis)
+  blocks: Any claim depending on executive metrics/KPI collection; also blocks using metrics output as regulation evidence
+  discovered_by: EXP-M9-00 boot observation (full trace in TEMP log, not retained as artifact)
+- id: GAP-M9-02
+  statement: PhaseΩ health reporting is inconsistent across boots (1/16 vs 15/15 observed)
+  blocks: Any claim citing PhaseΩ health as a stability signal
+  discovered_by: EXP-M9-00 vs EXP-M9-02 boot logs
+- id: GAP-M9-03
+  statement: Duplicate module definitions (Audit.Tier3.CoreIntegration, Operations.ChallengeDiagnostics vs _build beams) trigger recompile warnings on every boot
+  blocks: Nothing directly; indicates working-tree/source duplication consistent with Move-4 overlap observations
+  discovered_by: Boot stderr logs
+- id: GAP-M9-04
+  statement: Auditor overwrites a tracked evidence file (independent_audit_report.json) on every run, so the evidence package is self-mutating
+  blocks: Any claim that the phase14 package is frozen/immutable as audited
+  discovered_by: EXP-M9-01 side-effect observation (tracked-file modification disclosed)
+aggregate:
+  carried_open: 13
+  updated_with_move9_evidence: 4
+  unchanged_for_lack_of_targeted_evidence: 9
+  new: 4
+  closed: 0
+  open_total: 17

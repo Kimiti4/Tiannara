@@ -1,0 +1,67 @@
+# Move 11 — Expected Information Value ranking (qualitative; no false precision)
+# EIV = P(material belief change) x decision importance x uncertainty reduction,
+# adjusted for cost, risk, reproducibility, observability, discriminating power.
+artifact: RESEARCH_PRIORITY_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+method: Qualitative bands only (VERY HIGH / HIGH / MEDIUM / LOW / UNKNOWN). No numeric scores; numbers would pretend precision the evidence does not support.
+ranking:
+- id: RQ-001
+  band: VERY HIGH
+  basis: Resolves a CONFIRMED contradiction between intact records; unblocks all certificate-truth claims; discriminating power maximal (two records already disagree, any execution record decides)
+  cost: LOW (read existing artifacts harder or one recorded run)
+  risk: LOW (read-only unless a run is authorized)
+- id: RQ-004
+  band: VERY HIGH
+  basis: Would convert the entire corpus class from self-consistent to validated; gates every certificate-content claim
+  cost: MEDIUM (requires re-derivation harness or records)
+  risk: LOW
+- id: RQ-002
+  band: HIGH
+  basis: Resolves the central authority unknown; gates E03 interpretation and all regulation claims
+  cost: MEDIUM (observation under load or boundary declaration discovery)
+  risk: MEDIUM (load observation perturbs the observed system; still read-only)
+- id: RQ-010
+  band: HIGH
+  basis: Determines whether recorded metrics are suspect (blast-radius question affects all KPI-derived claims)
+  cost: LOW (consumer mapping from T0 content; one historical citation check)
+  risk: LOW
+- id: RQ-003
+  band: HIGH
+  basis: Would move the strongest insufficiency (zero-test substrate) with a single executed cycle
+  cost: MEDIUM (bounded execution under authorization)
+  risk: MEDIUM (execution writes working-tree state; disclosed pattern)
+- id: RQ-009
+  band: MEDIUM
+  basis: Narrows one contradiction and one capability gap jointly; single-file attribution question
+  cost: LOW
+  risk: LOW
+- id: RQ-006
+  band: MEDIUM
+  basis: Covers six record classes at once, but each needs its own reference; discriminating power per unit effort lower than top items
+  cost: LOW-MEDIUM (systematic reference search, already partially done with negative results)
+  risk: LOW
+- id: RQ-005
+  band: MEDIUM
+  basis: Unlocks an entire evidence class (benchmarks), but only after executability itself is established
+  cost: MEDIUM (bounded run under authorization)
+  risk: LOW-MEDIUM
+- id: RQ-007
+  band: LOW
+  basis: Informative for health-signal trust, but health signals are downstream of more fundamental unknowns (authority, regulation effect)
+  cost: LOW (retain per-subsystem results on next boot)
+  risk: LOW
+- id: RQ-008
+  band: LOW
+  basis: Resolves one orphan's status; low architectural leverage either way
+  cost: LOW (document search)
+  risk: LOW
+aggregate:
+  very_high: 2
+  high: 3
+  medium: 3
+  low: 2
+  unknown_band: 0
+note: No question is ranked UNKNOWN-band because each has a stated discriminating observation; UNKNOWN would mean we cannot even say what would answer it.

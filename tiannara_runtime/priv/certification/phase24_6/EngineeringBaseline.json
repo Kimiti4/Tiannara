@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_baseline.json",
+  "title": "EngineeringBaseline",
+  "description": "A certified engineering baseline serving as the reference point for optimization.",
+  "type": "object",
+  "properties": {
+    "baseline_id": { "type": "string", "pattern": "^ebase_[a-f0-9]{16}$" },
+    "system_id": { "type": "string" },
+    "baseline_type": { "type": "string", "enum": ["architecture", "design", "performance", "manufacturing", "operational", "cost"] },
+    "version": { "type": "string" },
+    "parent_baseline_id": { "type": "string" },
+    "content": { "type": "object" },
+    "performance_metrics": { "type": "object" },
+    "certificate_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["baseline_id", "system_id", "baseline_type", "version", "content", "fingerprint"]
+}

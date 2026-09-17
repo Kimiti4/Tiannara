@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/technology_interface.json",
+  "title": "TechnologyInterface",
+  "description": "A constitutional interface definition between subsystems.",
+  "type": "object",
+  "properties": {
+    "interface_id": { "type": "string", "pattern": "^tint_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "interface_type": { "type": "string", "enum": ["mechanical", "electrical", "thermal", "fluid", "software", "control", "information", "human"] },
+    "source_subsystem_id": { "type": "string" },
+    "target_subsystem_id": { "type": "string" },
+    "specifications": { "type": "object" },
+    "parameters": { "type": "object" },
+    "verification_method": { "type": "string" },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["draft", "proposed", "certified", "modified"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["interface_id", "name", "interface_type", "source_subsystem_id", "target_subsystem_id", "specifications", "fingerprint"]
+}

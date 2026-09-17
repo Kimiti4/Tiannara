@@ -1,0 +1,74 @@
+artifact: lifecycle_design
+stage: 8 (Implementation DESIGN — lifecycle, revocation, supersession contracts)
+authority: TIA Council
+posture: DESIGN ONLY
+recorded_at: 2026-09-10
+upstream: certificate_lifecycle_analysis (LC-*, REV-E1..E5), authority_policy_analysis,
+  stage8_design_scope (d3), certificate_identity_design (supersession outside identity)
+policy_chapters: TIA_PROVENANCE_CERTIFICATION_POLICY.yaml — certificate_states_and_transitions,
+  invalidation, schema_evolution, evidence_bundle
+
+DESIGN_ONLY: true
+design_status: CONSISTENT — lifecycle semantics are policy-pinned; this artifact is the
+  contract an implementation (future) would realize. NO lifecycle state is created,
+  mutated, or queried in Stage 8.
+
+summary:
+  question: What is the designed lifecycle/state machine for a forward certificate, and
+    how are revocation and supersession represented?
+  answer: The lifecycle is the policy's five states with the policy's transition rules.
+    Every state change is a DECISION RECORD (an envelope), stored durably, so `from`
+    and `to` are auditable. Revocation is an irreversible authority-recorded decision
+    (itself an envelope) tied to certificate_id; supersession is successor issuance that
+    sets the earlier certificate's SUPERSEDED state (never rewrite of the original).
+
+states (policy-pinned):
+  - VALID: all issuance_conditions hold; chain independently re-verifiable
+  - SUSPENDED: chain temporarily unresolvable; no new claims may cite it
+  - REVOKED: authority revocation decision recorded; revoked certs are not evidence
+  - UNVERIFIABLE: evidence cannot be resolved/restored; recorded with unresolved-edge
+    (never repaired silently)
+  - SUPERSEDED: a later certificate supersedes for the same execution clause under
+    schema/authority change; the superseded remains intact and non-citing
+
+transition_rules (policy-pinned, copied for design contract):
+  - VALID -> SUSPENDED -> VALID only after full re-verification
+  - VALID -> REVOKED on a recorded authority decision; revocation is irreversible for that id
+  - VALID -> SUPERSEDED only via issuance of a successor; never by rewriting the original
+  - ANY -> UNVERIFIABLE on unresolved evidence; persists until evidence returns, then
+    SUSPENDED->VALID path applies
+
+design_contracts:
+  - state_record: "{certificate_id, lifecycle_state, recorded_by, recorded_at_spec, reason,
+      previous_state, next_state}" — every transition is one record; the sequence for an id
+      is its complete history (replayable, bundle-representable).
+  - revocation_decision: "an envelope of event_type revocation_recorded with body
+      {certificate_id, reason, authority_header, policy_ref}; revocation irreversible for
+      that id (policy). The decision itself is evidence (auditable), never edited."
+  - supersession: "successor issuance sets predecessor certificate_id to SUPERSEDED via a
+      state_record pointing at the successor's certificate_id; the predecessor envelope and
+      identity are untouched (policy schema_evolution: SUPERSEDED is the sanctioned channel)."
+  - suspension: "SUSPENDED and UNVERIFIABLE are restoration-path states; restoration
+      requires full re-verification against intact recorded chain (policy invalidation.rule)."
+
+mapping_to_bridge (reference-only):
+  - "Bridge lifecycle_table/0 enumerates the same vocabulary the policy uses; the transition/
+    3 SAFE-BLOCKED behavior is the correct Stage-6..8 state (no change authorized)."
+  - "The bridge's A06 revocation_conflict and A07 supersession_rules predicates are the
+     future guards that will enforce the policy's transition rules; they remain BLOCKED by
+     design until a Council authorization event exists (design d3)."
+  - "Revoked contrast case: Stage-6 §17 condition 2 (a revoked-certificate contrast case
+     cannot be represented). This design specifies HOW a future realization would represent
+     it (state_record + revocation_decision envelope + registry); it does not create one."
+
+durability_design:
+  - "Lifecycle history and revocation/supersession decisions belong in the FUTURE issued-id
+     ledger / lifecycle store identified in issuance_design (design_dependencies). Stage 8
+     creates no store, no registry, no record."
+
+consistency_notes:
+  - "policy certificate_states_and_transitions note: 'STATES AND TRANSITIONS ARE SEMANTICS
+     ONLY; enacted when integration is authorized.' This artifact inherits that framing — it
+     pins semantics for design; enactment is future + separately authorized."
+
+NOTHING_IMPLEMENTED: true

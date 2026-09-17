@@ -1,0 +1,33 @@
+{
+  "schema": "RESOURCE_COORDINATION_SCHEMA",
+  "version": "21.4",
+  "description": "Schema for civilization-wide resource coordination records",
+  "resource_coordination": {
+    "fields": {
+      "coordination_id": {"type": "string", "required": true, "description": "Content-addressed resource coordination identifier"},
+      "generation": {"type": "integer", "required": true},
+      "resource_type": {"type": "string", "required": true, "description": "ComputeClusters/SimulationEnvironments/MathematicalEngines/WorldModels/ScientificCapital/EngineeringEnvironments/WorkingMemory"},
+      "total_capacity": {"type": "number", "required": true},
+      "allocated": {"type": "number", "required": true},
+      "available": {"type": "number", "required": true},
+      "allocations": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "program": {"type": "string"}, "mission": {"type": "string"},
+            "amount": {"type": "number"}, "priority": {"type": "number"},
+            "allocation_hash": {"type": "string"}
+          }
+        }
+      },
+      "starvation_prevention_verified": {"type": "boolean", "required": true},
+      "fair_share_verified": {"type": "boolean", "required": true},
+      "coordination_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "resource_types": ["compute_clusters", "simulation_environments", "mathematical_engines", "world_models", "scientific_capital", "engineering_environments", "working_memory"],
+    "constraints": ["deterministic", "fair", "constitutional"]
+  }
+}

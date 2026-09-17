@@ -1,0 +1,25 @@
+{
+  "schema": "RESEARCH_INSTITUTE_SCHEMA",
+  "version": "21.5",
+  "description": "Schema for a constitutional research institute within the federation",
+  "research_institute": {
+    "fields": {
+      "institute_id": {"type": "string", "required": true, "description": "Content-addressed institute identifier"},
+      "name": {"type": "string", "required": true},
+      "charter_hash": {"type": "string", "required": true, "description": "Hash of constitutional charter"},
+      "primary_domain": {"type": "string", "required": true},
+      "secondary_domains": {"type": "array", "required": false},
+      "scientific_mandate": {"type": "string", "required": true},
+      "knowledge_portfolio_hash": {"type": "string", "required": true},
+      "resource_budget_hash": {"type": "string", "required": true},
+      "active_missions": {"type": "array", "required": false},
+      "discovery_count": {"type": "integer", "required": true},
+      "collaboration_partners": {"type": "array", "required": false},
+      "status": {"type": "string", "required": true, "description": "Active/Dormant/Merged/Dissolved"},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["constitutional_autonomy", "deterministic", "replayable"]
+  }
+}

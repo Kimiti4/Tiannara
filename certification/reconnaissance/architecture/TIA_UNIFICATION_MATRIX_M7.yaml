@@ -1,0 +1,228 @@
+# Move 7 — Unification Decision Matrix
+# Per candidate overlap: relationship determination WITHOUT executing it.
+# Allowed decisions: UNIFY_LATER | KEEP_SEPARATE | LAYER | SPECIALIZE | ARCHIVE_LATER | UNKNOWN
+# No decision here authorizes any consolidation; all UNIFY_LATER/ARCHIVE_LATER
+# rows require a separately authorized implementation gate.
+artifact: UNIFICATION_MATRIX_M7
+artifact_status: POST_T0
+move: 7
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+rows:
+- cluster: verification-machinery
+  component_a: lib/tiannara/verification_authority.ex
+  component_b: lib/tiannara/os/governance/certification/independent_auditor.ex
+  relationship: distinct-scopes
+  same_responsibility: false
+  same_authority: UNKNOWN
+  same_persistence: UNKNOWN
+  same_evidence_role: false
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: KEEP_SEPARATE
+  confidence: MEDIUM
+  reason: Live proposal verification vs governance-certification audit; different inputs (proposals vs campaign artifacts) and different triggers
+- cluster: verification-machinery
+  component_a: lib/tiannara/verification_authority.ex
+  component_b: certification_framework.ex
+  relationship: undetermined
+  same_responsibility: UNKNOWN
+  same_authority: UNKNOWN
+  same_persistence: UNKNOWN
+  same_evidence_role: UNKNOWN
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: UNKNOWN
+  confidence: LOW
+  reason: Framework role unevidenced beyond moduledoc; zero callers; no linkage to the live service found
+- cluster: verification-machinery
+  component_a: lib/tiannara/verification_authority.ex
+  component_b: run_independent_auditor.exs
+  relationship: distinct-epistemic-layers
+  same_responsibility: false
+  same_authority: UNKNOWN
+  same_persistence: false
+  same_evidence_role: false
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: KEEP_SEPARATE
+  confidence: MEDIUM
+  reason: Runtime service vs offline frozen-evidence script (no runtime imports); different trust models by construction
+- cluster: verification-machinery
+  component_a: lib/tiannara/os/governance/certification/independent_auditor.ex
+  component_b: certification_framework.ex
+  relationship: undetermined
+  same_responsibility: UNKNOWN
+  same_authority: UNKNOWN
+  same_persistence: UNKNOWN
+  same_evidence_role: UNKNOWN
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: UNKNOWN
+  confidence: LOW
+  reason: No linkage evidence in either direction; framework could be historical, pending, or aspirational
+- cluster: verification-machinery
+  component_a: lib/tiannara/os/governance/certification/independent_auditor.ex
+  component_b: run_independent_auditor.exs
+  relationship: possible-layering
+  same_responsibility: UNKNOWN
+  same_authority: UNKNOWN
+  same_persistence: UNKNOWN
+  same_evidence_role: UNKNOWN
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: UNKNOWN
+  confidence: LOW
+  reason: Script may drive the module; invocation linkage unevidenced (no call-graph generation in this program)
+- cluster: verification-machinery
+  component_a: certification_framework.ex
+  component_b: run_independent_auditor.exs
+  relationship: undetermined
+  same_responsibility: UNKNOWN
+  same_authority: UNKNOWN
+  same_persistence: UNKNOWN
+  same_evidence_role: UNKNOWN
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: UNKNOWN
+  confidence: LOW
+  reason: No linkage evidence in either direction
+- cluster: ledger-record
+  component_a: DecisionArchive (forecasting/auditor.ex)
+  component_b: council_audit_log (council/audit_log.ex)
+  relationship: distinct-stores-distinct-authorities
+  same_responsibility: false
+  same_authority: false
+  same_persistence: false
+  same_evidence_role: false
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: KEEP_SEPARATE
+  confidence: HIGH
+  reason: Log-line facade with no store and no callers vs DETS-backed trail with reader, policy, and Council supervision
+- cluster: ledger-record
+  component_a: DecisionArchive (forecasting/auditor.ex)
+  component_b: provenance/discovery_ledger.ex
+  relationship: distinct-roles
+  same_responsibility: false
+  same_authority: UNKNOWN
+  same_persistence: false
+  same_evidence_role: false
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: KEEP_SEPARATE
+  confidence: MEDIUM
+  reason: Decision-record facade vs discovery-provenance records; different subjects and stores
+- cluster: ledger-record
+  component_a: DecisionArchive (forecasting/auditor.ex)
+  component_b: evidence/ gate-quarantine-provenance modules
+  relationship: distinct-roles
+  same_responsibility: false
+  same_authority: UNKNOWN
+  same_persistence: false
+  same_evidence_role: false
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: KEEP_SEPARATE
+  confidence: MEDIUM
+  reason: Storageless facade vs enforcement/quarantine machinery; no shared interface evidenced
+- cluster: ledger-record
+  component_a: council_audit_log (council/audit_log.ex)
+  component_b: provenance/discovery_ledger.ex
+  relationship: distinct-domains
+  same_responsibility: false
+  same_authority: UNKNOWN
+  same_persistence: false
+  same_evidence_role: false
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: KEEP_SEPARATE
+  confidence: MEDIUM
+  reason: Council audit trail vs discovery provenance; different subjects, stores, and authority contexts
+- cluster: ledger-record
+  component_a: council_audit_log (council/audit_log.ex)
+  component_b: evidence/ gate-quarantine-provenance modules
+  relationship: distinct-domains
+  same_responsibility: false
+  same_authority: UNKNOWN
+  same_persistence: false
+  same_evidence_role: false
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: KEEP_SEPARATE
+  confidence: MEDIUM
+  reason: Council trail vs scientific-memory enforcement; different domains; gate/quarantine callers unevidenced so no consumption link can be asserted
+- cluster: ledger-record
+  component_a: provenance/discovery_ledger.ex
+  component_b: evidence/ gate-quarantine-provenance modules
+  relationship: possible-layering
+  same_responsibility: UNKNOWN
+  same_authority: UNKNOWN
+  same_persistence: UNKNOWN
+  same_evidence_role: UNKNOWN
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: UNKNOWN
+  confidence: LOW
+  reason: Ledger-produces/gate-consumes layering is plausible but callers of both sides are unevidenced; would need call-graph evidence (not generated here)
+- cluster: knowledge-stores
+  component_a: asc/knowledge_archive.ex
+  component_b: asc/interface/knowledge_archive.ex
+  relationship: distinct-domains
+  same_responsibility: false
+  same_authority: UNKNOWN
+  same_persistence: UNKNOWN
+  same_evidence_role: false
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: KEEP_SEPARATE
+  confidence: MEDIUM
+  reason: Civilization memory (ETS + ndjson) vs interface-evolution registry (genomes/mutations); different subjects despite similar names
+- cluster: knowledge-stores
+  component_a: asc/knowledge_archive.ex
+  component_b: crav/discovery_chain.ex
+  relationship: distinct-roles
+  same_responsibility: false
+  same_authority: UNKNOWN
+  same_persistence: UNKNOWN
+  same_evidence_role: false
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: KEEP_SEPARATE
+  confidence: MEDIUM
+  reason: Store vs pipeline verifier; different roles by moduledoc contract
+- cluster: knowledge-stores
+  component_a: asc/interface/knowledge_archive.ex
+  component_b: crav/discovery_chain.ex
+  relationship: distinct-roles
+  same_responsibility: false
+  same_authority: UNKNOWN
+  same_persistence: UNKNOWN
+  same_evidence_role: false
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: KEEP_SEPARATE
+  confidence: MEDIUM
+  reason: Registry vs verifier; different roles by moduledoc contract
+- cluster: knowledge-stores
+  component_a: knowledge modules (all three above)
+  component_b: three JSON knowledge-graph records
+  relationship: undetermined-linkage
+  same_responsibility: UNKNOWN
+  same_authority: UNKNOWN
+  same_persistence: UNKNOWN
+  same_evidence_role: UNKNOWN
+  canonical_candidate: none-determined
+  secondary_candidate: none-determined
+  decision: UNKNOWN
+  confidence: LOW
+  reason: Zero consumption references from modules to the specific files; linkage unevidenced in either direction
+aggregate:
+  rows_total: 16
+  keep_separate: 10
+  unknown: 6
+  unify_later: 0
+  layer: 0
+  specialize: 0
+  archive_later: 0
+note: Zero consolidation decisions. UNIFY_LATER appears nowhere because no pair met the bar of demonstrated same-responsibility. UNKNOWN rows name the exact missing evidence (usually caller/consumer linkage).

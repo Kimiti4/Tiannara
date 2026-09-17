@@ -1,0 +1,93 @@
+program: TIA_FORENSIC_RECON_ENGINE
+move: PROVENANCE-CLOSURE-EVIDENCE-ARCHITECTURE-GATE
+schema_version: "1.0.0"
+method: "Specification of the minimum evidence an external auditor needs to independently reproduce execution -> result -> metric without relying on Tiannara's interpretation. Derived from the minimum provenance model and the adversarial test plan. Spec only; not instantiated in this gate."
+STATUS: "SPEC COMPLETE"
+bundle_name: "IndependentEvidenceBundle"
+bundle_principle: "An auditor must be able to answer every audit question from bundle bytes alone, with no access to Tiannara internals, no trust in inline values, and no inference from filenames/timestamps/probability."
+
+audit_questions:
+  - question: "What was run?"
+    requires:
+      - "execution envelope (execution_id, event envelopes, status)"
+      - "result payload bytes + payload_hash"
+      - "result_id + DERIVED_FROM execution edge"
+    missing_today: "result references execution (edge is ABSENT; Artifact 1)"
+  - question: "Against what source?"
+    requires:
+      - "source_identity (repository, commit, tree, dirty_state_fingerprint if dirty)"
+      - "source_manifest_hash + manifest bytes"
+    missing_today: "every execution record lacks source identity"
+  - question: "With what contract?"
+    requires:
+      - "contract_identity (contract_hash, contract_version, contract bytes)"
+      - "parameter_set bytes"
+    missing_today: "contract_hash null; contracts unbound to executions"
+  - question: "With what inputs?"
+    requires:
+      - "input_manifest (entries: path, role, hash) + the input bytes themselves"
+    missing_today: "no input manifests; config_hash prefix unbound"
+  - question: "Using what environment?"
+    requires:
+      - "environment_identity (backend, os, otp, elixir, deps_lock_hash) + runtime_version"
+    missing_today: "runtime version strings static/absent; no pinned dependency lock evidence in records"
+  - question: "What happened?"
+    requires:
+      - "execution telemetry/output (output_manifest entries + output bytes)"
+      - "status + failure_information"
+    missing_today: "PORTIAL - archive packets carry telemetry but nothing certifies it; physics rows carry I/O"
+  - question: "What result was produced?"
+    requires:
+      - "result payload bytes + result_id + payload_hash"
+      - "derivation from the execution output"
+    missing_today: "result artifacts exist (gc_* files, packets) but carry no execution linkage"
+  - question: "How was the metric calculated?"
+    requires:
+      - "metric_manifest (name, definition_version, computation_hash, input_field_list, aggregation, rounding, normalization, seed_dependence)"
+      - "persisted measurement corpus bytes + corpus_hash"
+    missing_today: "metrics inline/unversioned; measurement corpora ephemeral; auditor protocol differs from certification protocol"
+  - question: "Why was the certificate issued?"
+    requires:
+      - "certificate envelope (certificate_id, decision, reason, authority, authority_kind, issued_at)"
+      - "envelope_refs to the evidence envelopes being certified"
+      - "certificate generator + schema version"
+    missing_today: "certificates self-assert; no envelope refs; authority unanchored (meta-certificate case)"
+
+bundle_contents:
+  - "bundle_manifest.json: bundle schema version, bundle id, produced_at, producer/version, checksum"
+  - "provenance_envelopes/: the immutable envelopes for execution_started, execution_ended, result_produced, metric_computed, decision_recorded (machine-readable, schema versioned)"
+  - "identity_objects/: source, contract, experiment definition, environment identities with recomputable hashes"
+  - "manifests/: input_manifest, output_manifest, metric_manifest per certified metric"
+  - "measurements/: the measurement corpus bytes (inputs to each metric) - explicitly ABSENT in current repo and load-bearing for independent re-derivation"
+  - "result_and_payloads/: result bytes + payload_hash of each certified artifact (certificates, campaign results)"
+  - "contracts/: contract bytes referenced by contract_identity"
+  - "certificates/: the certificate artifact itself (for decision-to-evidence linkage)"
+  - "audit_trail.md: human-readable answer to the nine questions with pointers to the machine-readable pieces"
+  - "schema_version + canonical_serialization_spec: so an auditor can recompute every hash identically"
+
+verification_procedure:
+  - "For every identity_ref in the certified envelope chain, recompute each identity_hash from the bundle bytes (must match)"
+  - "Resolve execution_id uniqueness; verify execution_started/execution_ended status chain"
+  - "Recompute every payload_hash (certificates, results, corpus) under the declared canonical_serialization_spec"
+  - "Recompute every certified metric from measurements/ using the metric_manifest computation (REPRODUCIBLE) or return PARTIALLY REPRODUCIBLE with the exact gap"
+  - "Traverse certificate envelope_refs backwards to a single execution root; any broken/absent edge marks the chain CONTESTED"
+  - "Independently re-run the execution from source/contract/inputs/environment/seeds to check trajectory parity (optional deep audit)"
+
+current_feasibility (audit of the CURRENT repository against the spec):
+  - "Answerable today from repo bytes alone: WHAT WAS RUN (archive packet run_meta), WHAT HAPPENED (packet telemetry), WHAT RESULT (gc_* payloads byte-verifiable), WHAT CONTRACT (contract prose bytes, unbound)"
+  - "NOT answerable today: AGAINST WHAT SOURCE (no source identity), INPUTS (none bound), ENVIRONMENT (unpinned), HOW METRIC CALCULATED (no corpus/version), WHY CERTIFICATE ISSUED (no authoritative envelope linkage)"
+  - "Overall: independent re-derivation from bundle bytes alone is NOT POSSIBLE today for certificate-bound metrics; the archive pros-run chain (packets only, no certificate reference) is re-derivable in artifact bytes but not in certification"
+
+bundling_requirements:
+  - "Bundle must be produced at certification time, not retroactively (retroactive bundling of legacy artifacts is explicitly prohibited unless every missing identity is recorded as unknown)"
+  - "Every bundle item must carry its own hash entry in bundle_manifest.json for tamper detection"
+  - "Bundle must be externally storable (non-repository location) so deletion of repo paths (the historical runs/ deletion) does not invalidate certification evidence"
+
+knowledge_changes: "NONE"
+implementation: "NONE"
+remediation: "NONE"
+certificate_regeneration: "NONE"
+experiment_execution: "NONE"
+commits: "NONE"
+pushes: "NONE"
+T0_modified: "NO"

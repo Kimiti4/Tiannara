@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/review_certificate.json",
+  "title": "ReviewCertificate",
+  "description": "Certification of a reviewed scientific artifact attesting constitutional compliance.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^rcert_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "certification_level": { "type": "string", "enum": ["certified", "provisionally_certified", "requires_revision", "requires_replication", "not_certified"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "evidence_audit_passed": { "type": "boolean" },
+        "methodology_audit_passed": { "type": "boolean" },
+        "statistical_audit_passed": { "type": "boolean" },
+        "bias_assessment_complete": { "type": "boolean" },
+        "alternative_explanations_considered": { "type": "boolean" },
+        "reproducibility_assessed": { "type": "boolean" },
+        "objections_resolved": { "type": "boolean" },
+        "constitutional_compliance": { "type": "boolean" }
+      },
+      "required": ["evidence_audit_passed", "methodology_audit_passed", "constitutional_compliance"]
+    },
+    "review_ids": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "artifact_id", "certification_level", "checks", "fingerprint"]
+}

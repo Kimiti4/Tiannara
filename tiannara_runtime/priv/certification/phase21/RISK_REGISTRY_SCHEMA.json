@@ -1,0 +1,20 @@
+{
+  "schema": "RISK_REGISTRY_SCHEMA",
+  "version": "21.9",
+  "description": "Schema for tracking a civilizational risk across future worlds",
+  "risk_entry": {
+    "fields": {
+      "risk_id": {"type": "string", "required": true},
+      "category": {"type": "string", "required": true},
+      "evidence_basis": {"type": "string", "required": true},
+      "probability": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "impact": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "time_horizon": {"type": "integer", "required": true},
+      "mitigation_options": {"type": "array", "required": true},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "status": {"type": "string", "required": true, "enum": ["active", "mitigated", "realized", "archived"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_linked", "deterministic", "tracked_across_futures"]
+  }
+}

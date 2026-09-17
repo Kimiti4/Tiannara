@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/observation_fusion.json",
+  "title": "ObservationFusion",
+  "description": "A record of a fusion operation combining multiple observations.",
+  "type": "object",
+  "properties": {
+    "fusion_id": { "type": "string", "pattern": "^ofuse_[a-f0-9]{16}$" },
+    "source_observation_ids": { "type": "array", "items": { "type": "string" } },
+    "domain": { "type": "string" },
+    "variable": { "type": "string" },
+    "region": { "type": "string" },
+    "fusion_method": { "type": "string", "enum": ["weighted_average", "kalman_filter", "bayesian", "ensemble", "expert_consensus", "hierarchical"] },
+    "method_version": { "type": "string" },
+    "parameters": { "type": "object" },
+    "fused_value": {},
+    "fused_confidence": { "type": "number" },
+    "fused_uncertainty": { "type": "object" },
+    "input_confidence_range": { "type": "object" },
+    "evidence_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "fused_at": { "type": "integer" }
+  },
+  "required": ["fusion_id", "source_observation_ids", "domain", "variable", "fusion_method", "fused_value", "fingerprint"]
+}

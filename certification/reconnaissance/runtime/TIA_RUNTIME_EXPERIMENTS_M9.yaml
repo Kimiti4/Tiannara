@@ -1,0 +1,134 @@
+# Move 9 — Runtime Experiments Record (pre/post hypothesis/prediction/measurement)
+# Each experiment: pre-registered hypothesis + competing prediction, then
+# observed measurement. No experiment silently changed the baseline; all
+# side effects are listed under side_effects.
+artifact: RUNTIME_EXPERIMENTS_M9
+artifact_status: POST_T0
+move: 9
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+environment:
+  commit: 9753a6d08702064f4d00395a1bec1c4bf3887381
+  tree: 06f06e5e91f33e75437a47ca901eaa7e97bb0edd
+  elixir: 1.18.4
+  otp: 28
+  platform: win32
+  compiled_beams_dev: 2069
+  note: mix local.hex --force ran once into the user-local mise directory (environment setup, outside repo); no repo files touched by setup
+experiments:
+- id: EXP-M9-00
+  question: BOOT-BASELINE (prerequisite observation, not a gated question)
+  hypothesis: The T0 application boots to an operational supervision tree in this environment
+  competing_hypothesis: The application fails to boot (missing services, hangs, crash-loops)
+  prediction: Supervision boot logs + AgencyLoop/ExecutiveCycle progress lines within 110s, or a hang/crash signature
+  configuration: mix run -e Process.sleep(90000); 110s cap; stdout/stderr to TEMP (outside repo); process killed after cap
+  seed: not-applicable (boot observation)
+  stopping_condition: 110s elapsed or process exit
+  failure_condition: No supervision boot lines within cap
+  observed: BOOTED (boot sequence + AgencyLoop Loop 2 + ExecutiveCycle Cycle 2 + PhaseΩ verification + repair queues + violation scans all logged)
+  measurements:
+  - boot_exceeds_25s: true (first 25s attempt produced no output; boot needs 60-90s)
+  - phase_omega_health_boot1: 1-of-16 healthy (logged verbatim)
+  - executive_metrics_crash: FunctionClauseError in ExecutiveStateManager.handle_call(:state, ...) cascading into ExecutiveMetrics termination (full trace in TEMP tia_m9_boot2.log)
+  - recompile_warnings: duplicate module definitions for Audit.Tier3.CoreIntegration and Operations.ChallengeDiagnostics (module redefined vs _build beams)
+  - governance_loops_active: repair queue, violation scans, compliance enforcement logged repeatedly
+  deviations: none (observation only)
+  failures: ExecutiveStateManager :state clause crash (recorded, not repaired)
+  reproducibility: BOOT OBSERVED TWICE (second boot in EXP-M9-02 reproduced supervision boot with 15/15 PhaseΩ healthy variant; see discrepancy note)
+  interpretation: FACT (boot occurred; logs captured). The 1/16-vs-15/15 PhaseΩ discrepancy between two boots is recorded under discrepancies, not resolved.
+  confidence: HIGH (log evidence)
+  remaining_unknowns: [Why PhaseΩ health differs between boots; root cause of the :state clause crash]
+- id: EXP-M9-01
+  question: Q-018-RUN + Q-CONTRA-003
+  hypothesis: The independent auditor completes from frozen JSON artifacts and reports a verification outcome
+  competing_hypothesis: The auditor fails (missing artifacts, crash, timeout)
+  prediction_if_certificate_valid: Reports pass with matching hashes
+  prediction_if_result_valid: Reports discrepancy vs certificate
+  configuration: mix run run_independent_auditor.exs; 180s cap; output to TEMP
+  seed: not-applicable (deterministic artifact read)
+  stopping_condition: Process exit or 180s cap
+  failure_condition: Nonzero exit without Step-5 summary, or timeout
+  observed: COMPLETED with INDEPENDENT AUDIT PASSED (12/12 incl. GC_012); hash fingerprints self-consistent; campaign statuses echoed from JSON
+  measurements:
+  - exit_observed: completed (Step-5 summary printed; exit code cosmetically unreadable, run demonstrably finished)
+  - gc_012_reported: PASSED (no cross-check against certificate block performed by the auditor)
+  - step4_values_sourced_from_json: true (entropy/fitness/rejection counts re-printed from campaign files, not re-derived)
+  - contra_003_discrimination: NONE (auditor does not compare certificate.json gc_012 block against campaign_results gc_012 file)
+  deviations: none
+  failures: none (auditor completed)
+  reproducibility: Single run; deterministic artifact read (re-runnable from recorded command + T0 tree)
+  interpretation: "INFERENCE (auditor is a self-consistency checker: fingerprints + status-field echo; not an independent re-executor). CONTRA-003 UNRESOLVED (both claims compatible with the observation)."
+  confidence: HIGH
+  remaining_unknowns: [Whether any auditor version re-derives campaign outcomes; provenance of the 5000-rejections figure]
+  side_effects:
+  - phase14/certification/independent_audit_report.json OVERWRITTEN in working tree (tracked file modified; T0 commit untouched; 920 bytes)
+- id: EXP-M9-02
+  question: Q-019-RESULTS
+  hypothesis: Bench harness executes against live world model and records measurements
+  competing_hypothesis: Harness fails before measurement (missing deps, boot failure, crash)
+  prediction: Benchee report lines (ips/average/Comparison) in output, or a named failure boundary
+  configuration: mix run bench/graph_ingestion_bench.exs; 240s cap; output to TEMP
+  seed: "not-applicable (harness-fixed inputs: 100/1000 entities, time 5, warmup 2)"
+  stopping_condition: Process exit or 240s cap
+  failure_condition: No Benchee output lines
+  observed: "FAILURE BOUNDARY REACHED (CompileError: Tiannara.Test.Phase3Helpers not loaded in dev env; bench never executed)"
+  measurements:
+  - benchee_output_lines: 0
+  - failure: CompileError at bench/graph_ingestion_bench.exs:3 (import of test-support module unavailable outside test env)
+  - boot_phase_reached: supervision boot completed (15/15 PhaseΩ healthy in this boot variant)
+  deviations: none
+  failures: harness blocked on test-support dependency (recorded, not repaired)
+  reproducibility: Deterministic failure (missing module is structural, not flaky)
+  interpretation: "FACT (compile error observed). Q-019: harness present, execution blocked in dev env."
+  confidence: HIGH
+  remaining_unknowns: [Whether harness executes under MIX_ENV=test (candidate follow-up, not executed here)]
+  side_effects: Standard boot DETS writes only (see runtime footprint)
+- id: EXP-M9-02b
+  question: Q-019-RESULTS follow-up (config variation, no code change)
+  hypothesis: Bench executes under MIX_ENV=test where Phase3Helpers is loadable
+  configuration: MIX_ENV=test mix run bench/graph_ingestion_bench.exs via cmd /c set; 240s cap
+  observed: INCONCLUSIVE (process exited; no Benchee output lines; no error lines captured in output tail)
+  measurements:
+  - benchee_output_lines: 0
+  - error_lines: 0
+  - note: Output shows neither results nor failure signature; run may have exited during boot/test-env setup before reaching the harness
+  deviations: Output-capture gap (exit path unclear from captured logs)
+  failures: Unknown (not a demonstrated failure; not a demonstrated success)
+  reproducibility: NOT ESTABLISHED (single unclear run)
+  interpretation: UNKNOWN (insufficient evidence to classify bench executability under test env)
+  confidence: LOW
+  remaining_unknowns: [Bench behavior under MIX_ENV=test with full output capture]
+  side_effects: Standard boot DETS writes only
+- id: EXP-M9-03
+  question: Q-A2 + Q-009-RUNOFF
+  hypothesis: Both regulator supervisors run concurrently with all children alive; neither emits an observable regulation action in a ~75s window
+  competing_hypothesis: One regulator is dead/absent, or regulation actions are emitted during the window
+  prediction: Supervisor.which_children + Process.whereis output for both supervisors; log grep for regulation verbs
+  configuration: "mix run TEMP/m9_probe.exs (read-only calls only: which_children/whereis/Process.info); hidden window; 150s cap; probe sleeps 60s then inspects once then exits"
+  seed: not-applicable (liveness observation)
+  stopping_condition: Probe prints M9PROBE DONE and exits, or 150s cap
+  failure_condition: Probe crash or timeout without DONE line
+  observed: COMPLETED (M9PROBE DONE printed; process exited)
+  measurements:
+  - stabilization_supervisor: alive, 3 children all alive supervisors (OLEF, OCM, HSV; CTL absent, consistent with supervision-tree record)
+  - cis_supervisor: alive, 4 children all alive (RegulationExecutor worker, ImmuneDecisionEngine worker, CollapsePredictor worker, CISRegistry supervisor)
+  - council_supervisor: alive, 7 children all alive (incl. AuditLog worker)
+  - named_servers_resolvable: CollapsePredictor, CISRegistry, Stabilization.Supervisor, AuditLog (all PIDs)
+  - regulation_action_lines_in_window: 0 (only init/boot lines plus one scheduled governance-compliance line from another subsystem)
+  deviations: none
+  failures: none
+  reproducibility: Single run; read-only calls are deterministic given a booted tree
+  interpretation: "FACT (liveness of both regulators established). INFERENCE-FREE on authority: liveness does not establish precedence; zero actions in 75s does not establish inactivity (window-bounded observation)."
+  confidence: HIGH (liveness facts); N/A (no authority claim made)
+  remaining_unknowns: [Regulation behavior under load/perturbation; deterministic ordering; override capability; precedence mechanism]
+  side_effects: Standard boot DETS writes only
+runtime_footprint_all_boot_experiments:
+  tracked_files_written_in_working_tree:
+  - cel_memory_v2.dets (modified)
+  - council_audit_log.dets (modified)
+  - dev_data/dets/dets/production/cel_event_store.dets (modified; shows as staged+modified from pre-existing index state)
+  note: T0 commit untouched (no commits). Working-tree DETS mutation is inherent to booting this application and is disclosed here, not hidden.
+discrepancies_recorded_not_resolved:
+- PhaseΩ health 1/16 (boot 1) vs 15/15 (bench boot): both logged verbatim; cause unevidenced
+- Recompile warnings for Audit.Tier3.CoreIntegration and Operations.ChallengeDiagnostics (duplicate module definitions vs _build beams)
+- ExecutiveStateManager :state FunctionClauseError cascading into ExecutiveMetrics termination (full trace preserved in TEMP log)

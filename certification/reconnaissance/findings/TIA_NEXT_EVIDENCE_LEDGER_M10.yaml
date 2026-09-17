@@ -1,0 +1,97 @@
+# Move 10 — Next-Evidence Ledger (per unresolved question after Move-10 evidence)
+# Filename note: the authorization text names TIA_NEXT_EVIDENCE_LEDGER_M8.yaml,
+# but that file already exists as the Move-8 artifact (7332 bytes). Overwriting
+# it would destroy historical evidence, so this Move-10 ledger is written as a
+# NEW file. The Move-8 ledger is preserved byte-identical.
+artifact: NEXT_EVIDENCE_LEDGER_M10
+artifact_status: POST_T0
+move: 10
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+supsersedes_nothing: true
+prior_ledger_preserved: certification/reconnaissance/findings/TIA_NEXT_EVIDENCE_LEDGER_M8.yaml (unmodified)
+questions:
+- question_id: Q-A2
+  current_state: UNRESOLVED
+  missing_evidence: Invocation, precedence, ownership, or conflict evidence between regulators (mutual-obliviousness now evidenced both statically and at runtime)
+  narrowest_next_evidence: A single cross-reference (call, message, shared-state access) in either direction, or a boundary declaration
+  evidence_type: code-reference-or-design-record
+  why_sufficient: Would establish the first relational fact between the regulators
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-D1
+  current_state: UNRESOLVED
+  missing_evidence: Connective record (historical state -> transition -> behavior -> architectural state)
+  narrowest_next_evidence: One timestamped transition record linking a historical state to an observed behavior
+  evidence_type: historical-artifact
+  why_sufficient: Would supply the missing link the fragments lack
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-D2
+  current_state: UNRESOLVED
+  missing_evidence: Historical runtime operation records (unchanged by this pass)
+  narrowest_next_evidence: One timestamped operational record predating the audit program
+  evidence_type: historical-artifact
+  why_sufficient: Would establish operation as history
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-009
+  current_state: UNKNOWN (capability retained)
+  missing_evidence: Regulation-effect demonstration; invocation evidence
+  narrowest_next_evidence: One observed regulation action attributed to a stabilizer component, or one invocation edge into a stabilizer decision function
+  evidence_type: runtime-observation-or-code-reference
+  why_sufficient: Would move liveness to behavior
+  runtime_required: true
+  authorization_required: false
+- question_id: Q-018
+  current_state: UNKNOWN (capability retained)
+  missing_evidence: Independent-derivation evidence (re-deriving a campaign outcome, not re-reading it)
+  narrowest_next_evidence: One independently recomputed campaign metric with matching result
+  evidence_type: execution-record
+  why_sufficient: Would convert the corpus from self-consistent to validated
+  runtime_required: true
+  authorization_required: false
+- question_id: Q-019
+  current_state: UNKNOWN (capability retained)
+  missing_evidence: One executed bench run with recorded measurements
+  narrowest_next_evidence: Successful bench completion under either env with captured Benchee output
+  evidence_type: execution-record
+  why_sufficient: Would establish executability (first rung; repeatability after)
+  runtime_required: true
+  authorization_required: false
+- question_id: Q-CONTRA-003
+  current_state: UNRESOLVED (confirmed contradiction)
+  missing_evidence: Run ledger binding certificate issuance to a result version (unchanged requirement)
+  narrowest_next_evidence: Same as Q-018-RUN (one recorded run resolves both)
+  evidence_type: execution-record
+  why_sufficient: Would determine whether the two records describe distinct executions or one inconsistent record
+  runtime_required: true
+  authorization_required: false
+- question_id: Q-GAP-M9-01
+  current_state: NARROWED (root cause demonstrated; defect untouched)
+  missing_evidence: Verified remediation (explicitly out of scope; recorded for a future authorized gate, not requested here)
+  narrowest_next_evidence: A clause handling :state with a passing regression test, under separate authorization
+  evidence_type: implementation-under-authorization
+  why_sufficient: Would close the defect; diagnosis alone cannot
+  runtime_required: false
+  authorization_required: true
+- question_id: Q-GAP-M9-02
+  current_state: NARROWED (scope-difference hypothesis vs instability hypothesis)
+  missing_evidence: Per-subsystem check results for a 1/16-style run, or registry-vs-boot registration reconciliation
+  narrowest_next_evidence: Retained per-subsystem results from one runtime-verification pass
+  evidence_type: runtime-observation
+  why_sufficient: Would show which population members fail and why
+  runtime_required: true
+  authorization_required: false
+- question_id: Q-GAP-M9-04
+  current_state: NARROWED (scoped to the single report file)
+  missing_evidence: Consumer distinction (which consumers read the mutable report vs the frozen inputs)
+  narrowest_next_evidence: One consumer reference to independent_audit_report.json
+  evidence_type: code-reference
+  why_sufficient: Would establish whether the self-mutation has downstream impact
+  runtime_required: false
+  authorization_required: false
+aggregate:
+  questions_total: 10
+  runtime_required_count: 5
+  authorization_required_count: 1

@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/observation.json",
+  "title": "Observation",
+  "description": "A constitutional observation from the CGON.",
+  "type": "object",
+  "properties": {
+    "observation_id": { "type": "string", "pattern": "^obs_[a-f0-9]{16}$" },
+    "source_id": { "type": "string" },
+    "source_type": { "type": "string", "enum": ["satellite", "sensor", "publication", "dataset", "government", "iot", "citizen_science", "news", "social_media", "industrial", "infrastructure", "environmental", "health", "economic", "human_activity"] },
+    "capture_time": { "type": "integer" },
+    "ingestion_time": { "type": "integer" },
+    "domain": { "type": "string" },
+    "variable": { "type": "string" },
+    "value": {},
+    "unit": { "type": "string" },
+    "location": { "type": "object", "properties": { "lat": { "type": "number" }, "lon": { "type": "number" }, "region": { "type": "string" }, "elevation": { "type": "number" } } },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "uncertainty": { "type": "object" },
+    "validation_status": { "type": "string", "enum": ["pending", "valid", "plausible", "questionable", "contradictory", "invalid", "malicious"] },
+    "provenance": { "type": "array", "items": { "type": "object" } },
+    "lineage_hash": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["observation_id", "source_id", "source_type", "capture_time", "ingestion_time", "domain", "variable", "value", "confidence", "fingerprint"]
+}

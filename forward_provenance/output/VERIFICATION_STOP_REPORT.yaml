@@ -1,0 +1,139 @@
+report_type: VERIFICATION_STOP_REPORT
+status: SUCCESS - FORWARD PROVENANCE IMPLEMENTED AND VERIFIED (NEW EXECUTIONS ONLY)
+date: 2026-09-09
+authority: Council Forward Provenance Implementation & Verification Contract
+overall_verdict: |
+  The forward provenance implementation is complete and independently
+  verified for NEW executions. Every required provenance edge
+  SOURCE -> CONTRACT -> EXECUTION -> RESULT -> RAW MEASUREMENTS -> DERIVED
+  METRICS -> CERTIFICATE is verifiable and was verified to ACCEPT from the
+  persisted evidence bundle alone. All ten adversarial tests (A-J) pass.
+  Historical T0 provenance remains UNRESOLVED and is NOT upgraded by this
+  work (see historical_t0_status).
+
+deliverable_1_implementation_artifacts:
+  location: forward_provenance/  (standalone zero-dependency Elixir/Mix app)
+  namespace: TiannaraOS.Provenance.*
+  modules:
+    - Canon: canonical serialization + SHA-256 (byte-exact, key-sorted)
+    - Identity: identity objects + uniqueness registry
+    - Envelope: immutable envelope with self-recomputable payload_hash
+    - Source: repo/commit/tree/source-manifest identity
+    - Contract: contract-bytes identity with explicit contract_version
+    - Environment: otp/elixir/deps_lock_hash identity
+    - Execution: execution_started/ended lifecycle + execution_id binding
+    - Result: result payload hash over persisted bytes
+    - Metric: derived metric with raw-corpus provenance
+    - Certificate: decision envelope binding only identity hashes
+    - Graph: typed edge graph + verification status
+    - Bundle: IndependentEvidenceBundle producer
+    - Verifier: independent recomputation from bundle bytes only
+    - Demo: demonstration producer for a NEW execution
+  separation: outside tracked lib/ (T0 untouched) and outside the forensic certification/ area
+
+deliverable_2_provenance_contract:
+  file: forward_provenance/contracts/forward_provenance_contract.yaml
+  scope: forward executions only; all ten required capabilities covered
+
+deliverable_3_canonicalization_spec:
+  file: forward_provenance/spec/canonicalization_spec.yaml (canon v1)
+  payload_hash_semantics: SHA-256 over canonical bytes of the envelope MINUS the payload_hash field (self-hash), so verification always recomputes the same bytes
+
+deliverable_4_verification_suite:
+  files:
+    - forward_provenance/test/contract_test.exs
+    - forward_provenance/test/adversarial_test.exs
+  mix_test: "16 tests, 0 failures"
+
+deliverable_5_adversarial_results:
+  file: forward_provenance/output/adversarial_results.json
+  result: "10/10 passed"
+  tests:
+    A_wrong_execution: REJECT
+    B_wrong_result: REJECT
+    C_wrong_contract: REJECT
+    D_missing_execution: UNVERIFIED
+    E_hash_only_evidence: REJECT
+    F_duplicate_identity: ACCEPT
+    G_deleted_evidence: UNVERIFIED
+    H_metric_substitution: REJECT
+    I_certificate_substitution: REJECT
+    J_contract_drift: ACCEPT
+
+deliverable_6_evidence_bundle:
+  location: forward_provenance/output/demo_fps_001/bundle/
+  bundle_name: IndependentEvidenceBundle
+  bundle_id: bundle_9aef0f8be4ac92aafa5d1b335a3836e535d8135b4b3f14566691383b2b32de9b
+  contents:
+    - contracts/
+    - envelopes/
+    - identity_objects/
+    - results/
+    - measurements/ (raw corpus)
+    - metrics/
+    - certificates/
+    - graph/
+    - meta/bundle_manifest.json
+    - audit_trail.md
+  raw_corpus: measurements/raw_corpus.json (1000 trial means, corpus_sha256 c66a0478...096683)
+
+deliverable_7_provenance_graph:
+  file: forward_provenance/output/demo_fps_001/provenance_graph.json
+  edges_verified:
+    - contract_asserts_source
+    - execution_under_contract
+    - result_derived_from_execution
+    - metric_computed_from_result
+    - certificate_certifies_metric
+
+demonstration_execution:
+  experiment_id: fps_001_forward_entropy_stability
+  execution_id: exec_1788900784743_06975c02-bcce
+  seed: 42
+  source_commit: 9753a6d08702064f4d00395a1bec1c4bf3887381
+  source_tree: 06f06e5e91f33e75437a47ca901eaa7e97bb0edd
+  source_manifest_hash: 0c4004516cd678874c4630a2c1c0b1df3cdaa99ffdb167dbd72e932421840cd3
+  contract_object_hash: 6ce39225fbd136c248872f1287db5d2c6bea7d3a429b79cbfecbfa907d23dae8
+  metric: {mean: 0.500921, std_dev: 0.029287}
+  certificate:
+    certificate_id: cert_0daeaecb0a5a4b8c1916831c4b8c81d8
+    decision: certified
+    certificate_hash: 39ee5876668479d805a3fc04ece6a73e2e96173ba4486a2a1a1e8bc75d1084e0
+
+deliverable_8_independent_verification:
+  file: forward_provenance/output/verification_result.json
+  method: fresh VM, mix run scripts/verify_demo.exs reads ONLY the bundle bytes and recomputes every identity, payload hash and metric
+  verdict: ACCEPT (7/7 checks, 5/5 edges)
+  termination_contract: satisfied; certification justified for the NEW execution only
+
+historical_t0_status:
+  statement: |
+    T0 provenance closure remains FAILED / NOT ESTABLISHABLE. This report does
+    NOT reverse, upgrade or reinterpret any historical finding.
+  unchanged_entities:
+    - existing T0 certificates
+    - orphaned FINAL fingerprints
+    - gc_009/gc_010/gc_012 historical metrics
+    - CONTRA-003
+    - any certificate without demonstrable execution binding
+  status: UNVERIFIED / CONTESTED
+  no_regeneration: true
+  no_rewrite: true
+  no_synthetic_replacement: true
+  forward_scope_only: true
+
+t0_integrity:
+  head: 9753a6d08702064f4d00395a1bec1c4bf3887381
+  head_tree: 06f06e5e91f33e75437a47ca901eaa7e97bb0edd
+  commits_or_pushes: none
+  porcelain: "3366 (pre-work baseline) -> 3367 with exactly one new untracked line forward_provenance/; no tracked file modified"
+
+stop_conditions_audit:
+  all_edges_reachable_and_verifiable: true
+  success_basis: independent recomputation from persisted evidence bundle bytes (not matching hashes, self-generated metadata, logs, internal assertions, or regenerated certificates)
+  historical_boundary_respected: true
+
+council_disposition:
+  forward_provenance_system: IMPLEMENTED, VERIFIED (ACCEPT)
+  historical_t0_provenance: UNRESOLVED (unchanged)
+  next_decision: COUNCIL

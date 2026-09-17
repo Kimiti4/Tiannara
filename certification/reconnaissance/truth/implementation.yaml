@@ -1,0 +1,49 @@
+# Move 2 — Canonical Truth Model: IMPLEMENTATION
+# What Tiannara actually implements, stated ONLY from Move-0 evidence
+# (presence + structure) and T0 content reads. Behavior, quality, and
+# capability judgments are excluded — those belong to later Move-2 passes.
+# Anything not evidenced here is UNKNOWN, not absent.
+artifact: TRUTH_IMPLEMENTATION
+artifact_status: POST_T0
+move: 2
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+spec: master.md Move 2 (section 4 onward); implementation layer only
+subsystems_present:
+- subsystem: Forecasting chain (lib/tiannara/forecasting/)
+  kind: MEASURED
+  source: T0 file inventory (67 forecasting paths in T0)
+  behavior_claims_excluded: true
+- subsystem: Evolution substrate (lib/tiannara/evolution/)
+  kind: MEASURED
+  source: T0 file inventory (presence only)
+  behavior_claims_excluded: true
+- subsystem: Stabilizer modules (lib/tiannara/stabilization/)
+  kind: MEASURED
+  source: T0 file inventory (presence only)
+  behavior_claims_excluded: true
+- subsystem: Forensic recon engine (certification/reconnaissance/, POST_T0, untracked)
+  kind: MEASURED
+  source: Working-tree observation (13 module files + CERTIFY_MOVE0.py + 8 outputs); explicitly NOT T0 content
+  behavior_claims_excluded: true
+structural_facts:
+- fact: 2585 source files parsed AST-light (.ex/.exs/.py) across T0
+  kind: MEASURED
+  source: T0_BASELINE.json source_inventory_summary
+- fact: Dependency manifests present with recorded sizes
+  kind: MEASURED
+  source: T0_ENVIRONMENT.json dependency_manifests (content not read)
+  detail: mix.lock 16711 B; requirements.txt 1538 B; package.json 60 B; package-lock.json 2010 B
+- fact: 58 hex packages pinned in the working-tree mix.lock; T0's mix.lock hashes differently (6153ab16 vs working-tree ef49f19d), so the count is NOT claimed for T0
+  kind: MEASURED
+  source: Fresh read-only parse of working-tree mix.lock; T0 presence of mix.lock itself confirmed via T0_ENVIRONMENT manifest record (content not read)
+- fact: 441 test/ paths in T0; contract-signal extraction limited to name/shape patterns
+  kind: MEASURED
+  source: T0 file inventory counts; source_inventory signals
+excluded_as_unmeasured:
+- Test execution results (current)
+- Runtime behavior of any subsystem
+- Code quality / complexity / duplication judgments
+- Module call graphs (no call-graph extraction performed in Move 0)
+- Data-flow / control-flow graphs
+- Any capability ascription (belongs to catalogue pass)

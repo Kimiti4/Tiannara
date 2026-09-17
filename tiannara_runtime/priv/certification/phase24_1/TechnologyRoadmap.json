@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/technology_roadmap.json",
+  "title": "TechnologyRoadmap",
+  "description": "A constitutional roadmap for technology evolution from concept to civilizational infrastructure.",
+  "type": "object",
+  "properties": {
+    "roadmap_id": { "type": "string", "pattern": "^troad_[a-f0-9]{16}$" },
+    "technology_architecture_id": { "type": "string" },
+    "current_stage": { "type": "string", "enum": ["concept", "prototype", "experimental", "validated", "engineering_ready", "manufacturing_ready", "operational", "civilizational_infrastructure"] },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": { "type": "string" },
+          "entry_criteria": { "type": "array", "items": { "type": "string" } },
+          "exit_criteria": { "type": "array", "items": { "type": "string" } },
+          "estimated_completion": { "type": "integer" },
+          "status": { "type": "string", "enum": ["not_started", "in_progress", "completed", "blocked"] },
+          "certificate_id": { "type": "string" }
+        }
+      }
+    },
+    "alternative_paths": { "type": "array", "items": { "type": "object" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["roadmap_id", "technology_architecture_id", "current_stage", "stages", "fingerprint"]
+}

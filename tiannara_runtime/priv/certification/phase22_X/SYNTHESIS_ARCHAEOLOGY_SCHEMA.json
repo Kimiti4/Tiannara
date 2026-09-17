@@ -1,0 +1,20 @@
+{
+  "schema": "SYNTHESIS_ARCHAEOLOGY_SCHEMA",
+  "version": "22.X.3",
+  "description": "Schema for synthesis archaeological reconstruction",
+  "synthesis_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true},
+      "synthesis_artifact_ids": {"type": "array", "required": true},
+      "question_set": {"type": "array", "required": true},
+      "connection_origins": {"type": "object", "required": true},
+      "evidence_timelines": {"type": "object", "required": true},
+      "transfer_records": {"type": "object", "required": false},
+      "innovation_assessments": {"type": "object", "required": false},
+      "understanding_improvement": {"type": "object", "required": false},
+      "synthesis_evolution": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["comprehensive", "deterministic", "replayable"]
+  }
+}

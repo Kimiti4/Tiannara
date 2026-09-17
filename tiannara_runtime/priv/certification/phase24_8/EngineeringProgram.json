@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_program.json",
+  "title": "EngineeringProgram",
+  "description": "A constitutional engineering program within the engineering portfolio.",
+  "type": "object",
+  "properties": {
+    "program_id": { "type": "string", "pattern": "^eprog_[a-f0-9]{16}$" },
+    "portfolio_id": { "type": "string" },
+    "name": { "type": "string" },
+    "charter": { "type": "string" },
+    "lifecycle_stage": { "type": "string", "enum": ["proposal", "planning", "approved", "executing", "monitoring", "verified", "certified", "completed", "archived", "historical"] },
+    "project_ids": { "type": "array", "items": { "type": "string" } },
+    "milestones": { "type": "array", "items": { "type": "string" } },
+    "resources": { "type": "object" },
+    "priority": { "type": "integer" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["program_id", "portfolio_id", "name", "charter", "lifecycle_stage", "fingerprint"]
+}

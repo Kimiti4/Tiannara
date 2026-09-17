@@ -1,0 +1,18 @@
+{
+  "schema": "CAUSAL_REPLAY_SCHEMA",
+  "version": "22.X.0",
+  "description": "Schema for causal replay verification",
+  "causal_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "causal_artifact_ids": {"type": "array", "required": true},
+      "replay_type": {"type": "string", "required": true, "enum": ["node_creation", "edge_creation", "emergence", "downward_constraint", "cross_scale_reasoning", "intervention", "full_causal_graph"]},
+      "replay_timestamp": {"type": "string", "required": true},
+      "verification_results": {"type": "object", "required": true},
+      "fingerprint_matches": {"type": "boolean", "required": true},
+      "divergence_report": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "verifiable", "replayable"]
+  }
+}

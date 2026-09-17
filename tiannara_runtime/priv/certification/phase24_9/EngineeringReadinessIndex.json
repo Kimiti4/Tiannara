@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_readiness_index.json",
+  "title": "EngineeringReadinessIndex",
+  "description": "Aggregate readiness assessment across all engineering dimensions.",
+  "type": "object",
+  "properties": {
+    "index_id": { "type": "string", "pattern": "^eread_[a-f0-9]{16}$" },
+    "snapshot_timestamp": { "type": "integer" },
+    "dimensions": {
+      "type": "object",
+      "properties": {
+        "technology_readiness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "industrial_readiness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "infrastructure_readiness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "deployment_readiness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "operational_readiness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "engineering_readiness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "certification_readiness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "civilizational_readiness": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "required": ["technology_readiness", "industrial_readiness", "infrastructure_readiness", "deployment_readiness", "operational_readiness", "engineering_readiness"]
+    },
+    "aggregate_index": { "type": "number", "minimum": 0, "maximum": 1 },
+    "readiness_level": { "type": "string", "enum": ["conceptual", "exploratory", "developmental", "demonstrated", "validated", "operational", "optimized", "evolutionary"] },
+    "gap_analysis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dimension": { "type": "string" },
+          "current_level": { "type": "number" },
+          "target_level": { "type": "number" },
+          "gap": { "type": "number" }
+        }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["index_id", "snapshot_timestamp", "dimensions", "aggregate_index", "readiness_level", "fingerprint"]
+}

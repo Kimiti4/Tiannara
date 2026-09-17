@@ -1,0 +1,20 @@
+{
+  "schema": "PRINCIPLE_SCHEMA",
+  "version": "22.X.2",
+  "description": "Schema for an extracted scientific principle",
+  "principle": {
+    "fields": {
+      "principle_id": {"type": "string", "required": true},
+      "statement": {"type": "string", "required": true},
+      "evidence_sources": {"type": "array", "required": true},
+      "applicable_domains": {"type": "array", "required": true},
+      "boundary_conditions": {"type": "object", "required": true},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "mathematical_formulation": {"type": "string", "required": false},
+      "counterexamples": {"type": "array", "required": false},
+      "provenance_chain": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_supported", "deterministic", "replayable"]
+  }
+}

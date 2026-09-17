@@ -1,0 +1,179 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LongTermImpact",
+  "description": "Long-term scientific and civilizational impact assessment for a research program",
+  "type": "object",
+  "properties": {
+    "impact_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this impact assessment"
+    },
+    "program_id": {
+      "type": "string",
+      "description": "Program being assessed"
+    },
+    "assessment_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of assessment"
+    },
+    "horizon_impacts": {
+      "type": "object",
+      "properties": {
+        "near_term": {
+          "type": "object",
+          "properties": {
+            "impact_score": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "description": {
+              "type": "string"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            }
+          },
+          "required": ["impact_score", "description", "confidence"]
+        },
+        "medium_term": {
+          "type": "object",
+          "properties": {
+            "impact_score": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "description": {
+              "type": "string"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            }
+          },
+          "required": ["impact_score", "description", "confidence"]
+        },
+        "long_term": {
+          "type": "object",
+          "properties": {
+            "impact_score": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "description": {
+              "type": "string"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            }
+          },
+          "required": ["impact_score", "description", "confidence"]
+        },
+        "generational": {
+          "type": "object",
+          "properties": {
+            "impact_score": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "description": {
+              "type": "string"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            }
+          },
+          "required": ["impact_score", "description", "confidence"]
+        }
+      },
+      "required": ["near_term", "medium_term", "long_term", "generational"]
+    },
+    "scientific_trajectory_influence": {
+      "type": "object",
+      "properties": {
+        "influence_magnitude": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "new_directions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dead_end_closure": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rationale": {
+          "type": "string"
+        }
+      },
+      "required": ["influence_magnitude", "rationale"]
+    },
+    "civilizational_benefit": {
+      "type": "object",
+      "properties": {
+        "benefit_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "benefit_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rationale": {
+          "type": "string"
+        }
+      },
+      "required": ["benefit_score", "benefit_domains", "rationale"]
+    },
+    "existential_risk_reduction": {
+      "type": "object",
+      "properties": {
+        "risk_reduction": {
+          "type": "number",
+          "minimum": -1.0,
+          "maximum": 1.0
+        },
+        "risk_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rationale": {
+          "type": "string"
+        }
+      },
+      "required": ["risk_reduction", "risk_domains", "rationale"]
+    },
+    "overall_impact_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Composite long-term impact score"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["impact_id", "program_id", "assessment_date", "horizon_impacts", "overall_impact_score", "fingerprint"]
+}

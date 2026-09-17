@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/manufacturing_certificate.json",
+  "title": "ManufacturingCertificate",
+  "description": "Certification attesting that a manufacturing artifact or process meets constitutional standards.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^mcert_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "certification_type": { "type": "string", "enum": ["process", "product", "facility", "supply_chain", "sustainability", "readiness"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "design_compliance": { "type": "boolean" },
+        "process_capability": { "type": "boolean" },
+        "quality_standards": { "type": "boolean" },
+        "supply_chain_stability": { "type": "boolean" },
+        "safety_compliance": { "type": "boolean" },
+        "environmental_compliance": { "type": "boolean" },
+        "cost_compliance": { "type": "boolean" },
+        "scalability_assessment": { "type": "boolean" }
+      },
+      "required": ["design_compliance", "process_capability", "quality_standards", "safety_compliance"]
+    },
+    "certifying_entity": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "artifact_id", "certification_type", "checks", "fingerprint"]
+}

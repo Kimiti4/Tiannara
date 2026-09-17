@@ -1,0 +1,21 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PhysicalChaos
+metadata:
+  name: phase13-divergence-test
+  namespace: tiannara-phase13
+spec:
+  action: stress
+  mode: all
+  selector:
+    namespaces: ["tiannara-phase13"]
+    labelSelectors:
+      app: tiannara-phase13
+  stressngStressors: "--cpu 4 --cpu-load 85 --timeout 120s"
+  duration: "3m"
+  annotations:
+    description: "Injects CPU pressure to test contractive mapping fallback"
+    expected_behavior: "FixedPointSynthesis caps iterations at 50; routes to Phase 10 quarantine if ε breached"
+    validation_metrics:
+      - "phase13_convergence_rate > 0"
+      - "No pod OOMKilled"
+      - "JetStream attractor allocation backlog < 2k"

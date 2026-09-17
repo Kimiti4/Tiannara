@@ -1,0 +1,61 @@
+{
+  "schema": "IMPLEMENTATION_SCHEMA",
+  "version": "20.6",
+  "description": "Schema for ImplementationPlan — staged implementation specification",
+  "implementation_plan": {
+    "fields": {
+      "plan_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "project": {"type": "string", "required": true, "description": "Reference to EngineeringProject"},
+      "design": {"type": "string", "required": true, "description": "Reference to DetailedDesign"},
+      "implementation_stages": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "stage_id": {"type": "string"},
+            "description": {"type": "string"},
+            "dependencies": {"type": "array"},
+            "verification_criteria": {"type": "array"},
+            "rollback_procedure": {"type": "object"},
+            "estimated_effort": {"type": "object"}
+          }
+        }
+      },
+      "subsystem_mapping": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "subsystem": {"type": "string"},
+            "change_type": {"type": "string"},
+            "description": {"type": "string"},
+            "compatibility_verified": {"type": "boolean"}
+          }
+        }
+      },
+      "runtime_changes": {"type": "array", "required": false, "description": "Required runtime modifications"},
+      "mathematics_requirements": {"type": "array", "required": false, "description": "New mathematical modules"},
+      "simulation_requirements": {"type": "array", "required": false, "description": "Validation simulation campaigns"},
+      "validation_requirements": {"type": "array", "required": false, "description": "Validation procedures"},
+      "rollback_plan": {
+        "type": "object", "required": true,
+        "fields": {
+          "triggers": {"type": "array"},
+          "stages": {"type": "array"},
+          "state_restoration": {"type": "object"},
+          "verification": {"type": "array"}
+        }
+      },
+      "resource_estimates": {"type": "object", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": [
+      "plan_is_fully_deterministic",
+      "plan_is_replayable",
+      "each_stage_has_defined_success_criteria",
+      "no_code_generation_specified"
+    ]
+  }
+}

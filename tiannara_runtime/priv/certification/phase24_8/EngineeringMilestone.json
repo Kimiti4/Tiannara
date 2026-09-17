@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_milestone.json",
+  "title": "EngineeringMilestone",
+  "description": "A constitutional milestone gate in an engineering program or project.",
+  "type": "object",
+  "properties": {
+    "milestone_id": { "type": "string", "pattern": "^emilestone_[a-f0-9]{16}$" },
+    "program_id": { "type": "string" },
+    "project_id": { "type": "string" },
+    "milestone_type": { "type": "string", "enum": ["architecture_complete", "design_complete", "prototype_complete", "verification_complete", "certification_complete", "manufacturing_ready", "deployment_ready", "operational", "program_complete"] },
+    "description": { "type": "string" },
+    "entry_criteria": { "type": "array", "items": { "type": "string" } },
+    "exit_criteria": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["pending", "in_progress", "achieved", "missed", "waived"] },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "certificate_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "due_date": { "type": "integer" },
+    "achieved_at": { "type": "integer" }
+  },
+  "required": ["milestone_id", "milestone_type", "entry_criteria", "exit_criteria", "status", "fingerprint"]
+}

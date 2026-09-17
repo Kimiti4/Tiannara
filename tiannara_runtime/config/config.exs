@@ -7,7 +7,9 @@ config :tiannara_runtime,
   boot_profile: :stable,
   enable_nde: false,
   enable_twp: false,
-  enable_osl: false
+  enable_osl: false,
+  cpl_storage_path: "data/cpl",
+  cpl_checkpoint_interval: 30_000
 
 # NATS connection configuration
 config :tiannara_runtime, TiannaraRuntime.NATS.ConnectionManager,

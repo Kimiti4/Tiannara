@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/twin_scenario.json",
+  "title": "TwinScenario",
+  "description": "An alternate scenario running within the planetary digital twin.",
+  "type": "object",
+  "properties": {
+    "scenario_id": { "type": "string", "pattern": "^tscene_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "parent_twin_id": { "type": "string" },
+    "assumptions": { "type": "object" },
+    "interventions": { "type": "array", "items": { "type": "object" } },
+    "status": { "type": "string", "enum": ["creating", "running", "paused", "completed", "archived"] },
+    "simulated_time": { "type": "integer" },
+    "outcomes": { "type": "object" },
+    "uncertainty": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["scenario_id", "name", "parent_twin_id", "assumptions", "status", "fingerprint"]
+}

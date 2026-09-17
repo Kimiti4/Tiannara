@@ -1,0 +1,29 @@
+{
+  "schema": "CAPITAL_ALLOCATION_SCHEMA",
+  "version": "21.1",
+  "description": "Schema for capital allocation decisions within the research portfolio governance system",
+  "capital_allocation": {
+    "fields": {
+      "allocation_id": {"type": "string", "required": true, "description": "Content-addressed allocation identifier"},
+      "generation": {"type": "integer", "required": true},
+      "total_available_capital": {"type": "number", "required": true},
+      "allocations": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "program": {"type": "string"}, "amount": {"type": "number"},
+            "priority_score": {"type": "number"}, "reason": {"type": "string"},
+            "capital_efficiency": {"type": "number"}
+          }
+        }
+      },
+      "allocation_formula": {"type": "string", "required": true, "description": "Reference to deterministic allocation formula"},
+      "unallocated_capital": {"type": "number", "required": true},
+      "allocation_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic_allocation", "evidence_based", "replayable"]
+  }
+}

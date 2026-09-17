@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/knowledge_artifact.json",
+  "title": "KnowledgeArtifact",
+  "description": "A unit of knowledge — discovery, mechanism, law, model, theory, or principle — available for cross-domain transfer.",
+  "type": "object",
+  "properties": {
+    "artifact_id": { "type": "string", "pattern": "^ka_[a-f0-9]{16}$" },
+    "artifact_type": {
+      "type": "string",
+      "enum": ["discovery", "mechanism", "pattern", "law", "model", "theory", "principle"]
+    },
+    "source_domain": { "type": "string" },
+    "abstraction_level": {
+      "type": "string",
+      "enum": ["observation", "mechanism", "pattern", "law", "model", "theory", "meta_principle"]
+    },
+    "content": { "type": "object" },
+    "supporting_evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "source_artifact_ids": { "type": "array", "items": { "type": "string" } },
+        "creation_event_id": { "type": "string" },
+        "creation_timestamp": { "type": "integer" }
+      },
+      "required": ["creation_event_id", "creation_timestamp"]
+    },
+    "uncertainty": { "type": "number", "minimum": 0, "maximum": 1 },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["artifact_id", "artifact_type", "source_domain", "content", "fingerprint"]
+}

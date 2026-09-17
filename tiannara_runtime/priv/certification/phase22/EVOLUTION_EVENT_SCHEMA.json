@@ -1,0 +1,18 @@
+{
+  "schema": "EVOLUTION_EVENT_SCHEMA",
+  "version": "22.6",
+  "description": "Schema for a civilizational evolution event within an epoch",
+  "evolution_event": {
+    "fields": {
+      "event_id": {"type": "string", "required": true},
+      "epoch_id": {"type": "string", "required": true},
+      "event_type": {"type": "string", "required": true, "enum": ["scientific_discovery", "engineering_innovation", "institutional_reform", "knowledge_expansion", "technology_maturation", "infrastructure_development", "governance_change", "environmental_adaptation"]},
+      "trigger": {"type": "string", "required": true},
+      "changes": {"type": "object", "required": true},
+      "evidence_basis": {"type": "string", "required": true},
+      "constitutional_verification": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "evidence_driven", "lineage_preserved"]
+  }
+}

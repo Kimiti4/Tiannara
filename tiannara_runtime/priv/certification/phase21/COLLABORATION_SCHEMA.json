@@ -1,0 +1,23 @@
+{
+  "schema": "COLLABORATION_SCHEMA",
+  "version": "21.5",
+  "description": "Schema for inter-institute collaboration agreements",
+  "collaboration": {
+    "fields": {
+      "collaboration_id": {"type": "string", "required": true, "description": "Content-addressed collaboration identifier"},
+      "participating_institutes": {"type": "array", "required": true, "minItems": 2},
+      "collaboration_type": {"type": "string", "required": true, "description": "JointProgram/ResourceSharing/KnowledgeTransfer/PersonnelExchange/CrisisCoordination"},
+      "scope": {"type": "string", "required": true, "description": "Description of collaboration scope"},
+      "objectives": {"type": "array", "required": true},
+      "resource_contributions": {"type": "object", "required": true},
+      "attribution_terms": {"type": "string", "required": true},
+      "duration_generations": {"type": "integer", "required": false},
+      "status": {"type": "string", "required": true, "description": "Proposed/Active/Completed/Terminated"},
+      "collaboration_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "types": ["joint_program", "resource_sharing", "knowledge_transfer", "personnel_exchange", "crisis_coordination"],
+    "constraints": ["voluntary", "deterministic", "replayable"]
+  }
+}

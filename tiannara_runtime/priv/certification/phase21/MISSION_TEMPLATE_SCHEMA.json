@@ -1,0 +1,28 @@
+{
+  "schema": "MISSION_TEMPLATE_SCHEMA",
+  "version": "21.3",
+  "description": "Schema for constitutional mission templates — reusable mission structures used in mission synthesis",
+  "mission_template": {
+    "fields": {
+      "template_id": {"type": "string", "required": true, "description": "Content-addressed template identifier"},
+      "template_type": {"type": "string", "required": true, "description": "Experimental/Theoretical/Computational/Engineering/Observational/Synthesis"},
+      "domain": {"type": "string", "required": true},
+      "structure": {"type": "object", "required": true, "fields": {
+        "required_sections": {"type": "array"},
+        "optional_sections": {"type": "array"},
+        "validation_requirements": {"type": "array"}
+      }},
+      "default_dependency_types": {"type": "array", "required": true},
+      "default_feasibility_dimensions": {"type": "array", "required": true},
+      "default_validation_criteria": {"type": "array", "required": true},
+      "applicable_domains": {"type": "array", "required": true},
+      "constraint_rules": {"type": "array", "required": true, "description": "Template-specific constitutional constraints"},
+      "template_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "template_types": ["experimental", "theoretical", "computational", "engineering", "observational", "synthesis"],
+    "constraints": ["reusable", "deterministic", "constitutional"]
+  }
+}

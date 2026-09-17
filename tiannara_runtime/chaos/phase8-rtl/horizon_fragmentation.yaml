@@ -1,0 +1,22 @@
+# Tests URM + ORB boundary when cross-reality translation fails
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: rtl-horizon-fragmentation
+  namespace: tiannara-phase8
+spec:
+  action: partition
+  mode: all
+  selector:
+    namespaces: ["tiannara-phase8"]
+    labelSelectors:
+      app: tiannara-rtl
+  direction: both
+  duration: "2m"
+  annotations:
+    description: "Simulates ontological horizon barrier activation"
+    expected_behavior: "URM caches representation gaps; NATS queues retry vectors"
+    validation_metrics:
+      - "jetstream_consumer_pending[tiannara.rtl.horizon.*] < 5000"
+      - "tiannara_phase8_rtl_xi_equilibrium stabilizes > 0.30"
+      - "No pod OOMKilled or liveness probe failure"

@@ -1,10 +1,4 @@
 defmodule TiannaraRuntime.NATS.Connection do
-  @moduledoc """
-  Phase 2 NATS Connection Manager
-
-  Manages persistent connection to NATS server with automatic reconnection.
-  """
-
   use GenServer
   require Logger
 
@@ -12,22 +6,28 @@ defmodule TiannaraRuntime.NATS.Connection do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  @impl true
-  def init(_opts) do
-    state = %{
-      connected: false,
-      server_url: System.get_env("NATS_URL", "nats://localhost:4222"),
-      reconnect_attempts: 0,
-      last_connection_time: nil
-    }
-
-    {:ok, _} = connect(state.server_url)
-    Logger.info("✅ NATS Connected: #{state.server_url}")
-    {:ok, %{state | connected: true, last_connection_time: DateTime.utc_now()}}
-  end
-
   def get_status do
     GenServer.call(__MODULE__, :get_status)
+  end
+
+  @impl true
+  def init(_opts) do
+    port = String.to_integer(System.get_env("NATS_PORT", "4222"))
+    state = %{
+      listen_socket: nil,
+      port: port,
+      clients: %{},
+      connected: false
+    }
+    case :gen_tcp.listen(port, [:binary, packet: :line, reuseaddr: true, active: false]) do
+      {:ok, listen_socket} ->
+        Logger.info("NATS TCP listener started on port #{port}")
+        send(self(), :accept)
+        {:ok, %{state | listen_socket: listen_socket, connected: true}}
+      {:error, reason} ->
+        Logger.warning("NATS TCP listener failed on port #{port}: #{inspect(reason)}")
+        {:ok, state}
+    end
   end
 
   @impl true
@@ -36,21 +36,34 @@ defmodule TiannaraRuntime.NATS.Connection do
   end
 
   @impl true
-  def handle_info(:reconnect, state) do
-    Logger.info("🔄 Attempting NATS reconnection (attempt #{state.reconnect_attempts + 1})...")
-
-    {:ok, _} = connect(state.server_url)
-    Logger.info("✅ NATS Reconnected")
-    {:noreply, %{state | connected: true, reconnect_attempts: 0, last_connection_time: DateTime.utc_now()}}
+  def handle_info(:accept, %{listen_socket: listen_socket} = state) when listen_socket != nil do
+    case :gen_tcp.accept(listen_socket) do
+      {:ok, client_socket} ->
+        pid = spawn_link(fn -> handle_client(client_socket) end)
+        :gen_tcp.controlling_process(client_socket, pid)
+        send(self(), :accept)
+        {:noreply, %{state | clients: Map.put(state.clients, pid, client_socket)}}
+      {:error, _reason} ->
+        send(self(), :accept)
+        {:noreply, state}
+    end
   end
 
-  defp connect(_server_url) do
-    # TODO: Implement actual NATS connection using gnat library
-    {:ok, :simulated}
-  end
-
-  defp schedule_reconnect do
-    delay = min(round(:math.pow(2, 10) * 1000), 60_000)
-    Process.send_after(self(), :reconnect, delay)
+  defp handle_client(socket) do
+    case :gen_tcp.recv(socket, 0) do
+      {:ok, line} ->
+        line = String.trim(line)
+        case Jason.decode(line) do
+          {:ok, %{"subject" => subject, "payload" => payload}} ->
+            TiannaraRuntime.NATS.Bus.publish(subject, payload)
+          {:ok, %{"subject" => subject}} ->
+            TiannaraRuntime.NATS.Bus.publish(subject, %{})
+          _ ->
+            :gen_tcp.send(socket, ~s/{"status":"error","reason":"invalid_format"}\n/)
+        end
+        handle_client(socket)
+      {:error, _reason} ->
+        :ok
+    end
   end
 end

@@ -1,0 +1,62 @@
+# Move 2 — Canonical Truth Model: ARCHITECTURE
+# Intended architecture transcribed from master.md (VISION_SOURCE) alongside
+# the measured substrate facts from Move-0 evidence (MEASURED). The two are
+# never merged: each entry carries its own provenance.kind.
+artifact: TRUTH_ARCHITECTURE
+artifact_status: POST_T0
+move: 2
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+spec: master.md Move 2 (section 4 onward); architecture layer only
+intended_layers:
+- layer: OBSERVATORY
+  kind: VISION_SOURCE
+  source: master.md lines 4120-4123
+  measured_status: UNKNOWN
+- layer: CONSTITUTIONAL EXECUTIVE
+  kind: VISION_SOURCE
+  source: master.md lines 4124-4125
+  measured_status: UNKNOWN
+- layer: TIANNARA SELF-MODEL
+  kind: VISION_SOURCE
+  source: master.md lines 4126-4127
+  measured_status: UNKNOWN
+- layer: RESEARCH / ARCHITECTURE / ENGINEERING (under self-model)
+  kind: VISION_SOURCE
+  source: master.md lines 4128-4133
+  measured_status: UNKNOWN
+- layer: SANDBOX -> VERIFICATION -> EVIDENCE -> CERTIFICATION -> HUMAN AUTHORITY -> INTEGRATION
+  kind: VISION_SOURCE
+  source: master.md lines 4134-4153
+  measured_status: UNKNOWN
+measured_substrate:
+- fact: T0 tree contains 4756 entries across lib/, test/, certification/, docs/, scripts/, tools/, subproject dirs
+  kind: MEASURED
+  source: T0_FILES.jsonl/T0_HASHES.jsonl (bijective; sha beeaa0a8 / 0c6c50fc)
+- fact: 2585 source files parsed (.ex/.exs/.py AST-light) in T0
+  kind: MEASURED
+  source: T0_BASELINE.json source_inventory_summary
+- fact: Forecasting chain lib/tiannara/forecasting/ present with D1-D5 modules
+  kind: MEASURED
+  source: T0 file inventory (presence only)
+- fact: R4 adversarial suite holds 23 tests; forecasting suite last observed 377/0 at R7 verification
+  kind: COUNCIL_DECISION
+  source: Council session record (R7 verification; not re-observed at baseline instant)
+- fact: Evolution substrate lib/tiannara/evolution/ present (LongHorizon, DriftAudit, Trajectory modules)
+  kind: MEASURED
+  source: T0 file inventory (presence only)
+- fact: SR-4 nil guards present in trajectory.ex
+  kind: MEASURED
+  source: T0 content read-only (git show T0:lib/tiannara/evolution/trajectory.ex contains SR-4 guard comments and || 0.0 substitutions)
+- fact: Stabilizer modules lib/tiannara/stabilization/ (OLEF/OCM/HSV/CTL) present
+  kind: MEASURED
+  source: T0 file inventory (presence only; coverage claims excluded — test status is UNKNOWN per Move 1 record)
+- fact: 8 runtime .dets databases + 16 build artifacts committed inside T0
+  kind: MEASURED
+  source: T0_FILES.jsonl bucket counts RUNTIME_STATE 8 / GENERATED 16
+- fact: D5 facade verdict frozen to :d5_certified_bounded
+  kind: MEASURED
+  source: "T0 content read-only (git show T0:lib/tiannara/forecasting/d5.ex contains verdict frozen to d5_certified_bounded)"
+architecture_divergences:
+- status: UNKNOWN
+  note: Declared-vs-actual responsibility/interface mapping requires per-subsystem analysis; deferred to later Move-2 passes. No divergence asserted here.

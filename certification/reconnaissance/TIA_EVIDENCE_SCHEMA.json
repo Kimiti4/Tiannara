@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.local/schemas/TIA_EVIDENCE_SCHEMA.json",
+  "title": "TIA Evidence Schema",
+  "description": "Shape of every collector output. A fact is a JSON object with provenance and confidence. Volatile fields are separate from substantive fields so that RI-011 (deterministic rerun) can canonicalize.",
+  "definitions": {
+    "provenance_source": {
+      "type": "string",
+      "enum": [
+        "GIT_TRACKED",
+        "GIT_UNTRACKED",
+        "WORKTREE_T0",
+        "RUNTIME",
+        "EXTERNAL",
+        "UNKNOWN"
+      ]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["FACT", "INFERENCE", "HYPOTHESIS", "UNKNOWN"]
+    },
+    "bucket": {
+      "type": "string",
+      "enum": [
+        "T0_TRACKED",
+        "T0_EXCLUDED",
+        "CURRENT_TRACKED",
+        "CURRENT_UNTRACKED",
+        "RUNTIME_STATE",
+        "SECRET_SENSITIVE",
+        "GARBAGE_INVALID",
+        "SUBPROJECT",
+        "GENERATED",
+        "UNKNOWN"
+      ]
+    }
+  },
+  "type": "object",
+  "required": ["schema_version", "evidence_kind", "items"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "evidence_kind": {
+      "type": "string",
+      "enum": [
+        "git_forensics",
+        "repo_inventory",
+        "source_inventory",
+        "environment",
+        "baseline_aggregate"
+      ]
+    },
+    "produced_by": {
+      "type": "object",
+      "required": ["collector", "contract_version"],
+      "properties": {
+        "collector": { "type": "string" },
+        "contract_version": { "type": "string" }
+      }
+    },
+    "produced_at_t0": {
+      "type": "string",
+      "description": "The T0 commit SHA this evidence is bound to. Volatile: not part of the content hash."
+    },
+    "run": {
+      "type": "object",
+      "description": "Volatile run metadata. Excluded from RI-011 content hash.",
+      "required": ["started_at", "finished_at", "duration_seconds", "run_id"],
+      "properties": {
+        "started_at":   { "type": "string", "format": "date-time" },
+        "finished_at":  { "type": "string", "format": "date-time" },
+        "duration_seconds": { "type": "number" },
+        "run_id":       { "type": "string" }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/evidence_item" }
+    }
+  },
+  "definitions_evidence_item_inline": {
+    "evidence_item": {
+      "type": "object",
+      "required": ["provenance_source", "confidence", "collector", "data"],
+      "properties": {
+        "provenance_source": { "$ref": "#/definitions/provenance_source" },
+        "confidence": { "$ref": "#/definitions/confidence" },
+        "collector": { "type": "string" },
+        "bucket": { "$ref": "#/definitions/bucket" },
+        "path": { "type": "string" },
+        "size_bytes": { "type": "integer" },
+        "sha256": { "type": "string" },
+        "data": { "type": "object" }
+      }
+    }
+  }
+}

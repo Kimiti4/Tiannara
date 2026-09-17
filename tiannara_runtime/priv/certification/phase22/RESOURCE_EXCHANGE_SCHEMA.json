@@ -1,0 +1,21 @@
+{
+  "schema": "RESOURCE_EXCHANGE_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for a resource exchange between civilizations",
+  "resource_exchange": {
+    "fields": {
+      "exchange_id": {"type": "string", "required": true},
+      "resource_type": {"type": "string", "required": true, "enum": ["energy", "materials", "knowledge", "technology", "manufacturing_capacity", "computation", "scientific_data", "engineering_assets"]},
+      "source_civilization": {"type": "string", "required": true},
+      "destination_civilization": {"type": "string", "required": true},
+      "resource_description": {"type": "string", "required": true},
+      "quantity": {"type": "number", "required": true},
+      "value": {"type": "number", "required": false},
+      "exchange_terms": {"type": "object", "required": true},
+      "provenance_chain": {"type": "array", "required": true},
+      "exchange_date": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["provenance_preserved", "deterministic", "replayable"]
+  }
+}

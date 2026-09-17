@@ -1,0 +1,19 @@
+{
+  "schema": "OPTIMIZATION_ARCHAEOLOGY_SCHEMA",
+  "version": "22.4",
+  "description": "Schema for archaeological reconstruction of optimization evolution",
+  "optimization_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "design_space_id": {"type": "string", "required": true},
+      "search_history": {"type": "array", "required": true},
+      "pareto_frontier_evolution": {"type": "array", "required": true},
+      "constraint_binding_history": {"type": "array", "required": true},
+      "tradeoff_analyses": {"type": "array", "required": true},
+      "rejected_alternatives": {"type": "array", "required": true},
+      "design_recommendations": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

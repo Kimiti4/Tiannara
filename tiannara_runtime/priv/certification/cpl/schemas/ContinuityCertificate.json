@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ContinuityCertificate",
+  "description": "A cryptographically signed certificate verifying Tiannara's constitutional continuity",
+  "type": "object",
+  "properties": {
+    "certificate_id": {
+      "type": "string",
+      "description": "Unique identifier for this certificate"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of certificate issuance"
+    },
+    "runtime_continuity_verified": {
+      "type": "boolean",
+      "description": "Whether runtime continuity has been verified"
+    },
+    "knowledge_continuity_verified": {
+      "type": "boolean",
+      "description": "Whether knowledge continuity has been verified"
+    },
+    "experiment_continuity_verified": {
+      "type": "boolean",
+      "description": "Whether experiment continuity has been verified"
+    },
+    "certification_continuity_verified": {
+      "type": "boolean",
+      "description": "Whether certification continuity has been verified"
+    },
+    "replay_continuity_verified": {
+      "type": "boolean",
+      "description": "Whether replay continuity has been verified"
+    },
+    "archaeology_continuity_verified": {
+      "type": "boolean",
+      "description": "Whether archaeology continuity has been verified"
+    },
+    "recovery_count": {
+      "type": "integer",
+      "description": "Total number of recoveries since last certificate"
+    },
+    "recovery_success_rate": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "description": "Recovery success rate (percentage)"
+    },
+    "knowledge_loss": {
+      "type": "integer",
+      "description": "Number of knowledge records lost"
+    },
+    "experiment_loss": {
+      "type": "integer",
+      "description": "Number of experiments lost"
+    },
+    "continuity_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0,
+      "description": "Overall continuity score (0-100)"
+    },
+    "previous_certificate_id": {
+      "type": "string",
+      "description": "ID of the previous continuity certificate"
+    },
+    "signature": {
+      "type": "string",
+      "description": "Cryptographic signature of the certificate"
+    }
+  },
+  "required": [
+    "certificate_id",
+    "timestamp",
+    "runtime_continuity_verified",
+    "knowledge_continuity_verified",
+    "experiment_continuity_verified",
+    "certification_continuity_verified",
+    "replay_continuity_verified",
+    "archaeology_continuity_verified",
+    "recovery_count",
+    "recovery_success_rate",
+    "knowledge_loss",
+    "experiment_loss",
+    "continuity_score",
+    "signature"
+  ],
+  "additionalProperties": false
+}

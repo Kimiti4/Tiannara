@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/intervention_strategy.json",
+  "title": "InterventionStrategy",
+  "description": "A combined intervention strategy composed of one or more interventions.",
+  "type": "object",
+  "properties": {
+    "strategy_id": { "type": "string", "pattern": "^strat_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "intervention_ids": { "type": "array", "items": { "type": "string" } },
+    "cross_domain": { "type": "boolean" },
+    "domains_involved": { "type": "array", "items": { "type": "string" } },
+    "constitutional_status": { "type": "string", "enum": ["passed", "conditional", "failed", "review_required"] },
+    "expected_outcomes": { "type": "object" },
+    "resource_profile": { "type": "object" },
+    "pareto_ranking": { "type": "number" },
+    "tradeoff_summary": { "type": "object" },
+    "uncertainty_envelope": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated_at": { "type": "integer" }
+  },
+  "required": ["strategy_id", "name", "intervention_ids", "constitutional_status", "fingerprint"]
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExperimentExecution",
+  "description": "A record of experiment execution including state transitions, resource usage, and results",
+  "type": "object",
+  "properties": {
+    "execution_id": {
+      "type": "string",
+      "description": "Content-addressed unique identifier for this execution record"
+    },
+    "experiment_id": {
+      "type": "string",
+      "description": "Reference to the experiment being executed"
+    },
+    "schedule_entry_id": {
+      "type": "string",
+      "description": "Reference to the schedule entry that triggered this execution"
+    },
+    "state": {
+      "type": "string",
+      "enum": ["scheduled", "initializing", "running", "validating", "completing", "completed", "failing", "failed"]
+    },
+    "state_transitions": {
+      "type": "array",
+      "description": "History of state transitions",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": { "type": "string" },
+          "to": { "type": "string" },
+          "timestamp": { "type": "integer" },
+          "rationale": { "type": "string" }
+        },
+        "required": ["from", "to", "timestamp"]
+      }
+    },
+    "resource_usage": {
+      "type": "object",
+      "description": "Actual resource usage during execution"
+    },
+    "results": {
+      "type": "object",
+      "description": "Experiment execution results"
+    },
+    "errors": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Errors encountered during execution"
+    },
+    "started_at": { "type": "integer" },
+    "completed_at": { "type": "integer" },
+    "execution_hash": { "type": "string" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": [
+    "execution_id", "experiment_id", "state",
+    "started_at", "execution_hash", "timestamp"
+  ],
+  "additionalProperties": false
+}

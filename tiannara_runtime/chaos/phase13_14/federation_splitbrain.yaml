@@ -1,0 +1,21 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: phase14-splitbrain-test
+  namespace: tiannara-phase14
+spec:
+  action: partition
+  mode: all
+  selector:
+    namespaces: ["tiannara-phase14"]
+    labelSelectors:
+      app: tiannara-phase14
+  direction: both
+  duration: "4m"
+  annotations:
+    description: "Simulates network partition causing Byzantine consensus failure"
+    expected_behavior: "FederationGateway detects Q < ⌈2/3N⌉; blocks cross-instance routing; falls back to local cache"
+    validation_metrics:
+      - "phase14_federation_quorum_success < 0.67 during partition"
+      - "No conflicting axiom compilations active"
+      - "NATS consumer backlog < 5k"

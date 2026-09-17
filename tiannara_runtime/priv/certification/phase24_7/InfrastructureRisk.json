@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/infrastructure_risk.json",
+  "title": "InfrastructureRisk",
+  "description": "A risk assessment for an infrastructure system.",
+  "type": "object",
+  "properties": {
+    "risk_id": { "type": "string", "pattern": "^irisk_[a-f0-9]{16}$" },
+    "infrastructure_id": { "type": "string" },
+    "risk_category": { "type": "string", "enum": ["technical", "operational", "financial", "regulatory", "environmental", "social", "security", "natural", "cascade", "strategic"] },
+    "description": { "type": "string" },
+    "severity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "likelihood": { "type": "number", "minimum": 0, "maximum": 1 },
+    "cascade_potential": { "type": "number", "minimum": 0, "maximum": 1 },
+    "mitigation_plan": { "type": "string" },
+    "status": { "type": "string", "enum": ["identified", "analyzed", "mitigated", "monitoring", "realized", "closed"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "identified_at": { "type": "integer" }
+  },
+  "required": ["risk_id", "infrastructure_id", "risk_category", "description", "severity", "likelihood", "fingerprint"]
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/telemetry_snapshot.json",
+  "title": "TelemetrySnapshot",
+  "description": "A snapshot of telemetry data at a point in time.",
+  "type": "object",
+  "properties": {
+    "snapshot_id": { "type": "string", "pattern": "^obtel_[a-f0-9]{16}$" },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "value": { "type": "number" },
+          "unit": { "type": "string" }
+        },
+        "required": ["name", "value"]
+      }
+    },
+    "states": { "type": "object" },
+    "events": { "type": "array", "items": { "type": "object" } },
+    "source_engines": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "snapshot_at": { "type": "integer" }
+  },
+  "required": ["snapshot_id", "metrics", "fingerprint"]
+}

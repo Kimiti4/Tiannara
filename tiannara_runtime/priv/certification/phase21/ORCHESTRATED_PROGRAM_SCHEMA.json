@@ -1,0 +1,25 @@
+{
+  "schema": "ORCHESTRATED_PROGRAM_SCHEMA",
+  "version": "21.4",
+  "description": "Schema for an orchestrated scientific program within the civilization-scale coordination system",
+  "orchestrated_program": {
+    "fields": {
+      "program_id": {"type": "string", "required": true, "description": "Content-addressed program identifier"},
+      "parent_portfolio": {"type": "string", "required": true},
+      "program_type": {"type": "string", "required": true, "description": "Sequential/Parallel/Hierarchical/CrossDomain/LongHorizon"},
+      "mission_groups": {"type": "array", "required": true},
+      "coordination_mechanism": {"type": "string", "required": true},
+      "lead_institute": {"type": "string", "required": true},
+      "participating_institutes": {"type": "array", "required": true},
+      "synchronization_points": {"type": "array", "required": false},
+      "status": {"type": "string", "required": true, "description": "Forming/Coordinating/Executing/Completing/Archived"},
+      "schedule_slot": {"type": "string", "required": false},
+      "resource_allocation": {"type": "object", "required": true},
+      "program_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "lifecycle": ["forming", "coordinating", "executing", "completing", "archived"],
+    "constraints": ["deterministic", "acyclic", "replayable"]
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0.0",
+  "evidence_kind": "git_forensics",
+  "produced_by": {
+    "collector": "git_forensics",
+    "contract_version": "0.1.1"
+  },
+  "produced_at_t0": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+  "integrity": {
+    "test_id": "T0-INTEGRITY-001",
+    "verdict": "PASS",
+    "expected_t0_commit": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+    "expected_t0_tree": "06f06e5e91f33e75437a47ca901eaa7e97bb0edd",
+    "checks": {
+      "tag_T0_resolves_to_commit": {
+        "pass": true,
+        "actual": "9753a6d08702064f4d00395a1bec1c4bf3887381"
+      },
+      "t0_baseline_resolves_to_commit": {
+        "pass": true,
+        "actual": "9753a6d08702064f4d00395a1bec1c4bf3887381"
+      },
+      "origin_main_resolves_to_commit": {
+        "pass": true,
+        "actual": "9753a6d08702064f4d00395a1bec1c4bf3887381"
+      },
+      "source_repo_HEAD_equals_T0": {
+        "pass": true,
+        "actual": "9753a6d08702064f4d00395a1bec1c4bf3887381"
+      },
+      "t0_tree_hash_reproducible": {
+        "pass": true,
+        "actual": "06f06e5e91f33e75437a47ca901eaa7e97bb0edd"
+      }
+    },
+    "on_failure_policy": "STOP_AND_RECORD_CONDITION_AS_EVIDENCE"
+  },
+  "commit_meta": {
+    "tree": "06f06e5e91f33e75437a47ca901eaa7e97bb0edd",
+    "parent": "3bd1601b9bb3c718f985d44ceaa8ef2e638d4ec6",
+    "author": "kimiti47 <karamos473@gmail.com> 1788560429 +0300",
+    "committer": "kimiti47 <karamos473@gmail.com> 1788560808 +0300",
+    "size_bytes": 2728
+  },
+  "t0_commit_message": "chore: commit working-tree codebase (non-.md, non-test) for full-repo audit\n\nThis commit stages 4,128 files from the working tree so the user can audit\nthe full repo state and identify gaps or hardening needs.\n\nScope of this commit:\n- Production source code (lib/, scripts/, tools/, configs, mix.exs, etc.)\n- Root configuration dotfiles (.coveragerc, .dockerignore, .lingmaignore)\n- All untracked working-tree files (4,801 enumerated) minus exclusions\n\nExplicitly excluded (per user instruction):\n- All *.md documentation files (left in working tree for separate review)\n- All test files (*_test.exs, *_test.ex, test_/, tests/, conftest.py, test_*.py)\n- System/build dirs (_build/, deps/, node_modules/, __pycache__/, .pytest_cache/, target/, .bolt/, .idea/, .vs/, .gradle/, .mvn/, dist/)\n- Unreadable/garbage dirs (..../, .agents/, .continue/, .devcontainer/, .github/, .hypothesis/, .kilo/, .kilocode/, .kiro/, .qoder/, .qwen/, .sixth/, .vscode/, c:Users*/)\n- Volatile/runtime dirs (logs/, scratch/, tmp/, runs/)\n- Tiannara subproject apps (tiannara-desktop, tiannara_api, tiannara_gui, tiannara_internal_dashboard, tiannara_mobile, tiannara_observatory, tiannara_pros, tiannara_runtime, tiannara_saas, tiannara_core)\n- Secrets/config: .env, .env.production, .env.local\n- Lock files: package-lock.json, yarn.lock, mix.lock, Cargo.lock, pnpm-lock.yaml, Gemfile.lock, composer.lock, pubspec.lock\n- Runtime artifacts: *.db, *.dump, erl_crash.dump, benchmark output logs\n\nProject .gitignore (respected):\n- The project has an aggressive .gitignore that excludes *.txt, *.log, tests/,\n  test_*, tiiannara_gui/, tiiannara_internal_dashboard/, tiiannara_mobile/,\n  and several mangled path entries. These exclusions are preserved.\n\nFiles force-added (overriding project .gitignore or local exclude):\n- .coveragerc, .dockerignore, .lingmaignore (3 root dotfiles deemed important\n  for audit). These were excluded by the project .gitignore or by the\n  local .git/info/exclude list added during this prep; they are added with\n  `git add -f` to make the audit complete.\n\nA working-tree file EXCLUDED_FILES_REPORT.md (uncommitted) lists all 673\nfiles from the working tree that were NOT staged, categorized by reason\n(.gitignore, already-tracked-unchanged, test files, runtime artifacts,\ngarbage dirs). This is left in the working tree (not committed) because\nthe user requested no .md files in this commit.\n\nThis is a large bulk commit intended for repository-state audit only.\nNo code is intentionally modified beyond staging.",
+  "t0_tracked_count": 4756,
+  "t0_tracked_sample_first_10": [
+    "\"c\\357\\200\\272UsersuserTiannaraTiannara-MindCache-Prosthetictiannara_corereasoning__init__.py\"",
+    ".blackboxrules",
+    ".clinerules",
+    ".coveragerc",
+    ".devcontainer/Dockerfile",
+    ".devcontainer/devcontainer.json",
+    ".dockerignore",
+    ".github/workflows/cross_platform_verify.yml",
+    ".github/workflows/phase_5f2_tests.yml",
+    ".gitignore"
+  ],
+  "t0_tracked_sample_last_10": [
+    "tools/run_all_challenges.exs",
+    "tools/run_certification.exs",
+    "tools/run_challenges.exs",
+    "tools/run_full_certification.exs",
+    "verify_clean_reproducibility.ps1",
+    "verify_clean_reproducibility.sh",
+    "verify_gpt4v_setup.py",
+    "workflow_engine.dets",
+    "world_model/self_profile.json",
+    "world_model/subsystem_beliefs.json"
+  ],
+  "refs": [
+    {
+      "ref": "asc-adopt-ae003-bulk_gc_ingest",
+      "sha": "cc10fb9"
+    },
+    {
+      "ref": "asc-ae001-d1_parallel_boot",
+      "sha": "3bd1601"
+    },
+    {
+      "ref": "asc-ae001-d2_deferred_store",
+      "sha": "3bd1601"
+    },
+    {
+      "ref": "asc-ae002-baseline",
+      "sha": "3bd1601"
+    },
+    {
+      "ref": "asc-ae002-bulk_ingest",
+      "sha": "226cd19"
+    },
+    {
+      "ref": "asc-ae002-parallel_ingest",
+      "sha": "dd621e4"
+    },
+    {
+      "ref": "asc-ae002-recursive_ingest",
+      "sha": "c984b8f"
+    },
+    {
+      "ref": "asc-ae003-baseline",
+      "sha": "3bd1601"
+    },
+    {
+      "ref": "asc-ae003-bulk_gc_ingest",
+      "sha": "cf0d5d8"
+    },
+    {
+      "ref": "asc-ae003-bulk_ingest",
+      "sha": "918405e"
+    },
+    {
+      "ref": "asc-ae003-chunked_bulk_ingest",
+      "sha": "98ba87a"
+    },
+    {
+      "ref": "main",
+      "sha": "9753a6d"
+    },
+    {
+      "ref": "t0-baseline",
+      "sha": "9753a6d"
+    },
+    {
+      "ref": "origin",
+      "sha": "9753a6d"
+    },
+    {
+      "ref": "origin/main",
+      "sha": "9753a6d"
+    },
+    {
+      "ref": "origin/t0-baseline",
+      "sha": "9753a6d"
+    },
+    {
+      "ref": "T0",
+      "sha": "67d49b8"
+    },
+    {
+      "ref": "asc-adopted-ASC-AE-003",
+      "sha": "cc10fb9"
+    },
+    {
+      "ref": "asc-pre-adoption-ASC-AE-003",
+      "sha": "3bd1601"
+    }
+  ],
+  "all_identity_ok": true,
+  "run": {
+    "started_at": "2026-09-05T21:35:38.270741+00:00",
+    "finished_at": "2026-09-05T21:36:37.435926+00:00",
+    "duration_seconds": 59.165189,
+    "run_id": "43b7988bb5066207"
+  }
+}

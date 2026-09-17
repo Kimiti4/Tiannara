@@ -1,0 +1,81 @@
+{
+  "status": "pass",
+  "phase": "16.X.95",
+  "campaigns": [
+    {
+      "error": null,
+      "name": "runtime",
+      "status": "pass",
+      "metrics": {}
+    },
+    {
+      "error": null,
+      "name": "replay",
+      "status": "pass",
+      "metrics": {}
+    },
+    {
+      "error": null,
+      "name": "contract",
+      "status": "pass",
+      "metrics": {}
+    },
+    {
+      "error": null,
+      "name": "serialization",
+      "status": "pass",
+      "metrics": {}
+    },
+    {
+      "error": null,
+      "name": "proof",
+      "status": "pass",
+      "metrics": {}
+    },
+    {
+      "error": null,
+      "name": "conjecture",
+      "status": "pass",
+      "metrics": {}
+    },
+    {
+      "error": null,
+      "name": "verification",
+      "status": "pass",
+      "metrics": {}
+    },
+    {
+      "error": null,
+      "name": "stress",
+      "status": "pass",
+      "metrics": {}
+    },
+    {
+      "error": null,
+      "name": "failure_injection",
+      "status": "pass",
+      "metrics": {}
+    },
+    {
+      "error": null,
+      "name": "archaeology",
+      "status": "pass",
+      "metrics": {}
+    }
+  ],
+  "campaign": "Constitutional Mathematics Validation Campaign",
+  "aggregate_metrics": {
+    "runtime": {},
+    "replay": {},
+    "contract": {},
+    "serialization": {},
+    "proof": {},
+    "conjecture": {},
+    "verification": {},
+    "stress": {},
+    "failure_injection": {},
+    "archaeology": {}
+  },
+  "generated_at": "2026-07-07T20:44:01.898000Z",
+  "total_campaigns": 10
+}

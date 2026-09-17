@@ -1,0 +1,32 @@
+{
+  "schema": "VALIDATION_CAMPAIGN_SCHEMA",
+  "version": "20.95",
+  "description": "Schema defining a validation campaign — a structured, deterministic test of constitutional behavior",
+  "validation_campaign": {
+    "fields": {
+      "campaign_id": {"type": "string", "required": true, "description": "Content-addressed campaign identifier"},
+      "campaign_label": {"type": "string", "required": true, "description": "A/B/C/D/E/F/G/H"},
+      "title": {"type": "string", "required": true, "description": "Human-readable campaign title"},
+      "objective": {"type": "string", "required": true, "description": "Single-sentence campaign objective"},
+      "subsystems_under_test": {"type": "array", "required": true, "items": {"type": "string"}},
+      "scenarios": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "scenario_id": {"type": "string"}, "description": {"type": "string"},
+            "inputs": {"type": "object"}, "expected_outcome": {"type": "string"},
+            "failure_category": {"type": "string"}
+          }
+        }
+      },
+      "metrics_collected": {"type": "array", "required": true, "items": {"type": "string"}},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "status": {"type": "string", "required": true, "description": "Defined/InProgress/Completed/Failed/Archived"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "campaign_labels": ["A", "B", "C", "D", "E", "F", "G", "H"],
+    "constraints": ["deterministic_scenarios", "replayable", "evidence_based", "no_runtime_implementation"]
+  }
+}

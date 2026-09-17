@@ -1,0 +1,24 @@
+{
+  "schema": "ARCHIVAL_RECORD_SCHEMA",
+  "version": "20.999",
+  "description": "Schema for ArchivalRecord — the final archival preservation of the certified Constitutional Operating System (complement to ARCHIVE_INDEX_SCHEMA — this tracks total counts and inventory; that tracks category breakdown and storage)",
+  "archival_record": {
+    "fields": {
+      "archive_id": {"type": "string", "required": true, "description": "Content-addressed archive identifier"},
+      "certification_generation": {"type": "string", "required": true},
+      "total_artifacts": {"type": "integer", "required": true},
+      "total_phases": {"type": "integer", "required": true, "description": "Total phases archived (18, 19, 20)"},
+      "total_files": {"type": "integer", "required": true},
+      "artifact_inventory_root": {"type": "string", "required": true, "description": "Root hash of complete artifact inventory"},
+      "cold_storage_locations": {"type": "array", "required": true, "description": "Cold storage archive locations"},
+      "reconstruction_instructions": {"type": "string", "required": true, "description": "How to reconstruct the OS from archives"},
+      "archive_hash": {"type": "string", "required": true, "description": "SHA-256 of complete archive"},
+      "archive_timestamp": {"type": "integer", "required": true, "description": "Deterministic archive timestamp"},
+      "verified": {"type": "boolean", "required": true, "description": "Archive integrity verification flag"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["complete_archive", "deterministic_archive", "cold_storage_preserved", "verifiable"]
+  }
+}

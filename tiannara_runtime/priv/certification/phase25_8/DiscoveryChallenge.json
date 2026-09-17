@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/discovery_challenge.json",
+  "title": "DiscoveryChallenge",
+  "description": "A discovery challenge from the CDCIE.",
+  "type": "object",
+  "properties": {
+    "challenge_id": { "type": "string", "pattern": "^dc_[a-f0-9]{16}$" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "source": { "type": "string", "enum": ["observation", "theory", "risk", "resource", "scenario", "intervention", "human_submitted", "external"] },
+    "domain": { "type": "string" },
+    "subdomain": { "type": "string" },
+    "challenge_type": { "type": "string", "enum": ["unknown", "bottleneck", "anomaly", "opportunity", "problem"] },
+    "difficulty": { "type": "string", "enum": ["trivial", "easy", "moderate", "hard", "very_hard", "open", "fundamental_limit"] },
+    "urgency": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+    "status": { "type": "string", "enum": ["identified", "classified", "prioritized", "routed", "in_progress", "under_review", "solved", "archived", "superseded", "abandoned"] },
+    "knowledge_gap": { "type": "object" },
+    "prerequisites": { "type": "array", "items": { "type": "string" } },
+    "hypotheses": { "type": "array", "items": { "type": "object" } },
+    "value_scores": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "updated_at": { "type": "integer" }
+  },
+  "required": ["challenge_id", "title", "description", "domain", "status", "fingerprint"]
+}

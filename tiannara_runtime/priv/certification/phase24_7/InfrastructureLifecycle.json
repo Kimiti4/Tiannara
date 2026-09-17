@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/infrastructure_lifecycle.json",
+  "title": "InfrastructureLifecycle",
+  "description": "The lifecycle state record of an infrastructure system.",
+  "type": "object",
+  "properties": {
+    "lifecycle_id": { "type": "string", "pattern": "^ilife_[a-f0-9]{16}$" },
+    "infrastructure_id": { "type": "string" },
+    "current_stage": { "type": "string", "enum": ["concept", "planning", "design", "construction", "commissioning", "operations", "maintenance", "upgrade", "evolution", "retirement"] },
+    "stage_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": { "type": "string" },
+          "entered_at": { "type": "integer" },
+          "exited_at": { "type": "integer" },
+          "certificate_id": { "type": "string" }
+        }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["lifecycle_id", "infrastructure_id", "current_stage", "fingerprint"]
+}

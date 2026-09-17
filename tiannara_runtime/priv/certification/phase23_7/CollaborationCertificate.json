@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/collaboration_certificate.json",
+  "title": "CollaborationCertificate",
+  "description": "Certification of collaborative research outputs attesting constitutional compliance.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^ccert_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "collaboration_id": { "type": "string" },
+    "certification_level": { "type": "string", "enum": ["team_certified", "output_certified", "federated_certified", "globally_certified"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "contribution_integrity": { "type": "boolean" },
+        "provenance_completeness": { "type": "boolean" },
+        "attribution_accuracy": { "type": "boolean" },
+        "consensus_validity": { "type": "boolean" },
+        "fusion_integrity": { "type": "boolean" },
+        "constitutional_compliance": { "type": "boolean" }
+      },
+      "required": ["contribution_integrity", "attribution_accuracy", "constitutional_compliance"]
+    },
+    "participating_instances": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "artifact_id", "certification_level", "checks", "fingerprint"]
+}

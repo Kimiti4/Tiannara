@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/resource_allocation.json",
+  "title": "ResourceAllocation",
+  "description": "A resource allocation plan from CPRIE-25.6.",
+  "type": "object",
+  "properties": {
+    "allocation_id": { "type": "string", "pattern": "^ralloc_[a-f0-9]{16}$" },
+    "resource_id": { "type": "string" },
+    "allocations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sector": { "type": "string" },
+          "quantity": { "type": "number" },
+          "priority": { "type": "integer" },
+          "rationale": { "type": "string" },
+          "expected_outcome": { "type": "object" }
+        },
+        "required": ["sector", "quantity", "priority"]
+      }
+    },
+    "total_allocated": { "type": "number" },
+    "remaining_reserve": { "type": "number" },
+    "constraints_applied": { "type": "array", "items": { "type": "string" } },
+    "sustainability_check": { "type": "object" },
+    "constitutional_check": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "allocated_at": { "type": "integer" }
+  },
+  "required": ["allocation_id", "resource_id", "allocations", "fingerprint"]
+}

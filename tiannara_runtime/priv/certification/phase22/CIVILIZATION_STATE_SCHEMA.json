@@ -1,0 +1,26 @@
+{
+  "schema": "CIVILIZATION_STATE_SCHEMA",
+  "version": "22.1",
+  "description": "Schema for a civilization state at a given generation",
+  "civilization_state": {
+    "fields": {
+      "state_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "population": {"type": "object", "required": true},
+      "knowledge_capital": {"type": "number", "required": true},
+      "scientific_capital": {"type": "number", "required": true},
+      "engineering_capability": {"type": "number", "required": true},
+      "energy_availability": {"type": "number", "required": true},
+      "infrastructure_capacity": {"type": "number", "required": true},
+      "economic_capacity": {"type": "number", "required": true},
+      "institutional_stability": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "governance_effectiveness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "environmental_health": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "technological_capability": {"type": "number", "required": true},
+      "external_relationships": {"type": "array", "required": true},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "ontology_derived", "replayable"]
+  }
+}

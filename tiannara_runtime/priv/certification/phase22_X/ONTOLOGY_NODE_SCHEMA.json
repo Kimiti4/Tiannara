@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OntologyNode",
+  "description": "A node in the universal ontology hierarchy",
+  "type": "object",
+  "properties": {
+    "node_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this ontology node"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable node name"
+    },
+    "definition": {
+      "type": "string",
+      "description": "Precise definition of this concept"
+    },
+    "hierarchy_level": {
+      "type": "string",
+      "enum": ["reality", "domain", "subdomain", "concept_family", "concept", "property", "relationship", "evidence", "observation"],
+      "description": "Level in the ontology hierarchy"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Scientific domain this node belongs to"
+    },
+    "parent_node_id": {
+      "type": "string",
+      "description": "Parent node in the hierarchy"
+    },
+    "child_node_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Child nodes in the hierarchy"
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Evidence supporting this concept"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Confidence in this concept"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "deprecated", "superseded", "historical"],
+      "description": "Node status"
+    },
+    "superseded_by": {
+      "type": "string",
+      "description": "Node that superseded this one (if deprecated)"
+    },
+    "version": {
+      "type": "integer",
+      "description": "Node version number"
+    },
+    "creation_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of creation"
+    },
+    "last_updated": {
+      "type": "integer",
+      "description": "Constitutional timestamp of last update"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["node_id", "name", "definition", "hierarchy_level", "domain", "confidence", "fingerprint"]
+}

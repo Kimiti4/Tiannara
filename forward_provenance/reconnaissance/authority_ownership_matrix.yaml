@@ -1,0 +1,109 @@
+artifact: authority_ownership_matrix
+stage: 7 (Certificate Authority Reconciliation)
+authority: TIA Council
+posture: RECONNAISSANCE / ANALYSIS ONLY
+recorded_at: 2026-09-10
+upstream: certificate_stack_reconciliation, certificate_lifecycle_analysis,
+  authority_policy_analysis
+
+purpose:
+  question: Q12 (+ Q13) — For each authority capability, who owns it across the stacks,
+    with what evidence class?
+  cell_grammar: EVIDENCE (a mechanism/record exists and performs it) | UNKNOWN (no
+    evidence either way) | PROPOSED (specified in policy draft or bridge, not enacted).
+  note: Cells are evidence-state, NOT empowerment requests. No ownership is conferred here.
+
+matrix:
+  rows:
+    - capability: authority designation (who IS the authority)
+      root_stack: EVIDENCE-PARTIAL (self-named authority strings / meta-authority observed;
+        M7 records CERTIFICATION as DISTRIBUTED AND UNRESOLVED -> NOT a valid designation)
+      runtime_stack: EVIDENCE-PARTIAL (certifying_entity/authority strings per schema;
+        issued_by self|auditor)
+      forward_authoring: UNKNOWN (bridge authority predicates all BLOCKED; no designation)
+      tia_council: EVIDENCE (Council authorizes gates; audit log supervision per
+        TIA_AUTHORITY_BOUNDARIES_M7.yaml:22-31). Designation of a canonical authority is
+        Council's role, not evidenced to have been exercised for certificates.
+    - capability: authority policy (accepted, operational)
+      root_stack: UNKNOWN (no accepted policy evidenced for root certs)
+      runtime_stack: UNKNOWN (no accepted policy evidenced for runtime certs)
+      forward_authoring: PROPOSED (draft TIA_PROVENANCE_CERTIFICATION_POLICY.yaml complete,
+        NOT accepted)
+      tia_council: EVIDENCE-of-absence-of-acceptance (no authorization record found);
+        acceptance is the open decision.
+    - capability: certificate issuance
+      root_stack: EVIDENCE (certify/3; omega pipeline evaluate; historical laboratory
+        gc_001..gc_012)
+      runtime_stack: EVIDENCE (ModelCertificate.new + issuing paths; MATHEMATICS_CERTIFICATE
+        PASSED instance)
+      forward_authoring: EVIDENCE-of-generation (Certificate.issue/1 envelope generator
+        exists) BUT authority-wise BLOCKED (authorized_issuance? false; NO_AUTHORITY_POLICY)
+      tia_council: UNKNOWN (Council does not issue certificates; oversight channel is
+        appointment per constitution_role)
+    - capability: certificate verification (independent re-check)
+      root_stack: EVIDENCE-PARTIAL (independent_auditor.ex replay/authority entry points;
+        M7: auditor characterized as self-consistency checker, NOT re-executor)
+      runtime_stack: EVIDENCE (verify/1 callback in CertificateIssuer behaviour)
+      forward_authoring: EVIDENCE (Verifier.verify/1 checks envelope binding +
+        certificate_certifies_metric edge; stage-6 discovery)
+      tia_council: UNKNOWN (no certificate verification role evidenced)
+    - capability: lifecycle / state machine (beyond issuance)
+      root_stack: EVIDENCE-PARTIAL (in-memory revoke flag in omega server only; ephemeral)
+      runtime_stack: EVIDENCE-PARTIAL (re_certify/revoke/verify callbacks, supersedes,
+        DomainState enums)
+      forward_authoring: PROPOSED (bridge lifecycle_table/0 enumerates desired states;
+        transition SAFE-BLOCKED, not enacted)
+      tia_council: UNKNOWN
+    - capability: revocation
+      root_stack: EVIDENCE-PARTIAL (revoke_certificate in-memory, ephemeral, duplicated
+        clauses)
+      runtime_stack: EVIDENCE (revoke/2 callback; DomainState 'revoked' enum)
+      forward_authoring: UNKNOWN (no revocation function; revoked contrast case UNREPRESENTABLE)
+      tia_council: UNKNOWN
+    - capability: supersession
+      root_stack: UNKNOWN (no supersedes evidenced)
+      runtime_stack: EVIDENCE (supersedes field on ModelCertificate)
+      forward_authoring: PROPOSED (SUPERSEDED in policy draft; nothing enacted)
+      tia_council: UNKNOWN
+    - capability: certificate ledger / durability
+      root_stack: EVIDENCE-of-frozen-artifacts (historical certificate JSONs are static
+        T0 files; NOT a live ledger)
+      runtime_stack: EVIDENCE (priv/certification schema files + CPL checkpoint ledger
+        data/cpl/checkpoints/certification/chk_certification_*.json)
+      forward_authoring: UNKNOWN (no ledger anywhere in authoring area; NO state written)
+      tia_council: UNKNOWN
+    - capability: deterministic certificate identity (recomputable from evidence)
+      root_stack: UNKNOWN (issuance embeds utc_now; no id)
+      runtime_stack: UNKNOWN (strong_rand_bytes ids; not recomputable)
+      forward_authoring: EVIDENCE-PARTIAL (bridge candidate_id deterministic sha256 of
+        spec+spine; Certificate.issue non-deterministic uuid)
+      tia_council: UNKNOWN
+    - capability: fail-closed default (no authority -> no certificate)
+      root_stack: EVIDENCE (certify/3 refuses both closed gates; refusal returns
+        not_certified)
+      runtime_stack: EVIDENCE (ModelCertificate.validate / verify pass-fail)
+      forward_authoring: EVIDENCE (bridge authorized_issuance? constant false;
+        SAFE-BLOCKED transition)
+      tia_council: EVIDENCE (policy draft mandates human judgment for revoke/supersede/
+        ratification; NOT enacted)
+
+ownership_summary (who can currently bind evidence to a decision in a durable, reviewable way):
+  - root stack: can ISSUE domain verdicts (gated), ephemeral revoke, no durable record.
+  - runtime stack: can ISSUE + re-issue/revoke per behaviour contract, durable JSON +
+    checkpoint ledger, supersedes chain. Strongest END-TO-END ownership among deployments.
+  - forward authoring area: cannot issue at all (fail-closed by design); owns the ONLY
+    deterministic candidate identity + the only complete policy draft (not accepted).
+  - Council: owns acceptance/designation; for certificates the ownership role is
+    EVIDENCE-of-open-decision (M7 + policy acceptance unresolved).
+
+implications (analysis only):
+  - "No single actor currently owns the FULL capability set (designate + policy-accept +
+    issue + verify + lifecycle + revoke + supersede + ledger + deterministic id)."
+  - "Runtime stack comes closest operationally but has no accepted policy and non-deterministic
+     identity; forward area has the policy draft and deterministic identity but zero issuance."
+  - "Any future canonical authority realization must combine: accepted policy (Council) +
+    deterministic identity (forward pattern) + durable lifecycle/revocation/supersession
+    capability (runtime pattern) + fail-closed enforcement (all). This is a DESIGN TARGET,
+    NOT enacted."
+
+NOTHING_IMPLEMENTED: true

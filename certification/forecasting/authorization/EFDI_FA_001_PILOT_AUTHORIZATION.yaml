@@ -1,0 +1,84 @@
+artifact: EFDI_FA_001_PILOT_AUTHORIZATION
+record_type: pilot gate authorization (boundaries frozen — issuance pending)
+recorded_at: 2026-09-13
+governing_contract: EFDI_FA_001_AUDIT_CONTRACT (PHASE_0_HARNESS, PASS)
+status: PENDING_EXPLICIT_GO — boundaries frozen; NO forecast issued
+
+============================================================
+SCOPE
+============================================================
+scope:
+  pilot_id: EFDI-FA-001-PILOT
+  forecast_001_only: true
+  domains:
+    - BTC_USD_5min (resolution: Chainlink BTC/USD TWAP window semantics,
+      B4 = Polymarket implied probability at cutoff)
+    - Nairobi_precip_60min (resolution: pre-declared observation source)
+  purpose: empirical measurement and harness validation — NOT trading,
+    NOT intervention
+  f_id: Forecast #001 freeze required BEFORE the observation window begins
+
+============================================================
+BOUNDARIES (authorization boundary, frozen)
+============================================================
+boundaries:
+  - measure_only: no trades, no orders, no interventions, no autonomous
+    decisions — nothing in the ledger is executable
+  - freeze_first: prediction frozen before the relevant window begins
+  - no_leakage: only information permitted by the frozen data-cutoff protocol
+    (EFDI_FA_001_DATA_CUTOFF_PROTOCOL.md) may influence the forecast
+  - resolution_frozen: resolve ONLY via the already-frozen resolution
+    protocols; never modified after seeing outcomes
+  - ledger_append_only: append forecast_issued, then append forecast_resolved;
+    history never rewritten (EFDI_FA_001_FORECAST_LEDGER.yaml)
+  - scoring: Brier / log-loss and the metrics in
+    EFDI_FA_001_METRIC_SCHEMA.yaml
+  - baselines: score B0..B6 where applicable (EFDI_FA_001_BASELINE_DEFINITIONS.yaml)
+  - postmortem: distinguish model error, noise, luck, bad assumptions, data
+    problems, and genuine predictive information (FAILURE_TAXONOMY, schema
+    postmortem block)
+  - no_premature_conclusion: Forecast #001 is a PILOT / harness-validation
+    observation, NOT evidence that Tiannara is a "superforecaster"; it may
+    validate the harness without demonstrating predictive information
+  - no_rollover: completing #001 does NOT automatically authorize #002 or a
+    larger series
+
+dual_questions (answered separately at pilot close):
+  - Q1_did_harness_execute_correctly
+  - Q2_did_tiannara_show_predictive_information_beyond_baselines
+note: Q1 PASS can legitimately coexist with Q2 FAIL or UNDETERMINED.
+
+============================================================
+ISSUANCE GATE (all must be true before Forecast #001 is issued)
+============================================================
+issuance_gate:
+  - pilot_authorization_signed: true      # signed by Council (operator) 2026-09-13
+  - window_selected: pending              # concrete [T0, T0+horizon] per domain
+  - cutoff_and_freeze_executed: pending   # data-cutoff snapshot + evidence
+                                           # inventory written per schema
+  - resolution_rule_registered: pending   # per REAL_WORLD_RESOLUTION_PROTOCOL
+  - ledger_ready: pending                 # genesis anchor written, chain open
+issuance_status: AUTHORIZED — Forecast #001 issuance permitted on completion of
+  the remaining gate steps; no forecast issued by this record.
+
+============================================================
+SEQUENCE (frozen; prior gate signed)
+============================================================
+sequence:
+  - PHASE_0_HARNESS ........ PASS (EFDI_FA_001_STOP_REPORT.md)
+  - PILOT_#001 ............. THIS GATE (pending explicit go)
+  - RESOLUTION
+  - LEDGER_VERIFICATION
+  - SCORING_AND_BASELINE_COMPARISON
+  - PILOT_STOP_REPORT
+  - COUNCIL_DECISION
+  - HARNESS_VALIDATION_SERIES (Forecast #002..#010)
+  - CALIBRATION_BATCH (100+)
+  - EMPIRICAL_BENCHMARK (500+)
+  - EFDI_CERTIFICATION_DECISION
+
+authorization_block:
+  authority: Council (operator)
+  action: EFDI-FA-001-PILOT boundaries frozen; Forecast #001 issuance PENDING
+  live_forecast_issued: false
+  signature: EFDI_FA_001_PILOT_PENDING_EXPLICIT_GO

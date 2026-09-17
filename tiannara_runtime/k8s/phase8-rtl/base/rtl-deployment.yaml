@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tiannara-rtl
+  namespace: tiannara-phase8
+  labels:
+    app: tiannara-rtl
+    tiannara.io/layer: recursive-transcendence
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: tiannara-rtl
+  template:
+    metadata:
+      labels:
+        app: tiannara-rtl
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4000"
+        prometheus.io/path: "/metrics"
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.present
+                operator: In
+                values: ["true"]
+      tolerations:
+      - key: nvidia.com/gpu
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: elixir-rtl
+        image: tiannara-runtime:phase8-rtl-8.0.0
+        env:
+        - name: NATS_URL
+          value: "nats://nats.tiannara-phase8.svc.cluster.local:4222"
+        - name: BEAM_SCHEDULER_FLAGS
+          value: "+Sd 16 +S 8"
+        - name: RTL_XI_CRIT_THRESHOLD
+          value: "0.40"
+        - name: RTL_IDENTITY_DISSOLUTION_MAX
+          value: "0.85"
+        ports:
+        - containerPort: 4000
+          name: http
+        - containerPort: 9464
+          name: metrics
+        resources:
+          requests:
+            memory: "8Gi"
+            cpu: "4"
+            nvidia.com/gpu: "1"
+          limits:
+            memory: "24Gi"
+            cpu: "12"
+            nvidia.com/gpu: "1"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 4000
+          initialDelaySeconds: 60
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      - name: nats-sidecar
+        image: natsio/nats-server:2.10-alpine
+        args: ["-js", "-m", "8222"]
+        resources:
+          requests: {memory: "512Mi", cpu: "250m"}
+          limits: {memory: "1Gi", cpu: "500m"}

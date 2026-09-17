@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ResourcePool",
+  "description": "A resource pool in the discovery economics system",
+  "type": "object",
+  "properties": {
+    "pool_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this resource pool"
+    },
+    "pool_type": {
+      "type": "string",
+      "enum": ["compute", "simulation", "engineering", "laboratory", "observation", "human_review", "energy", "knowledge_processing"],
+      "description": "Type of resource pool"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable pool name"
+    },
+    "total_capacity": {
+      "type": "number",
+      "description": "Maximum available resources"
+    },
+    "allocated": {
+      "type": "number",
+      "description": "Currently allocated resources"
+    },
+    "utilized": {
+      "type": "number",
+      "description": "Currently utilized resources"
+    },
+    "reserved": {
+      "type": "number",
+      "description": "Resources held in reserve"
+    },
+    "available": {
+      "type": "number",
+      "description": "Resources available for allocation"
+    },
+    "constitutional_minimum": {
+      "type": "number",
+      "description": "Minimum allocation per domain"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement"
+    },
+    "last_updated": {
+      "type": "integer",
+      "description": "Constitutional timestamp of last update"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["pool_id", "pool_type", "name", "total_capacity", "allocated", "available", "fingerprint"]
+}

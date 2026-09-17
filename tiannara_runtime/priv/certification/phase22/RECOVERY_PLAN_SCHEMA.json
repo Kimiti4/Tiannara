@@ -1,0 +1,20 @@
+{
+  "schema": "RECOVERY_PLAN_SCHEMA",
+  "version": "22.5",
+  "description": "Schema for a civilizational recovery plan after disruption",
+  "recovery_plan": {
+    "fields": {
+      "plan_id": {"type": "string", "required": true},
+      "failure_event_id": {"type": "string", "required": true},
+      "prioritized_actions": {"type": "array", "required": true},
+      "resource_requirements": {"type": "object", "required": true},
+      "estimated_recovery_time": {"type": "integer", "required": true},
+      "containment_measures": {"type": "array", "required": true},
+      "stabilization_steps": {"type": "array", "required": true},
+      "verification_criteria": {"type": "array", "required": true},
+      "recovery_status": {"type": "string", "required": true, "enum": ["planned", "active", "stabilized", "recovered", "verified"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "evidence_driven", "replayable"]
+  }
+}

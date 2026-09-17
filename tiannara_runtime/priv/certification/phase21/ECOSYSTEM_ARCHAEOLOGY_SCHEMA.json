@@ -1,0 +1,27 @@
+{
+  "schema": "ECOSYSTEM_ARCHAEOLOGY_SCHEMA",
+  "version": "21.6",
+  "description": "Schema for ecosystem archaeology — the archaeological record of scientific ecosystem evolution",
+  "ecosystem_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true, "description": "Content-addressed archaeology identifier"},
+      "generation": {"type": "integer", "required": true},
+      "answers": {
+        "type": "object", "required": true,
+        "fields": {
+          "why_institutes_emerged": {"type": "array"},
+          "why_institutes_retired": {"type": "array"},
+          "how_collaborations_evolved": {"type": "string"},
+          "which_discoveries_reshaped_ecosystem": {"type": "array"},
+          "how_diversity_changed": {"type": "string"},
+          "how_civilization_adapted": {"type": "string"}
+        }
+      },
+      "ecosystem_snapshot": {"type": "string", "required": true},
+      "evolution_event_log": {"type": "array", "required": true},
+      "archaeology_hash": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "deterministic", "independently_reconstructible"]
+  }
+}

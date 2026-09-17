@@ -1,0 +1,24 @@
+{
+  "schema": "FORECAST_SCHEMA",
+  "version": "22.7",
+  "description": "Schema for a civilization forecast artifact",
+  "forecast": {
+    "fields": {
+      "forecast_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "forecast_model": {"type": "string", "required": true, "enum": ["trend_extrapolation", "causal", "simulation_based", "analogy_based"]},
+      "prediction_horizon": {"type": "integer", "required": true, "description": "Years"},
+      "starting_state_hash": {"type": "string", "required": true},
+      "assumptions": {"type": "array", "required": true},
+      "evidence_base_hash": {"type": "string", "required": true},
+      "scenario_ids": {"type": "array", "required": true},
+      "confidence_distribution": {"type": "object", "required": true},
+      "decision_point_ids": {"type": "array", "required": true},
+      "expected_outcomes": {"type": "object", "required": true},
+      "risk_factors": {"type": "array", "required": true},
+      "ensemble_trajectories": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["probabilistic", "evidence_driven", "deterministic", "replayable"]
+  }
+}

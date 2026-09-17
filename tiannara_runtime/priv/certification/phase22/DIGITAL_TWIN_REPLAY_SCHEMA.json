@@ -1,0 +1,18 @@
+{
+  "schema": "DIGITAL_TWIN_REPLAY_SCHEMA",
+  "version": "22.2",
+  "description": "Schema for replay verification of a digital twin lifecycle event",
+  "digital_twin_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "twin_event_type": {"type": "string", "required": true, "enum": ["twin_created", "state_synchronized", "layer_evolved", "intervention_simulated", "consistency_verified", "twin_archived"]},
+      "event_fingerprint": {"type": "string", "required": true},
+      "reconstructed_hash": {"type": "string", "required": true},
+      "stored_hash": {"type": "string", "required": true},
+      "verification_status": {"type": "string", "required": true, "enum": ["verified", "diverged", "incomplete"]},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "immutable", "chain_verified"]
+  }
+}

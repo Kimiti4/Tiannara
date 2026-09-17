@@ -1,0 +1,18 @@
+{
+  "schema": "EVENT_SCHEMA",
+  "version": "20.2",
+  "event_types": ["MissionCreated", "MissionQueued", "MissionStarted", "MissionCompleted", "MissionFailed", "MissionCancelled", "EvidenceProduced", "ReplayGenerated", "KnowledgeUpdated", "TheoryGenerated", "ModelUpdated", "ExtensionIntegrated", "ExtensionRetired", "RollbackTriggered", "CivilizationUpdated"],
+  "event_structure": {
+    "event_id": {"type": "string", "required": true},
+    "event_type": {"type": "string", "required": true, "enum": ["MissionCreated","MissionQueued","MissionStarted","MissionCompleted","MissionFailed","MissionCancelled","EvidenceProduced","ReplayGenerated","KnowledgeUpdated","TheoryGenerated","ModelUpdated","ExtensionIntegrated","ExtensionRetired","RollbackTriggered","CivilizationUpdated"]},
+    "timestamp": {"type": "integer", "required": true},
+    "source": {"type": "string", "required": true},
+    "target": {"type": "string", "required": true},
+    "payload": {"type": "object", "required": false},
+    "fingerprint": {"type": "string", "required": true},
+    "replay_root": {"type": "string", "required": false},
+    "archaeology_root": {"type": "string", "required": false},
+    "metadata": {"type": "object", "required": false}
+  },
+  "constraints": ["content_addressed", "replayable", "immutable"]
+}

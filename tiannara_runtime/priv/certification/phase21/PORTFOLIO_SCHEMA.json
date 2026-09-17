@@ -1,0 +1,25 @@
+{
+  "schema": "PORTFOLIO_SCHEMA",
+  "version": "21.1",
+  "description": "Schema for a research portfolio — a constitutional category of research programs",
+  "portfolio": {
+    "fields": {
+      "portfolio_id": {"type": "string", "required": true, "description": "Content-addressed portfolio identifier"},
+      "category": {"type": "string", "required": true, "description": "FoundationalMathematics/FoundationalPhysics/FoundationalChemistry/FoundationalBiology/FoundationalEngineering/AppliedResearch/TechnologyDevelopment/CivilizationalInfrastructure/LongHorizon/HighRisk/CrossDomain/EmergencyResearch"},
+      "programs": {"type": "array", "required": false, "items": {"type": "string"}},
+      "total_capital_allocated": {"type": "number", "required": true},
+      "balance_metrics": {
+        "type": "object", "required": true,
+        "fields": {
+          "domain_diversity": {"type": "number"}, "risk_distribution": {"type": "object"},
+          "horizon_distribution": {"type": "object"}, "knowledge_diversity": {"type": "number"}
+        }
+      },
+      "rebalancing_history": {"type": "array", "required": false},
+      "replay_root": {"type": "string", "required": true},
+            "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "categories": ["foundational_mathematics", "foundational_physics", "foundational_chemistry", "foundational_biology", "foundational_engineering", "applied_research", "technology_development", "civilizational_infrastructure", "long_horizon", "high_risk", "cross_domain", "emergency_research"],
+    "constraints": ["deterministic_allocation", "balance_required", "replayable"]
+  }
+}

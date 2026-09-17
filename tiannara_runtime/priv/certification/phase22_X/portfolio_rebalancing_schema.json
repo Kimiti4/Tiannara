@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PortfolioRebalancing",
+  "description": "Portfolio rebalancing operation record for the research portfolio",
+  "type": "object",
+  "properties": {
+    "rebalancing_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this rebalancing operation"
+    },
+    "operation_type": {
+      "type": "string",
+      "enum": ["increase_priority", "decrease_priority", "suspend", "resume", "split", "merge", "terminate"],
+      "description": "Type of rebalancing operation"
+    },
+    "operation_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of operation"
+    },
+    "programs_affected": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Programs changed by this operation"
+    },
+    "trigger": {
+      "type": "object",
+      "properties": {
+        "trigger_type": {
+          "type": "string",
+          "enum": ["evidence_change", "priority_change", "resource_change", "bottleneck_resolution", "strategic_opportunity", "scheduled_review", "governance_directive", "emergency"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "evidence_references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["trigger_type", "description"]
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Evidence and reasoning for rebalancing"
+    },
+    "impact_assessment": {
+      "type": "object",
+      "properties": {
+        "expected_benefit": {
+          "type": "string"
+        },
+        "expected_risks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "displaced_programs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["expected_benefit"]
+    },
+    "approval": {
+      "type": "object",
+      "properties": {
+        "approver": {
+          "type": "string"
+        },
+        "approval_date": {
+          "type": "integer"
+        },
+        "approval_type": {
+          "type": "string",
+          "enum": ["standard", "expedited", "emergency"]
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["approver", "approval_date", "approval_type"]
+    },
+    "prior_state_reference": {
+      "type": "string",
+      "description": "Reference to the prior portfolio state before rebalancing"
+    },
+    "post_state_reference": {
+      "type": "string",
+      "description": "Reference to the new portfolio state after rebalancing"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["rebalancing_id", "operation_type", "operation_date", "programs_affected", "trigger", "rationale", "approval", "fingerprint"]
+}

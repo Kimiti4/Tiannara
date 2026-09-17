@@ -1,0 +1,19 @@
+{
+  "schema": "EVOLUTION_LINEAGE_SCHEMA",
+  "version": "22.6",
+  "description": "Schema for tracking evolutionary lineage across epochs",
+  "evolution_lineage": {
+    "fields": {
+      "lineage_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "epoch_sequence": {"type": "array", "required": true},
+      "branch_events": {"type": "array", "required": true},
+      "continuity_verifications": {"type": "array", "required": true},
+      "lineage_depth": {"type": "integer", "required": true},
+      "earliest_epoch": {"type": "string", "required": true},
+      "latest_epoch": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "immutable", "lineage_preserved"]
+  }
+}

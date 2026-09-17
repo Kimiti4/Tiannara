@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/planetary_layer.json",
+  "title": "PlanetaryLayer",
+  "description": "A single layer within the planetary digital twin.",
+  "type": "object",
+  "properties": {
+    "layer_id": { "type": "string", "pattern": "^tlayer_[a-f0-9]{16}$" },
+    "layer_name": { "type": "string" },
+    "model_version": { "type": "string" },
+    "fidelity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "uncertainty": { "type": "number" },
+    "resolution": { "type": "object", "properties": { "spatial": { "type": "string" }, "temporal": { "type": "string" }, "thematic": { "type": "string" } } },
+    "state_reference": { "type": "string" },
+    "synchronization_status": { "type": "string", "enum": ["synchronized", "syncing", "desynchronized"] },
+    "certification_status": { "type": "string", "enum": ["uncertified", "in_review", "certified", "revoked"] },
+    "timestamp": { "type": "integer" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["layer_id", "layer_name", "model_version", "fidelity", "fingerprint"]
+}

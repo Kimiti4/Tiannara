@@ -1,0 +1,20 @@
+{
+  "schema": "CAMPAIGN_RESULT_SCHEMA",
+  "version": "22.X",
+  "description": "Schema for a validation campaign result",
+  "campaign_result": {
+    "fields": {
+      "campaign_id": {"type": "integer", "required": true},
+      "campaign_name": {"type": "string", "required": true},
+      "execution_timestamp": {"type": "string", "required": true},
+      "pass_fail": {"type": "string", "required": true, "enum": ["pass", "fail", "conditional"]},
+      "score": {"type": "number", "required": false, "description": "0.0–1.0"},
+      "metrics": {"type": "object", "required": true},
+      "violations": {"type": "array", "required": false},
+      "evidence_hash": {"type": "string", "required": true},
+      "verifier_id": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "auditable", "replayable"]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/scientific_model.json",
+  "title": "ScientificModel",
+  "description": "A scientific model composed of laws, mechanisms, variables, constraints, and assumptions.",
+  "type": "object",
+  "properties": {
+    "model_id": { "type": "string", "pattern": "^model_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "domain": { "type": "string" },
+    "composing_law_ids": { "type": "array", "items": { "type": "string" } },
+    "composing_mechanism_ids": { "type": "array", "items": { "type": "string" } },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "domain": { "type": "string" },
+          "type": { "type": "string", "enum": ["continuous", "discrete", "categorical"] }
+        },
+        "required": ["name", "domain"]
+      }
+    },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "assumptions": { "type": "array", "items": { "type": "string" } },
+    "predictions": { "type": "array", "items": { "type": "string" } },
+    "validation_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "evidence_id": { "type": "string" },
+          "match_score": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "required": ["evidence_id", "match_score"]
+      }
+    },
+    "uncertainty": { "type": "number", "minimum": 0, "maximum": 1 },
+    "boundary_conditions": { "type": "string" },
+    "parent_model_ids": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["model_id", "name", "domain", "composing_law_ids", "assumptions", "fingerprint"]
+}

@@ -1,0 +1,277 @@
+defmodule Tiannara.Audit.FinalScorecard do
+  @moduledoc """
+  Final Audit Scorecard and Reporting System
+  
+  This creates the comprehensive audit report and validates against the pass targets
+  you specified before moving forward with advanced features.
+  """
+
+  alias Tiannara.Audit.Tier1.ArchitecturalInvariants
+  alias Tiannara.Audit.Tier2.WorldModelIntegrity
+  alias Tiannara.Audit.Tier3.CoreIntegration
+  alias Tiannara.Audit.Tier4.DomainCortex
+  alias Tiannara.Audit.Tier5_8.SystemTests
+  alias Tiannara.Audit.Tier9.EndToEnd
+
+  @doc "Run the complete audit and generate final scorecard"
+  def run_complete_audit do
+    IO.puts("🔍 Starting Complete System Integrity Audit")
+    IO.puts("=" <> String.duplicate("=", 60))
+    IO.puts("📅 Audit Date: #{DateTime.utc_now()}")
+    IO.puts("🏗️  System: Tiannara Unified Architecture")
+    IO.puts("=" <> String.duplicate("=", 60))
+    
+    # Run all audit tiers
+    tier1_results = ArchitecturalInvariants.run_all_tests()
+    tier2_results = WorldModelIntegrity.run_all_tests()
+    tier3_results = CoreIntegration.run_all_tests()
+    tier4_results = DomainCortex.run_all_tests()
+    tier5_8_results = SystemTests.run_all_tests()
+    tier9_results = EndToEnd.run_all_tests()
+    
+    # Generate comprehensive scorecard
+    scorecard = generate_comprehensive_scorecard([
+      {"Tier 1: Architectural Invariants", tier1_results},
+      {"Tier 2: World Model Integrity", tier2_results},
+      {"Tier 3: Core Integration", tier3_results},
+      {"Tier 4: Domain Cortex", tier4_results},
+      {"Tier 5-8: System Tests", tier5_8_results},
+      {"Tier 9: End-to-End", tier9_results}
+    ])
+    
+    # Generate final report
+    final_report = generate_final_report(scorecard)
+    
+    # Display results
+    display_results(scorecard, final_report)
+    
+    # Save audit report
+    save_audit_report(final_report)
+    
+    scorecard
+  end
+
+  @doc "Generate comprehensive scorecard from all tier results"
+  def generate_comprehensive_scorecard(tier_results) do
+    pass_targets = %{
+      "Tier 1: Architectural Invariants" => 100,
+      "Tier 2: World Model Integrity" => 100,
+      "Tier 3: Core Integration" => 100,
+      "Tier 4: Domain Cortex" => 95,
+      "Tier 5-8: System Tests" => 100,
+      "Tier 9: End-to-End" => 100
+    }
+    
+    scorecard = Enum.map(tier_results, fn {tier_name, results} ->
+      passed = Enum.count(results, fn {_, result} -> result == :pass end)
+      total = map_size(results)
+      percentage = Float.round((passed / total) * 100, 2)
+      
+      pass_target = Map.get(pass_targets, tier_name, 100)
+      passed_target = percentage >= pass_target
+      
+      %{
+        tier: tier_name,
+        passed: passed,
+        total: total,
+        percentage: percentage,
+        pass_target: pass_target,
+        passed_target: passed_target,
+        details: results,
+        failed_tests: Enum.filter(results, fn {_, result} -> result != :pass end),
+        timestamp: DateTime.utc_now()
+      }
+    end)
+    
+    # Calculate overall score
+    total_tests = Enum.sum(scorecard, & &1.total)
+    total_passed = Enum.sum(scorecard, & &1.passed)
+    overall_percentage = Float.round((total_passed / total_tests) * 100, 2)
+    
+    overall_passed = overall_percentage >= 98  # High bar for overall success
+    
+    %{
+      scorecard: scorecard,
+      total_tests: total_tests,
+      total_passed: total_passed,
+      overall_percentage: overall_percentage,
+      overall_passed: overall_passed,
+      audit_timestamp: DateTime.utc_now(),
+      system_status: determine_system_status(scorecard)
+    }
+  end
+
+  @doc "Generate final audit report"
+  def generate_final_report(scorecard) do
+    {passed_tiers, failed_tiers} = Enum.split_with(scorecard, & &1.passed_target)
+    
+    report = """
+# Tiannara Unified Architecture - System Integrity Audit Report
+
+## Executive Summary
+- **Audit Date**: #{DateTime.utc_now()}
+- **Overall Status**: #{if scorecard.overall_passed, do: "✅ PASSED", else: "❌ FAILED"}
+- **Overall Score**: #{scorecard.overall_percentage}%
+- **System Status**: #{scorecard.system_status}
+
+## Test Results Summary
+- **Total Tests Run**: #{scorecard.total_tests}
+- **Tests Passed**: #{scorecard.total_passed}
+- **Tests Failed**: #{scorecard.total_tests - scorecard.total_passed}
+- **Pass Rate**: #{scorecard.overall_percentage}%
+
+## Tier Results
+
+#{Enum.map(scorecard.scorecard, fn tier ->
+  """
+### #{tier.tier}
+- **Score**: #{tier.percentage}% (#{tier.passed}/#{tier.total})
+- **Target**: #{tier.pass_target}%
+- **Status**: #{if tier.passed_target, do: "✅ PASSED", else: "❌ FAILED"}
+- **Failed Tests**: #{length(tier.failed_tests)}
+"""
+end) |> Enum.join("\n")}
+
+## Critical Findings
+
+#{analyze_critical_findings(scorecard)}
+
+## Recommendations
+
+#{generate_recommendations(scorecard)}
+
+## Next Steps
+
+#{determine_next_steps(scorecard)}
+
+---
+*Generated by Tiannara Audit System*
+"""
+    
+    report
+  end
+
+  @doc "Display audit results to console"
+  def display_results(scorecard, report) do
+    IO.puts("\n" <> String.duplicate("=", 80))
+    IO.puts("🏁 FINAL AUDIT RESULTS")
+    IO.puts(String.duplicate("=", 80))
+    
+    # Overall status
+    overall_status = if scorecard.overall_passed, do: "✅ SYSTEM INTEGRITY VERIFIED", else: "❌ SYSTEM INTEGRITY COMPROMISED"
+    IO.puts("📊 Overall: #{overall_status} (#{scorecard.overall_percentage}% - #{scorecard.total_passed}/#{scorecard.total_tests})")
+    
+    # Individual tier results
+    Enum.each(scorecard.scorecard, fn tier ->
+      status = if tier.passed_target, do: "✅", else: "❌"
+      IO.puts("  #{status} #{tier.tier}: #{tier.percentage}% (#{tier.passed}/#{tier.total})")
+    end)
+    
+    # System status
+    IO.puts("\n🔍 System Status: #{scorecard.system_status}")
+    
+    # Critical findings
+    findings = analyze_critical_findings(scorecard)
+    if findings != "" do
+      IO.puts("\n⚠️  Critical Findings:")
+      String.split(findings, "\n") |> Enum.each(&IO.puts("  #{&1}"))
+    end
+    
+    # Recommendations
+    recommendations = generate_recommendations(scorecard)
+    if recommendations != "" do
+      IO.puts("\n💡 Recommendations:")
+      String.split(recommendations, "\n") |> Enum.each(&IO.puts("  #{&1}"))
+    end
+    
+    IO.puts("\n" <> String.duplicate("=", 80))
+  end
+
+  @doc "Save audit report to file"
+  def save_audit_report(report) do
+    timestamp = DateTime.utc_now() |> DateTime.to_string() |> String.replace(" ", "_") |> String.replace(":", "-")
+    filename = "system_audit_report_#{timestamp}.md"
+    
+    # Create directory if it doesn't exist
+    File.mkdir_p!("audit_reports")
+    
+    # Save report
+    File.write!("audit_reports/#{filename}", report)
+    
+    IO.puts("\n📄 Audit report saved to: audit_reports/#{filename}")
+  end
+
+  # Helper functions
+  defp determine_system_status(scorecard) do
+    failed_count = Enum.count(scorecard.scorecard, fn tier -> not tier.passed_target end)
+    
+    case failed_count do
+      0 -> "✅ FULLY OPERATIONAL"
+      1 -> "⚠️  PARTIALLY OPERATIONAL - One tier failing"
+      2 -> "⚠️  CRITICALLY IMPAIRED - Multiple tiers failing"
+      _ -> "❌ NON-FUNCTIONAL - System integrity compromised"
+    end
+  end
+
+  defp analyze_critical_findings(scorecard) do
+    critical_findings = []
+    
+    # Check for any failed tests in critical tiers
+    failed_critical_tests = Enum.flat_map(scorecard.scorecard, fn tier ->
+      if not tier.passed_target do
+        Enum.map(tier.failed_tests, fn {test_name, _result} ->
+          "- #{tier.tier}: #{test_name}"
+        end)
+      else
+        []
+      end
+    end)
+    
+    if length(failed_critical_tests) > 0 do
+      "Critical failures detected:\n" <> Enum.join(failed_critical_tests, "\n")
+    else
+      "No critical failures detected."
+    end
+  end
+
+  defp generate_recommendations(scorecard) do
+    recommendations = []
+    
+    # Generate recommendations based on failed tiers
+    Enum.each(scorecard.scorecard, fn tier ->
+      if not tier.passed_target do
+        recommendations = recommendations ++ [
+          "Address failed tests in #{tier.tier}",
+          "Review architectural principles for #{tier.tier}",
+          "Consider refactoring failed components"
+        ]
+      end
+    end)
+    
+    if length(recommendations) > 0 do
+      Enum.join(recommendations, "\n")
+    else
+      "No recommendations needed - all systems operating within specifications."
+    end
+  end
+
+  defp determine_next_steps(scorecard) do
+    if scorecard.overall_passed do
+      """
+      ✅ Proceed with advanced feature integration:
+      - OPC (Ontological Processing Core) integration
+      - Advanced world simulation capabilities
+      - Recursive civilizations implementation
+      - Additional cognitive capabilities
+      """
+    else
+      """
+      🔧 System requires remediation before proceeding:
+      1. Fix all failing tests in identified tiers
+      2. Re-run audit to verify fixes
+      3. Only proceed after 100% pass rate achieved
+      4. Address architectural divergence issues first
+      """
+    end
+  end
+end

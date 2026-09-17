@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/scenario_tree.json",
+  "title": "ScenarioTree",
+  "description": "A tree of parallel constitutional scenarios representing alternative futures.",
+  "type": "object",
+  "properties": {
+    "tree_id": { "type": "string", "pattern": "^sctree_[a-f0-9]{16}$" },
+    "discovery_id": { "type": "string" },
+    "root_scenario_id": { "type": "string" },
+    "branches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scenario_id": { "type": "string" },
+          "parent_scenario_id": { "type": "string" },
+          "branch_label": { "type": "string" },
+          "branching_assumptions": { "type": "array", "items": { "type": "string" } },
+          "scenario_type": { "type": "string", "enum": ["best_case", "expected_case", "worst_case", "high_uncertainty", "high_innovation", "constitutional_failure", "civilizational_opportunity"] },
+          "probability_estimate": { "type": "number", "minimum": 0, "maximum": 1 },
+          "children": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["scenario_id", "scenario_type"]
+      }
+    },
+    "pruned_branches": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated_at": { "type": "integer" }
+  },
+  "required": ["tree_id", "discovery_id", "root_scenario_id", "branches", "fingerprint"]
+}

@@ -1,0 +1,32 @@
+{
+  "schema": "OPPORTUNITY_REPLAY_SCHEMA",
+  "version": "21.2",
+  "description": "Schema for opportunity replay — deterministic reconstruction of the scientific opportunity management system",
+  "opportunity_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true, "description": "Content-addressed replay identifier"},
+      "replay_type": {"type": "string", "required": true, "description": "FullFrontier/Opportunity/InformationGain/CrossDomain/Priority"},
+      "step_hashes": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "step": {"type": "integer"}, "entity": {"type": "string"},
+            "operation": {"type": "string"}, "input_hash": {"type": "string"},
+            "output_hash": {"type": "string"}, "step_hash": {"type": "string"}
+          }
+        }
+      },
+      "root_hash_original": {"type": "string", "required": true},
+      "root_hash_reconstructed": {"type": "string", "required": true},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "opportunities_replayed": {"type": "integer", "required": true},
+      "frontier_snapshots_replayed": {"type": "integer", "required": true},
+      "gain_estimates_replayed": {"type": "integer", "required": true},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "replay_types": ["full_frontier", "opportunity", "information_gain", "cross_domain", "priority"],
+    "constraints": ["deterministic_replay", "identical_hashes_required", "cold_storage_independent"]
+  }
+}

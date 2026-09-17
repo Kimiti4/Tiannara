@@ -1,0 +1,23 @@
+{
+  "schema": "SCIENTIFIC_INSTITUTE_SCHEMA",
+  "version": "21.0",
+  "description": "Schema for ScientificInstitute — an autonomous constitutional research institute",
+  "scientific_institute": {
+    "fields": {
+      "institute_id": {"type": "string", "required": true, "description": "Content-addressed institute identifier"},
+      "name": {"type": "string", "required": true},
+      "domain": {"type": "string", "required": true, "description": "Physics/Chemistry/Medicine/Engineering/Mathematics/Computation/Robotics/Materials/Agriculture/Aerospace/Cognition/Energy/Ecology/Economics/Philosophy/Sociology/Linguistics/Governance/Logistics/Architecture"},
+      "charter": {"type": "string", "required": true, "description": "Constitutional charter reference"},
+      "research_programs": {"type": "array", "required": false, "items": {"type": "string"}, "description": "Active program references"},
+      "scientific_capital": {"type": "number", "required": true},
+      "governance_council": {"type": "array", "required": true, "description": "Council member references"},
+      "founding_generation": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "status": {"type": "string", "required": true, "description": "Chartered/Active/Frozen/Archived"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "domains": ["physics", "chemistry", "medicine", "engineering", "mathematics", "computation", "robotics", "materials", "agriculture", "aerospace", "cognition", "energy", "ecology", "economics", "philosophy", "sociology", "linguistics", "governance", "logistics", "architecture"],
+    "constraints": ["constitutionally_chartered", "deterministic_governance", "replayable"]
+  }
+}

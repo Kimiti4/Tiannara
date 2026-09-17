@@ -1,0 +1,20 @@
+{
+  "schema": "EVOLUTION_ARCHAEOLOGY_SCHEMA",
+  "version": "22.6",
+  "description": "Schema for archaeological reconstruction of civilizational evolution",
+  "evolution_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "epoch_history": {"type": "array", "required": true},
+      "adaptation_events": {"type": "array", "required": true},
+      "institution_transformations": {"type": "array", "required": true},
+      "knowledge_evolution_timeline": {"type": "array", "required": true},
+      "technology_lifecycles": {"type": "array", "required": true},
+      "continuity_records": {"type": "array", "required": true},
+      "evolutionary_trajectories": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

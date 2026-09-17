@@ -1,0 +1,54 @@
+# Move 9 — Contradiction Analysis Update (recheck of CONTRA-001/002/003)
+# CONTRA-001/002: carried (no new Move-9 evidence bears on them).
+# CONTRA-003: re-examined with auditor-run evidence; remains UNRESOLVED.
+artifact: CONTRADICTION_ANALYSIS_M9
+artifact_status: POST_T0
+move: 9
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+contradictions:
+- id: CONTRA-001
+  left_evidence: T0 mix.lock hash 6153ab16 (unchanged; not re-read in this pass)
+  right_evidence: Working-tree mix.lock hash ef49f19d (unchanged; not re-read in this pass)
+  conflict_type: version-divergence (recorded state vs observed state)
+  scope: Single manifest file
+  temporal_relationship: T0 capture precedes working-tree observation
+  possible_reconciliation: Unchanged from Move 8 (evolution vs unrecorded change)
+  remaining_unknown: Change attribution; full dependency delta
+  status: UNRESOLVED
+  status_reason: No Move-9 evidence bears on this contradiction (no dependency operations performed)
+- id: CONTRA-002
+  left_evidence: T0 commits runtime/build outputs (unchanged)
+  right_evidence: Baseline hygiene convention (unchanged; not a Tiannara requirement)
+  conflict_type: compositional-tension
+  scope: 24 of 4756 T0 entries
+  temporal_relationship: Contemporaneous
+  possible_reconciliation: Unchanged from Move 8
+  remaining_unknown: Inclusion intent; consumer dependence
+  status: UNRESOLVED
+  status_reason: No Move-9 evidence bears on this contradiction (no compositional analysis performed)
+- id: CONTRA-003
+  left_evidence: certificate.json gc_012 block (verified_at 2026-01-01T00:00:00Z; fitness 0.8041; entropy 0.1042)
+  right_evidence: campaign_results gc_012 file (verified_at 2026-07-02T20:06:58Z; fitness 0.8035; entropy 0.0746)
+  conflict_type: value-disagreement (same nominal campaign, different timestamps and measured values)
+  scope: Single campaign gc_012 and its certificate entry
+  temporal_relationship: Certificate timestamp predates result timestamp by ~6 months
+  possible_reconciliation:
+  - Distinct executions at different times (still unevidenced; auditor run did not discriminate)
+  - Rounding/recomputation between production and issuance (still unevidenced)
+  - Placeholder timestamp in certificate block (still unevidenced)
+  remaining_unknown: Which explanation holds; no run ledger binds issuance to a result version; auditor performs fingerprint + status echo, not cross-record comparison or re-derivation
+  status: UNRESOLVED
+  status_reason: Move-9 auditor execution added decisive negative evidence about the auditor (non-discriminating) but no discriminating evidence about the claims; both claims remain compatible with all observations
+  move9_evidence_added:
+  - Auditor executes to completion from frozen artifacts (EXP-M9-01)
+  - Auditor reports both records PASSED without comparing them
+  - Step-4 values re-printed from JSON, not re-derived
+  - Auditor overwrites phase14/certification/independent_audit_report.json in the working tree (tracked file modified; disclosed)
+aggregate:
+  reviewed: 3
+  resolved: 0
+  narrowed: 0
+  unresolved: 3
+  superseded: 0
+note: This pass added auditor-characterization evidence but no claim-discriminating evidence; all three statuses correctly unchanged.

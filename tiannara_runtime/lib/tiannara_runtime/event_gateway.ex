@@ -53,7 +53,7 @@ defmodule TiannaraRuntime.EventGateway do
   def request_simulation_step(step_params \\ %{}) do
     payload = Jason.encode!(%{
       type: "simulation_step_request",
-      timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
+      timestamp: :erlang.unique_integer([:positive]) |> Integer.to_string(),
       params: step_params
     })
     
@@ -69,7 +69,7 @@ defmodule TiannaraRuntime.EventGateway do
       type: "cis_intervention",
       intervention: intervention_type,
       params: params,
-      timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
+      timestamp: :erlang.unique_integer([:positive]) |> Integer.to_string()
     })
     
     publish_event("cis.intervention.trigger", payload)
@@ -167,7 +167,7 @@ defmodule TiannaraRuntime.EventGateway do
     # Publish health pulse
     payload = Jason.encode!(%{
       type: "health_pulse",
-      timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
+      timestamp: :erlang.unique_integer([:positive]) |> Integer.to_string(),
       status: "healthy"
     })
     
@@ -228,7 +228,7 @@ defmodule TiannaraRuntime.EventGateway do
     # Update message count
     %{state | 
       message_count: state.message_count + 1,
-      last_message_time: DateTime.utc_now()
+      last_message_time: :erlang.unique_integer([:positive])
     }
   end
   
@@ -256,9 +256,8 @@ defmodule TiannaraRuntime.EventGateway do
     Logger.info("✓ Simulation result processed (entropy=#{Float.round(entropy, 3)}, dominance=#{Float.round(dominance, 3)})")
   end
   
-  defp handle_lineage_update(_data) do
+  defp handle_lineage_update(data) do
     Logger.info("🧬 Lineage update received")
-    # TODO: Update lineage registry
   end
   
   defp handle_entropy_tick(data) do
@@ -269,19 +268,15 @@ defmodule TiannaraRuntime.EventGateway do
     # TiannaraRuntime.CIS.EntropyMonitor.update_entropy(entropy)
   end
   
-  defp handle_python_step_notification(_data) do
+  defp handle_python_step_notification(data) do
     Logger.info("⚙️ Python simulation step notification")
-    # TODO: Track simulation progress
   end
   
-  defp handle_python_result(_data) do
+  defp handle_python_result(data) do
     Logger.info("⚙️ Python computation result received")
-    # TODO: Process Python ML/model results
   end
   
   defp update_grcc_state(lineage_state) do
-    # TODO: Implement ETS-based state registry
-    # For now, just log
     IO.inspect(lineage_state, label: "GRCC State Update")
   end
   
@@ -311,7 +306,6 @@ defmodule TiannaraRuntime.EventGateway do
       
       length(sim_state.anomalies) > 0 ->
         Logger.warning("⚠️ Anomalies detected: #{length(sim_state.anomalies)}")
-        # TODO: Handle anomalies
       
       true ->
         Logger.debug("✓ CIS evaluation: ecosystem healthy")

@@ -1,0 +1,92 @@
+artifact: certificate_lifecycle_analysis
+stage: 7 (Certificate Authority Reconciliation)
+authority: TIA Council
+posture: RECONNAISSANCE / ANALYSIS ONLY
+recorded_at: 2026-09-10
+upstream: certificate_authority_inventory (CAND-A .. CAND-G), certificate_identity_analysis
+
+summary:
+  question: Q4 + Q6 — What certificate lifecycle/state machine exists across stacks? How
+    are revocation and supersession represented/evidenced?
+  answer: No uniform lifecycle exists. Observed lifecycles are: (root) two-state issuance
+    gate + ephemeral in-memory revoke; (runtime) rich lifecycle callbacks + supersedes
+    field + domain status enums; (forward authoring) NO lifecycle — transition SAFE-BLOCKED.
+    Revocation exists only as (a) ephemeral GenServer flag in root omega, (b) behaviour
+    callback + DomainState enum in runtime. Supersession exists as the ModelCertificate
+    supersedes field. The policy draft defines VALID/SUSPENDED/REVOKED/UNVERIFIABLE/
+    SUPERSEDED as SEMANTICS ONLY (not enacted). Stage 6 STOP recorded lifecycle_undefined
+    as a blocking condition for the authoring area.
+
+lifecycle_models:
+  - id: LC-ROOT
+    stack: root certification
+    states: (issued | not_certified) at issuance; certificates immutable once returned.
+    transitions: none beyond issuance; no state persistence.
+    revocation: OBSERVED in-memory only — Tiannara.Omega.CertificationServer
+      revoke_certificate/2 sets revoked: true (lib/tiannara/omega/certification_server.ex:25-33,77-85).
+      Ephemeral (GenServer state); duplicated revoke clauses at:77-85 and :100-108.
+    supersession: none evidenced.
+    durability: none.
+
+  - id: LC-RUNTIME
+    stack: tiannara_runtime
+    states: issued_at + overall_status pass|fail|pending; certification_type tiers
+      mathematical|validation|operational.
+    transitions: behaviour callbacks certify/2, certify_all_tiers/1, re_certify/2,
+      revoke/2, verify/1 (tiannara_runtime/.../behaviours/certificate_issuer.ex:15-38).
+    revocation: callback revoke/2 + DomainState certification_status enum
+      uncertified|in_review|certified|revoked (e.g. phase25_1/DomainState.json).
+    supersession: supersedes field (ModelCertificate struct, ontology/certificate.ex:52).
+    durability: JSON schema files + CPL checkpoint ledger
+      (data/cpl/checkpoints/certification/chk_certification_*.json).
+
+  - id: LC-FORWARD
+    stack: forward authoring area
+    states: none (bridge lifecycle_table/0 enumerates the DESIRED states for an authority
+      but every A01..A12 authority predicate is BLOCKED; transition/3 SAFE-BLOCKED).
+    transitions: {:blocked, decision} constant; the {:issued,...} branch is UNREACHABLE
+      (authorized_issuance? false).
+    revocation: NONE in authoring area; a revoked-certificate contrast case CANNOT be
+      represented (Stage 6 §17 condition 2).
+    supersession: NONE in authoring area.
+    durability: NONE.
+
+revocation_and_supersession_evidence:
+  - id: REV-E1
+    claim: revoke_certificate exists (root omega, in-memory) — EVIDENCE
+    file: lib/tiannara/omega/certification_server.ex:25-33
+    qualifier: in-memory flag; lost on restart; not an authoritative revocation record.
+  - id: REV-E2
+    claim: revoke callback in CertificateIssuer behaviour (runtime) — EVIDENCE (interface)
+    file: tiannara_runtime/lib/tiannara_runtime/world_model/behaviours/certificate_issuer.ex:30-33
+    qualifier: behaviour contract; implementation conformance not exhaustively verified here.
+  - id: REV-E3
+    claim: DomainState certification_status 'revoked' enum (runtime schemas) — EVIDENCE
+    file: tiannara_runtime/priv/certification/phase25_1/DomainState.json
+  - id: REV-E4
+    claim: supersedes field (runtime ModelCertificate) — EVIDENCE
+    file: tiannara_runtime/.../ontology/certificate.ex:52
+    qualifier: schema field; issuance of a successor that sets supersedes is not observed
+      in this pass.
+  - id: REV-E5
+    claim: policy defines REVOKED/SUPERSEDED states with transition rules — EVIDENCE (policy only)
+    file: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml:40-58
+    qualifier: "STATES AND TRANSITIONS ARE SEMANTICS ONLY; enacted when integration is authorized".
+
+policy_defined_states (forwards, not enacted):
+  - VALID — all issuance conditions hold; independently re-verifiable
+  - SUSPENDED — chain temporarily unresolvable; no new citations
+  - REVOKED — authority revocation decision recorded as an envelope; revoked certs not evidence
+  - UNVERIFIABLE — evidence cannot be resolved; recorded with unresolved-edge (never silently repaired)
+  - SUPERSEDED — later cert supersedes for same execution clause; original intact and non-citing.
+  transition_rules: VALID->SUSPENDED->VALID only after full re-verification; VALID->REVOKED
+    on recorded authority decision (irreversible); VALID->SUPERSEDED only via successor
+    issuance (never rewrite); ANY->UNVERIFIABLE on unresolved evidence.
+
+verdict:
+  Q4/Q6: Lifecycle/revocation are represented ad hoc across stacks; nothing is canonical,
+      nothing is durable as an authority decision outside local GenServer/flags, and the
+      forward authoring area has NO lifecycle at all (SAFE-BLOCKED by design). An accepted
+      policy + a defined lifecycle/revocation authority are PREREQUISITES for any
+      certificate arrow to a subject; neither is enacted in Stage 7.
+  NOTHING_IMPLEMENTED: true.

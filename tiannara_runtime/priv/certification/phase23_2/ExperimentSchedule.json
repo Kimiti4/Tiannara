@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExperimentSchedule",
+  "description": "A deterministic schedule of experiments produced by the Scheduling Engine for a given epoch",
+  "type": "object",
+  "properties": {
+    "schedule_id": {
+      "type": "string",
+      "description": "Content-addressed unique identifier for this schedule"
+    },
+    "epoch": {
+      "type": "integer",
+      "description": "Scheduling epoch this schedule covers"
+    },
+    "entries": {
+      "type": "array",
+      "description": "Scheduled experiment entries",
+      "items": {
+        "type": "object",
+        "properties": {
+          "experiment_id": { "type": "string" },
+          "policy": {
+            "type": "string",
+            "enum": ["immediate", "deferred", "periodic", "event_triggered", "resource_triggered", "discovery_triggered", "constitution_triggered"]
+          },
+          "priority_score": { "type": "number" },
+          "priority_tier": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low", "deferred", "background"]
+          },
+          "scheduled_start": { "type": "integer" },
+          "scheduled_end": { "type": "integer" },
+          "allocated_resources": { "type": "string" },
+          "dependencies_satisfied": { "type": "boolean" },
+          "status": {
+            "type": "string",
+            "enum": ["scheduled", "running", "completed", "failed", "cancelled"]
+          },
+          "entry_hash": { "type": "string" }
+        },
+        "required": ["experiment_id", "policy", "scheduled_start", "scheduled_end", "status"]
+      }
+    },
+    "schedule_hash": { "type": "string" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["schedule_id", "epoch", "entries", "schedule_hash", "timestamp"],
+  "additionalProperties": false
+}

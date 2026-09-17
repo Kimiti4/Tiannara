@@ -1,0 +1,31 @@
+{
+  "schema": "SYSTEM_METRICS_SCHEMA",
+  "version": "20.95",
+  "description": "Schema for system-wide metrics collection during validation campaigns",
+  "system_metrics": {
+    "fields": {
+      "metrics_id": {"type": "string", "required": true, "description": "Content-addressed metrics snapshot identifier"},
+      "campaign": {"type": "string", "required": true, "description": "Campaign label (A-H)"},
+      "cycle": {"type": "integer", "required": true, "description": "Cycle number for long-duration campaigns"},
+      "replay_stability": {"type": "number", "required": true, "description": "0.0–1.0 replay hash match ratio"},
+      "determinism_score": {"type": "number", "required": true, "description": "0.0–1.0 determinism consistency score"},
+      "knowledge_growth": {"type": "number", "required": false, "description": "Net knowledge entries added"},
+      "scientific_discoveries": {"type": "integer", "required": false},
+      "engineering_productivity": {"type": "number", "required": false, "description": "Artifacts per cycle"},
+      "memory_stability": {"type": "number", "required": true, "description": "0.0–1.0 memory integrity score"},
+      "generation_stability": {"type": "number", "required": true, "description": "0.0–1.0 generation chain integrity"},
+      "mathematical_consistency": {"type": "number", "required": true, "description": "0.0–1.0 proof chain integrity"},
+      "scientific_consistency": {"type": "number", "required": true, "description": "0.0–1.0 scientific method integrity"},
+      "runtime_stability": {"type": "number", "required": true, "description": "0.0–1.0 runtime health score"},
+      "resource_efficiency": {"type": "number", "required": true, "description": "0.0–1.0 resource utilization score"},
+      "governance_integrity": {"type": "number", "required": true, "description": "0.0–1.0 governance invariant score"},
+      "replay_latency": {"type": "number", "required": true, "description": "Mean replay step time (ms)"},
+      "hash_convergence": {"type": "number", "required": true, "description": "0.0–1.0 hash chain convergence"},
+      "archaeology_completeness": {"type": "number", "required": true, "description": "0.0–1.0 archaeology preservation score"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic_metrics", "replayable", "monotonic_timestamps"]
+  }
+}

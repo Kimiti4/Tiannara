@@ -1,0 +1,24 @@
+{
+  "schema": "CIVILIZATIONAL_DECISION_SCHEMA",
+  "version": "21.10",
+  "description": "Schema for a constitutional civilizational decision",
+  "civilizational_decision": {
+    "fields": {
+      "decision_id": {"type": "string", "required": true},
+      "decision_type": {"type": "string", "required": true},
+      "future_models_considered": {"type": "array", "required": true},
+      "selected_future_id": {"type": "string", "required": true},
+      "decision_rationale": {"type": "string", "required": true},
+      "evidence_chain_hash": {"type": "string", "required": true},
+      "constitutional_verification": {"type": "string", "required": true},
+      "human_review_required": {"type": "boolean", "required": true},
+      "human_review_status": {"type": "string", "required": true, "enum": ["pending", "confirmed", "rejected", "not_required"]},
+      "expected_outcomes": {"type": "array", "required": true},
+      "uncertainty_bounds": {"type": "object", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["constitutional", "deterministic", "replayable", "human_authority_preserved"]
+  }
+}

@@ -1,0 +1,128 @@
+artifact: TIA_FORWARD_PROVENANCE_PREDICATE_P_IDENTITY_CANONICAL_STOP
+record_type: PREDICATE GATE STOP (implementation + verification complete)
+recorded_at: 2026-09-10
+authorization: COUNCIL-2026-09-10-P-IDENTITY-CANONICAL
+
+============================================================
+STATUS
+============================================================
+PASS — "P-IDENTITY-CANONICAL implementation was authorized and verified;
+all other predicates remain unauthorized."
+
+============================================================
+PREDICATE AUTHORIZATION
+============================================================
+predicate_id:            P-IDENTITY-CANONICAL
+authorization status:    OPEN_FOR_IMPLEMENTATION (gate passed; predicate verified)
+authorized surface:      deterministic certificate identity derivation (frozen o1)
+                         + conformance testing against fz-c + fail-closed validation
+authorization record:    certification/reconnaissance/knowledge/TIA_PREDICATE_AUTHORIZATION_P_IDENTITY_CANONICAL.yaml
+
+============================================================
+IMPLEMENTATION
+============================================================
+files added:             2
+  - forward_provenance/lib/certificate_identity.ex        (module, pure derivation)
+  - forward_provenance/test/certificate_identity_test.exs (17 tests: positive/negative/conformance)
+files modified:          0
+implementation summary:
+  - TiannaraOS.Provenance.CertificateIdentity.derive/2 computes the frozen
+    formula sha256(canon(%{"candidate_id_spec", "spine"})) over validated input.
+  - Uses existing Canon (canon-v1) as the normative encoder; introduces NO new
+    canonicalization scheme.
+  - Input contract = frozen spine schema (fz-b o1); rejects any missing field,
+    wrong type, non-canonical value, or injected identity material (timestamp /
+    uuid / nonce / unrecognized field) — FAIL CLOSED, no certificate identity.
+  - Pure function: no pid, no ledger, no persistence, no process state, no
+    issuance/lifecycle/revocation/supersession capability.
+
+============================================================
+CONFORMANCE
+============================================================
+fz-c fixture count:      4
+pass count:              4/4 (fixtures read directly from spec YAML; expected
+                          SHA-256 values UNCHANGED, not rewritten)
+fail count:              0
+independent renderer:    PASS (hand-written IndependentRenderer, separate from
+                          Canon, reproduces all 4 fixture digests)
+byte-parity result:      PASS (canonical_bytes == Canon.canon over identity input,
+                          byte-identical for every fixture)
+SHA-256 result:          PASS (64 hex chars; matches fz-c expected digests)
+
+============================================================
+NEGATIVE TESTS
+============================================================
+tests executed:          missing candidate_id_spec; malformed candidate_id_spec;
+                         missing spine; non-map spine; missing required spine field;
+                         invalid field type; non-canonical value; injected timestamp;
+                         injected nonce; injected uuid; ordering mutation significance
+fail-closed result:      ALL rejected; zero certificate identities produced;
+                         no certificate files present anywhere
+
+============================================================
+FIREWALL
+============================================================
+A-predicates open:       0 (predicate P-IDENTITY-CANONICAL is a dedicated
+                          identity-derivation predicate, NOT an A-predicate;
+                          A01..A12 remain BLOCKED)
+predicates still closed: issuance, lifecycle, revocation, supersession,
+                         persistence, authority services, distributed verification,
+                         autonomous operation, network, external integration
+certificate state:       0 (no certificate records/files)
+issuance state:          NOT IMPLEMENTED
+lifecycle state:         NOT IMPLEMENTED
+authority state:         NOT ACTIVATED (M7=HYBRID governance only)
+
+============================================================
+CANONICALIZATION
+============================================================
+canon-v1:  NORMATIVE / UNCHANGED (forward_provenance/spec/canonicalization_spec.yaml)
+fz-b:      FINAL / UNCHANGED (forward_provenance/spec/certificate_identity_spec.yaml)
+fz-c:      FINAL / UNCHANGED (expected values intact; verified 4/4)
+scope:     no file outside the two authorized files was added or modified
+
+============================================================
+BASELINE
+============================================================
+HEAD:      9753a6d08702064f4d00395a1bec1c4bf3887381
+tree:      06f06e5e91f33e75437a47ca901eaa7e97bb0edd
+porcelain: 3380 (unchanged; forward_provenance/ is a single ?? entry by design)
+changed paths: 2 added (listed above); 0 modified among tracked/untracked content
+diff scope:   new files only — lib/certificate_identity.ex + test/certificate_identity_test.exs
+              (+ evidence matrix forward_provenance/output/predicate_identity_canonical_evidence.json)
+
+============================================================
+SOURCE CONTROL
+============================================================
+commits:         0
+pushes:          0
+index operations: 0
+
+============================================================
+ROLLBACK
+============================================================
+rollback boundary: delete the two added files; nothing else changes. No
+  governance record, spec, or policy mutated; no certificate state touched.
+rollback status:  NOT EXECUTED (gate passed)
+
+============================================================
+NEXT COUNCIL GATE
+============================================================
+STOP. Next predicate (issuance, lifecycle, revocation, supersession,
+distributed verification, or any A-predicate A01..A12) requires its own
+explicit Council authorization via predicate_authorization_template.yaml.
+No predicate is open merely because it appears in a design or this report.
+
+FINAL REQUIRED STATE (confirmed):
+  M7                    = HYBRID / APPROVED
+  Serialization freeze  = APPROVED (fz-b + fz-c FINAL / UNCHANGED)
+  canon-v1              = NORMATIVE / UNCHANGED
+  P-IDENTITY-CANONICAL  = OPEN_FOR_IMPLEMENTATION / VERIFIED
+  A-predicates          = 0 OPEN
+  Certificate state     = 0
+  Issuance              = NOT IMPLEMENTED
+  Lifecycle             = NOT IMPLEMENTED
+  Real-time authority   = NOT ACTIVATED
+  Production integration= NONE
+  Commits / pushes      = 0
+  Baseline              = LOCKED (beyond intentionally-added new files)

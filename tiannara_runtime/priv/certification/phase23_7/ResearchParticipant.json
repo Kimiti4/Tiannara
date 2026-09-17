@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/research_participant.json",
+  "title": "ResearchParticipant",
+  "description": "A participant in the global scientific collaboration ecosystem.",
+  "type": "object",
+  "properties": {
+    "participant_id": { "type": "string", "pattern": "^part_[a-f0-9]{16}$" },
+    "participant_type": { "type": "string", "enum": ["human", "tiannara_node", "university", "institute", "engineering_org", "simulation_cluster", "specialized_agent", "future_system"] },
+    "name": { "type": "string" },
+    "scientific_expertise": { "type": "array", "items": { "type": "string" } },
+    "engineering_capabilities": { "type": "array", "items": { "type": "string" } },
+    "resources": { "type": "object", "properties": { "computational": { "type": "string" }, "experimental": { "type": "string" } } },
+    "availability": { "type": "boolean" },
+    "reputation_scores": { "type": "object" },
+    "trust_metrics": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "registered_at": { "type": "integer" }
+  },
+  "required": ["participant_id", "participant_type", "name", "fingerprint"]
+}

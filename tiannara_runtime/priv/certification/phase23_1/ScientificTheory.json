@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ScientificTheory",
+  "description": "A well-substantiated explanation integrating multiple discoveries within a domain",
+  "type": "object",
+  "properties": {
+    "theory_id": { "type": "string" },
+    "name": { "type": "string" },
+    "domain": { "type": "string" },
+    "propositions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "supporting_hypotheses": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "supporting_evidence": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "contradictory_evidence": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "predictions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "domains": { "type": "array", "items": { "type": "string" } },
+        "applicability_conditions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "uncertainty_bounds": {
+      "type": "object",
+      "properties": {
+        "epistemic": { "type": "number" },
+        "aleatoric": { "type": "number" }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["embryonic", "growing", "competing", "mature", "merging", "splitting", "replacing", "retired"]
+    },
+    "lineage": {
+      "type": "object",
+      "properties": {
+        "parent_theories": { "type": "array", "items": { "type": "string" } },
+        "child_theories": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "created_at": { "type": "integer" },
+    "theory_hash": { "type": "string" }
+  },
+  "required": ["theory_id", "name", "domain", "status", "created_at", "theory_hash"],
+  "additionalProperties": false
+}

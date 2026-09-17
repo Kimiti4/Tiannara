@@ -1,0 +1,20 @@
+{
+  "schema": "IMAGINATION_ARTIFACT_SCHEMA",
+  "version": "22.X.9",
+  "description": "Schema for a generated imaginative concept",
+  "imagination_artifact": {
+    "fields": {
+      "artifact_id": {"type": "string", "required": true},
+      "imagination_type": {"type": "string", "required": true, "enum": ["counterfactual", "impossible_engineering", "hypothetical_physics", "alternative_mathematics", "novel_paradigm"]},
+      "domain": {"type": "string", "required": true},
+      "description": {"type": "string", "required": true},
+      "assumptions_violated": {"type": "array", "required": true},
+      "alternative_assumptions": {"type": "object", "required": true},
+      "plausibility_estimate": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "testable_predictions": {"type": "array", "required": false},
+      "status": {"type": "string", "required": true, "enum": ["imagination", "hypothesis", "under_test", "validated", "falsified"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["separated_from_knowledge", "deterministic", "replayable"]
+  }
+}

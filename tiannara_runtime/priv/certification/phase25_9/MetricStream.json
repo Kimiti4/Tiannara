@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/metric_stream.json",
+  "title": "MetricStream",
+  "description": "A telemetry metric stream.",
+  "type": "object",
+  "properties": {
+    "stream_id": { "type": "string", "pattern": "^obmet_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "unit": { "type": "string" },
+    "source": { "type": "string" },
+    "data_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "integer" },
+          "value": { "type": "number" },
+          "tags": { "type": "object" }
+        },
+        "required": ["timestamp", "value"]
+      }
+    },
+    "aggregation": { "type": "string", "enum": ["raw", "average", "sum", "min", "max", "count"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "stream_from": { "type": "integer" },
+    "stream_to": { "type": "integer" }
+  },
+  "required": ["stream_id", "name", "source", "data_points", "fingerprint"]
+}

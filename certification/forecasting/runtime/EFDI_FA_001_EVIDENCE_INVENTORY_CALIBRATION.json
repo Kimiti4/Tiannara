@@ -1,0 +1,287 @@
+{
+    "evidence_inventory":  "EFDI_FA_001_CAL_BATCH_2026-09-15_evidence",
+    "data_cutoff":  "2026-09-15T01:19:51.554Z",
+    "recorded_at":  "2026-09-15T01:19:51.554Z",
+    "batch":  "EFDI_FA_001_CAL_BATCH_2026-09-14_A01",
+    "items":  [
+                  {
+                      "item":  "BTC_USD_spot_coin_gecko",
+                      "source":  "api.coingecko.com simple price",
+                      "observed_at":  "2026-09-15T01:19:51.554Z",
+                      "value":  {
+                                    "usd":  77876,
+                                    "usd_market_cap":  1563796766062.4087,
+                                    "usd_24h_vol":  32239276091.245567,
+                                    "usd_24h_change_pct":  1.5279434822370295
+                                }
+                  },
+                  {
+                      "item":  "Polymarket_BTC_5m_B4_each_leg",
+                      "source":  "polymarket btc-updown-5m",
+                      "observed_at":  "2026-09-15T01:19:51.554Z",
+                      "value":  "NOT_CAPTURED",
+                      "note":  "not capturable for 50 windows within measurement-only discipline; recorded NOT_CAPTURED, never estimated retroactively"
+                  },
+                  {
+                      "item":  "NBO_openmeteo_hourly_B4_B3_snapshot",
+                      "source":  "open-meteo hourly forecast lat=-1.29 lon=36.82 timezone=UTC forecast_days=4",
+                      "observed_at":  "2026-09-15T01:19:51.554Z",
+                      "value":  {
+                                    "window_hours":  50,
+                                    "hours":  [
+                                                  {
+                                                      "hour":  "2026-09-15T02:00:00.000Z",
+                                                      "ppb_pct":  1,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T03:00:00.000Z",
+                                                      "ppb_pct":  2,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T04:00:00.000Z",
+                                                      "ppb_pct":  5,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T05:00:00.000Z",
+                                                      "ppb_pct":  9,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T06:00:00.000Z",
+                                                      "ppb_pct":  14,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T07:00:00.000Z",
+                                                      "ppb_pct":  23,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T08:00:00.000Z",
+                                                      "ppb_pct":  33,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T09:00:00.000Z",
+                                                      "ppb_pct":  37,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T10:00:00.000Z",
+                                                      "ppb_pct":  28,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T11:00:00.000Z",
+                                                      "ppb_pct":  12,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T12:00:00.000Z",
+                                                      "ppb_pct":  0,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T13:00:00.000Z",
+                                                      "ppb_pct":  0,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T14:00:00.000Z",
+                                                      "ppb_pct":  0,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T15:00:00.000Z",
+                                                      "ppb_pct":  2,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T16:00:00.000Z",
+                                                      "ppb_pct":  0,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T17:00:00.000Z",
+                                                      "ppb_pct":  0,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T18:00:00.000Z",
+                                                      "ppb_pct":  0,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T19:00:00.000Z",
+                                                      "ppb_pct":  7,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T20:00:00.000Z",
+                                                      "ppb_pct":  18,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T21:00:00.000Z",
+                                                      "ppb_pct":  31,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T22:00:00.000Z",
+                                                      "ppb_pct":  46,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-15T23:00:00.000Z",
+                                                      "ppb_pct":  63,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T00:00:00.000Z",
+                                                      "ppb_pct":  76,
+                                                      "precip_mm":  0.50
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T01:00:00.000Z",
+                                                      "ppb_pct":  83,
+                                                      "precip_mm":  0.60
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T02:00:00.000Z",
+                                                      "ppb_pct":  87,
+                                                      "precip_mm":  0.40
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T03:00:00.000Z",
+                                                      "ppb_pct":  88,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T04:00:00.000Z",
+                                                      "ppb_pct":  88,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T05:00:00.000Z",
+                                                      "ppb_pct":  85,
+                                                      "precip_mm":  0.20
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T06:00:00.000Z",
+                                                      "ppb_pct":  82,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T07:00:00.000Z",
+                                                      "ppb_pct":  79,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T08:00:00.000Z",
+                                                      "ppb_pct":  75,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T09:00:00.000Z",
+                                                      "ppb_pct":  69,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T10:00:00.000Z",
+                                                      "ppb_pct":  57,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T11:00:00.000Z",
+                                                      "ppb_pct":  43,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T12:00:00.000Z",
+                                                      "ppb_pct":  33,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T13:00:00.000Z",
+                                                      "ppb_pct":  31,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T14:00:00.000Z",
+                                                      "ppb_pct":  33,
+                                                      "precip_mm":  0.10
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T15:00:00.000Z",
+                                                      "ppb_pct":  35,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T16:00:00.000Z",
+                                                      "ppb_pct":  33,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T17:00:00.000Z",
+                                                      "ppb_pct":  31,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T18:00:00.000Z",
+                                                      "ppb_pct":  33,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T19:00:00.000Z",
+                                                      "ppb_pct":  43,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T20:00:00.000Z",
+                                                      "ppb_pct":  56,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T21:00:00.000Z",
+                                                      "ppb_pct":  69,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T22:00:00.000Z",
+                                                      "ppb_pct":  81,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-16T23:00:00.000Z",
+                                                      "ppb_pct":  92,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-17T00:00:00.000Z",
+                                                      "ppb_pct":  94,
+                                                      "precip_mm":  1.30
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-17T01:00:00.000Z",
+                                                      "ppb_pct":  83,
+                                                      "precip_mm":  0.60
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-17T02:00:00.000Z",
+                                                      "ppb_pct":  63,
+                                                      "precip_mm":  0.00
+                                                  },
+                                                  {
+                                                      "hour":  "2026-09-17T03:00:00.000Z",
+                                                      "ppb_pct":  45,
+                                                      "precip_mm":  0.00
+                                                  }
+                                              ]
+                                },
+                      "note":  "ppb per T0 hour-bucket = B4 (P(YES)/100). precip_mm per T0 hour = B3 threshold (\u003e=0.1mm -\u003e YES, p=0.9). Frozen at batch cutoff; never refetched for resolution."
+                  }
+              ]
+}

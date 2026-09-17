@@ -1,0 +1,27 @@
+{
+  "schema": "AUDIT_SCOPE_SCHEMA",
+  "version": "20.96",
+  "description": "Schema defining the scope of an independent constitutional audit",
+  "audit_scope": {
+    "fields": {
+      "scope_id": {"type": "string", "required": true, "description": "Content-addressed scope identifier"},
+      "audit_title": {"type": "string", "required": true},
+      "subsystems_audited": {"type": "array", "required": true, "items": {"type": "string"}},
+      "generations_audited": {"type": "array", "required": true, "items": {"type": "string"}, "description": "Generation IDs audited"},
+      "audit_types": {
+        "type": "array", "required": true,
+        "items": {"type": "string"},
+        "description": "Replay/Evidence/Hash/Structure/Dependency/Lineage/Full"
+      },
+      "archaeology_sources": {"type": "array", "required": true, "description": "Cold storage locations audited"},
+      "excluded_artifacts": {"type": "array", "required": false, "description": "Intentionally excluded items"},
+      "independence_declaration": {"type": "string", "required": true, "description": "Statement of auditor independence"},
+      "timestamp": {"type": "integer", "required": true, "description": "Deterministic audit start timestamp"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "audit_types": ["replay", "evidence", "hash", "structure", "dependency", "lineage", "full"],
+    "constraints": ["no_runtime_trust", "cold_storage_only", "deterministic_scope"]
+  }
+}

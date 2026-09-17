@@ -1,0 +1,28 @@
+{
+  "schema": "READINESS_INDEX_SCHEMA",
+  "version": "20.98",
+  "description": "Schema for the overall Constitutional Readiness Index — the aggregate readiness score",
+  "readiness_index": {
+    "fields": {
+      "index_id": {"type": "string", "required": true, "description": "Content-addressed CRI identifier"},
+      "cri_level": {"type": "string", "required": true, "description": "CRI-0 through CRI-6"},
+      "overall_score": {"type": "number", "required": true, "description": "0.0–1.0 aggregate readiness score"},
+      "dimension_scores": {"type": "object", "required": true, "description": "Per-dimension readiness scores"},
+      "domain_scores": {"type": "object", "required": true, "description": "Per-domain readiness scores"},
+      "weighting_version": {"type": "string", "required": true, "description": "Reference to weighting model version"},
+      "validation_completeness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "audit_completeness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "replay_completeness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "archaeology_completeness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "certification_eligible": {"type": "boolean", "required": true},
+      "deficiencies": {"type": "array", "required": false},
+      "improvement_priorities": {"type": "array", "required": false},
+      "certification_recommendation": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "cri_levels": ["CRI-0", "CRI-1", "CRI-2", "CRI-3", "CRI-4", "CRI-5", "CRI-6"],
+    "constraints": ["deterministic_scoring", "reproducible", "replayable", "no_certification"]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "READINESS_SCORE_SCHEMA",
+  "version": "20.98",
+  "description": "Schema for an individual readiness score — the atomic unit of readiness measurement",
+  "readiness_score": {
+    "fields": {
+      "score_id": {"type": "string", "required": true, "description": "Content-addressed score identifier"},
+      "dimension": {"type": "string", "required": true, "description": "Dimension name"},
+      "domain": {"type": "string", "required": false, "description": "Research domain (if domain-specific)"},
+      "metric_name": {"type": "string", "required": true},
+      "raw_value": {"type": "number", "required": true},
+      "normalized_value": {"type": "number", "required": true, "description": "0.0–1.0 after normalization"},
+      "normalization_method": {"type": "string", "required": true, "description": "Min-max/Z-score/Threshold/Boolean"},
+      "weight": {"type": "number", "required": true, "description": "Weight within dimension (0.0–1.0)"},
+      "evidence_chain": {"type": "array", "required": true, "description": "Evidence supporting this score"},
+      "calculation_steps": {"type": "array", "required": true, "description": "Deterministic calculation trace"},
+      "replay_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic_calculation", "evidence_based", "replayable", "traceable"]
+  }
+}

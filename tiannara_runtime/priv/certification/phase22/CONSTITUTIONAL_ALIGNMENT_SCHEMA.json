@@ -1,0 +1,21 @@
+{
+  "schema": "CONSTITUTIONAL_ALIGNMENT_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for constitutional alignment verification of an architecture proposal",
+  "constitutional_alignment": {
+    "fields": {
+      "verification_id": {"type": "string", "required": true},
+      "proposal_id": {"type": "string", "required": true},
+      "human_authority_preserved": {"type": "boolean", "required": true},
+      "constitutional_guarantees_satisfied": {"type": "array", "required": true},
+      "determinism_maintained": {"type": "boolean", "required": true},
+      "replay_preserved": {"type": "boolean", "required": true},
+      "archaeology_preserved": {"type": "boolean", "required": true},
+      "transparency_verified": {"type": "boolean", "required": true},
+      "violations_detected": {"type": "array", "required": true},
+      "compliance_certified": {"type": "boolean", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["constitutional", "deterministic", "immutable"]
+  }
+}

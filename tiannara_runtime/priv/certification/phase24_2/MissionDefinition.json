@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/mission_definition.json",
+  "title": "MissionDefinition",
+  "description": "The constitutional mission definition that anchors the entire system lifecycle.",
+  "type": "object",
+  "properties": {
+    "mission_id": { "type": "string", "pattern": "^mission_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "purpose": { "type": "string" },
+    "success_criteria": { "type": "array", "items": { "type": "string" } },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "operational_context": { "type": "string" },
+    "scientific_objectives": { "type": "array", "items": { "type": "string" } },
+    "engineering_objectives": { "type": "array", "items": { "type": "string" } },
+    "civilizational_objectives": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["mission_id", "name", "purpose", "success_criteria", "fingerprint"]
+}

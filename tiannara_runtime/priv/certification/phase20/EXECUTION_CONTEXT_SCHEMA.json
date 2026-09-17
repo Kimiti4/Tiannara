@@ -1,0 +1,18 @@
+{
+  "schema": "EXECUTION_CONTEXT_SCHEMA",
+  "version": "20.2",
+  "context_structure": {
+    "mission": {"type": "object", "required": true},
+    "context": {"type": "object", "required": true},
+    "evidence": {"type": "object", "required": true},
+    "knowledge": {"type": "object", "required": true},
+    "mathematics": {"type": "object", "required": false},
+    "replay_roots": {"type": "object", "required": true},
+    "archaeology_roots": {"type": "object", "required": true},
+    "budget": {"type": "object", "required": true},
+    "execution_constraints": {"type": "object", "required": true}
+  },
+    "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": ["immutable_during_execution", "content_addressed", "replayable"]
+}

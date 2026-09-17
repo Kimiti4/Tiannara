@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/scientific_integrity_report.json",
+  "title": "ScientificIntegrityReport",
+  "description": "A report on the scientific integrity of the autonomous research system.",
+  "type": "object",
+  "properties": {
+    "report_id": { "type": "string", "pattern": "^sir_[a-f0-9]{16}$" },
+    "report_period_start": { "type": "integer" },
+    "report_period_end": { "type": "integer" },
+    "integrity_dimensions": {
+      "type": "object",
+      "properties": {
+        "reproducibility": { "type": "number", "minimum": 0, "maximum": 1 },
+        "transparency": { "type": "number", "minimum": 0, "maximum": 1 },
+        "critique_quality": { "type": "number", "minimum": 0, "maximum": 1 },
+        "review_independence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence_quality": { "type": "number", "minimum": 0, "maximum": 1 },
+        "bias_awareness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "constitutional_compliance": { "type": "boolean" },
+        "self_correction": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "strengths": { "type": "array", "items": { "type": "string" } },
+    "weaknesses": { "type": "array", "items": { "type": "string" } },
+    "recommendations": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated_at": { "type": "integer" }
+  },
+  "required": ["report_id", "integrity_dimensions", "fingerprint"]
+}

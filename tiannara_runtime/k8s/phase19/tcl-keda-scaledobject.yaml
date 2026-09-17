@@ -1,0 +1,22 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata: {name: phase19-tcl-scaling, namespace: tiannara-phase19}
+spec:
+  scaleTargetRef: {name: tiannara-tcl}
+  pollingInterval: 10
+  cooldownPeriod: 150
+  minReplicaCount: 3
+  maxReplicaCount: 20
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+      threshold: "40"
+      query: sum(rate(tcl_sync_cycles_total[5m]))
+      metricName: tcl_throughput
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+      threshold: "0.60"
+      query: 1.0 - avg(tcl_consensus_score) by (pod)
+      metricName: tcl_consensus_deficit

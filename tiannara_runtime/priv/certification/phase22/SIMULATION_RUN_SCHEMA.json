@@ -1,0 +1,19 @@
+{
+  "schema": "SIMULATION_RUN_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for an individual civilization simulation run",
+  "simulation_run": {
+    "fields": {
+      "run_id": {"type": "string", "required": true},
+      "batch_id": {"type": "string", "required": true},
+      "parameters": {"type": "object", "required": true},
+      "initial_state_hash": {"type": "string", "required": true},
+      "final_state_hash": {"type": "string", "required": true},
+      "generations_executed": {"type": "integer", "required": true},
+      "events_logged": {"type": "integer", "required": true},
+      "run_status": {"type": "string", "required": true, "enum": ["pending", "running", "completed", "failed", "terminated"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "replayable", "immutable"]
+  }
+}

@@ -1,0 +1,78 @@
+program: TIA_FORENSIC_RECON_ENGINE
+move: PROVENANCE-CLOSURE-READ-ONLY-EVIDENCE-GATE
+schema_version: "1.0.0"
+method: "Council-authorized bounded read-only evidence search within frozen repository state. Targets: (1) canonicalization evidence for certificate/provenance subset hashing; (2) preserved measurement corpus for gc_009/gc_010/gc_012 sufficient for independent recomputation. Read-only; no implementation; no modification; no commits/pushes."
+STATUS: "HOLD (both smallest-evidence search targets RESOLVED NEGATIVELY or with refinement; no implementation path opens; see GATE)"
+
+T0: "PRESERVED 9753a6d08702064f4d00395a1bec1c4bf3887381 / tree 06f06e5e91f33e75437a47ca901eaa7e97bb0edd; 3,366 dirty entries preserved; no commits or pushes"
+
+SEARCH_TARGET_1_CANONICALIZATION_EVIDENCE:
+  located: "FAILED - no canonical subset hashing specification, code, test, or recorded procedure was found for certificate/provenance objects"
+  evidence:
+    - "generate_phase14_final_certificate.exs (root) does NOT recompute a self-hash of its output; it COPIES audit_report['artifact_fingerprints'] (certificate_sha256 / manifest_sha256) verbatim into the FINAL certificate"
+    - "generate_missing_artifacts.exs and cold_boot_results.json also record/consume these fingerprint strings without a documented canonical procedure"
+    - "evidence_closure_verification.json performs a plain whole-file byte comparison: original vs recomputed hash both equal b69fee34... for certificate.json and ffb09a90... for manifest.json - no subset/canonicalization"
+    - "no canonical_serialization_spec, no sorted-keys-serialization, no field-subset hash definition appears anywhere in lib/, tools/, phase14/, or docs/"
+  canonical_subset_hypothesis: "REJECTED by byte test on current T0 artifacts: none of 6 canonical re-serializations (compact/2-space/sorted/raw/trailing-newline/stripped) of current certificate.json/manifest.json yields the FINAL-certificate stated fingerprints c5896ae4.../0d26c39a..."
+
+SEARCH_TARGET_1_RESOLUTION_FINDING:
+  the_final_certificate_fingerprints_are_orphaned:
+    - "PHASE14_GOVERNANCE_CERTIFICATE_FINAL.json states artifact_fingerprints.certificate_sha256 = c5896ae4... and manifest_sha256 = 0d26c39a...; its own whole-file SHA256 = 985e0073..."
+    - "current phase14/certification/certificate.json whole-file SHA256 = b69fee34...; manifest.json = ffb09a90... - DIFFERENT from the stated FINAL fingerprints"
+    - "c5896ae4.../0d26c39a... do not equal: (a) any current artifact whole-file hash; (b) any git-history blob hash (certificate.json/manifest.json exist ONLY at T0; no prior version in any commit); (c) any canonical re-serialization of current artifacts (tested); (d) the FINAL certificate's own hash"
+    - "c5896ae4.../0d26c39a... DO appear verbatim in phase14/certification/cold_boot_results.json (5 runs, asserting CertHash/ManifestHash) - all within T0"
+    - "CONCLUSION: the FINAL certificate's fingerprint fields reference an artifact byte-state that exists in NEITHER T0 NOR git history. This is a version-mismatch / orphaned-fingerprint condition, NOT a canonical-subset-hash phenomenon. The 'self-hash discrepancy' is methodologically EXPLAINED as a non-self-referential, non-resolving fingerprint - it strengthens the binding gap rather than closing it"
+  governance_certificate_hash: "UNCHANGED from prior gates: PHASE14_GOVERNANCE_CERTIFICATE.json whole-file SHA256 = 0b1a6ab6...; its stored self-hash 409dbc2a... matches no recomputation and no canonical-subset variant tested here; no canonicalization spec exists to reconcile it; remains intrinsic break"
+
+SEARCH_TARGET_2_MEASUREMENT_CORPUS:
+  located: "PARTIALLY - corpus-like files EXIST but are NOT sufficient for independent recomputation"
+  evidence:
+    - "phase14/certification/evidence/artifacts/entropy_measurements.json = {\"campaign\":\"gc_009\",\"std_dev\":0.03,\"mean\":0.25,\"samples\":1000} - AGGREGATE ONLY (no raw 1000-sample array)"
+    - "phase14/certification/evidence/artifacts/fitness_evaluations.json = {\"campaign\":\"gc_010\",\"std_dev\":0.04,\"mean\":0.85,\"samples\":1000} - AGGREGATE ONLY"
+    - "phase14/certification/evidence/certificates/cert-entropy-003.json: metadata std_dev 0.03, measurements 1000; self-signed 2026-07-02T19:26:12"
+    - "long_horizon_replay_10k.json / long_horizon_replay_1m.json: contain stability booleans + summary metrics, NOT raw measurement arrays (1m report stores samples_collected 100, elapsed 104ms)"
+    - "NO file in T0 or git history stores the raw per-sample entropy/fitness values from which gc_009/gc_010/gc_012 metrics were computed"
+  independent_recomputation_possible: "NO - an auditor cannot recompute mean/std_dev checks from aggregate-only corpora; cannot verify the samples=1000 claim; cannot detect whether 'stable' thresholds were genuinely applied to the actual samples"
+
+SEARCH_TARGET_2_CORROBORATING_CONTRADICTION:
+  unevidenced_metric_divergence_across_campaigns:
+    - "gc_009 entropy: campaign result gc_009_entropy_stability.json mean_entropy=0.11, std_deviation=0.0 vs evidence artifact mean=0.25, std_dev=0.03 - THREE-WAY DIVERGENCE in the same metric from the same signed day"
+    - "gc_010 fitness: campaign result gc_010_fitness_stability.json mean_fitness=0.807, std_deviation=0.0 vs evidence artifact mean=0.85, std_dev=0.04 - THREE-WAY DIVERGENCE again"
+    - "gc_012 fitness: gc_012 result 0.8035 / certificate.json block 0.8041 / governance cert 0.7864 - CONTRA-003"
+    - "CONCLUSION: metric-divergence is SYSTEMIC across at least gc_009/gc_010/gc_012 (3 of 12 campaigns), all T0-only, confirming a derivation-consistency failure class beyond the single CONTRA-003 case. The 0.8035/0.8041 coincidence with unrelated files remains coincidence (prior disclosure); the gc_009/gc_010 evidence-artifact-vs-campaign-result divergence is a NEW corroborating contradiction"
+  pre_t0_history: "NEGATIVE - certificate/entropy/fitness value set appears only at T0; pre-T0 numeric matches (0.25/0.11 weights in ASC sandbox code) are unrelated tuning constants (coincidence class)"
+
+CERTIFICATE_TO_EXECUTION_BINDING: "NOT ESTABLISHABLE NOW - unchanged. No certificate in T0 references any execution/run id; the sole execution-bearing certificate (minimal-repro) self-mints its identity via MOCK-HASH; the archived pros run packets, though byte-genuine and historically preserved, are referenced by no certificate. The canonicalization-orphan finding and the metric-divergence finding further undermine the possibility of closing the chain from existing evidence"
+
+CONTRA_003: "REMAINS UNRESOLVED - and is now corroborated as part of a systemic metric-derivation inconsistency (gc_009/gc_010 evidence-vs-result divergence added). No read-only evidence closes it; the architecture discriminates explanations but the required raw corpora and identity records do not exist"
+
+FURTHER_READ_ONLY_EVIDENCE_ASSESSMENT:
+  - "Within the frozen repository, the two named smallest evidences do not close the gap: no canonicalization spec exists, and no raw measurement corpus exists"
+  - "Discovered instead: (1) orphaned FINAL-certificate fingerprints (methodological explanation of the 'self-hash' discrepancy - strengthens binding gap); (2) aggregate-only corpus files (not independently recomputable); (3) systemic cross-campaign metric divergence (corroborates CONTRA-003 class)"
+  - "NO further read-only search within the repository is likely to materially reduce remaining uncertainty: metric raw samples do not exist in any searched form; certificate binds nothing; identity records never existed"
+
+KNOWLEDGE_CHANGES: "MAJOR ADDITION (does not overturn prior PASS verdicts): the FINAL-certificate hash discrepancy is now EXPLAINED as orphaned-fingerprint/version-mismatch (was: unresolved method-bound discrepancy); metric divergence is now established as SYSTEMIC across gc_009/gc_010/gc_012 (was: single CONTRA-003 case); the canonicalization-spec absence is confirmed exhaustively"
+KNOWLEDGE_DEBT_IMPACT:
+  - "KD-010: PARTIALLY RESOLVED (FINAL-certificate hash discrepancy now explained as non-self-referential orphaned fingerprint; governance 409dbc2a-vs-0b1a6ab6 remains unexplained and intrinsic)"
+  - "KD-004: DEEPENED (aggregate-only corpus confirmed NOT re-derivable; no raw samples exist to enable independent recomputation)"
+  - "KD-001/CONTRA-003: DEEPENED (now systemic; corroborating gc_009/gc_010 divergence)"
+RESEARCH_QUESTION_IMPACT:
+  - "RQ-001 certificate truth: sharpened - byte-integrity genuine for certificate.json; FINAL fingerprint fields prove NOTHING about the FINAL file itself because they do not resolve to any preserved artifact"
+  - "RQ-004 independent re-derivation: UNANSWERED - impossibility now demonstrated by aggregate-only corpus (no raw samples)"
+  - "RQ-010 metrics blast radius: sharpened - metric inconsistency is systemic across campaigns, not isolated"
+
+REMAINING_UNKNOWNS:
+  - "What exact artifact byte-state the orphaned fingerprints c5896ae4.../0d26c39a... originally referred to (prior certificate.json/manifest.json renderings prior to T0 audit snapshot, or an off-tree certificate state - UNKNOWABLE from preserved evidence)"
+  - "Why governance certificate's stored self-hash 409dbc2a... differs from every tested recomputation (canonicalization spec absent; stale-hash or post-edit variant unevidenced)"
+  - "Whether raw per-sample measurement arrays ever existed outside the repo (like the pre-T0 runs/ that were byte-recovered - no evidence found in git)"
+SMALLEST_NEXT_EVIDENCE: "UNCHANGED and still decisive: ONE concrete certificate->execution/run reference traceable end-to-end; OR (equivalently for the hash question) any raw per-sample measurement array for gc_009/gc_010/gc_012. Neither exists in the frozen repository; both must come from outside T0 or from before the audit snapshot"
+
+GATE: "HOLD. The bounded read-only search is complete. It did NOT locate a canonicalization spec; it did NOT locate a usable raw measurement corpus; it DID (a) methodologically explain the FINAL-certificate hash discrepancy as an orphaned fingerprint/version-mismatch that strengthens rather than closes the binding gap, and (b) expose systemic cross-campaign metric divergence (gc_009/gc_010 corroborating CONTRA-003). Certificate->execution binding remains NOT ESTABLISHED; CONTRA-003 remains UNRESOLVED. No read-only evidence within T0 can close the gap. Termination condition met: stop after the bounded search and issue this evidence-gate report with NO implementation authorization implied."
+
+IMPLEMENTATION: "NONE"
+REMEDIATION: "NONE"
+CERTIFICATE REGENERATION: "NONE"
+EXPERIMENT EXECUTION: "NONE"
+COMMITS: "NONE"
+PUSHES: "NONE"
+T0 MODIFIED: "NO"

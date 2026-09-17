@@ -1,0 +1,101 @@
+artifact: EFDI_FA_001_FAILURE_TAXONOMY
+record_type: forecast failure taxonomy (frozen)
+recorded_at: 2026-09-13
+governing_contract: EFDI_FA_001_AUDIT_CONTRACT
+status: FROZEN
+
+rule: >
+  Every forecast failure (wrong outcome class, large error, calibration
+  violation, or protocol violation) is classified into EXACTLY ONE class F-01..F-17.
+  If no class fits, F-17 UNKNOWN is the ONLY legitimate answer. Silence or an
+  undefined class is itself an audit failure.
+
+classes:
+  - id: F-01
+    name: insufficient_data
+    description: Not enough observations to support a meaningful probability.
+    signal: flag recovered when the evidence base is too thin for the question.
+
+  - id: F-02
+    name: noisy_signal
+    description: The forecast relied on a signal dominated by measurement noise.
+    signal: realized error is high despite correct model structure.
+
+  - id: F-03
+    name: wrong_base_rate
+    description: Base-rate reference window or estimate was wrong.
+    signal: systematic edge in the direction opposite to the base-rate correction.
+
+  - id: F-04
+    name: model_misspecification
+    description: Model family does not match the data-generating process.
+    signal: classic residual patterns under a well-specified competitor.
+
+  - id: F-05
+    name: causal_error
+    description: Wrong causal claim fed the forecast (e.g., confounded X->Y).
+    signal: counterfactual probe shows the claimed cause has zero effect.
+
+  - id: F-06
+    name: regime_change
+    description: A distribution shift between data_cutoff and resolution.
+    signal: model calibrated pre-shift, degraded immediately after shift point.
+
+  - id: F-07
+    name: data_leakage
+    description: Post-cutoff information influenced the forecast.
+    signal: reproducibility/partition checks fail; hindsight check fails.
+    severity: severe; quarantines the forecast.
+
+  - id: F-08
+    name: overfitting
+    description: In-sample fit far exceeds out-of-sample fit on the same task.
+    signal: train/validate gap >> reference gap in the synthetic suite.
+
+  - id: F-09
+    name: underfitting
+    description: Model too simple; consistent miss of recoverable structure.
+    signal: residuals explainable by a richer known generator.
+
+  - id: F-10
+    name: measurement_error
+    description: Inputs or outcomes mis-measured.
+    signal: reconciliation mismatch; metadata inconsistency; corrupted stream.
+    note: resolution-source substitution is handled under this class.
+
+  - id: F-11
+    name: random_outcome
+    description: The failure is consistent with pure chance under a CALIBRATED forecast.
+    signal: single wrong outcome within the declared interval/bucket expectation.
+    note: NOT a defect. A calibrated system will be "wrong" at the rated rate.
+
+  - id: F-12
+    name: adversarial_input
+    description: Contaminated or hostile data influenced the forecast.
+    signal: anomaly detection on inputs flags tampering/poisoning.
+
+  - id: F-13
+    name: correlated_model_failure
+    description: Ensemble members share the same hidden assumption (monoculture).
+    signal: apparent agreement with correlated absolute errors; independence test fails.
+
+  - id: F-14
+    name: calibration_failure
+    description: Probabilities systematically deviate from empirical frequencies.
+    signal: ECE/MCE beyond sampling uncertainty; reliability diagram off-diagonal.
+
+  - id: F-15
+    name: reasoning_error
+    description: Logic/derivation error inside the mathematical or probabilistic layer.
+    signal: independent recomputation of the same inference yields a different value.
+
+  - id: F-16
+    name: implementation_defect
+    description: Code or protocol defect in the forecasting/ledger machinery itself.
+    signal: non-determinism under fixed seed; ledger hash mismatch; schema violation.
+    severity: severe; quarantines the forecast unit.
+
+  - id: F-17
+    name: unknown
+    description: Failure mechanism not classifiable under F-01..F-16.
+    signal: genuinely unexplained; must be declared, not defaulted to.

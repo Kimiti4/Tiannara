@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SpeculativeTheory",
+  "description": "An alternative theoretical model that remains explicitly speculative",
+  "type": "object",
+  "properties": {
+    "theory_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this speculative theory"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable theory name"
+    },
+    "dimension": {
+      "type": "string",
+      "enum": ["constants", "symmetries", "conservation_laws", "force_interactions", "cosmological_models", "mathematical_foundations", "unified"],
+      "description": "Physics dimension being modified"
+    },
+    "standard_model_reference": {
+      "type": "string",
+      "description": "Reference to the standard model being modified"
+    },
+    "modification": {
+      "type": "string",
+      "description": "Description of the modification"
+    },
+    "mathematical_formulation": {
+      "type": "string",
+      "description": "Formal mathematical description"
+    },
+    "derived_consequences": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Predicted consequences of this alternative"
+    },
+    "observable_predictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "prediction": {
+            "type": "string"
+          },
+          "distinguishable_from_reality": {
+            "type": "boolean"
+          },
+          "measurement_required": {
+            "type": "string"
+          }
+        },
+        "required": ["prediction", "distinguishable_from_reality"]
+      }
+    },
+    "consistency_assessment": {
+      "type": "object",
+      "properties": {
+        "internally_consistent": {
+          "type": "boolean"
+        },
+        "mathematically_consistent": {
+          "type": "boolean"
+        },
+        "consistency_notes": {
+          "type": "string"
+        }
+      },
+      "required": ["internally_consistent"]
+    },
+    "motivation": {
+      "type": "string",
+      "description": "Why this alternative is worth exploring"
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["speculative", "highly_speculative", "counterfactual"],
+      "description": "Speculation classification"
+    },
+    "creation_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of creation"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["theory_id", "name", "dimension", "modification", "mathematical_formulation", "classification", "creation_date", "fingerprint"]
+}

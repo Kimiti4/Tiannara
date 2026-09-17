@@ -1,0 +1,21 @@
+{
+  "schema": "CAUSAL_HIERARCHY_SCHEMA",
+  "version": "21.8",
+  "description": "Schema for the causal hierarchy connecting fundamental laws through emergent phenomena to applications",
+  "causal_hierarchy": {
+    "fields": {
+      "hierarchy_id": {"type": "string", "required": true},
+      "generation": {"type": "integer", "required": true},
+      "levels": {"type": "array", "required": true},
+      "causal_links": {"type": "array", "required": true},
+      "cross_chain_validations": {"type": "array", "required": false},
+      "acyclic_verified": {"type": "boolean", "required": true},
+      "causal_coverage": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "hierarchy_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["acyclic", "evidence_supported", "deterministic", "replayable"]
+  }
+}

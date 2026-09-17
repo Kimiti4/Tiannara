@@ -1,0 +1,108 @@
+# Stage 3 — Runtime Instrumentation — STOP Record
+
+artifact: TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE3_STOP
+version: 1.0.0
+authority: TIA Council
+status: AWAITING AUTHORIZATION FOR STAGE 4
+stage: 3 (Runtime Instrumentation)
+implementation_plan: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_IMPL_PLAN.yaml
+recorded_at: 2026-09-09
+
+## Stage 3 Status
+- STATUS: COMPLETE
+- RUNTIME INSTRUMENTATION: IMPLEMENTED (both seam producers call the authority)
+- PRODUCER-LOCAL execution_id AUTHORITY: ELIMINATED at both seams
+  (Phase-4 real_execution.ex minted via Producer BEFORE the sandbox; OPC
+  ExecutionRuntime minted via Producer in place of System.unique_integer)
+- CANONICAL MINT: forward_exec_v1 binary ids, authority-bound, first-writer-wins
+- LIFECYCLE: started -> exactly one terminal (completed|failed|partial), caller-owned
+- SUBSTITUTION (K): REJECT
+- ATTEMPT REUSE (L): REJECT / NEW execution id per attempt
+- ORPHAN / UNKNOWN / CLOSED TERMINAL: REJECT (unverifiable / rejected)
+- EXPERIMENT BEHAVIOR: unchanged (result shapes, error shapes, gate semantics preserved)
+- MAIN APP / OPC TREE: instrumented only at the two seams; experiment logic untouched
+
+## Delivered
+- forward_provenance/lib/producer.ex   TiannaraOS.Provenance.Producer
+    * begin/3    authority-minted id + opened lifecycle window (lifecycle foldable)
+    * complete/4 / fail/4 / partial/4   terminal helpers (violations return
+                {:error, reason, culprit}, never silently accepted)
+- forward_provenance/lib/runtime_contract.ex   (extended, backward compatible)
+    * mint-then-start resolve-and-open for Stage 3 instrumentation: a 'started'
+      on an id authority-minted by the same producer with NO lifecycle entry
+      resolves and opens instead of being rejected; re-start within a folded
+      lifecycle window still hits :attempt_reuse
+- lib/tiannara/phase4/real_execution.ex   (Phase-4 seam)
+    * open_execution/2 mints BEFORE the sandbox; close_execution/7 closes
+      :completed on success / :failed on sandbox error; success and error
+      return shapes preserved
+    * executions_log/0 honors :tiannara, :real_execution_ledger_path override
+      (default priv/tiannara/real_execution/executions.jsonl unchanged; not
+      touched during any verification run)
+    * make_execution_id/0 (local authority) removed
+- tiannara_runtime/lib/tiannara_runtime/opc/runtime/execution_runtime.ex  (OPC seam)
+    * alias TiannaraOS.Provenance.Producer; handle_call {:execute, ...} mints
+      via Producer.begin/3 and closes via Producer.complete/4; authority failure
+      returns {:reply, {:error, reason}, state}
+- mix.exs (root) + mix.lock (root): {:forward_provenance, path: "forward_provenance"}
+- tiannara_runtime/mix.exs: {:forward_provenance, path: "../forward_provenance"}
+  (offline deps.get resolved in both apps; rustler and existing deps unchanged)
+
+## New/Updated Tests
+- forward_provenance/test/producer_instrumentation_test.exs (7 tests):
+  canonical mint+attribution, terminal uniqueness, failed/partial, K substitution,
+  L retry-distinct + closed_attempt, orphan/unknown rejection, distinct ids
+- test/tiannara/phase4/real_execution_instrumentation_test.exs (4 tests, FakeBackend
+  through the Sandbox.Backend behaviour + tmp ledger isolation):
+  successful run minted before sandbox & ledgered once (science-facing shape
+  unchanged), two runs distinct canonical ids, failed sandbox {:error, :boom}
+  preserved with exactly one minted Phase-4 record and no fabricated experiment
+  ledger line, K/L/terminal uniqueness at the module boundary
+- tiannara_runtime/test/opc_execution_runtime_instrumentation_test.exs (3 tests,
+  start_supervised! ExecutionRuntime + tmp authority ledger):
+  canonical forward_exec_v1 binary id bound to the OPC producer with result
+  shape preserved, distinct ids + both kernels tracked, K substitution at the
+  OPC boundary
+- Test file placement note: tiannara_runtime/test/ is under .git/info/exclude
+  (**/test/), so this file adds no porcelain line.
+
+## Verification
+- forward_provenance suite: 44 tests, 0 failures (37 prior + 7 stage-3)
+- root Phase-4 suite: 9 tests, 0 failures
+  (5 pre-existing real_execution gate tests STILL GREEN against instrumented
+   execute/1 + 4 new instrumentation tests)
+- tiannara_runtime OPC instrumentation: 3 tests, 0 failures
+- BOOT SMOKE (Council item 9): mix run boots the host app (PhaseOmega 15/15
+  subsystems healthy) and exercises Producer.begin -> complete -> resolve inside
+  the running VM: SMOKE_OK, canonical id exec_1788980176511_3218560f-adaf,
+  status=completed, producer=Tiannara.Phase4.RealExecution
+- compile: clean in forward_provenance; root and tiannara_runtime compile with
+  only the pre-existing warning set (no new warnings attributable to Stage 3)
+
+## T0 Porcelain Accounting (authorized Stage-3 tracked delta)
+- baseline (through Stage 2): 3367 porcelain lines, no tracked changes by Stages 1-2
+- now: 3379 = +12 lines, fully attributed:
+  +3 TRACKED (normative, EXACTLY the authorized set):
+      M  mix.exs                                  (path dep)
+      M  mix.lock                                 (dep resolution)
+      M  lib/tiannara/phase4/real_execution.ex    (Phase-4 seam instrumentation)
+  +9 UNTRACKED boot-artifacts created by root app boots during Stage-3
+    verification runs (environmental, pre-existing app behavior, no content of
+    provenance/historical value):
+      5x council_audit_log.dets.corrupted.<ts>Z
+      4x dev_data/dets/dets/production/cel_event_store.dets.corrupt.<ts>
+- NOTHING ELSE in the tracked set changed; no historical/cert/provenance artifact
+  modified; priv/tiannara/real_execution/executions.jsonl clean (env override used)
+- no commits, no pushes, no index operations performed
+
+## Historical Firewall (unchanged)
+- Forbidden: any statement that the new provenance system has now verified a
+  historical artifact. Stage 3 inferred no historical provenance; T0 / CONTRA-003 /
+  archived runs / certificates untouched.
+
+## Bound Dependency Chain (do not advance without authorization)
+4. Failure + Distributed Semantics
+5. Metric Lineage
+6. Certificate State / Authority
+7. K-T Adversarial Integration
+8. Independent Verification

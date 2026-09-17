@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0.0",
+  "evidence_kind": "environment",
+  "produced_by": {
+    "collector": "environment",
+    "contract_version": "0.1.1"
+  },
+  "produced_at_t0": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+  "environment_kind": "AUDIT_EXECUTION_ENVIRONMENT",
+  "environment_disclaimer": "The runtime versions and platform recorded here were observed in the environment that executed this Move-0 audit. They do NOT establish the runtime environment in which T0 historically operated. Treating them as T0's historical runtime requires an explicit provenance mechanism, which is out of scope for Move 0.",
+  "runtimes": {
+    "elixir": {
+      "available": true,
+      "name": "elixir",
+      "version_text": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+      "version_normalized": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]"
+    },
+    "erlang": {
+      "available": true,
+      "name": "erl",
+      "version_text": "28",
+      "version_normalized": "28"
+    },
+    "python": {
+      "available": true,
+      "name": "python",
+      "version_text": "Python 3.14.0",
+      "version_normalized": "Python 3.14.0"
+    },
+    "node": {
+      "available": true,
+      "name": "node",
+      "version_text": "v24.11.1",
+      "version_normalized": "v24.11.1"
+    },
+    "npm": {
+      "available": false,
+      "name": "npm",
+      "version_text": null,
+      "version_normalized": null
+    }
+  },
+  "platform": {
+    "system": "Windows",
+    "release": "10",
+    "machine": "AMD64",
+    "python_implementation": "CPython",
+    "python_version": "3.14.0"
+  },
+  "dependency_manifests": [
+    {
+      "path": "mix.lock",
+      "size_bytes": 16711,
+      "sha256": "6153ab16b47b4fd1e996137d38b888e7aa03c558136f04050eb7dd1dc103bd53",
+      "content_read": false
+    },
+    {
+      "path": "requirements.txt",
+      "size_bytes": 1538,
+      "sha256": "1e223b316d3ec84fdd42bbae0c4e15800ca12999f6bea62956a748fb83128dda",
+      "content_read": false
+    },
+    {
+      "path": "package.json",
+      "size_bytes": 65,
+      "sha256": "a230f4c784b97af79c011545a7f64f2541c06ca5a062bb1bf12f0c2894a36419",
+      "content_read": false
+    },
+    {
+      "path": "package-lock.json",
+      "size_bytes": 2010,
+      "sha256": "dcb33088f4dec9abee7de3a4c55b332c78a25da805153222c6b1866db0e206e1",
+      "content_read": false
+    }
+  ],
+  "manifest_count": 4,
+  "run": {
+    "started_at": "2026-09-05T21:35:38.270741+00:00",
+    "finished_at": "2026-09-05T21:36:37.435926+00:00",
+    "duration_seconds": 59.165189,
+    "run_id": "43b7988bb5066207"
+  }
+}

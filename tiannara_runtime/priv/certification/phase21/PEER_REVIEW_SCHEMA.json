@@ -1,0 +1,33 @@
+{
+  "schema": "PEER_REVIEW_SCHEMA",
+  "version": "21.5",
+  "description": "Schema for constitutional peer review of discoveries",
+  "peer_review": {
+    "fields": {
+      "review_id": {"type": "string", "required": true, "description": "Content-addressed review identifier"},
+      "discovery_hash": {"type": "string", "required": true},
+      "submitting_institute": {"type": "string", "required": true},
+      "reviewers": {"type": "array", "required": true, "minItems": 2},
+      "reviewer_institutes": {"type": "array", "required": true},
+      "evidence_verification": {"type": "object", "required": true, "fields": {
+        "reproducible": {"type": "boolean"}, "data_integrity": {"type": "boolean"},
+        "methodology_sound": {"type": "boolean"}, "evidence_supports_claims": {"type": "boolean"}
+      }},
+      "mathematical_verification": {"type": "object", "required": false, "fields": {
+        "proofs_valid": {"type": "boolean"}, "mathematically_consistent": {"type": "boolean"},
+        "derivations_correct": {"type": "boolean"}, "computationally_correct": {"type": "boolean"}
+      }},
+      "engineering_verification": {"type": "object", "required": false, "fields": {
+        "artifact_reproducible": {"type": "boolean"}, "engineering_sound": {"type": "boolean"},
+        "performance_claims_valid": {"type": "boolean"}, "safety_compliant": {"type": "boolean"}
+      }},
+      "outcome": {"type": "string", "required": true, "description": "Accepted/MinorRevision/MajorRevision/Rejected"},
+      "dissenting_opinions": {"type": "array", "required": false},
+      "review_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "lifecycle": ["submitted", "under_review", "consensus_forming", "decided", "published", "archived"],
+    "constraints": ["evidence_based", "independent", "deterministic", "replayable"]
+  }
+}

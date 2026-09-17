@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/observation_replay.json",
+  "title": "ObservationReplay",
+  "description": "A deterministic replay event for the CGON.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^oreplay_[a-f0-9]{16}$" },
+    "event_type": { "type": "string", "enum": ["pipeline_replay", "source_replay", "domain_replay", "fusion_replay", "full_replay"] },
+    "observation_id": { "type": "string" },
+    "source_id": { "type": "string" },
+    "target_time": { "type": "integer" },
+    "input_snapshot": { "type": "object" },
+    "output_snapshot": { "type": "object" },
+    "pipeline_stages_replayed": { "type": "array", "items": { "type": "string" } },
+    "accuracy_verified": { "type": "boolean" },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshot", "output_snapshot", "content_hash"]
+}

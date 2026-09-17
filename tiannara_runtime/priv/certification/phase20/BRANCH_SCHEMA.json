@@ -1,0 +1,34 @@
+{
+  "schema": "BRANCH_SCHEMA",
+  "version": "20.5",
+  "description": "Schema for RuntimeBranch — constitutional operating system branch",
+  "branch": {
+    "fields": {
+      "branch_id": {"type": "string", "required": true, "description": "Content-addressed branch identifier"},
+      "name": {"type": "string", "required": true, "description": "Production/Experimental/Research/Simulation/Laboratory/Emergency"},
+      "purpose": {"type": "string", "required": true, "description": "Branch purpose description"},
+      "parent_generation": {"type": "string", "required": false, "description": "Source generation at branch creation"},
+      "active_generations": {"type": "array", "required": true, "description": "List of active generation IDs on this branch"},
+      "base_branch": {"type": "string", "required": false, "description": "Branch this was forked from"},
+      "merge_policy": {"type": "object", "required": true, "description": "Merge rules and certification requirements"},
+      "merge_policy.certification_required": {"type": "boolean", "required": true},
+      "merge_policy.audit_required": {"type": "boolean", "required": true},
+      "merge_policy.allowed_targets": {"type": "array", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Root hash of branch replay chain"},
+      "status": {"type": "string", "required": true, "description": "Active/Closed/Historical"}
+    },
+    "branch_types": [
+      {"name": "Production", "purpose": "Active runtime serving production load", "certification_required": true, "audit_required": true},
+      {"name": "Experimental", "purpose": "Innovation testing and validation", "certification_required": true, "audit_required": true},
+      {"name": "Research", "purpose": "Long-term research and exploration", "certification_required": false, "audit_required": false},
+      {"name": "Simulation", "purpose": "Isolated simulation runs", "certification_required": false, "audit_required": false},
+      {"name": "Laboratory", "purpose": "Controlled sandbox for integration testing", "certification_required": false, "audit_required": false},
+      {"name": "Emergency", "purpose": "Urgent fixes for production issues", "certification_required": true, "audit_required": true}
+    ],
+    "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},`n  "constraints": [
+      "no_branch_modifies_production_directly",
+      "all_merges_require_certification",
+      "branch_lineage_is_preserved"
+    ]
+  }
+}

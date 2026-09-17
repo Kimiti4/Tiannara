@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/semantic_mapping.json",
+  "title": "SemanticMapping",
+  "description": "An evidence-backed semantic mapping between concepts, mechanisms, or structures across domains.",
+  "type": "object",
+  "properties": {
+    "mapping_id": { "type": "string", "pattern": "^map_[a-f0-9]{16}$" },
+    "source_domain": { "type": "string" },
+    "source_concept": { "type": "string" },
+    "target_domain": { "type": "string" },
+    "target_concept": { "type": "string" },
+    "mapping_type": {
+      "type": "string",
+      "enum": ["equivalent", "similar", "related", "generalized", "specialized", "unknown"]
+    },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "uncertainty": { "type": "number", "minimum": 0, "maximum": 1 },
+    "known_counterexamples": { "type": "array", "items": { "type": "string" } },
+    "parent_mapping_ids": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["mapping_id", "source_domain", "source_concept", "target_domain", "target_concept", "mapping_type", "fingerprint"]
+}

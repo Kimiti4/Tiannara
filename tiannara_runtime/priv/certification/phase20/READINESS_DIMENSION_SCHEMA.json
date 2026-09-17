@@ -1,0 +1,22 @@
+{
+  "schema": "READINESS_DIMENSION_SCHEMA",
+  "version": "20.98",
+  "description": "Schema defining a single readiness dimension — one dimension of constitutional readiness",
+  "readiness_dimension": {
+    "fields": {
+      "dimension_id": {"type": "string", "required": true, "description": "Content-addressed dimension identifier"},
+      "dimension_name": {"type": "string", "required": true},
+      "weight": {"type": "number", "required": true, "description": "Weight in aggregate CRI (0.0–1.0, all weights sum to 1.0)"},
+      "raw_score": {"type": "number", "required": true, "description": "0.0–1.0 raw (unweighted) score"},
+      "normalized_score": {"type": "number", "required": true, "description": "0.0–1.0 normalized score"},
+      "weighted_score": {"type": "number", "required": true, "description": "raw × weight"},
+      "sub_metrics": {"type": "object", "required": true, "description": "Dimension-specific sub-metrics"},
+      "evidence_root": {"type": "string", "required": true, "description": "Root hash of evidence chain"},
+      "deficiencies": {"type": "array", "required": false},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic_scoring", "evidence_based", "replayable"]
+  }
+}

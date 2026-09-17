@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/system_architecture.json",
+  "title": "SystemArchitecture",
+  "description": "A constitutional system architecture with functional, physical, behavioral, and logical views.",
+  "type": "object",
+  "properties": {
+    "system_id": { "type": "string", "pattern": "^sysarch_[a-f0-9]{16}$" },
+    "technology_architecture_id": { "type": "string" },
+    "name": { "type": "string" },
+    "system_type": { "type": "string", "enum": ["primary_system", "subsystem", "assembly", "module", "component"] },
+    "parent_system_id": { "type": "string" },
+    "child_system_ids": { "type": "array", "items": { "type": "string" } },
+    "functional_architecture": { "type": "object", "properties": { "functions": { "type": "array", "items": { "type": "object", "properties": { "function_id": { "type": "string" }, "description": { "type": "string" }, "inputs": { "type": "array", "items": { "type": "string" } }, "outputs": { "type": "array", "items": { "type": "string" } } } } } } },
+    "physical_architecture": { "type": "object" },
+    "behavioral_architecture": { "type": "object" },
+    "logical_architecture": { "type": "object" },
+    "scientific_principles": { "type": "array", "items": { "type": "string" } },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["system_id", "technology_architecture_id", "name", "system_type", "fingerprint"]
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/resilience_assessment.json",
+  "title": "ResilienceAssessment",
+  "description": "A resilience assessment for a planetary system.",
+  "type": "object",
+  "properties": {
+    "assessment_id": { "type": "string", "pattern": "^resil_[a-f0-9]{16}$" },
+    "system_name": { "type": "string" },
+    "system_type": { "type": "string", "enum": ["infrastructure", "scientific", "engineering", "food", "healthcare", "communications", "energy", "transportation", "ecosystem"] },
+    "region": { "type": "string" },
+    "scores": {
+      "type": "object",
+      "properties": {
+        "robustness": { "type": "number" },
+        "redundancy": { "type": "number" },
+        "resourcefulness": { "type": "number" },
+        "response": { "type": "number" },
+        "recovery": { "type": "number" },
+        "adaptation": { "type": "number" }
+      }
+    },
+    "composite_score": { "type": "number" },
+    "gap_analysis": { "type": "object" },
+    "threat_scenario": { "type": "string" },
+    "confidence": { "type": "number" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "assessed_at": { "type": "integer" }
+  },
+  "required": ["assessment_id", "system_name", "system_type", "scores", "composite_score", "fingerprint"]
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "RESEARCH_PROGRAM_SCHEMA",
+  "version": "22.X.1",
+  "description": "Schema for a research program in the governance system",
+  "research_program": {
+    "fields": {
+      "program_id": {"type": "string", "required": true},
+      "scientific_goal": {"type": "string", "required": true},
+      "engineering_goal": {"type": "string", "required": false},
+      "domains": {"type": "array", "required": true},
+      "dependencies": {"type": "array", "required": false},
+      "milestones": {"type": "array", "required": true},
+      "evidence": {"type": "array", "required": false},
+      "expected_impact": {"type": "object", "required": true},
+      "current_health": {"type": "string", "required": true, "enum": ["healthy", "warning", "critical", "failing"]},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_driven", "deterministic", "replayable"]
+  }
+}

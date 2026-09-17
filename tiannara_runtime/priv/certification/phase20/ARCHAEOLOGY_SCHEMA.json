@@ -1,0 +1,15 @@
+{
+  "schema": "ARCHAEOLOGY_SCHEMA",
+  "version": "20.1",
+  "questions": [
+    "Why was I created?",
+    "Which problem produced me?",
+    "Which evidence justified me?",
+    "Which proposal created me?",
+    "Which generation integrated me?",
+    "What replaced me?",
+    "Why was replacement accepted?"
+  ],
+  "sources": ["evidence", "replay", "registries"],
+  "constraints": ["no_runtime_state_required", "deterministic", "reconstructable"]
+}

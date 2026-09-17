@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/system_architecture.json",
+  "title": "SystemArchitecture",
+  "description": "The authoritative constitutional system model with multiple architecture views.",
+  "type": "object",
+  "properties": {
+    "architecture_id": { "type": "string", "pattern": "^sarch_[a-f0-9]{16}$" },
+    "mission_id": { "type": "string" },
+    "system_name": { "type": "string" },
+    "views": {
+      "type": "object",
+      "properties": {
+        "logical": { "type": "object" },
+        "physical": { "type": "object" },
+        "behavioral": { "type": "object" },
+        "operational": { "type": "object" },
+        "information": { "type": "object" },
+        "control": { "type": "object" },
+        "safety": { "type": "object" }
+      },
+      "required": ["logical", "physical"]
+    },
+    "subsystem_ids": { "type": "array", "items": { "type": "string" } },
+    "interface_ids": { "type": "array", "items": { "type": "string" } },
+    "baseline_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["architecture_id", "mission_id", "system_name", "views", "fingerprint"]
+}

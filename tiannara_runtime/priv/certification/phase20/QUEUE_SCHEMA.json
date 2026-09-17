@@ -1,0 +1,17 @@
+{
+  "schema": "QUEUE_SCHEMA",
+  "version": "20.2",
+  "queue_structure": {
+    "queue_id": {"type": "string", "required": true},
+    "mission_ids": {"type": "array", "required": true},
+    "ordering_hash": {"type": "string", "required": true},
+    "priority": {"type": "integer", "required": true},
+    "dependencies": {"type": "array", "required": false},
+    "execution_window": {"type": "object", "required": false},
+    "status": {"type": "string", "required": true}
+  },
+  "ordering": ["priority", "dependency_graph", "timestamp", "content_hash"],
+    "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": ["replay_produces_identical_ordering", "no_starvation", "no_deadlock"]
+}

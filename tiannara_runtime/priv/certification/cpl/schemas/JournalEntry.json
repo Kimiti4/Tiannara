@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "JournalEntry",
+  "description": "An immutable event recorded in the event journal",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this event"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of the event"
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Type of event (atom)"
+    },
+    "event_data": {
+      "type": "object",
+      "description": "Event-specific data"
+    },
+    "previous_event_hash": {
+      "type": "string",
+      "description": "Hash of the previous event (chain integrity)"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "context": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Event metadata"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Which subsystem generated this event"
+    },
+    "replay_root": {
+      "type": "string",
+      "description": "Reference to replay position"
+    },
+    "archaeology_root": {
+      "type": "string",
+      "description": "Reference to archaeology record"
+    }
+  },
+  "required": ["event_id", "timestamp", "event_type", "event_data", "previous_event_hash"],
+  "additionalProperties": false
+}

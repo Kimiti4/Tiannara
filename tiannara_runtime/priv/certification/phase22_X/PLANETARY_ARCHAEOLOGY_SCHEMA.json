@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PlanetaryArchaeology",
+  "description": "Archaeological record reconstructing the complete planetary feedback history",
+  "type": "object",
+  "properties": {
+    "archaeology_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this archaeology record"
+    },
+    "planetary_period": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "integer"
+        },
+        "end": {
+          "type": "integer"
+        }
+      },
+      "required": ["start", "end"]
+    },
+    "archaeology_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of archaeology analysis"
+    },
+    "model_change_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "change_date": {
+            "type": "integer"
+          },
+          "model_id": {
+            "type": "string"
+          },
+          "change_type": {
+            "type": "string",
+            "enum": ["parameter", "structural", "scope", "confidence"]
+          },
+          "trigger_observations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": ["change_date", "model_id", "change_type", "description"]
+      }
+    },
+    "observation_impact": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "observation_id": {
+            "type": "string"
+          },
+          "impact_type": {
+            "type": "string",
+            "enum": ["confirmed_prediction", "contradicted_prediction", "triggered_update", "resolved_uncertainty"]
+          },
+          "impact_description": {
+            "type": "string"
+          },
+          "affected_models": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["observation_id", "impact_type", "impact_description"]
+      }
+    },
+    "intervention_record": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "intervention_id": {
+            "type": "string"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "actual_vs_expected": {
+            "type": "string"
+          },
+          "unintended_consequences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lessons_learned": {
+            "type": "string"
+          }
+        },
+        "required": ["intervention_id", "success", "actual_vs_expected"]
+      }
+    },
+    "understanding_trajectory": {
+      "type": "string",
+      "description": "Narrative of how planetary understanding evolved"
+    },
+    "key_discoveries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "discovery_reference": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          }
+        },
+        "required": ["discovery_reference", "description"]
+      }
+    },
+    "remaining_gaps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Unresolved questions and knowledge gaps"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["archaeology_id", "planetary_period", "archaeology_date", "model_change_history", "observation_impact", "understanding_trajectory", "fingerprint"]
+}

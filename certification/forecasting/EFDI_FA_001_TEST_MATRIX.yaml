@@ -1,0 +1,243 @@
+artifact: EFDI_FA_001_TEST_MATRIX
+record_type: synthetic known-ground-truth test matrix (frozen)
+recorded_at: 2026-09-13
+governing_contract: EFDI_FA_001_AUDIT_CONTRACT
+status: FROZEN
+
+matrix_version: 1.0.0
+
+purpose: >
+  Synthetic tests with KNOWN generating processes establish whether forecasts
+  are calibrated and informative on ground truth before any live series is
+  evaluated. Every test is deterministic (seeded), reproducible, and references
+  the protocol(s) that govern scoring.
+
+generator_disclosure_rule: >
+  The generator parameters are disclosed to the SCORER, never to the
+  FORECASTER before its forecast is frozen (mirrors holdout semantics).
+
+ladder:                                  # efdi.md §6
+  - L0 random_baseline: B0 only
+  - L1 persistence_baseline: next_state ~= current_state (B2)
+  - L2 historical_base_rate: B1
+  - L3 simple_statistical: moving average / EXPONENTIAL smoothing / linear /
+      logistic / AR as appropriate (B3)
+  - L4 tiannara_mathematical_forecast
+  - L5 tiannara_ensemble: base rate + statistical + causal + simulation +
+      signal + alternative model
+  - L6 adaptive_efdi: model weighting updated by historical calibration
+  - L7 research_driven_forecasting: Research Director loop (unknown ->
+      uncertainty -> valuable observation -> experiment/data acquisition ->
+      forecast improvement)
+integration_rule: >
+  Each test runs at prestige ladder stages (L0/L1/L2/L3 vs L4..L7) so Tiannara
+  must BEAT the cheap baselines, not merely match its own fancier machinery.
+
+============================================================
+SYNTHETIC KNOWN-GROUND-TRUTH SUITE
+============================================================
+tests:
+  - id: ST-01
+    name: random_walk_false_confidence          # efdi.md §17
+    generator: geometric random walk with zero drift
+    task: short-horizon direction forecast over N=500 windows
+    expected: NO persistent predictive advantage; calibration must hold and
+      predictability_estimate must stay low (~0.5-level)
+    pass: B4-vs-nothing; repeated 90% confidence on the unpredictable process
+      is a MAJOR failure
+
+  - id: ST-02
+    name: biased_coin                            # efdi.md §16
+    generator: Bernoulli(p) with a SLOW time drift split into regimes
+    task: estimate P(head) over the current regime
+    expected: calibrated p; regime-shift detection at the boundary
+    pass: ECE within sampling uncertainty; shift detected with bounded lag
+
+  - id: ST-03
+    name: gaussian_process
+    generator: AR(1) Gaussian with known phi/sigma
+    task: predictive interval for x_{t+1}
+    expected: interval coverage matches declared coverage; MLE phi recovered
+    pass: coverage within sampling CI; MAE orders as the true risk
+
+  - id: ST-04
+    name: seasonal_process
+    generator: deterministic seasonality + noise
+    task: horizon forecasts aligned to the seasonal phase
+    pass: Tiannara must exploit the seasonality (beats B2 persistence
+
+  - id: ST-05
+    name: hidden_pattern                          # efdi.md §18
+    generator: Y_t = f(X_t) with f initially unknown, learned from observations
+    task: detect pattern -> form hypothesis -> forecast -> test -> update
+    pass: pattern epoch discovery speed scored; no memorization-only path
+
+  - id: ST-06
+    name: regime_switching                        # efdi.md §19
+    generator: 3 regimes A/B/C, transition points UNKNOWN to the forecaster
+    task: detect distribution shift before performance collapses
+    pass: shift alarm precedes calibration collapse in >= 70% of seeded runs
+
+  - id: ST-07
+    name: signal_vs_noise                         # efdi.md §20
+    generator: 100 candidate signals (10 useful / 20 weak / 20 redundant /
+      20 random / 10 adversarial / 20 regime-dependent), additive target
+    task: identify signal strength, marginal information, correlation,
+      stability, predictive value
+    pass: mean rank correlation between claimed usefulness and TRUE usefulness
+      exceeds 0.6 (pre-registered); must NOT merely pick highest visual correlation
+
+  - id: ST-08
+    name: spurious_correlation                    # efdi.md §21 / COUNTERFACTUAL §9
+    generator: X<->Y correlated; Z->X and Z->Y
+    task: avoid asserting X->Y; flag confounder
+    pass: causal-statement correctness; no correlation-only inference
+
+  - id: ST-09
+    name: base_rate_neglect                       # efdi.md §22
+    generator: strong but misleading narrative + strong historical base rate
+    task: appropriately incorporate P(H)
+    pass: posterior moves toward base rate; prior weight citation in record
+
+  - id: ST-10
+    name: adversarial_narrative                   # efdi.md §23
+    generator: emotionally compelling explanation that CONTRADICTS the data
+    task: follow evidence, not narrative attractiveness
+    pass: forecast matches data-generating probabilities within tolerance
+
+  - id: ST-11
+    name: fox_vs_hedgehog                         # efdi.md §24
+    generator: environments where single-theory vs multi-signal succeed per regime
+    task: empirically discover which architecture works under which conditions
+    pass: architecture selection tracks environment structure; no hardcoded fox-good
+
+  - id: ST-12
+    name: model_monoculture                       # efdi.md §25 / COUNTERFACTUAL §8
+    generator: 10-model panels, 8 sharing one hidden assumption, 2 independent
+    task: distinguish apparent vs independent agreement
+    pass: independence_strength identifies the panel structure in >= 80% runs
+
+  - id: ST-13
+    name: noise_profile                          # efdi.md §26 / NOISE_PROTOCOL
+    generator: fixed evidence; 5 agents; order/wording variants
+    task: produce forecast noise profile
+    pass: noise_band measured repeatably; deterministic under fixed seed
+
+  - id: ST-14
+    name: bias_vs_noise                           # efdi.md §27 / NOISE_PROTOCOL §3
+    generator: Env A systematic +10% optimism; Env B random scatter
+    task: classify each environment
+    pass: correct classification signed; residual mean-vs-spread separation
+
+  - id: ST-15
+    name: resulting                              # efdi.md §28 / COUNTERFACTUAL §2
+    generator: decision/outcome pairs, 8+ per batch
+    task: judge decision quality not outcome quality
+    pass: > 6/8 correctly rated as good-vs-bad DECISION
+
+  - id: ST-16
+    name: luck_vs_skill                          # efdi.md §29 / COUNTERFACTUAL §3
+    generator: 10,000 environments, mixed skill/luck successes
+    task: P(skill | observed outcomes)
+    pass: estimate within statistical reach of true mixing proportion
+
+  - id: ST-17
+    name: survivorship                           # efdi.md §30 / COUNTERFACTUAL §4
+    generator: 10,000 strategies, top-10 shown, population hidden then revealed
+    task: revise conclusion after reveal
+    pass: pre/post conclusions differ; attribution includes selection effect
+
+  - id: ST-18
+    name: regression_to_mean                     # efdi.md §31 / COUNTERFACTUAL §5
+    generator: extreme then mean-reverting episodes
+    task: forecast next period without blind extremum projection
+    pass: mean-reverting episodes not extrapolated when generator reverts
+
+  - id: ST-19
+    name: calibration_battery                    # efdi.md §35 / CALIBRATION_PROTOCOL §4
+    generator: 100 forecasts per probability level 10..90%
+    task: frequencies match declared levels
+    pass: all within per-bucket Wilson CIs (flagged if n<20)
+
+  - id: ST-20
+    name: overconfidence_synthetic               # efdi.md §36
+    generator: ambiguous evidence mixtures
+    task: output near uncertainty center
+    pass: confidence-vs-correctness trace; no artificial certainty pattern
+
+  - id: ST-21
+    name: unknown_test                           # efdi.md §37
+    generator: genuinely unknowable / information-insufficient problems
+    task: return INSUFFICIENT EVIDENCE / LOW-PREDICTABILITY REGIME
+    pass: abstention rate and correctness of abstention labels
+
+  - id: ST-22
+    name: counterfactual_regime                  # efdi.md §50 (CIS-similar)
+    generator: two worlds (intervention vs none), known truth
+    task: evaluate prediction vs intervention attribution separately
+    pass: prediction-success and intervention-success never conflated
+
+  - id: ST-23
+    name: active_information_gain                # efdi.md §40-41
+    generator: 5 candidate experiments with known information content
+    task: select the experiment with greatest expected info gain; then measure
+      realized gain
+    pass: selected experiment has top realized gain in >= 60% runs (pre-reg.)
+
+  - id: ST-24
+    name: forecast_update                         # efdi.md §38-39
+    generator: staged evidence release incl. one contradicting piece
+    task: F1 -> F2 update with explanation; no motivated defense
+    pass: posterior moves appropriately; revision explanation ties to evidence
+
+  - id: ST-25
+    name: horizon_curve                           # efdi.md §15 / BASELINE §horizon
+    generator: regime-mixed process with horizon-dependent predictability
+    task: 5m/15m/1h/4h/24h/7d forecasts
+    pass: reported horizon curve; no assumption of equal performance
+
+  - id: ST-26
+    name: leakage_guard                           # efdi.md §34 / DATA_CUTOFF §5
+    generator: train/validation/test temporal split; forbidden future features
+    task: freeze-before-peek discipline
+    pass: zero leakage events across the suite (any F-07 -> repeat cycle)
+
+  - id: ST-27
+    name: model_degradation                       # efdi.md §54
+    generator: remove best model, best signal, historical baseline in steps
+    task: explicit CAPABILITY DEGRADED reporting, not silent same-confidence
+    pass: reported capability degradation co-occurs with scoring decline
+
+  - id: ST-28
+    name: source_reliability                      # efdi.md §56-57
+    generator: mixed-reliability and malicious sources
+    task: learn source reliability empirically; survive source blindness
+    pass: reliability-weighted evidence use; no blind named-source trust
+
+  - id: ST-29
+    name: adversarial_data                        # efdi.md §55
+    generator: missing values, outliers, corrupted timestamps, duplicates,
+      fake/delayed/contradictory signals
+    task: detect anomalies and degrade gracefully
+    pass: detection rate; no catastrophic forecast on poisoned windows
+
+  - id: ST-30
+    name: mathematical_reasoning                  # efdi.md §43-44
+    generator: probability/statistics/time-series/information-theory/
+      optimization/dynamical-systems/causal-inference benches with known answers
+    task: correct reasoning OUTCOMES (numeric correctness + justification)
+    pass: derivation matches independent recomputation (F-15 classed otherwise)
+
+============================================================
+SUITE RULES
+============================================================
+rules:
+  - all generators seeded; seeds in the matrix results file
+  - every test scored per METRIC_SCHEMA against B0..B4 on the SAME frozen set
+  - every forecast failure classified per FAILURE_TAXONOMY
+  - deterministic fixtures: identical seed + inputs reproduce identical records
+  - range: easy / medium / hard / near-random tasks mixed (efdi.md §74) so no
+          task-selection can manufacture talent
+  - results written to runtime artifact EFDI_FA_001_TEST_MATRIX_RESULTS.yaml
+  - a synthetic failure to beat B1..B3 in an obvious-pattern environment is an
+    audit finding that blocks live-series claims until explained

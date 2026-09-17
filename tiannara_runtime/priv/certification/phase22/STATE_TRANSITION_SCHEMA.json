@@ -1,0 +1,21 @@
+{
+  "schema": "STATE_TRANSITION_SCHEMA",
+  "version": "22.1",
+  "description": "Schema for a civilizational state transition event",
+  "state_transition": {
+    "fields": {
+      "transition_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "from_state_id": {"type": "string", "required": true},
+      "to_state_id": {"type": "string", "required": true},
+      "transition_type": {"type": "string", "required": true, "enum": ["expansion", "stabilization", "transformation", "contraction", "recovery", "reorganization"]},
+      "trigger_conditions": {"type": "array", "required": true},
+      "transition_duration": {"type": "integer", "required": true},
+      "success_factors": {"type": "array", "required": true},
+      "failure_modes": {"type": "array", "required": true},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "replayable", "lineage_preserved"]
+  }
+}

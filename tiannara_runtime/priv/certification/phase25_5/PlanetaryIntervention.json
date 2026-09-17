@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/planetary_intervention.json",
+  "title": "PlanetaryIntervention",
+  "description": "A core intervention record from the CPISE.",
+  "type": "object",
+  "properties": {
+    "intervention_id": { "type": "string", "pattern": "^interv_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "catalog_entry_id": { "type": "string" },
+    "domain": { "type": "string", "enum": ["infrastructure", "energy", "food", "water", "health", "economic", "ecological", "climate", "scientific", "engineering", "governance"] },
+    "strategy_id": { "type": "string" },
+    "description": { "type": "string" },
+    "expected_outcomes": { "type": "object" },
+    "side_effects": { "type": "array", "items": { "type": "object", "properties": { "description": { "type": "string" }, "probability": { "type": "number" }, "severity": { "type": "number" }, "affected_domain": { "type": "string" } } } },
+    "resource_requirements": { "type": "object" },
+    "constitutional_status": { "type": "string", "enum": ["passed", "conditional", "failed", "review_required"] },
+    "deployment_status": { "type": "string", "enum": ["planned", "pending", "active", "paused", "completed", "aborted", "rolled_back"] },
+    "effectiveness_score": { "type": "number" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["intervention_id", "name", "catalog_entry_id", "domain", "fingerprint"]
+}

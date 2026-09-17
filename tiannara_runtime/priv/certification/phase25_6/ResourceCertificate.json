@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/resource_certificate.json",
+  "title": "ResourceCertificate",
+  "description": "Certification for CPRIE-25.6 or its components.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^recert_[a-f0-9]{16}$" },
+    "entity_id": { "type": "string" },
+    "entity_type": { "type": "string", "enum": ["cprie_25_6", "inventory_engine", "allocation_engine", "optimization_engine", "forecast_engine", "flow_engine", "resilience_engine"] },
+    "certification_type": { "type": "string", "enum": ["architecture", "inventory", "allocation", "optimization", "forecast", "flow", "resilience", "replay", "data"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "constitutional_compliant": { "type": "boolean" },
+        "deterministic": { "type": "boolean" },
+        "replayable": { "type": "boolean" },
+        "uncertainty_explicit": { "type": "boolean" },
+        "sustainability_checked": { "type": "boolean" }
+      },
+      "required": ["constitutional_compliant", "deterministic", "replayable"]
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "entity_id", "entity_type", "certification_type", "checks", "fingerprint"]
+}

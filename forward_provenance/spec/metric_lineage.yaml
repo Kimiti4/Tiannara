@@ -1,0 +1,109 @@
+# Metric Lineage — spec v1.0 (Stage 5)
+
+spec_name: tiannara-fp-metric-lineage-v1
+version: 1.0.0
+authority: TiannaraOS.Provenance.MetricLineage (module metric_lineage.ex)
+area: forward_provenance only
+stage: 5 (Council-authorized; Metric Lineage)
+predecessor: Stages 1-4 (Identity Authority, Runtime Contract, Runtime
+  Instrumentation, Failure + Distributed Semantics)
+predecessor_specs:
+  - spec/canonicalization_spec.yaml
+  - spec/provenance_runtime_contract.yaml
+
+## Purpose
+Close the METRIC LINEAGE gap: a metric must provably be derived from a
+specific RESULT, which must provably be derived from a specific EXECUTION,
+under a specific METRIC DEFINITION, out of a specific raw corpus, for a
+specific ATTEMPT. A metric that merely exists, has a plausible value, or
+passes a hash check but is NOT lineage-bound is REJECTED as a provenance
+claim. Stage 5 issues no certificates; certificate state/authority semantics
+remain Stage 6.
+
+## Established chain (normative)
+SOURCE -> CONTRACT -> EXECUTION -> RESULT -> METRIC
+
+- RESULT <- EXECUTION: result identity is bound to execution id, attempt, and
+  payload hash.
+- METRIC <- RESULT + METRIC_DEFINITION: metric identity is bound to result id,
+  metric definition id, canonical value, and corpus hash.
+- NO ORPHAN: a metric without a resolvable result, or a result without a
+  registered execution, cannot exist as a lineage (derive/1 refuses).
+
+## Identity definitions (load-bearing; recomputed by the independent verifier)
+- result_id = sha256(canon %{lineage_spec, execution_id, attempt, payload_hash,
+  canonical_serialization_spec}); stored as "result_<hash>". Deterministic: no
+  timestamp, process, or position component.
+- metric_id = object_id("metric", %{lineage_spec, result_id,
+  metric_definition [definition object hash], value, corpus_sha256}).
+  Neither result nor definition can be swapped without changing the identity.
+- metric_definition id = object_id("metric_definition", content fields: name,
+  aggregation, input_field, normalization, units, population, window,
+  rounding, op). ANY content change -> a DIFFERENT definition identity,
+  regardless of the human name or the version label (version is cosmetic).
+- lineage_id = sha256(canon %{lineage_spec, execution_id, attempt, status,
+  result_id, payload_hash, metric_definition hash, metric_id, value,
+  corpus_sha256, parent_execution_id}). Identical inputs -> identical lineage.
+
+## Deterministic derivation (Q5 / M11)
+Value = recompute_value(definition, corpus) under the canon spec, identical to
+the pre-existing Metric aggregation formula (mean/stddev, rounding applied).
+The verifier recomputes the value from recorded bytes; there is no producer
+memory in verification.
+
+## Substitution and collision (Q2 / Q4 / M2 / M4 / M7 / M15)
+- A result recorded under execution A but actually produced by execution B
+  (or with B's identity fields) is REJECTED (result_mismatch).
+- A metric identity copied from another lineage is REJECTED (metric_mismatch),
+  because its recomputed result_id/definition_id/value/corpus fields would not
+  recompute to the copied identity.
+- Retries are DISTINCT: attempt 1 and attempt 2 never collapse to one identity.
+- A metric/definition pair recorded under definition V1 but whose content
+  hashes to V2 is REJECTED (definition_mismatch, Q6 definition drift).
+
+## Orphans (Q8 / Q9 / M6)
+- derive/1 refuses to build a result for an execution not registered with the
+  Identity Authority (error :missing_execution).
+- verify_lineage/1 on a lineage whose execution is unregistered or owned by a
+  different producer is REJECTED (reason missing_execution).
+
+## Failure + distributed semantics (Stage 4 preserved, M8 / M9 / M10)
+- Only terminal status `completed` is certifiable. failed/partial/timed_out/
+  cancelled/aborted/unknown are NOT CERTIFIABLE and are never upgraded.
+- A declared parent that does not resolve in the Identity Authority makes the
+  lineage UNVERIFIED (unresolved_parent); it is NEVER auto-attributed.
+- Cross-node: an authority ledger replayed on another node resolves the same
+  execution record; the same canonical bytes produce the same lineage_id.
+
+## Observability (distinct reasons, never collapsed)
+missing_execution, missing_result, result_mismatch, metric_mismatch,
+definition_mismatch, attempt_mismatch, orphan_lineage,
+invalid_terminal_state, canonicalization_mismatch.
+
+## Evidence bundle (independent verification path, section 23)
+export_bundle/2 writes identity_objects/{source,contract,environment,
+execution,metric_definition}.json, contracts/contract.bytes,
+envelopes/execution_{started,ended}.json, results/result.bytes,
+metrics/metric.json, measurements/raw_corpus.json,
+graph/provenance_graph.json, meta/bundle_manifest.json (sha256 of every file
+under the canon spec), and audit_trail.md. NO certificates are written.
+verify_bundle/1 reads ONLY the bundle directory, verifies every file hash,
+reconstructs the lineage from bytes, and recomputes all identities. A bundle
+whose files do not recompute is UNVERIFIED; a bundle whose files recompute but
+whose semantic shape is wrong is REJECTED with its distinct reason.
+
+## Test matrix contract
+Every Stage-5 adversarial case (M1..M16) contributes one machine-readable row:
+test_id, scenario, input, expected_state, expected_verdict, actual_state,
+actual_verdict, evidence, status (PASS | FAIL | UNVERIFIED | NOT_RUN).
+NOT_RUN is never reported as PASS.
+
+## Certification boundary
+Stage 5 emits no certificate and extends no authority. What a certified
+lineage certifies is entirely Stage 6 scope.
+
+## LIMITATION recorded
+The pre-existing TiannaraOS.Provenance.Metric identity (metric_ex
+metric_id with no result binding) is provenance-UNQUALIFIED under Stage 5.
+Stage 5 binds the metric to its result through the lineage contract above;
+the old identity is not retroactively amended (historical firewall).

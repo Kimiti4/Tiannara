@@ -1,0 +1,21 @@
+{
+  "schema": "CIVILIZATION_NETWORK_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for a multi-civilization network representation",
+  "civilization_network": {
+    "fields": {
+      "network_id": {"type": "string", "required": true},
+      "civilizations": {"type": "array", "required": true},
+      "relationships": {"type": "object", "required": true},
+      "collaboration_networks": {"type": "object", "required": true},
+      "resource_flow_network": {"type": "object", "required": true},
+      "knowledge_flow_network": {"type": "object", "required": true},
+      "infrastructure_links": {"type": "array", "required": true},
+      "shared_objectives": {"type": "array", "required": true},
+      "trust_levels": {"type": "object", "required": true},
+      "dependencies": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "replayable", "autonomy_preserving"]
+  }
+}

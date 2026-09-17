@@ -1,0 +1,100 @@
+program: TIA_FORENSIC_RECON_ENGINE
+move: CERTIFICATE-EXECUTION-BINDING-GATE
+schema_version: "1.0.0"
+method: "T0 git-show reads (capped); T0 ls-tree/grep inventory; hash recomputation from T0 bytes; no test execution; no implementation, commits, or pushes"
+STATUS: "HOLD (no complete binding established; see GATE)"
+T0: "PRESERVED 9753a6d / 06f06e5e identical; no commits, pushes, or modifications"
+
+SEARCH_SCOPE:
+  - "T0 tree (4756 entries) via ls-tree inventory and targeted git-show reads (capped excerpts)"
+  - "Certificate classes examined: phase14 certificate.json, governance certificate, freeze certificates, meta-certificate, minimal-repro constitution certificate, RUNTIME_FREEZE certificate, certification manifest, evidence index, hash files, auditor/generator scripts, probe contracts"
+  - "Execution classes examined: archive packets + meta files, physics executions.jsonl, interventions.ndjson, health/test/memory/telemetry records, bench scripts"
+  - "Identifier classes swept: execution_id, run_id, result_id, artifact_id, seed, config_hash, campaign_id, experiment_id, trial/job/attempt variants, trajectory/packet ids, timestamps, artifact hashes, contract hashes, source-version fields, runtime-version fields"
+  - "Git history for deleted records: not performed (destructive-checkout prohibition); T0-tree search only, stated as boundary"
+
+CERTIFICATES_EXAMINED:
+  - "phase14/certification/certificate.json (12 campaign blocks; self-hash genuine)"
+  - "PHASE14_GOVERNANCE_CERTIFICATE.json (12 campaign blocks incl. third gc_012 variant; self-hash MISMATCH under straight recomputation)"
+  - "MATHEMATICS_FREEZE_CERTIFICATE.json (frozen counts; 2000-01-01 placeholder timestamp)"
+  - "phase14/certification/certification_certificate.json (meta-certificate; self-named authority)"
+  - "data/minimal_repro_package/constitution_certificate.json (execution_id + certificate_id present; MOCK-HASH generator path in source)"
+  - "docs/RUNTIME_FREEZE_CERTIFICATE.json (generic execution-plan vocabulary, no bindings)"
+  - "phase14/certification/manifest.json (pure_artifact_package; campaigns_executed 0; generated_by PureArtifactGenerator)"
+
+EXECUTION_RECORDS_EXAMINED:
+  - "archive packets (2026-Q2 day10c runs; run_id + seed 12345 + config_hash + per-step varying telemetry): QUALIFYING"
+  - "physics executions.jsonl (16 rows; ids + full I/O config + timestamps): QUALIFYING (seed/source-version/campaign absent, disclosed)"
+  - "interventions.ndjson (ids + inputs + expected/actual + status): PARTIALLY QUALIFYING"
+  - "health/test/memory/telemetry/certification-report records: PARTIALLY QUALIFYING at best (measurements without execution identity)"
+  - "empty files (autonomous_experience, discovery_memory, multi_seed_results): NON-RECORDS"
+  - "fixtures/specs (constitution, epistemic_seed, test_contracts, schemas): NON-RECORDS"
+
+DIRECT_BINDINGS_FOUND: "EXACTLY ONE certificate contains an execution identifier: constitution_certificate.json carries execution_id MINIMAL-REPRO-2026-07-01T23:56:20 and certificate_id CERT-5850d111"
+INDIRECT_BINDINGS_FOUND: "NONE - no certificate references result/artifact paths, metric files, or run manifests; hash files bind campaign files by bytes only (4/4 recomputed genuine); manifest declares campaigns_executed 0; contract hashes bound to no certificate and no execution"
+BEST_CANDIDATE: "The MINIMAL-REPRO certificate (sole certificate carrying an execution_id) examined as the best direct-binding candidate; fails qualification below"
+
+PROVENANCE_GRAPH_BEST_CANDIDATE:
+  - "CERTIFICATE: data/minimal_repro_package/constitution_certificate.json - ESTABLISHED (file present in T0)"
+  - "CLAIMED RESULT: validation_status passed; watchdog completed; invariants all passed - PRESENT as self-assertion"
+  - "METRIC: generation_count 3; certificate_hash field - PRESENT as self-assertion"
+  - "RESULT/ARTIFACT IDENTIFIER: certificate_id CERT-5850d111 - PRESENT but self-referential (appears nowhere else in T0)"
+  - "EXECUTION IDENTIFIER: MINIMAL-REPRO timestamp id - PRESENT but self-minted by the generator task"
+  - "EXECUTION INPUTS: hardcoded generation histories + hardcoded multi-seed results inline in the generator source - PRESENT as fixtures, not observed inputs"
+  - "EXECUTION RECORD: ABSENT (no independent record of the task run; replay_status field reads not_run)"
+
+"CERTIFICATE \u2192 RESULT": "ABSENT (no certificate references a result artifact by path, id, or hash, except self-contained inline values)"
+"RESULT \u2192 METRIC": "PARTIAL (metrics inline in records; calculation sources unevidenced)"
+"METRIC \u2192 EXECUTION": "ABSENT (no metric traces to an execution input set)"
+"RESULT/ARTIFACT \u2192 EXECUTION": "ABSENT for certificates (archive packets bind internally via run_meta, but no certificate references them)"
+"CERTIFICATE \u2192 EXECUTION": "ABSENT (sole candidate edge is self-minted id with mock-hash generator path)"
+
+HASH_EVIDENCE:
+  - "Genuine bindings verified by recomputation: gc_012, gc_001, gc_006 result files; certificate.json self-hash; all match"
+  - "Governance self-hash: MISMATCH under straight recomputation (canonical-subset alternative unevidenced - no canonicalization spec found)"
+  - "Contract hashes: genuine as file content in probe YAMLs; bound to nothing (no certificate or execution references them)"
+  - "Hash verdict: byte-integrity bindings are real wherever stored hashes were tested; NONE function as execution-provenance bindings (same hash is NOT same execution without a corpus-established relationship)"
+
+SEED_EVIDENCE:
+  - "Execution seeds PRESENT (seed 12345 in archive packets - the only genuine execution seed in the corpus)"
+  - "gc_012 campaign seeds ABSENT (multi_seed file 0 bytes; no seed fields in any gc_012 record)"
+  - "Epistemic seeds explicitly test-fixture seeds per their own manifest note (correctly excluded from execution-seed candidacy)"
+  - "Certificate seed fields: ABSENT everywhere (no certificate carries a seed)"
+
+SOURCE_VERSION_EVIDENCE: "Commit/tree/contract/test-suite/compiler/harness versions ABSENT from all certificates and all execution records examined; runtime version strings are static literals (0.1.0) with no binding function; contract hashes unreferenced by any certificate or execution"
+TIMESTAMP_EVIDENCE: "Used as supporting evidence only, never as provenance; noted round placeholders (2026-01-01, 2000-01-01), realistic stamps (July campaign cluster), millisecond-spaced run series; no provenance conclusion drawn from timestamp patterns alone"
+
+META_CERTIFICATE_FINDINGS:
+  - "certification_certificate.json asserts second-order certification over the other certificates by a self-named authority (meta_certification_authority)"
+  - "No external anchor found in this pass (authority entity, decision record, or independent verification of the meta-claims)"
+  - "Self-attested chain: certificate -> certificate-of-certificates with no independent root observed"
+  - "Classification: UNVERIFIED (not refuted; anchored nowhere found)"
+
+GOVERNANCE_CERTIFICATE_FINDINGS:
+  - "Third gc_012 value set confirmed (19:47 timestamp; fitness/entropy differing from both siblings)"
+  - "Self-hash mismatch confirmed under straight recomputation (recomputed 0b1a6ab6 vs stored 409dbc2a)"
+  - "No execution, seed, source-version, or run bindings in the file"
+  - "Mismatch affects content-integrity confidence for this file specifically; does not by itself establish anything about the underlying execution (which remains unevidenced either way)"
+
+CONTRA_003: "UNRESOLVED - no certificate-to-execution chain established"
+CONTRA_003_DETAIL: "Three intact, disagreeing records stand; generator-task forensics added a fourth data point (MOCK-HASH path) that weakens, not strengthens, the minimal-repro analogy class without touching gc_012 itself; minimum provenance test applied to best candidate: id present-as-self-minted-id, result present-as-self-assertion, metric partial (inline, no source), chain NOT ESTABLISHED"
+KNOWLEDGE_CHANGES: "NONE - no existing item meets the change rule"
+KNOWLEDGE_DEBT_IMPACT:
+  - "RQ-001: served (execution-record classes mapped; gc_012-specific execution still absent)"
+  - "RQ-004: served negatively (re-derivation inputs absent except pros-run seed+config, which no certificate references)"
+  - "KD-001/CONTRA-003: deepened (three-way + mock-hash-path context), unresolved"
+  - "KD-010: deepened (meta-chain unanchored; governance hash mismatched)"
+RESEARCH_QUESTION_IMPACT: "Nearest misses now precisely bounded: archive packets lack only certificate linkage; physics executions lack only seed/source/campaign linkage; MINIMAL-REPRO lacks independent execution record despite carrying an execution id"
+
+REMAINING_UNKNOWNS:
+  - "Whether any certificate references the archive or physics runs through a path not covered by the identifier sweep (sweep systematic over listed terms; exotic encodings not exhaustively excluded - stated boundary)"
+  - "Whether re-derivation inputs exist outside T0 (working tree not searched for this question by design)"
+  - "Whether the governance self-hash covers a canonical subset (needs the canonicalization spec, if it exists)"
+  - "Whether the meta-certification authority exists as an entity beyond self-naming"
+  - "Whether deleted execution records ever existed (history search prohibited from destructive operations)"
+
+SMALLEST_NEXT_EVIDENCE: "Unchanged from prior gate and now sharpened: a single certificate-to-run reference (one field binding any certificate block to any established execution id); second choice, now explicit: a canonicalization spec for the governance hash, which would convert E2 from break to explained"
+GATE: "HOLD - no complete binding established (PASS criteria unmet); no partial binding established (no certificate-to-execution edge of any strength found; the sole id-carrying certificate fails the independence test via its mock-hash generator path); no contradiction established (FAIL unwarranted - absence after bounded search is not refutation)"
+IMPLEMENTATION: "NONE"
+REMEDIATION: "NONE"
+COMMITS: "NONE"
+PUSHES: "NONE"

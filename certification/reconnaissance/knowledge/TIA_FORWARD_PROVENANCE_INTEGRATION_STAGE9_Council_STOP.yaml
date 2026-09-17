@@ -1,0 +1,165 @@
+artifact: TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE9_Council_STOP
+record_type: COUNCIL STOP / CLOSURE (governance record)
+recorded_at: 2026-09-10
+status: "Council disposition complete; implementation remains unauthorized."
+disposition:
+  - COUNCIL-2026-09-10-M7 (M7 = HYBRID)
+  - COUNCIL-2026-09-10-SERIALIZATION-FREEZE (fz-b + fz-c on tiannara-fp-canon-v1)
+
+============================================================
+STATUS
+============================================================
+PASS (governance/design closure; no implementation boundary crossed)
+
+============================================================
+COUNCIL DECISIONS
+============================================================
+M7:
+  - M7 = HYBRID (one forward issuance authority + distributed verification)
+  - recorded in: certification/reconnaissance/knowledge/TIA_M7_DISPOSITION.yaml
+  - verification does NOT confer issuance authority; identity/decision/authority/
+    issuance/verification remain separate (binding interpretation 1-8).
+  - any future topology change requires a new Council decision.
+
+Serialization Freeze:
+  - fz-b + fz-c APPROVED, layered on tiannara-fp-canon-v1
+  - recorded in: certification/reconnaissance/knowledge/TIA_SERIALIZATION_FREEZE_DISPOSITION.yaml
+  - pins o1-o5 frozen (see below)
+
+============================================================
+CANONICALIZATION
+============================================================
+canon-v1 status: NORMATIVE, UNCHANGED (forward_provenance/spec/canonicalization_spec.yaml)
+fz-b: forward_provenance/spec/certificate_identity_spec.yaml (FROZEN, normative,
+  status: FROZEN Council disposition COUNCIL-2026-09-10-SERIALIZATION-FREEZE)
+fz-c: forward_provenance/spec/certificate_identity_conformance.yaml (4 fixtures,
+  deterministic input -> expected SHA-256, byte-parity verified against an independent
+  hand-written canon-v1 encoder; CONFORMANCE EVIDENCE, not a second spec)
+
+============================================================
+FROZEN PINS
+============================================================
+o1  certificate identity grammar: certificate_id = sha256hex(canon %{"candidate_id_spec"
+    => "tiannara-fp-cert-candidate-v1", "spine" => <spine>}); spine schema 16 fields +
+    authority_context (bridge candidate_spine exact); deterministic, replay-identical,
+    no uuid/timestamp/nonce/process- or machine-local identifiers.
+    -> FROZEN (certificate_identity_spec.yaml PIN o1)
+o2  decision/envelope body schema: field set, names, types, presence rules, canon
+    rendering pinned; issued_at is RECORD timestamp, excluded from identity input.
+    -> FROZEN (o2)
+o3  authority_header / policy_ref schema: {authority, authority_kind, role} +
+    {policy, policy_version, authority_doc, authority_doc_id}; explicit, never implicit,
+    never derived from verification outcome.
+    -> FROZEN (o3)
+o4  encoder contract: OTP stdlib :json, byte-identical reimplementation required
+    (byte parity, not semantic equivalence).
+    -> FROZEN (o4)
+o5  spec version/bump rules + SUPERSEDED interaction: explicit version bump for any
+    grammar change; SUPERSEDED is an explicit lifecycle relation, never a mutable
+    overwrite; successor preserves provenance relationship.
+    -> FROZEN (o5)
+
+============================================================
+IMPLEMENTATION FIREWALL
+============================================================
+A-predicates:       0 OPEN (all BLOCKED; bridge authorized_issuance? false)
+certificate state:  0 (no certificate created or changed)
+implementation:     NOT AUTHORIZED (no source implementation performed)
+canon-v1:           UNCHANGED (no fork, no replacement, no redefinition)
+policy draft:       UNCHANGED (accepted draft untouched)
+runtime integration: NONE
+
+============================================================
+VALIDATION
+============================================================
+Verification performed:
+  [x] M7 recorded exactly as HYBRID (TIA_M7_DISPOSITION.yaml)
+  [x] One forward issuance authority explicit (interpretation 1-2)
+  [x] Distributed verification explicit (interpretation 3)
+  [x] Verification does not confer issuance authority (interpretation 4-5, o3 rules)
+  [x] Distributed issuance not accidentally authorized (interpretation 6-7)
+  [x] canon-v1 remains normative (spec file present, untouched)
+  [x] o1-o5 explicitly frozen (certificate_identity_spec.yaml sections)
+  [x] fz-b exists, internally consistent (identity spec)
+  [x] fz-c exists, deterministic input->SHA-256 fixtures (4 fixtures)
+  [x] Byte-parity requirements explicit (o4: byte-identical reimplementation; verified)
+  [x] SUPERSEDED interaction explicit (o5)
+  [x] No A-predicate opened (bridge untouched)
+  [x] No certificate state created or changed (no state files touched)
+  [x] No implementation occurred (design/spec/governance records only)
+  [x] T0 unchanged (HEAD/tree/porcelain verified)
+  [x] No commits, no pushes, no index operations
+  [x] Accepted policy draft untouched
+  [x] Existing canon-v1 authoritative and unmodified
+  [x] Stage-8 design consistent with new decisions (identity/issuance/lifecycle/boundary
+      all built on same spine+identity formula; M7-HYBRID matches boundary design seam)
+  [x] Stage-9 decision-support traceable to decisions (m7_disposition/proposed_recommendation
+      = M7-HYBRID -> COUNCIL-2026-09-10-M7; serialization_freezing proposed fz-b+fz-c ->
+      COUNCIL-2026-09-10-SERIALIZATION-FREEZE)
+
+Result: all checks PASS
+
+============================================================
+BASELINE
+============================================================
+HEAD:      9753a6d08702064f4d00395a1bec1c4bf3887381
+tree:      06f06e5e91f33e75437a47ca901eaa7e97bb0edd
+porcelain: 3380 (expected dirty working tree; unchanged; NOT staged/committed/cleaned)
+
+files created (governance/design only, within authoring area):
+  forward_provenance/spec/certificate_identity_spec.yaml
+  forward_provenance/spec/certificate_identity_conformance.yaml
+  certification/reconnaissance/knowledge/TIA_M7_DISPOSITION.yaml
+  certification/reconnaissance/knowledge/TIA_SERIALIZATION_FREEZE_DISPOSITION.yaml
+  forward_provenance/design/stage9_m7_disposition.yaml   (prior Stage-9 decision-support)
+  forward_provenance/design/stage9_serialization_freeze.yaml (prior Stage-9 decision-support)
+  forward_provenance/design/predicate_authorization_template.yaml (prior Stage-9 decision-support)
+  forward_provenance/output/stage9_prep_consistency.json (prior Stage-9 consistency)
+
+files modified: none (no existing file changed)
+commits: 0
+pushes: 0
+index operations: 0
+
+============================================================
+ACCOUNTING
+============================================================
+created: 4 new files this closure
+modified: 0
+commits: 0
+pushes: 0
+index operations: 0
+implementation boundary: NOT crossed
+
+============================================================
+NEXT COUNCIL GATE
+============================================================
+PREDICATE-BY-PREDICATE IMPLEMENTATION AUTHORIZATION
+
+Prerequisites satisfied:
+  1. M7 = HYBRID recorded ................. [x]
+  2. Serialization freeze recorded ......... [x]
+  3. fz-b finalized ....................... [x]
+  4. fz-c finalized (fixtures verified) .... [x]
+  5. Canon-v1 relationship established ..... [x]
+  6. No unresolved serialization contradiction [x]
+  7. No accidental authority expansion ..... [x]
+  8. Predicate authorization template ready  [x]
+
+Next Council may explicitly choose individual A-predicates to open using
+forward_provenance/design/predicate_authorization_template.yaml (per predicate:
+predicate_id, allowed surface, required evidence, verification gate, rollback,
+fail-closed-preserved list). No predicate is considered open merely because it
+appears in a design.
+
+FINAL REQUIRED STATE (confirmed):
+  M7                    = HYBRID / APPROVED
+  Serialization freeze  = fz-b + fz-c / APPROVED
+  Canon                 = tiannara-fp-canon-v1 / NORMATIVE
+  A-predicates          = 0 OPEN
+  Certificate state     = 0
+  Implementation        = NOT AUTHORIZED
+  Baseline              = LOCKED
+  Next gate             = PREDICATE-BY-PREDICATE IMPLEMENTATION AUTHORIZATION
+
+"Council disposition complete; implementation remains unauthorized."

@@ -1,0 +1,106 @@
+artifact: stage9_m7_disposition
+stage: 9 (Decision-support ONLY — M7 single-vs-distributed certification authority)
+authority: TIA Council
+posture: DECISION-SUPPORT ONLY — the decision itself is the Council's; this artifact
+  assembles evidence, options, and a proposed recommendation for that decision. It does
+  NOT dispse M7 and does NOT open any authority predicate.
+recorded_at: 2026-09-10
+status: PENDING COUNCIL DISPOSITION
+policy: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml
+upstream: certificate_stack_reconciliation, authority_ownership_matrix,
+  authority_reconciliation_options (OPT-C/OPT-E), certificate_authority_inventory
+
+still_open:
+  question: Certification single authority vs distributed model
+  current_status: UNRESOLVED
+  blocking_evidence_required: certification-execution records OR an explicit
+    distributed-authority design record
+  source: certification/reconnaissance/architecture/TIA_CANONICAL_ARCHITECTURE_M7.yaml:109-111
+  observed_state: certification authority across the repo is "DISTRIBUTED AND UNRESOLVED —
+    no single certifier evidenced; references point at Council certification without a
+    demonstrated certification execution path"
+  observed_source: certification/reconnaissance/architecture/TIA_AUTHORITY_BOUNDARIES_M7.yaml:55-66
+
+the_question_scoped:
+  - M7 is repo-wide, but in THIS trajectory it gates the FORWARD PROVENANCE certificate
+    authority: how many forward authorities may issue certificates binding a validated
+    forward evidence chain to a decision under the ACCEPTED policy?
+  - The root/runtime stacks keep their own (non-forward) certification; the decision here
+    is about the forward certification region the design (Stage 8) builds on.
+
+evidence_recap:
+  - NO canonical authority exists today; NO single certifier demonstrated repo-wide (M7).
+  - Three issuer stacks exist; forward area has deterministic identity + accepted policy
+    but zero issuance; runtime has the richest operational lifecycle. No stack holds the
+    full capability set (authority_ownership_matrix).
+  - Policy draft (accepted) is authority-model-agnostic: it defines authority_kind
+    human|mechanism, requires a registry for delegation, and REQUIRES human ratification
+    for any runtime-integrated forward certificate while M7 is unresolved.
+  - Policy prohibits self-named meta-authority (the legacy certification_certificate.json
+    self-reference is explicitly excluded) — whichever model is chosen must pin issuance
+    to real registered authorities, never self-ascription.
+  - Stage-8 design is single-shaped today: one identity spec, one candidate_id hash, one
+    policy, one lifecycle vocabulary (bridge lifecycle_table/0), one fail-closed closure.
+
+options:
+  - id: M7-SINGLE
+    name: Single forward certification authority
+    description: Exactly ONE registered, Council-ratified forward certification authority
+      issues every forward certificate under the accepted policy. Registry holds that one
+      authority; mechanism delegation within it only where human ratification exists.
+    fits_evidence: matches Stage-8 design shape (one identity/policy/lifecycle); lowest
+      ambiguity; deterministic identity is naturally single-anchor.
+    cost_risk: concentrates issuance in one implementer/entity; needs ratification channel
+      (rp2) before anything can issue; if audits surface a single-authority failure mode,
+      change the request; but verification stays distributed (auditors re-check).
+    interplay_with_policy: authority_kind human ratifies the single authority; mechanism
+      sub-delegation only where registry+policy conditions hold.
+
+  - id: M7-DISTRIBUTED
+    name: Distributed forward certification authorities (multiple issuers under one policy)
+    description: Multiple registered issuers (root certification, runtime certificates,
+      forward area) all issue forward certificates under the SAME accepted policy + shared
+      registry + shared lifecycle/revocation authority.
+    fits_evidence: most faithful to observed repo-wide dispersion (no single certifier);
+      preserves existing stack lifecycles in place.
+    cost_risk: LARGEST integration scope (cross-stack identity unification, shared
+      revocation registry, M7 design record required); higher collision/ambiguity risk;
+      needs the unification-mirror that currently reports same_authority UNKNOWN for most
+      pairs (TIA_UNIFICATION_MATRIX_M7.yaml).
+    interplay_with_policy: mechanism delegation rules become critical; per-issuer
+      authority_kind records mandatory; human ratification still required for
+      runtime-integrated forward certificates.
+
+  - id: M7-HYBRID
+    name: Single forward issuance authority + distributed VERIFICATION
+    description: One forward certification authority ISSUES; verification/re-verification
+      is distributed (unlimited independent auditors re-check via bundle bytes + canon v1,
+      per policy evidence_bundle). Distribution applies to CHECKING, not to ISSUING.
+    fits_evidence: preserves the strongest Stage-7/8 boundary property (issuance fail-closed
+      and concentrated; checking open); auditor re-derivation is exactly the CONTRA-003-
+      discriminating capability the repo lacks.
+    cost_risk: still needs the single authority + ratification; distributed verification is
+      reader-side, additive to (not replacing) issuance authority.
+    interplay_with_policy: matches policy human_oversight (distributed judgment) and
+      security (hashes verifiable by anyone); the "never conflate" clause is protected
+      because verification is not issuance.
+
+proposed_recommendation (decision-support; the Council decides):
+  - RECOMMEND: M7-HYBRID over M7-SINGLE for the forward provenance region — ONE forward
+    certification authority issues; independent verification is open/distributed. This is
+    the least new risk while directly purchasing the one capability the architecture is
+    missing today (independent re-derivation, the minimum discriminating evidence for
+    CONTRA-003-class claims).
+  - RECOMMEND AGAINST M7-DISTRIBUTED at this stage unless the Council has a concrete
+    cross-stack unification mandate: it is the most faithful to the observed scatter but
+    the highest-cost and highest-ambiguity option, and it would reopen stack reconciliation
+    that Stage 7 deliberately set aside.
+
+if_council_chooses:
+  decision_record_required: "A Council decision record stating M7 disposition for the
+    forward region (single/distributed/hybrid), citing this artifact + the accepted policy,
+    recorded next to the STOP chain; disposition must not open any A-predicate (that
+    remains a later, predicate-specific step)."
+
+NOTHING_DECIDED: true
+NOTHING_IMPLEMENTED: true

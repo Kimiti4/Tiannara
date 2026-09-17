@@ -1,0 +1,19 @@
+{
+  "schema": "RESILIENCE_ARCHAEOLOGY_SCHEMA",
+  "version": "22.5",
+  "description": "Schema for archaeological reconstruction of resilience evolution",
+  "resilience_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "disruption_history": {"type": "array", "required": true},
+      "immune_responses": {"type": "array", "required": true},
+      "recovery_actions": {"type": "array", "required": true},
+      "resilience_improvements": {"type": "array", "required": true},
+      "constitutional_mechanisms_preserved": {"type": "array", "required": true},
+      "lessons_learned": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

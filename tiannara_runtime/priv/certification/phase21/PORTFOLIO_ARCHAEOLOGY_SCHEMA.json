@@ -1,0 +1,27 @@
+{
+  "schema": "PORTFOLIO_ARCHAEOLOGY_SCHEMA",
+  "version": "21.1",
+  "description": "Schema for portfolio archaeology — the archaeological record of portfolio governance decisions",
+  "portfolio_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true, "description": "Content-addressed archaeology identifier"},
+      "portfolio": {"type": "string", "required": true},
+      "archaeology_type": {"type": "string", "required": true, "description": "ProgramCreation/ProgramFunding/PriorityChange/ProgramRetirement/Succession/PortfolioRebalance"},
+      "answers": {
+        "type": "object", "required": true,
+        "fields": {
+          "why_created": {"type": "string"}, "why_funded": {"type": "string"},
+          "why_priority_changed": {"type": "string"}, "why_retired": {"type": "string"},
+          "which_discoveries_resulted": {"type": "array"},
+          "which_successor_inherited": {"type": "string"},
+          "how_it_influenced_civilization": {"type": "string"}
+        }
+      },
+      "evidence_chain": {"type": "array", "required": true},
+      "archaeology_hash": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "archaeology_types": ["program_creation", "program_funding", "priority_change", "program_retirement", "succession", "portfolio_rebalance"],
+    "constraints": ["evidence_based", "deterministic", "independently_reconstructible"]
+  }
+}

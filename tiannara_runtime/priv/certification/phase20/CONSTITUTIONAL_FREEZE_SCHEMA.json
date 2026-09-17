@@ -1,0 +1,26 @@
+{
+  "schema": "CONSTITUTIONAL_FREEZE_SCHEMA",
+  "version": "20.999",
+  "description": "Schema for ConstitutionalFreeze — the permanent freeze of the certified Constitutional Operating System (complement to FOUNDATIONAL_FREEZE_SCHEMA — this tracks freeze process and signatures; that tracks freeze targets)",
+  "constitutional_freeze": {
+    "fields": {
+      "freeze_id": {"type": "string", "required": true, "description": "Content-addressed freeze identifier"},
+      "certification_generation": {"type": "string", "required": true, "description": "Generation ID being frozen"},
+      "total_artifacts": {"type": "integer", "required": true},
+      "total_phases": {"type": "integer", "required": true},
+      "freeze_hash": {"type": "string", "required": true, "description": "SHA-256 of complete frozen state"},
+      "artifact_root_hash": {"type": "string", "required": true, "description": "Root hash of all artifact hashes"},
+      "replay_root_hash": {"type": "string", "required": true, "description": "Root hash of entire replay chain"},
+      "archaeology_root_hash": {"type": "string", "required": true, "description": "Root hash of all archaeology"},
+      "constitutional_signature": {"type": "string", "required": true, "description": "Cryptographic signature of freeze_hash"},
+      "signing_authority": {"type": "string", "required": true},
+      "freeze_timestamp": {"type": "integer", "required": true, "description": "Deterministic freeze timestamp"},
+      "immutable": {"type": "boolean", "required": true, "description": "Must be true — freeze is permanent"},
+      "status": {"type": "string", "required": true, "description": "Frozen/Sealed/Archived"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["permanent_immutability", "deterministic_freeze", "signed", "archaeology_preserved"]
+  }
+}

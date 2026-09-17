@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/replay_visualization.json",
+  "title": "ReplayVisualization",
+  "description": "A replay visualization request and result.",
+  "type": "object",
+  "properties": {
+    "visualization_id": { "type": "string", "pattern": "^obvis_[a-f0-9]{16}$" },
+    "replay_id": { "type": "string" },
+    "target_time": { "type": "integer" },
+    "engine_or_component": { "type": "string" },
+    "input_snapshot": { "type": "object" },
+    "output_snapshot": { "type": "object" },
+    "state_before": { "type": "object" },
+    "state_after": { "type": "object" },
+    "difference": { "type": "object" },
+    "accuracy_verified": { "type": "boolean" },
+    "replay_fingerprint": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated_at": { "type": "integer" }
+  },
+  "required": ["visualization_id", "replay_id", "input_snapshot", "output_snapshot", "fingerprint"]
+}

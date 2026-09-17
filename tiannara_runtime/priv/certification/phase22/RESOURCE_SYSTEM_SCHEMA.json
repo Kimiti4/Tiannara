@@ -1,0 +1,20 @@
+{
+  "schema": "RESOURCE_SYSTEM_SCHEMA",
+  "version": "22.0",
+  "description": "Schema for a resource system including stocks, flows, and transformations",
+  "resource_system": {
+    "fields": {
+      "resource_id": {"type": "string", "required": true},
+      "resource_type": {"type": "string", "required": true, "enum": ["energy", "material", "food", "water", "land", "computational", "expertise", "financial", "scientific_capital", "engineering_capital"]},
+      "stock_quantity": {"type": "number", "required": true},
+      "stock_units": {"type": "string", "required": true},
+      "incoming_flows": {"type": "array", "required": true},
+      "outgoing_flows": {"type": "array", "required": true},
+      "transformation_processes": {"type": "array", "required": true},
+      "efficiency_metrics": {"type": "object", "required": true},
+      "sustainability_index": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "flows_first_class", "mass_energy_accounting"]
+  }
+}

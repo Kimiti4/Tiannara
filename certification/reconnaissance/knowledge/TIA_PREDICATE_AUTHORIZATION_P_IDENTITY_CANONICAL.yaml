@@ -1,0 +1,68 @@
+artifact: TIA_PREDICATE_AUTHORIZATION_P_IDENTITY_CANONICAL
+record_type: PREDICATE AUTHORIZATION (implementation gate, Council-authorized)
+authorization_id: COUNCIL-2026-09-10-P-IDENTITY-CANONICAL
+recorded_at: 2026-09-10
+predecessor: TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE9_Council_STOP.yaml (accepted)
+
+predicate_id: P-IDENTITY-CANONICAL
+status: OPEN_FOR_IMPLEMENTATION (authorized surface implemented + verified below)
+
+allowed_surface:
+  - deterministic certificate identity derivation (frozen o1 contract)
+  - conformance verification against fz-c fixtures
+  - fail-closed input validation (negative surface)
+  - nothing else: NO issuance, NO lifecycle, NO revocation, NO supersession,
+    NO persistence, NO authority activation, NO distributed verification service
+
+required_evidence:
+  - fz-c fixtures (4/4) reproduce exactly
+  - independent renderer comparison passes
+  - deterministic replay identical
+  - byte/hash parity: canonical bytes == Canon.canon over identity input
+  - negative tests fail closed (missing/malformed/injected material)
+  - scope audit: only lib/certificate_identity.ex + test/certificate_identity_test.exs added
+  - baseline audit: HEAD/tree/porcelain unchanged; no commits/pushes/index ops
+
+verification_gate:
+  - 17 new unit/conformance tests PASS (102 total, 0 failures)
+  - mix format --check-formatted PASS on the two authorized files
+  - fz-c expected values UNCHANGED (fixtures read-only, not rewritten)
+  - canon-v1 UNCHANGED (no edit; only Canon reused read-only)
+  - fz-b UNCHANGED (spec file untouched)
+  - FAIL-CLOSED on every invalid input (no certificate identity produced)
+
+rollback:
+  boundary: delete lib/certificate_identity.ex and test/certificate_identity_test.exs;
+    nothing else touched. No mutation of canon-v1, fz-b, fz-c, policy, M7
+    disposition, Stage-8 design, Stage-9 governance, or T0 in the forward path.
+  status: NOT EXECUTED (gate passed; rollback path documented only)
+
+fail_closed_preserved:
+  - issuance:                     CLOSED
+  - authority assignment/rotation: CLOSED
+  - certificate registration:      CLOSED
+  - lifecycle mutation:            CLOSED
+  - revocation:                    CLOSED
+  - supersession:                  CLOSED
+  - production persistence:        CLOSED
+  - distributed verification service: CLOSED
+  - network interfaces:            CLOSED
+  - external integrations:         CLOSED
+  - autonomous operation:          CLOSED
+  - production certificate state:  CLOSED
+
+prerequisites:
+  - M7 = HYBRID approved ........................ [x]
+  - serialization freeze (fz-b + fz-c) approved .. [x]
+  - canon-v1 normative .......................... [x]
+  - fz-b final .................................. [x]
+  - fz-c final .................................. [x]
+
+certificate_creation: 0 (a derived identity is NOT issuance; no certificate state)
+issuance_activated: false
+lifecycle_activated: false
+authority_activated: false
+
+NOTHING_COMMITTED: true
+NOTHING_PUSHED: true
+NO_INDEX_OPERATION: true

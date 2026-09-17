@@ -1,0 +1,157 @@
+# Move 8 — Architectural Validation (authorities, conflicts, divergences)
+# Validation/decision-analysis only. No implementation, remediation, tests,
+# experiments, commits, or pushes. Every determination traces to T0 evidence,
+# prior-move artifacts, or explicit UNKNOWN.
+artifact: ARCHITECTURAL_VALIDATION_M8
+artifact_status: POST_T0
+move: 8
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+authorities:
+- authority: OBSERVATORY
+  owner: Observatory subsystem (classifiers, dashboards, metrics, runtime atlas, telemetry sink, topology, validation checks/store)
+  inputs: Runtime state (memory growth, mailbox, scheduler latency, constitutional score, event-bus health, world-model consistency, replays, knowledge integrity per check names)
+  outputs: Check results (named checks only; result sinks unevidenced)
+  authority_verbs: [observes, evaluates]
+  verb_note: execute/2 functions run checks; the verb governs check execution, not enforcement. No enforcement interface evidenced.
+  boundary: Observation/measurement surface; no enforcement boundary evidenced
+  persistence: Validation metrics store module present; contents unevidenced
+  execution_role: Check runner (observes + evaluates only)
+  evidence: T0 directory listing + check function names + supervision membership
+  confidence: MEDIUM
+- authority: COUNCIL
+  owner: Council subsystem (supervisor, AuditLog, Authorization struct, constitution records, monitor, queues)
+  inputs: Decisions submitted for authorization (per D3 adapter contract text)
+  outputs: Five-state authorization decisions (approved/rejected/deferred/requires_human/conditional)
+  authority_verbs: [authorizes]
+  verb_note: Authorization semantics from adapter contract text + struct states; runtime enforcement demonstration absent (carried gap)
+  boundary: Constitutional governance; audit trail persistence
+  persistence: council_audit_log DETS trail with rotation policy
+  execution_role: None (authorizes; does not execute)
+  evidence: T0 supervision content + contract text + caller references (cel/kernel, resource_manager, decision adapter, phase4 orchestrator, world_mutation_engine)
+  confidence: MEDIUM
+- authority: EXECUTIVE
+  owner: Executive subsystem (memory subsystem supervised; Cognitive ReflectionEngine + shared Types referenced)
+  inputs: Memory operations (supervisor scope); reflection queries (consume path)
+  outputs: Memory state; reflection outputs (last_reflection/0 consumed by autonomy improvement engine)
+  authority_verbs: [records, evaluates]
+  verb_note: Provides memory + reflection observations consumed by autonomy modules; no execution authority evidenced for Executive itself despite the name
+  boundary: Memory-subsystem supervision; reflection query interface
+  persistence: Executive Memory subsystem (mechanism unevidenced in this pass)
+  execution_role: None evidenced (provides, does not execute)
+  evidence: T0 supervisor content + autonomy consumer references (guarded Process.whereis call + alias refs)
+  confidence: MEDIUM
+- authority: CIVILIZATION_KERNEL
+  owner: TiannaraOS CivilizationKernel (supervised boot)
+  inputs: civilization_id + init_state at start; transform functions via update_state/1; evaluation opts
+  outputs: Adaptation evaluations; civilization summaries
+  authority_verbs: [records, evaluates, executes]
+  verb_note: update_state/1 applies caller-supplied transforms (executes within kernel state); evaluate/get observe. Authority over WHO may call is unevidenced.
+  boundary: Kernel state boundary (inferred from GenServer interface, not from a boundary declaration)
+  persistence: Kernel state (mechanism unevidenced)
+  execution_role: In-kernel state transforms + adaptation evaluation (demonstrated interface, undemonstrated invocation)
+  evidence: T0 GenServer interface (start_link/update_state/evaluate/get + handle_call clauses) + supervision membership + coordination/evolution mandate text
+  confidence: MEDIUM
+- authority: CERTIFICATION
+  owner: UNRESOLVED (distributed references; no single certifier evidenced)
+  inputs: Proposals (verification_authority), campaign artifacts (auditor/script), capability claims (framework, uncalled)
+  outputs: Verification verdicts (per-entry signatures); offline audit reports; campaign framework outputs (unevidenced)
+  authority_verbs: [evaluates, records]
+  verb_note: No authorizes/executes/enforces verb evidenced for any certification actor
+  boundary: Unresolved (see conflict A1)
+  persistence: phase14 corpus (campaign JSONs + hash bindings + certificate + index)
+  execution_role: None evidenced (CONTRA-003 blocks certification-use conclusions)
+  evidence: T0 module contents + caller references + phase14 corpus + CONTRA-003
+  confidence: MEDIUM
+- authority: EVIDENCE_FORENSIC
+  owner: Provenance gate + Move-0 engine (POST_T0)
+  inputs: Provenance records (build/unknown inputs); T0 content (Move-0 collectors)
+  outputs: Acceptance booleans; quarantine scan results (module surface); 8 Move-0 output JSONs
+  authority_verbs: [evaluates, records]
+  verb_note: Gate predicate enforced at code level where invoked; invocation coverage beyond Move-0 unevidenced
+  boundary: Evidence acceptance for scientific artifacts (per gate contract)
+  persistence: Move-0 outputs (POST_T0 working tree); provenance records carry no store
+  execution_role: Gate evaluation (demonstrated in Move-0 usage)
+  evidence: T0 gate signatures + R7/Move-0 Council records
+  confidence: MEDIUM
+- authority: MEMORY_KNOWLEDGE
+  owner: UNRESOLVED (no owner found)
+  inputs: UNKNOWN
+  outputs: UNKNOWN
+  authority_verbs: []
+  verb_note: No read/write/query verb evidenced for any record or module in this authority
+  boundary: UNKNOWN
+  persistence: JSON records + mindcache paths + ndjson convention (moduledoc-described only)
+  execution_role: None evidenced (strongest negative result carried from Move 7)
+  evidence: Negative grep results (Move 2B-T3) + presence inventory
+  confidence: HIGH (that authority is undemonstrated)
+- authority: STABILIZATION
+  owner: UNRESOLVED (Stabilization subsystem candidate; CIS competing regulator)
+  inputs: Wired caller contexts (application, phase_omega, crav, e03 harness)
+  outputs: UNEVIDENCED (no regulation-effect outputs demonstrated)
+  authority_verbs: []
+  verb_note: CIS moduledoc claims regulation (immune response, collapse prediction); Stabilization subsystem is supervised and wired; which regulates what is undetermined
+  boundary: UNRESOLVED (see conflict A2)
+  persistence: None evidenced
+  execution_role: None evidenced
+  evidence: T0 supervision + caller listing + CIS moduledoc
+  confidence: MEDIUM
+- authority: AUTONOMOUS_EVOLUTION
+  owner: UNRESOLVED
+  inputs: Experiment specs (orchestrator submit_experiment/2 interface evidenced)
+  outputs: Experiment records (get_experiment/2 interface evidenced); cancellation path exists
+  authority_verbs: [records]
+  verb_note: Submit/get/cancel interfaces evidenced; whether submissions execute (vs queue) unevidenced; E03 0 runs
+  boundary: Experiment record boundary (interface-level only)
+  persistence: Experiment records (mechanism unevidenced)
+  execution_role: None evidenced
+  evidence: T0 orchestrator interface (version 2.0.0, priority high, constitutional-score callback) + registry entries + E03 protocol record
+  confidence: MEDIUM
+- authority: DISCOVERY
+  owner: UNRESOLVED
+  inputs: UNKNOWN
+  outputs: Discovery records (chain/ledger JSONs, unattributed)
+  authority_verbs: []
+  verb_note: Discovery modules present; discovery_engine.ex role unevidenced (no moduledoc captured); no builder/verifier linkage
+  boundary: UNKNOWN
+  persistence: Discovery records without evidenced producers
+  execution_role: None evidenced
+  evidence: T0 directory listing + record presence + negative builder/verifier greps
+  confidence: LOW
+conflicts:
+- id: A1-certification-distributed
+  question: Single certification authority vs distributed model?
+  actors: [verification_authority, independent_auditor, certification_framework, run_script]
+  determination: UNRESOLVED
+  rationale: Distinct scopes/inputs evidenced (Move 7); precedence text searched and not found (only a test helper test_authority_boundary in laboratory.ex, which tests boundaries rather than establishing precedence); no hierarchy evidenced
+  precedence: UNKNOWN (not documented, not encoded, not inferable — recorded as such, not invented)
+- id: A2-stabilization-vs-CIS
+  question: Which subsystem regulates what?
+  actors: [Stabilization subsystem, CIS (CISRegistry + CollapsePredictor)]
+  determination: UNRESOLVED
+  rationale: Both claim regulation-adjacent roles (supervised modules + CIS mandate text); no boundary text found separating jurisdictions; conflicting decisions possible in principle, unevidenced in practice
+  precedence: UNKNOWN
+divergences:
+- id: D1-bounded-chaos-effect
+  intended: Stabilizers preserve adaptive evolution without suppressing it
+  observed: Supervised boot + wiring; zero tests; zero effect demonstration
+  historical: UNKNOWN (no historical runtime records adduced)
+  current: UNKNOWN (mechanism present, effect undemonstrated)
+  determination: UNRESOLVED
+- id: D2-evidence-autonomy-history
+  intended: Autonomy increases paired with evidence/governance increases
+  observed: Certified boundary mechanism; no historical operation evidence
+  historical: UNKNOWN
+  current: UNKNOWN (mechanism certified; history absent)
+  determination: UNRESOLVED
+aggregate:
+  authorities_reviewed: 10
+  authorities_resolved: 0
+  authorities_narrowed: 4
+  authorities_unchanged_insufficient: 6
+  conflicts_resolved: 0
+  conflicts_narrowed: 0
+  conflicts_unresolved: 2
+  divergences_resolved: 0
+  divergences_narrowed: 0
+  divergences_unresolved: 2

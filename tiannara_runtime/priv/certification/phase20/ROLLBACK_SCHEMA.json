@@ -1,0 +1,51 @@
+{
+  "schema": "ROLLBACK_SCHEMA",
+  "version": "20.3",
+  "description": "Schema for RollbackPlan and RollbackEvent",
+  "objects": {
+    "RollbackPlan": {
+      "fields": {
+        "rollback_id": {"type": "string", "required": true},
+        "candidate": {"type": "string", "required": true},
+        "trigger_conditions": {"type": "array", "required": true},
+        "restoration_generation": {"type": "integer", "required": true},
+        "verification_strategy": {"type": "string", "required": true},
+        "rollback_steps": {"type": "array", "required": true}
+      },
+      "lifecycle": ["draft", "validated", "armed", "triggered", "retired", "archived"]
+    },
+    "RollbackEvent": {
+      "fields": {
+        "rollback_id": {"type": "string", "required": true},
+        "generation": {"type": "integer", "required": true},
+        "trigger": {"type": "string", "required": true},
+        "trigger_evidence": {"type": "object", "required": true},
+        "restored_generation": {"type": "integer", "required": true},
+        "metrics": {"type": "object", "required": true},
+        "rollback_plan": {"type": "string", "required": true}
+      },
+      "lifecycle": ["draft", "validated", "executed", "archived"]
+    }
+  },
+  "trigger_conditions": {
+    "description": "Conditions that trigger automatic rollback",
+    "conditions": [
+      "benchmark_regression_exceeding_tolerance",
+      "adversarial_test_failure_in_production",
+      "constitutional_compliance_violation",
+      "unexplained_performance_degradation_exceeding_24h",
+      "safety_metric_breach",
+      "data_integrity_violation",
+      "resource_exhaustion_beyond_planned_capacity",
+      "replay_hash_mismatch"
+    ]
+  },
+    "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": [
+    "rollback_is_automatic_and_immediate",
+    "rollback_restores_previous_certified_generation",
+    "rollback_produces_complete_evidence_chain",
+    "rollback_is_itself_archaeologically_preserved"
+  ]
+}

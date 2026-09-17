@@ -1,0 +1,116 @@
+# Move 2 — Archaeology Depth Findings, Tranche 3
+# Evidence-depth pass over the 13 UNKNOWN catalogue entries. Method per
+# entry: T0 ls-tree presence, git grep caller/consumer discovery on the T0
+# tree (read-only), capped git-show content reads. No call graphs generated.
+# No unification. No remediation. No state changes to existing files.
+artifact: ARCHAEOLOGY_DEPTH_T3
+artifact_status: POST_T0
+move: 2
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+tranche: 3
+method: T0 ls-tree presence checks; git grep -l for caller/consumer discovery on T0 tree; capped git-show reads for contract-marker verification
+depth_findings:
+- id: TIA-CAP-009
+  probes:
+  - probe: tests referencing stabilizer modules in T0
+    result: "NONE (zero test paths reference OLEF/OCM/HSV/CTL)"
+  - probe: non-test callers of Tiannara.Stabilization in T0 .ex/.exs
+    result: "PRESENT (lib/tiannara.ex, lib/tiannara/application.ex, lib/tiannara/crav/supervisor_integrity.ex, lib/tiannara/empirical_validation/e03/harness.ex, lib/tiannara/phase_omega/activator.ex, lib/tiannara/phase_omega/wiring_engine.ex, plus intra-stabilizer references)"
+  determination: UNKNOWN retained
+  rationale: "Wiring/callers evidenced; regulation-effect demonstration absent; zero tests. Callers do not demonstrate regulation behavior."
+- id: TIA-CAP-010
+  probes:
+  - probe: evolution test files in T0 (LongHorizon/DriftAudit/Trajectory-specific, then any evolution test)
+    result: "NONE (zero test files match in T0; ungated long_horizon and SR-2 regression tests live in working tree only)"
+  - probe: adjacent benchmarker module
+    result: "PRESENT (lib/tiannara/evolution/strategy_benchmarker.ex in T0; adjacent, not execution evidence)"
+  determination: UNKNOWN retained
+  rationale: "Strongest insufficiency sharpening in tranche: T0 contains the modules and zero tests for them."
+- id: TIA-CAP-011
+  probes:
+  - probe: DecisionArchive references in T0 planner.ex
+    result: "HISTORY-ONLY (R3 remediation moduledoc notes; no live record/1 call)"
+  determination: UNKNOWN retained
+  rationale: "Facade isolation corroborated (no live callers); behavior read-from-source only, undemonstrated."
+- id: TIA-CAP-012
+  probes:
+  - probe: non-JSON references to constitutional-law records in T0
+    result: "NONE (zero references outside the JSON record itself)"
+  determination: UNKNOWN retained
+  rationale: "Record entirely unreferenced in T0 code."
+- id: TIA-CAP-013
+  probes:
+  - probe: non-JSON references to governance-invariant records in T0
+    result: "NONE (zero references outside the JSON records themselves)"
+  determination: UNKNOWN retained
+  rationale: "Records entirely unreferenced in T0 code."
+- id: TIA-CAP-014
+  probes:
+  - probe: council_audit_log readers in T0 .ex/.exs
+    result: "PRESENT, exactly one (lib/tiannara/council/audit_log.ex)"
+  - probe: rotation/corruption behavior in audit_log.ex (capped content read)
+    result: "PRESENT (DETS open with corruption detection; archive-damaged-file policy; repair-or-fresh; traverse reads; insert writes; file path ./council_audit_log.dets)"
+  determination: UNKNOWN retained
+  rationale: "Reader module exists and its stated policy (archive, not delete, corrupted files) is consistent with the corrupted variants observed in T0. This NARROWS but does not resolve the contradiction: no execution evidence shows these specific files resulted from that policy. Contradiction remains UNRESOLVED."
+- id: TIA-CAP-015
+  probes:
+  - probe: code references to the three specific JSON records in T0
+    result: "NONE (zero; only CONSTITUTIONAL_KNOWLEDGE_GRAPH_FINAL.json references the base name, a document-to-record reference, not code consumption)"
+  - probe: broad KNOWLEDGE_GRAPH references in T0 code
+    result: "PRESENT (knowledge_archive, discovery_chain, laws registry, crav modules reference the concept, not the files)"
+  determination: UNKNOWN retained
+  rationale: "Concept referenced; the specific records unconsumed."
+- id: TIA-CAP-016
+  probes:
+  - probe: mindcache references in T0 .ex/.exs
+    result: "WEAK (priv/tiannara/probes/c2_mission_chain.exs probe script; tiannara_runtime/mix.exs manifest mention only)"
+  determination: UNKNOWN retained
+  rationale: "No read/write module found; weakest presence in tranche."
+- id: TIA-CAP-017
+  probes:
+  - probe: callers of certification_framework besides itself in T0 .ex/.exs
+    result: "NONE (zero callers)"
+  determination: UNKNOWN retained
+  rationale: "Module uncalled in T0; execution and output-linkage unevidenced."
+- id: TIA-CAP-018
+  probes:
+  - probe: hash-binding files in phase14/certification/hashes/
+    result: "PRESENT (multiple *.json.sha256 files; verified format '<sha>  <path>', e.g., gc_012 binding its campaign result)"
+  determination: UNKNOWN retained
+  rationale: "Closest call in tranche. Bindings are records, not demonstrations; verification-execution evidence for the bindings is the precise remaining gap (narrowed from the broader tranche-2 gap)."
+- id: TIA-CAP-019
+  probes:
+  - probe: bench/ tree contents in T0
+    result: "PRESENT, exactly 3 scripts (graph_ingestion, mutation_throughput, query_latency benches)"
+  - probe: recorded benchmark results bound to the harness
+    result: "NONE"
+  correction_to_tranche_2: Tranche-2 entry cited '11 matching paths'; that count conflated the 3-script harness with unrelated substring matches (strategy_benchmarker.ex, benchmark scripts, redis-benchmark.exe, start-benchmark.bat). Corrected here; tranche-2 files left frozen.
+  determination: UNKNOWN retained
+  rationale: "Harness present; zero bound execution records."
+- id: TIA-CAP-020
+  probes:
+  - probe: generator/consumer modules for self_profile/subsystem_beliefs in T0 .ex/.exs
+    result: "NONE (zero)"
+  determination: UNKNOWN retained
+  rationale: "Records with no producers or consumers in T0 code."
+- id: TIA-CAP-021
+  probes:
+  - probe: builder/verifier modules for the discovery chain/ledger records in T0
+    result: "NONE (zero)"
+  determination: UNKNOWN retained
+  rationale: "Records with no builders or verifiers in T0 code."
+decided_state_check:
+  scope: TIA-CAP-001 through 008 (6 CERTIFIED, 1 BLOCKED, 1 BOUNDED)
+  method: Reviewed depth findings for any contradiction with decided states
+  result: "NO CONTRADICTIONS FOUND (planner.ex T0 content corroborates 007 isolation; D5 verdict corroborates 005; no depth probe touches 001-004, 006, 008 evidence bases)"
+aggregate:
+  unknown_in: 13
+  unknown_out: 13
+  promoted: 0
+  demoted: 0
+  contradictions_new: 0
+  contradictions_narrowed: 1
+  contradictions_resolved: 0
+  tranche_2_corrections: 1
+note: "Thirteen-to-thirteen UNKNOWN retention with narrowed gaps and one narrowed contradiction is the successful outcome per the authorizing gate. Promotion requires evidence this pass did not find; absence of promotion is not absence of progress."

@@ -1,0 +1,23 @@
+{
+  "schema": "ENGINEERING_EVALUATION_SCHEMA",
+  "version": "22.3",
+  "description": "Schema for a multi-dimensional civilization engineering evaluation",
+  "engineering_evaluation": {
+    "fields": {
+      "evaluation_id": {"type": "string", "required": true},
+      "design_id": {"type": "string", "required": true},
+      "scientific_productivity": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "engineering_productivity": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "institutional_stability": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "infrastructure_efficiency": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "innovation_rate": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "knowledge_growth": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "resilience_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "sustainability_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "composite_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "trade_off_analysis": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "multi_dimensional", "deterministic"]
+  }
+}

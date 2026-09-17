@@ -1,0 +1,18 @@
+{
+  "schema": "DYNAMICS_REPLAY_SCHEMA",
+  "version": "22.1",
+  "description": "Schema for replay verification of a civilizational dynamics event",
+  "dynamics_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "dynamics_event_type": {"type": "string", "required": true, "enum": ["state_evolution", "growth_trajectory", "innovation_event", "knowledge_accumulation", "resilience_measurement", "collapse_cascade", "recovery_pathway", "state_transition"]},
+      "event_fingerprint": {"type": "string", "required": true},
+      "reconstructed_hash": {"type": "string", "required": true},
+      "stored_hash": {"type": "string", "required": true},
+      "verification_status": {"type": "string", "required": true, "enum": ["verified", "diverged", "incomplete"]},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "immutable", "chain_verified"]
+  }
+}

@@ -1,0 +1,116 @@
+artifact: authority_reconciliation_options
+stage: 7 (Certificate Authority Reconciliation)
+authority: TIA Council
+posture: RECONNAISSANCE / ANALYSIS ONLY — options identified and compared; NONE enacted.
+recorded_at: 2026-09-10
+upstream: authority_policy_analysis, authority_ownership_matrix, certificate_identity_analysis
+
+preamble:
+  Most options require a COUNCIL DECISION (policy acceptance and/or M7 disposition) that
+  Stage 7 may only RECOMMEND, never take. Stage 7 also must not implement, import, or wire
+  any authority. Options are descriptions + evaluation only.
+
+question: Q14
+
+options:
+  - id: OPT-A
+    name: Status quo fail-closed (no authority accepted; bridge keeps all A01..A12 BLOCKED)
+    description: Continue with certificate_issuable = NO_AUTHORITY_POLICY; the authoring
+      area proposes candidates and evaluates them against an authority that has no accepted
+      policy. Zero issuance, zero lifecycle, zero revocation in the authoring area.
+    requires: NOTHING NEW (current Stage-6 state).
+    advantages:
+      - Fully consistent with CONTRA-003 standing, historical firewall, and M7 UNRESOLVED.
+      - Matches the §17 STOP logic exactly (no certifiable transition -> no leak possible).
+    disadvantages:
+      - No forward certificate can ever be issued; the provenance-to-authority boundary
+        is verified but permanently inert.
+      - Does not resolve Q1 (canonical authority); merely defers it.
+    recommendation: ACCEPTABLE AS A HOLDING STATE ONLY; not a reconciliation.
+
+  - id: OPT-B
+    name: Accept the existing policy draft (TIA_PROVENANCE_CERTIFICATION_POLICY.yaml)
+    description: Council issues an authorization record accepting the complete, non-accepted
+      policy draft (possibly amended). This enacts issuance_conditions, lifecycle states
+      (VALID/SUSPENDED/REVOKED/UNVERIFIABLE/SUPERSEDED), human-oversight points, evidence
+      bundle rules, and the historical firewall as forward policy.
+    requires: Council decision to accept; M7 still open (policy itself cannot resolve it).
+    advantages:
+      - Reuses a complete, internally-coherent draft; closes the acceptance gap.
+      - Provides the missing authority predicate (ACCEPTED policy) the bridge checks.
+    disadvantages:
+      - Acceptance does NOT designate a canonical authority (M7 single-vs-distributed open);
+        it only makes the policy operational.
+      - Needs an implementation stage after acceptance (issuance realization, lifecycle
+        enactment, revocation registry) — future work, NOT Stage 7.
+    recommendation: STRONGEST FIRST STEP; but it is a Council decision, out of Stage-7 scope.
+
+  - id: OPT-C
+    name: Reconcile to the runtime world-model certificate identity + lifecycle
+    description: Adopt the ModelCertificate ontology (certificate_id, model_id, version,
+      certification_type, checks, fingerprint, issued_by, supersedes) and the
+      CertificateIssuer behaviour (certify/re_certify/revoke/verify) as the canonical
+      certificate shape for forward provenance, curbed by the policy draft.
+    requires: Council designation; M7 disposition; identity determinism change (replace
+      strong_rand_bytes ids with recomputable ones per policy); cross-runtime wiring.
+    advantages: richest existing schema (supersession chain, validity, self|auditor issuer).
+    disadvantages: domain-scoped (world-model); currently non-deterministic ids; adding this
+      to the authoring area would be consequential integration (import across stacks),
+      and is out-of-scope for Stage 7.
+    recommendation: RISK MEDIUM; only viable after OPT-B-style acceptance + M7.
+
+  - id: OPT-D
+    name: Reconcile to the forward deterministic candidate identity as the authority key
+    description: Make the bridge's deterministic candidate_id (sha256 of candidate_id_spec +
+      spine) the certificate identity for forward provenance, so a certificate is
+      recomputable from its evidence chain, with issuance/lifecycle enacted later under an
+      accepted policy.
+    requires: Council designation + policy acceptance; later implementation stage to wire
+      issuance + lifecycle (NOT Stage 7).
+    advantages: the only deterministic, replay-identical identity in the repo; matches the
+      policy canonical-serialization principle (hash verify vs authority carry).
+    disadvantages: candidate_id alone is an identity, not an authority; still needs the full
+      authority + policy + lifecycle constellation.
+    recommendation: STRONG identity choice for the post-acceptance realization; presented as
+      design analysis, nothing enacted.
+
+  - id: OPT-E
+    name: Distributed-authority reconciliation (multiple adopted issuers under one policy)
+    description: Resolve M7 in favour of a distributed model: policy-draft acceptance +
+      registry of authorized issuers (root certification, runtime certificates, forward
+      area) each issued under the SAME accepted policy + shared revocation registry and
+      identity conventions.
+    requires: M7 distributed-model decision (design record); policy acceptance; integration
+      across root/runtime/forward; a shared lifecycle/revocation authority.
+    advantages: matches the observed distribution (multiple real issuers exist across root
+      and runtime today).
+    disadvantages: LARGEST scope; requires cross-stack integration, which the historical
+      firewall and current authoring constraint forbid until separately authorized;
+      coordination risk; highest evidence burden (design record needed to close M7).
+    recommendation: documented as the most faithful-to-observed-state model, but explicitly
+      requires an M7 design record + Council authorization that does not exist. NOT Stage 7.
+
+comparison_table:
+  opts: [OPT-A, OPT-B, OPT-C, OPT-D, OPT-E]
+  criteria:
+    - closes_acceptance_gap: [no, yes, partial (needs B), no, partial]
+    - closes_m7_designation: [no, no (still open), yes (if Council designates), no (realization only), yes (if design record)]
+    - deterministic_identity: [n/a, n/a, no, yes, depends on design]
+    - lifecycle/revocation: [none, eventually-after-stage, yes (runtime-built), needs stage, needs design]
+    - integration_scope: [none, none, cross-stack (large), forward-only + later, cross-stack (largest)]
+    - firewall/CONTRA-003 compatibility: [full, full, requires care, full, requires care]
+  note: Any of OPT-B..OPT-E that is enacted turns the Stage-8+ future into an implementation
+    stage for a Council-authorized realization; Stage 7 performs ZERO of it.
+
+recommended_path (recommendation ONLY):
+  1. Council accepts the policy draft (OPT-B) — the cheapest, complete-policy-based step.
+  2. Council resolves M7 single-vs-distributed (OPT-E if distributed, OPT-C/OPT-D if single).
+  3. A FUTURE (authorized, post-§17-disposition) implementation stage realizes issuance +
+     lifecycle + revocation under the accepted policy, using the deterministic candidate
+     identity (OPT-D) — none of which is implemented by Stage 7.
+
+verdict:
+  All options analysed; NO option is implemented, wired, or promoted to acceptance.
+  Stage 7 records the design space and the recommended gate; the deciding authority for
+  any option is the Council.
+  NOTHING_IMPLEMENTED: true.

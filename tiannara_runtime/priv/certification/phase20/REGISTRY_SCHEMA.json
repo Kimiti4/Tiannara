@@ -1,0 +1,17 @@
+{
+  "schema": "REGISTRY_SCHEMA",
+  "version": "20.1",
+  "registries": {
+    "EvolutionRegistry": {"tracks": "all proposals, candidates, deployments", "functions": ["register", "lookup", "list", "replay", "verify"]},
+    "ExtensionRegistry": {"tracks": "every constitutional extension", "functions": ["register", "lookup", "list", "replay", "verify"]},
+    "RetirementRegistry": {"tracks": "every retired subsystem", "functions": ["register", "lookup", "list", "replay", "verify"]},
+    "GenerationRegistry": {"tracks": "every OS generation", "functions": ["register", "lookup", "list", "replay", "verify"]},
+    "ReplayRegistry": {"tracks": "replay roots", "functions": ["register", "lookup", "verify"]},
+    "ArchaeologyRegistry": {"tracks": "historical lineage", "functions": ["register", "explain", "lineage"]},
+    "EvidenceRegistry": {"tracks": "scientific evidence", "functions": ["register", "verify", "chain"]},
+    "MetricsRegistry": {"tracks": "all constitutional metrics", "functions": ["record", "query", "summarize"]}
+  },
+    "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": ["deterministic", "immutable", "content_addressed", "replayable"]
+}

@@ -1,0 +1,57 @@
+program: TIA_FORENSIC_RECON_ENGINE
+move: PROVENANCE-CLOSURE-EVIDENCE-ARCHITECTURE-GATE
+schema_version: "1.0.0"
+method: "Read-only reconnaissance (source/contract/execution/result/metric/certificate provenance) + design of the minimum provenance model, adversarial test plan, and independent evidence bundle spec. No implementation, no test execution, no commits, no pushes."
+STATUS: "PARTIAL PASS"
+
+T0: "PRESERVED 9753a6d08702064f4d00395a1bec1c4bf3887381 / tree 06f06e5e91f33e75437a47ca901eaa7e97bb0edd; 3,366 dirty entries untouched; no commits or pushes"
+scope: "RECONNAISSANCE + DESIGN ONLY. Source identity, contract identity, execution identity, result provenance, metric provenance, certificate provenance, certificate self-hash; provenance graph, failure model, adversarial tests, independent evidence bundle, human oversight. No implementation."
+
+PRIMARY_QUESTION: "What is the minimum provenance architecture required for Tiannara to produce a certificate whose claims can be independently traced to a specific execution, source state, contract, test corpus, inputs, outputs, metric derivation, and certification decision? - ANSWERED IN DESIGN (Artifacts 2-4); the model is internally coherent; instantiation is deferred to Council."
+
+SOURCE_IDENTITY: "ABSENT in all execution records and certificates (no repo/commit/tree/dirty fingerprint anywhere; T0 hash known only a posteriori; archive config_hash 7a3244ead97d is a 12-hex unbound prefix). Design requires repository+commit+tree+dirty_state_fingerprint+source_manifest_hash."
+CONTRACT_IDENTITY: "Contracts exist (remediation AC/MC YAML, probe contracts, CPL schemas) but contract_hash is null and no contract binds to execution or certificate. Design requires contract_hash+version+parameter_set+test_specification_hash."
+EXECUTION_IDENTITY: "PARTIAL. real_execution ledger has execution_id/experiment_id/executed_at/verification (present), no end_time/seed/runtime/source/contract/input/output manifests. Archive runs have run_id+seed 12345+config_hash+telemetry. Physics rows have ids+I/O+timestamps. Duplicate detection absent. Design requires uniqueness-enforced execution_id, seed (stochastic), environment identity with deps_lock_hash, input/output manifests, status+failure."
+RESULT_PROVENANCE: "RESULT -> EXECUTION: NOT ESTABLISHED. No certificate references any result by id/path/hash; gc_* results carry no execution linkage; archive packets self-contained. Design: result_id + DERIVED_FROM edge to execution required."
+METRIC_PROVENANCE: "PARTIALLY REPRODUCIBLE at best. gc_009/gc_010 compute from ephemeral live measurements (1000 samples; confidence/statistical_power 0.99/0.98 are self-asserted constants); independent auditor uses 100 samples and single gates - protocol divergence; gc_012 replay report has per-report sha256 but no persisted corpus. No metric version, no input field list, no aggregation/rounding/normalization spec, no seed dependence record. Design: metric_manifest (name, definition_version, computation_hash, input_field_list, aggregation/rounding/normalization, seed_dependence, measurement_corpus_ref, recomputed_by)."
+CERTIFICATE_PROVENANCE: "Matrix completed for all 8 certificate classes (Artifact 1). No certificate carries source/contract/execution identity; result/metric partial-to-absent (inline values only); auditor identity ABSENT in every class; generator version only in master_manifest (14.0.999); meta-certificate self-named; minimal-repro certificate self-mints execution_id via MOCK-HASH path."
+CERTIFICATE_SELF_HASH: "File-byte integrity distinct from semantic provenance and from canonical self-hashing. certificate.json stored sha256 verified genuine (prior gate). Governance cert stored 409dbc2a... vs byte-exact recompute 0b1a6ab6... MISMATCH (intrinsic, T0-only, no canonicalization spec found). FINAL cert stated c5896ae4... vs whole-file 985e0073... - discrepancy is method-bound (canonical subset semantics undefined); NOT asserted as a hard mismatch. No certificate defines an unambiguous canonical hashing procedure; design mandates exact canonical_serialization_spec."
+PROVENANCE_GRAPH: "DESIGNED as envelope DAG: nodes = immutable event envelopes; edges DERIVED_FROM/EXECUTED_UNDER/PRODUCED/INCORPORATES/CERTIFIES/VERIFIES/PARENT_OF each carrying edge_id, relationship_type, creation_event, producer, verification_status(verified/unverified/contested/failed). Supports forward/backward traversal, independent audit, lineage reconstruction, failed-edge detection. The failure model (21 modes) maps detect/prevent/recover: every mode is currently UNDETECTABLE or PARTIAL; each maps to a designed field + adversarial test."
+ADVERSARIAL_TEST_PLAN: "10 tests designed (Artifact 3): A wrong-execution, B wrong-result, C wrong-contract, D missing-execution, E hash-only-evidence, F duplicate-identity/same-metric-different-execution, G deleted-evidence, H metric-substitution (formalizes gc_009/gc_010 auditor-protocol divergence), I certificate-substitution, J contract-drift-protected. All currently UNDETECTABLE except F (PARTIAL) and D (INDISTINGUISHABLE). Acceptance criteria defined per test."
+INDEPENDENT_EVIDENCE_BUNDLE: "Bundle spec (Artifact 4) answers the 9 audit questions from bundle bytes alone. Today answerable: what-run/what-happened/what-result/what-contract (unbound). NOT answerable today: against-what-source, inputs, environment, how-metric-calculated, why-certificate-issued. Independent re-derivation of certificate-bound metrics is NOT POSSIBLE today. Bundling at certification time, never retroactive; externally storable."
+
+CONTRA_003: "UNRESOLVED and preserved. Not reconciled by interpretation. The design discriminates the four candidate explanations via identity comparison: same-execution/different-representation (shared execution_id, differing rendering -> explainable), different-executions (distinct execution_ids -> distinct facts), different-metric-calculations (differing metric_manifest -> testable), historical-artifact-inconsistency (missing/unwritable envelope -> UNKNOWN, never repaired silently). New coincidence disclosure: 0.8035 observed in data/archive/rea_generativity_trajectory_tensor.json (Trader-family coordinates.I) is unrelated to gc_012 fitness - coincidence class, like the pre-T0 EMG zcr values. Required evidence for resolution (corpus + metric_manifest + source/contract/execution identity for gc_012) does not exist today."
+
+KNOWLEDGE_CHANGES: "NONE - no ledger item overturned; new classifications are additive disclosures grounded in byte-verified evidence"
+KNOWLEDGE_DEBT_IMPACT:
+  - "KD-001/CONTRA-003: preserved; discrimination model provided (no closure)"
+  - "KD-004 (independent re-derivation): deepened - impossible today, spec defines the minimum bundle"
+  - "KD-010 (governance/FINAL hash semantics): deepened - canonicalization spec is the named evidence gap"
+  - "KD-005/KD-011: unchanged (design-only gate)"
+RESEARCH_QUESTION_IMPACT:
+  - "RQ-001 certificate truth: PARTIALLY ANSWERED (byte-integrity verified for certificate.json; semantic provenance ABSENT for all classes)"
+  - "RQ-004 independent re-derivation: UNANSWERED (bundle spec now defines what would answer it)"
+  - "RQ-002 authority: PARTIALLY ANSWERED NEGATIVELY (meta-certificate unanchored; authority objects now specified)"
+  - "RQ-010 metrics blast radius: PARTIALLY ANSWERED (metric derivation unversioned and unpinned; metric_manifest is the control)"
+  - "RQ-003 evolution execution: UNANSWERED"
+  - "RQ-009 audit attribution: UNANSWERED"
+  - "RQ-006 record provenance: PARTIALLY ANSWERED NEGATIVELY"
+  - "RQ-005 benchmark executability: UNANSWERED"
+REMAINING_UNKNOWNS:
+  - "Canonical subset hashing procedure for governance/FINAL certificates (would explain stored-vs-recomputed hashes)"
+  - "Existence of any persisted measurement corpus (none found; metrics recompute from live governance state)"
+  - "Whether Provenance.build records are ever persisted (construction located; persistence path not found)"
+  - "Semantics of archive config_hash 7a3244ead97d"
+  - "Execution/run id uniqueness enforcement (no index located)"
+  - "Exact formal spec of the independent-audit recomputation protocol (two diverging code paths exist)"
+SMALLEST_NEXT_EVIDENCE: "WITHIN the read-only boundary, the smallest evidence that moves the gate forward is EITHER (a) a located canonicalization spec for certificate hashing, OR (b) any located preserved measurement corpus for gc_009/gc_010/gc_012 enabling metric recomputation. If neither exists, the next responsible stage is a Council-authorized implementation-and-verification contract for the minimum model (Artifacts 2-4), which is NOT proposed by this gate."
+
+GATE: "PARTIAL PASS. The architecture is sufficiently characterized and the minimum internally coherent design is defined (model + graph + failure model + adversarial plan + evidence bundle). IMPORTANT EVIDENCE GAPS REMAIN (canonical hash spec, metric corpus persistence, source/contract/execution identity in records, missing result->execution edge, auditor protocol parity). CONTRA-003 remains UNRESOLVED. No critical contradiction prevents the design; no implementation is proposed or begun in this gate."
+
+IMPLEMENTATION: "NONE"
+REMEDIATION: "NONE"
+CERTIFICATE REGENERATION: "NONE"
+EXPERIMENT EXECUTION: "NONE"
+COMMITS: "NONE"
+PUSHES: "NONE"
+T0 MODIFIED: "NO"

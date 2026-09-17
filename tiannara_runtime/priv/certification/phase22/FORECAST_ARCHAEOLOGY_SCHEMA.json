@@ -1,0 +1,19 @@
+{
+  "schema": "FORECAST_ARCHAEOLOGY_SCHEMA",
+  "version": "22.7",
+  "description": "Schema for forecast archaeological reconstruction",
+  "forecast_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true},
+      "forecast_ids": {"type": "array", "required": true},
+      "question_set": {"type": "array", "required": true},
+      "evidence_traces": {"type": "object", "required": true},
+      "assumption_records": {"type": "object", "required": true},
+      "accuracy_analysis": {"type": "object", "required": true},
+      "methodology_timeline": {"type": "object", "required": true},
+      "recalibration_history": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["comprehensive", "deterministic", "replayable"]
+  }
+}

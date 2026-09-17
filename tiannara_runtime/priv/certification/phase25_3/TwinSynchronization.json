@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/twin_synchronization.json",
+  "title": "TwinSynchronization",
+  "description": "A synchronization event between the digital twin and the state engine.",
+  "type": "object",
+  "properties": {
+    "sync_id": { "type": "string", "pattern": "^tsync_[a-f0-9]{16}$" },
+    "twin_id": { "type": "string" },
+    "state_engine_version": { "type": "integer" },
+    "layers_synchronized": { "type": "array", "items": { "type": "string" } },
+    "changes_applied": { "type": "integer" },
+    "sync_duration_ms": { "type": "integer" },
+    "conflicts_detected": { "type": "integer" },
+    "conflicts_resolved": { "type": "integer" },
+    "post_sync_fidelity": { "type": "number" },
+    "status": { "type": "string", "enum": ["completed", "partial", "failed", "conflicted"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "synchronized_at": { "type": "integer" }
+  },
+  "required": ["sync_id", "twin_id", "state_engine_version", "layers_synchronized", "status", "fingerprint"]
+}

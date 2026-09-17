@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/transfer_replay.json",
+  "title": "TransferReplay",
+  "description": "A replay event recording a deterministic cross-domain transfer operation for full timeline reconstruction.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^txreplay_[a-f0-9]{16}$" },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "transfer_discovery", "abstraction", "analogy_detection",
+        "validation", "adaptation", "integration",
+        "certification", "reuse", "retirement"
+      ]
+    },
+    "input_snapshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entity_id": { "type": "string" },
+          "entity_type": { "type": "string" },
+          "snapshot": { "type": "object" }
+        },
+        "required": ["entity_id", "entity_type", "snapshot"]
+      }
+    },
+    "output_snapshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entity_id": { "type": "string" },
+          "entity_type": { "type": "string" },
+          "snapshot": { "type": "object" }
+        },
+        "required": ["entity_id", "entity_type", "snapshot"]
+      }
+    },
+    "algorithm_parameters": { "type": "object" },
+    "deterministic_seed": { "type": "integer" },
+    "parent_event_ids": { "type": "array", "items": { "type": "string" } },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshots", "output_snapshots", "content_hash"]
+}

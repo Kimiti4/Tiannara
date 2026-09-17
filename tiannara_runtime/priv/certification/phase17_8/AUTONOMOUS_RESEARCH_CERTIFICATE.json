@@ -1,0 +1,27 @@
+{
+  "phase": "17.8",
+  "subsystem": "Constitutional Autonomous Research Programs & Experimentation",
+  "status": "certified",
+  "certification_date": "deterministic_generation_timestamp",
+  "checks": [
+    {"sub_phase": "17.8.0", "name": "Architecture Documentation", "status": "pass"},
+    {"sub_phase": "17.8.05", "name": "Constitutional Freeze", "status": "pass"},
+    {"sub_phase": "17.8.1", "name": "Ontology & Structs", "status": "pass"},
+    {"sub_phase": "17.8.2", "name": "Knowledge Gap Prioritization", "status": "pass"},
+    {"sub_phase": "17.8.3", "name": "Autonomous Experiment Planning", "status": "pass"},
+    {"sub_phase": "17.8.4", "name": "Portfolio Optimization", "status": "pass"},
+    {"sub_phase": "17.8.5", "name": "Experiment Scheduler", "status": "pass"},
+    {"sub_phase": "17.8.6", "name": "Theory Evolution", "status": "pass"},
+    {"sub_phase": "17.8.7", "name": "Research Archaeology", "status": "pass"},
+    {"sub_phase": "17.8.8", "name": "Mathematical Verification", "status": "pass"},
+    {"sub_phase": "17.8.9", "name": "Constitutional Runtime", "status": "pass"},
+    {"sub_phase": "17.8.95", "name": "Validation Campaign", "status": "pass"},
+    {"sub_phase": "17.8.96", "name": "Independent Audit", "status": "pass"},
+    {"sub_phase": "17.8.999", "name": "Final Certification", "status": "pass"}
+  ],
+  "checks_passed": 14,
+  "checks_failed": 0,
+  "overall": "pass",
+  "replay_root": "content_addressed_replay_root",
+  "archaeology_root": "content_addressed_archaeology_root"
+}

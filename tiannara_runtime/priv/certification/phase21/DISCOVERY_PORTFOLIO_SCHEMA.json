@@ -1,0 +1,20 @@
+{
+  "schema": "DISCOVERY_PORTFOLIO_SCHEMA",
+  "version": "21.0",
+  "description": "Schema for DiscoveryPortfolio — categorized portfolio of discoveries managed by the research civilization",
+  "discovery_portfolio": {
+    "fields": {
+      "portfolio_id": {"type": "string", "required": true, "description": "Content-addressed portfolio identifier"},
+      "category": {"type": "string", "required": true, "description": "FoundationalScience/AppliedScience/Engineering/HighRisk/HighReward/CrossDomain/LongHorizon/Civilizational"},
+      "discoveries": {"type": "array", "required": false, "items": {"type": "string"}},
+      "allocation": {"type": "number", "required": true, "description": "Scientific capital allocated to this portfolio"},
+      "diversity_score": {"type": "number", "required": false, "description": "0.0–1.0 domain diversity metric"},
+      "risk_profile": {"type": "string", "required": true, "description": "Low/LowMedium/Medium/High"},
+      "rebalancing_policy": {"type": "string", "required": true, "description": "Deterministic rebalancing rule reference"},
+      "replay_root": {"type": "string", "required": true},
+            "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "categories": ["foundational_science", "applied_science", "engineering", "high_risk", "high_reward", "cross_domain", "long_horizon", "civilizational"],
+    "constraints": ["deterministic_allocation", "constitutional_governance", "replayable"]
+  }
+}

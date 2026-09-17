@@ -1,0 +1,33 @@
+# Move 2 — Canonical Truth Model: EXPERIMENTS
+# Recorded experimental activity. Only Council-authorized campaign records
+# are transcribed (COUNCIL_DECISION). No experiment is executed, designed,
+# or evaluated here. Anything else is UNKNOWN.
+artifact: TRUTH_EXPERIMENTS
+artifact_status: POST_T0
+move: 2
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+spec: master.md Move 2 (section 4 onward); experiments layer only
+campaigns_on_record:
+- campaign: E03 Stabilizer-Only Emergence
+  kind: COUNCIL_DECISION
+  source: Council session record
+  recorded_state:
+    pre_registration: FROZEN
+    verifier: 24/24 PASS
+    harness: BUILT, smoke test PASS
+    execution_runs: 0
+    stabilizer_invocations: 0
+    protocol_status: BLOCKED pending execution-start authorization
+- campaign: SR-1 through SR-4 substrate remediation
+  kind: COUNCIL_DECISION
+  source: Council session record
+  recorded_state:
+    defect: Trajectory nil-arithmetic (characterized, regression-tested 12/12)
+    correction: A+C authorized and implemented; guards verified present in T0 content (git show T0:lib/tiannara/evolution/trajectory.ex)
+    design_status: COMPLETE
+prohibited_in_this_layer:
+- Executing any experiment
+- Designing any experiment
+- Evaluating any experimental outcome
+- Modifying any campaign record

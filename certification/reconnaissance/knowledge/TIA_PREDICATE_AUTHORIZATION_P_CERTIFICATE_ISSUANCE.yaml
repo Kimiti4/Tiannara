@@ -1,0 +1,93 @@
+artifact: TIA_PREDICATE_AUTHORIZATION_P_CERTIFICATE_ISSUANCE
+record_type: PREDICATE AUTHORIZATION (implementation gate, Council-authorized)
+authorization_id: COUNCIL-2026-09-13-P-CERTIFICATE-ISSUANCE
+recorded_at: 2026-09-13
+predecessor:
+  - TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE9_Council_STOP.yaml (accepted)
+  - TIA_FORWARD_PROVENANCE_PREDICATE_P_IDENTITY_CANONICAL_STOP.yaml (accepted; identity verified)
+
+predicate_id: P-CERTIFICATE-ISSUANCE
+status: OPEN_FOR_IMPLEMENTATION (authorized surface implemented + verified below)
+
+allowed_surface:
+  - single forward issuance under M7=HYBRID (one registered issuer, mechanism kind,
+    first-writer-wins) producing immutable VALID certificate records in an
+    append-only canon-v1 JSONL issuance ledger
+  - policy-gated issuance over a VERIFIED evidence chain (identity re-derived ONLY
+    through the frozen P-IDENTITY-CANONICAL path; envelope-bound; atomic persist
+    with full rollback on ledger-append failure)
+  - replay/resolve of prior sentences and idempotent registry restart from the ledger
+  - fail-closed input validation (negative surface below)
+  - nothing else: NO lifecycle, NO revocation, NO supersession, NO certificate writes
+    into the evidence bundle, NO distributed verification, NO network interfaces,
+    NO production activation beyond the predicate's own ledger
+
+required_evidence:
+  - 26 unit tests PASS: happy path; all 10 all_must_hold conditions PASS and all 4
+    impossible_cases ABSENT; frozen-path identity reuse (fz-b o1 attempt-as-string);
+    replay-on-identical; duplicate_conflicting preserved; restart idempotence;
+    bundle never written into; ledger sentences canon-v1 canonical; bundle_id
+    mismatch/missing fails closed; unresolved execution_id; partial/aborted refused;
+    metric manifest/corpus failures; non-recomputable source/contract; incomplete
+    environment; bad reproducibility class/canon spec/historical refs; tampered
+    chain; first-writer-wins competing issuer; unauthorized issuer; malformed
+    authority headers; invalid policy_ref; decisions outside vocabulary; missing
+    reason; atomic persistence rollback; M7 boundary (bridge stays BLOCKED);
+    closed state space (VALID/replayed only)
+  - full suite 128 tests, 0 failures
+  - mix format --check-formatted PASS on the two authorized files
+  - scope audit: only lib/certificate_issuance.ex + test/certificate_issuance_test.exs added
+  - baseline audit: HEAD/tree/porcelain unchanged; no commits/pushes/index ops
+  - evidence matrix forward_provenance/output/predicate_issuance_evidence.json
+
+verification_gate:
+  - 26 new predicate tests PASS (128 total, 0 failures)
+  - mix format --check-formatted PASS on the two authorized files
+  - P-IDENTITY-CANONICAL UNCHANGED (certificate_identity.ex reused read-only)
+  - bridge UNCHANGED (candidate/3 + evaluate/3 reused read-only; candidate never issues)
+  - canon-v1 UNCHANGED (no edit; Canon reused read-only)
+  - fz-b UNCHANGED (spec file untouched; spine normalized to string attempt domain
+    via identity_spine/1, validated through CertificateIdentity.validate/2)
+  - policy file UNCHANGED (TIA_PROVENANCE_CERTIFICATION_POLICY.yaml is the SOLE
+    issuance authority, cited as tiannara-provenance-certification-policy v1.0.0)
+  - FAIL-CLOSED on every invalid input (no certificate record produced)
+
+rollback:
+  boundary: delete lib/certificate_issuance.ex and test/certificate_issuance_test.exs
+    (+ the evidence matrix); nothing else touched. No mutation of canon-v1, fz-b,
+    fz-c, policy, M7 disposition, certificate_identity.ex, bridge, Stage-8 design,
+    Stage-9 governance, or T0 in the forward path.
+  status: NOT EXECUTED (gate passed; rollback path documented only)
+
+fail_closed_preserved:
+  - lifecycle mutation:            CLOSED
+  - revocation:                    CLOSED
+  - supersession:                  CLOSED
+  - certificate writes in bundles: CLOSED
+  - competing issuers:             CLOSED (first-writer-wins single authority)
+  - distributed issuance:          CLOSED
+  - distributed verification service: CLOSED
+  - network interfaces:            CLOSED
+  - external integrations:         CLOSED
+  - autonomous operation:          CLOSED
+  - production integration:        CLOSED
+
+prerequisites:
+  - M7 = HYBRID approved ........................ [x]
+  - serialization freeze (fz-b + fz-c) approved .. [x]
+  - canon-v1 normative .......................... [x]
+  - fz-b final .................................. [x]
+  - fz-c final .................................. [x]
+  - P-IDENTITY-CANONICAL verified ................ [x]
+
+certificate_creation: 1 (single VALID decision_recorded per identity, immutable, ledger-only)
+issuance_activated: true (predicate-local ledger only; no network/production integration)
+lifecycle_activated: false
+revocation_activated: false
+supersession_activated: false
+authority_activated: LIMITED (single mechanism issuer, predicate-local registry,
+  first-writer-wins, replayed from the issuance ledger)
+
+NOTHING_COMMITTED: true
+NOTHING_PUSHED: true
+NO_INDEX_OPERATION: true

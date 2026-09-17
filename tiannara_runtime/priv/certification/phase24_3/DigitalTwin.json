@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/digital_twin.json",
+  "title": "DigitalTwin",
+  "description": "A constitutional digital twin of an engineered system or artifact.",
+  "type": "object",
+  "properties": {
+    "twin_id": { "type": "string", "pattern": "^dtwin_[a-f0-9]{16}$" },
+    "twin_layer": { "type": "string", "enum": ["scientific", "system", "architecture", "subsystem", "component", "manufacturing", "operational", "historical"] },
+    "system_id": { "type": "string" },
+    "model_ids": { "type": "array", "items": { "type": "string" } },
+    "parent_twin_id": { "type": "string" },
+    "child_twin_ids": { "type": "array", "items": { "type": "string" } },
+    "synchronization_status": { "type": "string", "enum": ["synchronized", "out_of_sync", "error", "not_configured"] },
+    "configuration_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["twin_id", "twin_layer", "model_ids", "fingerprint"]
+}

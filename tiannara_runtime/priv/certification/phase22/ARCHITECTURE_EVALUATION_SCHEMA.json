@@ -1,0 +1,23 @@
+{
+  "schema": "ARCHITECTURE_EVALUATION_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for multi-dimensional evaluation of a civilization architecture proposal",
+  "architecture_evaluation": {
+    "fields": {
+      "evaluation_id": {"type": "string", "required": true},
+      "proposal_id": {"type": "string", "required": true},
+      "constitutional_compliance": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "scientific_capacity": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "engineering_capacity": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "human_wellbeing": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "resilience_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "sustainability_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "evolutionary_capacity": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "feasibility_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "composite_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "trade_off_analysis": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["multi_dimensional", "deterministic", "evidence_based"]
+  }
+}

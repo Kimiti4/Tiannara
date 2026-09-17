@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TheoryEvolution",
+  "description": "Evolution event record for a scientific theory in the ecosystem",
+  "type": "object",
+  "properties": {
+    "evolution_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this evolution event"
+    },
+    "evolution_type": {
+      "type": "string",
+      "enum": ["revision", "expansion", "simplification", "mutation", "refinement", "stabilization", "specialization", "merging", "retirement"],
+      "description": "Type of evolution event"
+    },
+    "parent_theory_id": {
+      "type": "string",
+      "description": "Theory being evolved"
+    },
+    "resulting_theory_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Resulting theories after evolution"
+    },
+    "evolution_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of evolution"
+    },
+    "trigger": {
+      "type": "string",
+      "description": "Evidence or reason triggering evolution"
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Evidence driving the evolution"
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "change_type": {
+            "type": "string",
+            "enum": ["assumption_added", "assumption_removed", "assumption_modified", "scope_expanded", "scope_contracted", "mathematical_formulation", "prediction_added", "prediction_removed", "prediction_modified", "evidence_added", "evidence_removed"]
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": ["change_type", "description"]
+      }
+    },
+    "governance_approval": {
+      "type": "object",
+      "properties": {
+        "approver": {
+          "type": "string"
+        },
+        "approval_date": {
+          "type": "integer"
+        },
+        "approval_type": {
+          "type": "string",
+          "enum": ["standard", "expedited"]
+        }
+      },
+      "required": ["approver", "approval_date", "approval_type"]
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["evolution_id", "evolution_type", "parent_theory_id", "resulting_theory_ids", "evolution_date", "trigger", "changes", "fingerprint"]
+}

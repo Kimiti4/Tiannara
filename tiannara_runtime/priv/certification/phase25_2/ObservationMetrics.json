@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/observation_metrics.json",
+  "title": "ObservationMetrics",
+  "description": "Metrics for the CGON health and performance.",
+  "type": "object",
+  "properties": {
+    "metrics_id": { "type": "string", "pattern": "^omet_[a-f0-9]{16}$" },
+    "observation_throughput": { "type": "number" },
+    "coverage": { "type": "object" },
+    "confidence": { "type": "number" },
+    "latency_ms": { "type": "number" },
+    "source_diversity": { "type": "number" },
+    "evidence_quality": { "type": "number" },
+    "fusion_accuracy": { "type": "number" },
+    "unknown_detection_rate": { "type": "number" },
+    "replay_accuracy": { "type": "number" },
+    "constitutional_compliance": { "type": "number" },
+    "validation_pass_rate": { "type": "number" },
+    "freshness": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "measured_at": { "type": "integer" }
+  },
+  "required": ["metrics_id", "observation_throughput", "coverage", "confidence", "replay_accuracy", "fingerprint"]
+}

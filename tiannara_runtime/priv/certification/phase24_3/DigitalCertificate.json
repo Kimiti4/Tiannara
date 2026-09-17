@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/digital_certificate.json",
+  "title": "DigitalCertificate",
+  "description": "Certification attesting that a digital engineering artifact meets constitutional standards.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^dcert_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "artifact_type": { "type": "string", "enum": ["digital_twin", "engineering_model", "model_baseline", "digital_asset", "model_validation", "model_verification"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "completeness": { "type": "boolean" },
+        "consistency": { "type": "boolean" },
+        "traceability": { "type": "boolean" },
+        "validation_passed": { "type": "boolean" },
+        "verification_passed": { "type": "boolean" },
+        "constitutional_alignment": { "type": "boolean" }
+      },
+      "required": ["completeness", "consistency", "traceability", "constitutional_alignment"]
+    },
+    "certifying_entity": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "artifact_id", "artifact_type", "checks", "fingerprint"]
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/strategy_certificate.json",
+  "title": "StrategyCertificate",
+  "description": "Certification attesting that a strategic decision meets constitutional standards.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^scert_[a-f0-9]{16}$" },
+    "decision_id": { "type": "string" },
+    "decision_type": { "type": "string", "enum": ["grand_challenge", "research_program", "reprioritization", "resource_allocation", "mission_transition", "opportunity_pursuit", "gap_remediation"] },
+    "certification_level": { "type": "string", "enum": ["standard", "extended", "constitutional"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "constitutional_alignment": { "type": "boolean" },
+        "evidence_sufficiency": { "type": "boolean" },
+        "alternative_consideration": { "type": "boolean" },
+        "impact_assessment": { "type": "boolean" },
+        "resource_feasibility": { "type": "boolean" },
+        "risk_evaluation": { "type": "boolean" },
+        "explanation_completeness": { "type": "boolean" }
+      },
+      "required": ["constitutional_alignment", "evidence_sufficiency", "explanation_completeness"]
+    },
+    "reviewing_entity": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "decision_id", "decision_type", "certification_level", "checks", "fingerprint"]
+}

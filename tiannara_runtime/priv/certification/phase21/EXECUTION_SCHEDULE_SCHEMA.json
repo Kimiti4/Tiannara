@@ -1,0 +1,32 @@
+{
+  "schema": "EXECUTION_SCHEDULE_SCHEMA",
+  "version": "21.4",
+  "description": "Schema for the civilization-wide research execution schedule",
+  "execution_schedule": {
+    "fields": {
+      "schedule_id": {"type": "string", "required": true, "description": "Content-addressed schedule identifier"},
+      "generation": {"type": "integer", "required": true},
+      "schedule_window": {"type": "object", "required": true, "fields": {
+        "start_generation": {"type": "integer"},
+        "end_generation": {"type": "integer"}
+      }},
+      "scheduled_missions": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "mission": {"type": "string"}, "program": {"type": "string"},
+            "priority_score": {"type": "number"}, "schedule_slot": {"type": "integer"},
+            "resource_allocation": {"type": "object"}, "preemptible": {"type": "boolean"}
+          }
+        }
+      },
+      "eligibility_pool": {"type": "integer", "required": true},
+      "scheduled_count": {"type": "integer", "required": true},
+      "schedule_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "complete", "constitutional"]
+  }
+}

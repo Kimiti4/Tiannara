@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/challenge_metrics.json",
+  "title": "ChallengeMetrics",
+  "description": "Health metrics for CDCIE.",
+  "type": "object",
+  "properties": {
+    "metrics_id": { "type": "string", "pattern": "^dcmet_[a-f0-9]{16}$" },
+    "challenge_completion_rate": { "type": "number" },
+    "discovery_yield": { "type": "number" },
+    "knowledge_gap_reduction": { "type": "number" },
+    "scientific_roi": { "type": "number" },
+    "engineering_impact": { "type": "number" },
+    "civilizational_benefit": { "type": "number" },
+    "open_problems": { "type": "integer" },
+    "research_velocity": { "type": "number" },
+    "replay_accuracy": { "type": "number" },
+    "constitutional_compliance": { "type": "number" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "measured_at": { "type": "integer" }
+  },
+  "required": ["metrics_id", "challenge_completion_rate", "discovery_yield", "knowledge_gap_reduction", "fingerprint"]
+}

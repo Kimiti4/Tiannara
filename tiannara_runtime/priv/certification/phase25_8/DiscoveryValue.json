@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/discovery_value.json",
+  "title": "DiscoveryValue",
+  "description": "Value assessment for a solved discovery challenge.",
+  "type": "object",
+  "properties": {
+    "value_id": { "type": "string", "pattern": "^dcval_[a-f0-9]{16}$" },
+    "challenge_id": { "type": "string" },
+    "scientific_impact": { "type": "number", "minimum": 0, "maximum": 1 },
+    "engineering_impact": { "type": "number", "minimum": 0, "maximum": 1 },
+    "civilizational_value": { "type": "number", "minimum": 0, "maximum": 1 },
+    "paradigm_change_magnitude": { "type": "number", "minimum": 0, "maximum": 1 },
+    "knowledge_gap_closure": { "type": "number", "minimum": 0, "maximum": 1 },
+    "existential_risk_reduction": { "type": "number", "minimum": 0, "maximum": 1 },
+    "resource_efficiency": { "type": "number", "minimum": 0, "maximum": 1 },
+    "composite_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "assessment_method": { "type": "string", "enum": ["automated", "expert_review", "mixed"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "assessed_at": { "type": "integer" }
+  },
+  "required": ["value_id", "challenge_id", "scientific_impact", "civilizational_value", "composite_score", "fingerprint"]
+}

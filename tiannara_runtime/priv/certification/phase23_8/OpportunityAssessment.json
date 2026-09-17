@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/opportunity_assessment.json",
+  "title": "OpportunityAssessment",
+  "description": "A constitutional opportunity assessment for a predicted discovery impact.",
+  "type": "object",
+  "properties": {
+    "opportunity_id": { "type": "string", "pattern": "^opp_[a-f0-9]{16}$" },
+    "prediction_id": { "type": "string" },
+    "scenario_id": { "type": "string" },
+    "opportunity_type": { "type": "string", "enum": ["scientific", "engineering", "industrial", "educational", "medical", "planetary", "civilizational", "research", "innovation"] },
+    "opportunity_description": { "type": "string" },
+    "estimated_value": { "type": "number", "minimum": 0 },
+    "value_uncertainty": { "type": "number", "minimum": 0 },
+    "estimated_timeline": { "type": "object", "properties": { "earliest": { "type": "integer" }, "expected": { "type": "integer" }, "latest": { "type": "integer" } } },
+    "enabling_factors": { "type": "array", "items": { "type": "string" } },
+    "prerequisites": { "type": "array", "items": { "type": "string" } },
+    "dependencies": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "assessed_at": { "type": "integer" }
+  },
+  "required": ["opportunity_id", "prediction_id", "opportunity_type", "opportunity_description", "fingerprint"]
+}

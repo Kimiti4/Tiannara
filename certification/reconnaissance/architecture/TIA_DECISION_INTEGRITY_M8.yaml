@@ -1,0 +1,102 @@
+# Move 8 — Decision Integrity Audit (all 30 Move-7 decisions classified)
+# Classes: EVIDENCE_SUPPORTED | EVIDENCE_INFERRED | COUNCIL_DECIDED | UNKNOWN.
+# Mismatches (claim strength > evidence strength) are recorded, not repaired.
+artifact: DECISION_INTEGRITY_M8
+artifact_status: POST_T0
+move: 8
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+method: Re-read each Move-7 decision against its cited evidence; checked whether the cited evidence actually supports the stated classification strength
+results:
+- decision_id: M7-CLUSTER-01
+  classification: EVIDENCE_SUPPORTED
+- decision_id: M7-CLUSTER-02
+  classification: EVIDENCE_SUPPORTED
+- decision_id: M7-CLUSTER-03
+  classification: EVIDENCE_SUPPORTED
+- decision_id: M7-DIVERGENCE-01
+  classification: EVIDENCE_SUPPORTED
+  note: NARROWED status supported by observed bridge mechanism
+- decision_id: M7-DIVERGENCE-02
+  classification: EVIDENCE_SUPPORTED
+  note: UNRESOLVED status supported by evidenced absence (zero tests, zero effects)
+- decision_id: M7-DIVERGENCE-03
+  classification: EVIDENCE_SUPPORTED
+  note: UNRESOLVED status supported by evidenced absence (no historical operation records)
+- decision_id: M7-DIVERGENCE-04
+  classification: EVIDENCE_SUPPORTED
+  note: NARROWED status supported by observed contract text
+- decision_id: M7-OWN-001
+  classification: EVIDENCE_SUPPORTED
+- decision_id: M7-OWN-002
+  classification: EVIDENCE_SUPPORTED
+- decision_id: M7-OWN-003
+  classification: EVIDENCE_SUPPORTED
+- decision_id: M7-OWN-004
+  classification: EVIDENCE_SUPPORTED
+- decision_id: M7-OWN-005
+  classification: EVIDENCE_SUPPORTED
+- decision_id: M7-OWN-006
+  classification: COUNCIL_DECIDED
+  note: BLOCKED transcribes the E03 protocol gate, not an evidence finding
+- decision_id: M7-OWN-007
+  classification: EVIDENCE_SUPPORTED
+- decision_id: M7-OWN-008
+  classification: COUNCIL_DECIDED
+  note: BOUNDED transcribes the Move-0 certification decision
+- decision_id: M7-OWN-009
+  classification: EVIDENCE_SUPPORTED
+  note: UNKNOWN retention supported by the evidenced CIS overlap (insufficiency is evidenced, not assumed)
+- decision_id: M7-OWN-010
+  classification: EVIDENCE_INFERRED
+  mismatch: true
+  mismatch_detail: CANONICAL claim rests on directory placement + contract shapes + no-competitor inference (3 of 8 canonicality-rule factors); no consumers, authority, persistence, or execution evidence. Claim strength exceeds evidence strength. Decision stands (not repaired); must be read as inferential.
+- decision_id: M7-OWN-011
+  classification: EVIDENCE_INFERRED
+  mismatch: true
+  mismatch_detail: CANONICAL claim rests on sole-claimant inference ("trivially" is itself an inference); no consumers, authority, or execution evidence. Claim strength exceeds evidence strength. Decision stands (not repaired); must be read as inferential.
+- decision_id: M7-OWN-012
+  classification: EVIDENCE_SUPPORTED
+  note: UNKNOWN retention supported by evidenced absence (zero references)
+- decision_id: M7-OWN-013
+  classification: EVIDENCE_SUPPORTED
+  note: UNKNOWN retention supported by evidenced absence (zero references)
+- decision_id: M7-OWN-014
+  classification: EVIDENCE_SUPPORTED
+  note: Supervision membership is direct ownership evidence (strongest class in this pass)
+- decision_id: M7-OWN-015
+  classification: EVIDENCE_SUPPORTED
+  note: UNKNOWN retention supported by evidenced absence (zero file references)
+- decision_id: M7-OWN-016
+  classification: EVIDENCE_SUPPORTED
+  note: UNKNOWN retention supported by evidenced absence (weakest presence)
+- decision_id: M7-OWN-017
+  classification: EVIDENCE_SUPPORTED
+  note: ORPHAN supported by zero-caller grep (direct negative evidence)
+- decision_id: M7-OWN-018
+  classification: EVIDENCE_SUPPORTED
+  note: UNKNOWN retention supported by linkage analysis (index exists, invocation unevidenced)
+- decision_id: M7-OWN-019
+  classification: EVIDENCE_SUPPORTED
+  note: UNKNOWN retention supported by evidenced absence (zero bound results)
+- decision_id: M7-OWN-020
+  classification: EVIDENCE_SUPPORTED
+  note: UNKNOWN retention supported by evidenced absence (zero producers/consumers)
+- decision_id: M7-OWN-021
+  classification: EVIDENCE_SUPPORTED
+  note: UNKNOWN retention supported by evidenced absence (zero builders/verifiers)
+- decision_id: M7-ORPHAN-01
+  classification: EVIDENCE_SUPPORTED
+- decision_id: M7-ORPHAN-02
+  classification: EVIDENCE_SUPPORTED
+  note: NOT-ORPHAN determination supported by registry references
+aggregate:
+  decisions_reviewed: 30
+  evidence_supported: 26
+  evidence_inferred: 2
+  council_decided: 2
+  unknown_basis: 0
+  mismatches_found: 2
+  mismatches_list: [M7-OWN-010, M7-OWN-011]
+  mismatches_repaired: 0
+note: Both mismatches are inferential CANONICAL claims that should be read with the stated caveats. Neither is demoted here; demotion would itself be a decision requiring its own evidence review.

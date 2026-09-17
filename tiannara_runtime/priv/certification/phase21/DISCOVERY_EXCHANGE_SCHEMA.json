@@ -1,0 +1,22 @@
+{
+  "schema": "DISCOVERY_EXCHANGE_SCHEMA",
+  "version": "21.5",
+  "description": "Schema for discovery exchange events between institutes",
+  "discovery_exchange": {
+    "fields": {
+      "exchange_id": {"type": "string", "required": true, "description": "Content-addressed exchange identifier"},
+      "artifact_type": {"type": "string", "required": true, "description": "MathematicalProof/ScientificTheory/ExperimentalResult/EngineeringArtifact/SimulationModel/WorldModel/KnowledgeGraph"},
+      "artifact_hash": {"type": "string", "required": true},
+      "originating_institute": {"type": "string", "required": true},
+      "receiving_institutes": {"type": "array", "required": true},
+      "publication_timestamp": {"type": "integer", "required": true, "description": "Deterministic generation number"},
+      "verification_status": {"type": "string", "required": true, "description": "Pending/Verified/Failed"},
+      "provenance_chain": {"type": "array", "required": true},
+      "exchange_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "artifact_types": ["mathematical_proof", "scientific_theory", "experimental_result", "engineering_artifact", "simulation_model", "world_model", "knowledge_graph"],
+    "constraints": ["provenance_preserved", "atomic", "verifiable"]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/state_snapshot.json",
+  "title": "StateSnapshot",
+  "description": "A deterministic snapshot of planetary state at a point in time.",
+  "type": "object",
+  "properties": {
+    "snapshot_id": { "type": "string", "pattern": "^snap_[a-f0-9]{16}$" },
+    "state_id": { "type": "string" },
+    "version": { "type": "integer" },
+    "domain_snapshots": { "type": "object" },
+    "global_metrics": { "type": "object" },
+    "parent_snapshot_id": { "type": "string" },
+    "timestamp": { "type": "integer" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["snapshot_id", "state_id", "version", "domain_snapshots", "fingerprint"]
+}

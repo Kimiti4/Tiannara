@@ -1,0 +1,21 @@
+{
+  "schema": "DYNAMICS_ARCHAEOLOGY_SCHEMA",
+  "version": "22.1",
+  "description": "Schema for archaeological reconstruction of civilizational dynamics evolution",
+  "dynamics_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "growth_history": {"type": "array", "required": true},
+      "innovation_timeline": {"type": "array", "required": true},
+      "knowledge_trajectory": {"type": "array", "required": true},
+      "resilience_evolution": {"type": "array", "required": true},
+      "collapse_events": {"type": "array", "required": true},
+      "recovery_pathways": {"type": "array", "required": true},
+      "state_transition_history": {"type": "array", "required": true},
+      "driver_interaction_changes": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

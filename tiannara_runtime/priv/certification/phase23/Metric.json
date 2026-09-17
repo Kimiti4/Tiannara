@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metric",
+  "description": "A metric data point with timestamp and value",
+  "type": "object",
+  "properties": {
+    "metric_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this metric"
+    },
+    "metric_name": {
+      "type": "string",
+      "description": "Name of the metric"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of measurement"
+    },
+    "value": {
+      "type": "number",
+      "description": "Metric value"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement"
+    },
+    "tags": {
+      "type": "object",
+      "description": "Metric tags for filtering",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata"
+    }
+  },
+  "required": ["metric_id", "metric_name", "timestamp", "value"],
+  "additionalProperties": false
+}

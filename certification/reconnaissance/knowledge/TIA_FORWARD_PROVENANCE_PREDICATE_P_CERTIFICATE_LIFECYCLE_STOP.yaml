@@ -1,0 +1,207 @@
+artifact: TIA_FORWARD_PROVENANCE_PREDICATE_P_CERTIFICATE_LIFECYCLE_STOP
+record_type: PREDICATE GATE STOP (implementation + verification complete)
+recorded_at: 2026-09-13
+authorization: COUNCIL-2026-09-13-P-CERTIFICATE-LIFECYCLE
+
+============================================================
+STATUS
+============================================================
+PASS — "P-CERTIFICATE-LIFECYCLE implementation was authorized and verified;
+all other predicates remain unauthorized."
+
+============================================================
+PREDICATE AUTHORIZATION
+============================================================
+predicate_id:            P-CERTIFICATE-LIFECYCLE
+authorization status:    OPEN_FOR_IMPLEMENTATION (gate passed; predicate verified)
+authorized surface:      per-certificate lifecycle state over the P-CERTIFICATE-ISSUANCE
+                         registry, restricted to VALID/SUSPENDED/UNVERIFIABLE and the
+                         restoration path UNVERIFIABLE->SUSPENDED->VALID, driven ONLY by
+                         the registered lifecycle authority under M7=HYBRID (human,
+                         first-writer-wins), with REVOKED/SUPERSEDED reachable by no
+                         implemented transition (forbidden/undefined, closed
+                         P-CERTIFICATE-REVOCATION / P-CERTIFICATE-SUPERSESSION
+                         predicates); append-only canon-v1 JSONL lifecycle ledger;
+                         atomic rollback on persistence failure; idempotent restart
+                         replay; per-certificate locking; fail-closed validation
+authorization record:    certification/reconnaissance/knowledge/TIA_PREDICATE_AUTHORIZATION_P_CERTIFICATE_LIFECYCLE.yaml
+
+============================================================
+IMPLEMENTATION
+============================================================
+files added:             2
+  - forward_provenance/lib/certificate_lifecycle.ex        (module: spec/0, current_state/1,
+    transition/1|2, history/1, register_authority/0|1, reset/1, export/0, lookup_record/2)
+  - forward_provenance/test/certificate_lifecycle_test.exs (37 tests: positive/negative/
+    concurrency/replay/durability/atomicity/firewall/invariants)
+files modified:          0
+implementation summary:
+  - ONE registered lifecycle authority (tiannara-fp-lifecycle-authority-v1, kind human,
+    role lifecycle) is first-writer-wins; competing authorities rejected; unknown or
+    unauthorized actors cannot transition. Registry replays idempotently from the
+    lifecycle ledger on restart (deep_null_to_nil decode normalization reproduces ETS
+    records byte-identically).
+  - state machine: VALID <-> SUSPENDED <-> UNVERIFIABLE with the restoration path
+    UNVERIFIABLE->SUSPENDED->VALID (restore + evidence_recovered require a fully
+    re-verified lineage/bundle chain). Verbs suspend/restore/mark_unverifiable/
+    evidence_recovered are implemented; revoke/supersede are FORBIDDEN (closed
+    P-CERTIFICATE-REVOCATION / P-CERTIFICATE-SUPERSESSION predicates cited); every other
+    verb is UNDEFINED. All failures return {:error, reason, context} and leave state
+    untouched. State space is closed to VALID | SUSPENDED | UNVERIFIABLE | replayed;
+    REVOKED/SUPERSEDED exist only as advertised policy-pinned terminal states with NO
+    implemented path to reach them.
+  - every transition is an envelope-bound canon-v1 sentence (previous_state -> next_state,
+    sequence, recomputed payload_hash, request_signature) appended to the lifecycle
+    ledger; current_state is a virtual seq-0 VALID while unmaterialized and derives from
+    the immutable issuance record otherwise. Identical requests replay (matched by
+    request_signature, never duplicated); distinct conflicting requests fail closed with
+    invalid_source_state and preserve state/history.
+  - persistence is atomic: a ledger-append failure rolls the ETS registry back fully
+    (transition record deleted, prior state restored, issuance record untouched, zero
+    partial traces). Transitions are serialized per certificate via a lock key.
+  - the issuance record and certificate identity stay byte-identical across every
+    transition; certificate_id is immutable and never re-derived.
+  - M7 boundary held: no revocation function, no supersede/issue_successor function,
+    no distribute/sync/gossip/replicate functions exist anywhere; there is NO
+    distributed lifecycle state. A distributed-verification/issuance grant REMAINS
+    an explicit closure responsibility of the verified certificate authority.
+
+============================================================
+POLICY GATE
+============================================================
+authority:               sole registered lifecycle authority, kind human (policy
+                         human_oversight), first-writer-wins; mechanism-kind authority is
+                         DENIED for evidence_recovered (human-only path)
+authority_doc:           TIA_PROVENANCE_CERTIFICATION_POLICY.yaml (UNCHANGED; policy_ref
+                         version 1.0.0 enforced per transition)
+declared spec:           tiannara-fp-lifecycle-v1 enforced by transition chain
+gate results:            happy path VALID->SUSPENDED->UNVERIFIABLE->SUSPENDED->VALID:
+                         all PASS; every mutation: FAIL closed with reason + context
+                         (transition_forbidden / transition_undefined / unknown_issuer /
+                         authority_kind_denied / policy_mismatch / missing_transition_
+                         evidence / restoration_chain_not_reverified / invalid_source_
+                         state / persistence_failure)
+
+============================================================
+NEGATIVE TESTS
+============================================================
+tests executed:         37 total (A-X matrix), covering revoke/supersede forbidden with
+                         closed predicate cited; undefined verbs; unauthorized/competing/
+                         wrong-kind authority; policy_ref mismatch; missing/bogus
+                         transition evidence; restoration without a chain; mismatched
+                         bundle_id; unknown certificate_id; conflicting replay; resume
+                         after restart; persistence-failure rollback with zero partial
+                         traces; 16 concurrent workers on one certificate; authority
+                         rotation/completion blocked (no rotate/successor ops)
+fail-closed result:     ALL rejected; zero transition records produced on any FAIL;
+                         state/history preserved under conflict; issuance intact;
+                         concurrency always converges to a single atomic transition
+
+============================================================
+FIREWALL
+============================================================
+A-predicates open:      0 (P-CERTIFICATE-LIFECYCLE is a dedicated predicate, authorized
+                         only; A01..A12 remain BLOCKED)
+predicates still closed: revocation, supersession, distributed issuance, distributed
+                         verification, autonomous operation, network, external
+                         integration, real-time authority rotation
+certificate state:      1 per identity (immutable VALID decision_recorded, ledger-only,
+                         never inside the evidence bundle)
+lifecycle state:        IMPLEMENTED (predicate-local; single human authority;
+                         REVOKED/SUPERSEDED unreachable)
+revocation state:       NOT IMPLEMENTED
+supersession state:     NOT IMPLEMENTED
+authority state:        LIMITED single lifecycle authority (human, first-writer-wins,
+                         predicate-local) + single mechanism issuer, predicate-local
+
+============================================================
+CANONICALIZATION
+============================================================
+canon-v1:  NORMATIVE / UNCHANGED (forward_provenance/spec/canonicalization_spec.yaml)
+fz-b:      FINAL / UNCHANGED (forward_provenance/spec/certificate_identity_spec.yaml)
+fz-c:      FINAL / UNCHANGED
+scope:     no file outside the two authorized files was added or modified
+           (+ evidence matrix forward_provenance/output/predicate_lifecycle_evidence.json)
+
+============================================================
+BASELINE
+============================================================
+HEAD:      9753a6d08702064f4d00395a1bec1c4bf3887381
+tree:      06f06e5e91f33e75437a47ca901eaa7e97bb0edd
+porcelain: 3380 (unchanged; forward_provenance/ is a single ?? entry by design)
+changed paths: 2 added (listed above); 0 modified among tracked/untracked content
+diff scope:   new files only — lib/certificate_lifecycle.ex + test/certificate_lifecycle_test.exs
+              (+ evidence matrix forward_provenance/output/predicate_lifecycle_evidence.json)
+
+============================================================
+TEST SUITE
+============================================================
+forward_provenance suite: 165 tests, 0 failures (identity 17 + bridge/other 85 + issuance 26
+                           + lifecycle 37; lifecycle module also 4/4 green on isolated
+                           stress runs)
+mix format:                --check-formatted PASS on lib/certificate_lifecycle.ex +
+                           test/certificate_lifecycle_test.exs (scoped; pre-existing
+                           formatting drift in unrelated files untouched)
+
+============================================================
+OBSERVED TRANSIENT FLAKE (baseline, not introduced here)
+============================================================
+observation:  during verification runs the BASELINE async test "independent hand-written
+  renderer (not Canon) matches the derivation on every fixture" in
+  test/certificate_identity_test.exs intermittently raised UndefinedFunctionError
+  (IndependentRenderer.render/1 undefined or private).
+cause:       module-load timing race in baseline test design: IndependentRenderer is
+  defined AFTER the async test module in the SAME file; on rare scheduling the async
+  test can invoke it before the module finishes loading. The failing test and module
+  live in baseline code (P-IDENTITY-CANONICAL layer, NOT the authorized surface).
+attribution: NOT attributable to P-CERTIFICATE-LIFECYCLE — (a) the lifecycle test module
+  is async: false and runs strictly after all async tests, so it cannot overlap the
+  failing async test; (b) the flake was observed once during lifecycle verification and
+  reproduced in baseline runs WITHOUT the authorized files (race is load/scheduling
+  dependent); (c) lifecycle + issuance tests are stable green in repeated full-suite
+  runs, and the lifecycle file alone was green 4/4 consecutively.
+action taken:  none on baseline code (outside authorized surface). Observed for the
+  record; a Council-authorized hardening (e.g., ensure_loaded!/support-file renderer)
+  belongs to a separate predicate/work item, NOT this gate.
+
+============================================================
+SOURCE CONTROL
+============================================================
+commits:         0
+pushes:          0
+index operations: 0
+
+============================================================
+ROLLBACK
+============================================================
+rollback boundary: delete the two added files + the evidence matrix; nothing else
+  changes. No governance record, spec, or policy mutated; no certificate state in
+  the evidence bundle touched; bridge/identity/canon/issuance/fz-b/fz-c untouched.
+rollback status:  NOT EXECUTED (gate passed)
+
+============================================================
+NEXT COUNCIL GATE
+============================================================
+STOP. Next predicate (revocation, supersession, any A-predicate A01..A12, real-time
+authority rotation, or any distributed operation) requires its own explicit Council
+authorization via predicate_authorization_template.yaml. No predicate is open merely
+because it appears in a design or this report.
+
+FINAL REQUIRED STATE (confirmed):
+  M7                    = HYBRID / APPROVED
+  Serialization freeze  = APPROVED (fz-b + fz-c FINAL / UNCHANGED)
+  canon-v1              = NORMATIVE / UNCHANGED
+  P-IDENTITY-CANONICAL  = OPEN_FOR_IMPLEMENTATION / VERIFIED
+  P-CERTIFICATE-ISSUANCE= OPEN_FOR_IMPLEMENTATION / VERIFIED
+  P-CERTIFICATE-LIFECYCLE = OPEN_FOR_IMPLEMENTATION / VERIFIED
+  A-predicates          = 0 OPEN
+  Certificate state     = ledger-only, predicate-local; bundle certificate-free
+  Lifecycle             = IMPLEMENTED (VALID/SUSPENDED/UNVERIFIABLE + restoration only;
+                          REVOKED/SUPERSEDED unreachable)
+  Revocation            = NOT IMPLEMENTED
+  Supersession          = NOT IMPLEMENTED
+  Real-time authority   = LIMITED single mechanism issuer + single human lifecycle
+                          authority (both predicate-local)
+  Production integration= NONE
+  Commits / pushes      = 0
+  Baseline              = LOCKED (beyond intentionally-added new files)

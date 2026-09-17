@@ -1,0 +1,19 @@
+{
+  "schema": "DECISION_ARCHAEOLOGY_SCHEMA",
+  "version": "21.10",
+  "description": "Schema for archaeological reconstruction of decision civilization evolution",
+  "decision_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "decision_id": {"type": "string", "required": true},
+      "future_considerations": {"type": "array", "required": true},
+      "alternative_evaluations": {"type": "array", "required": true},
+      "evidence_chain": {"type": "array", "required": true},
+      "governance_verification": {"type": "object", "required": true},
+      "execution_history": {"type": "array", "required": true},
+      "outcome_tracking": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

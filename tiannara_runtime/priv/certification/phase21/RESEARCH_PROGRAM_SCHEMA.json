@@ -1,0 +1,25 @@
+{
+  "schema": "RESEARCH_PROGRAM_SCHEMA",
+  "version": "21.0",
+  "description": "Schema for ResearchProgram — a long-term scientific objective within the research civilization",
+  "research_program": {
+    "fields": {
+      "program_id": {"type": "string", "required": true, "description": "Content-addressed program identifier"},
+      "institute": {"type": "string", "required": true, "description": "Parent institute reference"},
+      "title": {"type": "string", "required": true},
+      "mission_statement": {"type": "string", "required": true},
+      "scientific_questions": {"type": "array", "required": true, "items": {"type": "string"}},
+      "expected_impact": {"type": "string", "required": true},
+      "dependencies": {"type": "array", "required": false, "items": {"type": "string"}, "description": "Dependent program IDs"},
+      "scientific_capital_allocation": {"type": "number", "required": true},
+      "knowledge_gaps": {"type": "array", "required": false},
+      "priority_score": {"type": "number", "required": true, "description": "Deterministic priority (0.0–1.0)"},
+      "status": {"type": "string", "required": true, "description": "Proposed/Active/Completed/Archived"},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "lifecycle": ["proposed", "active", "completed", "archived"],
+    "constraints": ["evidence_based", "deterministic_priority", "replayable"]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "CIVILIZATION_REQUIREMENT_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for a civilization architecture requirement",
+  "civilization_requirement": {
+    "fields": {
+      "requirement_id": {"type": "string", "required": true},
+      "category": {"type": "string", "required": true, "enum": ["constitutional", "scientific", "engineering", "wellbeing", "resilience", "sustainability", "evolutionary"]},
+      "description": {"type": "string", "required": true},
+      "priority": {"type": "integer", "required": true},
+      "current_satisfaction": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "target_satisfaction": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "measurability": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["constitutional", "deterministic", "traceable"]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "produced_by": {
+    "collector": "environment",
+    "contract_version": "0.1.1"
+  },
+  "produced_at_t0": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+  "run": {
+    "started_at": "2026-09-05T21:35:38.270741+00:00",
+    "finished_at": "2026-09-05T21:36:37.435926+00:00",
+    "duration_seconds": 59.165189,
+    "run_id": "43b7988bb5066207"
+  },
+  "runtimes": {
+    "elixir": {
+      "available": true,
+      "name": "elixir",
+      "version_text": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+      "version_normalized": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]"
+    },
+    "erlang": {
+      "available": true,
+      "name": "erl",
+      "version_text": "28",
+      "version_normalized": "28"
+    },
+    "python": {
+      "available": true,
+      "name": "python",
+      "version_text": "Python 3.14.0",
+      "version_normalized": "Python 3.14.0"
+    },
+    "node": {
+      "available": true,
+      "name": "node",
+      "version_text": "v24.11.1",
+      "version_normalized": "v24.11.1"
+    },
+    "npm": {
+      "available": false,
+      "name": "npm",
+      "version_text": null,
+      "version_normalized": null
+    }
+  }
+}

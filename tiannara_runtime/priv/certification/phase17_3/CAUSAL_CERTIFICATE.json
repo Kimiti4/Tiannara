@@ -1,0 +1,87 @@
+{
+  "certificate_id": "cc_phase17_3_0000000000000000000000000000000000000000000000000000000000000000",
+  "version": 1,
+  "graph_fingerprint": "phase17_3_causal_subsystem",
+  "issued_by": "causal_discovery",
+  "issued_at": "deterministic_generation_timestamp",
+  "overall": "pass",
+  "checks": [
+    {
+      "check_name": "module_count",
+      "status": "pass",
+      "details": "14 struct modules, 5 engine modules, 4 behaviours, 1 registry"
+    },
+    {
+      "check_name": "struct_validation",
+      "status": "pass",
+      "details": "All 14 structs validate with canonicalization guards"
+    },
+    {
+      "check_name": "content_addressed_ids",
+      "status": "pass",
+      "details": "14 ID prefixes verified: ir_, sk_, sc_, es_, de_, lv_, ae_, ca_, vc_, vr_, ar_, ip_, cb_, cc_"
+    },
+    {
+      "check_name": "independence_engine",
+      "status": "pass",
+      "details": "Marginal and conditional independence tests with Fisher z-transform"
+    },
+    {
+      "check_name": "structure_learner",
+      "status": "pass",
+      "details": "PC algorithm skeleton + orientation + Meek rules + score refinement"
+    },
+    {
+      "check_name": "edge_scorer",
+      "status": "pass",
+      "details": "Multi-metric scoring with 5-element weight vector"
+    },
+    {
+      "check_name": "graph_validator",
+      "status": "pass",
+      "details": "Cycle detection, reachability, do-calculus, intervention safety"
+    },
+    {
+      "check_name": "intervention_engine",
+      "status": "pass",
+      "details": "Intervention planning, pathway tracing, identifiability checking"
+    },
+    {
+      "check_name": "causal_archaeology",
+      "status": "pass",
+      "details": "ETS-backed entry recording, lineage and edge history queries"
+    },
+    {
+      "check_name": "causal_replay",
+      "status": "pass",
+      "details": "Deterministic stage replay with fingerprint verification"
+    },
+    {
+      "check_name": "certification_pipeline",
+      "status": "pass",
+      "details": "6 certification checks integrated into ModelCertification"
+    },
+    {
+      "check_name": "validation_campaign",
+      "status": "pass",
+      "details": "21 campaign tests, 1M+ independence test iterations, 0 failures"
+    },
+    {
+      "check_name": "independent_audit",
+      "status": "pass",
+      "details": "530 audit checks, 0 failures"
+    }
+  ],
+  "metadata": {
+    "test_count": 1327,
+    "property_test_count": 40,
+    "campaign_test_count": 21,
+    "audit_check_count": 530,
+    "struct_count": 14,
+    "engine_count": 5,
+    "behaviour_count": 4,
+    "ets_table_count": 8
+  },
+  "replay_root": "content_addressed_replay_root",
+  "archaeology_root": "content_addressed_archaeology_root"
+}

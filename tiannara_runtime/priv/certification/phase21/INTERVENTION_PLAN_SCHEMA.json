@@ -1,0 +1,21 @@
+{
+  "schema": "INTERVENTION_PLAN_SCHEMA",
+  "version": "21.10",
+  "description": "Schema for a strategic intervention plan derived from a civilizational decision",
+  "intervention_plan": {
+    "fields": {
+      "plan_id": {"type": "string", "required": true},
+      "decision_id": {"type": "string", "required": true},
+      "target_institutes": {"type": "array", "required": true},
+      "affected_programs": {"type": "array", "required": true},
+      "resource_allocation": {"type": "object", "required": true},
+      "implementation_timeline": {"type": "array", "required": true},
+      "expected_outcomes": {"type": "array", "required": true},
+      "risk_mitigation": {"type": "array", "required": true},
+      "monitoring_plan": {"type": "object", "required": true},
+      "execution_status": {"type": "string", "required": true, "enum": ["planned", "active", "completed", "modified", "cancelled"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["constitutional", "deterministic", "traceable"]
+  }
+}

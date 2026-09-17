@@ -1,0 +1,20 @@
+{
+  "schema": "INFRASTRUCTURE_SCHEMA",
+  "version": "22.0",
+  "description": "Schema for an infrastructure system in the Constitutional Civilizational Ontology",
+  "infrastructure": {
+    "fields": {
+      "infrastructure_id": {"type": "string", "required": true},
+      "domain": {"type": "string", "required": true, "enum": ["energy", "transportation", "water", "communication", "healthcare", "scientific", "manufacturing", "agricultural", "computing", "space"]},
+      "capacity": {"type": "object", "required": true},
+      "capabilities": {"type": "array", "required": true},
+      "dependencies": {"type": "array", "required": true},
+      "lifecycle_state": {"type": "string", "required": true, "enum": ["planned", "construction", "operational", "degraded", "decommissioned"]},
+      "redundancy_systems": {"type": "array", "required": true},
+      "performance_metrics": {"type": "object", "required": true},
+      "operator_institution": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "relationships_explicit", "traceable"]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "SCIENTIFIC_CAPITAL_LEDGER_SCHEMA",
+  "version": "21.0",
+  "description": "Schema for ScientificCapitalLedger — the complete ledger of scientific capital across the research civilization",
+  "scientific_capital_ledger": {
+    "fields": {
+      "ledger_id": {"type": "string", "required": true, "description": "Content-addressed ledger identifier"},
+      "generation": {"type": "integer", "required": true},
+      "total_capital": {"type": "number", "required": true},
+      "entries": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "institute": {"type": "string"}, "program": {"type": "string"},
+            "capital_delta": {"type": "number"}, "reason": {"type": "string"},
+            "discovery_ref": {"type": "string"}, "timestamp": {"type": "integer"}
+          }
+        }
+      },
+      "metrics": {
+        "type": "object", "required": true,
+        "fields": {
+          "reproducibility_score": {"type": "number"}, "impact_score": {"type": "number"},
+          "novelty_score": {"type": "number"}, "cross_domain_influence": {"type": "number"},
+          "engineering_utility": {"type": "number"}, "mathematical_depth": {"type": "number"},
+          "scientific_longevity": {"type": "number"}
+        }
+      },
+      "ledger_hash": {"type": "string", "required": true, "description": "SHA-256 of complete ledger"},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "capital_components": ["reproducibility", "impact", "novelty", "cross_domain_influence", "engineering_utility", "mathematical_depth", "scientific_longevity"],
+    "constraints": ["deterministic_accounting", "evidence_based", "replayable"]
+  }
+}

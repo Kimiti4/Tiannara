@@ -1,0 +1,247 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PlanetaryHealth",
+  "description": "Planetary health assessment record evaluating climate stability, biodiversity, water security, energy security, food security, infrastructure resilience, scientific capacity, and civilizational stability",
+  "type": "object",
+  "properties": {
+    "health_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this health assessment"
+    },
+    "assessment_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of assessment"
+    },
+    "climate_stability": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "temperature_deviation": {
+          "type": "number"
+        },
+        "extreme_weather_frequency": {
+          "type": "number"
+        },
+        "tipping_point_proximity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "trend": {
+          "type": "string",
+          "enum": ["improving", "stable", "degrading", "critical"]
+        }
+      },
+      "required": ["score", "trend"]
+    },
+    "biodiversity": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "species_richness_index": {
+          "type": "number"
+        },
+        "extinction_rate": {
+          "type": "number"
+        },
+        "ecosystem_integrity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "trend": {
+          "type": "string",
+          "enum": ["improving", "stable", "degrading", "critical"]
+        }
+      },
+      "required": ["score", "trend"]
+    },
+    "water_security": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "freshwater_availability": {
+          "type": "number"
+        },
+        "water_quality_index": {
+          "type": "number"
+        },
+        "aquifer_depletion_rate": {
+          "type": "number"
+        },
+        "trend": {
+          "type": "string",
+          "enum": ["improving", "stable", "degrading", "critical"]
+        }
+      },
+      "required": ["score", "trend"]
+    },
+    "energy_security": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "production_consumption_ratio": {
+          "type": "number"
+        },
+        "renewable_share": {
+          "type": "number"
+        },
+        "grid_stability": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "trend": {
+          "type": "string",
+          "enum": ["improving", "stable", "degrading", "critical"]
+        }
+      },
+      "required": ["score", "trend"]
+    },
+    "food_security": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "production_consumption_ratio": {
+          "type": "number"
+        },
+        "soil_health": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "distribution_efficiency": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "trend": {
+          "type": "string",
+          "enum": ["improving", "stable", "degrading", "critical"]
+        }
+      },
+      "required": ["score", "trend"]
+    },
+    "infrastructure_resilience": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "critical_infrastructure_status": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "redundancy_capacity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "disaster_preparedness": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "trend": {
+          "type": "string",
+          "enum": ["improving", "stable", "degrading", "critical"]
+        }
+      },
+      "required": ["score", "trend"]
+    },
+    "scientific_capacity": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "rd_investment_level": {
+          "type": "number"
+        },
+        "workforce_size": {
+          "type": "number"
+        },
+        "knowledge_production_rate": {
+          "type": "number"
+        },
+        "trend": {
+          "type": "string",
+          "enum": ["improving", "stable", "degrading", "critical"]
+        }
+      },
+      "required": ["score", "trend"]
+    },
+    "civilizational_stability": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "governance_effectiveness": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "social_cohesion": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "economic_stability": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "trend": {
+          "type": "string",
+          "enum": ["improving", "stable", "degrading", "critical"]
+        }
+      },
+      "required": ["score", "trend"]
+    },
+    "overall_health_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Composite planetary health score"
+    },
+    "emerging_risks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["health_id", "assessment_date", "climate_stability", "biodiversity", "water_security", "energy_security", "food_security", "infrastructure_resilience", "scientific_capacity", "civilizational_stability", "overall_health_score", "fingerprint"]
+}

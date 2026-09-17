@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/observation_source.json",
+  "title": "ObservationSource",
+  "description": "A registered observation source in the CGON sensor registry.",
+  "type": "object",
+  "properties": {
+    "source_id": { "type": "string", "pattern": "^osrc_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "source_type": { "type": "string", "enum": ["satellite", "weather_station", "ocean_monitoring", "seismic", "biodiversity", "transportation", "energy_grid", "industrial", "healthcare", "scientific_publication", "government_statistics", "economic", "laboratory", "iot", "human_reporting", "autonomous_instrument"] },
+    "owner": { "type": "string" },
+    "location": { "type": "object" },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "calibration_history": { "type": "array", "items": { "type": "object" } },
+    "status": { "type": "string", "enum": ["active", "degraded", "offline", "decommissioned", "pending_certification"] },
+    "certification_status": { "type": "string", "enum": ["uncertified", "in_review", "certified", "revoked"] },
+    "reliability": { "type": "number", "minimum": 0, "maximum": 1 },
+    "access_protocol": { "type": "string" },
+    "license": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["source_id", "name", "source_type", "status", "fingerprint"]
+}

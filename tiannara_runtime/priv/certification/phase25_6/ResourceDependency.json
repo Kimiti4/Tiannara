@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/resource_dependency.json",
+  "title": "ResourceDependency",
+  "description": "A dependency relationship between two resource categories.",
+  "type": "object",
+  "properties": {
+    "dependency_id": { "type": "string", "pattern": "^redep_[a-f0-9]{16}$" },
+    "source_resource": { "type": "string" },
+    "target_resource": { "type": "string" },
+    "dependency_type": { "type": "string", "enum": ["direct", "supply_chain", "infrastructure", "competitive", "systemic"] },
+    "strength": { "type": "number", "minimum": 0, "maximum": 1 },
+    "direction": { "type": "string", "enum": ["source_to_target", "target_to_source", "bidirectional", "circular"] },
+    "criticality": { "type": "string", "enum": ["critical", "significant", "minor"] },
+    "substitutability": { "type": "number", "minimum": 0, "maximum": 1 },
+    "cascade_risk": { "type": "number", "minimum": 0, "maximum": 1 },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "recorded_at": { "type": "integer" }
+  },
+  "required": ["dependency_id", "source_resource", "target_resource", "dependency_type", "strength", "fingerprint"]
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/literature_certificate.json",
+  "title": "LiteratureCertificate",
+  "description": "Certification record for literature-derived knowledge attesting constitutional compliance.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^lcert_[a-f0-9]{16}$" },
+    "publication_id": { "type": "string" },
+    "certification_level": {
+      "type": "string",
+      "enum": ["acquired", "extracted", "analyzed", "synthesized", "integrated", "superseded", "retracted"]
+    },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "source_authenticity": { "type": "boolean" },
+        "claim_accuracy": { "type": "boolean" },
+        "evidence_integrity": { "type": "boolean" },
+        "citation_accuracy": { "type": "boolean" },
+        "contradiction_transparency": { "type": "boolean" },
+        "uncertainty_quantified": { "type": "boolean" },
+        "constitutional_compliance": { "type": "boolean" }
+      },
+      "required": ["source_authenticity", "claim_accuracy", "constitutional_compliance"]
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" },
+    "engine_version": { "type": "string" }
+  },
+  "required": ["certificate_id", "publication_id", "certification_level", "checks", "fingerprint"]
+}

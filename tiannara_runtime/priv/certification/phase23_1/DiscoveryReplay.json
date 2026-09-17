@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DiscoveryReplay",
+  "description": "A replay session for a complete scientific discovery, verifying deterministic reconstruction of all stages",
+  "type": "object",
+  "properties": {
+    "session_id": { "type": "string" },
+    "discovery_id": { "type": "string" },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string",
+            "enum": ["observation", "question", "hypothesis", "prediction", "simulation", "experiment", "evidence", "validation", "theory", "knowledge"]
+          },
+          "input_snapshot": { "type": "string" },
+          "output_snapshot": { "type": "string" },
+          "replay_output": { "type": "string" },
+          "verification_status": {
+            "type": "string",
+            "enum": ["pending", "verified", "divergent"]
+          },
+          "divergence_report": { "type": "string" }
+        },
+        "required": ["stage", "input_snapshot", "output_snapshot", "verification_status"]
+      }
+    },
+    "overall_status": {
+      "type": "string",
+      "enum": ["verified", "divergent", "incomplete"]
+    },
+    "session_hash": { "type": "string" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["session_id", "discovery_id", "stages", "session_hash", "timestamp"],
+  "additionalProperties": false
+}

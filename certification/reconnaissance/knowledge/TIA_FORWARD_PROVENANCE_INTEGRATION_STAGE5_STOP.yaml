@@ -1,0 +1,172 @@
+# Stage 5 — Metric Lineage — STOP Record
+
+artifact: TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE5_STOP
+version: 1.0.0
+authority: TIA Council
+status: AWAITING AUTHORIZATION FOR STAGE 6
+stage: 5 (Metric Lineage)
+implementation_plan: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_IMPL_PLAN.yaml
+gate: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STOP.yaml
+recorded_at: 2026-09-10
+
+## Stage 5 Status
+- STATUS: COMPLETE
+- SCOPE: EXACTLY the Council-authorized gate item 15 (metric lineage): the
+  metric lineage vertex that binds RESULT -> METRIC -> VALUE under the
+  completed execution. Contract-level pre-integration only, inside
+  forward_provenance/ (the authoring area). NOT a cleanup pass; certificate
+  authority / state untouched (Stage 6, deferred); full K-T adversarial
+  integration deferred to Stage 7 as binding; no historical provenance claims.
+- NEW MODULE: TiannaraOS.Provenance.MetricLineage — a PURE derivation contract
+  plus an INDEPENDENT verifier (verify_lineage). It reuses the Stage-1/2/3/4
+  substrate (Identity.object_id, Canon.sha256, RuntimeContract envelopes,
+  Producer lifecycle, IdentityAuthority, Metric.mean_stddev) WITHOUT modifying
+  any of them.
+- CHAIN DERIVED PER LINEAGE: SOURCE -> CONTRACT -> EXECUTION -> RESULT -> METRIC:
+  exec_id  = immutable Producer identifier (authority-minted, unique per attempt)
+  source_id / contract_id = Identity.object_id of the declared source / contract
+  result_id = sha256 of (exec_id, attempt, status, payload.canon, result kind)
+  metric_id = Identity.object_id{kind: "metric", fields: {definition_id,
+              result_id, result_status, value}}
+  lineage_id = sha256 of the ordered identity spine (root, edges, result_id,
+              metric_id, value, lineage version)
+- DETERMINISM: identical inputs (execution + definition + payload + corpus)
+  derive the SAME result_id, metric_id, value, and lineage_id. A different
+  attempt (attempt: 2) yields DISTINCT ids. derive/1 is PURE and REPLAYABLE.
+- VERIFY: verdict ACCEPT only when every check passes and certifiable? true
+  (execution terminal == completed). REJECT = semantic inconsistency (reason
+  attached); UNVERIFIED = packaged/identity boundary cannot be proven intact
+  (e.g. bundle manifest hash mismatch, unresolved parent).
+- DISTINCT REASONS (never collapsed): value_mismatch, definition_mismatch,
+  source_mismatch, contract_mismatch, execution_mismatch, status_mismatch,
+  orphan_lineage (metric claims a result_id the result does not carry),
+  parent_resolution (declared parent does not resolve), missing_execution
+  (execution not minted). Independent recompute of value and definition is
+  checked against the claimed identity, so a redacted/forged in-memory claim is
+  semantically REJECTED even before bundle packaging.
+- BUNDLE PROTOCOL: export_bundle writes to_full_envelope/2 envelopes
+  (execution_started, execution_ended, result_produced), identity_objects/
+  (source, contract, environment, execution), graph/provenance_graph.json
+  (lineage_id + edges only), results/result.bytes, measurements/ (corpus),
+  metrics/ (computed value + identity), meta/bundle_manifest.json (sha256 of
+  every file). NO certificates (Stage 6). verify_bundle checks every manifest
+  hash; uncoordinated tamper -> UNVERIFIED; coordinated tamper (attacker
+  recomputes the manifest) is still semantically REJECTED (exactly as
+  in-memory redaction). Determinism preserved byte for byte.
+- STAGE-4 CARRYOVER APPLIES: only completed terminal is certifiable
+  (M8 matrix: failed/partial/timed_out/cancelled/aborted/unknown all
+  NOT CERTIFIABLE); an orphan lineage (unresolved declared parent) verifies
+  UNVERIFIED with the parent_resolution reason; unknown/unregistered execution
+  -> {:error, :missing_execution, ctx} at derive, never fabricated.
+
+## Delivered (all new files, all inside forward_provenance/, untracked)
+- forward_provenance/lib/metric_lineage.ex  (spec/0, definition/1, result_id/3,
+  recompute_value/2, derive/1, build_result/3, build_metric/4, lineage_id/1,
+  verify_lineage/1 with 13 named checks incl. metric_result_match_check/2,
+  export_bundle/2, verify_bundle/1, lineage_from_bundle/1, definition/1)
+- forward_provenance/spec/metric_lineage.yaml  (spec_name
+  tiannara-fp-metric-lineage-v1, v1.0.0; chain, identity formulas, determinism,
+  reason vocabulary, bundle protocol, test-matrix contract, LIMITATION)
+- forward_provenance/test/metric_lineage_test.exs  (17 tests)
+- forward_provenance/output/stage5_test_matrix.json  (24 rows, all PASS)
+- NO modification to forward_provenance/lib/demo.ex, certificate.ex,
+  verifier.ex (certificate authority deferred to Stage 6); NO modification to
+  the root or tiannara_runtime runtimes (Stage-3 seams unchanged;
+  contract-level pre-integration only, exactly as the binding stage order does
+  for integration tests in Stage 7).
+
+## Test M Acceptance (contract-level, pre-integration)
+- Matrix: 24 rows, all PASS, missing = [], fails = 0. M1..M16 with M8 split
+  across the six failure terminals (failed/partial/timed_out/cancelled/aborted/
+  unknown), M6a (derive refuses) / M6b (crafted lineage REJECT), M9 +
+  M9-orphan-parent, M15, and the RSPEC scenario row.
+- M15 exposed a REAL gap during probing: derive used to key the METRIC identity
+  on the DECLARED result_id without checking the metric's claimed result_id
+  actually matches the result's own result_id. Closed with
+  metric_result_match_check/2 -> reason orphan_lineage.
+- Tamper semantics exercised: value recompute mismatch (REJECT), definition
+  mismatch (REJECT), source/contract/execution identity mismatch (REJECT),
+  status change on a completed chain (REJECT), bundle byte tamper (UNVERIFIED),
+  manifest-rehash coordinated tamper (REJECT), determinism (same ids), attempt
+  distinction (distinct ids), failure terminals (NOT CERTIFIABLE), orphan
+  parent (UNVERIFIED), unregistered execution (missing_execution).
+- assertions use "expected reason in reasons_of(v)" because multiple distinct
+  reasons may legitimately cascade; reasons are never collapsed into one.
+
+## Verification
+- forward_provenance suite: 71 tests, 0 failures (54 prior + 17 new Stage-5)
+- compile: forward_provenance clean, no warnings attributable to Stage 5; root
+  and tiannara_runtime recompile with only the pre-existing warning set
+- REGRESSION: root Phase-4 suite (test/tiannara/phase4): 66 tests, 0 failures.
+  tiannara_runtime OPC suite: pre-existing environment-dependent boot
+  flakiness only (NATS broker unavailable -> "entering degraded local-buffer
+  mode", missing :tiannara_nats_bus registry, dead ChronogramBridge, and the
+  pre-existing ConstitutionalPersistenceLayer KeyError: :hash at
+  lib/tiannara_runtime/os/persistence/constitutional_persistence_layer.ex:247);
+  full-suite and isolated-file runs fail at DIFFERENT tests (order-dependent),
+  and Stage 5 contains ZERO files in tiannara_runtime, so no Stage-5
+  attribution — recorded as environmental, not a regression.
+- LIVE RUNTIME SMOKE (temp .exs, outside the repo): Producer.begin/complete ->
+  MetricLineage.derive -> verify_lineage ACCEPT/certifiable;
+  export_bundle -> verify_bundle ACCEPT, tampered bundle UNVERIFIED; failed
+  execution NOT CERTIFIABLE; unregistered execution {:error,
+  :missing_execution, ctx}.
+- PERFORMANCE (Elixir 1.18.4/OTP 28, this machine, :timer.tc, n=40):
+  derive+verify 0.323 ms/op; verify-only 0.248 ms/op. Lineage derivation adds
+  no surprising cost to the derivation contract (pure map/string work).
+
+## T0 Porcelain Accounting (Stage-5 tracked delta: ZERO)
+- HEAD commit: 9753a6d08702064f4d00395a1bec1c4bf3887381 — UNCHANGED from T0
+  (no commit, no push, no index operation, no tracked file modified).
+- T0 tree (verified now via git show --format=%T HEAD):
+  06f06e5e91f33e75437a47ca901eaa7e97bb0edd. DOCUMENTATION CORRECTION: the
+  earlier notebook entry recorded t0_tree 32b4cc6...; a commit tree is
+  immutable and HEAD 9753a6d is unchanged, so the value re-measured
+  authoritatively here supersedes it.
+- raw git status --porcelain at Stage-5 STOP: 3380 lines total, breaking down
+  as 2952 pre-existing staged additions ("A"), 15 pre-existing modified
+  entries, and 413 untracked entries. Among the untracked entries exactly TWO
+  are collapsed authoring dirs that existed before Stage 5: "?? forward_provenance/"
+  (the authoring area, one collapsed line since Stage 1) and
+  "?? certification/reconnaissance/" (impl plan + STAGE-1..5 STOP records, one
+  collapsed line). The rest of the 3380 are the pre-existing environmental
+  noise set (council_audit_log.dets.corrupted.*, cel_event_store.dets.corrupt.*,
+  dev_data_archive_20260816/, tiannara_api/, tiannara-desktop/, T0_BASELINE.md,
+  8 modified files under tiannara_runtime/, etc.) — untouched by Stage 5.
+  Stage-5 attributable change: ZERO new porcelain lines (the metric_lineage
+  module, spec, tests, matrix, and this STOP record all live inside the two
+  pre-existing collapsed untracked dirs). NO tracked file modified, NO index
+  operation, NO stage/commit/push.
+- stage5 evidence artifacts (matrix + spec + module + tests) live under
+  forward_provenance/ exactly as the binding authoring-area rule requires.
+
+## Historical Firewall (unchanged)
+- Forbidden: any statement that the new provenance system has now verified a
+  historical artifact. Stage 5 made NO historical provenance claims and NO
+  changes to T0 / CONTRA-003 / archived runs / certificates. CONTRA-003 remains
+  UNRESOLVED (out of scope; that resolution remains prohibited).
+- Certificate authority/state NOT expanded in Stage 5 (deferred to Stage 6);
+  Demo.ex, Certificate, Verifier untouched.
+- Pre-existing boot artifacts (council_audit_log.dets.corrupted.*,
+  cel_event_store.dets.corrupt.*) still present and untouched, as authorized.
+
+## LIMITATION (recorded, deferred)
+- The PRE-EXISTING Metric identity is an object id over metric fields only and
+  is not result-bound; under Stage 5 provenance qualification therefore runs
+  through MetricLineage (definition_id + result_id bound). Retrofitting the
+  runtime Metric identity to be result-bound is out of scope and NOT claimed.
+- verify_bundle returns UNVERIFIED (not REJECT) for package/boundary tamper by
+  design: the manifest cannot be proven intact. Semantic content tamper that
+  recomputes the manifest is still REJECTED.
+
+## Bound Dependency Chain (do not advance without authorization)
+6. Certificate State / Authority
+7. K-T Adversarial Integration
+8. Independent Verification
+
+## Decision
+- STATUS: PASS (complete, self-verified within the authoring area).
+- NEXT GATE: STAGE 6 — Certificate State / Authority (authorization required;
+  metric lineage now provisioned for certificate extension without modifying
+  certificate history, in the binding order).
+- RECOMMENDED: proceed only on Council authorization; no Stage-6 work started.

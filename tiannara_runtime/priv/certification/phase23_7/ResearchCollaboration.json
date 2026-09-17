@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/research_collaboration.json",
+  "title": "ResearchCollaboration",
+  "description": "A constitutional research collaboration among participants.",
+  "type": "object",
+  "properties": {
+    "collaboration_id": { "type": "string", "pattern": "^collab_[a-f0-9]{16}$" },
+    "research_problem": { "type": "string" },
+    "participant_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "team_id": { "type": "string" },
+    "status": { "type": "string", "enum": ["forming", "active", "completed", "archived"] },
+    "output_ids": { "type": "array", "items": { "type": "string" } },
+    "governance_model": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "completed_at": { "type": "integer" }
+  },
+  "required": ["collaboration_id", "research_problem", "participant_ids", "status", "fingerprint"]
+}

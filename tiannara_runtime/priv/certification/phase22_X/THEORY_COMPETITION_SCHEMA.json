@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TheoryCompetition",
+  "description": "Competition round record between multiple scientific theories in the ecosystem",
+  "type": "object",
+  "properties": {
+    "competition_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this competition round"
+    },
+    "competition_type": {
+      "type": "string",
+      "enum": ["prediction", "experimental", "engineering", "mathematical"],
+      "description": "Type of competition"
+    },
+    "competition_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of competition"
+    },
+    "participating_theories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "theory_id": {
+            "type": "string"
+          },
+          "theory_name": {
+            "type": "string"
+          },
+          "entry_status": {
+            "type": "string",
+            "enum": ["dominant", "competing", "candidate", "minority"]
+          }
+        },
+        "required": ["theory_id", "theory_name"]
+      },
+      "minItems": 2
+    },
+    "evaluation_criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criterion": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "metric": {
+            "type": "string"
+          }
+        },
+        "required": ["criterion", "metric"]
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "theory_id": {
+            "type": "string"
+          },
+          "scores": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number"
+            }
+          },
+          "overall_score": {
+            "type": "number"
+          }
+        },
+        "required": ["theory_id", "scores", "overall_score"]
+      }
+    },
+    "winner": {
+      "type": "string",
+      "description": "Theory ID with strongest evidence"
+    },
+    "minority_report": {
+      "type": "object",
+      "properties": {
+        "preserved_theories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dissent_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["preserved_theories"]
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Evidence used in competition evaluation"
+    },
+    "governance_oversight": {
+      "type": "object",
+      "properties": {
+        "overseer": {
+          "type": "string"
+        },
+        "review_date": {
+          "type": "integer"
+        },
+        "fairness_verification": {
+          "type": "boolean"
+        }
+      },
+      "required": ["overseer", "review_date", "fairness_verification"]
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["competition_id", "competition_type", "competition_date", "participating_theories", "results", "winner", "minority_report", "fingerprint"]
+}

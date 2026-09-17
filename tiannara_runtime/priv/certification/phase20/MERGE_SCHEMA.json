@@ -1,0 +1,47 @@
+{
+  "schema": "MERGE_SCHEMA",
+  "version": "20.5",
+  "description": "Schema for RuntimeMerge — constitutional branch merge",
+  "merge": {
+    "fields": {
+      "merge_id": {"type": "string", "required": true, "description": "Content-addressed merge identifier"},
+      "source_branch": {"type": "string", "required": true, "description": "Source branch identifier"},
+      "source_generation": {"type": "string", "required": true, "description": "Source generation reference"},
+      "target_branch": {"type": "string", "required": true, "description": "Target branch identifier"},
+      "target_generation": {"type": "string", "required": true, "description": "Target generation reference"},
+      "conflicts": {"type": "array", "required": false, "description": "List of detected conflicts"},
+      "conflicts.item": {
+        "type": "object",
+        "fields": {
+          "conflict_id": {"type": "string"},
+          "type": {"type": "string", "description": "state/knowledge/mathematics/dependency/interface"},
+          "source_value": {"type": "string"},
+          "target_value": {"type": "string"},
+          "resolution": {"type": "string"},
+          "resolution_evidence": {"type": "string"}
+        }
+      },
+      "resolutions": {"type": "array", "required": false, "description": "List of conflict resolutions"},
+      "merge_hash": {"type": "string", "required": true, "description": "SHA-256 of complete merge result"},
+      "replay_root": {"type": "string", "required": true, "description": "Root hash of merge replay chain"},
+      "certification_ref": {"type": "string", "required": true, "description": "Reference to merge certification"},
+      "audit_ref": {"type": "string", "required": false, "description": "Reference to merge audit"},
+      "status": {"type": "string", "required": true, "description": "Proposed/Validated/Certified/Completed/RolledBack"}
+    },
+    "merge_requirements": [
+      "replay_equivalence",
+      "knowledge_preservation",
+      "mathematical_preservation",
+      "scientific_preservation",
+      "no_unresolved_conflicts",
+      "independent_audit",
+      "constitutional_certification"
+    ],
+    "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},`n  "constraints": [
+      "merge_is_deterministic",
+      "conflict_resolution_is_deterministic",
+      "merge_is_replayable",
+      "merge_is_reversible"
+    ]
+  }
+}

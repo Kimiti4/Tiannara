@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/industrial_ecosystem.json",
+  "title": "IndustrialEcosystem",
+  "description": "State representation of the industrial ecosystem within the CCEIE.",
+  "type": "object",
+  "properties": {
+    "ecosystem_id": { "type": "string", "pattern": "^iecosys_[a-f0-9]{16}$" },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "participant_id": { "type": "string" },
+          "name": { "type": "string" },
+          "participant_type": { "type": "string", "enum": ["factory", "supply_chain", "research_center", "engineering_org", "infrastructure_operator", "university", "government", "industrial_partner", "autonomous_lab"] },
+          "capabilities": { "type": "array", "items": { "type": "string" } },
+          "status": { "type": "string", "enum": ["active", "degraded", "offline", "forming"] },
+          "certification_status": { "type": "string", "enum": ["certified", "uncertified", "probation"] }
+        },
+        "required": ["participant_id", "name", "participant_type", "status"]
+      }
+    },
+    "supply_chain_health": { "type": "number", "minimum": 0, "maximum": 1 },
+    "production_capacity": { "type": "object" },
+    "ecosystem_health": { "type": "number", "minimum": 0, "maximum": 1 },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "snapshot_at": { "type": "integer" }
+  },
+  "required": ["ecosystem_id", "participants", "ecosystem_health", "fingerprint"]
+}

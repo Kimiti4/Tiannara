@@ -1,0 +1,50 @@
+# Move 9 — Runtime Authority Validation (what running-system observation established)
+# Read-only observation + bounded execution. No precedence invented.
+# Architecture, code location, supervisor order, or execution frequency alone
+# were not used to infer authority.
+artifact: RUNTIME_AUTHORITY_VALIDATION_M9
+artifact_status: POST_T0
+move: 9
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+observations:
+- authority: Stabilization
+  observed: Supervisor alive; OLEF/OCM/HSV subsupervisors alive; CTL absent (consistent with supervision record)
+  actions_observed_in_window: none (init/boot lines only)
+  liveness: ESTABLISHED (all supervised processes alive at probe instant)
+  authority: UNRESOLVED (liveness is not authority; no precedence mechanism observed)
+- authority: CIS
+  observed: Supervisor alive; RegulationExecutor + ImmuneDecisionEngine + CollapsePredictor workers alive; CISRegistry supervisor alive
+  actions_observed_in_window: none (init lines only; CollapsePredictor initialized grounded)
+  liveness: ESTABLISHED
+  authority: UNRESOLVED (no regulation decision observed; no override/precedence observed)
+- authority: Council
+  observed: Supervisor alive; 7 children alive including AuditLog worker; scheduled governance-compliance line from another subsystem observed once
+  actions_observed_in_window: none attributable to Council decision-making (compliance line unattributed)
+  liveness: ESTABLISHED
+  authority: UNRESOLVED at runtime (contract text stands unevaluated by execution)
+- authority: Executive (memory scope)
+  observed: ExecutiveCycle Cycle 2 completed (log line); ExecutiveMetrics TERMINATED cascading from ExecutiveStateManager :state FunctionClauseError
+  actions_observed_in_window: cycle progress logged; metrics collection failed
+  liveness: PARTIAL (cycle runs; metrics pipeline broken at runtime)
+  authority: UNRESOLVED
+  defect_recorded: GAP-M9-01 (metrics pipeline crash; full trace in TEMP boot log)
+- authority: PhaseΩ verification
+  observed: 1/16 healthy (boot 1) vs 15/15 healthy (bench boot); boot order logged with dependency lists
+  actions_observed_in_window: verification runs logged in both boots
+  liveness: ESTABLISHED (verification executes)
+  authority: not-applicable (verification reports; does not authorize)
+  defect_recorded: GAP-M9-02 (health-report inconsistency across boots)
+- authority: Certification (phase14 auditor)
+  observed: Auditor executes to completion; reports 12/12 PASSED; overwrites its own report file
+  actions_observed_in_window: fingerprint computation + status echo + report write
+  liveness: ESTABLISHED (as a procedure, not as a validator)
+  authority: UNRESOLVED (self-consistency checking demonstrated; independent validation not demonstrated)
+  defect_recorded: GAP-M9-04 (self-mutating evidence package)
+precedence_observed: NONE (no ordering, override, or precedence mechanism observed between any pair of authorities in any run)
+conflicting_decisions_observed: NONE (no two authorities issued conflicting decisions in any observed window; absence is window-bounded, not general)
+aggregate:
+  authorities_observed_alive: 5
+  authorities_with_actions_observed: 0
+  precedence_mechanisms_observed: 0
+  conflicts_observed: 0

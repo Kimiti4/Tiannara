@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/runtime_replay.json",
+  "title": "RuntimeReplay",
+  "description": "A deterministic replay event for the planetary runtime.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^rreplay_[a-f0-9]{16}$" },
+    "event_type": { "type": "string", "enum": ["state_reconstruction", "subsystem_replay", "domain_replay", "full_replay", "event_log_replay"] },
+    "checkpoint_id": { "type": "string" },
+    "target_time": { "type": "integer" },
+    "input_snapshot": { "type": "object" },
+    "output_snapshot": { "type": "object" },
+    "replay_duration_ms": { "type": "integer" },
+    "events_replayed": { "type": "integer" },
+    "accuracy_verified": { "type": "boolean" },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "checkpoint_id", "input_snapshot", "output_snapshot", "content_hash"]
+}

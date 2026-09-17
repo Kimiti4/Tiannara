@@ -1,0 +1,32 @@
+{
+  "schema": "ARCHIVE_INDEX_SCHEMA",
+  "version": "20.999",
+  "description": "Schema for ArchiveIndex — the permanent index of the complete CSOS v1.0 constitutional archive (complement to ARCHIVAL_RECORD_SCHEMA — this tracks category breakdown and storage; that tracks total counts and inventory)",
+  "archive_index": {
+    "fields": {
+      "archive_id": {"type": "string", "required": true, "description": "Content-addressed archive identifier"},
+      "csos_version": {"type": "string", "required": true, "description": "CSOS 1.0"},
+      "total_archived_items": {"type": "integer", "required": true},
+      "categories": {
+        "type": "object", "required": true,
+        "fields": {
+          "architectures": {"type": "integer"}, "schemas": {"type": "integer"},
+          "replay_models": {"type": "integer"}, "archaeology_models": {"type": "integer"},
+          "reports": {"type": "integer"}, "certification_evidence": {"type": "integer"},
+          "hashes": {"type": "integer"}, "dependency_graphs": {"type": "integer"},
+          "lineage_graphs": {"type": "integer"}
+        }
+      },
+      "archive_root_hash": {"type": "string", "required": true},
+      "storage_formats": {"type": "array", "required": true, "description": "Storage formats used for preservation"},
+      "storage_locations": {"type": "array", "required": true},
+      "reconstruction_instructions": {"type": "string", "required": true},
+      "integrity_verified": {"type": "boolean", "required": true},
+      "archive_timestamp": {"type": "integer", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["permanent_archive", "cold_storage", "indefinite_reconstructibility"]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/production_plan.json",
+  "title": "ProductionPlan",
+  "description": "A constitutional production plan for manufacturing engineering products.",
+  "type": "object",
+  "properties": {
+    "plan_id": { "type": "string", "pattern": "^pplan_[a-f0-9]{16}$" },
+    "design_id": { "type": "string" },
+    "factory_id": { "type": "string" },
+    "production_sequence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "operation_id": { "type": "string" },
+          "process_id": { "type": "string" },
+          "equipment_id": { "type": "string" },
+          "duration": { "type": "number" },
+          "quality_gate": { "type": "boolean" }
+        }
+      }
+    },
+    "schedule": { "type": "object", "properties": { "start": { "type": "integer" }, "end": { "type": "integer" }, "milestones": { "type": "array", "items": { "type": "object" } } } },
+    "resource_assignments": { "type": "object" },
+    "batch_size": { "type": "integer" },
+    "status": { "type": "string", "enum": ["draft", "approved", "in_production", "completed", "on_hold"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["plan_id", "design_id", "production_sequence", "fingerprint"]
+}

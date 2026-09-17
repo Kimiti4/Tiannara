@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReplaySession",
+  "description": "A replay session for historical analysis",
+  "type": "object",
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "Unique identifier for this replay session"
+    },
+    "start_timestamp": {
+      "type": "integer",
+      "description": "Start timestamp of replay"
+    },
+    "end_timestamp": {
+      "type": "integer",
+      "description": "End timestamp of replay"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "TelemetryEvent.json"
+      },
+      "description": "Array of telemetry events"
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "$ref": "MetricSeries.json"
+      },
+      "description": "Array of metric series"
+    },
+    "states": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/StateSnapshot"
+      },
+      "description": "Array of state snapshots"
+    },
+    "verification": {
+      "$ref": "#/definitions/ReplayVerification"
+    },
+    "created_at": {
+      "type": "integer",
+      "description": "Timestamp when session was created"
+    }
+  },
+  "required": ["session_id", "start_timestamp", "end_timestamp", "events", "metrics", "states", "verification", "created_at"],
+  "additionalProperties": false,
+  "definitions": {
+    "StateSnapshot": {
+      "type": "object",
+      "properties": {
+        "snapshot_id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "integer"
+        },
+        "state": {
+          "type": "object"
+        },
+        "hash": {
+          "type": "string"
+        }
+      },
+      "required": ["snapshot_id", "timestamp", "state", "hash"]
+    },
+    "ReplayVerification": {
+      "type": "object",
+      "properties": {
+        "event_verification": {
+          "type": "string",
+          "enum": ["verified", "failed"]
+        },
+        "metric_verification": {
+          "type": "string",
+          "enum": ["verified", "failed"]
+        },
+        "state_verification": {
+          "type": "string",
+          "enum": ["verified", "failed"]
+        },
+        "overall_verification": {
+          "type": "string",
+          "enum": ["verified", "failed"]
+        },
+        "verification_timestamp": {
+          "type": "integer"
+        }
+      },
+      "required": ["event_verification", "metric_verification", "state_verification", "overall_verification", "verification_timestamp"]
+    }
+  }
+}

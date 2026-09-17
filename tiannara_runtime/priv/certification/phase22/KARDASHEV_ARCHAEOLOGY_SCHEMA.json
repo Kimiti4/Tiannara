@@ -1,0 +1,19 @@
+{
+  "schema": "KARDASHEV_ARCHAEOLOGY_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for Kardashev transition archaeological reconstruction",
+  "kardashev_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true},
+      "transition_ids": {"type": "array", "required": true},
+      "question_set": {"type": "array", "required": true},
+      "bottleneck_records": {"type": "object", "required": true},
+      "discovery_timeline": {"type": "object", "required": true},
+      "engineering_records": {"type": "object", "required": true},
+      "institutional_timeline": {"type": "object", "required": true},
+      "readiness_trajectories": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["comprehensive", "deterministic", "replayable"]
+  }
+}

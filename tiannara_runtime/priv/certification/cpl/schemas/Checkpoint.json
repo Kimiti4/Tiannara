@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Checkpoint",
+  "description": "A checkpoint of a specific domain's state at a point in time",
+  "type": "object",
+  "properties": {
+    "checkpoint_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this checkpoint"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of checkpoint creation"
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "runtime_state",
+        "knowledge_graph",
+        "ontology",
+        "experiments",
+        "evolution",
+        "certification",
+        "replay_position",
+        "archaeology_position",
+        "observatory_state"
+      ],
+      "description": "Which domain this checkpoint covers"
+    },
+    "state_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the domain state"
+    },
+    "previous_checkpoint_id": {
+      "type": "string",
+      "description": "ID of the previous checkpoint for this domain"
+    },
+    "state_data": {
+      "type": "object",
+      "description": "Domain-specific state data"
+    },
+    "certification_reference": {
+      "type": "string",
+      "description": "Reference to certification record"
+    },
+    "archaeology_reference": {
+      "type": "string",
+      "description": "Reference to archaeology record"
+    },
+    "replay_root": {
+      "type": "string",
+      "description": "Reference to replay position"
+    }
+  },
+  "required": ["checkpoint_id", "timestamp", "domain", "state_hash", "state_data"],
+  "additionalProperties": false
+}

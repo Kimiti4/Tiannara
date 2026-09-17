@@ -1,0 +1,27 @@
+{
+  "memory": {
+    "start_mb": 0.0,
+    "end_mb": 0.08024883270263672,
+    "delta_mb": 0.08024883270263672,
+    "per_episode_kb": 2.73916015625,
+    "avg_episode_ms": 0.7494131724039714
+  },
+  "pruner": {
+    "total_selections": 1000,
+    "total_time_ms": 176.5894889831543,
+    "per_selection_ms": 0.1765894889831543,
+    "throughput_per_sec": 5662.8512022898185,
+    "ucb_avg_ms": 0.009500980377197266
+  },
+  "skill_retrieval": {
+    "num_skills": 100,
+    "num_queries": 500,
+    "avg_retrieval_ms": 0.0016770362854003906,
+    "throughput_per_sec": 596290.0199033268
+  },
+  "logging": {
+    "jsonl_time_ms": 975.3861427307129,
+    "sqlite_time_ms": 1134.2670917510986,
+    "speedup_factor": 0.8599263346562378
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "FOUNDING_ARCHAEOLOGY_SCHEMA",
+  "version": "20.999",
+  "description": "Schema for FoundingArchaeology — the archaeological record of the CSOS v1.0 certification",
+  "founding_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true, "description": "Content-addressed archaeology identifier"},
+      "csos_version": {"type": "string", "required": true, "description": "CSOS 1.0"},
+      "certification_decision": {"type": "string", "required": true},
+      "evidence_summary": {
+        "type": "object", "required": true,
+        "fields": {
+          "validation_completeness": {"type": "number"}, "audit_success": {"type": "boolean"},
+          "long_horizon_stability": {"type": "number"}, "readiness_index_level": {"type": "string"},
+          "overall_readiness_score": {"type": "number"}
+        }
+      },
+      "answers": {
+        "type": "object", "required": true,
+        "fields": {
+          "why_certified": {"type": "string"},
+          "which_evidence_supported": {"type": "array"},
+          "which_validations_passed": {"type": "array"},
+          "which_audits_verified": {"type": "array"},
+          "which_readiness_dimensions_satisfied": {"type": "array"},
+          "which_constitutional_invariants_demonstrated": {"type": "array"},
+          "how_to_independently_reconstruct": {"type": "string"}
+        }
+      },
+      "reconstruction_instructions": {"type": "string", "required": true},
+      "archaeology_hash": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "deterministic", "independently_reconstructible"]
+  }
+}

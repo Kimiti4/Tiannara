@@ -1,0 +1,19 @@
+{
+  "schema": "ONTOLOGY_ARCHAEOLOGY_SCHEMA",
+  "version": "22.0",
+  "description": "Schema for archaeological reconstruction of civilizational ontology evolution",
+  "ontology_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "ontology_version": {"type": "string", "required": true},
+      "civilization_snapshots": {"type": "array", "required": true},
+      "institution_evolution": {"type": "array", "required": true},
+      "infrastructure_history": {"type": "array", "required": true},
+      "knowledge_expansion_events": {"type": "array", "required": true},
+      "ontology_extension_events": {"type": "array", "required": true},
+      "assumption_changes": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

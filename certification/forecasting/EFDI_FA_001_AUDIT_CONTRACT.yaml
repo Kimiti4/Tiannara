@@ -1,0 +1,148 @@
+artifact: EFDI_FA_001_AUDIT_CONTRACT
+record_type: EFDI-FA-001 audit contract (frozen)
+recorded_at: 2026-09-13
+governing_protocol: efdi.md (EFDI-FA-001)
+status: FROZEN — HARNESS IMPLEMENTATION / AUDIT PREPARATION
+live_forecast_status: NOT ISSUED (Forecast #001 explicitly gated)
+
+============================================================
+PURPOSE
+============================================================
+header: >
+  Determine empirically whether Tiannara produces measurably better,
+  calibrated, reproducible, evidence-grounded forecasts than appropriate
+  baselines — OUT OF SAMPLE — and can determine WHEN prediction is
+  unreliable or impossible. This is an audit, not a demonstration.
+primary_question: >
+  Can Tiannara use signals, mathematical reasoning, historical evidence,
+  uncertainty estimation, competing models and feedback from previous
+  forecasts to produce progressively better calibrated predictions?
+secondary_question: >
+  Can Tiannara correctly determine when prediction is unreliable or
+  impossible? (Mandatory. A system that confidently predicts everything
+  is inferior to one that identifies predictable and unpredictable regimes.)
+null_hypothesis: >
+  Tiannara's forecasts contain no predictive information beyond the
+  baselines defined in EFDI_FA_001_BASELINE_DEFINITIONS.yaml (B0-B4).
+  The audit is designed to reject or fail-to-reject this hypothesis,
+  never to assume its negation.
+
+============================================================
+BOUNDARIES (measurement-only, hard constraints)
+============================================================
+constraints:
+  - name: no_live_forecast_yet
+    rule: >
+      No forecast is issued until the full harness artifact set below is
+      frozen AND this contract's pass conditions are recorded as met in
+      EFDI_FA_001_STOP_REPORT.md.
+  - name: measurement_only
+    rule: >
+      EFDI-FA-001 is a sensor experiment. No trade execution, no financial
+      orders, no autonomous intervention, no external mutation. Forecasts
+      are observations about external reality; they never command a system.
+  - name: immutability
+    rule: >
+      A forecast is IMMUTABLE once issued. Outcomes and scores are appended
+      after resolution. No forecast, probability, interval, or reason may
+      ever be edited retroactively. Violations classify the series as
+      contaminated and restart the relevant batch.
+  - name: data_cutoff
+    rule: >
+      Every forecast records its data_cutoff. No information dated after
+      data_cutoff may influence the forecast. (EFDI_FA_001_DATA_CUTOFF_PROTOCOL.md)
+  - name: resolution_prefixed
+    rule: >
+      The resolution source and rule are fixed BEFORE the forecast is
+      issued, never after, never reinterpreted at outcome time.
+      (EFDI_FA_001_REAL_WORLD_RESOLUTION_PROTOCOL.md)
+  - name: council_gated
+    rule: >
+      Each phase (pilot / calibration batch / empirical benchmark) requires
+      explicit Council authorization. The harness itself is Council-authorized
+      now; the FIRST live forecast requires a separate go decision.
+  - name: no_source_mutation
+    rule: >
+      No modification to efdi.md, to EFDI D-series contracts or code, to
+      governance records, or to the forward_provenance gate artifacts.
+
+============================================================
+HARNESS ARTIFACTS (frozen with this contract)
+============================================================
+artifacts:
+  - EFDI_FA_001_AUDIT_CONTRACT.yaml            (this file)
+  - EFDI_FA_001_FORECAST_SCHEMA.yaml           (forecast record schema)
+  - EFDI_FA_001_FORECAST_LEDGER.yaml           (immutable ledger format + integrity)
+  - EFDI_FA_001_METRIC_SCHEMA.yaml             (score definitions and formulas)
+  - EFDI_FA_001_BASELINE_DEFINITIONS.yaml      (B0-B6 baseline hierarchy)
+  - EFDI_FA_001_DATA_CUTOFF_PROTOCOL.md        (freeze semantics, leakage guards)
+  - EFDI_FA_001_REAL_WORLD_RESOLUTION_PROTOCOL.md (pre-fixed resolution sources)
+  - EFDI_FA_001_CALIBRATION_PROTOCOL.md        (reliability, recalibration rules)
+  - EFDI_FA_001_NOISE_PROTOCOL.md              (noise profile, bias-vs-noise)
+  - EFDI_FA_001_COUNTERFACTUAL_PROTOCOL.md     (decision-vs-outcome, luck-vs-skill)
+  - EFDI_FA_001_FAILURE_TAXONOMY.yaml          (F-01..F-17 classification)
+  - EFDI_FA_001_TEST_MATRIX.yaml               (synthetic known-ground-truth suite)
+  - EFDI_FA_001_STOP_REPORT.md                 (harness gate verdict)
+
+runtime_artifacts (created later, per phase authorization):
+  - EFDI_FA_001_FORECAST_LEDGER.jsonl          (append-only, canon JSONL)
+  - EFDI_FA_001_RESULTS.yaml
+  - EFDI_FA_001_FAILURE_REGISTER.yaml
+  - EFDI_FA_001_CALIBRATION_REPORT.md
+  - EFDI_FA_001_NOISE_REPORT.md
+  - EFDI_FA_001_BIAS_REPORT.md
+  - EFDI_FA_001_COUNTERFACTUAL_REPORT.md
+  - EFDI_FA_001_BASELINE_COMPARISON.md
+  - EFDI_FA_001_POSTMORTEM.md
+  - EFDI_FA_001_TEST_MATRIX_RESULTS.yaml
+
+============================================================
+PHASE SEQUENCE (mandatory order)
+============================================================
+sequence:
+  - PHASE_0_HARNESS: freeze contract, schema, ledger, metrics, baselines,
+    cutoff rules, resolution rules, calibration rules, failure taxonomy,
+    synthetic test matrix. Verify all PASS conditions below. HALT.
+  - PHASE_1_SYNTHETIC: known-ground-truth tests (EFDI_FA_001_TEST_MATRIX.yaml)
+    establish whether forecasts are calibrated on processes with KNOWN truth.
+  - PHASE_2_PILOT: 10 live dual-domain forecasts (BTC 5m + Nairobi 60min).
+    Purpose: verify the harness end-to-end. Not evidence of skill.
+  - PHASE_3_CALIBRATION_BATCH: 100 live forecasts. First statistical assessment
+    against B0-B4 under EFDI_FA_001_METRIC_SCHEMA.yaml significance rules.
+  - PHASE_4_EMPIRICAL_BENCHMARK: 500+ live forecasts. Serious out-of-sample
+    baseline comparison producing the horizon curve (5m/15m/1h/4h/24h/7d).
+  - PHASE_5_SCORING: outcome resolution, calibration, baseline comparison.
+  - PHASE_6_CERTIFICATION: verdict from the closed set (PASS /
+    PASS_WITH_LIMITATIONS / PARTIAL / INSUFFICIENT_EVIDENCE / FAIL / BLOCKED).
+
+============================================================
+HARNESS PASS CONDITIONS (PHASE_0 gate)
+============================================================
+pass_conditions:
+  - if_immutable_forecast_schema: frozen and hash-stamped
+  - if_immutable_forecast_ledger: append-only chain with integrity hash
+  - if_frozen_data_cutoff_semantics
+  - if_frozen_resolution_semantics
+  - if_baseline_definitions
+  - if_brier_logloss_definitions
+  - if_calibration_methodology
+  - if_noise_bias_separation
+  - if_leakage_protection
+  - if_forecast_reproducibility
+  - if_outcome_reconciliation
+  - if_postmortem_mechanism
+  - if_no_external_action
+  - if_no_trading
+  - if_no_autonomous_intervention
+  - if_deterministic_test_fixtures
+  - if_synthetic_known_ground_truth_tests
+
+============================================================
+AUTHORIZATION BLOCK
+============================================================
+authorization:
+  authority: Council (operator)
+  action: PHASE_0_HARNESS implementation and freeze
+  authorized_on: 2026-09-13
+  live_forecast: NOT authorized by this contract
+  signature: EFDI_FA_001_PHASE_0_AUTHORIZED

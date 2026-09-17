@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_model.json",
+  "title": "EngineeringModel",
+  "description": "A constitutional engineering model within the digital engineering ecosystem.",
+  "type": "object",
+  "properties": {
+    "model_id": { "type": "string", "pattern": "^emodel_[a-f0-9]{16}$" },
+    "model_type": { "type": "string", "enum": ["requirements", "functional", "architectural", "physical", "behavioral", "performance", "reliability", "safety", "manufacturing", "operational"] },
+    "domain": { "type": "string", "enum": ["mechanical", "electrical", "electronics", "software", "embedded", "ai", "robotics", "thermal", "fluid", "materials", "communications", "energy", "human_systems"] },
+    "version": { "type": "string" },
+    "parent_model_id": { "type": "string" },
+    "lifecycle_state": { "type": "string", "enum": ["concept", "draft", "validated", "verified", "certified", "operational", "historical", "archived"] },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "trace_ids": { "type": "array", "items": { "type": "string" } },
+    "certificate_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["model_id", "model_type", "domain", "version", "lifecycle_state", "content_hash", "fingerprint"]
+}

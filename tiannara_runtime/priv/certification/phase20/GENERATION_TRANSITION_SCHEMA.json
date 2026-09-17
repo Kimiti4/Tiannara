@@ -1,0 +1,30 @@
+{
+  "schema": "GENERATION_TRANSITION_SCHEMA",
+  "version": "20.9",
+  "description": "Schema for generation transition records — source to target generation migration",
+  "generation_transition": {
+    "fields": {
+      "transition_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "proposal": {"type": "string", "required": true, "description": "Reference to IntegrationProposal"},
+      "source_generation": {"type": "string", "required": true, "description": "Source generation_id"},
+      "target_generation": {"type": "string", "required": true, "description": "Target generation_id"},
+      "source_snapshot_hash": {"type": "string", "required": true, "description": "SHA-256 of source snapshot"},
+      "target_constitutional_hash": {"type": "string", "required": true, "description": "SHA-256 of target generation"},
+      "migration_domains": {
+        "type": "object", "required": true,
+        "fields": {
+          "state_hash": {"type": "string"}, "knowledge_hash": {"type": "string"},
+          "mathematics_hash": {"type": "string"}, "world_model_hash": {"type": "string"},
+          "planning_hash": {"type": "string"}, "runtime_hash": {"type": "string"},
+          "archaeology_hash": {"type": "string"}
+        }
+      },
+      "replay_root": {"type": "string", "required": true},
+      "rollback_plan": {"type": "object", "required": true},
+      "status": {"type": "string", "required": true, "description": "Planned/Executing/Completed/RolledBack"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["source_generation_immutable", "deterministic_transition", "replayable", "reversible"]
+  }
+}

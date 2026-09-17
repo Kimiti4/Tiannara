@@ -1,0 +1,82 @@
+artifact: authority_boundary_design
+stage: 8 (Implementation DESIGN — provenance/authority seam + ownership allocation)
+authority: TIA Council
+posture: DESIGN ONLY
+recorded_at: 2026-09-10
+upstream: authority_ownership_matrix (10 capabilities), certificate_stack_reconciliation
+  (Q2/Q7), authority_policy_analysis (Q5), stage8_design_scope (d2, d4)
+policy_chapters: TIA_PROVENANCE_CERTIFICATION_POLICY.yaml — authority, security, human_oversight
+
+DESIGN_ONLY: true
+design_status: CONSISTENT — the seam is described, not crossed. No boundary is traversed,
+  no capability is moved between stacks by this design.
+
+summary:
+  question: Where is the provenance→authority boundary, and who owns which authority
+    capability for forward provenance?
+  answer: Provenance (what executed, under what evidence, recomputably) stays on the
+    substrate side (Canon/Envelope/Verifier/bridge); authority (who bound a decision to
+    that evidence, under what accepted policy) stays on the authority side. The boundary
+    is crossed ONLY by a decision envelope carrying a validated authority header — in the
+    FUTURE realization. The ownership matrix from Stage 7 stays authoritative: no single
+    actor currently holds the full capability set; the forward area owns the deterministic
+    identity + the accepted policy is now recorded; issuance/lifecycle/revocation capability
+    will be owned by a future realization after Council authorization.
+
+boundary_contract:
+  prov_side (unchanged in design):
+    - Canon.sha256/1 (deterministic identity foundation)
+    - Envelope.build/verify (immutable decision records; payload_hash)
+    - Verifier.verify/1 (envelope binding + declared lineage edges)
+    - MetricLineage / IdentityAuthority (edge + identity truth)
+    - CertificateAuthorityBridge (FAIL-CLOSED proposer: candidate/2,3, evaluate/3
+      BLOCKED, transition/3 SAFE-BLOCKED)
+  auth_side (design-only concepts, future):
+    - authority registry (who may issue; authority_kind human|mechanism; policy ref)
+    - accepted policy (NOW recorded accepted — TIA_PROVENANCE_CERTIFICATION_POLICY_ACCEPTANCE.yaml;
+      the draft file itself unchanged)
+    - M7 disposition (STILL OPEN; required for mechanism-only paths)
+    - human ratification decision channel (Council), policy human_oversight
+  seam_rule:
+    - "A certificate crosses the seam ONLY as a decision_recorded envelope carrying
+       {certificate_id, decision, authority_header, policy_ref, evidence_bindings}
+       (identity + issuance design). The authority header MUST be resolvable against the
+       authority registry and the policy ref MUST identify the accepted policy version.
+       Until registry + disposition exist, NO crossing is designed or permitted."
+
+ownership_allocation (from authority_ownership_matrix; carried, not changed):
+  - designation/acceptance: Council (acceptance NOW recorded; designation still open via M7)
+  - policy acceptance: Council (RECORDED in Stage 8 acceptance record; draft unmodified)
+  - issuance: future realization ONLY (bridge confirms BLOCKED today)
+  - verification: forward substrate EVIDENCE (Verifier); auditor-independent re-check is a
+    later-independent-verification concern (impl plan Stage 8 legacy redefinition; this
+    stage is the design-only reconciliation, distinct from the original plan item)
+  - lifecycle/revocation/supersession: future realization (design contracts in
+    lifecycle_design; nothing exists in Stage 8)
+  - ledger/durability: future realization (design_dependencies in issuance_design)
+  - deterministic identity: forward area (bridge candidate_id) — the identity BASIS adopted
+    by design (certificate_identity_design)
+
+not_models (recorded, NOT adopted):
+  - Certificate.issue/1 authority as a caller-supplied unvalidated string —
+    forward_provenance/lib/certificate.ex; authority-as-data, no registry resolution;
+    documented as the gap, never the pattern.
+  - Ad-hoc mechanism-only issuance without registry delegation — rejected by policy
+    authority.requirements (mechanism-issued valid only where registry delegates).
+
+ratification_points (design):
+  - rp1: policy acceptance — RECORDED (2026-09-10).
+  - rp2: M7 single-vs-distributed disposition — REQUIRED, NOT PRESENT (open decision;
+    blocks any runtime-integrated forward cert without human ratification the policy already
+    mandates).
+  - rp3: authority predicates opening (A01..A12) — REQUIRED per predicate via Council
+    authorization events; NONE exists; design d3/d4 forbid inventing them.
+
+consistency_notes:
+  - "No contradiction recorded: ownership matrix (Stage 7) rows are carried unchanged; the
+     only delta is policy acceptance now being recorded (a legal-status change, not a
+     capability change)."
+  - "Design does not resolve the Deciding Authority question (Q13) any further than Stage 7
+     did: still NO canonical authority selected; M7 open."
+
+NOTHING_IMPLEMENTED: true

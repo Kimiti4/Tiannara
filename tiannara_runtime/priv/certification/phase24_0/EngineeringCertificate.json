@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_certificate.json",
+  "title": "EngineeringCertificate",
+  "description": "Certification attesting that an engineering artifact or process meets constitutional standards.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^ecert_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "program_id": { "type": "string" },
+    "project_id": { "type": "string" },
+    "certification_type": { "type": "string", "enum": ["artifact", "process", "decision", "program", "project", "lifecycle_gate"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "requirement_coverage": { "type": "boolean" },
+        "verification_completeness": { "type": "boolean" },
+        "traceability_integrity": { "type": "boolean" },
+        "configuration_consistency": { "type": "boolean" },
+        "change_control_compliance": { "type": "boolean" },
+        "decision_quality": { "type": "boolean" },
+        "safety_compliance": { "type": "boolean" },
+        "constitutional_alignment": { "type": "boolean" }
+      },
+      "required": ["requirement_coverage", "verification_completeness", "safety_compliance", "constitutional_alignment"]
+    },
+    "certifying_entity": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" },
+    "expires_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "certification_type", "checks", "fingerprint"]
+}

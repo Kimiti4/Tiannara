@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/civilizational_engineering_state.json",
+  "title": "CivilizationalEngineeringState",
+  "description": "Aggregate state of the engineering civilization at a point in time.",
+  "type": "object",
+  "properties": {
+    "state_id": { "type": "string", "pattern": "^civeng_[a-f0-9]{16}$" },
+    "civilization_state": { "type": "string", "enum": ["formative", "operational", "evolving", "resilient", "transcendent"] },
+    "capability_index": { "type": "number", "minimum": 0, "maximum": 1 },
+    "civilizational_benefit": { "type": "number" },
+    "sustainability_index": { "type": "number", "minimum": 0, "maximum": 1 },
+    "constitutional_compliance": { "type": "number", "minimum": 0, "maximum": 1 },
+    "replay_integrity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "evolution_velocity": { "type": "number" },
+    "readiness_index": { "type": "number", "minimum": 0, "maximum": 1 },
+    "ecosystem_health": { "type": "number", "minimum": 0, "maximum": 1 },
+    "technology_portfolio_health": { "type": "number", "minimum": 0, "maximum": 1 },
+    "industrial_ecosystem_health": { "type": "number", "minimum": 0, "maximum": 1 },
+    "infrastructure_health": { "type": "number", "minimum": 0, "maximum": 1 },
+    "component_snapshots": {
+      "type": "object",
+      "properties": {
+        "engineering_runtime": { "type": "string" },
+        "technology_portfolio": { "type": "string" },
+        "industrial_ecosystem": { "type": "string" },
+        "deployment_pipeline": { "type": "string" },
+        "operations": { "type": "string" }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "snapshot_at": { "type": "integer" }
+  },
+  "required": ["state_id", "civilization_state", "capability_index", "fingerprint"]
+}

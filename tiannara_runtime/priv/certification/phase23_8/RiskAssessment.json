@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/risk_assessment.json",
+  "title": "RiskAssessment",
+  "description": "A constitutional risk assessment for a predicted discovery impact.",
+  "type": "object",
+  "properties": {
+    "risk_id": { "type": "string", "pattern": "^risk_[a-f0-9]{16}$" },
+    "prediction_id": { "type": "string" },
+    "scenario_id": { "type": "string" },
+    "risk_domain": { "type": "string", "enum": ["scientific", "engineering", "medical", "ecological", "economic", "governance", "infrastructure", "planetary", "civilizational"] },
+    "risk_description": { "type": "string" },
+    "severity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "likelihood": { "type": "number", "minimum": 0, "maximum": 1 },
+    "severity_uncertainty": { "type": "number", "minimum": 0 },
+    "likelihood_uncertainty": { "type": "number", "minimum": 0 },
+    "causal_chain": { "type": "array", "items": { "type": "string" } },
+    "correlated_risks": { "type": "array", "items": { "type": "string" } },
+    "mitigation_options": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "assessed_at": { "type": "integer" }
+  },
+  "required": ["risk_id", "prediction_id", "risk_domain", "risk_description", "severity", "likelihood", "fingerprint"]
+}

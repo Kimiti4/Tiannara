@@ -1,0 +1,209 @@
+spec_name: tiannara-fp-certificate-identity-v1
+version: "1.0.0"
+authority: TiannaraOS.Provenance.IdentityAuthority (identity contract)
+status: FROZEN (Council disposition COUNCIL-2026-09-10-SERIALIZATION-FREEZE)
+freeze_instrument: fz-b
+layered_on: tiannara-fp-canon-v1 (forward_provenance/spec/canonicalization_spec.yaml)
+area: forward_provenance only
+supersedes: none
+
+purpose:
+  Pins the exact certificate identity grammar and the decision/envelope body,
+  authority_header, and policy_ref schemas that participate in certificate-bound
+  provenance. It is the normative specification of the identity computed in
+  certificate_authority_bridge.ex (candidate/3) and MUST NOT be redesigned by
+  implementation. This spec does not authorize any issuance.
+
+reference_canon:
+  canonicalization source: forward_provenance/spec/canonicalization_spec.yaml
+  canon_identity: tiannara-fp-canon-v1
+  encoder: OTP stdlib :json (byte-identical reimplementation required)
+  hashing: sha256 over canon/1 bytes
+  note: All identities/payload hashes in this spec are Canon.sha256 of the canon
+    rendering (byte-lexicographic key order, ordered arrays, shortest float
+    round-trip) per canon-v1. No other canonicalization is normative.
+
+============================================================
+PIN o1 — CERTIFICATE IDENTITY GRAMMAR
+============================================================
+
+FORMULA (binding):
+  certificate_id = sha256hex(canon(%{
+    "candidate_id_spec" => "tiannara-fp-cert-candidate-v1",
+    "spine" => <spine object>
+  }))
+
+DETERMINISM RULES (binding):
+  - No UUID, no timestamp, no random nonce, no process-local identifier, no
+    machine-local identifier, no nondeterministic ordering anywhere in the
+    identity input.
+  - Identical canonical inputs MUST yield the identical certificate_id
+    (replay-identical). Different execution attempts remain distinguishable
+    through the attempt/execution fields of the spine, never through identity
+    nondeterminism.
+  - The spine object is rendered with canon-v1 (byte-lexicographic key order);
+    the identity input ordering is canon's ordering, not author order.
+
+SPINE SCHEMA (object keys and value domains, per certificate_authority_bridge.ex
+candidate_spine at lib/certificate_authority_bridge.ex:262-279):
+
+  candidate_spec         string   == "tiannara-fp-cert-candidate-v1"
+  source_id              string   identity of the provenance SOURCE (id_of)
+  contract_id            string   identity of the provenance CONTRACT (id_of)
+  execution_id           string   execution["execution_id"]
+  attempt                string   execution["attempt"]  (e.g. attempt_1)
+  status                 string   execution["status"]
+  certifiable_terminal   boolean  RuntimeContract.certifiable?(execution["status"])
+  result_id              string   result["result_id"]
+  result_payload_hash    string   result["payload_hash"]
+  definition_id          string   identity of metric_definition (id_of)
+  metric_id              string   metric["metric_id"]
+  corpus_sha256          string   metric["corpus_sha256"]
+  value                  <value>  lineage["value"] (any canon-renderable term)
+  lineage_id             string   lineage["lineage_id"]
+  bundle_id              string   the bundle id passed to candidate/3
+  authority_context      <map>    authority_context passed to candidate/3 (default %{})
+
+  A candidate object additionally carries "candidate_id" = the computed hash;
+  the candidate_id field is NOT part of the spine (the identity excludes it).
+
+  id_of(x):
+    - nil maps to nil
+    - a %{"id" => s} structure maps to s
+    - a plain string maps to itself
+    rendering per canon-v1.
+
+FROZEN OPEN ITEMS STATUS: o1 FROZEN (this section).
+
+============================================================
+PIN o2 — DECISION / ENVELOPE BODY SCHEMA
+============================================================
+
+SCOPE:
+  Pins the decision material that participates in certificate-bound provenance,
+  exactly as designed in issuance_design.yaml and lifecycle_design.yaml
+  (Stage 8). Certificate state decision records are envelopes under the frozen
+  envelope contract (spec/envelope_spec.yaml).
+
+DECISION ENVELOPE BODY (binding, if a certificate is ever issued under a future
+predicate authorization):
+
+  envelope fields:
+    envelope_spec       string   canonical envelope spec (frozen envelope contract)
+    object_type         string   "certificate_decision"
+    decision            string   lifecycle decision (future-validated vocabulary,
+                                 e.g. certifies / certifies_bounded / qualifies_partial
+                                 / fails / contests — see lifecycle_design; the
+                                 enumerated vocabulary is a predicate-gated item)
+    decision_hash       string   sha256hex(canon(decision body centric fields))
+    authority_header    map      PIN o3 (below)
+    policy_ref          map      PIN o3 (below)
+    issued_at           string   UTC ISO-8601 generation timestamp of the record
+                                 (a RECORD timestamp, not an identity input)
+    certificate_id      string   PIN o1 identity (or nil when identity not reached)
+    evidence_bindings   list     bound evidence references (lineage_id, bundle_id,
+                                 result_id, corpus_sha256) for verification
+
+RULES (binding):
+  - The envelope payload_hash is computed per canon-v1 (payload_hash excludes
+    itself), never by a divergent method.
+  - Identity fields (o1) never include issued_at or any nonce/timestamp.
+  - No implementation-convenience field may be added to the body; any field
+    participating in identity or verification has a deterministic canonical
+    representation under canon-v1.
+  - issued_at is present in the ENVELOPE as a record timestamp; it is excluded
+    from the identity input o1.
+
+FROZEN OPEN ITEMS STATUS: o2 FROZEN at the level above: field set, names, types,
+  presence rules, and canon rendering pinned. The enumerated decision vocabulary
+  values and valid transition legality remain predicate-gated (lifecycle_design,
+  issuance_design) and are NOT opened by this spec.
+
+============================================================
+PIN o3 — AUTHORITY_HEADER and POLICY_REF SCHEMA
+============================================================
+
+authority_header (binding shape):
+  authority_header:
+    authority       string   single forward issuance authority identifier
+                             (M7 = HYBRID: exactly ONE forward issuance authority;
+                             identifier is resolved at the predicate-by-predicate
+                             gate, never inferred)
+    authority_kind  string   "human" | "mechanism" (per accepted policy
+                             authority_kind vocabulary)
+    role            string   "issuance" (issuance role only; verification is
+                             reader-side and does not appear here)
+
+policy_ref (binding shape):
+  policy_ref:
+    policy          string   "tiannara-provenance-certification-policy"
+    policy_version  string   version of the ACCEPTED policy
+    authority_doc   string   "TIA_M7_DISPOSITION.yaml"
+    authority_doc_id string  decision_id of the M7 disposition (COUNCIL-2026-09-10-M7)
+
+RULES (binding):
+  - authority metadata is EXPLICIT and separate from certificate identity,
+    candidate identity, decision content, and verification result. It is never
+    implicit and never derivable from verification outcome.
+  - authority_kind values are from the accepted policy-only vocabulary; no new
+    kind may be invented by implementation.
+  - Verification context (verifier id, verification result) is NOT part of
+    authority_header; verification never confers issuance authority (M7 rule 4/5).
+
+FROZEN OPEN ITEMS STATUS: o3 FROZEN (this section).
+
+============================================================
+PIN o4 — ENCODER CONTRACT
+============================================================
+
+  - ser family: canon-v1's canonical object/array serialization uses OTP stdlib
+    :json for string escaping (Canon.to_json / esc_key), with byte-lexicographic
+    object key order and shortest round-trip float rendering as the canon spec
+    defines.
+  - A conforming reimplementation MUST emit byte-identical serialization (byte
+    parity) for the same prescribed input: identical escaping, identical key
+    ordering, identical numeric rendering.
+  - Substituting another JSON encoder, or any alternate escaping / key order /
+    numeric rendering, is a canon-v1 deviation and invalid unless explicitly
+    permitted by the canon-v1 contract and ratified by the Council.
+
+FROZEN OPEN ITEMS STATUS: o4 FROZEN (this section).
+
+============================================================
+PIN o5 — SPEC VERSION / BUMP and SUPERSEDED INTERACTION
+============================================================
+
+RULES (binding):
+  - This spec (tiannara-fp-certificate-identity-v1) is frozen at v1.0.0.
+  - Any change to the frozen grammar (o1-o4) or to canon rendering requires an
+    explicit spec-version bump (v2, ...) authorized by the Council; v1 MUST NOT
+    be silently altered.
+  - SUPERSEDED is an explicit lifecycle relation (lifecycle_design): a successor
+    certificate/record MUST preserve the provenance relationship (supersedes
+    link + identity lineage) to its predecessor. SUPERSEDED is never an ordinary
+    mutable overwrite; a certificate in SUPERSEDED state cannot be quietly
+    rewritten.
+  - superseded_by / supersedes fields, if present on any record, carry
+    certificate_id references that resolve under o1 identity and canon-v1
+    rendering.
+  - History records are immutable once recorded; correction is via a new record +
+    explicit supersede relation.
+
+FROZEN OPEN ITEMS STATUS: o5 FROZEN (this section).
+
+============================================================
+CONFORMANCE (fz-c)
+============================================================
+
+  Deterministic fixtures for this spec live in
+  forward_provenance/spec/certificate_identity_conformance.yaml. They are
+  conformance EVIDENCE (prescribed input -> expected SHA-256) and are NOT a
+  second canonicalization specification.
+
+  A conforming implementation of identity MUST reproduce every fixture digest
+  exactly (byte parity).
+
+NOTHING_IMPLEMENTED: true
+NO_PREDICATE_OPENED: true
+NO_CERTIFICATE_STATE_MUTATED: true
+CANON_V1_UNCHANGED: true

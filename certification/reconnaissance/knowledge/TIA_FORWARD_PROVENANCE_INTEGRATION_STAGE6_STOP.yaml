@@ -1,0 +1,193 @@
+# Stage 6 — Certificate State / Authority — STOP Record
+
+artifact: TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE6_STOP
+version: 1.0.0
+authority: TIA Council
+status: AWAITING AUTHORIZATION FOR STAGE 7
+stage: 6 (Certificate State / Authority)
+implementation_plan: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_IMPL_PLAN.yaml
+gate: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STOP.yaml
+prior_stage: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE5_STOP.yaml
+recorded_at: 2026-09-10
+
+## Stage 6 Status
+- STATUS: COMPLETE — DELIBERATE STOP — AUTHORITY AMBIGUITY
+- SCOPE: EXACTLY the Council-authorized gate item 17 (certificate state /
+  authority): evidence can PROPOSE certificate state; only the EXISTING
+  certificate authority can ESTABLISH authoritative certificate state. The
+  bridge turns verified forward-provenance evidence into a DETERMINISTIC
+  certificate candidate and evaluates it against the existing authority
+  WITHOUT creating, replacing, or bypassing one. All work inside
+  forward_provenance/ (the authoring area). No production/constitutional/
+  Council/runtime state modified; no certificate history touched; no commits.
+- NEW MODULE: TiannaraOS.Provenance.CertificateAuthorityBridge — PURE,
+  deterministic (candidate_id via
+  Canon.sha256(%{"candidate_id_spec" => @candidate_spec, "spine" => spine})).
+  It consumes the Stage-1..5 substrate (Canon, IdentityAuthority, MetricLineage)
+  WITHOUT modifying any of them and NEVER calls/imports the existing
+  TiannaraOS.Provenance.Certificate module: the discovered authority's issuer
+  is represented as a plain string (TiannaraOS.Provenance.Certificate.issue/1
+  envelope generator), and the bridge builds bindings metadata only inside the
+  unreachable issue_via_existing_authority/2 path.
+- DISCOVERED AUTHORITY (recon, A01..A12): the existing certificate authority is
+  TiannaraOS.Provenance.Certificate.issue/1 — a PURE, STATELESS envelope
+  generator. There is NO certificate ledger, NO lifecycle, NO revocation, NO
+  authorization policy, and NO gate. The authoritative Verifier.verify/1 checks
+  only envelope binding + the certificate_certifies_metric edge (declared
+  lineage), never decision/state semantics. Two COMPETING certificate stacks
+  exist (root TiannaraOS + tiannara_runtime private stack) -> authority policy
+  missing, transitions ambiguous, revocation undefined. These recon findings
+  are the basis for the STOP.
+- VERDICT CLOSURE (12 authority entries, authority_map/0): every A01..A12 entry
+  is REBOUND/CLOSED: authority predicate undefined -> BLOCKED with a typed
+  reason (e.g. authority_undiscovered, policy_missing, lifecycle_undefined,
+  revocation_undefined); authorized_issuance? is CONSTANT false;
+  certificate_issuable constant "NO_AUTHORITY_POLICY". transition/3 is
+  SAFE-BLOCKED: returns {:blocked, decision} (decision ideal = decision, so a
+  strict no-op for any external caller). The {:issued, ...} branch is
+  UNREACHABLE under existing authority (authorized_issuance? == false), invoked
+  only as documentation of what a realization WOULD call.
+- PRECONDITIONS (PC-01..13): valid evidence (lineage ACCEPT or NOT CERTIFIABLE
+  is still verified provenance -> flows through preconditions as blocked-at-
+  PC-05; verdict UNVERIFIED/REJECT is blocked before candidate derivation with
+  unverified_bundle reason); missing_execution / missing source / missing
+  contract / provenance not verified / not certifiable / tampered bundle /
+  called business / no root entity / undefined status / negative bools each
+  produce distinct block reasons. failed terminals -> PC-05 NOT_CERTIFIABLE.
+- §17 STOP CONDITIONS FIRED (documented, DO NOT PATCH): (1) authority policy
+  missing across the boundary -> comparable certificates to the same subject
+  cannot be bound; (2) lifecycle/revocation undefined -> a revoked-certificate
+  contrast case cannot be represented; (3) competing authority stacks in root
+  vs tiannara_runtime -> ambiguity. Every one of these BLOCKS; NONE is patched;
+  certification is PROVABLY IMPOSSIBLE in Stage 6 (inverse safety property:
+  with no certifiable transitions, no certificate can be issued, so no
+  unauthorized/incorrect certificate can leak).
+
+## Delivered (all new files, all inside forward_provenance/, untracked)
+- forward_provenance/lib/certificate_authority_bridge.ex  (spec/0,
+  authority_map/0 A01..A12, lifecycle_table/0, candidate/2,3, preconditions/2,3,
+  authority_validation/2, evaluate/3, transition/3 + helpers; candidate_id is
+  deterministic; decision carries no timestamps)
+- forward_provenance/spec/certificate_authority_bridge.yaml  (spec_name
+  tiannara-fp-certificate-authority-bridge-v1, v1.0.0; authority map, lifecycle
+  table, precondition vocabulary, verdict vocabulary CERTIFIED /
+  CERTIFIED_BOUNDED / QUALIFIED_PARTIAL / NOT_CERTIFIED / UNKNOWN / BLOCKED,
+  transition semantics, audit linkage, LIMITATION)
+- forward_provenance/test/certificate_authority_bridge_test.exs  (B1..B13 +
+  A-AMBIGUITY: authority map closure, deterministic candidate, pure replay
+  evaluation, no certificate written, provenance-only never certifies, revoked
+  contrast BLOCKED/undefined, authority policy missing, and the A-AMBIGUITY row)
+- forward_provenance/output/stage6_test_matrix.json  (14 rows, all PASS,
+  missing = [], fails = 0)
+- NO modification to any existing file: certificate.ex, verifier.ex, demo.ex,
+  metric_lineage.ex, identity_authority.ex, canon.ex all untouched.
+
+## Test M Acceptance (contract-level, pre-integration)
+- Matrix: 14 rows, all PASS, missing = [], fails = 0 (B1..B13 + A-AMBIGUITY).
+- B1: valid evidence proposes a candidate and is BLOCKED by undefined authority
+  predicates; verdict BLOCKED, authorized_issuance? false, blocked? true,
+  certificate_issuable "NO_AUTHORITY_POLICY".
+- B2/B3: candidate identity is deterministic (same evidence+context -> same
+  candidate_id across different actors/bundles); evaluation is a pure replay
+  (identical inputs -> identical decision AND audit identity).
+- B4/B5: authority map closure — A01..A12 all present, statuses within
+  vocabulary, NONE self-certifies (no CERTIFIED / CERTIFIED_BOUNDED on any
+  authority entry), authorized_issuance? false everywhere.
+- B6: provenance alone (source/contract dropped) is at most QUALIFIED_PARTIAL
+  with missing_source / missing_contract block reasons.
+- B7/B8: bundle-only evidence (no in-memory lineage) yields QUALIFIED_PARTIAL /
+  NOT_CERTIFIED rather than any certificate; the bridge NEVER writes
+  certificates/decision_recorded.json into the bundle dir.
+- B9: failed execution is NOT_CERTIFIABLE (PC-05) and NOT_CERTIFIED.
+- B10: tampered/unverifiable bundle -> NOT_CERTIFIED / :unverified_bundle,
+  blocked BEFORE candidate derivation (a bundle that is NOT CERTIFIABLE is still
+  verified provenance and flows through preconditions; a bundle whose verdict is
+  NOT in [ACCEPT, NOT CERTIFIABLE] short-circuits).
+- B11: certificate_issuable constant NO_AUTHORITY_POLICY; transition SAFE-BLOCKED.
+- B12/B13: preconditions all 13 present (PC-01..13) with distinct reasons; a
+  crafted candidate with baked-in "issued" state is rejected/never realized.
+- A-AMBIGUITY: recorded as a BLOCKED row — competing authority stacks (root
+  TiannaraOS vs tiannara_runtime) and absent policy make the SAME evidence
+  evaluate ambiguously under a hypothetically parallel authority; the bridge
+  resolves ambiguity by refusing to issue (BLOCKED), exactly as §17 requires.
+
+## Verification
+- forward_provenance suite: 85 tests, 0 failures (71 prior + 14 new Stage-6).
+- compile: forward_provenance clean, no warnings attributable to Stage 6; the
+  root and tiannara_runtime recompile outside the authoring area is NOT claimed
+  clean (pre-existing warning set + environmental boot failures, unchanged).
+- REGRESSION: root Phase-4 suite (test/tiannara/phase4, the Stage-5 baseline
+  subset): 66 tests, 0 failures — re-run today and identical.
+- tiannara_runtime OPC suite: NOT rerun in full for Stage 6 (no Stage-6 files
+  in tiannara_runtime); Stage-5 classification of that suite as pre-existing
+  environment-dependent flakiness (NATS broker unavailable, missing registry,
+  ConstitutionalPersistenceLayer KeyError :hash at
+  lib/tiannara_runtime/os/persistence/constitutional_persistence_layer.ex:247,
+  order-dependent two-run flakiness) is carried forward unchanged — zero
+  Stage-6 attribution.
+- PERFORMANCE (Elixir 1.18.4/OTP 28, this machine, :timer.tc, temp .exs
+  outside the repo, n=32 warm means): evaluate/3 (lineage + exported bundle +
+  authority context) ≈ 89 ms/op; transition/3 SAFE-BLOCKED ≈ 87 ms/op; both
+  deterministic; replay produced byte-identical decisions (idempotent). Cost is
+  dominated by bundle export/read + full precondition scan; the bridge itself is
+  pure map/string work. Recorded as sizing data, not a commitment.
+
+## T0 Porcelain Accounting (Stage-6 tracked delta: ZERO)
+- HEAD commit: 9753a6d08702064f4d00395a1bec1c4bf3887381 — UNCHANGED (no commit,
+  no push, no index operation, no tracked file modified by Stage-6 authoring).
+- T0 tree (verified via git show --format=%T HEAD):
+  06f06e5e91f33e75437a47ca901eaa7e97bb0edd — UNCHANGED (supersedes the earlier
+  notebook t0_tree 32b4cc6...; 06f06e5 is authoritative, re-measured).
+- raw git status --porcelain at Stage-6 STOP: 3380 lines total — EXACT match
+  to the Stage-5 STOP baseline (2952 pre-existing staged additions "A" incl.
+  mixed AM/AD, 11 pre-existing modified entries, 415 untracked entries incl.
+  the two collapsed authoring dirs "?? forward_provenance/" and
+  "?? certification/reconnaissance/", and the pre-existing environmental noise
+  set — all untouched by Stage 6). Reconciliation note: during the Stage-6
+  regression probe, a root full-suite run (a probe that is NOT a valid
+  baseline) regenerated tracked scratch/output files at the repo root
+  (evidence/*.json, layer6_5a*.json, data/orbit_*, *.dets); those regenerated
+  files were restored via `git checkout --` to their indexed content and the
+  porcelain re-verified at 3380. The final invariant: Stage-6 attributable
+  tracked delta = ZERO (no tracked file modified, no index operation, no
+  stage/commit/push; category composition M↔?? may shift as regenerated
+  scratch files settle, but the TOTAL is identical to Stage-5 STOP).
+- All Stage-6 artifacts (bridge module, spec, tests, matrix, this STOP record)
+  live inside forward_provenance/ exactly as the binding authoring-area rule
+  requires.
+
+## Historical Firewall (unchanged)
+- Forbidden: any statement that the new provenance system has now verified a
+  historical artifact. Stage 6 made NO historical provenance claims and NO
+  changes to T0 / CONTRA-003 / archived runs / certificates. CONTRA-003 remains
+  UNRESOLVED (out of scope; that resolution remains prohibited).
+- The EXISTING certificate authority (Certificate.issue/1) was NOT expanded,
+  patched, or re-implemented; Demo.ex, Certificate, Verifier untouched.
+- Pre-existing boot artifacts (council_audit_log.dets.corrupted.*,
+  cel_event_store.dets.corrupt.*) still present and untouched, as authorized.
+
+## OPEN CONTRADICTIONS (recorded, deferred; do NOT patch)
+- CONTRA-003: still unresolved; still prohibited to resolve here. No Stage 6
+  work has changed its standing. It was NOT re-opened; it was not closed.
+- OPEN KNOWLEDGE DEBT: (1) certificate audit durability — Certificates are
+  stateless (no ledger), so an audit trail for issued certificates cannot be
+  reasoned about from the authority alone; deferred to (post-§17) guaranteed
+  resolution in a later stage. (2) authority policy MISSING across the boundary —
+  documented, not patched; a future authority realization must define lifecycle
+  and revocation before ANY certificate gets an arrow to a subject.
+
+## §17 Decision (binding)
+- Conditions fired: authority policy missing; lifecycle/revocation undefined;
+  competing authority stacks (root vs tiannara_runtime). Per §17: STOP,
+  DOCUMENT, DO NOT PATCH, DO NOT CERTIFY. Nothing was patched; nothing was
+  certified; certification is provably impossible in the Stage-6 contract
+  (no certifiable transition exists under the observed authority).
+
+## Decision
+- STATUS: PASS-as-COMPLETE (authoring delivered and self-verified) AND
+  STOP — AUTHORITY AMBIGUITY (deliberate; §17 fired). The STOP is the DESIGNED
+  outcome of Stage 6, not a defect in the bridge.
+- NO certificate was created, and none can be under the Stage-6 contract.
+- NEXT GATE: STAGE 7 — K-T Adversarial Integration (authorization required).
+- RECOMMENDED: proceed on Council authorization only after explicit disposition
+  of the authority ambiguity and CONTRA-003 standing; no Stage-7 work started.

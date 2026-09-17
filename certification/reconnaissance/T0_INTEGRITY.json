@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "evidence_kind": "baseline_aggregate",
+  "produced_by": {
+    "collector": "TIA_RECON_ORCHESTRATOR",
+    "contract_version": "0.1.1"
+  },
+  "produced_at_t0": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+  "run": {
+    "started_at": "2026-09-05T21:35:38.270741+00:00",
+    "finished_at": "2026-09-05T21:36:37.435926+00:00",
+    "duration_seconds": 59.165189,
+    "run_id": "43b7988bb5066207"
+  },
+  "t0_commit": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+  "t0_tree": "06f06e5e91f33e75437a47ca901eaa7e97bb0edd",
+  "verdict": "PASS",
+  "checks": {
+    "tag_T0_resolves_to_commit": {
+      "pass": true,
+      "actual": "9753a6d08702064f4d00395a1bec1c4bf3887381"
+    },
+    "t0_baseline_resolves_to_commit": {
+      "pass": true,
+      "actual": "9753a6d08702064f4d00395a1bec1c4bf3887381"
+    },
+    "origin_main_resolves_to_commit": {
+      "pass": true,
+      "actual": "9753a6d08702064f4d00395a1bec1c4bf3887381"
+    },
+    "source_repo_HEAD_equals_T0": {
+      "pass": true,
+      "actual": "9753a6d08702064f4d00395a1bec1c4bf3887381"
+    },
+    "t0_tree_hash_reproducible": {
+      "pass": true,
+      "actual": "06f06e5e91f33e75437a47ca901eaa7e97bb0edd"
+    }
+  },
+  "pre_post_comparison": {
+    "identical": true,
+    "ref_shas": {
+      "head": {
+        "pre": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+        "post": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+        "identical": true
+      },
+      "tag_deref": {
+        "pre": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+        "post": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+        "identical": true
+      },
+      "baseline": {
+        "pre": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+        "post": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+        "identical": true
+      },
+      "origin_main": {
+        "pre": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+        "post": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+        "identical": true
+      },
+      "tree": {
+        "pre": "06f06e5e91f33e75437a47ca901eaa7e97bb0edd",
+        "post": "06f06e5e91f33e75437a47ca901eaa7e97bb0edd",
+        "identical": true
+      }
+    },
+    "tracked_mods_sha256": {
+      "pre": "39b68ee0d916a8d133e82f33ebeb51c36c4d9268ed77996d19f6a21549a0d7fc",
+      "post": "39b68ee0d916a8d133e82f33ebeb51c36c4d9268ed77996d19f6a21549a0d7fc",
+      "identical": true
+    },
+    "untracked_disappeared": [],
+    "untracked_appeared": [],
+    "untracked_appeared_unexpected": [],
+    "policy": "verdict FAIL unless identical; STOP_AND_RECORD_CONDITION_AS_EVIDENCE"
+  },
+  "ri_status": "NOT_RUN",
+  "ri_note": "The 20 RI tests run separately (tests/test_recon_integrity.py) after the 7 artifacts exist. This field is NOT_RUN by construction. See T0_RI_CERTIFICATION.json (written by CERTIFY_MOVE0.py) for the bound result."
+}

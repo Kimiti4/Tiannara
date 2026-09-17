@@ -1,0 +1,30 @@
+# Node affinity configuration for GPU-accelerated workloads
+# [Original Concept: Holographic Tensor Compute Surface Allocation]
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gpu-scheduling-policy
+  namespace: tiannara-phase6
+data:
+  node-affinity.json: |
+    {
+      "requiredDuringSchedulingIgnoredDuringExecution": {
+        "nodeSelectorTerms": [{
+          "matchExpressions": [{
+            "key": "nvidia.com/gpu.present",
+            "operator": "In",
+            "values": ["true"]
+          }]
+        }]
+      },
+      "preferredDuringSchedulingIgnoredDuringExecution": [{
+        "weight": 100,
+        "preference": {
+          "matchExpressions": [{
+            "key": "nvidia.com/gpu.product",
+            "operator": "In",
+            "values": ["Tesla-V100", "A100-80GB", "H100"]
+          }]
+        }
+      }]
+    }

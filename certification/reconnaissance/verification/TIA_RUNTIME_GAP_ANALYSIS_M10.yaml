@@ -1,0 +1,71 @@
+# Move 10 — Runtime Gap Analysis (GAP-M9-01..04 diagnosis + status)
+# Diagnosis permitted. Remediation prohibited. Each gap: observations,
+# reproduction, evidence, root cause (only if demonstrated), confidence,
+# state, remaining unknowns.
+artifact: RUNTIME_GAP_ANALYSIS_M10
+artifact_status: POST_T0
+move: 10
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+gaps:
+- id: GAP-M9-01
+  question: Metrics-pipeline crash (ExecutiveStateManager :state FunctionClauseError)
+  observations:
+  - ExecutiveMetrics.collect_kpis calls get_executive_state/0 which issues GenServer.call(pid, :state, 2000)
+  - ExecutiveStateManager defines handle_call for :current_state, :force_snapshot, :stats — no :state clause (T0 source read)
+  - Crash cascades: ExecutiveMetrics terminates; KPI collection fails for that cycle
+  reproduction: OBSERVED in live boot log (full trace captured); deterministic by code inspection (structural clause mismatch, not timing-dependent)
+  evidence: Boot log trace + T0 clause listing
+  root_cause: Caller/callee message-protocol mismatch (:state sent, never handled). DEMONSTRATED at code level (both sides read in T0).
+  confidence: HIGH
+  state: NARROWED
+  state_note: The diagnostic question is answered; the defect itself is untouched (remediation prohibited). Narrowed, not resolved, because resolution of a defect-gap would require verified remediation.
+  remaining_unknowns: [Whether any caller ever successfully used :state (history); whether partial metrics from the failed cycle survive downstream (not traced)]
+  measurement_classification:
+    failure_location: ExecutiveStateManager.handle_call/3 clause table
+    input_trigger: GenServer.call(pid, :state, 2000) from collect_kpis path
+    deterministic: true (structural)
+    partial_metrics_survive: false for the crashed cycle (call raises; collector terminates)
+    health_divergence: possible in principle (KPI pipeline broken while other health paths run); not demonstrated as an actual divergence event
+- id: GAP-M9-02
+  question: PhaseΩ health inconsistency (1/16 vs 15/15)
+  observations:
+  - Boot-sequencer health counts subsystems with status in [:booted, :healthy, :degraded] over registered set (15 in observed boot)
+  - Runtime verifier counts per-subsystem 4-check results (module_loaded, process_alive, responds, deps_satisfied) over 16 registry records
+  - Different populations, different criteria, different timing points
+  reproduction: Both log lines captured across two boots; single-sample each
+  evidence: Boot log lines + T0 boot_sequencer/runtime_verifier source reads
+  root_cause: UNKNOWN (scope/timing-difference hypothesis vs genuine-instability hypothesis; neither demonstrated)
+  confidence: MEDIUM (that the two figures measure different things; LOW on which explanation holds)
+  state: "NARROWED (candidate causes enumerated: sampling timing, startup ordering, stale state, different health definitions, telemetry race, actual instability; none demonstrated)"
+  remaining_unknowns: [Per-subsystem check results for the 1/16 run (not retained in logs); registry record count vs boot registration count]
+- id: GAP-M9-03
+  question: Duplicate-module recompilation warnings
+  observations:
+  - Warnings name Audit.Tier3.CoreIntegration and Operations.ChallengeDiagnostics as redefined vs _build beams
+  - Each module defined in exactly ONE T0 source file (single-definition verified by T0 grep)
+  reproduction: OBSERVED in boot stderr on recompiling boots
+  evidence: T0 single-definition grep results + warning text
+  root_cause: "Stale _build beams predating working-tree source state (supported: single source definition each; warning explicitly contrasts loaded beam vs source file). Alternative (genuine duplicate sources) refuted by single-definition evidence."
+  confidence: MEDIUM-HIGH
+  state: NARROWED (mechanism named; _build timestamp forensics not performed)
+  remaining_unknowns: [Beam/source timestamp comparison (not performed; would require _build archaeology)]
+- id: GAP-M9-04
+  question: Self-mutating evidence package (auditor overwrites its report)
+  observations:
+  - run_independent_auditor.exs contains File.write!(output_path, ...) targeting phase14/certification/independent_audit_report.json (T0 source read)
+  - EXP-M9-01 run modified the tracked file in the working tree (920 bytes; disclosed)
+  - Certificate, manifest, campaign results, hashes: unmodified by the run (no writes to those paths observed)
+  reproduction: OBSERVED once (single auditor run)
+  evidence: T0 write-path source line + working-tree modification record
+  root_cause: Explicit report-write step in the runner (by construction, not accidental)
+  confidence: HIGH
+  state: "NARROWED (scoped: exactly one file self-mutates; remainder of package frozen as audited)"
+  remaining_unknowns: [Whether consumers distinguish the mutable report from the frozen inputs]
+aggregate:
+  gaps_total: 4
+  resolved: 0
+  narrowed: 3
+  unresolved: 1
+  narrowed_which: [GAP-M9-01 (root cause demonstrated), GAP-M9-03 (mechanism named), GAP-M9-04 (scoped to one file)]
+  unresolved_which: [GAP-M9-02 (cause unknown)]

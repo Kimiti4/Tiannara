@@ -29,8 +29,11 @@ defmodule Tiannara.Phase4.RealExecution do
   alias Tiannara.Omega.DeploymentGateway
   alias Tiannara.Omega.PatchGenerator.Candidate
   alias Tiannara.Executive.Event
+  alias TiannaraOS.Provenance.Producer
 
   require Logger
+
+  @producer "Tiannara.Phase4.RealExecution"
 
   @executions_log "priv/tiannara/real_execution/executions.jsonl"
 
@@ -66,21 +69,29 @@ defmodule Tiannara.Phase4.RealExecution do
     with :ok <- guard_enabled(),
          :ok <- guard_grant(spec),
          {:ok, substrate} <- substrate(spec),
-         {:ok, sandbox_result} <- run_sandbox(substrate) do
-      execution_id = make_execution_id()
-      verification = build_verification(substrate, sandbox_result)
-      provenance = build_provenance(execution_id, spec)
-      record_execution(execution_id, spec, verification)
-      maybe_deploy(spec, execution_id, verification)
+         {:ok, execution_id, _record, lifecycle} <- open_execution(spec, substrate) do
+      case run_sandbox(substrate) do
+        {:ok, sandbox_result} ->
+          verification = build_verification(substrate, sandbox_result)
+          close_execution(execution_id, lifecycle, :completed, spec, substrate, verification, nil)
 
-      {:ok,
-       %{
-         experiment_id: Map.get(spec, :id, "exp_#{execution_id}"),
-         execution_id: execution_id,
-         verification: verification,
-         provenance: provenance,
-         sandbox: sandbox_result
-       }}
+          provenance = build_provenance(execution_id, spec)
+          record_execution(execution_id, spec, verification)
+          maybe_deploy(spec, execution_id, verification)
+
+          {:ok,
+           %{
+             experiment_id: Map.get(spec, :id, "exp_#{execution_id}"),
+             execution_id: execution_id,
+             verification: verification,
+             provenance: provenance,
+             sandbox: sandbox_result
+           }}
+
+        {:error, _reason} = sandbox_error ->
+          close_execution(execution_id, lifecycle, :failed, spec, substrate, nil, inspect(elem(sandbox_error, 1)))
+          sandbox_error
+      end
     end
   end
 
@@ -183,9 +194,15 @@ defmodule Tiannara.Phase4.RealExecution do
     end
   end
 
-  # Always-persistent execution ledger (append-only JSONL).
+  # Always-persistent execution ledger (append-only JSONL). The ledger path is
+  # env-overridable so operators/tests can isolate it; the default keeps the
+  # original tracked location.
+  defp executions_log do
+    Application.get_env(:tiannara, :real_execution_ledger_path, @executions_log)
+  end
+
   defp record_execution(execution_id, spec, verification) do
-    File.mkdir_p!(Path.dirname(@executions_log))
+    File.mkdir_p!(Path.dirname(executions_log()))
 
     line =
       Jason.encode!(%{
@@ -196,7 +213,7 @@ defmodule Tiannara.Phase4.RealExecution do
         verification: verification
       })
 
-    File.write!(@executions_log, line <> "\n", [:append])
+    File.write!(executions_log(), line <> "\n", [:append])
 
     # Best-effort append to the Executive event store when it is running.
     event = Event.new("experiment.real_execution.completed", %{
@@ -213,7 +230,50 @@ defmodule Tiannara.Phase4.RealExecution do
     e -> Logger.error("[RealExecution] Failed to persist execution ledger: #{inspect(e)}")
   end
 
-  defp make_execution_id do
-    "exec_#{DateTime.utc_now() |> DateTime.to_unix()}_#{System.unique_integer([:positive])}"
+  # Stage 3 instrumentation: every execution is authority-MINTED and opened
+  # through the provenance runtime contract BEFORE the sandbox runs, so a
+  # failed sandbox still yields a closed (failed) lifecycle and terminal-state
+  # uniqueness holds for the process that minted it.
+  defp open_execution(spec, substrate) do
+    Producer.begin(@producer, %{
+      "experiment_id" => Map.get(spec, :id),
+      "attempt" => 1,
+      "input_manifest" => %{backend: inspect(substrate.backend), baseline: substrate.baseline}
+    })
   end
+
+  defp close_execution(id, lifecycle, status, spec, substrate, verification, failure_reason) do
+    fields =
+      %{"experiment_id" => Map.get(spec, :id), "attempt" => 1}
+      |> maybe_output_manifest(substrate, verification)
+      |> maybe_failure(failure_reason)
+
+    outcome =
+      case status do
+        :completed -> Producer.complete(@producer, id, lifecycle, fields)
+        :failed -> Producer.fail(@producer, id, lifecycle, fields)
+      end
+
+    case outcome do
+      {:ok, _record, _lifecycle2} ->
+        :ok
+
+      {:error, reason, culprit} ->
+        Logger.warning("[RealExecution] lifecycle #{status} rejected for #{id}: #{inspect(reason)}")
+        Logger.warning("[RealExecution] lifecycle culprit: #{inspect(culprit)}")
+    end
+  end
+
+  defp maybe_output_manifest(fields, _substrate, nil), do: fields
+
+  defp maybe_output_manifest(fields, substrate, verification) do
+    Map.put(fields, "output_manifest", %{
+      verdict: inspect(verification.verdict),
+      backend: inspect(substrate.backend),
+      baseline: substrate.baseline
+    })
+  end
+
+  defp maybe_failure(fields, nil), do: fields
+  defp maybe_failure(fields, reason), do: Map.put(fields, "failure", reason)
 end

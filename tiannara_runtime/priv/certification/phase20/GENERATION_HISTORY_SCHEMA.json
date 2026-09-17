@@ -1,0 +1,26 @@
+{
+  "schema": "GENERATION_HISTORY_SCHEMA",
+  "version": "20.97",
+  "description": "Schema recording the complete history of a single constitutional generation",
+  "generation_history": {
+    "fields": {
+      "generation_id": {"type": "string", "required": true, "description": "Content-addressed generation identifier"},
+      "generation_number": {"type": "integer", "required": true, "description": "Sequential generation number (1, 10, 100, ...)"},
+      "parent_generation": {"type": "string", "required": true, "description": "Parent generation ID"},
+      "evolution_events": {"type": "array", "required": true, "items": {"type": "string"}, "description": "References to EvolutionEvent records"},
+      "runtime_snapshot_hash": {"type": "string", "required": true},
+      "knowledge_hash": {"type": "string", "required": true},
+      "mathematics_hash": {"type": "string", "required": true},
+      "world_model_hash": {"type": "string", "required": true},
+      "scientific_capital_hash": {"type": "string", "required": true},
+      "governance_hash": {"type": "string", "required": true},
+      "archaeology_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "continuity_score": {"type": "number", "required": true, "description": "0.0–1.0, measured against parent generation"},
+      "status": {"type": "string", "required": true, "description": "Active/Frozen/Archived/Corrupted"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic_generation_numbering", "content_addressed_parent", "replayable"]
+  }
+}

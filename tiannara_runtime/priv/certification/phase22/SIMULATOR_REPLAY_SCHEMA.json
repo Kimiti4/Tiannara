@@ -1,0 +1,18 @@
+{
+  "schema": "SIMULATOR_REPLAY_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for replay verification of a simulator event",
+  "simulator_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "simulator_event_type": {"type": "string", "required": true, "enum": ["simulation_run", "batch_executed", "results_aggregated", "analysis_completed", "scenario_discovered", "validation_performed"]},
+      "event_fingerprint": {"type": "string", "required": true},
+      "reconstructed_hash": {"type": "string", "required": true},
+      "stored_hash": {"type": "string", "required": true},
+      "verification_status": {"type": "string", "required": true, "enum": ["verified", "diverged", "incomplete"]},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "immutable", "chain_verified"]
+  }
+}

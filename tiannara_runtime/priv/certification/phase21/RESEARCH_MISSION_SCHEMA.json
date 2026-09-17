@@ -1,0 +1,25 @@
+{
+  "schema": "RESEARCH_MISSION_SCHEMA",
+  "version": "21.0",
+  "description": "Schema for ResearchMission — a bounded scientific effort within a research program",
+  "research_mission": {
+    "fields": {
+      "mission_id": {"type": "string", "required": true, "description": "Content-addressed mission identifier"},
+      "program": {"type": "string", "required": true, "description": "Parent program reference"},
+      "title": {"type": "string", "required": true},
+      "scientific_objectives": {"type": "array", "required": true},
+      "methodology": {"type": "string", "required": true},
+      "capital_budget": {"type": "number", "required": true},
+      "scheduled_duration": {"type": "integer", "required": true, "description": "Expected generation count"},
+      "dependencies": {"type": "array", "required": false, "items": {"type": "string"}},
+      "collaborators": {"type": "array", "required": false, "items": {"type": "string"}, "description": "Collaborating institute/program IDs"},
+      "discoveries": {"type": "array", "required": true, "description": "Discovery references produced"},
+      "status": {"type": "string", "required": true, "description": "Proposed/Approved/Scheduled/Executing/Validated/Integrated/Archived"},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "lifecycle": ["proposed", "approved", "scheduled", "executing", "validated", "integrated", "archived"],
+    "constraints": ["bounded_effort", "deterministic_execution", "replayable"]
+  }
+}

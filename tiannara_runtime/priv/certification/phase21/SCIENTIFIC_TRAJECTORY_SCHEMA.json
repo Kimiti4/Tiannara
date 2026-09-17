@@ -1,0 +1,28 @@
+{
+  "schema": "SCIENTIFIC_TRAJECTORY_SCHEMA",
+  "version": "21.7",
+  "description": "Schema for a scientific trajectory — an alternative path toward a strategic objective with evaluation",
+  "scientific_trajectory": {
+    "fields": {
+      "trajectory_id": {"type": "string", "required": true, "description": "Content-addressed trajectory identifier"},
+      "strategic_objective": {"type": "string", "required": true},
+      "trajectory_type": {"type": "string", "required": true, "description": "Direct/Incremental/Parallel/Exploratory/Transformative"},
+      "required_discoveries": {"type": "array", "required": true},
+      "required_theories": {"type": "array", "required": false},
+      "required_mathematics": {"type": "array", "required": false},
+      "required_engineering": {"type": "array", "required": false},
+      "expected_uncertainty_reduction": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "risk_profile": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "civilizational_impact": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "capital_requirement": {"type": "number", "required": true},
+      "composite_score": {"type": "number", "required": true, "description": "0.0–1.0 trajectory comparison score"},
+      "selection_status": {"type": "string", "required": true, "description": "Candidate/Selected/Deprioritized/Archived"},
+      "trajectory_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "types": ["direct", "incremental", "parallel", "exploratory", "transformative"],
+    "constraints": ["evidence_based", "deterministic", "replayable"]
+  }
+}

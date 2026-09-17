@@ -1,0 +1,19 @@
+{
+  "schema": "CAPABILITY_PORTFOLIO_SCHEMA",
+  "version": "22.3",
+  "description": "Schema for a civilizational capability portfolio",
+  "capability_portfolio": {
+    "fields": {
+      "portfolio_id": {"type": "string", "required": true},
+      "design_id": {"type": "string", "required": true},
+      "capabilities": {"type": "array", "required": true},
+      "maturity_levels": {"type": "object", "required": true},
+      "development_roadmaps": {"type": "array", "required": true},
+      "capability_dependencies": {"type": "array", "required": true},
+      "capability_gaps": {"type": "array", "required": true},
+      "portfolio_balance": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "measurable", "traceable"]
+  }
+}

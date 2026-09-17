@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/transfer_certificate.json",
+  "title": "TransferCertificate",
+  "description": "Certification record for a cross-domain knowledge transfer attesting constitutional compliance.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^txcert_[a-f0-9]{16}$" },
+    "candidate_id": { "type": "string" },
+    "certification_level": {
+      "type": "string",
+      "enum": ["candidate", "validated", "adapted", "integrated", "superseded", "retired"]
+    },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "semantic_integrity": { "type": "boolean" },
+        "causal_consistency": { "type": "boolean" },
+        "evidence_integrity": { "type": "boolean" },
+        "adaptation_validity": { "type": "boolean" },
+        "replayability": { "type": "boolean" },
+        "provenance_completeness": { "type": "boolean" },
+        "uncertainty_quantified": { "type": "boolean" },
+        "constitutional_compliance": { "type": "boolean" }
+      },
+      "required": ["semantic_integrity", "evidence_integrity", "constitutional_compliance"]
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" },
+    "engine_version": { "type": "string" }
+  },
+  "required": ["certificate_id", "candidate_id", "certification_level", "checks", "fingerprint"]
+}

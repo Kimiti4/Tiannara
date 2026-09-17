@@ -1,0 +1,28 @@
+{
+  "schema": "OPPORTUNITY_ARCHAEOLOGY_SCHEMA",
+  "version": "21.2",
+  "description": "Schema for opportunity archaeology — the archaeological record of scientific opportunity management",
+  "opportunity_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true, "description": "Content-addressed archaeology identifier"},
+      "opportunity": {"type": "string", "required": true},
+      "answers": {
+        "type": "object", "required": true,
+        "fields": {
+          "why_discovered": {"type": "string"},
+          "which_evidence_revealed": {"type": "array"},
+          "which_contradictions_motivated": {"type": "array"},
+          "which_domains_contributed": {"type": "array"},
+          "why_prioritized": {"type": "string"},
+          "which_future_discoveries_resulted": {"type": "array"},
+          "how_frontier_evolved": {"type": "string"}
+        }
+      },
+      "frontier_snapshot_before": {"type": "string", "required": true},
+      "frontier_snapshot_after": {"type": "string", "required": true},
+      "archaeology_hash": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "deterministic", "independently_reconstructible"]
+  }
+}

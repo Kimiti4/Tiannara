@@ -1,0 +1,26 @@
+{
+  "schema": "STRATEGY_ARCHAEOLOGY_SCHEMA",
+  "version": "21.7",
+  "description": "Schema for strategy archaeology — the archaeological record of civilizational scientific strategy",
+  "strategy_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true, "description": "Content-addressed archaeology identifier"},
+      "generation": {"type": "integer", "required": true},
+      "answers": {
+        "type": "object", "required": true,
+        "fields": {
+          "why_objective_selected": {"type": "array"},
+          "which_evidence_justified_roadmap": {"type": "array"},
+          "which_discoveries_altered_trajectory": {"type": "array"},
+          "why_priorities_revised": {"type": "array"},
+          "how_strategy_evolved": {"type": "string"},
+          "how_civilization_progressed": {"type": "string"}
+        }
+      },
+      "strategy_snapshot": {"type": "string", "required": true},
+      "archaeology_hash": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "deterministic", "independently_reconstructible"]
+  }
+}

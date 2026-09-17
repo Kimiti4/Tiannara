@@ -1,0 +1,37 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: tiannara-rtl-scaling
+  namespace: tiannara-phase8
+spec:
+  scaleTargetRef:
+    name: tiannara-rtl
+  pollingInterval: 10
+  cooldownPeriod: 120
+  minReplicaCount: 3
+  maxReplicaCount: 20
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+      threshold: "0.75"
+      query: |
+        avg(tiannara_phase8_rtl_identity_dissolution_rate) 
+        by (pod)
+      metricName: rtl_identity_pressure
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+      threshold: "0.40"
+      query: |
+        1.0 - avg(tiannara_phase8_rtl_xi_equilibrium) 
+        by (pod)
+      metricName: rtl_transcendence_deficit
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+      threshold: "2.0"
+      query: |
+        sum(rate(tiannara_phase8_rtl_transformation_events_total[5m])) 
+        by (pod)
+      metricName: rtl_transform_throughput

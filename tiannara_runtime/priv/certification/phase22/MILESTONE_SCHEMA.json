@@ -1,0 +1,19 @@
+{
+  "schema": "MILESTONE_SCHEMA",
+  "version": "22.7",
+  "description": "Schema for a Kardashev transition milestone",
+  "milestone": {
+    "fields": {
+      "milestone_id": {"type": "string", "required": true},
+      "plan_id": {"type": "string", "required": true},
+      "milestone_type": {"type": "string", "required": true, "enum": ["capability", "performance", "readiness", "transition"]},
+      "completion_criteria": {"type": "array", "required": true},
+      "prerequisites": {"type": "array", "required": true},
+      "verification_method": {"type": "string", "required": true},
+      "completion_status": {"type": "string", "required": true, "enum": ["pending", "in_progress", "verified", "failed", "superseded"]},
+      "verification_evidence": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["verifiable", "deterministic", "replayable"]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "AUDIT_REPLAY_SCHEMA",
+  "version": "20.96",
+  "description": "Schema for audit replay — independent reconstruction of the OS from cold storage artifacts",
+  "audit_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true, "description": "Content-addressed replay identifier"},
+      "scope": {"type": "string", "required": true, "description": "Reference to AuditScope"},
+      "replay_method": {"type": "string", "required": true, "description": "Full/Subsystem/Generation/Lineage"},
+      "independent_reconstruction": {"type": "boolean", "required": true, "description": "Was reconstruction truly independent of runtime?"},
+      "step_hashes": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "step": {"type": "integer"}, "artifact_hash": {"type": "string"},
+            "reconstructed_hash": {"type": "string"}, "match": {"type": "boolean"},
+            "step_hash": {"type": "string"}
+          }
+        }
+      },
+      "root_hash_original": {"type": "string", "required": true},
+      "root_hash_reconstructed": {"type": "string", "required": true},
+      "root_hashes_match": {"type": "boolean", "required": true},
+      "archaeology_source": {"type": "string", "required": true},
+      "runtime_used": {"type": "boolean", "required": false, "description": "True if auditor relied on runtime (diminishes independence)"},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/DiscrepancyFound/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "replay_methods": ["full", "subsystem", "generation", "lineage"],
+    "constraints": ["cold_storage_independent", "no_runtime_trust", "identical_hashes_required"]
+  }
+}

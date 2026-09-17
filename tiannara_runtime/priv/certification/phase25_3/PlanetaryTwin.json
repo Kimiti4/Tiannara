@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/planetary_twin.json",
+  "title": "PlanetaryTwin",
+  "description": "The complete state of the planetary digital twin.",
+  "type": "object",
+  "properties": {
+    "twin_id": { "type": "string", "pattern": "^twin_[a-f0-9]{16}$" },
+    "version": { "type": "integer" },
+    "layer_count": { "type": "integer" },
+    "layers": { "type": "array", "items": { "type": "string" } },
+    "baseline_snapshot_id": { "type": "string" },
+    "fidelity_score": { "type": "number" },
+    "synchronization_status": { "type": "string", "enum": ["synchronized", "syncing", "desynchronized", "unknown"] },
+    "active_scenarios": { "type": "integer" },
+    "timestamp": { "type": "integer" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["twin_id", "version", "layer_count", "fidelity_score", "synchronization_status", "fingerprint"]
+}

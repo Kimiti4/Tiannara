@@ -1,0 +1,22 @@
+{
+  "schema": "DIGITAL_TWIN_SCHEMA",
+  "version": "22.2",
+  "description": "Schema for a civilizational digital twin entity",
+  "digital_twin": {
+    "fields": {
+      "twin_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "current_state_hash": {"type": "string", "required": true},
+      "historical_state_count": {"type": "integer", "required": true},
+      "synchronization_count": {"type": "integer", "required": true},
+      "reality_alignment_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "cross_layer_consistency": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "observation_coverage": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "twin_status": {"type": "string", "required": true, "enum": ["initializing", "active", "stale", "archived"]},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "evidence_driven", "replayable"]
+  }
+}

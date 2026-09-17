@@ -1,0 +1,41 @@
+# Move 11 — Contradiction Synthesis (carry with status; resolve only on evidence)
+artifact: CONTRADICTION_SYNTHESIS_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+contradictions:
+- id: CONTRA-001
+  claim_a: T0 mix.lock hash 6153ab16 is the pinned dependency set
+  claim_b: Working-tree mix.lock hash ef49f19d is the current dependency set
+  evidence_a: T0 manifest record
+  evidence_b: Fresh working-tree hash
+  current_observation: Both hashes verified as computed; no change-attribution record exists
+  conflict_type: version-divergence
+  resolution_status: UNRESOLVED
+  why_not_resolved: Neither evolution nor unrecorded modification is evidenced
+  minimum_discriminating_evidence: Change-attribution record for the working-tree lockfile
+- id: CONTRA-002
+  claim_a: T0 legitimately contains runtime/build outputs (24 entries, tracked)
+  claim_b: Baseline hygiene excludes such outputs from versioned snapshots
+  evidence_a: T0 file inventory with git_tracked=true on all 24
+  evidence_b: General convention only (no Tiannara-authored requirement found)
+  current_observation: Compositional fact stands; normative conflict is apparent rather than demonstrated
+  conflict_type: compositional-tension
+  resolution_status: UNRESOLVED
+  why_not_resolved: Inclusion intent unevidenced; convention is not a requirement
+  minimum_discriminating_evidence: Inclusion-intent record or evidenced consumer dependence
+- id: CONTRA-003
+  claim_a: gc_012 verified 2026-01-01T00:00:00Z at fitness 0.8041, entropy 0.1042 (certificate block)
+  claim_b: gc_012 verified 2026-07-02T20:06:58Z at fitness 0.8035, entropy 0.0746 (result file)
+  evidence_a: Intact file with genuine hash binding; self-asserted values
+  evidence_b: Intact file with genuine hash binding; self-asserted values
+  current_observation: Auditor executes, verifies bindings, echoes both as PASSED without comparison; K-013/K-014 hypotheses proposed, unevidenced
+  conflict_type: value-disagreement between intact records
+  resolution_status: UNRESOLVED
+  why_not_resolved: No execution record discriminates; hypotheses lack supporting observations
+  minimum_discriminating_evidence: Run ledger binding certificate issuance to a result version, or equivalent execution record
+aggregate:
+  resolved: 0
+  narrowed: 0
+  unresolved: 3

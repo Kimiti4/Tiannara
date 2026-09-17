@@ -1,0 +1,107 @@
+# Move 2 — Capability Archaeology Reconciliation (first tranche)
+# Entry-by-entry reconciliation: catalogue claim vs T0 repository evidence.
+# No unification proposals. No remediation proposals. No call graphs.
+# Method per entry: T0 presence via T0_FILES.jsonl, targeted T0 content
+# reads via git show (read-only), Council session record where noted.
+artifact: ARCHAEOLOGY_RECONCILIATION
+artifact_status: POST_T0
+move: 2
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+tranche: 2
+entries_total_in_catalogue: 21
+entries_reconciled_this_tranche: 10
+prior_tranche_rows_preserved_unchanged: 11
+reconciliation:
+- id: TIA-CAP-001
+  t0_paths: []
+  finding: No T0 file evidence adduced in this tranche; state transcribed from Council record only
+  state: CERTIFIED
+- id: TIA-CAP-002
+  t0_paths: []
+  finding: No T0 file evidence adduced in this tranche; state transcribed from Council record only
+  state: CERTIFIED
+- id: TIA-CAP-003
+  t0_paths: []
+  finding: No T0 file evidence adduced in this tranche; state transcribed from Council record only
+  state: CERTIFIED
+- id: TIA-CAP-004
+  t0_paths: []
+  finding: No T0 file evidence adduced in this tranche; state transcribed from Council record only
+  state: CERTIFIED
+- id: TIA-CAP-005
+  t0_paths: [lib/tiannara/forecasting/d5.ex]
+  finding: Facade present in T0; verdict line verified frozen to d5_certified_bounded in T0 content; behavioral certification transcribed from Council record
+  state: CERTIFIED
+- id: TIA-CAP-006
+  t0_paths: []
+  finding: Zero runs on record by definition of the blocked protocol; nothing to locate in T0
+  state: BLOCKED
+- id: TIA-CAP-007
+  t0_paths: [lib/tiannara/forecasting/planner.ex]
+  finding: Scenario-handler narration markers verified in T0 content; hardcoded decision literals absent from the function body per R1/R7 record; gate behavior transcribed from Council record
+  state: CERTIFIED
+- id: TIA-CAP-008
+  t0_paths: []
+  finding: Engine itself is POST_T0 working-tree content, not T0 content; bounds recorded explicitly (T0-bound inventory only)
+  state: BOUNDED
+- id: TIA-CAP-009
+  t0_paths: [lib/tiannara/stabilization/ctl.ex, lib/tiannara/stabilization/hsv/detector.ex, lib/tiannara/stabilization/ocm/consensus_manager.ex]
+  finding: Sample paths verified present in T0 via ls-tree; full module set in T0_FILES inventory; no behavior, test-execution, or regulation-effect evidence in baseline
+  state: UNKNOWN
+- id: TIA-CAP-010
+  t0_paths: [lib/tiannara/evolution/long_horizon.ex, lib/tiannara/evolution/drift_audit.ex, lib/tiannara/evolution/trajectory.ex]
+  finding: Modules present in T0; SR-4 guards verified in T0 trajectory.ex content; ungated test files live in working tree (not verified against T0 here); no execution evidence at baseline
+  state: UNKNOWN
+- id: TIA-CAP-011
+  t0_paths: [lib/tiannara/forecasting/auditor.ex]
+  finding: DecisionArchive record/1 verified logger-only in T0 content (no persistence path in module); behavior read from source, not demonstrated
+  state: UNKNOWN
+- id: TIA-CAP-012
+  t0_paths: [CONSTITUTIONAL_LAWS.json]
+  finding: Record present in T0; no loading, versioning-behavior, or enforcement evidence in baseline
+  state: UNKNOWN
+- id: TIA-CAP-013
+  t0_paths: [GOVERNANCE_INVARIANTS.json, GOVERNANCE_PATTERNS.json]
+  finding: Records present in T0; no evaluation-against-live-state evidence in baseline
+  state: UNKNOWN
+- id: TIA-CAP-014
+  t0_paths: [council_audit_log.dets]
+  finding: Audit trail plus corrupted-rotation variants present in T0 (383 matching paths); readability, rotation integrity, and consumption unevidenced; corrupted variants noted without interpretation
+  state: UNKNOWN
+- id: TIA-CAP-015
+  t0_paths: [CONSTITUTIONAL_KNOWLEDGE_GRAPH.json, MATHEMATICS_KNOWLEDGE_GRAPH.json, SCIENTIFIC_KNOWLEDGE_GRAPH.json]
+  finding: Snapshot records present in T0; no construction, query, or freshness evidence in baseline
+  state: UNKNOWN
+- id: TIA-CAP-016
+  t0_paths: [mindcache/]
+  finding: Substrate paths present in T0 (6 matching paths); no read/write/retrieval behavior evidence in baseline
+  state: UNKNOWN
+- id: TIA-CAP-017
+  t0_paths: [certification_framework.ex]
+  finding: Module present in T0; no execution or certificate-output linkage evidence in baseline
+  state: UNKNOWN
+- id: TIA-CAP-018
+  t0_paths: [phase14/]
+  finding: Campaign/hash/replay/governance artifacts present in T0 (162 matching paths); production linkage and replay verification unevidenced in baseline
+  state: UNKNOWN
+- id: TIA-CAP-019
+  t0_paths: [bench/]
+  finding: Harness tree present in T0 (11 matching paths); no bound execution records in baseline
+  state: UNKNOWN
+- id: TIA-CAP-020
+  t0_paths: [world_model/self_profile.json, world_model/subsystem_beliefs.json]
+  finding: Records present in T0; no generation-from-live-state or consumer evidence in baseline
+  state: UNKNOWN
+- id: TIA-CAP-021
+  t0_paths: [DISCOVERY_EVIDENCE_CHAIN.json, TIANNARA_EVIDENCE_LEDGER.json]
+  finding: Records present in T0; no chain-construction or independent-verification evidence in baseline
+  state: UNKNOWN
+promotion_gaps:
+- entry: TIA-CAP-009
+  gap: Requires E03 execution evidence (blocked) or equivalent regulation-effect demonstration
+- entry: TIA-CAP-010
+  gap: Requires execution evidence and test-execution evidence bound to T0 content
+- entry: TIA-CAP-011
+  gap: Requires a persistence contract to certify against, or reclassification out of the catalogue if the facade needs no certification
+method_note: Presence established via T0_FILES.jsonl inventory and git ls-tree; content verified via read-only git show on the listed paths only. No directory walks beyond inventory reuse. No semantic interpretation of module internals.

@@ -1,0 +1,156 @@
+artifact: certificate_authority_inventory
+stage: 7 (Certificate Authority Reconciliation)
+authority: TIA Council
+posture: RECONNAISSANCE / ANALYSIS ONLY — no implementation, no authority selection, no state mutation
+recorded_at: 2026-09-10
+scope: Every certificate-authority-capable stack referenced in or reachable by the forward
+  provenance authoring area and its integration targets (root :tiannara, tiannara_runtime,
+  forward_provenance authoring area). Direct reads and targeted grep only; no execution.
+
+summary:
+  question: Q1 — Is there a canonical certificate authority for forward provenance?
+  answer: NO CANONICAL AUTHORITY EXISTS. Three distinct issuer stacks and a policy draft
+    coexist; none is designated canonical by any accepted instrument. M7 already records
+    certification authority as "DISTRIBUTED AND UNRESOLVED — no single certifier evidenced"
+    (certification/reconnaissance/architecture/TIA_CANONICAL_ARCHITECTURE_M7.yaml:109-111,
+    TIA_AUTHORITY_BOUNDARIES_M7.yaml:55-66). Stage 6 STOP (certification/reconnaissance/
+    knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE6_STOP.yaml) fired §17 on this basis.
+  positive_claims_none: Recon inventory records facts about candidate issuers; it does NOT
+    designate any of them canonical. Designation is a Council decision, out of scope.
+
+candidate_authorities:
+  - id: CAND-A-root-certification
+    stack: root :tiannara
+    module: Tiannara.Certification.Certificate
+    file: lib/tiannara/certification/certificate.ex
+    claim: Moduledoc self-describes as "The certification authority".
+    api: certify/3 (subsystem, %SuiteRun, opts) -> {:certified | :refused, %__MODULE__{}}
+    verdict_model: struct (subsystem, verdict, invariant_verdict, failed_invariants,
+      functional_gates, issued_at, reason); verdict :certified | :not_certified.
+    gates: constitutional Gate.verdict(run) must be :gate_open AND all functional gates :open.
+    determinism: NOT deterministic (issued_at = DateTime.utc_now(); no certificate id, no hash).
+    lifecycle: two-state issuance only; no revocation, no persistence, no ledger, no supersession.
+    interop: none with other stacks; identity is {subsystem, verdict, issued_at}.
+    relevance: Closest thing to a "certification authority" by self-description; but it is a
+      pure gate decision, not a lifecycle/authority system.
+
+  - id: CAND-B-root-omega-multidim
+    stack: root :tiannara
+    modules: Tiannara.Certification.Pipeline, Tiannara.Certification.Protocol,
+      Tiannara.Omega.CertificationServer
+    files: lib/tiannara/certification/pipeline.ex, lib/tiannara/certification/protocol.ex,
+      lib/tiannara/omega/certification_server.ex
+    api: Pipeline.evaluate/2 (gate_results, opts) -> certificate map; Omega.CertificationServer
+      is a GenServer publishing knowledge_updated events; certificates/1, revoke_certificate/2,
+      valid_certificate?/2.
+    lifecycle: in-memory issued -> revoked (Map.put(cert, :revoked, true)); validity lookup.
+      Ephemeral (GenServer state), no durability.
+    determinism: issuance includes pipeline evaluation; revocation mutates in-memory state.
+    defects_observed: duplicated handle_call clauses for revoke and valid? in
+      lib/tiannara/omega/certification_server.ex:77-120 (second clause set is unreachable).
+    interop: bus-published epistemic events; no cross-stack certificate identity.
+
+  - id: CAND-C-root-governance-historical
+    stack: root :tiannara (governance/archive)
+    modules: TiannaraOS.Governance.Certification.Laboratory, certification_framework.ex,
+      verification_authority.ex, independent_auditor.ex
+    files: lib/tiannara/os/governance/certification/laboratory.ex and phase14 corpus
+    claim_evidence: M7/AUTHORITY_BOUNDARIES: CERTIFICATION "DISTRIBUTED AND UNRESOLVED — no
+      single certifier evidenced; ... no demonstrated certification execution path"
+      (TIA_AUTHORITY_BOUNDARIES_M7.yaml:55-66); certification_framework.ex has zero callers
+      (TIA_ARCHITECTURE_RECONCILIATION_M4.yaml:223-224).
+    relevance: historical certificate stack bound to gc_001..gc_012 campaigns; source of
+      CONTRA-003 disagreement. NOT an authority for forward provenance.
+
+  - id: CAND-D-runtime-modelcert
+    stack: tiannara_runtime
+    modules: TiannaraRuntime.WorldModel.Ontology.ModelCertificate,
+      TiannaraRuntime.WorldModel.Behaviours.CertificateIssuer
+    files: tiannara_runtime/lib/tiannara_runtime/world_model/ontology/certificate.ex,
+      tiannara_runtime/lib/tiannara_runtime/world_model/behaviours/certificate_issuer.ex
+    api: ModelCertificate.new/1 (validates model_id, certification_type
+      mathematical|validation|operational, checks list, issued_by self|auditor);
+      CertificateIssuer behaviour callbacks certify/2, certify_all_tiers/1, re_certify/2,
+      revoke/2, verify/1.
+    identity: certificate_id, model_id, model_version, certification_type, checks,
+      overall_status (pass|fail|pending), fingerprint, issued_at, issued_by, supersedes.
+    lifecycle: certificate_id + supersedes model supersession; re_certify + revoke +
+      verify callbacks exist at behaviour level.
+    determinism: NOT deterministic (certificate_id via :crypto.strong_rand_bytes(16));
+      issued_at = now.
+    evidence_instance: tiannara_runtime/priv/certification/MATHEMATICS_CERTIFICATE.json
+      (Phase 16.X.999, overall_status PASSED, commit 8311a75e).
+    relevance: domain (world-model) certificates; strong schema but domain-scoped and
+      non-deterministic identity.
+
+  - id: CAND-E-runtime-phase-schemas
+    stack: tiannara_runtime
+    evidence: tiannara_runtime/priv/certification/** — a large, heterogeneous set of
+      phase-specific certificate JSON schemas (phase17_3 .. phase25_9, ~40+ files), each with
+      its own certificate_id pattern (acert_, ecert_, icert_, ocert_, scert_, dcert_, rcert_,
+      tcert_, ccert_, lcert_, txcert_, mcert_, pcert_, recert_, obcert_, dccert_, fscert_),
+      its own certifying_entity/certifying_authority string, and domain-specific lifecycle
+      enums (e.g. DomainState certification_status uncertified|in_review|certified|revoked;
+      PlanetaryRuntime state_machine_state initialize..certify..archive). Also CPL
+      ContinuityCertificate schema (cpl/schemas/ContinuityCertificate.json) and checkpoint
+      storage data/cpl/checkpoints/certification/chk_certification_*.json.
+    interop: schemas do not share a registry, a single root of trust, or a common lifecycle;
+      id patterns are per-domain. No single issuer is evidenced.
+    relevance: demonstrates scattered, non-unified certification capability in runtime.
+
+  - id: CAND-F-fp-authoring-certificate
+    stack: forward_provenance (authoring area)
+    module: TiannaraOS.Provenance.Certificate
+    file: forward_provenance/lib/certificate.ex
+    api: issue/1 (decision, reason, authority, evidence, producer, parent_envelope_id) ->
+      map with certificate_id, decision, reason, authority, envelope, evidence_bindings,
+      certificate_hash.
+    identity: certificate_id = "cert_" <> uuid (NON-deterministic);
+      certificate_hash = envelope["payload_hash"] (recomputable).
+    pipeline: wraps evidence identities/envelope ids in Envelope.build(decision_recorded);
+      issuance_spec "tiannara-fp-cert-v1".
+    authority_handling: authority is a CALLER-SUPPLIED UNVALIDATED STRING (Keyword.fetch!).
+    lifecycle: issue only; no verification gate, no ledger, no revocation, no supersession.
+    relevance: the Stage-6-discovered "existing authority" in the authoring area
+      (TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE6_STOP.yaml:32-40). It is an envelope
+      generator, not an authority.
+
+  - id: CAND-G-fp-authoring-bridge
+    stack: forward_provenance (authoring area)
+    module: TiannaraOS.Provenance.CertificateAuthorityBridge
+    file: forward_provenance/lib/certificate_authority_bridge.ex
+    api: authority_map/0 (A01..A12), preconditions/2,3 (PC-01..13), candidate/2,3,
+      evaluate/3, transition/3.
+    closure: ALL A01..A12 BLOCKED with typed reasons; authorized_issuance? constant false;
+      certificate_issuable constant "NO_AUTHORITY_POLICY"; transition/3 SAFE-BLOCKED
+      {:blocked, decision}.
+    determinism: candidate_id deterministic via
+      Canon.sha256(%{"candidate_id_spec" => @candidate_spec, "spine" => spine}).
+    relevance: the fail-closed reconciliation instrument; it PROPOSES candidates and
+      evaluates them against the (absent-accepted) authority. NOT an issuer.
+
+authority_policy_reference:
+  file: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml
+  status: "POLICY COMPLETE (policy governs implementation when Council authorizes it;
+    no certificate is issued under this policy in this gate)"
+  meaning: A COMPLETE policy draft EXISTS (authority principle, issuance_conditions,
+    certificate states VALID/SUSPENDED/REVOKED/UNVERIFIABLE/SUPERSEDED + transition rules,
+    invalidation, evidence bundle, human oversight, historical firewall, security, schema
+    evolution). It is NOT ACCEPTED / NOT ENACTED. Policy acceptance is a Council decision.
+  open_questions_it_does_not_resolve: single vs distributed certification authority (M7);
+    mechanism-only issuance without ratification.
+
+m7_open_decision:
+  question: Certification single authority vs distributed model
+  status: UNRESOLVED
+  file: certification/reconnaissance/architecture/TIA_CANONICAL_ARCHITECTURE_M7.yaml:109-111
+  blocking_evidence: certification-execution records or an explicit distributed-authority
+    design record
+
+verdict:
+  Q1: NO canonical certificate authority. Any Stage-6/7 conclusion that one stack is "the"
+      authority would be unsupported. Consolidated, unification-mirrored design is absent
+      (TIA_UNIFICATION_MATRIX_M7.yaml records same_authority UNKNOWN across candidate pairs).
+  boundary: This inventory does NOT modify, patch, revoke, or re-implement any issuer; all
+    files referenced remain untouched.
+  NOTHING_IMPLEMENTED: true

@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/state_metrics.json",
+  "title": "StateMetrics",
+  "description": "Metrics for planetary state health and performance.",
+  "type": "object",
+  "properties": {
+    "metrics_id": { "type": "string", "pattern": "^smet_[a-f0-9]{16}$" },
+    "planetary_health_index": { "type": "number" },
+    "domain_stability": { "type": "object" },
+    "state_completeness": { "type": "number" },
+    "observation_freshness": { "type": "number" },
+    "confidence_index": { "type": "number" },
+    "uncertainty_density": { "type": "number" },
+    "replay_accuracy": { "type": "number" },
+    "archaeology_completeness": { "type": "number" },
+    "certification_coverage": { "type": "number" },
+    "cross_domain_consistency": { "type": "number" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "measured_at": { "type": "integer" }
+  },
+  "required": ["metrics_id", "planetary_health_index", "state_completeness", "confidence_index", "fingerprint"]
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "REALITY_REPLAY_SCHEMA",
+  "version": "21.8",
+  "description": "Schema for reality replay — deterministic reconstruction of the reality modeling system",
+  "reality_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "replay_type": {"type": "string", "required": true, "description": "FullReality/TheoryIntegration/Reconciliation/Consistency/TheoryEvolution"},
+      "replay_generation": {"type": "integer", "required": true},
+      "step_hashes": {"type": "array", "required": true},
+      "root_hash_original": {"type": "string", "required": true},
+      "root_hash_reconstructed": {"type": "string", "required": true},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "theories_replayed": {"type": "integer", "required": true},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic_replay", "identical_hashes_required"]
+  }
+}

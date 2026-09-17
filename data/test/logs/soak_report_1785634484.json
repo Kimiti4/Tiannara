@@ -1,0 +1,53 @@
+{
+  "timestamp": "2026-08-02T01:34:44.796000Z",
+  "phase": "baseline",
+  "failures": 0,
+  "discovery": {
+    "label": "No discovery cycles completed yet",
+    "status": "no_cycles",
+    "details": "Scheduler is alive but has not completed a discovery cycle"
+  },
+  "discoveries": 0,
+  "latest_health": {
+    "runtime": {
+      "process_count": 537,
+      "run_queue": 0,
+      "at": "2026-08-02T01:34:44.752000Z",
+      "uptime_seconds": 12,
+      "subsystems_healthy": 29,
+      "subsystems_total": 29,
+      "memory_mb": 78.88,
+      "all_healthy": true
+    },
+    "timestamp": "2026-08-02T01:34:44.752000Z",
+    "discovery": {
+      "at": "2026-08-02T01:34:44.752000Z",
+      "gaps_detected": 0,
+      "hypotheses_generated": 0,
+      "discovery_cycles": 0,
+      "knowledge_entities": 0,
+      "scheduler_alive": true,
+      "world_entities": 0
+    },
+    "all_healthy": true
+  },
+  "recoveries": 0,
+  "gaps_detected": 0,
+  "hypotheses_generated": 0,
+  "discovery_cycles": 0,
+  "knowledge_entities": 0,
+  "challenges_passed": 0,
+  "memory_mb": 78.88,
+  "elapsed_hours": 0.0,
+  "leak": {
+    "samples": 2,
+    "detected": false,
+    "slope_mb_per_h": 0.0,
+    "growth_pct": 0.2
+  },
+  "availability_pct": 100.0,
+  "challenge_pass_rate": 0.0,
+  "elapsed_seconds": 0,
+  "challenges_executed": 0,
+  "health_checks_performed": 2
+}

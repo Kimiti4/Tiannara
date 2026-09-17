@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OntologyReplay",
+  "description": "Deterministic replay verification record for ontology evolution",
+  "type": "object",
+  "properties": {
+    "replay_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this replay verification"
+    },
+    "replay_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of replay"
+    },
+    "replay_scope": {
+      "type": "string",
+      "enum": ["single_change", "version_transition", "concept_lineage", "full_ontology_evolution"]
+    },
+    "operation_type": {
+      "type": "string",
+      "enum": ["evolution", "merge", "split", "reorganization", "version_transition"]
+    },
+    "operation_reference": {
+      "type": "string",
+      "description": "Reference to the original operation record"
+    },
+    "original_snapshot": {
+      "type": "object",
+      "properties": {
+        "snapshot_id": {
+          "type": "string"
+        },
+        "snapshot_hash": {
+          "type": "string"
+        }
+      },
+      "required": ["snapshot_id", "snapshot_hash"]
+    },
+    "replayed_snapshot": {
+      "type": "object",
+      "properties": {
+        "snapshot_id": {
+          "type": "string"
+        },
+        "snapshot_hash": {
+          "type": "string"
+        }
+      },
+      "required": ["snapshot_id", "snapshot_hash"]
+    },
+    "hash_match": {
+      "type": "boolean",
+      "description": "Whether original and replayed hashes match"
+    },
+    "lineage_verification": {
+      "type": "object",
+      "properties": {
+        "lineage_complete": {
+          "type": "boolean"
+        },
+        "lineage_consistent": {
+          "type": "boolean"
+        },
+        "missing_links": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["lineage_complete", "lineage_consistent"]
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": ["verified", "hash_mismatch", "lineage_break", "incomplete"]
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash of this replay record"
+    }
+  },
+  "required": ["replay_id", "replay_date", "replay_scope", "operation_reference", "original_snapshot", "replayed_snapshot", "hash_match", "verification_status", "fingerprint"]
+}

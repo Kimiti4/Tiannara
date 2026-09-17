@@ -1,0 +1,53 @@
+# Move 3 — Evidence Gap Ledger (precise remaining gaps per UNKNOWN entry)
+# Each gap names the missing evidence class. Gaps are evidence requirements,
+# not task lists: closing a gap requires finding or producing the named
+# evidence under a separately authorized procedure, never inventing it.
+artifact: EVIDENCE_GAP_LEDGER_M3
+artifact_status: POST_T0
+move: 3
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+gaps:
+- id: TIA-CAP-009
+  missing: [behavior evidence, execution evidence, contract evidence (specs/behaviours), effect demonstration]
+  narrowest_next_evidence: "A contract (spec/behaviour) or a single test binding a stabilizer call to an asserted postcondition"
+- id: TIA-CAP-010
+  missing: [execution evidence, test-execution evidence bound to T0 content]
+  narrowest_next_evidence: "One executed evolution cycle record bound to T0 module versions"
+- id: TIA-CAP-011
+  missing: [demonstration evidence, persistence contract]
+  narrowest_next_evidence: "A persistence contract to certify the facade against, or reclassification out of the catalogue"
+- id: TIA-CAP-012
+  missing: [schema, loader, consumer, enforcement evidence]
+  narrowest_next_evidence: "A single consumer reference (one module reading the record)"
+- id: TIA-CAP-013
+  missing: [schema, consumer, evaluation evidence]
+  narrowest_next_evidence: "A single consumer reference"
+- id: TIA-CAP-014
+  missing: [execution evidence attributing the specific T0 files to rotation runs]
+  narrowest_next_evidence: "One rotation-run record binding file hashes to timestamps"
+- id: TIA-CAP-015
+  missing: [construction evidence, query evidence, freshness evidence, schema]
+  narrowest_next_evidence: "A single query path from code to one of the three files"
+- id: TIA-CAP-016
+  missing: [read module, write module, retrieval behavior, any operational evidence]
+  narrowest_next_evidence: "A single module performing a memory operation"
+- id: TIA-CAP-017
+  missing: [caller, execution evidence, output linkage]
+  narrowest_next_evidence: "A single caller of any certification_framework function"
+- id: TIA-CAP-018
+  missing: [audit-run execution record binding auditor, input, output, and timestamp]
+  narrowest_next_evidence: "One recorded auditor run over gc_012 (or resolution of CONTRA-003 by other evidenced means)"
+- id: TIA-CAP-019
+  missing: [bound execution records (results)]
+  narrowest_next_evidence: "One recorded bench run with results bound to the harness version"
+- id: TIA-CAP-020
+  missing: [producer, consumer, generation evidence]
+  narrowest_next_evidence: "A single producer or consumer reference"
+- id: TIA-CAP-021
+  missing: [builder, verifier, schema]
+  narrowest_next_evidence: "A single builder reference or a schema document"
+aggregate:
+  unknown_entries: 13
+  entries_with_narrowed_gaps: 13
+  entries_promoted: 0

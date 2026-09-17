@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/program_replay.json",
+  "title": "ProgramReplay",
+  "description": "A replay event recording a deterministic program management operation.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^preplay_[a-f0-9]{16}$" },
+    "event_type": {
+      "type": "string",
+      "enum": ["portfolio_creation", "program_proposal", "program_approval", "resource_allocation", "milestone_achievement", "dependency_mapping", "escalation", "portfolio_rebalancing", "program_evolution", "certification"]
+    },
+    "input_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "output_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "decision_rationale": { "type": "string" },
+    "approval_level": { "type": "string", "enum": ["project", "program", "portfolio", "council", "constitutional"] },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshots", "output_snapshots", "content_hash"]
+}

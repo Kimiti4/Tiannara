@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-08-10T22:52:38.898000Z",
+  "phase": "baseline",
+  "failures": 0,
+  "discovery": {
+    "label": "No discovery cycles completed yet",
+    "status": "no_cycles",
+    "details": "Scheduler is alive but has not completed a discovery cycle"
+  },
+  "validated_seconds": 0,
+  "discoveries": 0,
+  "discovery_cycles": 0,
+  "gaps_detected": 0,
+  "hypotheses_generated": 0,
+  "knowledge_entities": 0,
+  "challenges_passed": 0,
+  "recovery_verified": true,
+  "elapsed_seconds": 0,
+  "leak": {
+    "detected": false,
+    "slope_mb_per_h": 0.0,
+    "growth_pct": 0.06,
+    "samples": 4
+  },
+  "availability_pct": 100.0,
+  "challenge_pass_rate": 0.0,
+  "soak_run_id": "soak-1fbaf1a87512",
+  "recoveries": 0,
+  "memory_mb": 88.98,
+  "elapsed_hours": 0.0,
+  "validated_hours": 0.0,
+  "unvalidated_hours": 0.0,
+  "unvalidated_seconds": 0,
+  "wall_clock_reconciled": true,
+  "health_checks_performed": 4,
+  "challenges_executed": 0,
+  "recovery_gate_status": "gate_open",
+  "latest_health": {
+    "runtime": {
+      "process_count": 543,
+      "run_queue": 0,
+      "at": "2026-08-10T22:52:38.859000Z",
+      "all_healthy": true,
+      "memory_mb": 88.98,
+      "uptime_seconds": 17,
+      "subsystems_healthy": 33,
+      "subsystems_total": 33
+    },
+    "timestamp": "2026-08-10T22:52:38.860000Z",
+    "discovery": {
+      "at": "2026-08-10T22:52:38.860000Z",
+      "discovery_cycles": 0,
+      "gaps_detected": 0,
+      "hypotheses_generated": 0,
+      "knowledge_entities": 0,
+      "scheduler_alive": true,
+      "world_entities": 0
+    },
+    "all_healthy": true
+  }
+}

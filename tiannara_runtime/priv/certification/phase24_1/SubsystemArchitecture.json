@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/subsystem_architecture.json",
+  "title": "SubsystemArchitecture",
+  "description": "A constitutional subsystem architecture within a technology decomposition hierarchy.",
+  "type": "object",
+  "properties": {
+    "subsystem_id": { "type": "string", "pattern": "^subarch_[a-f0-9]{16}$" },
+    "system_id": { "type": "string" },
+    "name": { "type": "string" },
+    "level": { "type": "string", "enum": ["subsystem", "assembly", "module", "component"] },
+    "parent_id": { "type": "string" },
+    "child_ids": { "type": "array", "items": { "type": "string" } },
+    "function": { "type": "string" },
+    "governing_principles": { "type": "array", "items": { "type": "string" } },
+    "interface_ids": { "type": "array", "items": { "type": "string" } },
+    "design_parameters": { "type": "object" },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "verification_method": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["subsystem_id", "system_id", "name", "level", "function", "fingerprint"]
+}

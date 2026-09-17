@@ -1,0 +1,24 @@
+{
+  "schema": "PROGRAM_HEALTH_SCHEMA",
+  "version": "22.X.1",
+  "description": "Schema for a program health assessment",
+  "program_health": {
+    "fields": {
+      "health_id": {"type": "string", "required": true},
+      "program_id": {"type": "string", "required": true},
+      "scientific_progress": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "evidence_quality": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "experiment_success": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "resource_efficiency": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "knowledge_growth": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "collaboration": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "engineering_translation": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "long_term_value": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "overall_health": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "health_state": {"type": "string", "required": true, "enum": ["healthy", "warning", "critical", "failing"]},
+      "assessment_date": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_driven", "deterministic", "replayable"]
+  }
+}

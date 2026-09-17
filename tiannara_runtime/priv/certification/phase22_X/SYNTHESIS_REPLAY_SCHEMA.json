@@ -1,0 +1,18 @@
+{
+  "schema": "SYNTHESIS_REPLAY_SCHEMA",
+  "version": "22.X.3",
+  "description": "Schema for synthesis replay verification",
+  "synthesis_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "synthesis_artifact_ids": {"type": "array", "required": true},
+      "replay_type": {"type": "string", "required": true, "enum": ["relationship_discovery", "principle_synthesis", "knowledge_transfer", "validation", "certification", "full_synthesis_pipeline"]},
+      "replay_timestamp": {"type": "string", "required": true},
+      "verification_results": {"type": "object", "required": true},
+      "fingerprint_matches": {"type": "boolean", "required": true},
+      "divergence_report": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "verifiable", "replayable"]
+  }
+}

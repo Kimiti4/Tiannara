@@ -1,0 +1,18 @@
+{
+  "schema": "DECISION_REPLAY_SCHEMA",
+  "version": "21.10",
+  "description": "Schema for replay verification of a decision lifecycle event",
+  "decision_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "decision_event_type": {"type": "string", "required": true, "enum": ["decision_made", "future_selected", "plan_created", "allocation_applied", "governance_verified", "execution_completed"]},
+      "event_fingerprint": {"type": "string", "required": true},
+      "reconstructed_hash": {"type": "string", "required": true},
+      "stored_hash": {"type": "string", "required": true},
+      "verification_status": {"type": "string", "required": true, "enum": ["verified", "diverged", "incomplete"]},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "immutable", "chain_verified"]
+  }
+}

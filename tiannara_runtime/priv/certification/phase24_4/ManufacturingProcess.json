@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/manufacturing_process.json",
+  "title": "ManufacturingProcess",
+  "description": "A constitutional manufacturing process selection for producing an engineering artifact.",
+  "type": "object",
+  "properties": {
+    "process_id": { "type": "string", "pattern": "^mproc_[a-f0-9]{16}$" },
+    "design_id": { "type": "string" },
+    "process_category": { "type": "string", "enum": ["subtractive", "formative", "additive", "assembly", "electronics", "semiconductor", "composite", "future"] },
+    "process_name": { "type": "string" },
+    "selection_criteria": {
+      "type": "object",
+      "properties": {
+        "geometry_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "tolerance_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "material_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "volume_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "quality_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "cost_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "sustainability_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "parameters": { "type": "object" },
+    "capability_requirements": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "selected_at": { "type": "integer" }
+  },
+  "required": ["process_id", "design_id", "process_category", "process_name", "selection_criteria", "fingerprint"]
+}

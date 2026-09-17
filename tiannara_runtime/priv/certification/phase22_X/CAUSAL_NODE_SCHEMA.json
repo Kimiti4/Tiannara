@@ -1,0 +1,23 @@
+{
+  "schema": "CAUSAL_NODE_SCHEMA",
+  "version": "22.X.0",
+  "description": "Schema for a causal node in the unified causal graph",
+  "causal_node": {
+    "fields": {
+      "node_id": {"type": "string", "required": true},
+      "layer": {"type": "integer", "required": true, "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]},
+      "domain": {"type": "string", "required": true},
+      "observed_variables": {"type": "object", "required": true},
+      "hidden_variables": {"type": "object", "required": false},
+      "evidence_hash": {"type": "string", "required": true},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "mathematical_constraints": {"type": "array", "required": false},
+      "temporal_bounds": {"type": "object", "required": false},
+      "spatial_bounds": {"type": "object", "required": false},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_required", "deterministic", "replayable"]
+  }
+}

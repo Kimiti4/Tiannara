@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiannara Control Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top-header">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" stroke="var(--primary)" stroke-width="2"/>
+          <circle cx="16" cy="16" r="8" stroke="var(--primary)" stroke-width="1.5" opacity="0.6"/>
+          <circle cx="16" cy="16" r="3" fill="var(--primary)"/>
+          <line x1="16" y1="2" x2="16" y2="8" stroke="var(--primary)" stroke-width="1.5"/>
+          <line x1="16" y1="24" x2="16" y2="30" stroke="var(--primary)" stroke-width="1.5"/>
+          <line x1="2" y1="16" x2="8" y2="16" stroke="var(--primary)" stroke-width="1.5"/>
+          <line x1="24" y1="16" x2="30" y2="16" stroke="var(--primary)" stroke-width="1.5"/>
+        </svg>
+        <span class="logo-text">Tiannara Control Center</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="bridge-status" id="bridgeStatus" role="status" aria-live="polite" title="Runtime bridge">
+        <span class="bridge-dot" aria-hidden="true"></span>
+        <span class="bridge-label mono" id="bridgeLabel">Connecting…</span>
+      </div>
+      <div class="system-status" id="systemStatus">
+        <span class="status-indicator"></span>
+        <span class="status-text" id="statusText">Connecting...</span>
+      </div>
+      <div class="system-time" id="systemTime">--:--:--</div>
+    </div>
+  </header>
+
+  <div class="dashboard-layout">
+    <nav class="sidebar">
+      <ul class="nav-list">
+        <li class="nav-item active" data-section="dashboard">
+          <span class="nav-icon">🏠</span>
+          <span>Dashboard</span>
+        </li>
+        <li class="nav-item" data-section="runtime">
+          <span class="nav-icon">▶</span>
+          <span>Runtime</span>
+        </li>
+        <li class="nav-item" data-section="discovery">
+          <span class="nav-icon">🧠</span>
+          <span>Scientific Discovery</span>
+        </li>
+        <li class="nav-item" data-section="experiments">
+          <span class="nav-icon">🔬</span>
+          <span>Experiments</span>
+        </li>
+        <li class="nav-item" data-section="worlds">
+          <span class="nav-icon">🌍</span>
+          <span>Worlds</span>
+        </li>
+        <li class="nav-item" data-section="civilizations">
+          <span class="nav-icon">🏛</span>
+          <span>Civilizations</span>
+        </li>
+        <li class="nav-item" data-section="knowledge">
+          <span class="nav-icon">📚</span>
+          <span>Knowledge</span>
+        </li>
+        <li class="nav-item" data-section="observatories">
+          <span class="nav-icon">👁</span>
+          <span>Observatories</span>
+        </li>
+        <li class="nav-item" data-section="agents">
+          <span class="nav-icon">🤖</span>
+          <span>Agents</span>
+        </li>
+        <li class="nav-item" data-section="services">
+          <span class="nav-icon">⚙</span>
+          <span>Services</span>
+        </li>
+        <li class="nav-item" data-section="monitoring">
+          <span class="nav-icon">📈</span>
+          <span>Monitoring</span>
+        </li>
+        <li class="nav-item" data-section="logs">
+          <span class="nav-icon">📜</span>
+          <span>Logs</span>
+        </li>
+        <li class="nav-item" data-section="security">
+          <span class="nav-icon">🛡</span>
+          <span>Security</span>
+        </li>
+        <li class="nav-item" data-section="cluster">
+          <span class="nav-icon">🌐</span>
+          <span>Cluster</span>
+        </li>
+        <li class="nav-item" data-section="storage">
+          <span class="nav-icon">💾</span>
+          <span>Storage</span>
+        </li>
+        <li class="nav-item" data-section="performance">
+          <span class="nav-icon">⚡</span>
+          <span>Performance</span>
+        </li>
+        <li class="nav-item" data-section="operations">
+          <span class="nav-icon">🎯</span>
+          <span>Operations</span>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="main-content" id="mainContent">
+      <div class="section" id="section-dashboard">
+        <div class="section-header">
+          <h1 class="section-title">TIANNARA CONTROL CENTER</h1>
+          <button class="btn-back" data-section="dashboard" style="display:none;">← Back</button>
+        </div>
+        <div class="dashboard-grid">
+          <div class="stat-card">
+            <div class="stat-label">Runtime</div>
+            <div class="stat-value" id="dashRuntime"><span class="status-dot healthy"></span> <span class="status-text-dash">Healthy</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Research</div>
+            <div class="stat-value" id="dashResearch">Awaiting data...</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Observatories</div>
+            <div class="stat-value" id="dashObservatories">Awaiting data...</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Worlds</div>
+            <div class="stat-value" id="dashWorlds">Awaiting data...</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Civilizations</div>
+            <div class="stat-value" id="dashCivilizations">Awaiting data...</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Agents</div>
+            <div class="stat-value" id="dashAgents">Awaiting data...</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Discoveries</div>
+            <div class="stat-value" id="dashDiscoveries">Awaiting data...</div>
+          </div>
+        </div>
+        <div class="resource-bars">
+          <div class="resource-bar">
+            <span class="resource-label">CPU</span>
+            <div class="bar-track"><div class="bar-fill" id="barCpu" style="width:0%"></div></div>
+            <span class="resource-value" id="valCpu">--%</span>
+          </div>
+          <div class="resource-bar">
+            <span class="resource-label">RAM</span>
+            <div class="bar-track"><div class="bar-fill" id="barRam" style="width:0%"></div></div>
+            <span class="resource-value" id="valRam">-- GB</span>
+          </div>
+          <div class="resource-bar">
+            <span class="resource-label">GPU</span>
+            <div class="bar-track"><div class="bar-fill" id="barGpu" style="width:0%"></div></div>
+            <span class="resource-value" id="valGpu">--%</span>
+          </div>
+          <div class="resource-bar">
+            <span class="resource-label">Storage</span>
+            <div class="bar-track"><div class="bar-fill" id="barStorage" style="width:0%"></div></div>
+            <span class="resource-value" id="valStorage">-- TB</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-runtime">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Runtime Manager</h1>
+        </div>
+        <div class="runtime-controls">
+          <button class="btn-action btn-start" id="btnStartAll">Start All</button>
+          <button class="btn-action btn-stop" id="btnStopAll">Stop All</button>
+          <button class="btn-action btn-restart" id="btnRestart">Restart</button>
+          <button class="btn-action btn-safe" id="btnSafeMode">Safe Mode</button>
+        </div>
+        <div class="services-grid" id="servicesGrid">
+          <div class="service-card loading"><span class="service-name">BEAM</span><span class="service-status">Awaiting data...</span></div>
+          <div class="service-card loading"><span class="service-name">PostgreSQL</span><span class="service-status">Awaiting data...</span></div>
+          <div class="service-card loading"><span class="service-name">Redis</span><span class="service-status">Awaiting data...</span></div>
+          <div class="service-card loading"><span class="service-name">NATS</span><span class="service-status">Awaiting data...</span></div>
+          <div class="service-card loading"><span class="service-name">Phoenix</span><span class="service-status">Awaiting data...</span></div>
+          <div class="service-card loading"><span class="service-name">React</span><span class="service-status">Awaiting data...</span></div>
+          <div class="service-card loading"><span class="service-name">Python Workers</span><span class="service-status">Awaiting data...</span></div>
+          <div class="service-card loading"><span class="service-name">Rust Kernels</span><span class="service-status">Awaiting data...</span></div>
+          <div class="service-card loading"><span class="service-name">Vector DB</span><span class="service-status">Awaiting data...</span></div>
+          <div class="service-card loading"><span class="service-name">Telemetry</span><span class="service-status">Awaiting data...</span></div>
+        </div>
+        <div class="boot-section">
+          <h2 class="subsection-title">Boot Sequence</h2>
+          <div class="boot-steps" id="bootSteps">
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">Environment</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">Infrastructure</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">Runtime</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">MSCL</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">OLEF</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">GRCC</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">CTL</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">OCM</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">CIS</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">AEO</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">Discovery</span></div>
+            <div class="boot-step"><span class="boot-check">⏳</span><span class="boot-label">Frontend</span></div>
+          </div>
+          <a href="boot.html" class="boot-link">View Detailed Boot Log →</a>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-discovery">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Scientific Discovery</h1>
+        </div>
+        <div class="section-body" id="discoveryBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-experiments">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Experiment Center</h1>
+        </div>
+        <div class="experiment-tabs">
+          <button class="tab-btn active" data-tab="running">Running</button>
+          <button class="tab-btn" data-tab="queued">Queued</button>
+          <button class="tab-btn" data-tab="completed">Completed</button>
+          <button class="tab-btn" data-tab="archived">Archived</button>
+        </div>
+        <div class="experiment-actions">
+          <button class="btn-action">Create</button>
+          <button class="btn-action">Clone</button>
+          <button class="btn-action">Compare</button>
+          <button class="btn-action">Publish</button>
+        </div>
+        <div class="experiment-list" id="experimentList">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-worlds">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">World Explorer</h1>
+        </div>
+        <div class="section-body" id="worldsBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-civilizations">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Civilizations</h1>
+        </div>
+        <div class="section-body" id="civilizationsBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-knowledge">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Knowledge Explorer</h1>
+        </div>
+        <div class="knowledge-categories">
+          <button class="cat-btn active" data-cat="principles">Principles</button>
+          <button class="cat-btn" data-cat="programs">Programs</button>
+          <button class="cat-btn" data-cat="theories">Theories</button>
+          <button class="cat-btn" data-cat="laws">Laws</button>
+          <button class="cat-btn" data-cat="discoveries">Discoveries</button>
+          <button class="cat-btn" data-cat="evidence">Evidence</button>
+          <button class="cat-btn" data-cat="unknowns">Unknowns</button>
+          <button class="cat-btn" data-cat="reports">Reports</button>
+        </div>
+        <div class="knowledge-tree" id="knowledgeTree">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-observatories">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Observatories</h1>
+        </div>
+        <div class="section-body" id="observatoriesBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-agents">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Agents</h1>
+        </div>
+        <div class="section-body" id="agentsBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-services">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Services</h1>
+        </div>
+        <div class="section-body" id="servicesBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-monitoring">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Monitoring</h1>
+        </div>
+        <div class="section-body" id="monitoringBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-logs">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Logs</h1>
+        </div>
+        <div class="section-body" id="logsBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-security">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Security</h1>
+        </div>
+        <div class="section-body" id="securityBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-cluster">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Cluster</h1>
+        </div>
+        <div class="section-body" id="clusterBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-storage">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Storage</h1>
+        </div>
+        <div class="section-body" id="storageBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-performance">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Performance</h1>
+        </div>
+        <div class="section-body" id="performanceBody">
+          <div class="loading-state"><div class="spinner"></div><span>Awaiting data...</span></div>
+        </div>
+      </div>
+
+      <div class="section hidden" id="section-operations">
+        <div class="section-header">
+          <button class="btn-back" data-section="dashboard">← Back</button>
+          <h1 class="section-title">Operations Center</h1>
+        </div>
+        <div class="ops-grid">
+          <div class="ops-card" id="opsSoakTest">
+            <div class="ops-card-header">
+              <h2 class="ops-card-title">72h Soak Test</h2>
+              <div class="spinner ops-spinner" id="soakSpinner" style="display:none;"></div>
+            </div>
+            <div class="ops-card-body">
+              <div class="ops-actions">
+                <button class="btn-action btn-start" id="btnSoakStart">Start 72h Soak Test</button>
+                <button class="btn-action btn-stop" id="btnSoakStop" style="display:none;">Stop</button>
+                <button class="btn-action" id="btnSoakStatus" style="display:none;">Status</button>
+              </div>
+              <div class="ops-progress" id="soakProgress" style="display:none;">
+                <div class="bar-track"><div class="bar-fill" id="soakProgressBar" style="width:0%"></div></div>
+                <div class="ops-stats-row">
+                  <div class="ops-stat"><span class="ops-stat-label">Elapsed</span><span class="ops-stat-value" id="soakElapsed">--</span></div>
+                  <div class="ops-stat"><span class="ops-stat-label">Health Checks</span><span class="ops-stat-value" id="soakHealthChecks">--</span></div>
+                  <div class="ops-stat"><span class="ops-stat-label">Challenges</span><span class="ops-stat-value" id="soakChallenges">--</span></div>
+                  <div class="ops-stat"><span class="ops-stat-label">Discoveries</span><span class="ops-stat-value" id="soakDiscoveries">--</span></div>
+                </div>
+                <div class="ops-stats-row">
+                  <div class="ops-stat"><span class="ops-stat-label">Phase</span><span class="ops-stat-value" id="soakPhase">--</span></div>
+                  <div class="ops-stat"><span class="ops-stat-label">Availability</span><span class="ops-stat-value" id="soakAvailability">--</span></div>
+                  <div class="ops-stat"><span class="ops-stat-label">Pass Rate</span><span class="ops-stat-value" id="soakPassRate">--</span></div>
+                  <div class="ops-stat"><span class="ops-stat-label">Memory</span><span class="ops-stat-value" id="soakMemory">--</span></div>
+                </div>
+                <div class="bar-track"><div class="bar-fill" id="soakMemoryBar" style="width:0%"></div></div>
+                <div class="ops-stats-row">
+                  <div class="ops-stat"><span class="ops-stat-label">Disc Cycles</span><span class="ops-stat-value" id="soakDiscCycles">--</span></div>
+                  <div class="ops-stat"><span class="ops-stat-label">Gaps</span><span class="ops-stat-value" id="soakGaps">--</span></div>
+                  <div class="ops-stat"><span class="ops-stat-label">Hypotheses</span><span class="ops-stat-value" id="soakHypotheses">--</span></div>
+                  <div class="ops-stat"><span class="ops-stat-label">Knowledge</span><span class="ops-stat-value" id="soakKnowledge">--</span></div>
+                </div>
+                <div class="ops-actions" id="soakLeakRow" style="display:none;">
+                  <span class="badge badge-neutral" id="soakLeakBadge">LEAK --</span>
+                </div>
+                <div class="ops-actions" id="soakVerdictRow" style="display:none;">
+                  <span class="badge badge-neutral" id="soakVerdict">VERDICT --</span>
+                  <span class="badge badge-neutral" id="soakDiscStatus">DISCOVERY --</span>
+                </div>
+              </div>
+              <div class="ops-feedback" id="soakFeedback"></div>
+            </div>
+          </div>
+
+          <div class="ops-card" id="opsPipeline">
+            <div class="ops-card-header">
+              <h2 class="ops-card-title">Discovery Pipeline · Bottleneck Audit</h2>
+              <span class="badge badge-neutral" id="pipeStallBadge" style="display:none;">FIRST STALL --</span>
+            </div>
+            <div class="ops-card-body">
+              <div class="ops-actions">
+                <button class="btn-action btn-start" id="btnSeed">Seed Epistemic Pressure</button>
+              </div>
+              <div class="ops-checklist" id="pipePanel" style="display:none;">
+                <table class="pipe-table">
+                  <thead>
+                    <tr><th>Stage</th><th>Status</th><th>Value</th></tr>
+                  </thead>
+                  <tbody id="pipeBody"></tbody>
+                </table>
+                <div class="pipe-legend">
+                  <span class="pipe-dot pipe-dot-green">growing</span>
+                  <span class="pipe-dot pipe-dot-blue">present / flat</span>
+                  <span class="pipe-dot pipe-dot-yellow">regressed</span>
+                  <span class="pipe-dot pipe-dot-grey">uninstrumented</span>
+                  <span class="pipe-dot pipe-dot-red">error</span>
+                </div>
+              </div>
+              <div class="ops-feedback" id="pipeFeedback"></div>
+            </div>
+          </div>
+
+          <div class="ops-card" id="opsAlphaLaunch">
+            <div class="ops-card-header">
+              <h2 class="ops-card-title">Discovery Challenge Alpha</h2>
+              <div class="spinner ops-spinner" id="alphaSpinner" style="display:none;"></div>
+            </div>
+            <div class="ops-card-body">
+              <div class="ops-actions">
+                <button class="btn-action btn-start" id="btnAlphaLaunch">Launch Discovery Challenge Alpha</button>
+                <button class="btn-action btn-stop" id="btnAlphaAbort" style="display:none;">Abort</button>
+              </div>
+              <div class="ops-checklist" id="alphaChecklist" style="display:none;"></div>
+              <div class="ops-certificate" id="alphaCertificate" style="display:none;"></div>
+              <div class="ops-feedback" id="alphaFeedback"></div>
+            </div>
+          </div>
+
+          <div class="ops-card" id="opsAtlas">
+            <div class="ops-card-header">
+              <h2 class="ops-card-title">Runtime Atlas</h2>
+              <div class="spinner ops-spinner" id="atlasSpinner" style="display:none;"></div>
+            </div>
+            <div class="ops-card-body">
+              <div class="ops-actions">
+                <button class="btn-action btn-start" id="btnAtlasGenerate">Generate Runtime Atlas</button>
+                <button class="btn-action" id="btnAtlasExport" style="display:none;">Export JSON</button>
+                <button class="btn-action" id="btnAtlasPrint" style="display:none;">Print</button>
+              </div>
+              <div class="ops-atlas-summary" id="atlasSummary" style="display:none;"></div>
+              <div class="ops-feedback" id="atlasFeedback"></div>
+            </div>
+          </div>
+
+          <div class="ops-card ops-card-wide campaign-card" id="opsCampaignPipeline">
+            <div class="ops-card-header">
+              <h2 class="ops-card-title">Campaign Pipeline</h2>
+              <span class="status-badge dot operational" id="campaignPipelineStatus">Active</span>
+            </div>
+            <div class="ops-card-body">
+              <div class="pipeline-summary" id="pipelineSummary">
+                <div class="pipeline-stat">
+                  <span class="pipeline-stat-value" id="pipelineActiveStages">--</span>
+                  <span class="pipeline-stat-label">Active Stages</span>
+                </div>
+                <div class="pipeline-stat">
+                  <span class="pipeline-stat-value" id="pipelineCompletedStages">--</span>
+                  <span class="pipeline-stat-label">Completed</span>
+                </div>
+                <div class="pipeline-stat">
+                  <span class="pipeline-stat-value" id="pipelineIntegrations">--</span>
+                  <span class="pipeline-stat-label">Integrations</span>
+                </div>
+                <div class="pipeline-stat">
+                  <span class="pipeline-stat-value" id="pipelineCycles">--</span>
+                  <span class="pipeline-stat-label">Feedback Cycles</span>
+                </div>
+              </div>
+              <div class="pipeline-container" id="pipelineContainer">
+                <div class="loading-state"><div class="spinner"></div><span>Loading pipeline...</span></div>
+              </div>
+              <div class="trigger-campaign-row">
+                <button class="btn-action btn-start" id="btnTriggerCampaign">Trigger Campaign</button>
+                <span class="campaign-trigger-status" id="campaignTriggerStatus"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ops-card ops-card-wide" id="opsChallenges">
+            <div class="ops-card-header">
+              <h2 class="ops-card-title">Run All Challenges</h2>
+              <div class="spinner ops-spinner" id="challengesSpinner" style="display:none;"></div>
+            </div>
+            <div class="ops-card-body">
+              <div class="ops-actions">
+                <button class="btn-action btn-start" id="btnRunChallenges">Run All 13 Challenges</button>
+              </div>
+              <div class="ops-results" id="challengesResults" style="display:none;"></div>
+              <div class="ops-feedback" id="challengesFeedback"></div>
+            </div>
+          </div>
+
+          <!-- ── Loop Closure ───────────────────────────── -->
+          <div class="ops-card ops-card-wide" id="opsLoopClosure">
+            <div class="ops-card-header">
+              <h2 class="ops-card-title">Constitutional Feedback Loop</h2>
+              <span class="status-badge badge-neutral" id="loopBadge">Checking…</span>
+            </div>
+            <div class="ops-card-body" style="flex-direction:row;align-items:center;gap:var(--space-5);">
+              <div class="loop-ring" id="loopRing" role="img" aria-label="Feedback loop status">
+                <svg viewBox="0 0 100 100" width="110" height="110" aria-hidden="true">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border-color)" stroke-width="6"/>
+                  <circle id="loopArc" cx="50" cy="50" r="42" fill="none" stroke="var(--success)" stroke-width="6" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264" transform="rotate(-90 50 50)" style="transition:stroke-dashoffset 600ms ease,stroke 300ms"/>
+                </svg>
+                <span class="loop-core metric-value" id="loopCycles">0</span>
+              </div>
+              <div style="flex:1;">
+                <div class="muted" style="font-size:var(--text-sm);margin-bottom:var(--space-3);">
+                  Closed-loop cycles completed. Each cycle means civilizational insight from Phase&nbsp;10 re-triggered discovery in Phase&nbsp;5.
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-3);">
+                  <div><div class="ops-stat-label">Last Feedback</div><div class="mono" style="font-size:var(--text-sm);" id="loopLast">—</div></div>
+                  <div><div class="ops-stat-label">Path</div><div class="mono" style="font-size:var(--text-xs);color:var(--text-tertiary);">5→6→7→8→9→10→5</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── ASC Overview ────────────────────────────── -->
+          <div class="ops-card" id="opsASCOverview">
+            <div class="ops-card-header">
+              <h2 class="ops-card-title">ASC Subsystem Health</h2>
+              <span class="status-badge badge-neutral" id="ascSummary">—</span>
+            </div>
+            <div class="ops-card-body">
+              <div class="asc-grid" id="ascGrid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ CIVILIZATIONAL STATE ══════════════════════════════ -->
+        <section class="panel reveal" id="civPanel" aria-labelledby="civTitle">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Civilizational Intelligence · Phase 10</div>
+              <h3 id="civTitle">Civilizational State</h3>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--sp-3);">
+              <span class="stale-tag">◷ cached</span>
+              <div class="horizon-tabs" role="tablist" aria-label="Planning horizon">
+                <button class="horizon-tab" role="tab" aria-selected="true"  data-horizon="10">10y</button>
+                <button class="horizon-tab" role="tab" aria-selected="false" data-horizon="50">50y</button>
+                <button class="horizon-tab" role="tab" aria-selected="false" data-horizon="100">100y</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="civ-grid">
+              <div>
+                <div class="eyebrow" style="margin-bottom:var(--sp-3);">Domain State <span class="faint">— current vs target</span></div>
+                <div class="domain-list" id="civDomains"></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:var(--sp-5);">
+                <div>
+                  <div class="eyebrow" style="margin-bottom:var(--sp-3);">Strategic Priorities</div>
+                  <div class="feed" id="civPriorities"></div>
+                </div>
+                <div>
+                  <div class="eyebrow" style="margin-bottom:var(--sp-3);">Recent Decisions</div>
+                  <div class="feed" id="civDecisions"></div>
+                </div>
+              </div>
+            </div>
+            <div id="civEmpty" class="state-box" hidden><span class="glyph">◍</span><span>No civilizational plan generated yet.</span></div>
+            <div id="civError" class="state-box" hidden style="color:var(--critical)"><span class="glyph">⚠</span><span>Could not load civilizational state.</span><button class="btn btn-secondary" onclick="fetchCiv()">Retry</button></div>
+          </div>
+        </section>
+
+        <!-- ══ GLOBAL RISK ═══════════════════════════════════════ -->
+        <section class="panel reveal" id="riskPanel" aria-labelledby="riskTitle">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Global Risk Engine</div>
+              <h3 id="riskTitle">Risk Assessment</h3>
+            </div>
+            <span class="stale-tag">◷ cached</span>
+          </div>
+          <div class="panel-body">
+            <div class="risk-grid">
+              <div class="gauge" role="img" aria-label="Overall risk">
+                <svg viewBox="0 0 120 120"><circle class="gauge-track" cx="60" cy="60" r="52"/><circle class="gauge-fill" id="riskArc" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"/></svg>
+                <div class="gauge-center"><span class="gauge-value metric-value" id="riskValue">—</span><span class="gauge-unit">overall</span></div>
+              </div>
+              <div>
+                <div class="eyebrow" style="margin-bottom:var(--sp-3);">Risk by Category <span class="faint">— probability</span></div>
+                <div class="risk-list" id="riskList"></div>
+                <div id="riskMitigation" class="muted" style="font-size:var(--text-sm);margin-top:var(--sp-4);"></div>
+              </div>
+            </div>
+            <div id="riskError" class="state-box" hidden style="color:var(--critical)"><span class="glyph">⚠</span><span>Could not load risk assessment.</span><button class="btn btn-secondary" onclick="fetchRisk()">Retry</button></div>
+          </div>
+        </section>
+
+        <!-- ══ SUSTAINABILITY ════════════════════════════════════ -->
+        <section class="panel reveal" id="sustPanel" aria-labelledby="sustTitle">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Sustainability Engine</div>
+              <h3 id="sustTitle">Sustainability</h3>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--sp-3);">
+              <span class="stale-tag">◷ cached</span>
+              <span class="badge badge-neutral" id="sustStatus">—</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="sust-grid">
+              <div class="gauge" role="img" aria-label="Sustainability score">
+                <svg viewBox="0 0 120 120"><circle class="gauge-track" cx="60" cy="60" r="52"/><circle class="gauge-fill" id="sustArc" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"/></svg>
+                <div class="gauge-center"><span class="gauge-value metric-value" id="sustValue">—</span><span class="gauge-unit">score</span></div>
+              </div>
+              <div>
+                <div class="eyebrow" style="margin-bottom:var(--sp-3);">Dimensions</div>
+                <div class="dim-list" id="sustDims"></div>
+                <div class="eyebrow" style="margin:var(--sp-4) 0 var(--sp-2);">Trend</div>
+                <svg class="sparkline" id="sustSpark" viewBox="0 0 200 40" preserveAspectRatio="none" aria-label="Sustainability trend"></svg>
+              </div>
+              <div>
+                <div class="eyebrow" style="margin-bottom:var(--sp-3);">Recommendations</div>
+                <div class="feed" id="sustRecs"></div>
+              </div>
+            </div>
+            <div id="sustError" class="state-box" hidden style="color:var(--critical)"><span class="glyph">⚠</span><span>Could not load sustainability data.</span><button class="btn btn-secondary" onclick="fetchSust()">Retry</button></div>
+          </div>
+        </section>
+
+        <!-- ══ PIPELINE TELEMETRY ════════════════════════════════ -->
+        <section class="panel reveal" id="ptPanel" aria-labelledby="ptTitle">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Campaign Pipeline</div>
+              <h3 id="ptTitle">Pipeline Telemetry</h3>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--sp-3);">
+              <span class="stale-tag">◷ cached</span>
+              <span class="badge badge-neutral" id="ptStatus">—</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="pt-grid">
+              <div class="pt-card">
+                <div class="pt-card-title">Cycle Stats</div>
+                <div class="pt-bar"><span class="pt-label">Cycles</span><span class="pt-stat" id="ptCycleCount">—</span></div>
+                <div class="pt-bar"><span class="pt-label">Avg Cycle</span><span class="pt-stat" id="ptAvgMs">—</span><span class="pt-meta">ms</span></div>
+                <div class="pt-bar"><span class="pt-label">P95 Cycle</span><span class="pt-stat" id="ptP95Ms">—</span><span class="pt-meta">ms</span></div>
+                <div class="pt-bar"><span class="pt-label">Last Cycle</span><span class="pt-stat" id="ptLastMs">—</span><span class="pt-meta">ms</span></div>
+                <div class="pt-bar"><span class="pt-label">Feedback Closed</span><span class="pt-stat" id="ptFeedbackCount">—</span></div>
+              </div>
+              <div class="pt-card">
+                <div class="pt-card-title">Per-Phase Timing</div>
+                <div id="ptPhases"></div>
+              </div>
+            </div>
+            <div class="pt-card" style="margin-top:var(--sp-4);">
+              <div class="pt-card-title">Recent Cycles</div>
+              <div class="pt-timeline" id="ptTimeline"></div>
+            </div>
+            <div id="ptError" class="state-box" hidden style="color:var(--critical)"><span class="glyph">⚠</span><span>Could not load pipeline telemetry.</span><button class="btn btn-secondary" onclick="fetchPT()">Retry</button></div>
+          </div>
+        </section>
+
+        <!-- ══ PHYSICAL DEPLOYMENT ════════════════════════════════ -->
+        <section class="panel reveal" id="physPanel" aria-labelledby="physTitle">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow">Reality Bridge — Hardware</div>
+              <h3 id="physTitle">Physical Deployments</h3>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--sp-3);">
+              <span class="stale-tag">◷ cached</span>
+              <span class="badge badge-neutral" id="physStatus">—</span>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="phys-grid">
+              <div class="gauge" role="img" aria-label="Approved deployments">
+                <svg viewBox="0 0 120 120"><circle class="gauge-track" cx="60" cy="60" r="52"/><circle class="gauge-fill" id="physArc" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"/></svg>
+                <div class="gauge-center"><span class="gauge-value metric-value" id="physGauge">—</span><span class="gauge-unit">approved</span></div>
+              </div>
+              <div class="phys-summary">
+                <div class="eyebrow" style="margin-bottom:var(--sp-3);">Launch Track <span class="faint">— stages</span></div>
+                <div class="phys-track" id="physLaunchTrack"></div>
+                <div class="eyebrow" style="margin:var(--sp-4) 0 var(--sp-2);">Current Deployment</div>
+                <div id="physDetails" class="phys-details">
+                  <div class="state-box" style="padding:var(--sp-3)"><span class="faint">Select a deployment to inspect.</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="phys-controls">
+              <button class="btn btn-primary" id="physApproveBtn" hidden>Approve</button>
+              <button class="btn btn-secondary" id="physRejectBtn" hidden>Reject</button>
+              <button class="btn btn-secondary" id="physAbortBtn" hidden>Abort</button>
+              <button class="btn btn-danger" id="physEstopBtn" hidden>E-STOP</button>
+            </div>
+            <div class="phys-toolbar">
+              <span class="eyebrow" id="physCapabilities">Adapter <span class="faint">— simulated</span></span>
+              <select id="physFilterSelect" class="phys-filter">
+                <option value="all">All</option>
+                <option value="pending_approval">Pending Approval</option>
+                <option value="active">Active</option>
+                <option value="terminal">Terminal</option>
+              </select>
+            </div>
+            <div class="phys-rows" id="physRows"></div>
+            <div id="physEmpty" class="state-box" hidden><span class="glyph">◍</span><span>No physical deployments planned yet.</span></div>
+            <div id="physError" class="state-box" hidden style="color:var(--critical)"><span class="glyph">⚠</span><span>Could not load physical deployments.</span><button class="btn btn-secondary" onclick="fetchPhysical()">Retry</button></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="ai-assistant" id="aiAssistant">
+    <div class="ai-header">
+      <span class="ai-title">Tiannara Assistant</span>
+      <button class="ai-toggle" id="aiToggle">▼</button>
+    </div>
+    <div class="ai-body" id="aiBody">
+      <div class="ai-rooms">
+        <button class="ai-room-btn active" data-room="general">General</button>
+        <button class="ai-room-btn" data-room="scientific">Scientific</button>
+        <button class="ai-room-btn" data-room="engineering">Engineering</button>
+        <button class="ai-room-btn" data-room="strategic">Strategic</button>
+        <button class="ai-room-btn" data-room="constitutional">Constitutional</button>
+        <button class="ai-room-btn" data-room="creative">Creative</button>
+      </div>
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-message system">Assistant ready.</div>
+      </div>
+      <div class="ai-quick-actions">
+        <button class="ai-quick-btn" data-action="status">Status Report</button>
+        <button class="ai-quick-btn" data-action="health">Health Check</button>
+        <button class="ai-quick-btn" data-action="diagnostics">Diagnostics</button>
+        <button class="ai-quick-btn" data-action="summary">Summary</button>
+      </div>
+      <form class="ai-input-form" id="aiForm">
+        <input type="text" class="ai-input" id="aiInput" placeholder="Message Tiannara..." autocomplete="off">
+        <button type="submit" class="ai-send-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

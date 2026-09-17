@@ -1,0 +1,22 @@
+{
+  "schema": "DOMAIN_RELATION_SCHEMA",
+  "version": "22.X.3",
+  "description": "Schema for a relationship between scientific domains",
+  "domain_relation": {
+    "fields": {
+      "relation_id": {"type": "string", "required": true},
+      "source_domains": {"type": "array", "required": true},
+      "target_domains": {"type": "array", "required": true},
+      "relationship_type": {"type": "string", "required": true, "enum": ["shared_foundations", "causal_connection", "methodological_transfer", "structural_isomorphism", "emergent_relationship", "analogical_relationship", "instrumental_relationship"]},
+      "evidence": {"type": "array", "required": true},
+      "shared_principles": {"type": "array", "required": false},
+      "shared_mathematics": {"type": "array", "required": false},
+      "shared_engineering_concepts": {"type": "array", "required": false},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_supported", "deterministic", "replayable"]
+  }
+}

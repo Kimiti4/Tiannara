@@ -1,0 +1,21 @@
+{
+  "schema": "MISSION_DEPENDENCY_SCHEMA",
+  "version": "21.3",
+  "description": "Schema for mission dependency specifications",
+  "mission_dependency": {
+    "fields": {
+      "dependency_id": {"type": "string", "required": true, "description": "Content-addressed dependency identifier"},
+      "mission": {"type": "string", "required": true},
+      "dependency_type": {"type": "string", "required": true, "description": "Mathematical/Scientific/Engineering/Resource/Temporal"},
+      "required_capability": {"type": "string", "required": true},
+      "resolution_status": {"type": "string", "required": true, "description": "Satisfied/Unsatisfied/Partial"},
+      "critical_path": {"type": "boolean", "required": true},
+      "estimated_resolution_difficulty": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "satisfied_by": {"type": "string", "required": false, "description": "Mission ID that satisfies this dependency"},
+      "dependency_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["acyclic", "explicit", "deterministic"]
+  }
+}

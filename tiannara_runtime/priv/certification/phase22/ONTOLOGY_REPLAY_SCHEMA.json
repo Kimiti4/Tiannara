@@ -1,0 +1,18 @@
+{
+  "schema": "ONTOLOGY_REPLAY_SCHEMA",
+  "version": "22.0",
+  "description": "Schema for replay verification of an ontology lifecycle event",
+  "ontology_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "ontology_event_type": {"type": "string", "required": true, "enum": ["civilization_created", "institution_added", "infrastructure_mapped", "resource_flow_recorded", "knowledge_linked", "ontology_extended"]},
+      "event_fingerprint": {"type": "string", "required": true},
+      "reconstructed_hash": {"type": "string", "required": true},
+      "stored_hash": {"type": "string", "required": true},
+      "verification_status": {"type": "string", "required": true, "enum": ["verified", "diverged", "incomplete"]},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "immutable", "chain_verified"]
+  }
+}

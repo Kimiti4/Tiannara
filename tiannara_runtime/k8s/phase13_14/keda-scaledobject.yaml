@@ -1,0 +1,26 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: phase13-14-scaling
+spec:
+  scaleTargetRef:
+    name: tiannara-phase13-14
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+      threshold: "0.01"
+      query: phase13_convergence_rate
+      metricName: phase13_convergence_deficit
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+      threshold: "0.66"
+      query: phase14_federation_quorum_success
+      metricName: phase14_quorum_deficit
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+      threshold: "40"
+      query: phase14_novelty_generation_rate
+      metricName: phase14_novelty_throughput

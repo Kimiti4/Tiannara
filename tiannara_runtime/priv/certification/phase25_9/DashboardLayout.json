@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/dashboard_layout.json",
+  "title": "DashboardLayout",
+  "description": "Layout configuration for an observatory dashboard.",
+  "type": "object",
+  "properties": {
+    "layout_id": { "type": "string", "pattern": "^oblay_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "panels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "panel_id": { "type": "string" },
+          "position": { "type": "object", "properties": { "x": { "type": "integer" }, "y": { "type": "integer" }, "width": { "type": "integer" }, "height": { "type": "integer" } } },
+          "refresh_rate": { "type": "integer" },
+          "visible": { "type": "boolean" }
+        },
+        "required": ["panel_id", "position"]
+      }
+    },
+    "active": { "type": "boolean" },
+    "access_level": { "type": "string", "enum": ["public", "researcher", "operator", "council", "auditor"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["layout_id", "name", "panels", "access_level", "fingerprint"]
+}

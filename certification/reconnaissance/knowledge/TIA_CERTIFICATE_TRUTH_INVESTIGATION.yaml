@@ -1,0 +1,102 @@
+# Certificate Truth Investigation — Report (read-only; no implementation)
+artifact: CERTIFICATE_TRUTH_INVESTIGATION
+artifact_status: POST_T0
+move: CERTIFICATE-TRUTH-GATE
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+method: T0 git-show reads (capped); hash recomputation from T0 bytes; T0 ls-tree/grep inventory; no test execution beyond prior Move-9 runs (cited, not repeated); no implementation, commits, or pushes
+
+
+section_A:
+  title: Executive finding
+  items:
+executive_question: Is Tiannara currently able to prove that its certification claims are bound to the exact execution results that generated them?
+
+executive_answer: "NO - hash bindings genuine with 4 of 4 recomputed matching plus certificate self-hash, but no examined certificate binds claims to exact source commit, contract version, test-suite version, execution record, or result-derivation path; strongest bindings are file-integrity hashes certifying bytes not provenance; zero execution records exist and the seed-results file is 0 bytes"
+
+
+section_B:
+  title: Certificate lineage matrix
+  items:
+
+    - "phase14/certification/certificate.json | none found | none found | none found | 12 campaign blocks with measured values, self-asserted | values inline, no calculation shown | auditor echo (Move-9 observed, non-discriminating) | self-hash genuine; absolute Windows paths as artifact refs; provenance-tension fields present | CERTIFICATE-PARTIALLY-TRACEABLE"
+    - "PHASE14_GOVERNANCE_CERTIFICATE.json | none found | none found | none found | 12 campaign blocks incl. third gc_012 value set | values inline, no calculation shown | none evidenced beyond self-assertion | self-hash MISMATCH under straight recomputation (see E) | CERTIFICATE-PROVENANCE-BROKEN (binding only; content verdict remains UNKNOWN)"
+    - "MATHEMATICS_FREEZE_CERTIFICATE.json | none found | none found | none found | frozen counts (30 schemas, 9 APIs, etc.), self-asserted | counts inline | audit_report filename cited, report not examined in this pass | timestamp 2000-01-01 placeholder; owner field present, authority unevidenced | CERTIFICATE-UNVERIFIED"
+    - "phase14/certification/certification_certificate.json | none found | none found | none found | Second-order claims over the other certificates (12/12, mutations 6/6) | values inline | none evidenced (self-referential: certified_by meta_certification_authority, entity unevidenced) | timestamp 2026-07-02T20:34:07Z | CERTIFICATE-UNVERIFIED"
+
+
+section_C:
+  title: Broken or missing links (per certificate, consolidated)
+  items:
+    - "Exact source commit: MISSING on all four (no commit/tree hash field in any examined certificate)"
+    - "Exact contract/specification: MISSING on all four (no contract hash or version pin found)"
+    - "Exact test suite version: MISSING on all four"
+    - "Exact execution record: MISSING on all four (no run ledger, seed record, or invocation log binds any campaign)"
+    - "Exact result artifact binding: PRESENT for phase14 files (hash files genuine); ABSENT for root-level certificates"
+    - "Exact metric calculation: MISSING on all four (values inline, no derivation shown)"
+    - "Exact certification decision record: MISSING (no decision event with decider identity beyond self-named authorities)"
+    - "Re-derivation inputs: ABSENT (multi_seed_results.json is 0 bytes in T0; no trajectories/seeds found)"
+
+
+section_D:
+  title: Independently reconstructed results
+  items:
+    - "Attempted: gc_012 fitness/entropy re-derivation from T0 inputs"
+    - "ORIGINAL CLAIM: fitness ~0.80, entropy ~0.07-0.10 (three variants across three records)"
+    - "INDEPENDENT INPUTS: none available (seed file empty; no trajectories; no harness invocation records)"
+    - "RE-DERIVATION METHOD: not applicable (no inputs)"
+    - "EXPECTED RESULT: n/a"
+    - "RE-DERIVED RESULT: none produced"
+    - "MATCH: n/a"
+    - "DEVIATION: n/a"
+    - "EXPLANATION: Re-derivation impossible for lack of inputs; recorded as the precise reason rather than as a failed attempt"
+    - "Additional successful reconstruction: hash bindings (4/4 match) — integrity reconstruction succeeds; semantic reconstruction impossible"
+
+
+section_E:
+  title: Contradictions discovered
+  items:
+    - "E1 (new, extends CONTRA-003): THREE records now disagree on gc_012 (certificate 1/1 + 0.8041/0.1042; result 7/2 + 0.8035/0.0746; governance 7/2 19:47 + 0.7864/0.1068). Prior record showed two; the governance certificate adds a third variant. Status: CONFIRMED CONTRADICTION (deepened, still unresolved)."
+    - "E2 (new): Governance certificate self-hash mismatch (recomputed 0b1a6ab6 vs stored 409dbc2a). Alternatives: canonical-subset hash (unevidenced — no canonicalization spec found), stale pre-edit hash (unevidenced), or broken binding (unrefuted). Status: recorded as binding-level provenance break with alternatives listed; content verdict stays UNKNOWN."
+    - "E3 (new): certificate.json carries provenance-tension fields in one document (complete_provenance 0 alongside provenance_complete true; a mode string naming missing_provenance; absolute machine-specific artifact paths). Status: recorded as internal tension, not adjudicated (scope differences between the fields are possible but unevidenced)."
+    - "E4 (new): certification_certificate.json is self-referential (a certificate certifying certificates, authority self-named, no external anchor found in this pass). Status: recorded as structural observation; circularity not proven (an external anchor may exist unexamined), but none was found."
+
+
+section_F:
+  title: Knowledge changes
+  items:
+    - "None. No existing MOVE 11 item meets the change rule (previous state / new state / evidence / reason / confidence with sufficient evidence). In particular: no capability promoted or demoted; no contradiction resolved; no UNKNOWN lifted."
+
+
+section_G:
+  title: Remaining uncertainty
+  items:
+    - "Which (if any) gc_012 record is semantically correct"
+    - "Whether the governance self-hash covers a canonical subset (needs the canonicalization spec, if it exists)"
+    - "Whether the certificate provenance-tension fields reflect distinct scopes or real inconsistency"
+    - "Whether any external anchor exists for the meta-certificate chain"
+    - "Whether re-derivation inputs exist outside T0 (working tree not searched for this question by design; T0 is the baseline)"
+
+
+section_H:
+  title: Knowledge debt impact
+  items:
+    - "KD-001 (CONTRA-003): deepened (two-way → three-way disagreement)"
+    - "KD-010 (certificate truth): deepened (hash mismatch + self-referential chain added to the unknown set)"
+    - "KD-004, KD-005, KD-011: unaffected (no new evidence bears on them)"
+    - "RQ-001: served negatively (re-derivation inputs shown absent, including the empty seed file)"
+    - "RQ-004: served negatively (re-derivation impossible for lack of inputs; hash recomputation is not re-derivation)"
+
+
+section_I:
+  title: Gate recommendation
+  items:
+  - "HOLD — evidence insufficient for PASS (unresolved confirmed contradiction + broken hash binding + absent re-derivation inputs + unanchored meta-chain); FAIL not warranted (no claim refuted — distinct-execution and benign-hash explanations remain compatible with all observations); PARTIAL PASS not warranted (no defined subset is established — every examined certificate lacks execution binding)."
+
+
+closing_stop: "STOP REASON: n/a (investigation completed within authorized read-only scope)"
+
+
+closing_final_question: "FINAL QUESTION: smallest next evidence to reduce uncertainty"
+
+closing_final_answer: "An execution record binding ANY single campaign run (inputs, seed, invocation, outputs, timestamp) — one record would simultaneously test re-derivability, anchor at least one certificate block, and discriminate the distinct-executions hypothesis for CONTRA-003. Absent that, the certificate corpus cannot graduate from self-consistent to validated no matter how many further hashes verify."

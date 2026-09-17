@@ -1,0 +1,19 @@
+{
+  "schema": "RESEARCH_PORTFOLIO_SCHEMA",
+  "version": "22.X.1",
+  "description": "Schema for a research portfolio",
+  "research_portfolio": {
+    "fields": {
+      "portfolio_id": {"type": "string", "required": true},
+      "vision": {"type": "string", "required": true},
+      "programs": {"type": "array", "required": true},
+      "dependencies": {"type": "object", "required": false},
+      "resources": {"type": "object", "required": true},
+      "risk_profile": {"type": "object", "required": true},
+      "performance": {"type": "object", "required": false},
+      "rebalancing_history": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["diversified", "deterministic", "replayable"]
+  }
+}

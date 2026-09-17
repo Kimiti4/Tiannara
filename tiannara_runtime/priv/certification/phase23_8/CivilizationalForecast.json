@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/civilizational_forecast.json",
+  "title": "CivilizationalForecast",
+  "description": "A long-horizon forecast of civilizational effects from a discovery.",
+  "type": "object",
+  "properties": {
+    "forecast_id": { "type": "string", "pattern": "^civfc_[a-f0-9]{16}$" },
+    "prediction_id": { "type": "string" },
+    "time_horizons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "horizon_years": { "type": "integer", "enum": [1, 5, 10, 25, 50, 100, 500, 1000] },
+          "forecast_summary": { "type": "string" },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "scientific_advancement": { "type": "object", "properties": { "estimate": { "type": "string" }, "uncertainty": { "type": "number" } } },
+          "engineering_capability": { "type": "object", "properties": { "estimate": { "type": "string" }, "uncertainty": { "type": "number" } } },
+          "automation_level": { "type": "object", "properties": { "estimate": { "type": "string" }, "uncertainty": { "type": "number" } } },
+          "energy_availability": { "type": "object", "properties": { "estimate": { "type": "string" }, "uncertainty": { "type": "number" } } },
+          "knowledge_growth": { "type": "object", "properties": { "estimate": { "type": "string" }, "uncertainty": { "type": "number" } } },
+          "planetary_sustainability": { "type": "object", "properties": { "estimate": { "type": "string" }, "uncertainty": { "type": "number" } } },
+          "civilizational_complexity": { "type": "object", "properties": { "estimate": { "type": "string" }, "uncertainty": { "type": "number" } } },
+          "kardashev_progress": { "type": "object", "properties": { "estimate": { "type": "string" }, "uncertainty": { "type": "number" } } },
+          "existential_risk_flags": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["horizon_years", "forecast_summary", "confidence"]
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "forecasted_at": { "type": "integer" }
+  },
+  "required": ["forecast_id", "prediction_id", "time_horizons", "fingerprint"]
+}

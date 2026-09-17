@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/peer_review.json",
+  "title": "PeerReview",
+  "description": "A constitutional peer review of a scientific artifact.",
+  "type": "object",
+  "properties": {
+    "review_id": { "type": "string", "pattern": "^rev_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "artifact_type": { "type": "string" },
+    "reviewer_id": { "type": "string" },
+    "reviewer_type": { "type": "string" },
+    "status": { "type": "string", "enum": ["assigned", "in_progress", "completed", "appealed", "superseded"] },
+    "critique_ids": { "type": "array", "items": { "type": "string" } },
+    "objection_ids": { "type": "array", "items": { "type": "string" } },
+    "outcome": { "type": "string", "enum": ["accept", "minor_revision", "major_revision", "replicate", "reject", "insufficient_evidence", "unknown"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "completed_at": { "type": "integer" }
+  },
+  "required": ["review_id", "artifact_id", "reviewer_id", "status", "fingerprint"]
+}

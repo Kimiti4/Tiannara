@@ -1,0 +1,228 @@
+# TIA_FORENSIC_RECON_ENGINE — Orchestrator Contract
+# Authoritative for Move 0. Immutable during Move 0 execution.
+# Any modification requires a new contract version + a new move gate.
+
+program: TIA_FORENSIC_RECON_ENGINE
+move: 0
+phase: read_only_inventory
+version: 0.1.1
+revision_history:
+  - version: 0.1.1
+    date: 2026-09-03
+    scope: M0-CLOSE-01..06 certification closure (no T0 evidence rebuild)
+    changes:
+      - "M0-CLOSE-01: forbidden-operation enforcement is now a real allowlist gate (collectors._common.run_git, default-deny); the dead _assert_no_forbidden helper was removed; all git call sites rewired."
+      - "M0-CLOSE-02: orchestrator captures PRE/POST repository snapshots and writes the comparison into T0_INTEGRITY.json (pre_post_comparison)."
+      - "M0-CLOSE-04: T0_INTEGRITY.json records ri_status NOT_RUN; the pytest result is bound separately by CERTIFY_MOVE0.py into T0_RI_CERTIFICATION.json."
+      - "M0-CLOSE-05: execution hygiene - temp state outside the repository; no PRE_RUN_* files; no __pycache__ in certification/reconnaissance/ (sys.dont_write_bytecode in entry points)."
+      - "M0-CLOSE-06: environment evidence is labelled AUDIT_EXECUTION_ENVIRONMENT with an explicit disclaimer (not T0's historical runtime)."
+artifact_status: POST_T0
+baseline_reference: 9753a6d08702064f4d00395a1bec1c4bf3887381
+baseline_tag: T0
+baseline_tree: 06f06e5e91f33e75437a47ca901eaa7e97bb0edd
+
+# ---------------------------------------------------------------------------
+# POSTURE — the orchestrator's operating mode. Enforced by code, not trust.
+# ---------------------------------------------------------------------------
+posture: READ_ONLY
+
+# ---------------------------------------------------------------------------
+# FORBIDDEN OPERATIONS — M0-CLOSE-01: enforced by the allowlist gate
+# collectors._common.run_git (default-deny). The gate raises
+# ForbiddenGitOperationError BEFORE spawning any process for any git
+# subcommand not on the allowlist. There is no other git path in the
+# orchestrator, collectors, or tests: every git call site routes through
+# run_git (verified by RI-012's AST choke-point scan).
+#
+# Allowlist (read-only plus the two worktree shapes the orchestrator needs):
+#   rev-parse, ls-tree, ls-files, status, for-each-ref, log, cat-file, diff,
+#   show --stat/--no-patch/--format, branch --format=.../--show-current,
+#   worktree add --detach <dir> <sha>, worktree remove --force <dir>,
+#   worktree list, worktree prune --dry-run.
+# Everything else (commit, push, reset, checkout, merge, rebase,
+# cherry-pick, revert, rm, mv, stash, clean, branch -d/-D/-m, tag -d/-f,
+# fetch, pull, clone, remote, config, lock/unlock/move/repair, ...) refused.
+# ---------------------------------------------------------------------------
+forbidden_operations:
+  - write_source
+  - modify_source
+  - delete_source
+  - rename_source
+  - modify_contract
+  - modify_test
+  - modify_certification
+  - modify_configuration
+  - git_commit
+  - git_push
+  - git_reset
+  - git_checkout          # in the SOURCE repo (worktree checkout at T0 creation is fine)
+  - git_merge
+  - git_branch_modify
+  - git_tag_modify
+  - dependency_install
+  - network_dependency_install
+  - llm_invocation
+  - env_content_read       # never read .env* file content
+  - secret_value_emit      # never write a secret value to any output
+
+# ---------------------------------------------------------------------------
+# T0 INTEGRITY GATE — RI-001 in the test suite. The orchestrator halts if any
+# of these checks fail. There is no "warning" mode — fail = STOP.
+# ---------------------------------------------------------------------------
+t0_integrity_gate:
+  test_id: T0-INTEGRITY-001
+  required:
+    tag_T0_resolves_to_commit: 9753a6d08702064f4d00395a1bec1c4bf3887381
+    t0_baseline_resolves_to_commit: 9753a6d08702064f4d00395a1bec1c4bf3887381
+    origin_main_resolves_to_commit: 9753a6d08702064f4d00395a1bec1c4bf3887381
+    source_repo_HEAD_equals_T0: true
+    t0_tree_hash_reproducible: true     # git rev-parse T0^{tree} deterministic
+  on_failure: STOP_AND_RECORD_CONDITION_AS_EVIDENCE
+
+# ---------------------------------------------------------------------------
+# DETERMINISM POLICY — RI-011 in the test suite.
+# ---------------------------------------------------------------------------
+determinism:
+  statement: >
+    All substantive evidence artifacts are deterministic; volatile
+    timestamps and run metadata are excluded from content hashes and
+    normalized for RI-011 comparison.
+  substantive_fields_canonicalized:
+    - collected_at   -> removed for hash
+    - run_id         -> removed for hash
+    - hostname       -> removed for hash
+    - user           -> removed for hash
+  volatile_fields_separate:
+    - run_started_at
+    - run_finished_at
+    - duration_seconds
+
+# ---------------------------------------------------------------------------
+# WORKTREE DISCIPLINE — the orchestrator works in a temp worktree, not the
+# source repo. The source repo is never checked out, reset, rebased, or
+# otherwise altered. The worktree is created at the T0 commit and removed
+# when the orchestrator finishes.
+# ---------------------------------------------------------------------------
+worktree:
+  create_command: git worktree add --detach <temp-dir> 9753a6d08702064f4d00395a1bec1c4bf3887381
+  post_create_check: git -C <temp-dir> rev-parse HEAD == 9753a6d08702064f4d00395a1bec1c4bf3887381
+  remove_command: git worktree remove --force <temp-dir>
+  on_remove_failure: log_and_continue   # the worktree may already be gone; not a STOP condition
+
+# ---------------------------------------------------------------------------
+# EXECUTION HYGIENE — M0-CLOSE-05. Temporary execution state lives outside
+# the repository. The reconnaissance directory contains ONLY the authorized
+# module files plus the 7 output artifacts. Specifically forbidden inside
+# certification/reconnaissance/: PRE_RUN_* scaffolding files, *.tmp residue,
+# __pycache__/ directories, *.log scratch files. Entry points set
+# sys.dont_write_bytecode = True before importing collectors so normal runs
+# do not create bytecode caches; pytest runs use `python -B`.
+# ---------------------------------------------------------------------------
+execution_hygiene:
+  temp_state_location: outside_repository
+  forbidden_in_recon_dir:
+    - PRE_RUN_* scaffolding
+    - "*.tmp residue (atomic-write leftovers)"
+    - __pycache__ directories
+    - "*.log scratch files"
+  bytecode_policy: sys.dont_write_bytecode=True in entry points; pytest via python -B
+
+# ---------------------------------------------------------------------------
+# ENVIRONMENT EVIDENCE LABEL — M0-CLOSE-06. Runtime versions describe the
+# environment in which the Move-0 audit EXECUTED. They do NOT establish the
+# runtime in which T0 historically operated; that claim would require an
+# explicit provenance mechanism, which is out of scope for Move 0.
+# ---------------------------------------------------------------------------
+environment_evidence:
+  environment_kind: AUDIT_EXECUTION_ENVIRONMENT
+  disclaimer: The runtime versions and platform recorded here were observed in the environment that executed this Move-0 audit. They do NOT establish the runtime environment in which T0 historically operated.
+
+# ---------------------------------------------------------------------------
+# THREE-WAY CLASSIFICATION — per user directive, the audit must distinguish
+# the Git snapshot from the workspace evidence from runtime state.
+# ---------------------------------------------------------------------------
+classification_buckets:
+  T0_TRACKED:         "In T0 commit (git ls-tree -r T0)"
+  T0_EXCLUDED:        "Deliberately outside T0 commit (per T0_BASELINE.md exclusion register; large runtime DETS, secrets, garbage)"
+  CURRENT_TRACKED:    "In HEAD but not in T0 (should be empty when HEAD == T0)"
+  CURRENT_UNTRACKED:  "Working-tree untracked"
+  RUNTIME_STATE:      "Runtime artifacts: .dets, .db, .dump"
+  SECRET_SENSITIVE:   "Excluded by policy: .env*, .pem, .key"
+  GARBAGE_INVALID:    "Windows device names (nul, con, prn, aux, com1, lpt1), .... paths"
+  SUBPROJECT:         "Separate-versioned apps in tiannara_* subdirs"
+  GENERATED:          "Build outputs: *.beam, *.pyc, _build/, deps/, node_modules/"
+  UNKNOWN:            "Fallback — does not match any documented classification"
+
+# ---------------------------------------------------------------------------
+# OUTPUT ARTIFACTS — exactly these 7 files. No more, no fewer.
+# ---------------------------------------------------------------------------
+output_artifacts:
+  - T0_BASELINE.json       # master record (the headline output)
+  - T0_GIT.json            # git forensics: T0 resolution, branch state
+  - T0_FILES.jsonl         # one line per file: path, size, sha256, bucket, etc.
+  - T0_HASHES.jsonl        # path, sha256 (subset of T0_FILES for hash-binding)
+  - T0_ENVIRONMENT.json    # runtime versions + dependency manifest paths/sizes
+  - T0_RUNTIMES.json       # just the version strings (subset of T0_ENVIRONMENT)
+  - T0_INTEGRITY.json      # the 20-RI test results + the T0 hash
+
+# ---------------------------------------------------------------------------
+# SECRET HANDLING — explicit policy.
+# ---------------------------------------------------------------------------
+secret_handling:
+  read_env_content: false           # never read content of .env / .env.production etc.
+  echo_env_content: false           # never echo secret values
+  classify_secrets: true            # DO report that they exist and their size/sha256
+  report_secret_classification: "Excluded by policy: SECRETS in T0_EXCLUDED bucket"
+  # If a secret file is encountered, the collector records:
+  #   { path, size, sha256, bucket: "SECRET_SENSITIVE", content_read: false }
+  # It does NOT record the file content. The collector fails closed on accidental read.
+
+# ---------------------------------------------------------------------------
+# RUN PROCEDURE — the orchestrator's exact flow. Each step is mandatory.
+# M0-CLOSE-02: PRE/POST snapshots bracket collection; the comparison is
+# written into T0_INTEGRITY.json as pre_post_comparison. M0-CLOSE-04:
+# T0_INTEGRITY.json records ri_status NOT_RUN; the pytest result is bound
+# separately by CERTIFY_MOVE0.py into T0_RI_CERTIFICATION.json.
+# ---------------------------------------------------------------------------
+run_procedure:
+  1_pre: verify T0 identity against the source repo (T0-INTEGRITY-001 partial)
+  2_pre_snapshot: capture PRE repository snapshot (ref SHAs, tracked-diff hash, untracked sets)
+  3_worktree: git worktree add --detach <temp-dir> 9753a6d08702064f4d00395a1bec1c4bf3887381
+  4_post_create: verify temp-dir HEAD == 9753a6d; halt if not
+  5_collect: run each of 4 collectors in the temp worktree; capture JSON output
+  6_teardown: git worktree remove --force <temp-dir>
+  7_post_snapshot: capture POST snapshot; compare PRE vs POST
+  8_gate: if comparison differs (refs, tracked-diff, unexpected untracked delta) -> verdict FAIL, write ONLY T0_INTEGRITY.json, STOP
+  9_aggregate: merge collector outputs into T0_BASELINE.json (the master record)
+  10_write_artifacts: write the 7 output JSON files to certification/reconnaissance/
+  11_stop: do not interpret, do not modify, do not commit
+
+# ---------------------------------------------------------------------------
+# STOP CONDITIONS — when the orchestrator MUST stop and record evidence.
+# ---------------------------------------------------------------------------
+stop_conditions:
+  - T0 identity check fails
+  - worktree creation fails
+  - worktree HEAD != T0 commit
+  - any forbidden operation attempted
+  - any collector raises an unhandled exception
+  - any source repo tracked file modified during run
+  - any expected output file not produced
+  - any RI test fails
+
+# ---------------------------------------------------------------------------
+# MAPPING TO MASTER.MD — this contract is the implementation-specific binding
+# of master.md Moves 0-1. The interpretive layers (analyzers, capability
+# catalogue, unification) are out of scope for Move 0.
+# ---------------------------------------------------------------------------
+master_md_mapping:
+  move_0_instrumentation: orchestrator + 4 collectors + 4 schemas
+  move_1_t0_baseline: T0_INTEGRITY.json + T0_BASELINE.json (the "this is what Tiannara looked like at T0" record)
+  deferred_to_later_moves:
+    - move_2_truth_model: requires LLM interpretation
+    - move_3_archaeology: requires analyzers
+    - move_4_capability_reconciliation: requires catalogue
+    - move_5_unification: requires proposal generation
+    - moves_6_through_10: out of Move 0 scope
+  stop_after_move_0: true
+  rationale: master.md § "Important principle" — the LLM interprets evidence; the code collects it.

@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ResearchProgram",
+  "description": "A research program within the Autonomous Scientific Experiment Orchestrator representing a funded, staffed, and governed initiative within a domain",
+  "type": "object",
+  "properties": {
+    "program_id": {
+      "type": "string",
+      "description": "Content-addressed unique identifier for this program"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Research domain this program belongs to"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable program name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Program description and objectives"
+    },
+    "objectives": {
+      "type": "array",
+      "description": "Research objectives within this program",
+      "items": {
+        "type": "object",
+        "properties": {
+          "objective_id": { "type": "string" },
+          "description": { "type": "string" },
+          "success_criteria": { "type": "array", "items": { "type": "string" } },
+          "status": { "type": "string", "enum": ["active", "completed", "abandoned"] }
+        },
+        "required": ["objective_id", "description", "status"]
+      }
+    },
+    "active_hypotheses": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "References to currently active hypotheses"
+    },
+    "experiments": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "References to experiments in this program"
+    },
+    "budget": {
+      "type": "object",
+      "description": "Budget allocation for this program",
+      "properties": {
+        "allocated": { "type": "number" },
+        "spent": { "type": "number" },
+        "remaining": { "type": "number" },
+        "unit": { "type": "string" }
+      },
+      "required": ["allocated", "spent", "remaining", "unit"]
+    },
+    "resource_allocation": {
+      "type": "object",
+      "description": "Resource allocation reference"
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Program metrics and health indicators"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "paused", "completed", "archived", "terminated"]
+    },
+    "created_at": { "type": "integer" },
+    "updated_at": { "type": "integer" },
+    "program_hash": { "type": "string" }
+  },
+  "required": [
+    "program_id", "domain", "name", "objectives",
+    "budget", "status", "created_at", "program_hash"
+  ],
+  "additionalProperties": false
+}

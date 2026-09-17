@@ -1,0 +1,64 @@
+artifact: TIA_SERIALIZATION_FREEZE_DISPOSITION
+record_type: COUNCIL DECISION (governance record)
+recorded_at: 2026-09-10
+decision_id: COUNCIL-2026-09-10-SERIALIZATION-FREEZE
+status: APPROVED (design/spec freeze; NOT implementation authorization)
+basis: stage9_serialization_freeze.yaml (decision-support; recommended fz-b + fz-c)
+policy: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml (ACCEPTED)
+
+COUNCIL DECISION:
+
+  SERIALIZATION FREEZE = fz-b + fz-c, layered on tiannara-fp-canon-v1
+
+NORMATIVE CANONICALIZATION SOURCE (unchanged):
+  - specification: forward_provenance/spec/canonicalization_spec.yaml
+  - canon identity: tiannara-fp-canon-v1
+  - authority: TiannaraOS.Provenance.Canon (lib/canon.ex)
+  - MUST NOT be replaced, forked, or redefined by this freeze.
+
+FREEZE PINS (binding):
+  o1  certificate identity grammar:
+        certificate_id = sha256(canon %{"candidate_id_spec" => "tiannara-fp-cert-candidate-v1", "spine" => <spine>})
+      Composition/ordering/rendering boundary and byte inputs MUST be
+      deterministic. No UUID, timestamp, random nonce, process-local or
+      machine-local identifier, or nondeterministic ordering. Replay-identical
+      for identical canonical inputs. The Stage-6 bridge candidate identity is
+      the basis and is NOT to be redesigned.
+  o2  decision/envelope body schema: exact structure of decision material
+      participating in certificate-bound provenance. No implementation-
+      convenience fields; every identity/verification field has a deterministic
+      canonical representation.
+  o3  authority_header / policy_ref schema: required fields, semantics, and
+      canonical representation pinned. Authority metadata MUST remain distinct
+      from certificate identity, candidate identity, decision content, and
+      verification result. Authority MUST NOT become implicit.
+  o4  encoder contract: stdlib :json. A conforming reimplementation MUST emit
+      byte-identical serialization for the same prescribed input (byte parity,
+      not merely semantic JSON equivalence). No substituted serializer, no
+      timestamps/unordered maps/implementation-dependent formatting/alternate
+      escaping/numeric rendering/key ordering beyond canon-v1's explicit rules.
+  o5  specification version/bump behavior + SUPERSEDED interaction: any change
+      affecting frozen grammar/serialization follows an explicit
+      version/bump process; v1 MUST NOT be silently altered; SUPERSEDED remains
+      an explicit lifecycle relation, never an ordinary mutable overwrite; a
+      successor certificate/record preserves the provenance relationship
+      required by the lifecycle design.
+
+FREEZE INSTRUMENTS (approved):
+  fz-b  certificate_identity_spec.yaml — normative pinning instrument for the
+        certificate identity + associated frozen grammar.
+  fz-c  deterministic conformance fixture table (prescribed input -> expected
+        SHA-256) — conformance EVIDENCE proving byte/digest parity. MUST NOT
+        become a second competing canonicalization specification.
+
+EXPLICITLY OUT OF SCOPE OF THIS FREEZE:
+  - Any implementation of issuance, lifecycle, revocation, or verification.
+  - Opening any A-predicate.
+  - Modifying Canon, Envelope, Contract, Bundle, Result, MetricLineage, or the
+    bridge's fail-closed defaults.
+  - Modifying the accepted policy draft.
+
+NOTHING_IMPLEMENTED: true
+NO_PREDICATE_OPENED: true
+NO_CERTIFICATE_STATE_MUTATED: true
+CANON_V1_UNCHANGED: true

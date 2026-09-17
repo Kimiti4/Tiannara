@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/research_program.json",
+  "title": "ResearchProgram",
+  "description": "A coherent research program synthesized from strategic objectives.",
+  "type": "object",
+  "properties": {
+    "program_id": { "type": "string", "pattern": "^rprog_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "strategic_goal": { "type": "string" },
+    "grand_challenge_id": { "type": "string" },
+    "mission_id": { "type": "string" },
+    "research_questions": { "type": "array", "items": { "type": "string" } },
+    "methodology": { "type": "string" },
+    "resource_requirements": { "type": "object" },
+    "allocated_resources": { "type": "object" },
+    "timeline": {
+      "type": "object",
+      "properties": {
+        "start": { "type": "integer" },
+        "milestones": { "type": "array", "items": { "type": "object", "properties": { "milestone": { "type": "string" }, "deadline": { "type": "integer" }, "status": { "type": "string", "enum": ["pending", "in_progress", "completed", "missed"] } } } },
+        "estimated_completion": { "type": "integer" }
+      }
+    },
+    "success_criteria": { "type": "array", "items": { "type": "string" } },
+    "risk_assessment": { "type": "array", "items": { "type": "string" } },
+    "dependencies": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["proposed", "active", "paused", "completed", "cancelled"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["program_id", "name", "strategic_goal", "research_questions", "status", "fingerprint"]
+}

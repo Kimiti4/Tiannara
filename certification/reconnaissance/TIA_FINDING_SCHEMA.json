@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.local/schemas/TIA_FINDING_SCHEMA.json",
+  "title": "TIA Finding Schema",
+  "description": "Shape of any finding emitted by a future analyzer. Unused in Move 0; shipped now so Move 1 collectors can produce findings with stable shape.",
+  "definitions": {
+    "category": {
+      "type": "string",
+      "enum": [
+        "ARCH", "UNIFY", "CODE", "CONTRACT", "VISION", "AUTO",
+        "RELIABILITY", "SECURITY", "DATA", "MEMORY", "OBSERVABILITY",
+        "PERFORMANCE", "TEST", "CERTIFICATION", "DOCUMENTATION", "DEPENDENCY"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFORMATIONAL"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["CONFIRMED", "PROBABLE", "HYPOTHESIS", "UNKNOWN"]
+    }
+  },
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "category",
+    "severity",
+    "status",
+    "location",
+    "evidence_refs",
+    "observed",
+    "expected",
+    "impact",
+    "confidence",
+    "recommendation",
+    "rollback"
+  ],
+  "properties": {
+    "schema_version":   { "type": "string", "const": "1.0.0" },
+    "id":               { "type": "string", "description": "Finding ID, e.g. F-0001" },
+    "category":         { "$ref": "#/definitions/category" },
+    "severity":         { "$ref": "#/definitions/severity" },
+    "status":           { "$ref": "#/definitions/status" },
+    "location":         { "type": "string", "description": "Path or path:line" },
+    "evidence_refs":    { "type": "array", "items": { "type": "string" } },
+    "observed":         { "type": "string" },
+    "expected":         { "type": "string" },
+    "impact":           { "type": "string" },
+    "confidence":       { "type": "string", "enum": ["FACT", "INFERENCE", "HYPOTHESIS", "UNKNOWN"] },
+    "dependencies":     { "type": "array", "items": { "type": "string" } },
+    "recommendation":   { "type": "string" },
+    "validation":       { "type": "string" },
+    "rollback":         { "type": "string" }
+  }
+}

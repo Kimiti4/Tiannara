@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OrchestrationCertificate",
+  "description": "A certificate verifying orchestration constitutional compliance for the Autonomous Scientific Experiment Orchestrator",
+  "type": "object",
+  "properties": {
+    "certificate_id": {
+      "type": "string",
+      "description": "Content-addressed unique identifier for this certificate"
+    },
+    "certificate_type": {
+      "type": "string",
+      "enum": ["orchestration_certification"],
+      "description": "Type of certificate"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of certification"
+    },
+    "certification_level": {
+      "type": "string",
+      "enum": ["basic", "standard", "advanced", "production"],
+      "description": "Certification level achieved"
+    },
+    "epoch": {
+      "type": "integer",
+      "description": "Epoch being certified"
+    },
+    "certification_results": {
+      "type": "object",
+      "description": "Results of certification tests",
+      "properties": {
+        "determinism_certified": { "type": "boolean" },
+        "reproducibility_certified": { "type": "boolean" },
+        "replayability_certified": { "type": "boolean" },
+        "archaeology_certified": { "type": "boolean" },
+        "immutability_certified": { "type": "boolean" },
+        "governance_certified": { "type": "boolean" },
+        "transparency_certified": { "type": "boolean" },
+        "safety_certified": { "type": "boolean" }
+      },
+      "required": [
+        "determinism_certified",
+        "reproducibility_certified",
+        "replayability_certified",
+        "archaeology_certified",
+        "immutability_certified",
+        "governance_certified",
+        "transparency_certified",
+        "safety_certified"
+      ]
+    },
+    "replay_session_id": {
+      "type": "string",
+      "description": "Reference to the replay session used for certification"
+    },
+    "archaeology_session_id": {
+      "type": "string",
+      "description": "Reference to the archaeology session used for certification"
+    },
+    "governance_audit_ref": {
+      "type": "string",
+      "description": "Reference to the governance audit"
+    },
+    "certification_hash": {
+      "type": "string",
+      "description": "Content-addressed hash of certification"
+    },
+    "signature": {
+      "type": "string",
+      "description": "Cryptographic signature"
+    },
+    "issued_at": {
+      "type": "integer",
+      "description": "Timestamp when certificate was issued"
+    },
+    "expires_at": {
+      "type": "integer",
+      "description": "Timestamp when certificate expires"
+    }
+  },
+  "required": [
+    "certificate_id", "certificate_type", "timestamp",
+    "certification_level", "epoch", "certification_results",
+    "certification_hash", "signature", "issued_at", "expires_at"
+  ],
+  "additionalProperties": false
+}

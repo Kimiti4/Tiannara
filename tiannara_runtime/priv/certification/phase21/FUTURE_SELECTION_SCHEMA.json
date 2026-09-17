@@ -1,0 +1,19 @@
+{
+  "schema": "FUTURE_SELECTION_SCHEMA",
+  "version": "21.10",
+  "description": "Schema for a future world selection event in the decision civilization",
+  "future_selection": {
+    "fields": {
+      "selection_id": {"type": "string", "required": true},
+      "decision_id": {"type": "string", "required": true},
+      "candidate_futures": {"type": "array", "required": true},
+      "selection_criteria": {"type": "array", "required": true},
+      "score_matrix": {"type": "object", "required": true},
+      "selected_future_id": {"type": "string", "required": true},
+      "selection_rationale": {"type": "string", "required": true},
+      "trade_off_documentation": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_driven", "deterministic", "multi_criteria"]
+  }
+}

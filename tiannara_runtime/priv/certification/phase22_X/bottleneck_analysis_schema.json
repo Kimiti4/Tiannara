@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BottleneckAnalysis",
+  "description": "Bottleneck analysis identifying and assessing civilization-scale scientific and engineering bottlenecks",
+  "type": "object",
+  "properties": {
+    "bottleneck_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this bottleneck analysis"
+    },
+    "bottleneck_type": {
+      "type": "string",
+      "enum": ["knowledge", "engineering", "resource", "coordination"],
+      "description": "Type of bottleneck"
+    },
+    "name": {
+      "type": "string",
+      "description": "Bottleneck name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the bottleneck"
+    },
+    "domains_affected": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Domains impacted by this bottleneck"
+    },
+    "severity": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Impact severity on scientific progress"
+    },
+    "urgency": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Urgency of resolution"
+    },
+    "causes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "cause_type": {
+            "type": "string",
+            "enum": ["fundamental", "resource", "coordination", "methodological", "infrastructural"]
+          },
+          "description": {
+            "type": "string"
+          },
+          "contributing_factors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["cause_type", "description"]
+      }
+    },
+    "resolution_options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "approach": {
+            "type": "string"
+          },
+          "estimated_effort": {
+            "type": "string"
+          },
+          "estimated_timeframe": {
+            "type": "string",
+            "enum": ["short_term", "medium_term", "long_term", "generational"]
+          },
+          "success_probability": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["approach", "estimated_effort", "estimated_timeframe"]
+      }
+    },
+    "recommended_priority": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Recommended priority level for resolution"
+    },
+    "detection_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of bottleneck detection"
+    },
+    "last_reassessment": {
+      "type": "integer",
+      "description": "Constitutional timestamp of last reassessment"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["bottleneck_id", "bottleneck_type", "name", "description", "domains_affected", "severity", "urgency", "resolution_options", "recommended_priority", "detection_date", "fingerprint"]
+}

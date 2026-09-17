@@ -1,0 +1,63 @@
+{
+  "schema": "EVOLUTION_ONTOLOGY",
+  "version": "20.1",
+  "objects": {
+    "EvolutionProposal": {
+      "fields": {
+        "proposal_id": {"type": "string"}, "originating_bottleneck": {"type": "string"},
+        "hypothesis": {"type": "string"}, "expected_improvement": {"type": "object"},
+        "affected_subsystems": {"type": "array"}, "status": {"type": "string"}
+      },
+      "lifecycle": ["draft", "validated", "approved", "experiment", "integrated", "archived"]
+    },
+    "BottleneckReport": {
+      "fields": {
+        "bottleneck_id": {"type": "string"}, "subsystem": {"type": "string"},
+        "severity": {"type": "number"}, "evidence": {"type": "object"},
+        "detected_by": {"type": "string"}, "proposed_priority": {"type": "integer"}
+      },
+      "lifecycle": ["detected", "verified", "accepted", "resolved", "archived"]
+    },
+    "ArchitectureCandidate": {
+      "fields": {
+        "candidate_id": {"type": "string"}, "proposal": {"type": "string"},
+        "architecture_description": {"type": "string"}, "assumptions": {"type": "array"},
+        "expected_metrics": {"type": "object"}, "benchmark_targets": {"type": "object"}
+      }
+    },
+    "BenchmarkCampaign": {
+      "fields": {
+        "campaign_id": {"type": "string"}, "candidate": {"type": "string"},
+        "benchmark_suite": {"type": "array"}, "measurements": {"type": "object"},
+        "status": {"type": "string"}
+      }
+    },
+    "RuntimeGeneration": {
+      "fields": {
+        "generation": {"type": "integer"}, "lineage": {"type": "array"},
+        "parent_generation": {"type": "integer"},
+        "integrated_extensions": {"type": "array"},
+        "retired_extensions": {"type": "array"},
+        "constitutional_hash": {"type": "string"}
+      }
+    },
+    "RollbackEvent": {
+      "fields": {
+        "rollback_id": {"type": "string"}, "generation": {"type": "integer"},
+        "trigger": {"type": "string"}, "metrics": {"type": "object"},
+        "restored_generation": {"type": "integer"}
+      }
+    },
+    "CivilizationSnapshot": {
+      "fields": {
+        "scientific_capital": {"type": "number"}, "discovery_rate": {"type": "number"},
+        "knowledge_growth": {"type": "number"}, "research_velocity": {"type": "number"},
+        "civilization_readiness": {"type": "number"}
+      }
+    }
+  },
+  "lifecycle_stages": ["draft", "validated", "replay_verified", "audited", "certified", "integrated", "observed", "archived"]
+}
+  "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"}
+}

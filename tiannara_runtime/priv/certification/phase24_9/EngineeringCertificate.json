@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_certificate.json",
+  "title": "EngineeringCertificate",
+  "description": "Certification attesting that a CCEIE entity meets constitutional engineering standards.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^ecert_[a-f0-9]{16}$" },
+    "entity_id": { "type": "string" },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "ecosystem_architecture", "technology", "ecosystem_participant",
+        "deployment", "operations_state", "evolution_transition",
+        "replay_system", "integration", "capability"
+      ]
+    },
+    "certification_type": {
+      "type": "string",
+      "enum": [
+        "architecture", "technology", "ecosystem", "deployment",
+        "operations", "evolution", "replay", "integration"
+      ]
+    },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "constitutional_alignment": { "type": "boolean" },
+        "determinism": { "type": "boolean" },
+        "traceability": { "type": "boolean" },
+        "replayability": { "type": "boolean" },
+        "civilizational_benefit_positive": { "type": "boolean" },
+        "security_compliance": { "type": "boolean" }
+      },
+      "required": ["constitutional_alignment", "determinism", "traceability", "replayability"]
+    },
+    "certifying_authority": { "type": "string" },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" },
+    "expires_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "entity_id", "entity_type", "certification_type", "checks", "fingerprint"]
+}

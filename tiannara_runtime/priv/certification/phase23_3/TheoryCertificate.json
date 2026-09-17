@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/theory_certificate.json",
+  "title": "TheoryCertificate",
+  "description": "Certification record for a theory, law, model, or framework attesting constitutional compliance.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^tcert_[a-f0-9]{16}$" },
+    "entity_id": { "type": "string" },
+    "entity_type": {
+      "type": "string",
+      "enum": ["theory", "law", "model", "framework"]
+    },
+    "certification_level": {
+      "type": "string",
+      "enum": ["draft", "provisional", "certified", "superseded", "retired"]
+    },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "evidence_integrity": { "type": "boolean" },
+        "assumption_completeness": { "type": "boolean" },
+        "contradiction_transparency": { "type": "boolean" },
+        "lineage_completeness": { "type": "boolean" },
+        "replayability": { "type": "boolean" },
+        "uncertainty_quantified": { "type": "boolean" },
+        "reproducibility": { "type": "boolean" },
+        "constitutional_compliance": { "type": "boolean" }
+      },
+      "required": ["evidence_integrity", "assumption_completeness", "contradiction_transparency", "constitutional_compliance"]
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" },
+    "engine_version": { "type": "string" }
+  },
+  "required": ["certificate_id", "entity_id", "entity_type", "certification_level", "checks", "fingerprint"]
+}

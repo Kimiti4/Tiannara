@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/cross_domain_principle.json",
+  "title": "CrossDomainPrinciple",
+  "description": "A generalized principle that applies across multiple scientific or engineering domains.",
+  "type": "object",
+  "properties": {
+    "principle_id": { "type": "string", "pattern": "^cdp_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "principle_type": {
+      "type": "string",
+      "enum": ["mathematical", "dynamical", "optimization", "control", "evolutionary", "information", "algorithmic", "causal", "general"]
+    },
+    "abstraction_level": {
+      "type": "string",
+      "enum": ["pattern", "law", "model", "meta_principle"]
+    },
+    "formal_statement": { "type": "string" },
+    "domain_instantiations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "domain": { "type": "string" },
+          "instantiation_id": { "type": "string" },
+          "mapping_description": { "type": "string" }
+        },
+        "required": ["domain", "instantiation_id"]
+      }
+    },
+    "supporting_evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "known_application_conditions": { "type": "array", "items": { "type": "string" } },
+    "known_failure_modes": { "type": "array", "items": { "type": "string" } },
+    "uncertainty": { "type": "number", "minimum": 0, "maximum": 1 },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["principle_id", "name", "principle_type", "formal_statement", "domain_instantiations", "fingerprint"]
+}

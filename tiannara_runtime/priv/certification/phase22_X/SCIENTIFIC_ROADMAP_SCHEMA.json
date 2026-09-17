@@ -1,0 +1,19 @@
+{
+  "schema": "SCIENTIFIC_ROADMAP_SCHEMA",
+  "version": "22.X.1",
+  "description": "Schema for a scientific research roadmap",
+  "scientific_roadmap": {
+    "fields": {
+      "roadmap_id": {"type": "string", "required": true},
+      "vision": {"type": "string", "required": true},
+      "horizon_years": {"type": "integer", "required": true},
+      "phases": {"type": "array", "required": true},
+      "milestones": {"type": "array", "required": true},
+      "critical_path": {"type": "array", "required": true},
+      "dependencies": {"type": "object", "required": true},
+      "uncertainty_bounds": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["horizon_appropriate", "deterministic", "replayable"]
+  }
+}

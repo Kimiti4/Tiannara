@@ -1,0 +1,49 @@
+# Move 11 — Epistemic Dependencies, Strategy Loop, and Research Portfolios
+# Strategy: UNKNOWN -> RESEARCH QUESTION -> DISCRIMINATING EVIDENCE ->
+# HYPOTHESIS UPDATE -> KNOWLEDGE INTEGRATION -> NEXT RESEARCH QUESTION.
+# Portfolios group questions; dependencies order them. Research Director
+# foundation: optimize uncertainty reduction and knowledge value, not counts.
+artifact: EPISTEMIC_DEPENDENCIES_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+strategy_loop:
+- UNKNOWN
+- RESEARCH QUESTION
+- DISCRIMINATING EVIDENCE
+- HYPOTHESIS UPDATE
+- KNOWLEDGE INTEGRATION
+- NEXT RESEARCH QUESTION
+portfolios:
+  RUNTIME_VALIDATION: [RQ-003, RQ-005, RQ-007]
+  GOVERNANCE_AUTHORITY: [RQ-002, RQ-010]
+  EVIDENCE_INTEGRITY: [RQ-001, RQ-004, RQ-009]
+  CAPABILITY_VALIDATION: [RQ-006, RQ-008]
+  ARCHITECTURAL_COHERENCE: [RQ-002, RQ-008]
+  MATHEMATICAL_FOUNDATION: []
+  SCIENTIFIC_DISCOVERY: []
+  SELF_ENGINEERING: []
+portfolio_note: "Empty portfolios (mathematical, discovery, self-engineering) are honestly empty: this program generated no evidence in those portfolios. They are placeholders for future authorized work, not claims."
+dependency_graph:
+- unknown: Regulator jurisdiction (Q-A2)
+  blocks: [E03 interpretation, bounded-chaos claims, stabilizer capability promotion]
+  note: Foundational — regulation questions gate all emergence claims
+- unknown: Certificate truth (CONTRA-003 / RQ-001)
+  blocks: [All certificate-content claims, corpus validation claims]
+  note: Foundational — nothing built on the corpus can exceed this uncertainty
+- unknown: Metrics blast radius (RQ-010)
+  blocks: [All KPI-derived claims]
+  note: Foundational — suspect metrics propagate silently
+- unknown: Evolution executability (RQ-003)
+  blocks: [CAP-010 promotion, stabilizer-experiment design]
+  note: Dependent on nothing else; directly testable under authorization
+- unknown: Record provenance (RQ-006 / RQ-009)
+  blocks: [Six UNKNOWN capabilities, audit-log attribution]
+  note: Mostly code-reference work; low cost, medium leverage
+foundational_ordering:
+- Resolve certificate truth before building on corpus claims
+- Resolve metrics blast radius before citing KPI-derived claims
+- Resolve regulator jurisdiction before interpreting emergence observations
+- Record-provenance work parallelizes freely (low coupling to the above)
+research_director_note: A future director optimizing uncertainty reduction would schedule RQ-001, RQ-004, RQ-010, RQ-002 first (foundational unknowns blocking the most downstream conclusions), not the cheapest questions first.

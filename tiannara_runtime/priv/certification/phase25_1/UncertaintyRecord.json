@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/uncertainty_record.json",
+  "title": "UncertaintyRecord",
+  "description": "An uncertainty record for a state value or domain.",
+  "type": "object",
+  "properties": {
+    "uncertainty_id": { "type": "string", "pattern": "^unc_[a-f0-9]{16}$" },
+    "domain": { "type": "string" },
+    "variable": { "type": "string" },
+    "region": { "type": "string" },
+    "point_estimate": {},
+    "confidence_interval": {
+      "type": "object",
+      "properties": {
+        "lower": {},
+        "upper": {},
+        "confidence_level": { "type": "number" }
+      }
+    },
+    "distribution_type": { "type": "string", "enum": ["normal", "lognormal", "uniform", "triangular", "beta", "empirical", "unknown"] },
+    "distribution_parameters": { "type": "object" },
+    "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "uncertainty_breakdown": {
+      "type": "object",
+      "properties": {
+        "measurement": { "type": "number" },
+        "sampling": { "type": "number" },
+        "model": { "type": "number" },
+        "structural": { "type": "number" },
+        "parameter": { "type": "number" },
+        "scenario": { "type": "number" },
+        "completeness": { "type": "number" },
+        "contradiction": { "type": "number" }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "recorded_at": { "type": "integer" }
+  },
+  "required": ["uncertainty_id", "domain", "variable", "point_estimate", "confidence_score", "fingerprint"]
+}

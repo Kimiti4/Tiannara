@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/observatory_state.json",
+  "title": "ObservatoryState",
+  "description": "A snapshot of the Constitutional Planetary Observatory state.",
+  "type": "object",
+  "properties": {
+    "state_id": { "type": "string", "pattern": "^obstate_[a-f0-9]{16}$" },
+    "panels": {
+      "type": "object",
+      "properties": {
+        "global_status": { "type": "object" },
+        "scientific_discovery": { "type": "object" },
+        "engineering": { "type": "object" },
+        "planetary_state": { "type": "object" },
+        "digital_twin": { "type": "object" },
+        "risk_intelligence": { "type": "object" },
+        "resource": { "type": "object" },
+        "civilization": { "type": "object" },
+        "discovery_challenge": { "type": "object" },
+        "knowledge_growth": { "type": "object" },
+        "theory_ecology": { "type": "object" },
+        "evolution": { "type": "object" },
+        "timeline": { "type": "object" }
+      }
+    },
+    "alerts_active": { "type": "integer" },
+    "alerts_by_level": { "type": "object" },
+    "observatory_health": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "snapshot_at": { "type": "integer" }
+  },
+  "required": ["state_id", "panels", "observatory_health", "fingerprint"]
+}

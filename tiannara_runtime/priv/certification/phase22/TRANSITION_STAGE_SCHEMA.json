@@ -1,0 +1,19 @@
+{
+  "schema": "TRANSITION_STAGE_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for a constitutional Kardashev transition stage definition",
+  "transition_stage": {
+    "fields": {
+      "stage_id": {"type": "string", "required": true},
+      "stage_level": {"type": "integer", "required": true, "enum": [0, 1, 2, 3]},
+      "stage_name": {"type": "string", "required": true},
+      "energy_threshold": {"type": "number", "required": true, "description": "Watts"},
+      "constitutional_requirements": {"type": "array", "required": true},
+      "capability_requirements": {"type": "object", "required": true},
+      "infrastructure_requirements": {"type": "object", "required": true},
+      "verification_criteria": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["constitutional", "deterministic", "verifiable"]
+  }
+}

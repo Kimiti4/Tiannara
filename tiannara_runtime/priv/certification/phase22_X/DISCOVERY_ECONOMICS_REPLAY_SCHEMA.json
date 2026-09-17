@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DiscoveryEconomicsReplay",
+  "description": "Deterministic replay verification record for the discovery economics system",
+  "type": "object",
+  "properties": {
+    "replay_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this replay verification"
+    },
+    "replay_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of replay"
+    },
+    "replay_scope": {
+      "type": "string",
+      "enum": ["single_allocation", "investment_decision", "resource_period", "full_economics"]
+    },
+    "operation_type": {
+      "type": "string",
+      "enum": ["allocation", "reallocation", "investment", "suspension", "emergency_redistribution", "return_estimation"]
+    },
+    "operation_reference": {
+      "type": "string",
+      "description": "Reference to the original operation record"
+    },
+    "original_state": {
+      "type": "object",
+      "properties": {
+        "state_id": {
+          "type": "string"
+        },
+        "state_hash": {
+          "type": "string"
+        }
+      },
+      "required": ["state_id", "state_hash"]
+    },
+    "replayed_state": {
+      "type": "object",
+      "properties": {
+        "state_id": {
+          "type": "string"
+        },
+        "state_hash": {
+          "type": "string"
+        }
+      },
+      "required": ["state_id", "state_hash"]
+    },
+    "hash_match": {
+      "type": "boolean",
+      "description": "Whether original and replayed hashes match"
+    },
+    "constraint_verification": {
+      "type": "object",
+      "properties": {
+        "all_constraints_satisfied": {
+          "type": "boolean"
+        },
+        "constitutional_minima_met": {
+          "type": "boolean"
+        },
+        "reserve_requirements_met": {
+          "type": "boolean"
+        }
+      },
+      "required": ["all_constraints_satisfied", "constitutional_minima_met", "reserve_requirements_met"]
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": ["verified", "hash_mismatch", "constraint_violation", "incomplete"]
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash of this replay record"
+    }
+  },
+  "required": ["replay_id", "replay_date", "replay_scope", "operation_reference", "original_state", "replayed_state", "hash_match", "verification_status", "fingerprint"]
+}

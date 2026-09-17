@@ -1,0 +1,61 @@
+{
+  "schema": "GENERATION_SCHEMA",
+  "version": "20.3",
+  "description": "Schema for EvolutionGeneration and related deployment objects",
+  "objects": {
+    "EvolutionGeneration": {
+      "fields": {
+        "generation": {"type": "integer", "required": true},
+        "parent_generation": {"type": "integer", "required": true},
+        "candidate": {"type": "string", "required": true},
+        "integrated_extensions": {"type": "array", "required": true},
+        "retired_extensions": {"type": "array", "required": true},
+        "constitutional_hash": {"type": "string", "required": true},
+        "replay_root": {"type": "string", "required": true},
+        "archaeology_root": {"type": "string", "required": true},
+        "evidence_root": {"type": "string", "required": true}
+      },
+      "lifecycle": ["draft", "validated", "frozen", "observed", "archived"]
+    },
+    "SandboxRun": {
+      "fields": {
+        "sandbox_id": {"type": "string", "required": true},
+        "candidate": {"type": "string", "required": true},
+        "metrics": {"type": "object", "required": true},
+        "simulation_comparison": {"type": "object", "required": true},
+        "status": {"type": "string", "required": true},
+        "duration": {"type": "integer", "required": true},
+        "replay_root": {"type": "string", "required": true}
+      },
+      "lifecycle": ["draft", "running", "validated", "passed", "failed", "archived"]
+    },
+    "CanaryRun": {
+      "fields": {
+        "canary_id": {"type": "string", "required": true},
+        "candidate": {"type": "string", "required": true},
+        "load_fraction": {"type": "number", "required": true},
+        "metrics": {"type": "object", "required": true},
+        "sandbox_comparison": {"type": "object", "required": true},
+        "status": {"type": "string", "required": true}
+      },
+      "lifecycle": ["draft", "running", "validated", "passed", "failed", "archived"]
+    },
+    "ProductionRun": {
+      "fields": {
+        "production_id": {"type": "string", "required": true},
+        "candidate": {"type": "string", "required": true},
+        "generation": {"type": "integer", "required": true},
+        "metrics": {"type": "object", "required": true},
+        "canary_comparison": {"type": "object", "required": true},
+        "status": {"type": "string", "required": true}
+      },
+      "lifecycle": ["draft", "running", "active", "frozen", "rolled_back", "archived"]
+    }
+  },
+  "constraints": [
+    "generations_are_monotonic",
+    "parent_must_exist",
+    "constitutional_hash_is_deterministic",
+    "all_deployment_stages_require_signoff"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "ARCHITECTURE_PROPOSAL_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for a comprehensive civilization architecture proposal",
+  "architecture_proposal": {
+    "fields": {
+      "proposal_id": {"type": "string", "required": true},
+      "vision_statement": {"type": "string", "required": true},
+      "requirements_satisfied": {"type": "array", "required": true},
+      "institution_architecture_hash": {"type": "string", "required": true},
+      "infrastructure_architecture_hash": {"type": "string", "required": true},
+      "capability_portfolio_hash": {"type": "string", "required": true},
+      "constitutional_alignment": {"type": "object", "required": true},
+      "evaluation_results": {"type": "object", "required": true},
+      "multi_century_roadmap": {"type": "object", "required": true},
+      "proposal_status": {"type": "string", "required": true, "enum": ["draft", "evaluated", "certified", "submitted", "approved", "rejected", "superseded"]},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["constitutional", "deterministic", "replayable"]
+  }
+}

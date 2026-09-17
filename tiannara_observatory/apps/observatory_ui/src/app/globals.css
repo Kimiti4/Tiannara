@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cyan-deep: #083344;
+  --color-cyan-bright: #00d9ff;
+  --color-cyan-glow: rgba(0, 217, 255, 0.3);
+  --color-slate-deep: #0a0e1a;
+  --color-slate-surface: #0f172a;
+  --color-slate-glass: rgba(15, 23, 42, 0.6);
+  --color-slate-border: rgba(0, 217, 255, 0.15);
+  --color-slate-border-hover: rgba(0, 217, 255, 0.4);
+  --color-slate-muted: #64748b;
+  --color-slate-text: #e2e8f0;
+  --color-slate-secondary: #94a3b8;
+  --color-emerald-bright: #00ff9f;
+  --color-amber-bright: #ffb800;
+  --color-rose-bright: #ff3366;
+  --color-violet-bright: #bd00ff;
+  --color-electric-blue: #00b8ff;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply antialiased;
+    font-family: var(--font-sans);
+    background: var(--color-slate-deep);
+    color: var(--color-slate-text);
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--color-cyan-glow);
+    color: var(--color-slate-text);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 217, 255, 0.3);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 217, 255, 0.5);
+  }
+}
+
+@utility glass {
+  background: var(--color-slate-glass);
+  border: 1px solid var(--color-slate-border);
+  backdrop-filter: blur(12px);
+}
+
+@utility glass-hover {
+  background: var(--color-slate-glass);
+  border: 1px solid var(--color-slate-border);
+  backdrop-filter: blur(12px);
+  transition: border-color 300ms ease, box-shadow 300ms ease;
+
+  &:hover {
+    border-color: var(--color-slate-border-hover);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@utility metric-value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

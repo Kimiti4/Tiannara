@@ -1,0 +1,24 @@
+{
+  "schema": "KNOWLEDGE_FRONTIER_SCHEMA",
+  "version": "21.2",
+  "description": "Schema representing the global knowledge frontier — the boundary between known and unknown",
+  "knowledge_frontier": {
+    "fields": {
+      "frontier_id": {"type": "string", "required": true, "description": "Content-addressed frontier snapshot identifier"},
+      "generation": {"type": "integer", "required": true},
+      "established_knowledge_hash": {"type": "string", "required": true},
+      "incomplete_knowledge": {"type": "array", "required": true},
+      "unresolved_questions": {"type": "array", "required": true},
+      "unknown_relationships": {"type": "array", "required": true},
+      "unknown_structures": {"type": "array", "required": true},
+      "unknown_laws": {"type": "array", "required": true},
+      "estimated_unknown_regions": {"type": "array", "required": false, "description": "Estimated regions of unknown unknowns"},
+      "frontier_size": {"type": "integer", "required": true, "description": "Total frontier elements"},
+      "frontier_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "frontier_layers": ["established_knowledge", "incomplete_knowledge", "unresolved_questions", "unknown_relationships", "unknown_structures", "unknown_laws", "unknown_unknowns"],
+    "constraints": ["evidence_derived", "deterministic_frontier", "replayable"]
+  }
+}

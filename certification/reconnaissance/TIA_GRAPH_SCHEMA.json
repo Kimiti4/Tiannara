@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.local/schemas/TIA_GRAPH_SCHEMA.json",
+  "$title": "TIA Graph Schema",
+  "title": "TIA Graph Schema",
+  "description": "Shape for graph outputs (modules, dependencies, calls, contracts, data flow, state flow, evidence). Unused in Move 0; shipped now so Move 3 archaeology can build graphs with stable shape.",
+  "definitions": {
+    "node_kind": {
+      "type": "string",
+      "enum": [
+        "module", "function", "test", "contract", "capability",
+        "data_store", "process", "subsystem", "external_dependency",
+        "file", "directory"
+      ]
+    },
+    "edge_kind": {
+      "type": "string",
+      "enum": [
+        "imports", "calls", "implements", "tests", "depends_on",
+        "produces", "consumes", "evidences", "supersedes", "duplicates"
+      ]
+    }
+  },
+  "type": "object",
+  "required": ["schema_version", "graph_id", "nodes", "edges"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "graph_id":       { "type": "string" },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "label"],
+        "properties": {
+          "id":        { "type": "string" },
+          "kind":      { "$ref": "#/definitions/node_kind" },
+          "label":     { "type": "string" },
+          "path":      { "type": "string" },
+          "metadata":  { "type": "object" }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "kind"],
+        "properties": {
+          "from":     { "type": "string" },
+          "to":       { "type": "string" },
+          "kind":     { "$ref": "#/definitions/edge_kind" },
+          "weight":   { "type": "number" },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

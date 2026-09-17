@@ -1,0 +1,20 @@
+{
+  "schema": "PROGRAM_ARCHAEOLOGY_SCHEMA",
+  "version": "22.X.1",
+  "description": "Schema for program governance archaeological reconstruction",
+  "program_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true},
+      "program_ids": {"type": "array", "required": true},
+      "question_set": {"type": "array", "required": true},
+      "origin_records": {"type": "object", "required": true},
+      "continuation_evidence": {"type": "object", "required": true},
+      "evolution_history": {"type": "object", "required": true},
+      "termination_analysis": {"type": "object", "required": false},
+      "principle_emergence": {"type": "object", "required": false},
+      "influence_tracking": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["comprehensive", "deterministic", "replayable"]
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "schema": "VERIFICATION_SCHEMA",
+  "version": "20.6",
+  "description": "Schema for VerificationReport — multi-dimension verification results",
+  "verification_report": {
+    "fields": {
+      "report_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "project": {"type": "string", "required": true, "description": "Reference to EngineeringProject"},
+      "structural": {
+        "type": "object", "required": true,
+        "fields": {
+          "passed": {"type": "boolean"},
+          "checks": {"type": "array"},
+          "failures": {"type": "array"},
+          "diagnostics": {"type": "array"}
+        }
+      },
+      "interface": {
+        "type": "object", "required": true,
+        "fields": {
+          "passed": {"type": "boolean"},
+          "checks": {"type": "array"},
+          "failures": {"type": "array"},
+          "diagnostics": {"type": "array"}
+        }
+      },
+      "protocol": {
+        "type": "object", "required": true,
+        "fields": {
+          "passed": {"type": "boolean"},
+          "checks": {"type": "array"},
+          "failures": {"type": "array"},
+          "diagnostics": {"type": "array"}
+        }
+      },
+      "mathematical": {
+        "type": "object", "required": true,
+        "fields": {
+          "passed": {"type": "boolean"},
+          "checks": {"type": "array"},
+          "failures": {"type": "array"},
+          "diagnostics": {"type": "array"}
+        }
+      },
+      "constitutional": {
+        "type": "object", "required": true,
+        "fields": {
+          "passed": {"type": "boolean"},
+          "checks": {"type": "array"},
+          "failures": {"type": "array"},
+          "diagnostics": {"type": "array"}
+        }
+      },
+      "replay": {
+        "type": "object", "required": true,
+        "fields": {
+          "passed": {"type": "boolean"},
+          "checks": {"type": "array"},
+          "failures": {"type": "array"},
+          "diagnostics": {"type": "array"}
+        }
+      },
+      "archaeology": {
+        "type": "object", "required": true,
+        "fields": {
+          "passed": {"type": "boolean"},
+          "checks": {"type": "array"},
+          "failures": {"type": "array"},
+          "diagnostics": {"type": "array"}
+        }
+      },
+      "overall": {"type": "string", "required": true, "description": "Pass/Fail"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "verification_dimensions": [
+      "structural", "interface", "protocol", "mathematical",
+      "constitutional", "replay", "archaeology"
+    ],
+    "constraints": [
+      "each_check_produces_deterministic_pass_fail",
+      "failed_checks_include_diagnostics",
+      "results_are_immutable_and_content_addressed",
+      "verification_supports_full_replay"
+    ]
+  }
+}

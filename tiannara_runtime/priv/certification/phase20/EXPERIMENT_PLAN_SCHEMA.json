@@ -1,0 +1,71 @@
+{
+  "schema": "EXPERIMENT_PLAN_SCHEMA",
+  "version": "20.7",
+  "description": "Schema for ExperimentPlan — complete experimental design",
+  "experiment_plan": {
+    "fields": {
+      "plan_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "proposal": {"type": "string", "required": true, "description": "Reference to ExperimentProposal"},
+      "variables": {
+        "type": "object", "required": true,
+        "fields": {
+          "independent": {
+            "type": "array",
+            "items": {"type": "object", "fields": {"name": {"type": "string"}, "levels": {"type": "array"}, "type": {"type": "string"}}}
+          },
+          "dependent": {
+            "type": "array",
+            "items": {"type": "object", "fields": {"name": {"type": "string"}, "measurement": {"type": "string"}, "unit": {"type": "string"}}}
+          },
+          "controlled": {"type": "array"},
+          "confounding": {"type": "array"}
+        }
+      },
+      "controls": {
+        "type": "object", "required": true,
+        "fields": {
+          "negative": {"type": "array"}, "positive": {"type": "array"},
+          "placebo": {"type": "array"}, "historical": {"type": "array"}
+        }
+      },
+      "sample_size": {
+        "type": "object", "required": true,
+        "fields": {
+          "minimum": {"type": "integer"}, "computed": {"type": "integer"},
+          "effect_size": {"type": "number"}, "power": {"type": "number"},
+          "significance": {"type": "number"}, "variability": {"type": "number"}
+        }
+      },
+      "statistical_requirements": {
+        "type": "object", "required": true,
+        "fields": {
+          "minimum_power": {"type": "number"}, "significance_threshold": {"type": "number"},
+          "effect_size_precision": {"type": "number"}, "confidence_interval": {"type": "number"},
+          "multiple_comparison_method": {"type": "string"}
+        }
+      },
+      "safety_limits": {
+        "type": "object", "required": true,
+        "fields": {
+          "resource_limit": {"type": "object"}, "time_limit": {"type": "integer"},
+          "scope_limit": {"type": "object"}, "risk_limit": {"type": "number"},
+          "containment_limit": {"type": "object"}
+        }
+      },
+      "resource_budgets": {"type": "object", "required": true},
+      "success_criteria": {"type": "array", "required": true},
+      "failure_criteria": {"type": "array", "required": true},
+      "statistical_plan": {"type": "object", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": [
+      "deterministic_variables",
+      "controls_specified_for_all_independent",
+      "sample_size_meets_power_requirements",
+      "safety_limits_defined_before_execution",
+      "resource_budgets_within_constitutional_bounds"
+    ]
+  }
+}

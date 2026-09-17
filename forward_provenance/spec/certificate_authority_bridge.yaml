@@ -1,0 +1,255 @@
+# Certificate Authority Bridge — spec v1.0 (Stage 6)
+
+spec_name: tiannara-fp-certificate-authority-bridge-v1
+version: 1.0.0
+authority: TiannaraOS.Provenance.CertificateAuthorityBridge (module
+  certificate_authority_bridge.ex)
+area: forward_provenance only
+stage: 6 (Council-authorized; Certificate State / Authority Integration)
+predecessor: Stages 1-5 (Identity Authority, Runtime Contract, Runtime
+  Instrumentation, Failure + Distributed Semantics, Metric Lineage)
+predecessor_specs:
+  - spec/canonicalization_spec.yaml
+  - spec/provenance_runtime_contract.yaml
+  - spec/metric_lineage.yaml
+
+## Governing invariant (normative)
+> Evidence can propose certificate state; only the existing Certificate
+> Authority can establish authoritative certificate state.
+
+Stage 6 builds the formally bounded bridge between verified forward-provenance
+evidence (Stages 1-5) and the existing certificate machinery. It does NOT
+create, replace, parallel, or silently extend an authority. It makes the
+authority boundary MACHINE-VISIBLE and makes unauthorized certification
+PROVABLY IMPOSSIBLE through the bridge.
+
+The layers never collapse:
+  PROVENANCE_VERIFIED /= CERTIFICATE_CANDIDATE /= CERTIFICATE_AUTHORIZED /=
+  CERTIFICATE_ACTIVE /= CERTIFICATE_REVOKED
+
+## Discovered authority (bounded, evidence-first reconnaissance)
+RECONNAISSANCE METHOD: read-only inventory of every certificate-related module
+across forward_provenance/, the repo root (:tiannara), and tiannara_runtime/.
+
+1. AUTHORING-AREA CERTIFICATE MACHINERY (in scope for the bridge):
+   - lib/certificate.ex  TiannaraOS.Provenance.Certificate.issue/1 — a PURE,
+     STATELESS identity/envelope generator. Decision vocabulary exists only as
+     a code comment ("certified" | "failed" | "contested"); it is NOT
+     validated or enforced (any string passes through verbatim). The "authority"
+     option is a passthrough string; nothing validates or decides it.
+     certificate_id = "cert_"<>hex(uuid) — NON-deterministic identity.
+     certificate_hash = the decision envelope payload_hash (deterministic).
+     Persistence: none of its own; the envelope is embedded in a bundle at
+     certificates/decision_recorded.json (lib/bundle.ex:50,66).
+     Callers: exactly one direct caller (lib/demo.ex:96) plus script/tests that
+     go through Demo.run/1. The bridge MUST NOT alter any of these.
+   - lib/verifier.ex  TiannaraOS.Provenance.Verifier.verify/1 — verifies a
+     bundle; the ONLY certificate-semantics checks are: the certificate
+     envelope binding metric.object_hash == metric-envelope binding, and the
+     presence of edge type "certificate_certifies_metric". It NEVER evaluates
+     the certificate decision, the authority string, or any certificate state.
+   - No certificate LEDGER/registry, no lifecycle, no revocation, no
+     supersession, no expiry, no Council/constitutional gate exists anywhere in
+     forward_provenance/ (exhaustive grep: revoke|suspended|expired|
+     certificate_state|certificate_ledger -> no matches).
+
+2. WIDER-REPO CERTIFICATE STACKS (READ; explicitly OUT of the Stage-6 authoring
+   area and OUT of the historical-firewall scope; recorded to surface conflicts):
+   - lib/tiannara/omega/certification_server.ex — IN-MEMORY GenServer cert
+     store with revoke/valid? (duplicated clauses); NO disk persistence.
+   - lib/tiannara/certification/certificate.ex + pipeline.ex + dimension.ex —
+     PURE certification verdicts gated by Constitution.Gate (:gate_open);
+     no state, no revoke.
+   - tiannara_runtime world_model pipeline/model_certification.ex +
+     model_registry.ex (ETS cert field + model status transition),
+     world_model/behaviours/certificate_issuer.ex (frozen behaviour with
+     revoke/2, ZERO implementations), omega/... many more.
+   - FINDING: no single authoritative certificate-STATE machine
+     (lifecycle + revocation + durable persistence + authorization) exists in
+     the repository. Semantics CONFLICT across the stacks (in-memory revoked
+     vs pure-verdict vs ETS-registry vs envelope-immutable). This is a
+     documented authority ambiguity, not authorization to redefine it.
+
+## §17 STOP conditions (evaluated against the discovered authority)
+Condition fired:  [x] authority policy missing
+                  [x] state transition rules ambiguous (envelope-only,
+                      immutable; no lifecycle)
+                  [x] revocation semantics undefined
+                  [x] certificate state semantics conflict across
+                      implementations
+Per the Council gate: mark the ambiguous rules UNKNOWN/BLOCKED, DO NOT CERTIFY,
+DO NOT patch around it, STOP and document. The bridge below therefore BLOCKS
+every path that requires an undefined authority predicate. This is the
+deliberate, safe design: the bridge proves the candidate mapping and the
+precondition gate, and makes issuance impossible unless the existing authority
+is later proven to define the missing policy (then-and-only-then may the
+existing Certificate.issue path be used by an AUTHORIZED integration).
+
+## Boundary (normative)
+  forward_provenance verified evidence
+        | candidate (/3, deterministic)
+        v
+  certificate candidate
+        | preconditions (/2, 13 checks, typed rejections)
+        v
+  candidate with all upstream evidence valid
+        | authority validation (/2, predicates incl. UNDEFINED-POLICY blocks)
+        v
+  authority decision (BLOCKED by default; CERTIFIED only if every predicate
+        is defined AND passes AND issuance stays on the existing
+        Certificate.issue path)
+        | authorized state transition
+        v
+  audit record (deterministic audit identity; no parallel audit authority)
+
+## Candidate contract (/3)
+candidate(lineage, bundle_id, authority_context)
+Inputs: a Stage-5 lineage map (MetricLineage.derive/1 output), a bundle_id
+(from export_bundle/2), and a caller-supplied authority_context map (e.g.
+requested_transition, actor). Candidate derivation is PURE and deterministic:
+identical (lineage, bundle_id, authority_context) -> identical candidate_id;
+different attempts -> distinct candidates.
+Candidate fields: candidate_spec, source_id, contract_id, execution_id,
+attempt, status, certifiable_terminal (bool), result_id, result_payload_hash,
+definition_id, metric_id, value, corpus_sha256, lineage_id, bundle_id,
+authority_context, candidate_id.
+candidate_id = sha256(canon %{candidate_spec, ordered identity spine, lineage_id,
+bundle_id, authority_context}). No timestamp, process, or randomness.
+Errors (typed): :invalid_lineage, :missing_lineage, :missing_bundle_id.
+
+## Preconditions (/2) — §6, 13 checks, each with an explicit status
+PC-01 source_present            SOURCE exists (identity object fields hash)
+PC-02 contract_present          CONTRACT exists (identity object fields hash)
+PC-03 execution_present         EXECUTION exists in the lineage
+PC-04 execution_registered      EXECUTION resolves in IdentityAuthority
+PC-05 execution_completed       status == "completed" (RuntimeContract certifiable?)
+PC-06 result_present            RESULT exists (result_id, payload_hash, bytes)
+PC-07 result_matches_execution  result.execution_id == execution.execution_id
+PC-08 metric_present            METRIC exists (identity object)
+PC-09 metric_matches_result     metric.result_id == result.result_id
+PC-10 lineage_verifies          MetricLineage.verify_lineage verdict ACCEPT
+PC-11 bundle_verifies           MetricLineage.verify_bundle verdict ACCEPT
+PC-12 bundle_untampered         all manifest file hashes verify (ACCEPT implies)
+PC-13 candidate_deterministic   candidate_id recomputes to the claimed value
+A FAIL is a typed rejection (see Failure vocabulary). Missing evidence is
+NEVER converted to a default. nil/unknown/missing/partial/failed/unverified
+are FAILs, not successes.
+
+## Authority validation (/2) — predicates, with UNDEFINED-POLICY handling
+Each predicate returns PASS | FAIL | BLOCKED (with reason). Where the existing
+authority defines no rule, the predicate is BLOCKED with reason
+authority_undefined/<item> and Certification is prevented.
+AV-01 candidate_validity     candidate well-formed + recomputable id (defined:
+                             enforced by PC-13; PASS)
+AV-02 lineage_validity       lineage verifies ACCEPT (defined; enforced)
+AV-03 certificate_uniqueness one immutable decision envelope per bundle by
+                             existing architecture (BOUNDED): if a
+                             certificates/decision_recorded.json already exists
+                             in the bundle -> BLOCKED certificate_conflict (no
+                             silent overwrite, no duplicate)
+AV-04 authority_eligibility  WHO may be certified / an authority decision ->
+                             NOT DEFINED in existing authority -> BLOCKED
+AV-05 state_transition_legality certificate STATE transitions (candidate ->
+                             active -> revoked): envelope-only, NO lifecycle ->
+                             BLOCKED
+AV-06 existing_certificate_conflict covered by AV-03 (BLOCKED if present)
+AV-07 revocation_conflict    revocation semantics undefined -> BLOCKED
+AV-08 supersession_rules     supersession undefined -> BLOCKED
+AV-09 authorization_requirements Council/constitutional authorization gate in
+                             the authoring-area authority: NONE -> BLOCKED
+                             (reason authorization_required)
+AV-10 constitutional_council_requirements none in authoring-area authority ->
+                             BLOCKED (reason constitutional_block)
+AV-03 is the ONLY predicate that can pass today. AV-01/02 pass structurally.
+All authority-policy predicates are BLOCKED in this stage's discovered state.
+
+## Verdict vocabulary (bridge output; §3 authority-map statuses)
+CERTIFIED, CERTIFIED_BOUNDED, QUALIFIED_PARTIAL, NOT_CERTIFIED, UNKNOWN, BLOCKED.
+- BLOCKED  whenever any authority predicate is BLOCKED or any precondition
+           FAILs with an authority-critical cause.
+- NOT_CERTIFIED on precondition FAIL (evidence incomplete/invalid).
+- UNKNOWN   on absent evidence that cannot even form a candidate.
+- QUALIFIED_PARTIAL for bundle-reconstructed evidence lacking source/contract
+           fields (PC-01/02 FAIL recorded; never upgraded to CERTIFIED).
+- CERTIFIED / CERTIFIED_BOUNDED are UNREACHABLE in this stage: reaching them
+           requires every authority predicate DEFINED and PASS plus official
+           issuance on the existing Certificate.issue path (an
+           authorization-integration step, not the bridge alone).
+
+## Idempotency
+evaluate/3 is a pure function over (lineage, bundle_dir, authority_context):
+repeated identical submissions produce identical verdict, block_reasons,
+candidate_id, and audit identity. No state is written; no duplicate certificate
+can be created BY the bridge because the bridge never writes certificates.
+transition/3 is SAFE-BLOCKED: it computes evaluate and returns {:blocked, ...};
+it can never produce a certificate while authorized_issuance? is false. When
+(and only when) the authority vector is fully defined and passing would the
+existing Certificate.issue/1 remain the single issuance entry point.
+
+## Failure vocabulary (typed; existing Stage-4/5 reasons reused where they exist)
+:missing_provenance, :invalid_lineage, :unverified_bundle, :incomplete_execution,
+:missing_execution, :metric_result_mismatch, :orphan_lineage,
+:invalid_candidate, :authority_rejected, :illegal_transition,
+:certificate_conflict, :duplicate_certificate, :revoked_certificate,
+:stale_state, :authorization_required, :constitutional_block,
+:missing_source, :missing_contract, :missing_result, :missing_metric,
+:candidate_identity_mismatch. Reasons are distinct and never collapsed.
+
+## Audit linkage
+Every decision carries a deterministic audit map: evaluated evidence ids
+(lineage_id, bundle_id, candidate_id), the applied rules (precondition +
+authority predicate statuses), the decision, before/after state (existing
+certificate absent/present in the bundle), the reason for accept/reject/block,
+and audit_identity = sha256(canon %{candidate_id, decision, block_reasons,
+evidence ids}). The authoring area has NO durable certificate audit store
+beyond the identity-authority ledger (execution-id only) and the bundle
+envelopes themselves; per §11 we do NOT create a parallel audit authority and
+record this as an open finding (audit durability for certificates = stage
+finding, not silently fabricated).
+
+## Authority map (A01..A12) summary — see module authority_map/0 for the table
+A01 Certificate Authority -> lib/certificate.ex Certificate.issue (stateless
+    identity generator; decision policy ABSENT)                 QUALIFIED_PARTIAL
+A02 Certificate State -> bundle certificates/decision_recorded.json only;
+    no registry/lifecycle                                       NOT_CERTIFIED
+A03 Certificate identity -> envelope payload_hash deterministic; cert_id uuid
+    (non-deterministic)                                         QUALIFIED_PARTIAL
+A04 Lifecycle/status -> comment-only, unvalidated; no lifecycle   NOT_CERTIFIED
+A05 Authority validation -> none (Verifier checks binding only)   NOT_CERTIFIED
+A06 Persistence -> bundle-embedded only; no durable ledger       QUALIFIED_PARTIAL
+A07 Revocation/invalidation -> none                               BLOCKED
+A08 Council/constitutional gate -> none in code (contract metadata only) BLOCKED
+A09 Certificate consumers -> Verifier, verify_demo.exs, adversarial/contract
+    tests; root DeploymentGateway is OUT of scope                 QUALIFIED_PARTIAL
+A10 Certificate verification -> Verifier binding + edge presence only QUALIFIED_PARTIAL
+A11 Provenance consumers -> MetricLineage.verify_bundle, scripts   QUALIFIED_PARTIAL
+A12 Audit/evidence records -> identity-authority ledger (execution-id), bundle
+    envelopes; NO certificate audit                               NOT_CERTIFIED
+Statuses use exactly the §3 vocabulary. NOTHING is inferred CERTIFIED from the
+absence of an error.
+
+## Test matrix contract
+Every Stage-6 check (positive/negative/replay/determinism + safety) contributes
+one machine-readable row: check_id, description, input, expected, actual,
+status (PASS | FAIL | BLOCKED | NOT_RUN), evidence, reason. No averaging; a
+composite PASS never hides a failed check. Stage-6 output decision is one of
+the Council vocabulary. NOT_RUN is never reported as PASS.
+
+## Firewall
+No modification to lib/certificate.ex, lib/verifier.ex, lib/demo.ex, or any
+pre-existing module. No commits/pushes. All new artifacts live under
+forward_provenance/ (this spec, lib/certificate_authority_bridge.ex,
+test/certificate_authority_bridge_test.exs, output/stage6_test_matrix.json).
+Root and tiannara_runtime certificate stacks are READ-ONLY evidence. T0 /
+CONTRA-003 / archived executions / historical certificates untouched.
+
+## Completion condition
+Demonstrated by executable tests: verified provenance -> deterministic
+candidate -> explicit authority validation -> (blocked where policy is
+undefined) -> auditable bridge decision, PLUS the inverse safety property:
+invalid/incomplete/tampered/unauthorized evidence -> NO authoritative
+certificate. Because the discovered authority does not define issuance
+eligibility, state transitions, revocation, supersession, or a
+Council/constitutional gate, the bridge's issuance path is provably blocked
+and the Stage result is a documented STOP (authority ambiguity), NOT an
+invented certification mechanism.

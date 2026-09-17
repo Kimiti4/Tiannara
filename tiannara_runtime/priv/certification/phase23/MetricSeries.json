@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MetricSeries",
+  "description": "A time series of metric data points",
+  "type": "object",
+  "properties": {
+    "series_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this series"
+    },
+    "metric_name": {
+      "type": "string",
+      "description": "Name of the metric"
+    },
+    "data_points": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/DataPoint"
+      },
+      "description": "Array of data points"
+    },
+    "aggregation": {
+      "type": "string",
+      "enum": ["raw", "per_second", "per_minute", "per_hour", "per_day"],
+      "description": "Aggregation level"
+    },
+    "start_timestamp": {
+      "type": "integer",
+      "description": "Start timestamp of series"
+    },
+    "end_timestamp": {
+      "type": "integer",
+      "description": "End timestamp of series"
+    }
+  },
+  "required": ["series_id", "metric_name", "data_points", "start_timestamp", "end_timestamp"],
+  "additionalProperties": false,
+  "definitions": {
+    "DataPoint": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "integer"
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": ["timestamp", "value"]
+    }
+  }
+}

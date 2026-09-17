@@ -1,0 +1,32 @@
+{
+  "schema": "FEDERATION_REPLAY_SCHEMA",
+  "version": "21.5",
+  "description": "Schema for federation replay — deterministic reconstruction of the research institute federation",
+  "federation_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true, "description": "Content-addressed replay identifier"},
+      "replay_type": {"type": "string", "required": true, "description": "FullFederation/InstituteLifecycle/Collaboration/PeerReview/DiscoveryExchange/Governance"},
+      "replay_generation": {"type": "integer", "required": true},
+      "step_hashes": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "step": {"type": "integer"}, "operation": {"type": "string"},
+            "input_hash": {"type": "string"}, "output_hash": {"type": "string"},
+            "step_hash": {"type": "string"}
+          }
+        }
+      },
+      "root_hash_original": {"type": "string", "required": true},
+      "root_hash_reconstructed": {"type": "string", "required": true},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "institutes_replayed": {"type": "integer", "required": true},
+      "collaborations_replayed": {"type": "integer", "required": true},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "replay_types": ["full_federation", "institute_lifecycle", "collaboration", "peer_review", "discovery_exchange", "governance"],
+    "constraints": ["deterministic_replay", "identical_hashes_required", "cold_storage_independent"]
+  }
+}

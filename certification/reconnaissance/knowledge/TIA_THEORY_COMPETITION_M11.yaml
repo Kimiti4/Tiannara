@@ -1,0 +1,38 @@
+# Move 11 — Theory Competition (what observation would distinguish them; no winners chosen)
+artifact: THEORY_COMPETITION_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+competitions:
+- question: Why do certificate.json and the gc_012 result disagree?
+  hypothesis_a: Distinct executions at different times (re-run variance)
+  hypothesis_b: Placeholder timestamp with transcription drift (single templated record, copied values drifted)
+  predictions_a: An execution record exists for at least one additional gc_012 run; values differ run to run
+  predictions_b: A template source exists; no second execution record exists
+  current_evidence: Neither (no execution records, no template source)
+  discriminating_observation: RQ-001 evidence (execution record or template source)
+- question: Which subsystem regulates (Stabilization vs CIS)?
+  hypothesis_a: Stabilization subsystem is the active regulator; CIS observes/predicts
+  hypothesis_b: CIS is the active regulator; stabilizers are actuators or dormant
+  predictions_a: Regulation actions attributable to stabilizer modules under load
+  predictions_b: Regulation actions attributable to CIS workers under load
+  current_evidence: Neither (both alive, both silent; zero cross-references)
+  discriminating_observation: RQ-002 evidence (one attributed action or boundary declaration)
+- question: Are the unreferenced records outputs, fixtures, or placeholders?
+  hypothesis_a: Outputs of unrecorded runs (K-011 pattern as run residue)
+  hypothesis_b: Fixtures/templates placed for development (never executed against)
+  predictions_a: Timestamps, run bindings, or generation tooling references exist somewhere in T0
+  predictions_b: Records are self-contained with no generation traces; possibly referenced by docs as examples
+  current_evidence: Neither (no generation traces found; fixture status unevidenced)
+  discriminating_observation: RQ-006 evidence (one producer reference decides presence of generation; its absence after exhaustive search supports fixture reading without proving it)
+- question: Is the metrics crash isolated or contaminating?
+  hypothesis_a: Isolated (nothing consumed the missing KPIs)
+  hypothesis_b: Contaminating (stale/absent metrics fed decisions or records)
+  predictions_a: No consumer of ExecutiveMetrics outputs exists in T0
+  predictions_b: At least one consumer exists; at least one record cites KPI values
+  current_evidence: Neither (consumer mapping not yet performed)
+  discriminating_observation: RQ-010 evidence (consumer map + citation check)
+aggregate:
+  competitions: 4
+  winners_chosen: 0

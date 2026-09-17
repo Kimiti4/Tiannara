@@ -1,0 +1,21 @@
+{
+  "schema": "PROGRAM_SUCCESSION_SCHEMA",
+  "version": "21.1",
+  "description": "Schema for program succession — deterministic evolution of a research program into its successor",
+  "program_succession": {
+    "fields": {
+      "succession_id": {"type": "string", "required": true, "description": "Content-addressed succession identifier"},
+      "predecessor_program": {"type": "string", "required": true},
+      "successor_program": {"type": "string", "required": true},
+      "succession_reason": {"type": "string", "required": true},
+      "inherited_knowledge": {"type": "array", "required": true, "description": "Knowledge artifacts inherited"},
+      "inherited_capital": {"type": "number", "required": true},
+      "inherited_archaeology_root": {"type": "string", "required": true},
+      "new_scope": {"type": "string", "required": true, "description": "How successor scope differs from predecessor"},
+      "archaeological_lineage": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["distinct_constitutional_entity", "inherits_archaeology", "deterministic_succession"]
+  }
+}

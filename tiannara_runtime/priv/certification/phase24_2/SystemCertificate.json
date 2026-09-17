@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/system_certificate.json",
+  "title": "SystemCertificate",
+  "description": "Certification attesting that a systems engineering artifact or process meets constitutional standards.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^scert_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "certification_type": { "type": "string", "enum": ["mission", "requirements", "architecture", "interface", "verification", "validation", "acceptance", "baseline"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "completeness": { "type": "boolean" },
+        "consistency": { "type": "boolean" },
+        "traceability": { "type": "boolean" },
+        "verification_coverage": { "type": "boolean" },
+        "validation_coverage": { "type": "boolean" },
+        "constitutional_alignment": { "type": "boolean" },
+        "safety_compliance": { "type": "boolean" },
+        "resilience_adequacy": { "type": "boolean" }
+      },
+      "required": ["completeness", "consistency", "traceability", "constitutional_alignment"]
+    },
+    "certifying_entity": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "artifact_id", "certification_type", "checks", "fingerprint"]
+}

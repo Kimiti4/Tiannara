@@ -1,0 +1,25 @@
+{
+  "schema": "MISSION_VALIDATION_SCHEMA",
+  "version": "21.3",
+  "description": "Schema for mission validation plans",
+  "mission_validation": {
+    "fields": {
+      "validation_id": {"type": "string", "required": true, "description": "Content-addressed validation plan identifier"},
+      "mission": {"type": "string", "required": true},
+      "validation_criteria": {"type": "array", "required": true},
+      "evidence_requirements": {"type": "array", "required": true},
+      "success_thresholds": {"type": "object", "required": true, "fields": {
+        "minimum_knowledge_gain": {"type": "number"},
+        "required_confidence": {"type": "number"},
+        "falsification_criteria": {"type": "array"}
+      }},
+      "failure_conditions": {"type": "array", "required": true},
+      "reproducibility_requirements": {"type": "array", "required": true},
+      "independent_audit_required": {"type": "boolean", "required": true},
+      "validation_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["objective", "measurable", "auditable", "deterministic"]
+  }
+}

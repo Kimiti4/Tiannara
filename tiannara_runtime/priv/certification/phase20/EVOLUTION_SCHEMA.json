@@ -1,0 +1,76 @@
+{
+  "schema": "EVOLUTION_SCHEMA",
+  "version": "20.3",
+  "description": "Schema for EvolutionOpportunity and base evolution data model",
+  "objects": {
+    "EvolutionOpportunity": {
+      "fields": {
+        "opportunity_id": {"type": "string", "required": true},
+        "origin": {"type": "string", "required": true},
+        "bottleneck": {"type": "string", "required": true},
+        "priority": {"type": "integer", "required": true},
+        "estimated_gain": {"type": "object", "required": true},
+        "created_at": {"type": "integer", "required": true},
+        "status": {"type": "string", "required": true}
+      },
+      "lifecycle": ["detected", "verified", "prioritized", "addressed", "archived"]
+    },
+    "BottleneckReport": {
+      "fields": {
+        "bottleneck_id": {"type": "string", "required": true},
+        "category": {"type": "string", "required": true},
+        "severity": {"type": "string", "required": true},
+        "impact": {"type": "object", "required": true},
+        "frequency": {"type": "string", "required": true},
+        "evidence": {"type": "array", "required": true},
+        "root_cause": {"type": "string", "required": true},
+        "historical_trends": {"type": "array", "required": false},
+        "confidence": {"type": "number", "required": true},
+        "expected_resolution_gain": {"type": "object", "required": true}
+      },
+      "lifecycle": ["detected", "verified", "accepted", "resolved", "archived"]
+    },
+    "ExperimentResult": {
+      "fields": {
+        "experiment_id": {"type": "string", "required": true},
+        "campaign": {"type": "string", "required": true},
+        "stage": {"type": "string", "required": true},
+        "simulation_artifacts": {"type": "object", "required": false},
+        "benchmark_results": {"type": "object", "required": false},
+        "stress_results": {"type": "object", "required": false},
+        "adversarial_results": {"type": "object", "required": false},
+        "long_horizon_results": {"type": "object", "required": false},
+        "evidence_root": {"type": "string", "required": true}
+      },
+      "lifecycle": ["draft", "validated", "audited", "archived"]
+    },
+    "EvolutionDecision": {
+      "fields": {
+        "decision_id": {"type": "string", "required": true},
+        "candidate": {"type": "string", "required": true},
+        "decision": {"type": "string", "required": true},
+        "rationale": {"type": "string", "required": true},
+        "evidence": {"type": "array", "required": true},
+        "authority": {"type": "string", "required": true},
+        "timestamp": {"type": "integer", "required": true}
+      },
+      "lifecycle": ["draft", "validated", "certified", "archived"]
+    },
+    "GenerationLineage": {
+      "fields": {
+        "lineage_id": {"type": "string", "required": true},
+        "generation": {"type": "integer", "required": true},
+        "ancestry": {"type": "array", "required": true},
+        "changes": {"type": "array", "required": true},
+        "bottlenecks_resolved": {"type": "array", "required": false},
+        "candidates_tried": {"type": "array", "required": false},
+        "decisions": {"type": "array", "required": false}
+      },
+      "lifecycle": ["draft", "validated", "archived"]
+    }
+  },
+  "lifecycle_stages": ["draft", "validated", "replay_verified", "audited", "certified", "integrated", "observed", "archived"]
+}
+  "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"}
+}

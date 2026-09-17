@@ -1,0 +1,22 @@
+{
+  "schema": "SCIENTIFIC_STRATEGY_SCHEMA",
+  "version": "21.7",
+  "description": "Schema for the civilization-scale scientific strategy at a given generation",
+  "scientific_strategy": {
+    "fields": {
+      "strategy_id": {"type": "string", "required": true, "description": "Content-addressed strategy identifier"},
+      "generation": {"type": "integer", "required": true},
+      "civilizational_vision_hash": {"type": "string", "required": true},
+      "strategic_objectives": {"type": "array", "required": true},
+      "active_roadmaps": {"type": "array", "required": true},
+      "trajectory_selections": {"type": "array", "required": true},
+      "priority_distribution": {"type": "object", "required": true},
+      "alignment_scores": {"type": "object", "required": true},
+      "strategy_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_derived", "deterministic", "replayable"]
+  }
+}

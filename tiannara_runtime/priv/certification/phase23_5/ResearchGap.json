@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/research_gap.json",
+  "title": "ResearchGap",
+  "description": "A gap in the scientific literature identified by the Research Gap Engine.",
+  "type": "object",
+  "properties": {
+    "gap_id": { "type": "string", "pattern": "^gap_[a-f0-9]{16}$" },
+    "gap_type": {
+      "type": "string",
+      "enum": ["missing_experiment", "untested_assumption", "isolated_discovery", "unexplored_domain", "cross_domain_opportunity", "knowledge_bottleneck", "methodological_gap", "replication_gap"]
+    },
+    "description": { "type": "string" },
+    "supporting_publication_ids": { "type": "array", "items": { "type": "string" } },
+    "supporting_claim_ids": { "type": "array", "items": { "type": "string" } },
+    "estimated_impact": { "type": "number", "minimum": 0, "maximum": 1 },
+    "status": { "type": "string", "enum": ["open", "in_progress", "filled", "superseded"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "identified_at": { "type": "integer" }
+  },
+  "required": ["gap_id", "gap_type", "description", "status", "fingerprint"]
+}

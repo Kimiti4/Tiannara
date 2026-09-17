@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExperimentPortfolio",
+  "description": "The complete portfolio of experiments across all research programs in the Autonomous Scientific Experiment Orchestrator",
+  "type": "object",
+  "properties": {
+    "portfolio_id": {
+      "type": "string",
+      "description": "Content-addressed unique identifier for this portfolio snapshot"
+    },
+    "epoch": {
+      "type": "integer",
+      "description": "Scheduling epoch this portfolio belongs to"
+    },
+    "experiments": {
+      "type": "object",
+      "description": "Experiments grouped by state",
+      "properties": {
+        "candidate": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Experiment IDs in candidate state"
+        },
+        "active": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Experiment IDs currently executing"
+        },
+        "scheduled": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Experiment IDs scheduled for execution"
+        },
+        "completed": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Experiment IDs successfully completed"
+        },
+        "failed": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Experiment IDs that failed"
+        },
+        "archived": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Experiment IDs archived for historical reference"
+        }
+      }
+    },
+    "programs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Research program IDs in this portfolio"
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Portfolio-level metrics",
+      "properties": {
+        "total_experiments": { "type": "integer" },
+        "active_ratio": { "type": "number" },
+        "completion_rate": { "type": "number" },
+        "success_rate": { "type": "number" },
+        "diversity_index": { "type": "number" }
+      }
+    },
+    "balance_score": {
+      "type": "number",
+      "description": "Portfolio balance score (0-1)"
+    },
+    "timestamp": { "type": "integer" },
+    "portfolio_hash": { "type": "string" }
+  },
+  "required": [
+    "portfolio_id", "epoch", "experiments",
+    "timestamp", "portfolio_hash"
+  ],
+  "additionalProperties": false
+}

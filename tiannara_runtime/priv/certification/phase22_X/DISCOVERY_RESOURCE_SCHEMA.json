@@ -1,0 +1,19 @@
+{
+  "schema": "DISCOVERY_RESOURCE_SCHEMA",
+  "version": "22.X.6",
+  "description": "Schema for a discovery resource type and its availability",
+  "discovery_resource": {
+    "fields": {
+      "resource_id": {"type": "string", "required": true},
+      "resource_type": {"type": "string", "required": true, "enum": ["compute", "simulation_time", "human_review", "engineering_capacity", "laboratory_time", "funding"]},
+      "total_available": {"type": "number", "required": true},
+      "allocated": {"type": "number", "required": true},
+      "remaining": {"type": "number", "required": true},
+      "scarcity_level": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "substitutable_by": {"type": "array", "required": false},
+      "allocation_history": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["scarce", "deterministic", "replayable"]
+  }
+}

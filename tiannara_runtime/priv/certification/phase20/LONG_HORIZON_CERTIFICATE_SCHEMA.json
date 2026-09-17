@@ -1,0 +1,32 @@
+{
+  "schema": "LONG_HORIZON_CERTIFICATE_SCHEMA",
+  "version": "20.97",
+  "description": "Schema for LongHorizonCertificate — certifies long-horizon constitutional stability across generations",
+  "long_horizon_certificate": {
+    "fields": {
+      "certificate_id": {"type": "string", "required": true, "description": "Content-addressed certificate identifier"},
+      "from_generation": {"type": "integer", "required": true},
+      "to_generation": {"type": "integer", "required": true},
+      "total_generations": {"type": "integer", "required": true},
+      "generation_history_root": {"type": "string", "required": true, "description": "Root hash of generation history chain"},
+      "metrics_root": {"type": "string", "required": true, "description": "Root hash of all metrics snapshots"},
+      "continuity_root": {"type": "string", "required": true, "description": "Root hash of continuity reports"},
+      "replay_root": {"type": "string", "required": true, "description": "Root hash of long-horizon replay"},
+      "certificate_hash": {"type": "string", "required": true},
+      "continuity_summary": {
+        "type": "object", "required": true,
+        "fields": {
+          "domains_continuous": {"type": "integer"}, "domains_drifted": {"type": "integer"},
+          "critical_drifts": {"type": "integer"}, "overall_continuity": {"type": "number"}
+        }
+      },
+      "civilizational_resilience_index": {"type": "number", "required": true, "description": "0.0–1.0 composite"},
+      "overall_verdict": {"type": "string", "required": true, "description": "Stable/DriftDetected/CriticalDrift"},
+      "issued_at": {"type": "integer", "required": true},
+      "expires_at": {"type": "integer", "required": false},
+      "status": {"type": "string", "required": true, "description": "Draft/UnderReview/Certified/Failed/Archived"}
+    },
+    "verdicts": ["stable", "drift_detected", "critical_drift"],
+    "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},`n  "constraints": ["evidence_based", "deterministic_verdict", "cross_generation", "replayable"]
+  }
+}

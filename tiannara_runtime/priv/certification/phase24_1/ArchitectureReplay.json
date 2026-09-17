@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/architecture_replay.json",
+  "title": "ArchitectureReplay",
+  "description": "A replay event recording a deterministic technology architecture operation.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^areplay_[a-f0-9]{16}$" },
+    "event_type": {
+      "type": "string",
+      "enum": ["technology_opportunity", "architecture_synthesis", "decomposition", "interface_definition", "evaluation", "comparison", "roadmap_creation", "evolution_decision", "readiness_assessment", "certification"]
+    },
+    "input_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "output_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "reasoning_chain": { "type": "array", "items": { "type": "string" } },
+    "alternatives_considered": { "type": "array", "items": { "type": "string" } },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshots", "output_snapshots", "content_hash"]
+}

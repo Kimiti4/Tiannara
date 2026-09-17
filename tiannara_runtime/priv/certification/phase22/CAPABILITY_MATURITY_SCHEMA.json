@@ -1,0 +1,21 @@
+{
+  "schema": "CAPABILITY_MATURITY_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for a capability maturity assessment",
+  "capability_maturity": {
+    "fields": {
+      "assessment_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "domain": {"type": "string", "required": true, "enum": ["scientific_discovery", "engineering", "automation", "robotics", "artificial_intelligence", "education", "medicine", "governance", "infrastructure", "manufacturing", "energy", "space_technology", "resource_management", "environmental_sustainability"]},
+      "current_level": {"type": "integer", "required": true, "description": "0–5"},
+      "target_level": {"type": "integer", "required": true, "description": "0–5"},
+      "level_score": {"type": "number", "required": true, "description": "0.0–5.0"},
+      "dependencies": {"type": "array", "required": true},
+      "required_research": {"type": "array", "required": false},
+      "required_engineering": {"type": "array", "required": false},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "evidence_based", "replayable"]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Observation",
+  "description": "A scientific observation collected by the Observation Engine from any available source",
+  "type": "object",
+  "properties": {
+    "observation_id": { "type": "string" },
+    "source": {
+      "type": "string",
+      "enum": ["runtime", "experiment", "planetary", "engineering", "external", "literature", "contradiction", "unknown"]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["measurement", "event", "state_change", "anomaly", "pattern", "contradiction"]
+    },
+    "data": { "type": "object" },
+    "certainty": {
+      "type": "string",
+      "enum": ["confirmed", "suspected", "ambiguous", "unknown"]
+    },
+    "novelty": {
+      "type": "string",
+      "enum": ["expected", "unexpected", "surprising", "contradictory"]
+    },
+    "relevance": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "unknown"]
+    },
+    "timestamp": { "type": "integer" },
+    "hash": { "type": "string" },
+    "previous_observation_id": { "type": ["string", "null"] }
+  },
+  "required": ["observation_id", "source", "type", "data", "timestamp", "hash"],
+  "additionalProperties": false
+}

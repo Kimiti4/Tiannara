@@ -1,0 +1,34 @@
+{
+  "schema": "COLLABORATION_NETWORK_SCHEMA",
+  "version": "21.6",
+  "description": "Schema for the inter-institute collaboration network state",
+  "collaboration_network": {
+    "fields": {
+      "network_id": {"type": "string", "required": true, "description": "Content-addressed network state identifier"},
+      "generation": {"type": "integer", "required": true},
+      "nodes": {"type": "array", "required": true, "items": {"type": "string"}, "description": "Institute IDs"},
+      "edges": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "source": {"type": "string"}, "target": {"type": "string"},
+            "strength": {"type": "number"}, "type": {"type": "string"},
+            "joint_discoveries": {"type": "integer"}, "formed_generation": {"type": "integer"}
+          }
+        }
+      },
+      "metrics": {
+        "type": "object", "required": true,
+        "fields": {
+          "density": {"type": "number"}, "clustering_coefficient": {"type": "number"},
+          "average_strength": {"type": "number"}, "cross_domain_ratio": {"type": "number"}
+        }
+      },
+      "network_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "replayable", "complete"]
+  }
+}

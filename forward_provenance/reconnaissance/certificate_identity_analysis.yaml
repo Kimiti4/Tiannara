@@ -1,0 +1,100 @@
+artifact: certificate_identity_analysis
+stage: 7 (Certificate Authority Reconciliation)
+authority: TIA Council
+posture: RECONNAISSANCE / ANALYSIS ONLY
+recorded_at: 2026-09-10
+upstream: certificate_authority_inventory (CAND-A .. CAND-G)
+
+summary:
+  question: Q3 — What constitutes a certificate's identity across stacks, and is any of
+    them canonical/recomputable?
+  answer: Three different identity conventions coexist; none is canonical; only the
+    forward-area BRIDGE candidate_id is deterministic and recomputable from evidence. All
+    three issuer APIs produce non-deterministic ids (uuid / utc_now timestamp / random
+    bytes) or no id at all. A canonical certificate identity must, under the existing
+    policy draft, be re-derivable from the evidence chain - the bridge's sha256-of-
+    canonical-spec+spine is the only engineered mechanism with that property.
+
+identity_models:
+  - id: ID-M0
+    stack: root certification
+    shape: struct {subsystem, verdict, invariant_verdict, failed_invariants,
+      functional_gates, issued_at, reason}
+    id_field: NONE (no certificate_id; identity = subsystem-scoped timestamped verdict)
+    hash: NONE
+    recomputable: NO (issued_at = now)
+    verdict: root certificates are not independently addressable/recomputable.
+
+  - id: ID-M1
+    stack: root omega
+    shape: pipeline-evaluated map {id, ..., revoked, ...} (in-memory, GenServer state)
+    id_field: id (present; keyed by match in revoke; ephemeral)
+    hash: NONE evidenced
+    recomputable: NO (in-memory; duplicated revoke clauses at
+      lib/tiannara/omega/certification_server.ex:77-120)
+    verdict: ephemeral, non-durable identity.
+
+  - id: ID-M2
+    stack: runtime world_model
+    shape: ModelCertificate struct (certificate_id, model_id, model_version,
+      certification_type, checks, overall_status, fingerprint, issued_at, issued_by,
+      supersedes)
+    id_field: certificate_id (per-domain pattern or base16 random)
+    hash: fingerprint field (self-asserted; base64/blob semantics per schema)
+    recomputable: NO (strong_rand_bytes id; issued_at = now)
+    supersession: supersedes field supports replacement chains
+    verdict: richest identity schema; still not canonical or deterministic.
+
+  - id: ID-M3
+    stack: runtime phase schemas (~40 domain cert JSON schemas)
+    shape: per-domain certificate objects with per-domain id patterns (acert_, ecert_,
+      icert_, ocert_, scert_, dcert_, rcert_, tcert_, ccert_, lcert_, txcert_, mcert_,
+      pcert_, recert_, obcert_, dccert_, fscert_)
+    id_field: certificate_id with per-domain regex pattern
+    hash: fingerprint/checks
+    recomputable: domain-specific; not unified
+    verdict: heterogeneous, non-unified ids.
+
+  - id: ID-M4
+    stack: forward Certificate.issue/1
+    shape: certificate map {certificate_id, decision, reason, authority, envelope,
+      evidence_bindings, certificate_hash}
+    id_field: certificate_id = "cert_" <> uuid (non-deterministic)
+    hash: certificate_hash = envelope payload_hash (recomputable from envelope bytes)
+    recomputable: PARTIAL — hash yes; id no (uuid). envelope carries issuance_spec
+      "tiannara-fp-cert-v1".
+    defect: certificate id is random despite the envelope being deterministic in content.
+
+  - id: ID-M5
+    stack: forward CertificateAuthorityBridge
+    shape: candidate/certificate candidate map keyed by deterministic candidate_id
+    id_field: candidate_id = Canon.sha256(%{"candidate_id_spec" => @candidate_spec,
+      "spine" => spine}) — deterministic, replay-identical across actors/bundles
+    hash: sha256 of canonical-spec + evidence spine
+    recomputable: YES (B2/B3 test: same evidence+context -> same candidate_id)
+    verdict: the ONLY deterministic, recomputable certificate-candidate identity in the
+      repo; used by the bridge for evaluation only (never issued).
+
+canonical_identity_requirements (from policy draft, analysis only):
+  - "A canonical certificate identity must be re-derivable from its evidence chain."
+  - "Issuer-side identity must not embed random/uuid endpoints (defeats replay).
+     The bridge's deterministic sha256(candidate_id_spec, spine) satisfies this; the
+     three issuer APIs do not."
+  - "Certificate identity and certificate hash must be separated from authority: the
+     policy (TIA_PROVENANCE_CERTIFICATION_POLICY.yaml) mandates 'hashes verify bytes;
+     certificate chains carry authority; the two are never conflated'."
+
+binding_observations:
+  - "Historical certificates (CONTRA-003 class) carry self-asserted inline values and
+     self-named authorities; fingerprint/hash binding to execution was NOT established
+     (certification/reconnaissance/knowledge/TIA_BINDING_INVESTIGATION_STOP.yaml)."
+  - "The gc_012 disagreement (0.8035/0.8041/0.7864) is a content disagreement between
+     intact-but-non-identical records — identity divergence, distinct-executions
+     hypothesis vs transcription-drift, UNRESOLVED (CONTRA-003)."
+
+verdict:
+  Q3: No canonical certificate identity exists. The engine room that WOULD produce one —
+      a deterministic, evidence-derived identity — exists only as the bridge's candidate_id
+      in the authoring area. Enacting it as the identity for an ACCEPTED authority remains
+      gated on policy acceptance + M7 + Council; Stage 7 records this, does not enact it.
+  NOTHING_IMPLEMENTED: true.

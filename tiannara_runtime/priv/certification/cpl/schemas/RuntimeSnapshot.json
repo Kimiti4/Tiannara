@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RuntimeSnapshot",
+  "description": "A complete point-in-time snapshot of Tiannara's state across all domains",
+  "type": "object",
+  "properties": {
+    "snapshot_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this snapshot"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of snapshot creation"
+    },
+    "domains": {
+      "type": "object",
+      "properties": {
+        "runtime_state": {
+          "$ref": "#/definitions/Checkpoint"
+        },
+        "knowledge_graph": {
+          "$ref": "#/definitions/Checkpoint"
+        },
+        "ontology": {
+          "$ref": "#/definitions/Checkpoint"
+        },
+        "experiments": {
+          "$ref": "#/definitions/Checkpoint"
+        },
+        "evolution": {
+          "$ref": "#/definitions/Checkpoint"
+        },
+        "certification": {
+          "$ref": "#/definitions/Checkpoint"
+        },
+        "replay_position": {
+          "$ref": "#/definitions/Checkpoint"
+        },
+        "archaeology_position": {
+          "$ref": "#/definitions/Checkpoint"
+        },
+        "observatory_state": {
+          "$ref": "#/definitions/Checkpoint"
+        }
+      },
+      "required": ["runtime_state", "knowledge_graph", "ontology", "experiments", "evolution", "certification", "replay_position", "archaeology_position", "observatory_state"]
+    },
+    "state_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the complete snapshot state"
+    },
+    "previous_snapshot_id": {
+      "type": "string",
+      "description": "ID of the previous snapshot"
+    },
+    "size_bytes": {
+      "type": "integer",
+      "description": "Size of the snapshot in bytes"
+    },
+    "compression_ratio": {
+      "type": "number",
+      "description": "Compression ratio applied to the snapshot"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": ["verified", "unverified"],
+      "description": "Verification status of the snapshot"
+    }
+  },
+  "required": ["snapshot_id", "timestamp", "domains", "state_hash", "size_bytes", "verification_status"],
+  "additionalProperties": false,
+  "definitions": {
+    "Checkpoint": {
+      "type": "object",
+      "properties": {
+        "checkpoint_id": {
+          "type": "string"
+        },
+        "state_hash": {
+          "type": "string"
+        }
+      },
+      "required": ["checkpoint_id", "state_hash"]
+    }
+  }
+}

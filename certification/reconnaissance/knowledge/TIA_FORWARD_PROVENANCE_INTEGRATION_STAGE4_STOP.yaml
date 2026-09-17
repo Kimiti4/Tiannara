@@ -1,0 +1,111 @@
+# Stage 4 — Failure + Distributed Semantics — STOP Record
+
+artifact: TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE4_STOP
+version: 1.0.0
+authority: TIA Council
+status: AWAITING AUTHORIZATION FOR STAGE 5
+stage: 4 (Failure + Distributed Semantics)
+implementation_plan: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_IMPL_PLAN.yaml
+gate: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STOP.yaml
+recorded_at: 2026-09-10
+
+## Stage 4 Status
+- STATUS: COMPLETE
+- SCOPE: EXACTLY the Council-authorization: failure vocabulary + distributed
+  execution semantics (gate items 13/14, impl-plan item 3/49). NOT a cleanup
+  pass; certificate authority/state untouched (Stage 6); full K-T adversarial
+  integration deferred to Stage 7 as binding.
+- FAILURE VOCABULARY (test M): terminal states now
+  completed|failed|partial|timed_out|cancelled|aborted|unknown; one-to-one
+  verdicts SUCCESS/FAILURE/PARTIAL/TIMEOUT/CANCELLED/ABORTED/UNKNOWN.
+  ONLY completed is certifiable; every other terminal - including UNKNOWN - is
+  NOT CERTIFIABLE and is never silently upgraded (a late "completed" on a closed
+  execution is a CLOSED ATTEMPT).
+- UNKNOWN is a legal, once-only terminal: recordable, NOT CERTIFIABLE, closes
+  the lifecycle. A status outside the terminal set maps to UNKNOWN and is never
+  a legal verdict/terminal.
+- DISTRIBUTED (test P): optional parent_execution_id on start/terminal events,
+  recorded verbatim; PARENT_OF edge created ONLY when the parent resolves in the
+  identity authority. Unresolvable parent -> UNVERIFIED, NEVER auto-attributed
+  (no fabricated/guessed/silent linkage). No declared parent -> ROOT execution,
+  not an orphan.
+- DISTRIBUTED DURABILITY: IdentityAuthority.restart/1 (node reboot) replays the
+  shared ledger; a parent minted on node A resolves on node B after replay.
+- LIFECYCLE: still caller-owned/PURE; portable across processes (holder-agnostic).
+- ROOT / OPC RUNTIMES: NOT touched in this stage (Stage-3 seams unchanged;
+  contract-level pre-integration only, exactly as the binding stage order does
+  for integration tests in Stage 7).
+
+## Delivered (all inside forward_provenance/, the authoring area)
+- forward_provenance/lib/runtime_contract.ex
+    * @terminal_states extended to
+      completed|failed|partial|timed_out|cancelled|aborted|unknown
+    * failure_verdict/1  terminal -> SUCCESS/FAILURE/PARTIAL/TIMEOUT/CANCELLED/
+      ABORTED/UNKNOWN (unknown only for out-of-vocabulary input)
+    * certifiable?/1     only completed (all failure terminals NOT CERTIFIABLE)
+    * parent_edge/1      registered parent -> {:ok, PARENT_OF edge};
+                         unregistered parent -> {:error, :unresolved_parent, ctx};
+                         no parent -> {:error, :no_parent, ctx}; NO fabrication
+    * distributed_verdict/1  parent_resolved | UNVERIFIED (unresolved_parent) |
+                             root (no parent)
+    * to_parent_edge_envelope/2  immutable edge_created envelope for the edge
+    * to_record/2        passes parent_execution_id through
+    * to_envelopes/1     body carries parent_execution_id
+    * moduledoc + spec/0 advertise the Stage-4 vocabulary and distributed map
+- forward_provenance/lib/producer.ex
+    * timeout/4 -> timed_out, cancel/4 -> cancelled, abort/4 -> aborted,
+      unknown/4 -> unknown (same signature/violation discipline as complete/fail/partial)
+    * begin/3 accepts %{"parent_execution_id" => parent_id} via fields passthrough
+- forward_provenance/lib/identity_authority.ex
+    * restart/1  node-reboot semantics: destroy registry, replay ledger
+      (durable cross-node source of truth for distributed PARENT_OF resolution)
+- forward_provenance/lib/graph.ex  PARENT_OF added to @edge_types
+- forward_provenance/spec/provenance_runtime_contract.yaml  version 1.1.0:
+  v1 lifecycle, failure vocabulary, not-certifiable rule, distributed semantics,
+  node-restart durability
+
+## Test M + P acceptance (contract-level, pre-integration; Stage 4 semantics)
+- test M: partial execution records its partial outputs, verdict PARTIAL,
+  certifiable? false, and emits only execution envelopes (no certifiable
+  artifact). UNKNOWN status holds the same NOT CERTIFIABLE property.
+- test P (orphan): declared parent never registered anywhere -> parent_edge
+  {:error, :unresolved_parent, ctx}; distributed_verdict UNVERIFIED; explicit
+  assertion that NO PARENT_OF edge exists for the orphan chain (auto-attribution
+  is impossible).
+- test P (local): declared parent minted on node A resolves on node B after
+  IdentityAuthority.restart/1 replay -> {:ok, PARENT_OF edge} from parent to
+  child; edge_created envelope emitted.
+- distributed holder: lifecycle handed to a second process closes identically
+  (PURE contract, caller-owned); a third process sees a closed attempt.
+- L: retry AFTER a Stage-4 terminal (aborted) is a NEW execution id (DISTINCT).
+- verify_series: folds the Stage-4 vocabulary and still returns the FIRST
+  violation (closed_attempt after a timed_out terminal).
+
+## Verification
+- forward_provenance suite: 54 tests, 0 failures (44 prior + 10 new Stage-4)
+- compile: forward_provenance clean, no warnings attributable to Stage 4; root
+  and tiannara_runtime recompile the updated dep with only the pre-existing
+  warning set; no runtime behavior change in either seam
+
+## T0 Porcelain Accounting (Stage-4 tracked delta: ZERO)
+- before Stage 4: 3379 porcelain lines (Stage-3 STOP)
+- after Stage 4:  3379 porcelain lines (unchanged)
+- NO tracked file modified, NO new tracked file, NO index operation, NO commit,
+  NO push. Every Stage-4 change lives under forward_provenance/ (one untracked
+  collapsed porcelain line since Stage 1) and forward_provenance/test/.
+- stray authoring artifact forward_provenance/probe_stage3.exs (a leftover
+  probe file, no provenance value) removed; forward_provenance/ stays collapsed
+  to its single untracked line.
+- environmental artifacts from Stage-3 boots (council_audit_log.dets.corrupted.*,
+  cel_event_store.dets.corrupt.*) still present and untouched, as authorized.
+
+## Historical Firewall (unchanged)
+- Forbidden: any statement that the new provenance system has now verified a
+  historical artifact. Stage 4 inferred no historical provenance; T0 / CONTRA-003 /
+  archived runs / certificates untouched.
+
+## Bound Dependency Chain (do not advance without authorization)
+5. Metric Lineage
+6. Certificate State / Authority
+7. K-T Adversarial Integration
+8. Independent Verification

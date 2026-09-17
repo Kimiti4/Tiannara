@@ -1,0 +1,26 @@
+{
+  "schema": "READINESS_PROFILE_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for a readiness evaluation profile",
+  "readiness_profile": {
+    "fields": {
+      "evaluation_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "target_stage": {"type": "integer", "required": true, "enum": [0, 1, 2, 3]},
+      "scientific_readiness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "engineering_readiness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "institutional_readiness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "infrastructure_readiness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "governance_readiness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "economic_readiness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "educational_readiness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "environmental_readiness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "technological_readiness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "overall_readiness_distribution": {"type": "object", "required": true},
+      "critical_gaps": {"type": "array", "required": true},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["probabilistic", "deterministic", "replayable"]
+  }
+}

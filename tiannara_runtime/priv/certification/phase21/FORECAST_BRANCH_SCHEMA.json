@@ -1,0 +1,20 @@
+{
+  "schema": "FORECAST_BRANCH_SCHEMA",
+  "version": "21.9",
+  "description": "Schema for a branch creation event in multi-world forecasting",
+  "forecast_branch": {
+    "fields": {
+      "branch_id": {"type": "string", "required": true},
+      "parent_future_id": {"type": "string", "required": true},
+      "child_future_id": {"type": "string", "required": true},
+      "branch_cause": {"type": "string", "required": true},
+      "branch_generation": {"type": "integer", "required": true},
+      "divergence_point": {"type": "string", "required": true},
+      "branch_rationale": {"type": "string", "required": true},
+      "evidence_reference": {"type": "string", "required": true},
+      "complete_lineage": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_triggered", "deterministic", "lineage_preserved", "immutable"]
+  }
+}

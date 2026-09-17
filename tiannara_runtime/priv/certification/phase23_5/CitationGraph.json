@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/citation_graph.json",
+  "title": "CitationGraph",
+  "description": "A citation edge in the constitutional citation graph, with type, context, and influence metadata.",
+  "type": "object",
+  "properties": {
+    "citation_id": { "type": "string", "pattern": "^cite_[a-f0-9]{16}$" },
+    "citing_publication_id": { "type": "string" },
+    "cited_publication_id": { "type": "string" },
+    "citation_type": {
+      "type": "string",
+      "enum": ["direct", "methodological", "foundational", "comparative", "contradictory", "supportive"]
+    },
+    "context": { "type": "string" },
+    "strength": { "type": "number", "minimum": 0, "maximum": 1 },
+    "citation_community_ids": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "recorded_at": { "type": "integer" }
+  },
+  "required": ["citation_id", "citing_publication_id", "cited_publication_id", "fingerprint"]
+}

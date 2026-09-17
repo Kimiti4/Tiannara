@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OntologyArchaeology",
+  "description": "Archaeological record reconstructing the complete semantic evolution history of the universal ontology",
+  "type": "object",
+  "properties": {
+    "archaeology_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this archaeology record"
+    },
+    "ontology_period": {
+      "type": "object",
+      "properties": {
+        "start_version": {
+          "type": "string"
+        },
+        "end_version": {
+          "type": "string"
+        }
+      },
+      "required": ["start_version", "end_version"]
+    },
+    "archaeology_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of archaeology analysis"
+    },
+    "concept_histories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "concept_id": {
+            "type": "string"
+          },
+          "concept_name": {
+            "type": "string"
+          },
+          "introduction_reason": {
+            "type": "string"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "change_id": {
+                  "type": "string"
+                },
+                "change_type": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "integer"
+                },
+                "rationale": {
+                  "type": "string"
+                }
+              },
+              "required": ["change_id", "change_type", "date"]
+            }
+          }
+        },
+        "required": ["concept_id", "concept_name", "introduction_reason"]
+      }
+    },
+    "merge_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "merge_id": {
+            "type": "string"
+          },
+          "source_concepts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "unified_concept": {
+            "type": "string"
+          },
+          "convergence_reason": {
+            "type": "string"
+          }
+        },
+        "required": ["merge_id", "source_concepts", "unified_concept", "convergence_reason"]
+      }
+    },
+    "split_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "split_id": {
+            "type": "string"
+          },
+          "parent_concept": {
+            "type": "string"
+          },
+          "descendant_concepts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "divergence_reason": {
+            "type": "string"
+          }
+        },
+        "required": ["split_id", "parent_concept", "descendant_concepts", "divergence_reason"]
+      }
+    },
+    "evolution_drivers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "discovery_reference": {
+            "type": "string"
+          },
+          "impact_description": {
+            "type": "string"
+          },
+          "affected_concepts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["discovery_reference", "impact_description"]
+      }
+    },
+    "semantic_trajectory": {
+      "type": "string",
+      "description": "Narrative of how semantic understanding evolved"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["archaeology_id", "ontology_period", "archaeology_date", "concept_histories", "evolution_drivers", "fingerprint"]
+}

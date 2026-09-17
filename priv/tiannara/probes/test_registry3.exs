@@ -1,0 +1,6 @@
+{:ok, _} = Application.ensure_all_started(:tiannara)
+Process.sleep(1000)
+IO.puts("Registry whereis: #{inspect(Process.whereis(Tiannara.CEL.Services.CapabilityRegistry))}")
+IO.puts("Graph whereis: #{inspect(Process.whereis(Tiannara.CEL.Services.CapabilityGraph))}")
+IO.puts("Trying Graph.all_providers: #{inspect(try do Tiannara.CEL.Services.CapabilityGraph.all_providers() catch _, e -> e end)}")
+IO.puts("Trying Graph.find_provider: #{inspect(try do Tiannara.CEL.Services.CapabilityGraph.find_provider(:create_capability) catch _, e -> e end)}")

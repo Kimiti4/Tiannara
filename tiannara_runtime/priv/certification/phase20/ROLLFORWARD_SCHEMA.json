@@ -1,0 +1,33 @@
+{
+  "schema": "ROLLFORWARD_SCHEMA",
+  "version": "20.9",
+  "description": "Schema for RollforwardRecord — constitutional forward migration",
+  "rollforward_record": {
+    "fields": {
+      "rollforward_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "transition": {"type": "string", "required": true, "description": "Reference to GenerationTransition"},
+      "source_generation": {"type": "string", "required": true},
+      "target_generation": {"type": "string", "required": true},
+      "transformations": {
+        "type": "object", "required": true,
+        "fields": {
+          "state_transformation": {"type": "object", "fields": {"input_hash": {"type": "string"}, "output_hash": {"type": "string"}, "steps": {"type": "integer"}}},
+          "knowledge_migration": {"type": "object", "fields": {"input_hash": {"type": "string"}, "output_hash": {"type": "string"}, "steps": {"type": "integer"}}},
+          "mathematical_migration": {"type": "object", "fields": {"input_hash": {"type": "string"}, "output_hash": {"type": "string"}, "steps": {"type": "integer"}}},
+          "world_model_migration": {"type": "object", "fields": {"input_hash": {"type": "string"}, "output_hash": {"type": "string"}, "steps": {"type": "integer"}}},
+          "planning_migration": {"type": "object", "fields": {"input_hash": {"type": "string"}, "output_hash": {"type": "string"}, "steps": {"type": "integer"}}},
+          "runtime_migration": {"type": "object", "fields": {"input_hash": {"type": "string"}, "output_hash": {"type": "string"}, "steps": {"type": "integer"}}},
+          "archaeology_migration": {"type": "object", "fields": {"input_hash": {"type": "string"}, "output_hash": {"type": "string"}, "steps": {"type": "integer"}}}
+        }
+      },
+      "rollforward_hash": {"type": "string", "required": true, "description": "SHA-256 of complete rollforward"},
+      "verification_results": {"type": "object", "required": true},
+      "status": {"type": "string", "required": true, "description": "Planned/Executing/Completed/RolledBack"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "transformation_domains": ["state", "knowledge", "mathematics", "world_model", "planning", "runtime", "archaeology"],
+    "constraints": ["deterministic_transformations", "replayable", "reversible", "no_data_loss"]
+  }
+}

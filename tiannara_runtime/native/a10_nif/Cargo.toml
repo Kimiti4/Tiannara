@@ -1,0 +1,14 @@
+[package]
+name = "a10_nif"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "a10_nif"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.36.0"
+rayon = "1.10.0"
+ndarray = "0.15.6"
+lazy_static = "1.4.0"

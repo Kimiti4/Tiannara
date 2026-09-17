@@ -1,0 +1,21 @@
+{
+  "schema": "ONTOLOGY_CONCEPT_SCHEMA",
+  "version": "22.X.7",
+  "description": "Schema for an ontology concept with lifecycle state",
+  "ontology_concept": {
+    "fields": {
+      "concept_id": {"type": "string", "required": true},
+      "concept_name": {"type": "string", "required": true},
+      "definition": {"type": "string", "required": true},
+      "domain": {"type": "string", "required": true},
+      "relationships": {"type": "array", "required": true},
+      "lifecycle_state": {"type": "string", "required": true, "enum": ["proposed", "active", "under_review", "merge_pending", "split_pending", "retired"]},
+      "redundancy_score": {"type": "number", "required": false, "description": "0.0–1.0"},
+      "usage_frequency": {"type": "number", "required": false},
+      "evidence_support": {"type": "number", "required": false, "description": "0.0–1.0"},
+      "version": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["versioned", "deterministic", "replayable"]
+  }
+}

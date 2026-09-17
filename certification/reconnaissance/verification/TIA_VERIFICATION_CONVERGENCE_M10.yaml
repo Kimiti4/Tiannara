@@ -1,0 +1,54 @@
+# Move 10 — Verification Convergence (per-question determinations)
+# Truth takes priority over closure. Statuses: resolved / narrowed /
+# unresolved per question. No capability promoted or demoted in this pass.
+artifact: VERIFICATION_CONVERGENCE_M10
+artifact_status: POST_T0
+move: 10
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+questions:
+- id: Q-A2
+  determination: UNRESOLVED
+  detail: Regulators mutually oblivious in code and action-silent at runtime; no invocation/precedence/ownership/conflict evidence in either domain
+- id: Q-D1
+  determination: UNRESOLVED
+  detail: Historical fragments exist; connective record absent; resemblance not used
+- id: Q-D2
+  determination: UNRESOLVED
+  detail: No new evidence in this pass; carried unchanged
+- id: Q-009
+  determination: UNRESOLVED
+  detail: Operational verbs present without entry verbs; wiring without invocation; zero tests; zero actions observed
+- id: Q-018
+  determination: UNRESOLVED
+  detail: Six-level chain re-verified through validation-break; 4/4 hash bindings genuine; validation absent
+- id: Q-019
+  determination: UNRESOLVED
+  detail: Harness present (3 scripts, fixed inputs); dev-env structurally blocked; test-env inconclusive; zero measurements
+- id: Q-CONTRA-003
+  determination: UNRESOLVED
+  detail: Auditor characterized as non-discriminating; disagreement precisely located; both claims compatible with all observations
+capabilities:
+  reviewed: [TIA-CAP-009, TIA-CAP-012, TIA-CAP-013, TIA-CAP-015, TIA-CAP-016, TIA-CAP-018, TIA-CAP-019, TIA-CAP-006]
+  promoted: []
+  demoted: []
+  retained: [TIA-CAP-009, TIA-CAP-012, TIA-CAP-013, TIA-CAP-015, TIA-CAP-016, TIA-CAP-018, TIA-CAP-019, TIA-CAP-006]
+  retention_basis: No reviewed capability meets promotion criteria (explicit evidence + applicable certification criteria + traceable chain); no new evidence contradicts any decided state
+authority:
+  resolved: 0
+  narrowed: 0
+  unresolved: 2
+divergences:
+  resolved: 0
+  narrowed: 0
+  unresolved: 2
+contradictions:
+  resolved: 0
+  narrowed: 0
+  unresolved: 3
+decision_integrity_note: Move-7 decision audit (26 supported / 2 inferred / 2 council-decided) stands unrevised; Move-10 added no decisions, hence no new integrity classifications were required. The two inferential decisions (M7-OWN-010, M7-OWN-011) remain flagged as inferential.
+aggregate:
+  resolved: 0
+  narrowed: 4
+  unresolved: 7
+  narrowed_which: [Q-A2 (mutual-obliviousness both domains), Q-018 (hash bindings genuine), Q-019 (blockage precisely located), Q-CONTRA-003 (auditor characterized)]

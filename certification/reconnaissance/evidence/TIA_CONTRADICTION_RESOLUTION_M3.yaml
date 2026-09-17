@@ -1,0 +1,39 @@
+# Move 3 — Contradiction Resolution Record
+# CONTRA-001 and CONTRA-002 (from Move 2 truth/contradictions.yaml) are
+# carried forward unchanged: this pass neither re-investigated them nor
+# resolved them. CONTRA-003 is new in this pass. All three UNRESOLVED.
+artifact: CONTRADICTION_RESOLUTION_M3
+artifact_status: POST_T0
+move: 3
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+carried_forward_unchanged:
+- id: CONTRA-001
+  status: UNRESOLVED
+  note: "Working-tree mix.lock differs from T0-recorded hash. Not re-investigated in this pass; out of Move 3 evidence-resolution scope for catalogue states."
+- id: CONTRA-002
+  status: UNRESOLVED
+  note: "Runtime/build outputs committed in T0. Not re-investigated in this pass; compositional observation, not a defect finding."
+new_in_this_pass:
+- id: CONTRA-003
+  statement: "phase14 certificate.json and campaign_results/gc_012_long_horizon_evolution.json disagree on measured values and verification timestamp for the same nominal campaign"
+  side_a:
+    claim: "certificate.json gc_012 block records verified_at 2026-01-01T00:00:00Z, final_fitness 0.8041, final_entropy 0.1042"
+    kind: MEASURED
+    source: T0 content read (capped) of phase14/certification/certificate.json gc_012 block
+  side_b:
+    claim: "campaign result records verified_at 2026-07-02T20:06:58.816000Z, final_fitness 0.8035, final_entropy 0.0746"
+    kind: MEASURED
+    source: T0 content read (capped) of phase14/certification/campaign_results/gc_012_long_horizon_evolution.json
+  candidate_benign_explanations:
+  - Distinct executions of the same campaign at different times (re-run with different seed/conditions)
+  - Rounding or recomputation between result production and certificate issuance
+  - Placeholder timestamp in the certificate block (2026-01-01T00:00:00Z is a round value consistent with templating)
+  status: UNRESOLVED
+  note: "No T0 record reconciles the two (no run ledger binding certificate issuance to a specific result version). Resolving would require execution records that do not exist in T0. Recorded, not repaired."
+resolution_rule: "A contradiction resolves only on evidence sufficient to determine which side (if either) is correct, or that both are correct under distinct conditions with the distinguishing condition evidenced. Speculation is not resolution."
+aggregate:
+  carried: 2
+  new: 1
+  resolved: 0
+  unresolved_total: 3

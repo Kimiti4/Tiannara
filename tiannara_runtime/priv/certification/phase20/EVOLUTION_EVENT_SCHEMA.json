@@ -1,0 +1,32 @@
+{
+  "schema": "EVOLUTION_EVENT_SCHEMA",
+  "version": "20.97",
+  "description": "Schema for a single evolution event within a generation — the atomic unit of constitutional change",
+  "evolution_event": {
+    "fields": {
+      "event_id": {"type": "string", "required": true, "description": "Content-addressed event identifier"},
+      "generation_number": {"type": "integer", "required": true},
+      "event_type": {
+        "type": "string", "required": true,
+        "description": "Discovery/RuntimeEvolution/KnowledgeGrowth/EngineeringImprovement/Optimization/ConstitutionalAmendment/ResourceChange/DomainExpansion/ParadigmShift/GovernanceDecision"
+      },
+      "description": {"type": "string", "required": true},
+      "trigger": {"type": "string", "required": true, "description": "What caused this event"},
+      "evidence_chain": {"type": "array", "required": true, "description": "Evidence references justifying this event"},
+      "domains_affected": {"type": "array", "required": true, "items": {"type": "string"}},
+      "before_hash": {"type": "string", "required": true, "description": "State hash before event"},
+      "after_hash": {"type": "string", "required": true, "description": "State hash after event"},
+      "replay_root": {"type": "string", "required": true},
+      "preserves_replay": {"type": "boolean", "required": true},
+      "source": {"type": "string", "required": true, "description": "Engineering/Experimentation/Optimization/Governance/External"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "event_types": [
+      "discovery", "runtime_evolution", "knowledge_growth", "engineering_improvement",
+      "optimization", "constitutional_amendment", "resource_change", "domain_expansion",
+      "paradigm_shift", "governance_decision"
+    ],
+    "constraints": ["deterministic_event_id", "evidence_based", "replay_preserving", "before_after_hashes"]
+  }
+}

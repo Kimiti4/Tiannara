@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "evidence_kind": "baseline_aggregate",
+  "produced_by": {
+    "collector": "TIA_RECON_ORCHESTRATOR",
+    "contract_version": "0.1.1"
+  },
+  "produced_at_t0": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+  "run": {
+    "started_at": "2026-09-05T21:35:38.270741+00:00",
+    "finished_at": "2026-09-05T21:36:37.435926+00:00",
+    "duration_seconds": 59.165189,
+    "run_id": "43b7988bb5066207"
+  },
+  "t0_identity": {
+    "commit": "9753a6d08702064f4d00395a1bec1c4bf3887381",
+    "tag": "T0",
+    "branch": "t0-baseline",
+    "tree_hash": "06f06e5e91f33e75437a47ca901eaa7e97bb0edd"
+  },
+  "integrity_verdict": "PASS",
+  "git_forensics_summary": {
+    "t0_tracked_count": 4756,
+    "ref_count": 19
+  },
+  "repo_inventory_summary": {
+    "total_files": 4756,
+    "bucket_counts": {
+      "T0_TRACKED": 4731,
+      "T0_EXCLUDED": 0,
+      "CURRENT_TRACKED": 0,
+      "CURRENT_UNTRACKED": 0,
+      "RUNTIME_STATE": 8,
+      "SECRET_SENSITIVE": 0,
+      "GARBAGE_INVALID": 1,
+      "SUBPROJECT": 0,
+      "GENERATED": 16,
+      "UNKNOWN": 0
+    },
+    "git_tracked_count": 4756,
+    "git_untracked_count": 0,
+    "current_tracked_only_count": 4756
+  },
+  "source_inventory_summary": {
+    "tracked_source_files_by_ext": {
+      ".ex": 2004,
+      ".exs": 272,
+      ".py": 313
+    },
+    "tracked_test_files": 6,
+    "files_parsed": 2585,
+    "files_skipped_size_or_io": 4
+  },
+  "environment_summary": {
+    "manifest_count": 4,
+    "runtimes_present": 4
+  }
+}

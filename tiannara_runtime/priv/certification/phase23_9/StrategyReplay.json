@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/strategy_replay.json",
+  "title": "StrategyReplay",
+  "description": "A replay event recording a deterministic strategic decision.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^sreplay_[a-f0-9]{16}$" },
+    "event_type": {
+      "type": "string",
+      "enum": ["strategy_initialization", "grand_challenge_proposal", "program_creation", "reprioritization", "resource_reallocation", "opportunity_identification", "gap_detection", "mission_stage_transition", "certification"]
+    },
+    "input_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "output_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "decision_rationale": { "type": "string" },
+    "alternatives_considered": { "type": "array", "items": { "type": "string" } },
+    "constitutional_review": { "type": "object", "properties": { "passed": { "type": "boolean" }, "review_notes": { "type": "string" } } },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshots", "output_snapshots", "decision_rationale", "content_hash"]
+}

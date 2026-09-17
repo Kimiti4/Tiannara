@@ -1,0 +1,20 @@
+{
+  "schema": "ENGINEERING_ARCHAEOLOGY_SCHEMA",
+  "version": "22.3",
+  "description": "Schema for archaeological reconstruction of civilization engineering evolution",
+  "engineering_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "design_id": {"type": "string", "required": true},
+      "institution_design_history": {"type": "array", "required": true},
+      "infrastructure_design_history": {"type": "array", "required": true},
+      "capability_portfolio_evolution": {"type": "array", "required": true},
+      "evaluation_history": {"type": "array", "required": true},
+      "architecture_decisions": {"type": "array", "required": true},
+      "rejected_alternatives": {"type": "array", "required": true},
+      "design_iterations": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

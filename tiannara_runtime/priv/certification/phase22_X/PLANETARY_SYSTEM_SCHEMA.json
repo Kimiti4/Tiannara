@@ -1,0 +1,19 @@
+{
+  "schema": "PLANETARY_SYSTEM_SCHEMA",
+  "version": "22.X.8",
+  "description": "Schema for a planetary system model",
+  "planetary_system": {
+    "fields": {
+      "system_id": {"type": "string", "required": true},
+      "system_type": {"type": "string", "required": true, "enum": ["climate", "biosphere", "geological", "hydrological", "orbital", "infrastructure", "anthropogenic"]},
+      "state_variables": {"type": "object", "required": true},
+      "sensing_sources": {"type": "array", "required": true},
+      "measurement_uncertainty": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "civilization_interactions": {"type": "array", "required": true},
+      "planetary_boundaries": {"type": "object", "required": true},
+      "boundary_status": {"type": "string", "required": true, "enum": ["safe", "increasing_risk", "high_risk", "breached"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_driven", "deterministic", "replayable"]
+  }
+}

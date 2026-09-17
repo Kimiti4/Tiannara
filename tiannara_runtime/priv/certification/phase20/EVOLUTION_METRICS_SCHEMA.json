@@ -1,0 +1,52 @@
+{
+  "schema": "EVOLUTION_METRICS_SCHEMA",
+  "version": "20.3",
+  "description": "Schema for EvolutionMetrics — continuous measurements of the evolution engine's health and performance",
+  "metrics": {
+    "fields": {
+      "metrics_id": {"type": "string", "required": true},
+      "generation": {"type": "integer", "required": true},
+      "evolution_frequency": {"type": "number", "required": true},
+      "candidate_acceptance_rate": {"type": "number", "required": true},
+      "rollback_rate": {"type": "number", "required": true},
+      "scientific_gain": {"type": "number", "required": true},
+      "engineering_gain": {"type": "number", "required": true},
+      "simulation_gain": {"type": "number", "required": true},
+      "performance_gain": {"type": "number", "required": true},
+      "knowledge_growth": {"type": "number", "required": true},
+      "energy_efficiency": {"type": "number", "required": true},
+      "architectural_complexity": {"type": "number", "required": true},
+      "replay_cost": {"type": "number", "required": true},
+      "audit_cost": {"type": "number", "required": true},
+      "extension_growth": {"type": "number", "required": true},
+      "generation_stability": {"type": "number", "required": true},
+      "civilization_readiness": {"type": "number", "required": true}
+    },
+    "lifecycle": ["draft", "collected", "validated", "archived"]
+  },
+  "metric_definitions": {
+    "evolution_frequency": "Rate of evolution generations per unit time",
+    "candidate_acceptance_rate": "Fraction of candidates that reach production deployment",
+    "rollback_rate": "Fraction of generations that are rolled back",
+    "scientific_gain": "Cumulative scientific improvement across generations",
+    "engineering_gain": "Cumulative engineering improvement across generations",
+    "simulation_gain": "Cumulative simulation fidelity and performance improvement",
+    "performance_gain": "Cumulative runtime performance improvement",
+    "knowledge_growth": "Rate of knowledge growth across generations",
+    "energy_efficiency": "Energy efficiency trend (higher = more efficient per operation)",
+    "architectural_complexity": "Architectural complexity metric (higher = more complex)",
+    "replay_cost": "Relative cost of replay (higher = more expensive)",
+    "audit_cost": "Relative cost of independent audit (higher = more expensive)",
+    "extension_growth": "Rate of extension adoption per generation",
+    "generation_stability": "Mean generations between rollbacks (higher = more stable)",
+    "civilization_readiness": "Civilization readiness metric (see Phase 19)"
+  },
+    "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": [
+    "all_metrics_are_deterministic",
+    "metrics_are_computed_at_generation_freeze",
+    "metrics_are_replayable",
+    "metrics_support_trend_analysis_across_generations"
+  ]
+}

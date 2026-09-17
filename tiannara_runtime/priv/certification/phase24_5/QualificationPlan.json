@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/qualification_plan.json",
+  "title": "QualificationPlan",
+  "description": "A constitutional qualification plan defining progressive qualification levels.",
+  "type": "object",
+  "properties": {
+    "plan_id": { "type": "string", "pattern": "^qplan_[a-f0-9]{16}$" },
+    "system_id": { "type": "string" },
+    "qualification_levels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "level": { "type": "string", "enum": ["prototype", "engineering_model", "qualification_model", "production_model", "operational_system", "planetary_deployment"] },
+          "entry_criteria": { "type": "array", "items": { "type": "string" } },
+          "exit_criteria": { "type": "array", "items": { "type": "string" } },
+          "activities": { "type": "array", "items": { "type": "string" } },
+          "status": { "type": "string", "enum": ["not_started", "in_progress", "completed", "failed"] },
+          "certificate_id": { "type": "string" }
+        },
+        "required": ["level", "entry_criteria", "exit_criteria"]
+      }
+    },
+    "current_level": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["plan_id", "system_id", "qualification_levels", "current_level", "fingerprint"]
+}

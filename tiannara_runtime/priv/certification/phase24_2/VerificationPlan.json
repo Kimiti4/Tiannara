@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/verification_plan.json",
+  "title": "VerificationPlan",
+  "description": "A constitutional verification plan linking requirements to verification methods and evidence.",
+  "type": "object",
+  "properties": {
+    "plan_id": { "type": "string", "pattern": "^vplan_[a-f0-9]{16}$" },
+    "architecture_id": { "type": "string" },
+    "subsystem_id": { "type": "string" },
+    "verification_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "requirement_id": { "type": "string" },
+          "verification_method": { "type": "string", "enum": ["test", "analysis", "demonstration", "inspection", "review", "formal_proof"] },
+          "verification_level": { "type": "string", "enum": ["component", "subsystem", "system", "system_of_systems", "operational"] },
+          "expected_result": { "type": "string" },
+          "status": { "type": "string", "enum": ["planned", "in_progress", "passed", "failed", "blocked"] },
+          "evidence_id": { "type": "string" },
+          "verified_at": { "type": "integer" }
+        },
+        "required": ["requirement_id", "verification_method", "verification_level", "expected_result", "status"]
+      }
+    },
+    "coverage_metrics": { "type": "object", "properties": { "total_requirements": { "type": "integer" }, "verified": { "type": "integer" }, "not_verified": { "type": "integer" }, "coverage_percentage": { "type": "number" } } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["plan_id", "architecture_id", "verification_items", "fingerprint"]
+}

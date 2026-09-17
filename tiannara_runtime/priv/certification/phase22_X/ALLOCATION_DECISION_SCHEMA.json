@@ -1,0 +1,19 @@
+{
+  "schema": "ALLOCATION_DECISION_SCHEMA",
+  "version": "22.X.6",
+  "description": "Schema for a resource allocation decision",
+  "allocation_decision": {
+    "fields": {
+      "decision_id": {"type": "string", "required": true},
+      "resource_type": {"type": "string", "required": true},
+      "allocated_to": {"type": "string", "required": true},
+      "amount": {"type": "number", "required": true},
+      "marginal_return": {"type": "number", "required": true, "description": "Expected discovery per unit resource"},
+      "opportunity_cost": {"type": "array", "required": true},
+      "constraints_applied": {"type": "array", "required": true},
+      "allocation_rationale": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["efficient", "deterministic", "replayable"]
+  }
+}

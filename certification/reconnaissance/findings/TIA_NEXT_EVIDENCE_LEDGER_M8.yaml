@@ -1,0 +1,151 @@
+# Move 8 — Next-Evidence Ledger (narrowest next evidence per unresolved question)
+# RUNTIME_REQUIRED marks questions answerable only by runtime observation;
+# those stop at the boundary (no experiments executed here).
+# AUTHORIZATION_REQUIRED marks questions needing a Council decision first.
+artifact: NEXT_EVIDENCE_LEDGER_M8
+artifact_status: POST_T0
+move: 8
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+questions:
+- question_id: Q-A1-PRECEDENCE
+  current_state: UNRESOLVED (certification authority conflict)
+  missing_evidence: Precedence text, hierarchy record, or demonstrated precedence behavior among the four verification artifacts
+  narrowest_next_evidence: A single design record or code path establishing hierarchy (or explicit distributed-authority design)
+  evidence_type: design-record-or-code-path
+  why_sufficient: Would directly answer single-vs-distributed
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-A2-REGULATOR
+  current_state: UNRESOLVED (stabilization-vs-CIS overlap)
+  missing_evidence: Boundary text or per-regulator effect attribution
+  narrowest_next_evidence: One boundary declaration or one attributed regulation effect
+  evidence_type: design-record-or-demonstration
+  why_sufficient: Would assign the disputed jurisdiction
+  runtime_required: true
+  authorization_required: false
+- question_id: Q-D1-EFFECT
+  current_state: UNRESOLVED (bounded-chaos effect)
+  missing_evidence: Regulation-effect demonstration under controlled conditions
+  narrowest_next_evidence: E03 execution per frozen protocol (authorized procedure exists, still blocked)
+  evidence_type: experiment-record
+  why_sufficient: Directly tests the regulated-vs-authored distinction
+  runtime_required: true
+  authorization_required: true
+- question_id: Q-D2-HISTORY
+  current_state: UNRESOLVED (evidence-autonomy history)
+  missing_evidence: Historical runtime operation records
+  narrowest_next_evidence: One timestamped operational record predating the audit program
+  evidence_type: historical-artifact
+  why_sufficient: Would establish operation as history rather than mechanism-only
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-009-OWNER
+  current_state: UNKNOWN (stabilizer regulation)
+  missing_evidence: Regulator boundary or effect attribution (same as Q-A2)
+  narrowest_next_evidence: See Q-A2-REGULATOR
+  evidence_type: design-record-or-demonstration
+  why_sufficient: Resolves owner and capability together
+  runtime_required: true
+  authorization_required: false
+- question_id: Q-012-CONSUMER
+  current_state: UNKNOWN (constitutional law records)
+  missing_evidence: One consumer reference
+  narrowest_next_evidence: A single module reading CONSTITUTIONAL_LAWS.json
+  evidence_type: code-reference
+  why_sufficient: Would establish the record as live rather than archival
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-013-CONSUMER
+  current_state: UNKNOWN (governance records)
+  missing_evidence: One consumer reference
+  narrowest_next_evidence: A single module reading either JSON
+  evidence_type: code-reference
+  why_sufficient: Would establish the records as live rather than archival
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-015-QUERY
+  current_state: UNKNOWN (knowledge graphs)
+  missing_evidence: One query path from code to any of the three files
+  narrowest_next_evidence: A single file-open/read call targeting one record
+  evidence_type: code-reference
+  why_sufficient: Would establish consumption (strongest missing link)
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-016-MODULE
+  current_state: UNKNOWN (memory substrate)
+  missing_evidence: One module performing a memory operation
+  narrowest_next_evidence: A single read/write function bound to mindcache paths
+  evidence_type: code-reference
+  why_sufficient: Would establish operational substrate vs name-only paths
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-017-ROLE
+  current_state: UNKNOWN/ORPHAN (certification framework)
+  missing_evidence: Intended-role record (design note, deprecation marker, integration plan)
+  narrowest_next_evidence: One document or comment stating the module's intended role
+  evidence_type: design-record
+  why_sufficient: Would distinguish historical vs pending vs aspirational
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-018-RUN
+  current_state: UNKNOWN (phase14 corpus)
+  missing_evidence: One recorded auditor run over gc_012 (or equivalent)
+  narrowest_next_evidence: A run record binding auditor, input, output, timestamp
+  evidence_type: execution-record
+  why_sufficient: Would convert bindings from records to demonstrations
+  runtime_required: true
+  authorization_required: false
+- question_id: Q-019-RESULTS
+  current_state: UNKNOWN (benchmark harness)
+  missing_evidence: One recorded bench run with results
+  narrowest_next_evidence: A results file bound to a harness version
+  evidence_type: execution-record
+  why_sufficient: Would establish the harness as executed, not just present
+  runtime_required: true
+  authorization_required: false
+- question_id: Q-020-PRODUCER
+  current_state: UNKNOWN (world-model records)
+  missing_evidence: One producer or consumer reference
+  narrowest_next_evidence: A single module writing or reading either JSON
+  evidence_type: code-reference
+  why_sufficient: Would establish the records as live rather than archival
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-021-BUILDER
+  current_state: UNKNOWN (discovery chain)
+  missing_evidence: One builder reference or schema document
+  narrowest_next_evidence: A single builder function or schema file
+  evidence_type: code-reference-or-schema
+  why_sufficient: Would establish construction provenance
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-CONTRA-001
+  current_state: UNRESOLVED (mix.lock divergence)
+  missing_evidence: Change attribution for the working-tree lockfile
+  narrowest_next_evidence: A run ledger or commit binding the lockfile change to an authorized modification
+  evidence_type: provenance-record
+  why_sufficient: Would distinguish evolution from unrecorded change
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-CONTRA-002
+  current_state: UNRESOLVED (runtime artifacts in T0)
+  missing_evidence: Inclusion-intent record
+  narrowest_next_evidence: An explicit snapshot-policy note or a consumer dependency on the committed artifacts
+  evidence_type: design-record-or-dependency
+  why_sufficient: Would settle deliberate vs incidental inclusion
+  runtime_required: false
+  authorization_required: false
+- question_id: Q-CONTRA-003
+  current_state: UNRESOLVED (gc_012 value disagreement)
+  missing_evidence: Run ledger binding certificate issuance to a result version
+  narrowest_next_evidence: Same as Q-018-RUN (one recorded run resolves both)
+  evidence_type: execution-record
+  why_sufficient: Would determine whether the two records describe distinct executions or one inconsistent record
+  runtime_required: true
+  authorization_required: false
+aggregate:
+  questions_total: 17
+  runtime_required_count: 5
+  authorization_required_count: 1
+  code_reference_sufficient_count: 9

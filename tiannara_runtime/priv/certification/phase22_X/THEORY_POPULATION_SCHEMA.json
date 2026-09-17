@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TheoryPopulation",
+  "description": "Snapshot of the theory ecosystem population at a point in time",
+  "type": "object",
+  "properties": {
+    "population_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this population snapshot"
+    },
+    "snapshot_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of snapshot"
+    },
+    "theory_count": {
+      "type": "integer",
+      "description": "Total number of active theories"
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TheorySummary"
+      },
+      "description": "Hypotheses in the ecosystem"
+    },
+    "candidate_theories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TheorySummary"
+      }
+    },
+    "validated_theories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TheorySummary"
+      }
+    },
+    "competing_theories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TheorySummary"
+      }
+    },
+    "dominant_theories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TheorySummary"
+      }
+    },
+    "specialized_theories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TheorySummary"
+      }
+    },
+    "unified_theories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TheorySummary"
+      }
+    },
+    "historical_theories": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TheorySummary"
+      }
+    },
+    "diversity_metrics": {
+      "type": "object",
+      "properties": {
+        "theoretical_diversity_index": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "minority_representation": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "domain_coverage": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "definitions": {
+    "TheorySummary": {
+      "type": "object",
+      "properties": {
+        "theory_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": ["theory_id", "name", "status"]
+    }
+  },
+  "required": ["population_id", "snapshot_date", "theory_count", "fingerprint"]
+}

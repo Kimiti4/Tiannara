@@ -1,0 +1,126 @@
+artifact: TIA_PREDICATE_AUTHORIZATION_P_CERTIFICATE_LIFECYCLE
+record_type: PREDICATE AUTHORIZATION (implementation gate, Council-authorized)
+authorization_id: COUNCIL-2026-09-13-P-CERTIFICATE-LIFECYCLE
+recorded_at: 2026-09-13
+predecessor:
+  - TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE9_Council_STOP.yaml (accepted)
+  - TIA_FORWARD_PROVENANCE_PREDICATE_P_IDENTITY_CANONICAL_STOP.yaml (accepted; identity verified)
+  - TIA_FORWARD_PROVENANCE_PREDICATE_P_CERTIFICATE_ISSUANCE_STOP.yaml (accepted; issuance verified)
+
+predicate_id: P-CERTIFICATE-LIFECYCLE
+status: OPEN_FOR_IMPLEMENTATION (authorized surface implemented + verified below)
+
+dependencies:
+  - P-IDENTITY-CANONICAL (frozen, reused read-only; no lifecycle identity derivation)
+  - P-CERTIFICATE-ISSUANCE (immutable VALID issuance records; lifecycle consumes them)
+
+allowed_surface:
+  - lifecycle state machine over the EXACT policy-pinned states
+    VALID | SUSPENDED | REVOKED | UNVERIFIABLE | SUPERSEDED (modeled for schema
+    completeness ONLY; no invented states, no renames, no collapsing)
+  - authorized transitions built from the Stage-8 lifecycle design:
+      VALID->SUSPENDED                  (verb suspend)
+      SUSPENDED->VALID                  (verb restore; full chain re-verification required)
+      {VALID,SUSPENDED}->UNVERIFIABLE   (verb mark_unverifiable)
+      UNVERIFIABLE->SUSPENDED           (verb evidence_recovered; human kind only
+                                         per policy human_oversight (c))
+  - restoration path UNVERIFIABLE->SUSPENDED->VALID; REVOKED/SUPERSEDED are terminal
+    and represented only contractually (no outgoing transitions, no activation)
+  - every transition is an envelope-bound DECISION RECORD written atomically to the
+    lifecycle's own append-only canon-v1 JSONL ledger (single sentence per transition,
+    full registry rollback on persistence failure); certificate_id, previous_state,
+    next_state, decision, authority, policy ref, transition evidence, ordering/
+    provenance linkage; no prior transition is ever overwritten; history reconstructable
+  - single first-writer-wins lifecycle authority (tiannara-fp-lifecycle-authority-v1,
+    default kind human; per-transition kind policy enforced human|mechanism;
+    evidence_recovered requires human ONLY); no election/rotation/competing authorities
+  - idempotent identical-transition replay; conflicting/out-of-order transitions fail
+    closed and preserve state; per-certificate locking prevents concurrent double-apply
+  - fail-closed input validation: malformed requests, wrong lifecycle_spec, unknown/
+    forbidden verbs, missing/invalid authority, policy mismatch, missing evidence,
+    missing restoration chain, unknown certificate_id, invalid issuance state
+  - nothing else: NO revocation, NO supersession, NO successor issuance, NO distributed
+    verification/distributed issuance, NO authority rotation, NO network interfaces,
+    NO production activation beyond the predicate's own ledger
+
+required_evidence:
+  - 37 unit tests PASS covering: initial state = VALID from issuance (virtual seq 0);
+    every authorized transition (suspend, restore, mark_unverifiable both sources,
+    evidence_recovered, full restoration path trace); forbidden edges (VALID->REVOKED,
+    VALID->SUPERSEDED, self-loops, UNVERIFIABLE->VALID direct jump) fail closed;
+    undefined verbs (activate/expire/rotate_authority/garbage) fail closed;
+    malformed request / wrong lifecycle_spec; missing-or-malformed authority before and
+    after registration; unauthorized authority; kind mismatch; kind denied
+    (mechanism cannot resolve UNVERIFIABLE); policy mismatch; missing transition
+    evidence; missing restoration chain / mismatched bundle_id not re-verified;
+    unregistered certificate_id; identical-transition replay never duplicated;
+    conflicting transition invalid_source_state; exactly-one-wins concurrent competing
+    transitions; lock held while another transition is in flight (no partial state);
+    persistence failure fails closed with full rollback; atomicity (zero trace after
+    failure, issuance record byte-identical); issuance record immutable across all
+    transitions; certificate_id immutable and never re-derived; restart replays the
+    ledger idempotently; ledger sentences canon-v1 canonical; envelopes recompute
+    payload_hash; NO revocation behavior anywhere (no revoke function, verb forever
+    forbidden); NO supersession behavior (no successor ever created); NO distributed
+    behavior (no distributed functions, single local registry + lock); X battery of
+    invalid requests all leave state untouched
+  - full suite 165 tests, 0 failures
+  - mix format --check-formatted PASS on the two authorized files
+  - scope audit: only lib/certificate_lifecycle.ex + test/certificate_lifecycle_test.exs added
+  - baseline audit: HEAD/tree/porcelain unchanged; no commits/pushes/index ops
+  - evidence matrix forward_provenance/output/predicate_lifecycle_evidence.json
+
+verification_gate:
+  - 37 new predicate tests PASS (165 total, 0 failures)
+  - mix format --check-formatted PASS on the two authorized files
+  - P-IDENTITY-CANONICAL UNCHANGED (certificate_identity.ex reused read-only)
+  - P-CERTIFICATE-ISSUANCE UNCHANGED (certificate_issuance.ex + issuance ledger reused
+    read-only; issuance record immutable; resolve/1 consumed)
+  - canon-v1 / fz-b / fz-c UNCHANGED (no spec edits; lifecycle records use the existing
+    canonicalization contract)
+  - policy file UNCHANGED (TIA_PROVENANCE_CERTIFICATION_POLICY.yaml stays the sole and
+    authoritative source; no add/remove/weaken/reinterpret conditions)
+  - Envelope.build UNCHANGED (lifecycle builds its own certificate_lifecycle_transition
+    envelope; the issuance event vocabulary is untouched)
+  - FAIL-CLOSED on every invalid input (no lifecycle state change on any rejection)
+
+rollback:
+  boundary: delete lib/certificate_lifecycle.ex and test/certificate_lifecycle_test.exs
+    (+ the evidence matrix); nothing else touched. certificate_identity.ex,
+    certificate_issuance.ex, their tests, canon-v1, fz-b, fz-c, policy, M7 disposition,
+    bridge, Envelope, Stage-8 design, Stage-9 governance all untouched by this predicate.
+  status: NOT EXECUTED (gate passed; rollback path documented only)
+
+fail_closed_preserved:
+  - revocation:                    CLOSED (transition_forbidden verb "revoke")
+  - supersession:                  CLOSED (transition_forbidden verb "supersede")
+  - successor issuance:            CLOSED
+  - distributed verification:      CLOSED
+  - distributed issuance:          CLOSED
+  - authority rotation:            CLOSED (first-writer-wins single lifecycle authority)
+  - authority election:            CLOSED
+  - certificate writes in bundles: CLOSED
+  - network interfaces:            CLOSED
+  - external integrations:         CLOSED
+  - autonomous operation:          CLOSED
+  - production integration:        CLOSED
+  - unrelated predicates:          CLOSED (no predicate opens without its own Council gate)
+
+prerequisites:
+  - M7 = HYBRID approved ........................ [x]
+  - serialization freeze (fz-b + fz-c) approved .. [x]
+  - canon-v1 normative .......................... [x]
+  - fz-b final .................................. [x]
+  - fz-c final .................................. [x]
+  - P-IDENTITY-CANONICAL verified ................ [x]
+  - P-CERTIFICATE-ISSUANCE verified ............... [x]
+
+lifecycle_activated: true (predicate-local ledger only; no network/production integration)
+revocation_activated: false
+supersession_activated: false
+authority_activated: LIMITED (single lifecycle authority, predicate-local registry,
+  first-writer-wins, per-transition kind policy, replayed from the lifecycle ledger)
+
+NOTHING_COMMITTED: true
+NOTHING_PUSHED: true
+NO_INDEX_OPERATION: true

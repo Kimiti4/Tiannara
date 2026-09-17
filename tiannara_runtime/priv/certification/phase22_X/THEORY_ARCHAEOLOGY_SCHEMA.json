@@ -1,0 +1,194 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TheoryArchaeology",
+  "description": "Archaeological record reconstructing the complete history of a scientific theory in the ecosystem",
+  "type": "object",
+  "properties": {
+    "archaeology_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this archaeology record"
+    },
+    "theory_id": {
+      "type": "string",
+      "description": "Theory being archaeologically analyzed"
+    },
+    "archaeology_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of archaeology analysis"
+    },
+    "emergence": {
+      "type": "object",
+      "properties": {
+        "emergence_reason": {
+          "type": "string",
+          "description": "Why the theory emerged"
+        },
+        "motivating_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Evidence or anomalies that motivated it"
+        },
+        "prior_theories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Intellectual precursors"
+        },
+        "historical_context": {
+          "type": "string"
+        }
+      },
+      "required": ["emergence_reason"]
+    },
+    "evidence_record": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "evidence_id": {
+            "type": "string"
+          },
+          "support_type": {
+            "type": "string",
+            "enum": ["supporting", "contradicting", "neutral"]
+          },
+          "period": {
+            "type": "string",
+            "enum": ["early", "middle", "late", "post_dominance"]
+          }
+        },
+        "required": ["evidence_id", "support_type"]
+      }
+    },
+    "competition_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "competition_id": {
+            "type": "string"
+          },
+          "competitor_theories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "outcome": {
+            "type": "string"
+          }
+        },
+        "required": ["competition_id", "outcome"]
+      }
+    },
+    "dominance_period": {
+      "type": "object",
+      "properties": {
+        "start_date": {
+          "type": "integer"
+        },
+        "end_date": {
+          "type": "integer"
+        },
+        "dominance_reason": {
+          "type": "string"
+        },
+        "key_predictions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "engineering_successes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["start_date", "dominance_reason"]
+    },
+    "replacement": {
+      "type": "object",
+      "properties": {
+        "replaced_by": {
+          "type": "string"
+        },
+        "replacement_reason": {
+          "type": "string"
+        },
+        "new_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "engineering_failures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "knowledge_legacy": {
+      "type": "object",
+      "properties": {
+        "surviving_concepts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mathematical_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "engineering_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "carried_forward_theories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lineage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "node_id": {
+            "type": "string"
+          },
+          "node_type": {
+            "type": "string",
+            "enum": ["emergence", "evolution", "specialization", "merge", "retirement"]
+          },
+          "reference": {
+            "type": "string"
+          },
+          "date": {
+            "type": "integer"
+          }
+        },
+        "required": ["node_id", "node_type", "reference", "date"]
+      }
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["archaeology_id", "theory_id", "archaeology_date", "emergence", "lineage", "fingerprint"]
+}

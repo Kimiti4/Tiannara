@@ -1,0 +1,17 @@
+{
+  "schema": "DESIGN_SPACE_SCHEMA",
+  "version": "22.4",
+  "description": "Schema for defining the civilization design space dimensions and bounds",
+  "design_space": {
+    "fields": {
+      "space_id": {"type": "string", "required": true},
+      "dimensions": {"type": "array", "required": true},
+      "constitutional_bounds": {"type": "object", "required": true},
+      "dimension_count": {"type": "integer", "required": true},
+      "feasible_region_hash": {"type": "string", "required": true},
+      "exploration_state": {"type": "string", "required": true, "enum": ["unexplored", "partial", "comprehensive", "complete"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "constitutionally_bounded", "replayable"]
+  }
+}

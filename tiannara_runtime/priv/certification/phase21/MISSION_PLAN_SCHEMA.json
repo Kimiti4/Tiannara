@@ -1,0 +1,21 @@
+{
+  "schema": "MISSION_PLAN_SCHEMA",
+  "version": "21.3",
+  "description": "Schema for a research program plan containing multiple coordinated missions",
+  "mission_plan": {
+    "fields": {
+      "plan_id": {"type": "string", "required": true, "description": "Content-addressed plan identifier"},
+      "program_type": {"type": "string", "required": true, "description": "Sequential/Parallel/Hierarchical/CrossDomain/LongHorizon"},
+      "missions": {"type": "array", "required": true},
+      "program_dependencies": {"type": "array", "required": false},
+      "coordination_protocol": {"type": "string", "required": true},
+      "timeline_estimate": {"type": "object", "required": true, "fields": {"min_generations": {"type": "integer"}, "max_generations": {"type": "integer"}}},
+      "expected_information_gain": {"type": "number", "required": true},
+      "plan_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "program_types": ["sequential", "parallel", "hierarchical", "cross_domain", "long_horizon"],
+    "constraints": ["acyclic", "deterministic", "replayable"]
+  }
+}

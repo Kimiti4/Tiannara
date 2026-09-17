@@ -1,0 +1,29 @@
+{
+  "schema": "CONTINUITY_REPORT_SCHEMA",
+  "version": "20.97",
+  "description": "Schema for continuity reports — per-domain preservation verification across generations",
+  "continuity_report": {
+    "fields": {
+      "report_id": {"type": "string", "required": true, "description": "Content-addressed report identifier"},
+      "source_generation": {"type": "integer", "required": true},
+      "target_generation": {"type": "integer", "required": true},
+      "domain": {
+        "type": "string", "required": true,
+        "description": "Mathematics/Logic/Information/Research/Discovery/WorldModels/Engineering/Experimentation/Optimization/KnowledgeGraph/ScientificCapital/Governance/Replay/Archaeology/Runtime"
+      },
+      "source_hash": {"type": "string", "required": true},
+      "target_hash": {"type": "string", "required": true},
+      "drift_detected": {"type": "boolean", "required": true},
+      "drift_magnitude": {"type": "number", "required": false, "description": "0.0–1.0 normalized drift score"},
+      "drift_type": {"type": "string", "required": false, "description": "KnowledgeDrift/GovernanceDrift/ReplayDrift/MathematicalDrift/EngineeringDrift/None"},
+      "events_since_source": {"type": "array", "required": true, "description": "EvolutionEvent references"},
+      "continuity_verdict": {"type": "string", "required": true, "description": "Continuous/Drifted/CriticalDrift/Unverifiable"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "drift_types": ["knowledge_drift", "governance_drift", "replay_drift", "mathematical_drift", "engineering_drift", "optimization_instability", "generation_corruption", "archaeology_loss", "scientific_stagnation", "constitutional_violation", "none"],
+    "continuity_verdicts": ["continuous", "drifted", "critical_drift", "unverifiable"],
+    "constraints": ["deterministic_reporting", "evidence_based", "replayable"]
+  }
+}

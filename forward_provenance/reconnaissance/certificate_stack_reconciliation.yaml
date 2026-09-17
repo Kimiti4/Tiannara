@@ -1,0 +1,119 @@
+artifact: certificate_stack_reconciliation
+stage: 7 (Certificate Authority Reconciliation)
+authority: TIA Council
+posture: RECONNAISSANCE / ANALYSIS ONLY
+recorded_at: 2026-09-10
+upstream: certificate_authority_inventory (candidate authorities CAND-A .. CAND-G)
+
+summary:
+  question: Q2 — How do the certificate stacks reconcile (root vs tiannara_runtime vs
+    forward_provenance authoring area)?
+  answer: The three stacks do NOT reconcile today. They share no certificate-id scheme,
+    no root of trust, no common lifecycle vocabulary, no revocation registry, and no
+    accepted policy. M7 already characterises root certification authority as DISTRIBUTED
+    AND UNRESOLVED; the runtime stack is itself internally heterogeneous (~40 per-domain
+    schemas); the authoring area is deliberately fail-closed. Reconciliation currently
+    means: identify the boundary conditions under which a single canonical authority COULD
+    be enacted (Council decision + M7 disposition + policy acceptance), not that one exists.
+
+stack_profiles:
+  - id: STACK-ROOT
+    name: root :tiannara
+    members:
+      - Tiannara.Certification.Certificate (CAND-A)
+      - Tiannara.Certification.Pipeline/Protocol + Tiannara.Omega.CertificationServer (CAND-B)
+      - governance/historical Certification.Laboratory + certification_framework + auditor (CAND-C)
+    authority_claim: strong names ("certification authority", CERTIFICATION authority in M7)
+    identity_model: subsystem+verdict+issued_at; NO certificate_id, NO hash
+    lifecycle_model: issuance gates only; in-memory revoke in Omega server; no durability
+    determinism: not deterministic (utc_now timestamps)
+    binding_evidence: M7 authority-boundaries analysis (TIA_AUTHORITY_BOUNDARIES_M7.yaml:55-66);
+      CONTRA-003 class in historical certificates
+    integration_status: not integrated with forward provenance; historical stack is the
+      firewall subject (never referenced by forward certificates)
+
+  - id: STACK-RUNTIME
+    name: tiannara_runtime
+    members:
+      - WorldModel Ontology.ModelCertificate + Behaviours.CertificateIssuer (CAND-D)
+      - priv/certification phase schemas (CAND-E)
+      - CPL ContinuityCertificate + checkpoint ledger
+    authority_claim: domain-scoped issuers (certifying_entity/authority string), issued_by
+      self|auditor
+    identity_model: certificate_id + model/entity id + version + certification_type +
+      fingerprint + issued_at + issued_by + supersedes (rich)
+    lifecycle_model: re-certify + revoke + verify behaviour callbacks; supersedes chain;
+      DomainState enums uncertified/in_review/certified/revoked
+    determinism: not deterministic (strong_rand_bytes, utc_now)
+    binding_evidence: MATHEMATICS_CERTIFICATE.json PASSED; phase schemas heterogeneous
+    integration_status: not integrated; separate runtime app with own storage
+
+  - id: STACK-FORWARD
+    name: forward_provenance authoring area
+    members:
+      - TiannaraOS.Provenance.Certificate.issue/1 (CAND-F) — stateless envelope generator
+      - CertificateAuthorityBridge (CAND-G) — fail-closed proposer
+      - substrate: Canon, IdentityAuthority, MetricLineage, Envelope, Verifier, Identity
+    authority_claim: NONE (bridge authorized_issuance? constant false; certificate_issuable
+      NO_AUTHORITY_POLICY)
+    identity_model: envelope/candidate identity; bridge candidate_id deterministic
+      (Canon.sha256); Certificate.issue certificate_id random uuid
+    lifecycle_model: none in authoring area (transition SAFE-BLOCKED)
+    determinism: substrate pure/deterministic; Certificate.issue not deterministic
+    integration_status: authoring area only; never deployed/called from root or runtime
+
+divergence_points:
+  - id: DIV-1
+    subject: certificate identity
+    root: no id / hash; timestamps as identity
+    runtime: rich cert struct + fingerprint (per-domain id patterns)
+    forward: envelope-bound; deterministic candidate (bridge) vs random uuid (Certificate.issue)
+  - id: DIV-2
+    subject: lifecycle / revocation
+    root: issuance gates + in-memory revoke (ephemeral)
+    runtime: behaviour-level re_certify/revoke/verify + supersedes field + domain enums
+    forward: NO lifecycle; SAFE-BLOCKED transition
+  - id: DIV-3
+    subject: authority representation
+    root: self-named authority strings/blocks (CONTRA-003 class), unevidenced meta-authority
+    runtime: certifying_entity/authority strings, issued_by self|auditor
+    forward: authority as UNVALIDATED caller-supplied string in Certificate.issue; bridge
+      models authority predicates as ALL-BLOCKED
+  - id: DIV-4
+    subject: persistence/ledger
+    root: none for certifications; historical certificate JSONs are frozen artifacts
+    runtime: priv/certification JSON schema files + CPL checkpoint ledger
+    forward: none (no ledger anywhere in the authoring area)
+  - id: DIV-5
+    subject: determinism
+    root: not deterministic
+    runtime: not deterministic
+    forward: partial (bridge deterministic; issue not)
+  - id: DIV-6
+    subject: policy
+    root: none accepted
+    runtime: none accepted
+    forward: NO_AUTHORITY_POLICY constant; draft policy EXISTS but not accepted
+      (TIA_PROVENANCE_CERTIFICATION_POLICY.yaml)
+
+overlap_analysis:
+  - "root vs runtime: both claim domain certifying roles with distinct identity schemes; no
+     cross-resolution (TIA_UNIFICATION_MATRIX_M7.yaml records most pairs same_authority UNKNOWN)."
+  - "runtime vs forward: forward never imports/calls runtime certificates; runtime never
+     consumes forward envelopes; disjoint."
+  - "root governance vs runtime: historically disjoint; governance stack is firewall subject."
+
+boundary_conditions_for_reconciliation (analysis only, NOT enacted):
+  - "An ACCEPTED authority policy (Council decision) — the draft exists but is not accepted."
+  - "Disposition of M7: single vs distributed authority (design record or execution evidence)."
+  - "A decision on which stack owns certificate identity for forward provenance; current
+     candidate identity is the deterministic bridge candidate_id (authoring-area)."
+  - "A defined lifecycle/revocation contract (policy defines VALID/SUSPENDED/REVOKED/
+     UNVERIFIABLE/SUPERSEDED as semantics only)."
+  - "Historical firewall remains intact: reconciliation must NOT touch T0/archived/phase14
+     certificates or resolve CONTRA-003."
+
+verdict:
+  Q2: Three non-reconciling stacks; no canonical authority; reconciliation is gated on
+      Council decisions (policy acceptance, M7 disposition) that are OUT OF SCOPE for Stage 7.
+  NOTHING_IMPLEMENTED: true (analysis only; no stack member modified, created, or wired).

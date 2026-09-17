@@ -1,0 +1,27 @@
+{
+  "schema": "MISSION_SCHEMA",
+  "version": "21.3",
+  "description": "Schema for a constitutional research mission",
+  "mission": {
+    "fields": {
+      "mission_id": {"type": "string", "required": true, "description": "Content-addressed mission identifier"},
+      "opportunity": {"type": "string", "required": true, "description": "Originating scientific opportunity ID"},
+      "scientific_objective": {"type": "string", "required": true},
+      "research_question": {"type": "string", "required": true},
+      "expected_knowledge_gain": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "scientific_domains": {"type": "array", "required": true},
+      "mathematical_dependencies": {"type": "array", "required": false},
+      "engineering_dependencies": {"type": "array", "required": false},
+      "required_simulations": {"type": "array", "required": false},
+      "required_experiments": {"type": "array", "required": false},
+      "expected_deliverables": {"type": "array", "required": true},
+      "validation_strategy": {"type": "string", "required": true},
+      "status": {"type": "string", "required": true, "description": "Proposed/Planned/Active/Completed/Failed/Archived"},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "lifecycle": ["proposed", "planned", "active", "completed", "failed", "archived"],
+    "constraints": ["evidence_derived", "deterministic", "replayable"]
+  }
+}

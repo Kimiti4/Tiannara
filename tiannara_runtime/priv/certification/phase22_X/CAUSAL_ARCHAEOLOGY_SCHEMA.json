@@ -1,0 +1,20 @@
+{
+  "schema": "CAUSAL_ARCHAEOLOGY_SCHEMA",
+  "version": "22.X.0",
+  "description": "Schema for causal archaeological reconstruction",
+  "causal_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true},
+      "causal_graph_ids": {"type": "array", "required": true},
+      "question_set": {"type": "array", "required": true},
+      "relationship_records": {"type": "object", "required": true},
+      "evidence_timelines": {"type": "object", "required": true},
+      "emergence_histories": {"type": "object", "required": true},
+      "constraint_records": {"type": "object", "required": true},
+      "graph_growth_analysis": {"type": "object", "required": true},
+      "intervention_outcomes": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["comprehensive", "deterministic", "replayable"]
+  }
+}

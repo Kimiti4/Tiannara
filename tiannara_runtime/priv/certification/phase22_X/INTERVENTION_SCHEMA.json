@@ -1,0 +1,22 @@
+{
+  "schema": "INTERVENTION_SCHEMA",
+  "version": "22.X.0",
+  "description": "Schema for a causal intervention",
+  "causal_intervention": {
+    "fields": {
+      "intervention_id": {"type": "string", "required": true},
+      "description": {"type": "string", "required": true},
+      "intervention_type": {"type": "string", "required": true, "enum": ["experimental", "engineering", "governance", "policy", "technological"]},
+      "affected_nodes": {"type": "array", "required": true},
+      "affected_layers": {"type": "array", "required": true},
+      "affected_edges": {"type": "array", "required": false},
+      "expected_effects": {"type": "object", "required": true},
+      "observed_effects": {"type": "object", "required": false},
+      "effect_comparison": {"type": "object", "required": false},
+      "confidence_update": {"type": "number", "required": false, "description": "0.0–1.0"},
+      "causal_graph_branch": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["lineage_preserved", "deterministic", "replayable"]
+  }
+}

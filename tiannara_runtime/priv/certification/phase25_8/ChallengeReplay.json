@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/challenge_replay.json",
+  "title": "ChallengeReplay",
+  "description": "A deterministic replay event for CDCIE.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^dcreplay_[a-f0-9]{16}$" },
+    "event_type": { "type": "string", "enum": ["ingestion_replay", "classification_replay", "priority_replay", "routing_replay", "lifecycle_replay", "full_pipeline_replay"] },
+    "challenge_id": { "type": "string" },
+    "target_time": { "type": "integer" },
+    "input_snapshot": { "type": "object" },
+    "output_snapshot": { "type": "object" },
+    "accuracy_verified": { "type": "boolean" },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshot", "output_snapshot", "content_hash"]
+}

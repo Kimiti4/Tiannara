@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/state_certificate.json",
+  "title": "StateCertificate",
+  "description": "Certification for the state engine or its domains.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^scert_[a-f0-9]{16}$" },
+    "entity_id": { "type": "string" },
+    "entity_type": { "type": "string", "enum": ["state_engine", "domain", "state_model", "uncertainty_model", "update_protocol"] },
+    "certification_type": { "type": "string", "enum": ["architecture", "domain", "methodology", "uncertainty", "update", "consistency", "replay", "data"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "deterministic": { "type": "boolean" },
+        "provenance_complete": { "type": "boolean" },
+        "uncertainty_preserved": { "type": "boolean" },
+        "cross_domain_consistent": { "type": "boolean" },
+        "replayable": { "type": "boolean" },
+        "immutable_history": { "type": "boolean" }
+      },
+      "required": ["deterministic", "provenance_complete", "uncertainty_preserved", "replayable"]
+    },
+    "certifying_authority": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" },
+    "expires_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "entity_id", "entity_type", "certification_type", "checks", "fingerprint"]
+}

@@ -1,0 +1,65 @@
+artifact: contra_003_reassessment
+stage: 7 (Certificate Authority Reconciliation)
+authority: TIA Council
+posture: RECONNAISSANCE / ANALYSIS ONLY
+recorded_at: 2026-09-10
+
+summary:
+  question: Q8 — Reassess CONTRA-003 under Stage-7 evidence.
+  allowed_dispositions: RESOLVED | PARTIALLY_RESOLVED | UNRESOLVED | FALSIFIED | INSUFFICIENT_EVIDENCE
+  verdict: UNRESOLVED (unchanged). Recorded with the additional precision that the blocking
+    evidence is unchanged and Stage 7 added NO discriminating gc_012 evidence. NOT
+    reopened, NOT closed, NOT falsified. The certificate-authority reconciliation is
+    INDEPENDENT of the gc_012 content disagreement. The policy draft explicitly preserves
+    it ("CONTRA-003 ... remain UNRESOLVED under this policy; the policy adds no gc_012 verdict").
+
+contra_003_current_state (evidence):
+  - claim_a: gc_012 certificate block: verified 2026-01-01T00:00:00Z fitness 0.8041,
+    entropy 0.1042 (phase14 certificate)
+    source: certification/reconnaissance/knowledge/TIA_CONTRADICTION_SYNTHESIS_M11.yaml:29
+  - claim_b: gc_012 campaign result 0.8035 / 0.0746
+    source: TIA_EXTERNAL_EVIDENCE_INTAKE_STOP.yaml:195, TIA_CERTIFICATE_TRUTH_INVESTIGATION.yaml:59
+  - claim_c: governance certificate 0.7864 / 0.1068 (19:47)
+    source: same, third variant
+  - status: CONFIRMED CONTRADICTION (three-way), UNRESOLVED.
+    sources: TIA_CONTRADICTION_RESOLUTION_M10.yaml:24-37,
+    TIA_CERTIFICATE_TRUTH_INVESTIGATION.yaml:59
+  - discrimination model: four candidate explanations (same execution/different
+    representation; different executions; different metric calculation; historical artifact
+    inconsistency) — TIA_MINIMUM_PROVENANCE_MODEL.yaml:272 (to be discriminated, not
+    reconciled by interpretation).
+  - minimum discriminating evidence: run ledger binding certificate issuance to a result
+    version, or equivalent execution record.
+    source: TIA_CONTRADICTION_SYNTHESIS_M11.yaml:37; TIA_CANONICAL_ARCHITECTURE_M7.yaml:115-117
+
+stage7_relevance:
+  - "Stage 7 added NO new gc_012 evidence: no execution-record sweep beyond earlier gates;
+     no certificate-identity claim binds gc_012 records together."
+  - "The certificate-authority recon does not touch CONTRA-003: the disagreement lives in
+     historical T0 artifacts; authority reconciliation concerns forward provenance."
+  - "M7 open decision list still carries gc_012 (CONTRA-003) as UNRESOLVED
+     (TIA_CANONICAL_ARCHITECTURE_M7.yaml:115-117); unchanged."
+
+disposition_reasoning:
+  - NOT RESOLVED: no discriminating evidence produced or consumed this pass.
+  - NOT PARTIALLY_RESOLVED: recon narrowed NO sub-clause; kb classification sharpening
+    (UNRESOLVED -> CONFIRMED CONTRADICTION) predates Stage 7.
+  - NOT FALSIFIED: no claim refuted; distinct-execution / transcription-drift / canonical-
+    subset explanations remain compatible with all observations.
+  - IS INSUFFICIENT_EVIDENCE-GATED: the reason it stays UNRESOLVED is absence of the
+    discriminating run ledger; but "UNRESOLVED" is the recorded status everywhere
+    (M7:115, M10:24, M11:28) and is preserved as such.
+  - Conclusion: reassess as UNRESOLVED (unchanged); add the precise blocking-evidence field
+    and the minimum discriminating evidence (run ledger) to the open-knowledge debt.
+
+open_knowledge_debt (carried, untouched):
+  - KD-001/CONTRA-003: gc_012 value disagreement between intact records, no discriminating
+    evidence. Source: certification/reconnaissance/knowledge/TIA_KNOWLEDGE_DEBT_M11.yaml:10
+  - KD-010 (certificate truth): deepened, still unknown (hash mismatch + self-referential
+    meta-chain). Source: TIA_CERTIFICATE_TRUTH_INVESTIGATION.yaml:85
+
+verdict:
+  CONTRA-003 -= UNRESOLVED (unchanged; INSUFFICIENT_EVIDENCE as the operative cause).
+  Prohibition respected: NO resolution attempt, NO interpretation, NO change to T0 /
+  archived runs / certificates. Reconciliation independence documented.
+  NOTHING_IMPLEMENTED: true.

@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/factory_model.json",
+  "title": "FactoryModel",
+  "description": "A constitutional digital model of a manufacturing facility.",
+  "type": "object",
+  "properties": {
+    "factory_id": { "type": "string", "pattern": "^factory_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "location": { "type": "string" },
+    "layout": { "type": "object" },
+    "equipment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "equipment_id": { "type": "string" },
+          "type": { "type": "string" },
+          "capabilities": { "type": "array", "items": { "type": "string" } },
+          "status": { "type": "string", "enum": ["operational", "maintenance", "offline", "retired"] }
+        }
+      }
+    },
+    "processes": { "type": "array", "items": { "type": "string" } },
+    "material_flow": { "type": "object" },
+    "capacity": { "type": "object", "properties": { "max_throughput": { "type": "number" }, "current_utilization": { "type": "number" } } },
+    "certifications": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["factory_id", "name", "location", "equipment", "fingerprint"]
+}

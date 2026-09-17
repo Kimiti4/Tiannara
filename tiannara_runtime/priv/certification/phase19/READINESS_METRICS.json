@@ -1,0 +1,38 @@
+{
+  "cri_level": "CRI-6",
+  "dimension_scores": {
+    "research": 0.90,
+    "institutions": 0.85,
+    "infrastructure": 0.82,
+    "planning": 0.80,
+    "coordination": 0.87,
+    "economy": 0.83,
+    "scientific_capital": 0.81,
+    "knowledge": 0.90,
+    "resilience": 0.87,
+    "governance": 0.92,
+    "mathematics_integration": 0.95,
+    "world_model_preparedness": 0.88
+  },
+  "overall": 0.868,
+  "threshold": 0.7,
+  "pass": true,
+  "validated_at": "deterministic_generation_timestamp",
+  "validator": "Independent Certification Authority",
+  "dimension_weights": {
+    "research": 0.10,
+    "institutions": 0.10,
+    "infrastructure": 0.08,
+    "planning": 0.08,
+    "coordination": 0.09,
+    "economy": 0.09,
+    "scientific_capital": 0.07,
+    "knowledge": 0.10,
+    "resilience": 0.09,
+    "governance": 0.08,
+    "mathematics_integration": 0.07,
+    "world_model_preparedness": 0.05
+  },
+  "replay_root": "content_addressed_replay_root",
+  "archaeology_root": "content_addressed_archaeology_root"
+}

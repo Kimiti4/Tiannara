@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_decision.json",
+  "title": "EngineeringDecision",
+  "description": "A recorded engineering decision with complete context and rationale.",
+  "type": "object",
+  "properties": {
+    "decision_id": { "type": "string", "pattern": "^edec_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "context": { "type": "string" },
+    "alternatives": { "type": "array", "items": { "type": "object", "properties": { "option": { "type": "string" }, "pros": { "type": "array", "items": { "type": "string" } }, "cons": { "type": "array", "items": { "type": "string" } } } } },
+    "selected_option": { "type": "string" },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "tradeoffs": { "type": "array", "items": { "type": "string" } },
+    "risks": { "type": "array", "items": { "type": "string" } },
+    "expected_outcomes": { "type": "array", "items": { "type": "string" } },
+    "decision_maker": { "type": "string" },
+    "rationale": { "type": "string" },
+    "outcome_validation": { "type": "object", "properties": { "validated": { "type": "boolean" }, "actual_outcome": { "type": "string" }, "validation_timestamp": { "type": "integer" } } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "decided_at": { "type": "integer" }
+  },
+  "required": ["decision_id", "context", "alternatives", "selected_option", "rationale", "fingerprint"]
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "CAUSAL_LAYER_SCHEMA",
+  "version": "22.X.0",
+  "description": "Schema for a constitutional causal layer",
+  "causal_layer": {
+    "fields": {
+      "layer_id": {"type": "integer", "required": true, "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]},
+      "layer_name": {"type": "string", "required": true},
+      "scope": {"type": "string", "required": true},
+      "entity_types": {"type": "array", "required": true},
+      "causal_types": {"type": "array", "required": true},
+      "evidence_types": {"type": "array", "required": true},
+      "adjacent_up": {"type": "integer", "required": false},
+      "adjacent_down": {"type": "integer", "required": false},
+      "emergence_rules": {"type": "array", "required": false},
+      "constraint_rules": {"type": "array", "required": false},
+      "replay_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["extensible", "deterministic", "replayable"]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TelemetryEvent",
+  "description": "An immutable telemetry event",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this event"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of event"
+    },
+    "event_type": {
+      "type": "string",
+      "description": "Type of event"
+    },
+    "subsystem": {
+      "type": "string",
+      "description": "Subsystem that generated the event"
+    },
+    "event_data": {
+      "type": "object",
+      "description": "Event-specific data"
+    },
+    "previous_event_hash": {
+      "type": "string",
+      "description": "Hash of previous event for chain integrity"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Event metadata"
+    },
+    "hash": {
+      "type": "string",
+      "description": "Content-addressed hash of this event"
+    }
+  },
+  "required": ["event_id", "timestamp", "event_type", "subsystem", "event_data", "hash"],
+  "additionalProperties": false
+}

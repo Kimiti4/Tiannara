@@ -1,0 +1,19 @@
+{
+  "schema": "PREDICTION_ARCHAEOLOGY_SCHEMA",
+  "version": "21.9",
+  "description": "Schema for archaeological reconstruction of predictive civilization evolution",
+  "prediction_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "future_world_id": {"type": "string", "required": true},
+      "branch_events": {"type": "array", "required": true},
+      "assumption_snapshots": {"type": "array", "required": true},
+      "confidence_evolution": {"type": "array", "required": true},
+      "intervention_history": {"type": "array", "required": true},
+      "evidence_chain": {"type": "array", "required": true},
+      "prediction_lineage": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

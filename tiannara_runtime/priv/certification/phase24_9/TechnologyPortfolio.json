@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/technology_portfolio.json",
+  "title": "TechnologyPortfolio",
+  "description": "A portfolio of technologies managed by the CCEIE, spanning emerging to historical.",
+  "type": "object",
+  "properties": {
+    "portfolio_id": { "type": "string", "pattern": "^tport_[a-f0-9]{16}$" },
+    "technologies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "technology_id": { "type": "string" },
+          "name": { "type": "string" },
+          "category": { "type": "string", "enum": ["emerging", "experimental", "validated", "production", "infrastructure", "historical"] },
+          "readiness_level": { "type": "integer", "minimum": 1, "maximum": 9 },
+          "scientific_origin": { "type": "string" },
+          "certification_status": { "type": "string", "enum": ["uncertified", "in_review", "certified", "revoked"] },
+          "lineage": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["technology_id", "name", "category", "readiness_level"]
+      }
+    },
+    "portfolio_metrics": {
+      "type": "object",
+      "properties": {
+        "diversity_index": { "type": "number" },
+        "risk_exposure": { "type": "number" },
+        "maturity_distribution": { "type": "object" },
+        "innovation_velocity": { "type": "number" }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "snapshot_at": { "type": "integer" }
+  },
+  "required": ["portfolio_id", "technologies", "fingerprint"]
+}

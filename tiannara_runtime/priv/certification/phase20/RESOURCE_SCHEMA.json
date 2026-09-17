@@ -1,0 +1,24 @@
+{
+  "schema": "RESOURCE_SCHEMA",
+  "version": "20.2",
+  "resource_types": ["cpu", "memory", "gpu", "simulation_budget", "research_budget", "mathematics_budget", "storage", "network", "knowledge_budget"],
+  "allocation_structure": {
+    "allocation_id": {"type": "string", "required": true},
+    "mission_id": {"type": "string", "required": true},
+    "resource_type": {"type": "string", "required": true},
+    "amount": {"type": "number", "required": true},
+    "allocated_at": {"type": "integer", "required": true},
+    "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+  },
+  "budget_model": {
+    "execution_budget": {"type": "object"},
+    "replay_budget": {"type": "object"},
+    "memory_budget": {"type": "object"},
+    "mathematics_budget": {"type": "object"},
+    "simulation_budget": {"type": "object"},
+    "knowledge_budget": {"type": "object"}
+  },
+  "constraints": ["immutable_allocation", "fail_closed_on_exhaustion", "replayable"]
+}

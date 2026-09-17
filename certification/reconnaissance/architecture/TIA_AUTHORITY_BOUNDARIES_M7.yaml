@@ -1,0 +1,125 @@
+# Move 7 — Authority Boundary Matrix
+# Per authority: observed authority, intended authority (only if explicitly
+# evidenced), interface, caller/consumer, persistence, verification,
+# conflicts. Authority is never inferred from supervision-tree position alone.
+artifact: AUTHORITY_BOUNDARIES_M7
+artifact_status: POST_T0
+move: 7
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+boundaries:
+- authority: OBSERVATORY
+  responsibility: Observation surface (classifiers, dashboards, domain/mathematics metrics, runtime atlas, telemetry sink, topology, validation checks/metrics store)
+  interface: Module surfaces in lib/tiannara/observatory/ (signatures not enumerated)
+  caller_consumer: Unevidenced in this pass (no consumer enumeration performed)
+  persistence: Validation metrics store module present; contents unevidenced
+  verification: None evidenced (no tests enumerated for observatory in this pass)
+  observed_authority: Observation and measurement only; no enforcement interface evidenced
+  intended_authority: UNKNOWN (no explicit mandate text adduced in this pass)
+  conflict: none identified
+  confidence: MEDIUM
+  evidence: T0 directory listing + supervision membership (ValidationSupervisor boots)
+- authority: COUNCIL
+  responsibility: Constitutional governance; audit trail; authorization decisions
+  interface: Council.Authorization struct (five decision states); D3 adapter references Council.authorize/3 with never-fabricated error
+  caller_consumer: Referenced by cel/kernel, resource_manager, forecasting decision adapter, phase4 orchestrator, world_mutation_engine (reference listing, not call graph)
+  persistence: council_audit_log DETS trail with rotation policy
+  verification: None evidenced (no Council test execution in baseline)
+  observed_authority: Supervises AuditLog (Council.Supervisor children); authorization struct + adapter contract text describe permit/deny semantics
+  intended_authority: Sole authorization authority per D3 adapter contract text (transcribed, not independently verified at runtime)
+  conflict: none identified (no competing authorizer evidenced)
+  confidence: MEDIUM
+  evidence: T0 supervision content + contract text + caller references
+- authority: EXECUTIVE
+  responsibility: Executive Memory subsystem supervision (per supervisor moduledoc)
+  interface: Executive Memory GenServer surface (not enumerated)
+  caller_consumer: Unevidenced in this pass
+  persistence: Executive Memory subsystem (mechanism unevidenced in this pass)
+  verification: None evidenced
+  observed_authority: Memory-subsystem supervision ONLY; no general execution authority evidenced despite the name
+  intended_authority: UNKNOWN
+  conflict: Naming suggests broader execution role than observed memory scope; recorded as naming-vs-observed tension, not a finding of misdesign
+  confidence: MEDIUM
+  evidence: T0 supervisor content + supervision membership
+- authority: CIVILIZATION KERNEL
+  responsibility: Constitutional kernel for civilization-wide coordination and evolution (Capability 13.4, per moduledoc)
+  interface: Not enumerated in this pass
+  caller_consumer: Unevidenced in this pass
+  persistence: Unevidenced in this pass
+  verification: None evidenced
+  observed_authority: Boots in supervision tree; coordination/evolution role claimed in moduledoc, unevidenced beyond that
+  intended_authority: UNKNOWN
+  conflict: none identified
+  confidence: LOW
+  evidence: T0 moduledoc text + supervision membership
+- authority: CERTIFICATION
+  responsibility: Claimed across verification_authority, independent_auditor, certification_framework, run script, phase14 corpus
+  interface: Proposal verification (GenServer call); replay/authority verification entries; offline JSON audit; campaign framework (uncalled)
+  caller_consumer: cel/kernel, resource_manager, decision adapter, phase4 orchestrator, world_mutation_engine reference Council certification; certification_framework has zero callers
+  persistence: phase14 corpus (campaign JSONs + hash bindings + certificate + evidence index)
+  verification: None evidenced (no certification-execution records; CONTRA-003 unresolved)
+  observed_authority: DISTRIBUTED AND UNRESOLVED — no single certifier evidenced; references point at Council certification without a demonstrated certification execution path
+  intended_authority: UNKNOWN
+  conflict: POTENTIAL — four verification artifacts with overlapping vocabulary and no established hierarchy (see unification matrix; all UNKNOWN or KEEP_SEPARATE rows, zero consolidation)
+  confidence: MEDIUM
+  evidence: T0 module contents + caller references + phase14 corpus + CONTRA-003
+- authority: EVIDENCE_FORENSIC
+  responsibility: Provenance acceptance gating; fabricated-record quarantine; Move-0 forensic inventory
+  interface: Provenance build/unknown/acceptable_as_evidence?/hash (signatures verified); certification_gate and historical_quarantine module surfaces (not enumerated)
+  caller_consumer: Move-0 engine consumes T0 content (demonstrated); gate/quarantine callers unevidenced
+  persistence: 8 Move-0 output JSONs (POST_T0 working tree); provenance records carry no store of their own
+  verification: R7 12/12 (Council record); Move-0 20/20 RI + two-run determinism (Council record)
+  observed_authority: Gate predicate enforced at code level where invoked; invocation coverage unevidenced beyond Move-0 usage
+  intended_authority: Evidence-bound autonomy per vision (transcribed, not verified)
+  conflict: none identified
+  confidence: MEDIUM
+  evidence: T0 content reads + Council R7/Move-0 records
+- authority: MEMORY_KNOWLEDGE
+  responsibility: Claimed across mindcache paths, knowledge archives, discovery chain, world-model records, knowledge JSONs
+  interface: None evidenced (no read/write/query interface found for the records; archive modules have moduledoc-described roles only)
+  caller_consumer: None found for the records; archive modules have no evidenced consumers
+  persistence: JSON records + mindcache paths + ndjson snapshot convention (moduledoc-described, not demonstrated)
+  verification: None evidenced
+  observed_authority: NONE DEMONSTRATED — the strongest negative result in this matrix
+  intended_authority: UNKNOWN
+  conflict: none identified (no competing authority claims evidenced either)
+  confidence: HIGH (that authority is undemonstrated)
+  evidence: Negative grep results (Move 2B-T3) + presence inventory
+- authority: STABILIZATION
+  responsibility: Regulation (immune response, collapse prediction per CIS moduledoc; stabilizer modules per directory)
+  interface: Module surfaces not enumerated in this pass
+  caller_consumer: Wired callers exist (application, phase_omega, crav, e03 harness); regulation-effect consumer unevidenced
+  persistence: None evidenced
+  verification: None evidenced (zero T0 tests)
+  observed_authority: Supervised boot + wiring; CIS-Regulation vs Stabilization-subsystem overlap UNRESOLVED (which regulates what is undetermined)
+  intended_authority: Bounded-chaos regulation per vision (transcribed, not verified)
+  conflict: POTENTIAL — CIS moduledoc claims regulation alongside the Stabilization subsystem; no boundary text found separating them
+  confidence: MEDIUM
+  evidence: T0 supervision content + caller listing + CIS moduledoc
+- authority: AUTONOMOUS_EVOLUTION
+  responsibility: Claimed across phase4 registered services, E03 protocol, evolution substrate
+  interface: phase4 health/constitutional-score check callbacks (registered in CEL service registry); LongHorizon generator contract
+  caller_consumer: Registry references phase4 modules; E03 harness references stabilizers; no execution evidenced
+  persistence: None evidenced
+  verification: None evidenced (E03 0 runs; zero evolution tests in T0)
+  observed_authority: Registered services with health checks; no autonomous execution evidenced
+  intended_authority: UNKNOWN
+  conflict: none identified
+  confidence: MEDIUM
+  evidence: T0 registry content + E03 protocol record (blocked)
+- authority: DISCOVERY
+  responsibility: Claimed across discovery/ tree (artifact, certificate, lineage, cycle, engine modules)
+  interface: Not enumerated in this pass
+  caller_consumer: Unevidenced in this pass
+  persistence: Discovery records (chain/ledger JSONs) with no evidenced builders
+  verification: None evidenced
+  observed_authority: Module presence only
+  intended_authority: UNKNOWN
+  conflict: none identified
+  confidence: LOW
+  evidence: T0 directory listing + record presence
+aggregate:
+  boundaries_established: 10
+  conflicts_identified: 2
+  conflicts_list: [certification-distributed-unresolved, stabilization-vs-CIS-regulation-overlap]
+  unresolved_authorities: 7

@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ImaginationReplay",
+  "description": "Deterministic replay verification record for the scientific imagination system",
+  "type": "object",
+  "properties": {
+    "replay_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this replay verification"
+    },
+    "replay_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of replay"
+    },
+    "replay_scope": {
+      "type": "string",
+      "enum": ["single_generation", "classification", "validation_pipeline", "imagination_workflow"]
+    },
+    "operation_type": {
+      "type": "string",
+      "enum": ["counterfactual_generation", "hypothesis_generation", "classification", "validation_pipeline_creation", "knowledge_migration"]
+    },
+    "operation_reference": {
+      "type": "string",
+      "description": "Reference to the original operation record"
+    },
+    "original_state": {
+      "type": "object",
+      "properties": {
+        "state_id": {
+          "type": "string"
+        },
+        "state_hash": {
+          "type": "string"
+        }
+      },
+      "required": ["state_id", "state_hash"]
+    },
+    "replayed_state": {
+      "type": "object",
+      "properties": {
+        "state_id": {
+          "type": "string"
+        },
+        "state_hash": {
+          "type": "string"
+        }
+      },
+      "required": ["state_id", "state_hash"]
+    },
+    "hash_match": {
+      "type": "boolean",
+      "description": "Whether original and replayed hashes match"
+    },
+    "classification_verification": {
+      "type": "object",
+      "properties": {
+        "classification_consistent": {
+          "type": "boolean"
+        },
+        "classification_unchanged": {
+          "type": "boolean"
+        }
+      },
+      "required": ["classification_consistent"]
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": ["verified", "hash_mismatch", "classification_mismatch", "incomplete"]
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash of this replay record"
+    }
+  },
+  "required": ["replay_id", "replay_date", "replay_scope", "operation_reference", "original_state", "replayed_state", "hash_match", "verification_status", "fingerprint"]
+}

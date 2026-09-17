@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_state.json",
+  "title": "EngineeringState",
+  "description": "A deterministic state transition for an engineering artifact.",
+  "type": "object",
+  "properties": {
+    "transition_id": { "type": "string", "pattern": "^estate_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "from_state": { "type": "string", "enum": ["draft", "proposed", "reviewed", "validated", "approved", "certified", "frozen", "archived"] },
+    "to_state": { "type": "string", "enum": ["draft", "proposed", "reviewed", "validated", "approved", "certified", "frozen", "archived"] },
+    "transition_type": { "type": "string", "enum": ["forward", "regression", "recertification"] },
+    "rationale": { "type": "string" },
+    "triggered_by": { "type": "string" },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "certificate_id": { "type": "string" },
+    "constitutional_review": { "type": "object", "properties": { "required": { "type": "boolean" }, "passed": { "type": "boolean" }, "review_notes": { "type": "string" } } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "transitioned_at": { "type": "integer" }
+  },
+  "required": ["transition_id", "artifact_id", "from_state", "to_state", "rationale", "fingerprint"]
+}

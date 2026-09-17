@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiannara Observatory — Boot Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .boot-container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+      font-family: var(--font-mono);
+    }
+
+    .boot-banner {
+      text-align: center;
+      padding: 2rem 0 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+    }
+
+    .boot-banner-bar {
+      font-size: 0.9rem;
+      color: var(--primary);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+      opacity: 0.7;
+    }
+
+    .boot-banner-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.2em;
+      margin: 0.5rem 0;
+    }
+
+    .boot-banner-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    .boot-status-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+    }
+
+    .boot-status-label {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .boot-status-value {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .boot-status-value.ready { color: var(--success); }
+    .boot-status-value.failed { color: var(--critical); }
+    .boot-status-value.booting { color: var(--warning); }
+
+    .boot-phases {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .boot-phase {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: border-color var(--transition-fast);
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .boot-phase.visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.4s ease, transform 0.4s ease, border-color var(--transition-fast);
+    }
+
+    .boot-phase:hover {
+      border-color: var(--border-active);
+    }
+
+    .boot-phase.completed {
+      border-left: 2px solid var(--success);
+    }
+
+    .boot-phase.running {
+      border-left: 2px solid var(--warning);
+    }
+
+    .boot-phase.failed {
+      border-left: 2px solid var(--critical);
+    }
+
+    .boot-phase.pending {
+      border-left: 2px solid var(--text-tertiary);
+      opacity: 0.5;
+    }
+
+    .boot-phase-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .boot-phase-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .boot-phase-id {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      min-width: 2rem;
+    }
+
+    .boot-phase-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .boot-phase-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .boot-phase-icon {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .boot-phase.completed .boot-phase-icon { color: var(--success); }
+    .boot-phase.running .boot-phase-icon { color: var(--warning); }
+    .boot-phase.failed .boot-phase-icon { color: var(--critical); }
+    .boot-phase.pending .boot-phase-icon { color: var(--text-tertiary); }
+
+    .boot-phase-chevron {
+      color: var(--text-tertiary);
+      transition: transform var(--transition-fast);
+      font-size: 0.7rem;
+    }
+
+    .boot-phase.expanded .boot-phase-chevron {
+      transform: rotate(90deg);
+    }
+
+    .boot-phase-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .boot-phase.expanded .boot-phase-body {
+      max-height: 500px;
+    }
+
+    .boot-phase-steps {
+      padding: 0 1rem 0.75rem 3.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .boot-step {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      padding: 0.2rem 0;
+    }
+
+    .boot-step-name {
+      color: var(--text-secondary);
+    }
+
+    .boot-step-status {
+      font-weight: 500;
+    }
+
+    .boot-step.done .boot-step-status { color: var(--success); }
+    .boot-step.running .boot-step-status { color: var(--warning); }
+    .boot-step.failed .boot-step-status { color: var(--critical); }
+    .boot-step.pending .boot-step-status { color: var(--text-tertiary); }
+
+    .boot-recovery {
+      margin-top: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 51, 102, 0.06);
+      border-top: 1px solid rgba(255, 51, 102, 0.2);
+    }
+
+    .boot-recovery-title {
+      font-size: 0.7rem;
+      color: var(--critical);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+    }
+
+    .boot-recovery-actions {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .boot-recovery-btn {
+      font-size: 0.7rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-family: var(--font-mono);
+    }
+
+    .boot-recovery-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .boot-recovery-btn.restart:hover {
+      border-color: var(--warning);
+      color: var(--warning);
+    }
+
+    .boot-recovery-btn.safe-mode:hover {
+      border-color: var(--critical);
+      color: var(--critical);
+    }
+
+    .boot-progress {
+      height: 3px;
+      background: var(--bg-tertiary);
+      border-radius: 2px;
+      margin: 0 1rem 0.5rem;
+      overflow: hidden;
+    }
+
+    .boot-progress-bar {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    .boot-progress-bar.complete {
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(0, 255, 159, 0.3);
+    }
+
+    .boot-progress-bar.error {
+      background: var(--critical);
+      box-shadow: 0 0 8px rgba(255, 51, 102, 0.3);
+    }
+
+    .boot-profiles {
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.5rem;
+    }
+
+    .boot-profiles-title {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+
+    .boot-profiles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .boot-profile {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.65rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .boot-profile:hover {
+      border-color: var(--border-active);
+      background: var(--bg-tertiary);
+    }
+
+    .boot-profile.active {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    .boot-profile-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-tertiary);
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+
+    .boot-profile.active .boot-profile-dot {
+      background: var(--primary);
+      box-shadow: 0 0 6px var(--primary);
+    }
+
+    .boot-profile-info {
+      flex: 1;
+    }
+
+    .boot-profile-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.15rem;
+    }
+
+    .boot-profile-desc {
+      font-size: 0.68rem;
+      color: var(--text-tertiary);
+      line-height: 1.4;
+    }
+
+    .boot-connecting {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .boot-connecting-title {
+      font-size: 1rem;
+      color: var(--text-primary);
+      letter-spacing: 0.15em;
+      margin-bottom: 1rem;
+    }
+
+    .boot-connecting-sub {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+
+    .boot-connecting-dots {
+      display: flex;
+      gap: 0.4rem;
+      margin: 1.5rem 0;
+    }
+
+    .boot-connecting-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      animation: bootPulse 1.4s ease-in-out infinite;
+    }
+
+    .boot-connecting-dot:nth-child(2) { animation-delay: 0.2s; }
+    .boot-connecting-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bootPulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100vh); }
+    }
+
+    .boot-scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary-glow), transparent);
+      pointer-events: none;
+      opacity: 0.4;
+      animation: scanline 4s linear infinite;
+      z-index: 50;
+    }
+
+    @media (max-width: 600px) {
+      .boot-container { padding: 1rem; }
+      .boot-profiles-grid { grid-template-columns: 1fr; }
+      .boot-phase-steps { padding-left: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top-header">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" stroke="var(--primary)" stroke-width="2"/>
+          <circle cx="16" cy="16" r="8" stroke="var(--primary)" stroke-width="1.5" opacity="0.6"/>
+          <circle cx="16" cy="16" r="3" fill="var(--primary)"/>
+          <line x1="16" y1="2" x2="16" y2="8" stroke="var(--primary)" stroke-width="1.5"/>
+          <line x1="16" y1="24" x2="16" y2="30" stroke="var(--primary)" stroke-width="1.5"/>
+          <line x1="2" y1="16" x2="8" y2="16" stroke="var(--primary)" stroke-width="1.5"/>
+          <line x1="24" y1="16" x2="30" y2="16" stroke="var(--primary)" stroke-width="1.5"/>
+        </svg>
+        <span class="logo-text">Tiannara Observatory</span>
+      </div>
+      <span class="header-subtitle">Boot Dashboard</span>
+    </div>
+    <div class="header-right">
+      <div class="system-status" id="systemStatus">
+        <span class="status-indicator"></span>
+        <span class="status-text" id="statusText">Connecting...</span>
+      </div>
+      <div class="system-time" id="systemTime">--:--:--</div>
+    </div>
+  </header>
+
+  <div class="boot-scanline"></div>
+
+  <div class="boot-container">
+    <div class="boot-banner">
+      <div class="boot-banner-bar">██████████████████████████</div>
+      <div class="boot-banner-title">TIANNARA RUNTIME</div>
+      <div class="boot-banner-subtitle">Startup Sequence Monitor</div>
+      <div class="boot-banner-bar">██████████████████████████</div>
+    </div>
+
+    <div class="boot-status-line">
+      <span class="boot-status-label">System Status</span>
+      <span class="boot-status-value" id="bootStatusValue">Connecting...</span>
+    </div>
+
+    <div class="boot-status-line">
+      <span class="boot-status-label">Elapsed</span>
+      <span class="boot-status-value" id="bootElapsed">--</span>
+    </div>
+
+    <div class="boot-progress">
+      <div class="boot-progress-bar" id="bootProgressBar" style="width: 0%"></div>
+    </div>
+
+    <div id="bootContent">
+      <div class="boot-connecting" id="bootConnecting">
+        <div class="boot-connecting-title">INITIALIZING</div>
+        <div class="boot-connecting-dots">
+          <div class="boot-connecting-dot"></div>
+          <div class="boot-connecting-dot"></div>
+          <div class="boot-connecting-dot"></div>
+        </div>
+        <div class="boot-connecting-sub">Establishing connection to boot sequencer...</div>
+      </div>
+    </div>
+
+    <div class="boot-phases" id="bootPhases" style="display:none"></div>
+
+    <div class="boot-profiles">
+      <div class="boot-profiles-title">Boot Profiles</div>
+      <div class="boot-profiles-grid" id="bootProfilesGrid">
+        <div class="boot-profile" data-profile="development">
+          <div class="boot-profile-dot"></div>
+          <div class="boot-profile-info">
+            <div class="boot-profile-name">Development</div>
+            <div class="boot-profile-desc">Everything with hot reload</div>
+          </div>
+        </div>
+        <div class="boot-profile" data-profile="research">
+          <div class="boot-profile-dot"></div>
+          <div class="boot-profile-info">
+            <div class="boot-profile-name">Research</div>
+            <div class="boot-profile-desc">Runtime + observatories + experiments</div>
+          </div>
+        </div>
+        <div class="boot-profile" data-profile="production">
+          <div class="boot-profile-dot"></div>
+          <div class="boot-profile-info">
+            <div class="boot-profile-name">Production</div>
+            <div class="boot-profile-desc">Full optimized stack</div>
+          </div>
+        </div>
+        <div class="boot-profile" data-profile="benchmark">
+          <div class="boot-profile-dot"></div>
+          <div class="boot-profile-info">
+            <div class="boot-profile-name">Benchmark</div>
+            <div class="boot-profile-desc">Runtime + telemetry + profilers</div>
+          </div>
+        </div>
+        <div class="boot-profile" data-profile="safe_mode">
+          <div class="boot-profile-dot"></div>
+          <div class="boot-profile-info">
+            <div class="boot-profile-name">Safe Mode</div>
+            <div class="boot-profile-desc">Core runtime only</div>
+          </div>
+        </div>
+        <div class="boot-profile" data-profile="distributed">
+          <div class="boot-profile-dot"></div>
+          <div class="boot-profile-info">
+            <div class="boot-profile-name">Distributed</div>
+            <div class="boot-profile-desc">Local node joins cluster</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    const Boot = (() => {
+      const API_BASE = (() => {
+        try {
+          if (window.location && window.location.protocol === 'file:') {
+            return 'http://localhost:4000/api/v1';
+          }
+          if (window.location && window.location.origin) {
+            return `${window.location.origin}/api/v1`;
+          }
+        } catch (_) {}
+        return '/api/v1';
+      })();
+      const POLL_BOOT = 2000;
+      const POLL_READY = 30000;
+      let timer = null;
+      let startTime = null;
+      let elapsedTimer = null;
+      let currentProfile = null;
+
+      const PHASE_DEFS = [
+        { id: 0, name: 'Environment', steps: ['Elixir version', 'Erlang/OTP version', 'Node.js', 'PostgreSQL', 'Redis', 'NATS'] },
+        { id: 1, name: 'Infrastructure', steps: ['PostgreSQL', 'Redis', 'NATS JetStream'] },
+        { id: 2, name: 'Runtime', steps: ['BEAM', 'Telemetry', 'SubsystemRegistry', 'BootSequencer', 'CPL', 'All subsystems'] },
+        { id: 3, name: 'API', steps: ['Phoenix', 'REST', 'WebSocket'] },
+        { id: 4, name: 'Frontend', steps: ['Observatory UI', 'COA Dashboard'] },
+        { id: 5, name: 'Health', steps: ['CRAV scan', 'All checks passed'] }
+      ];
+
+      function init() {
+        startClock();
+        bindProfiles();
+        fetchBootStatus();
+      }
+
+      function startClock() {
+        const el = document.getElementById('systemTime');
+        function tick() {
+          const now = new Date();
+          el.textContent = now.toLocaleTimeString('en-US', { hour12: false }) + ' UTC';
+        }
+        tick();
+        setInterval(tick, 1000);
+      }
+
+      function bindProfiles() {
+        document.querySelectorAll('.boot-profile').forEach(p => {
+          p.addEventListener('click', () => {
+            document.querySelectorAll('.boot-profile').forEach(el => el.classList.remove('active'));
+            p.classList.add('active');
+            currentProfile = p.dataset.profile;
+            selectProfile(currentProfile);
+          });
+        });
+      }
+
+      async function selectProfile(profile) {
+        try {
+          await fetchJSON(`${API_BASE}/boot/profile`, { method: 'POST', body: JSON.stringify({ profile }) });
+          toast(`Profile switched to ${profile}`, 'info');
+          schedulePoll(POLL_BOOT);
+        } catch (err) {
+          toast(`Failed to switch profile`, 'error');
+        }
+      }
+
+      function updateSystemStatus(state, text) {
+        const indicator = document.querySelector('.status-indicator');
+        const label = document.getElementById('statusText');
+        indicator.className = 'status-indicator';
+        if (state === 'connected') indicator.classList.add('connected');
+        if (state === 'error') indicator.classList.add('error');
+        label.textContent = text;
+      }
+
+      async function fetchBootStatus() {
+        try {
+          const res = await fetchJSON(`${API_BASE}/boot/status`);
+          startTime = startTime || Date.now();
+          startElapsedTimer(res.started_at);
+          document.getElementById('bootConnecting').style.display = 'none';
+          document.getElementById('bootPhases').style.display = 'flex';
+          renderBootStatus(res);
+
+          if (res.status === 'ready' || res.status === 'complete') {
+            updateSystemStatus('connected', 'Ready');
+            updateBootStatus('ready', 'READY');
+            schedulePoll(POLL_READY);
+            stopElapsedTimer();
+          } else if (res.status === 'failed' || res.status === 'error') {
+            updateSystemStatus('error', 'Boot Failed');
+            updateBootStatus('failed', 'FAILED');
+            schedulePoll(POLL_READY);
+            stopElapsedTimer();
+          } else {
+            updateSystemStatus('connected', 'Booting...');
+            updateBootStatus('booting', 'BOOTING');
+            schedulePoll(POLL_BOOT);
+          }
+        } catch (err) {
+          updateSystemStatus('error', 'API Unreachable');
+          updateBootStatus('failed', 'OFFLINE');
+          document.getElementById('bootConnecting').style.display = 'none';
+          document.getElementById('bootPhases').style.display = 'flex';
+          renderStaticReady();
+          schedulePoll(POLL_READY);
+        }
+      }
+
+      function schedulePoll(interval) {
+        if (timer) clearInterval(timer);
+        timer = setInterval(fetchBootStatus, interval);
+      }
+
+      function startElapsedTimer(startedAt) {
+        if (elapsedTimer) clearInterval(elapsedTimer);
+        const start = startedAt ? new Date(startedAt).getTime() : Date.now();
+        const el = document.getElementById('bootElapsed');
+        function tick() {
+          const diff = Date.now() - start;
+          const s = Math.floor(diff / 1000);
+          const m = Math.floor(s / 60);
+          const sec = s % 60;
+          el.textContent = `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
+        tick();
+        elapsedTimer = setInterval(tick, 1000);
+      }
+
+      function stopElapsedTimer() {
+        if (elapsedTimer) clearInterval(elapsedTimer);
+        elapsedTimer = null;
+      }
+
+      function updateBootStatus(state, text) {
+        const el = document.getElementById('bootStatusValue');
+        el.className = 'boot-status-value';
+        el.classList.add(state);
+        el.textContent = text;
+      }
+
+      function renderBootStatus(data) {
+        const container = document.getElementById('bootPhases');
+        container.innerHTML = '';
+
+        const phases = data.phases || [];
+        const totalPhases = PHASE_DEFS.length;
+        let completedPhases = 0;
+        let hasFailed = false;
+
+        PHASE_DEFS.forEach((def, idx) => {
+          const phaseData = phases[idx] || {};
+          const state = phaseData.status || def.state || 'pending';
+          const stepData = phaseData.steps || [];
+
+          if (state === 'completed' || state === 'done') completedPhases++;
+          if (state === 'failed') hasFailed = true;
+
+          const el = document.createElement('div');
+          el.className = `boot-phase ${state === 'completed' || state === 'done' ? 'completed' : state === 'running' ? 'running' : state === 'failed' ? 'failed' : 'pending'}`;
+
+          const icon = state === 'completed' || state === 'done' ? '✓' : state === 'running' ? '◉' : state === 'failed' ? '✗' : '○';
+
+          const stepsHtml = def.steps.map((stepName, sIdx) => {
+            const sData = stepData[sIdx] || {};
+            const sState = sData.status || 'pending';
+            const sClass = sState === 'completed' || sState === 'done' ? 'done' : sState === 'running' ? 'running' : sState === 'failed' ? 'failed' : 'pending';
+            const sIcon = sClass === 'done' ? '✓' : sClass === 'running' ? '◉' : sClass === 'failed' ? '✗' : '○';
+            return `<div class="boot-step ${sClass}">
+              <span class="boot-step-name">${stepName}</span>
+              <span class="boot-step-status">${sIcon}</span>
+            </div>`;
+          }).join('');
+
+          const recoveryHtml = state === 'failed' ? `
+            <div class="boot-recovery">
+              <div class="boot-recovery-title">Phase ${def.id} Failed</div>
+              <div class="boot-recovery-actions">
+                <button class="boot-recovery-btn restart" onclick="Boot.restartPhase(${def.id})">Restart</button>
+                <button class="boot-recovery-btn" onclick="Boot.skipPhase(${def.id})">Skip</button>
+                <button class="boot-recovery-btn" onclick="Boot.diagnostics(${def.id})">Diagnostics</button>
+                <button class="boot-recovery-btn safe-mode" onclick="Boot.safeMode()">Safe Mode</button>
+              </div>
+            </div>
+          ` : '';
+
+          el.innerHTML = `
+            <div class="boot-phase-head" onclick="Boot.togglePhase(this)">
+              <div class="boot-phase-left">
+                <span class="boot-phase-id">Phase ${def.id}</span>
+                <span class="boot-phase-name">${def.name}</span>
+              </div>
+              <div class="boot-phase-right">
+                <span class="boot-phase-icon">${icon}</span>
+                <span class="boot-phase-chevron">▶</span>
+              </div>
+            </div>
+            <div class="boot-phase-body">
+              <div class="boot-phase-steps">${stepsHtml}</div>
+              ${recoveryHtml}
+            </div>
+          `;
+
+          container.appendChild(el);
+          setTimeout(() => el.classList.add('visible'), idx * 80);
+        });
+
+        const pct = Math.round((completedPhases / totalPhases) * 100);
+        const bar = document.getElementById('bootProgressBar');
+        bar.style.width = pct + '%';
+        bar.className = 'boot-progress-bar';
+        if (hasFailed) bar.classList.add('error');
+        else if (pct === 100) bar.classList.add('complete');
+      }
+
+      function renderStaticReady() {
+        const container = document.getElementById('bootPhases');
+        container.innerHTML = '';
+        updateBootStatus('ready', 'READY');
+
+        PHASE_DEFS.forEach((def, idx) => {
+          const el = document.createElement('div');
+          el.className = 'boot-phase completed';
+          const stepsHtml = def.steps.map(s => `
+            <div class="boot-step done">
+              <span class="boot-step-name">${s}</span>
+              <span class="boot-step-status">✓</span>
+            </div>
+          `).join('');
+
+          el.innerHTML = `
+            <div class="boot-phase-head" onclick="Boot.togglePhase(this)">
+              <div class="boot-phase-left">
+                <span class="boot-phase-id">Phase ${def.id}</span>
+                <span class="boot-phase-name">${def.name}</span>
+              </div>
+              <div class="boot-phase-right">
+                <span class="boot-phase-icon">✓</span>
+                <span class="boot-phase-chevron">▶</span>
+              </div>
+            </div>
+            <div class="boot-phase-body">
+              <div class="boot-phase-steps">${stepsHtml}</div>
+            </div>
+          `;
+          container.appendChild(el);
+          setTimeout(() => el.classList.add('visible'), idx * 80);
+        });
+
+        const bar = document.getElementById('bootProgressBar');
+        bar.style.width = '100%';
+        bar.className = 'boot-progress-bar complete';
+      }
+
+      function togglePhase(head) {
+        head.parentElement.classList.toggle('expanded');
+      }
+
+      async function restartPhase(phaseId) {
+        try {
+          await fetchJSON(`${API_BASE}/boot/restart`, { method: 'POST', body: JSON.stringify({ phase: phaseId }) });
+          toast(`Restarting phase ${phaseId}`, 'info');
+          schedulePoll(POLL_BOOT);
+        } catch (err) {
+          toast('Failed to restart phase', 'error');
+        }
+      }
+
+      async function skipPhase(phaseId) {
+        try {
+          await fetchJSON(`${API_BASE}/boot/skip`, { method: 'POST', body: JSON.stringify({ phase: phaseId }) });
+          toast(`Skipping phase ${phaseId}`, 'info');
+          schedulePoll(POLL_BOOT);
+        } catch (err) {
+          toast('Failed to skip phase', 'error');
+        }
+      }
+
+      async function diagnostics(phaseId) {
+        try {
+          const res = await fetchJSON(`${API_BASE}/boot/diagnostics?phase=${phaseId}`);
+          toast('Diagnostics: ' + (res.message || 'Running...'), 'info');
+        } catch (err) {
+          toast('Diagnostics unavailable', 'error');
+        }
+      }
+
+      async function safeMode() {
+        try {
+          await fetchJSON(`${API_BASE}/boot/safe-mode`, { method: 'POST' });
+          toast('Entering safe mode...', 'warning');
+          schedulePoll(POLL_BOOT);
+        } catch (err) {
+          toast('Failed to enter safe mode', 'error');
+        }
+      }
+
+      function toast(message, type) {
+        const container = document.getElementById('toastContainer');
+        const el = document.createElement('div');
+        el.className = `toast toast-${type}`;
+        el.innerHTML = `<span>${message}</span><button class="toast-dismiss" onclick="this.parentElement.remove()">×</button>`;
+        container.appendChild(el);
+        setTimeout(() => el.remove(), 5000);
+      }
+
+      async function fetchJSON(url, opts) {
+        const res = await fetch(url, {
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          ...opts
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      }
+
+      return { init, togglePhase, restartPhase, skipPhase, diagnostics, safeMode };
+    })();
+
+    document.addEventListener('DOMContentLoaded', Boot.init);
+  </script>
+</body>
+</html>

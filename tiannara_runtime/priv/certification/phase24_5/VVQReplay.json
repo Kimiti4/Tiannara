@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/vvq_replay.json",
+  "title": "VVQReplay",
+  "description": "A replay event recording a deterministic VVQ operation.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^vvreplay_[a-f0-9]{16}$" },
+    "event_type": {
+      "type": "string",
+      "enum": ["verification_plan_creation", "test_execution", "evidence_collection", "requirement_verification", "system_validation", "qualification_milestone", "certification_gate", "defect_report", "corrective_action"]
+    },
+    "input_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "output_snapshots": { "type": "array", "items": { "type": "object", "properties": { "entity_id": { "type": "string" }, "entity_type": { "type": "string" }, "snapshot": { "type": "object" } }, "required": ["entity_id", "entity_type", "snapshot"] } },
+    "decision_rationale": { "type": "string" },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshots", "output_snapshots", "content_hash"]
+}

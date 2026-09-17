@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/impact_certificate.json",
+  "title": "ImpactCertificate",
+  "description": "Certification attesting that an impact prediction meets constitutional standards.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^icert_[a-f0-9]{16}$" },
+    "prediction_id": { "type": "string" },
+    "discovery_id": { "type": "string" },
+    "certification_level": { "type": "string", "enum": ["standard", "extended", "peer_reviewed", "constitutional"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "evidence_completeness": { "type": "boolean" },
+        "causal_chain_completeness": { "type": "boolean" },
+        "uncertainty_preservation": { "type": "boolean" },
+        "assumption_recording": { "type": "boolean" },
+        "scenario_completeness": { "type": "boolean" },
+        "risk_identification": { "type": "boolean" },
+        "explanation_quality": { "type": "boolean" },
+        "constitutional_compliance": { "type": "boolean" }
+      },
+      "required": ["evidence_completeness", "causal_chain_completeness", "uncertainty_preservation", "constitutional_compliance"]
+    },
+    "reviewer_ids": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "prediction_id", "discovery_id", "certification_level", "checks", "fingerprint"]
+}

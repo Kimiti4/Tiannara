@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/digital_lifecycle.json",
+  "title": "DigitalLifecycle",
+  "description": "The lifecycle state record of a digital engineering artifact.",
+  "type": "object",
+  "properties": {
+    "lifecycle_id": { "type": "string", "pattern": "^dlife_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "current_state": { "type": "string", "enum": ["concept", "draft", "validated", "verified", "certified", "operational", "historical", "archived"] },
+    "state_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "state": { "type": "string" },
+          "entered_at": { "type": "integer" },
+          "exited_at": { "type": "integer" },
+          "rationale": { "type": "string" },
+          "evidence_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "certificate_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["lifecycle_id", "artifact_id", "current_state", "fingerprint"]
+}

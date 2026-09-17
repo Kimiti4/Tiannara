@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/system_requirement.json",
+  "title": "SystemRequirement",
+  "description": "A constitutional system requirement with measurable criteria and traceability.",
+  "type": "object",
+  "properties": {
+    "requirement_id": { "type": "string", "pattern": "^sreq_[a-f0-9]{16}$" },
+    "mission_id": { "type": "string" },
+    "stakeholder_id": { "type": "string" },
+    "category": { "type": "string", "enum": ["functional", "performance", "reliability", "availability", "maintainability", "safety", "security", "sustainability", "manufacturability", "verification", "validation"] },
+    "statement": { "type": "string" },
+    "rationale": { "type": "string" },
+    "verification_method": { "type": "string", "enum": ["test", "analysis", "demonstration", "inspection", "review", "formal_proof"] },
+    "parent_requirement_ids": { "type": "array", "items": { "type": "string" } },
+    "allocated_functions": { "type": "array", "items": { "type": "string" } },
+    "allocated_subsystem": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "approved", "verified", "certified", "modified", "obsolete"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["requirement_id", "mission_id", "category", "statement", "verification_method", "fingerprint"]
+}

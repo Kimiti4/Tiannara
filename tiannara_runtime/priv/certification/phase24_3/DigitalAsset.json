@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/digital_asset.json",
+  "title": "DigitalAsset",
+  "description": "A constitutional digital engineering asset.",
+  "type": "object",
+  "properties": {
+    "asset_id": { "type": "string", "pattern": "^dasset_[a-f0-9]{16}$" },
+    "asset_type": { "type": "string", "enum": ["model", "document", "data", "configuration", "certificate", "knowledge_graph_entity"] },
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "lifecycle_state": { "type": "string", "enum": ["concept", "draft", "validated", "verified", "certified", "operational", "historical", "archived"] },
+    "parent_asset_ids": { "type": "array", "items": { "type": "string" } },
+    "child_asset_ids": { "type": "array", "items": { "type": "string" } },
+    "source_ids": { "type": "array", "items": { "type": "string" } },
+    "certificate_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["asset_id", "asset_type", "name", "version", "content_hash", "lifecycle_state", "fingerprint"]
+}

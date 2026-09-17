@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/resource_inventory.json",
+  "title": "ResourceInventory",
+  "description": "A snapshot of the planetary resource inventory.",
+  "type": "object",
+  "properties": {
+    "inventory_id": { "type": "string", "pattern": "^rinv_[a-f0-9]{16}$" },
+    "resources": {
+      "type": "array",
+      "items": { "type": "string", "description": "resource_id references" }
+    },
+    "total_resources": { "type": "integer" },
+    "coverage": { "type": "number", "description": "fraction of resource categories covered" },
+    "by_category": { "type": "object" },
+    "critical_shortages": { "type": "array", "items": { "type": "string" } },
+    "strategic_reserves": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "snapshot_at": { "type": "integer" }
+  },
+  "required": ["inventory_id", "resources", "total_resources", "fingerprint"]
+}

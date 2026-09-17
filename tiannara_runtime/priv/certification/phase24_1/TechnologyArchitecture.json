@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/technology_architecture.json",
+  "title": "TechnologyArchitecture",
+  "description": "A complete constitutional technology architecture synthesized from scientific discovery.",
+  "type": "object",
+  "properties": {
+    "architecture_id": { "type": "string", "pattern": "^tarch_[a-f0-9]{16}$" },
+    "technology_name": { "type": "string" },
+    "discovery_ids": { "type": "array", "items": { "type": "string" } },
+    "scientific_principles": { "type": "array", "items": { "type": "string" } },
+    "architecture_views": {
+      "type": "object",
+      "properties": {
+        "purpose": { "type": "string" },
+        "functional": { "type": "object" },
+        "physical": { "type": "object" },
+        "behavioral": { "type": "object" },
+        "logical": { "type": "object" },
+        "control": { "type": "object" },
+        "information": { "type": "object" },
+        "verification": { "type": "object" }
+      },
+      "required": ["purpose", "functional"]
+    },
+    "subsystem_ids": { "type": "array", "items": { "type": "string" } },
+    "interface_ids": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["concept", "developing", "certified", "evolving", "retired"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["architecture_id", "technology_name", "discovery_ids", "scientific_principles", "architecture_views", "fingerprint"]
+}

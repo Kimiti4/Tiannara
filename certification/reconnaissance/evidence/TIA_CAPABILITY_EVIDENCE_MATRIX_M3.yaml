@@ -1,0 +1,221 @@
+# Move 3 — Capability Evidence Matrix (bridge artifact)
+# Per capability: intended meaning -> provenance -> T0 implementation/presence
+# -> contract -> consumer -> executable evidence -> reproducibility ->
+# current state -> reason. This is the bridge between the truth model and
+# eventual architecture/unification work. No state is assigned here that is
+# not also recorded in TIA_CAPABILITY_STATE_TRANSITIONS_M3.jsonl.
+artifact: CAPABILITY_EVIDENCE_MATRIX_M3
+artifact_status: POST_T0
+move: 3
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+rows:
+- capability: TIA-CAP-001 D1 Signal Intelligence
+  intended_meaning: Signal-intelligence forecasting input layer
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: not separately evidenced in this pass (Council record basis)
+  contract: Council certification envelope (bounded)
+  consumer: not separately evidenced in this pass
+  executable_evidence: not separately evidenced in this pass
+  reproducibility: not separately evidenced in this pass
+  current_state: CERTIFIED
+  reason: "Council decision record (transcribed, not re-litigated)"
+- capability: TIA-CAP-002 D2 Forecast + Calibration
+  intended_meaning: Forecast generation and calibration layer
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: not separately evidenced in this pass (Council record basis)
+  contract: Council certification envelope (bounded)
+  consumer: not separately evidenced in this pass
+  executable_evidence: not separately evidenced in this pass
+  reproducibility: not separately evidenced in this pass
+  current_state: CERTIFIED
+  reason: "Council decision record (transcribed, not re-litigated)"
+- capability: TIA-CAP-003 D3 Decision Intelligence
+  intended_meaning: Decision layer with forecast/decision/outcome separation
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: not separately evidenced in this pass (Council record basis)
+  contract: Council certification envelope (bounded)
+  consumer: not separately evidenced in this pass
+  executable_evidence: not separately evidenced in this pass
+  reproducibility: not separately evidenced in this pass
+  current_state: CERTIFIED
+  reason: "Council decision record (transcribed, not re-litigated)"
+- capability: TIA-CAP-004 D4 Counterfactual / Attribution
+  intended_meaning: Counterfactual and attribution layer with temporal firewall
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: not separately evidenced in this pass (Council record basis)
+  contract: Council certification envelope (bounded)
+  consumer: not separately evidenced in this pass
+  executable_evidence: not separately evidenced in this pass
+  reproducibility: not separately evidenced in this pass
+  current_state: CERTIFIED
+  reason: "Council decision record (transcribed, not re-litigated)"
+- capability: TIA-CAP-005 D5 Noise / Robustness / Sensitivity
+  intended_meaning: Noise and robustness layer, three-valued verdict
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: facade present; verdict frozen (verified tranche 2)
+  contract: Council certification envelope (bounded)
+  consumer: not separately evidenced in this pass
+  executable_evidence: not separately evidenced in this pass
+  reproducibility: not separately evidenced in this pass
+  current_state: CERTIFIED
+  reason: "Council decision record + T0 facade verification (transcribed, not re-litigated)"
+- capability: TIA-CAP-006 E03 experimental execution
+  intended_meaning: Stabilizer-only emergence campaign execution
+  provenance: EXPERIMENTAL
+  t0_implementation_presence: 0 runs on record by protocol definition
+  contract: E03 frozen pre-registration (execution-start not granted)
+  consumer: none (no runs)
+  executable_evidence: none (no runs)
+  reproducibility: not applicable (no runs)
+  current_state: BLOCKED
+  reason: "Protocol blocked pending authorization (transcribed, not re-litigated)"
+- capability: TIA-CAP-007 Measurement integrity boundary
+  intended_meaning: Planner outputs carry simulation provenance; fabricated records removed at source
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: scenario-handler markers verified in T0 planner.ex (tranche 2)
+  contract: R7 measurement-integrity certification (12/12)
+  consumer: evidence gate (provenance acceptance predicate)
+  executable_evidence: Council R7 verification record (transcribed, not re-executed)
+  reproducibility: not separately evidenced in this pass
+  current_state: CERTIFIED
+  reason: "Council decision record (transcribed, not re-litigated)"
+- capability: TIA-CAP-008 Forensic evidence collection (T0-bound)
+  intended_meaning: Deterministic read-only inventory of a pinned commit
+  provenance: EXPERIMENTAL
+  t0_implementation_presence: POST_T0 working-tree engine (not T0 content); bounds explicit
+  contract: TIA_RECON_CONTRACT.yaml 0.1.1 (read-only, allowlist gate)
+  consumer: this audit (Move 0/1/2 evidence)
+  executable_evidence: T0_RI_CERTIFICATION.json CERTIFIED (20/20 RI; 2/2 canonical runs)
+  reproducibility: two-run canonical determinism demonstrated
+  current_state: BOUNDED
+  reason: "Council Move-0 certification (transcribed, not re-litigated)"
+- capability: TIA-CAP-009 Stabilizer regulation
+  intended_meaning: Stabilizer modules regulate ecology within bounds
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: ctl/hsv/ocm modules present; wired by application/phase_omega/crav callers
+  contract: none found in T0 (moduledoc only on sampled module; no specs/behaviours shown)
+  consumer: wiring exists; regulation-effect consumer unevidenced
+  executable_evidence: none (zero tests in T0)
+  reproducibility: not applicable (no execution evidence)
+  current_state: UNKNOWN
+  reason: "Wiring without tests, contracts, or effect demonstration"
+- capability: TIA-CAP-010 Long-horizon evolution execution
+  intended_meaning: Evolution substrate executes long-horizon cycles
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: LongHorizon/DriftAudit/Trajectory modules present; SR-4 guards in T0 content
+  contract: none evidenced beyond module structure
+  consumer: none evidenced
+  executable_evidence: none (zero evolution test files in T0)
+  reproducibility: not applicable (no execution evidence)
+  current_state: UNKNOWN
+  reason: "Strongest insufficiency in tranche: modules present with zero T0 tests"
+- capability: TIA-CAP-011 Decision-record integrity facade
+  intended_meaning: Decision records carry integrity against fabrication
+  provenance: EXPERIMENTAL
+  t0_implementation_presence: logger-only facade verified in T0 content; planner references are R3 history only
+  contract: none (no persistence contract exists to certify against)
+  consumer: none (no live callers)
+  executable_evidence: none (read-from-source only)
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "Facade isolation corroborated; behavior undemonstrated"
+- capability: TIA-CAP-012 Constitutional law registry records
+  intended_meaning: Versioned constitutional-law records maintained and usable
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: CONSTITUTIONAL_LAWS.json present
+  contract: none found (no schema; no loader/consumer module)
+  consumer: none found
+  executable_evidence: none
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "Record entirely unreferenced in T0 code"
+- capability: TIA-CAP-013 Governance invariants/patterns records
+  intended_meaning: Governance invariant/pattern records maintained and usable
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: both JSONs present
+  contract: none found (no schema; no consumer module)
+  consumer: none found
+  executable_evidence: none
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "Records entirely unreferenced in T0 code"
+- capability: TIA-CAP-014 Council audit log continuity
+  intended_meaning: Council audit trail persists continuously across rotations
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: audit_log.ex reader module present; DETS plus corrupted variants present
+  contract: module-stated rotation policy (archive-not-delete, detect, repair-or-fresh)
+  consumer: the module itself (traverse/insert verified in source)
+  executable_evidence: none (no execution evidence for the specific T0 files)
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "Reader + policy present; corrupted variants consistent with policy but unattributed to any execution"
+- capability: TIA-CAP-015 Knowledge graph records
+  intended_meaning: Knowledge graphs constructed, maintained, queried
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: three JSON snapshots present; concept referenced by archive/discovery modules
+  contract: none found (no schema)
+  consumer: none found for the specific files
+  executable_evidence: none
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "Concept referenced; specific records unconsumed"
+- capability: TIA-CAP-016 Memory substrate
+  intended_meaning: Memory read/write/retrieval substrate operates
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: probe script + manifest mention only (weakest in tranche)
+  contract: none found
+  consumer: none found
+  executable_evidence: none
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "No read/write module found"
+- capability: TIA-CAP-017 Certification framework
+  intended_meaning: Certification framework executes and links outputs
+  provenance: CROSS_CUTTING
+  t0_implementation_presence: certification_framework.ex present
+  contract: none evidenced
+  consumer: none (zero callers besides itself)
+  executable_evidence: none
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "Module uncalled in T0"
+- capability: TIA-CAP-018 Phase-14 certification corpus
+  intended_meaning: Phase-14 campaign artifacts with verified bindings
+  provenance: EXPERIMENTAL
+  t0_implementation_presence: 162 paths; hash bindings verified in '<sha>  <path>' format; evidence index + certificate + auditor module present
+  contract: hash-binding format (file integrity, not execution)
+  consumer: certificate.json references campaign outputs
+  executable_evidence: none (no audit-run execution record; certificate/result disagree per CONTRA-003)
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "Bindings are records, not demonstrations; internal value disagreement unresolved"
+- capability: TIA-CAP-019 Benchmark harness
+  intended_meaning: Benchmarks execute with recorded results
+  provenance: BASELINE
+  t0_implementation_presence: exactly 3 bench scripts (corrected from 11-path conflation)
+  contract: none evidenced
+  consumer: none found
+  executable_evidence: none (zero bound execution records)
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "Harness present; no results"
+- capability: TIA-CAP-020 World-model self-profile records
+  intended_meaning: World-model profiles generated from and consumed by live state
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: both JSONs present
+  contract: none found
+  consumer: none found (zero generator/consumer modules)
+  executable_evidence: none
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "Records with no producers or consumers"
+- capability: TIA-CAP-021 Discovery evidence-chain records
+  intended_meaning: Discovery chains built and independently verified
+  provenance: TIANNARA_CORE
+  t0_implementation_presence: both JSONs present
+  contract: none found (no schema; no builder/verifier)
+  executable_evidence: none
+  reproducibility: not applicable
+  current_state: UNKNOWN
+  reason: "Records with no builders, verifiers, or schemas"

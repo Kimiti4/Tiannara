@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/optimization_certificate.json",
+  "title": "OptimizationCertificate",
+  "description": "Certification attesting that an optimization activity and its result meet constitutional standards.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^ocert_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "certification_type": { "type": "string", "enum": ["candidate", "tradeoff", "verification", "validation", "baseline"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "improvement_validated": { "type": "boolean" },
+        "tradeoffs_documented": { "type": "boolean" },
+        "no_constitutional_violation": { "type": "boolean" },
+        "baseline_integrity": { "type": "boolean" },
+        "verification_complete": { "type": "boolean" },
+        "regression_assessed": { "type": "boolean" }
+      },
+      "required": ["improvement_validated", "tradeoffs_documented", "no_constitutional_violation", "verification_complete"]
+    },
+    "certifying_entity": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "artifact_id", "certification_type", "checks", "fingerprint"]
+}

@@ -1,0 +1,25 @@
+{
+  "schema": "CIVILIZATION_DESIGN_SCHEMA",
+  "version": "22.3",
+  "description": "Schema for a complete civilization engineering design",
+  "civilization_design": {
+    "fields": {
+      "design_id": {"type": "string", "required": true},
+      "mission": {"type": "string", "required": true},
+      "objectives": {"type": "array", "required": true},
+      "core_principles": {"type": "array", "required": true},
+      "institution_portfolio_hash": {"type": "string", "required": true},
+      "infrastructure_portfolio_hash": {"type": "string", "required": true},
+      "capability_portfolio": {"type": "object", "required": true},
+      "scientific_portfolio_hash": {"type": "string", "required": true},
+      "engineering_portfolio_hash": {"type": "string", "required": true},
+      "risk_profile": {"type": "array", "required": true},
+      "evaluation_results": {"type": "array", "required": true},
+      "design_status": {"type": "string", "required": true, "enum": ["conceptual", "detailed", "evaluated", "approved", "implemented", "archived"]},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["constitutional", "deterministic", "replayable"]
+  }
+}

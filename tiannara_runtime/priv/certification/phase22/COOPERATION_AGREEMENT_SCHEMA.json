@@ -1,0 +1,19 @@
+{
+  "schema": "COOPERATION_AGREEMENT_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for a cooperation agreement between civilizations",
+  "cooperation_agreement": {
+    "fields": {
+      "agreement_id": {"type": "string", "required": true},
+      "cooperation_type": {"type": "string", "required": true, "enum": ["scientific", "engineering", "infrastructure", "emergency_response", "knowledge_sharing", "technology_transfer", "joint_exploration"]},
+      "participating_civilizations": {"type": "array", "required": true},
+      "terms": {"type": "object", "required": true},
+      "shared_resources": {"type": "array", "required": false},
+      "duration": {"type": "object", "required": true},
+      "expected_outcomes": {"type": "array", "required": false},
+      "status": {"type": "string", "required": true, "enum": ["negotiating", "active", "completed", "terminated"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["voluntary", "constitutional", "deterministic"]
+  }
+}

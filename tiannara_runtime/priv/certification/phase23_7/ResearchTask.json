@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/research_task.json",
+  "title": "ResearchTask",
+  "description": "A research task allocated to a collaboration participant.",
+  "type": "object",
+  "properties": {
+    "task_id": { "type": "string", "pattern": "^task_[a-f0-9]{16}$" },
+    "collaboration_id": { "type": "string" },
+    "task_type": { "type": "string", "enum": ["research_question", "hypothesis", "experiment", "simulation", "engineering_validation", "peer_review", "theory_synthesis", "cross_domain_transfer"] },
+    "assigned_to": { "type": "string" },
+    "description": { "type": "string" },
+    "required_capabilities": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["pending", "assigned", "in_progress", "completed", "failed", "reassigned"] },
+    "output_ids": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["task_id", "collaboration_id", "task_type", "assigned_to", "description", "status", "fingerprint"]
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "WORLD_MODEL_SCHEMA",
+  "version": "21.8",
+  "description": "Schema for a multi-domain world model layer integrating multiple domain reality models",
+  "world_model": {
+    "fields": {
+      "model_id": {"type": "string", "required": true},
+      "layer": {"type": "string", "required": true, "description": "Physical/Biological/Human/Engineering/Autonomous/Scientific/Knowledge"},
+      "domain_models": {"type": "array", "required": true},
+      "cross_layer_dependencies": {"type": "array", "required": true},
+      "emergent_properties": {"type": "array", "required": false},
+      "layer_coverage": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "layer_consistency": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "model_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "layers": ["physical", "biological", "human", "engineering", "autonomous", "scientific", "knowledge"],
+    "constraints": ["evidence_based", "acyclic_layers", "deterministic", "replayable"]
+  }
+}

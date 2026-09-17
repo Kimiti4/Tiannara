@@ -1,0 +1,124 @@
+artifact: EFDI_FA_001_METRIC_SCHEMA
+record_type: scoring and metric definitions (frozen)
+recorded_at: 2026-09-13
+governing_contract: EFDI_FA_001_AUDIT_CONTRACT
+status: FROZEN
+
+metric_version: 1.0.0
+
+notation:
+  N: number of resolved forecasts in the evaluated series/batch
+  i: forecast index, i = 1..N
+  K: number of classes (binary problems: K=2; categorical Up/Down/Flat: K=3)
+  y_ik: 1 if class k is observed for forecast i, else 0
+  p_ik: predicted probability for class k (sum_k p_ik = 1)
+  o_i:  observed binary outcome 0/1 for a binary question
+  p_i:  predicted probability for the class that occurred for binary question
+
+============================================================
+REQUIRED METRICS (computed from RESOLVED forecasts only)
+============================================================
+metrics:
+  - id: brier_score_all
+    applies: categorical and binary
+    definition: |
+      B = (1/N) * sum_i [ (1/K) * sum_k (p_ik - y_ik)^2 ]
+      For binary questions this reduces to the classic Brier score:
+      B = (1/N) * sum_i [ (p_i - o_i)^2 ]   when p_i is prob. of the OBSERVED class.
+    bounds: [0, 1]; lower is better.
+    reference: Brier (1950). A skilled-but-uncalibrated forecaster and a
+      naive-coin both score 0.25 on binary; domination requires beating this
+      jointly with calibration, out of sample.
+
+  - id: log_loss_all
+    applies: categorical and binary
+    definition: |
+      LL = (1/N) * sum_i [ -ln( p_i,c* ) ],  c* = observed class.
+      Guard: probabilities are clamped to [1e-4, 1-1e-4] ONLY for reporting;
+      unclamped values are retained in the ledger. A forecast of exactly 0 on
+      the observed class is an infinite-loss event and is reported as "INF"
+      plus the single event line; it is weighted per the failure taxonomy.
+    bounds: [0, inf); lower is better. Random coin on binary -> ln 2.
+
+  - id: directional_accuracy
+    applies: binary/categorical only
+    definition: 1 if the modal predicted class matches the observed class, else 0
+    note: NEVER the success criterion alone; only complements calibration.
+
+  - id: mae_point
+    applies: questions with a point_estimate
+    definition: (1/N) * sum_i |point_i - actual_i|
+    note: for horizon questions where a numeric value is tracked.
+
+  - id: prediction_interval_coverage
+    applies: questions with an interval
+    definition: fraction of intervals that contain the realized value;
+      compared against the DECLARED coverage (e.g., 80% -> ~0.80 +- sampling).
+
+  - id: calibration_ece
+    definition: |
+      ECE = sum_b (n_b / N) * |conf_b - acc_b|
+      with confidence buckets b of width 0.10 on the predicted probability of
+      the realized class, n_b = count in bucket, conf_b = mean predicted
+      probability in bucket, acc_b = empirical outcome frequency in bucket.
+    note: computed per the bucket protocol; minimum bucket count applies.
+
+  - id: calibration_mce
+    definition: max over buckets of |conf_b - acc_b|
+
+  - id: sharpness
+    definition: |
+      For series of binary probabilities: mean distance-from-0.5
+      S = (1/N) * sum_i |p_i - 0.5|
+      For categorical: mean (1 - entropy_i / ln K).
+      Sharper is only GOOD when calibration holds; sharpness alone is
+      penalized (uninformative near-0.5 / near-1 spikes flag noise).
+
+  - id: resolution
+    definition: |
+      Brier decomposition on binary:
+        B = uncertainty - resolution + reliability
+        uncertainty = baseY * (1 - baseY)   (base rate of positive class)
+        resolution = (1/N) sum_i (p_i - baseY)^2
+        reliability = (1/N) sum_i n_b... (binned calibration term)
+      Reported as: {brier, uncertainty, resolution, reliability}.
+      A system can be useless (resolution ~ 0) yet calibrated; and useful
+      but miscalibrated. Both quantities are reported separately.
+
+  - id: model_disagreement
+    definition: |
+      For forecasts with M contributing models:
+        mean pairwise absolute difference of predicted probabilities, or
+        std over model probabilities of the modal class.
+      Reported per forecast AND per series (mean/std of per-forecast values).
+    note: persistent near-zero disagreement across a series with 8/10 models
+      sharing one assumption is the MONOCULTURE warning (COUNTERFACTUAL
+      PROTOCOL), NOT agreement quality.
+
+  - id: predictability_estimate
+    definition: |
+      Tiannara's own POST-HOC-but-frozen estimate of expected discriminative
+      value of the forecast, 0..1, recorded at issue time in the schema.
+      Audit semantics: it is COMPARED, never trusted. A separate audit line
+      for each forecast:
+        - did the series beat baseline when predictability was HIGH?
+        - did it have zero edge when predictability was LOW or ~0.15?
+      This is the META-FORECAST quantity ("how likely is my forecast useful")
+      and is scored by the SAME Brier-style rules over time.
+
+============================================================
+SERIES-LEVEL REPORTING
+============================================================
+series_level:
+  - mean (brier, log_loss, mae) per horizon
+  - calibration (brier, ece, mce)
+  - horizon_curve: brier/log_loss per horizon (5m, 15m, 1h, 4h, 24h, 7d)
+      discovering "at what temporal scale does Tiannara actually possess
+      predictive information"
+  - per-baseline deltas with significance (see BASELINE_DEFINITIONS RD section)
+  - reliability diagram data (CALIBRATION_PROTOCOL)
+  - noise profile (NOISE_PROTOCOL)
+  - decision samples (COUNTERFACTUAL_PROTOCOL)
+
+rounding: report at 4 decimals; never round inside formulas (round only at
+          report boundaries)

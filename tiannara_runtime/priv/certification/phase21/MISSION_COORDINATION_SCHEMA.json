@@ -1,0 +1,23 @@
+{
+  "schema": "MISSION_COORDINATION_SCHEMA",
+  "version": "21.4",
+  "description": "Schema for mission coordination records within the orchestration system",
+  "mission_coordination": {
+    "fields": {
+      "coordination_id": {"type": "string", "required": true, "description": "Content-addressed coordination record identifier"},
+      "mission": {"type": "string", "required": true},
+      "coordination_mechanism": {"type": "string", "required": true, "description": "Sequential/Parallel/Conditional/DependencyTriggered/CrossDomain/Hierarchical"},
+      "coordinating_program": {"type": "string", "required": true},
+      "scheduled_start": {"type": "integer", "required": true, "description": "Generation of scheduled start"},
+      "scheduled_end": {"type": "integer", "required": true},
+      "dependency_satisfaction_threshold": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "coordination_partners": {"type": "array", "required": false},
+      "execution_status": {"type": "string", "required": true, "description": "Pending/Scheduled/Executing/Completed/Blocked/Failed"},
+      "coordination_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "mechanisms": ["sequential", "parallel", "conditional", "dependency_triggered", "cross_domain", "hierarchical"],
+    "constraints": ["deterministic", "acyclic", "replayable"]
+  }
+}

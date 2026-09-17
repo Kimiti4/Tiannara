@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DiscoveryEconomicsArchaeology",
+  "description": "Archaeological record reconstructing the complete resource allocation history for the discovery economics system",
+  "type": "object",
+  "properties": {
+    "archaeology_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this archaeology record"
+    },
+    "resource_period": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "integer"
+        },
+        "end": {
+          "type": "integer"
+        }
+      },
+      "required": ["start", "end"]
+    },
+    "archaeology_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of archaeology analysis"
+    },
+    "allocation_rationale": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "allocation_id": {
+            "type": "string"
+          },
+          "program_id": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "priority_evidence": {
+            "type": "string"
+          },
+          "expected_return": {
+            "type": "number"
+          }
+        },
+        "required": ["allocation_id", "program_id", "rationale"]
+      }
+    },
+    "investment_record": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "investment_id": {
+            "type": "string"
+          },
+          "justification": {
+            "type": "string"
+          },
+          "expected_outcomes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "actual_outcomes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["investment_id", "justification"]
+      }
+    },
+    "return_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "program_id": {
+            "type": "string"
+          },
+          "expected_return": {
+            "type": "number"
+          },
+          "actual_return": {
+            "type": "number"
+          },
+          "variance": {
+            "type": "number"
+          },
+          "variance_factors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["program_id", "expected_return", "actual_return"]
+      }
+    },
+    "evolution_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "integer"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": ["reallocation", "priority_shift", "emergency", "strategic_shift", "reserve_activation"]
+          },
+          "description": {
+            "type": "string"
+          },
+          "trigger": {
+            "type": "string"
+          }
+        },
+        "required": ["date", "event_type", "description"]
+      }
+    },
+    "bottleneck_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "resource_type": {
+            "type": "string"
+          },
+          "emergence_date": {
+            "type": "integer"
+          },
+          "resolution_date": {
+            "type": "integer"
+          },
+          "severity": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "resolution": {
+            "type": "string"
+          }
+        },
+        "required": ["resource_type", "emergence_date", "severity"]
+      }
+    },
+    "key_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "decision_id": {
+            "type": "string"
+          },
+          "decision_type": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "alternatives_considered": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["decision_id", "decision_type", "rationale"]
+      }
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["archaeology_id", "resource_period", "archaeology_date", "allocation_rationale", "fingerprint"]
+}

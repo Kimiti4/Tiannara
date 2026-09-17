@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/intervention_feedback.json",
+  "title": "InterventionFeedback",
+  "description": "A feedback or adaptation record for an intervention.",
+  "type": "object",
+  "properties": {
+    "feedback_id": { "type": "string", "pattern": "^ifeed_[a-f0-9]{16}$" },
+    "intervention_id": { "type": "string" },
+    "strategy_id": { "type": "string" },
+    "feedback_type": { "type": "string", "enum": ["performance", "contextual", "process", "adaptation"] },
+    "source": { "type": "string", "enum": ["effectiveness_monitor", "adaptation_engine", "external_review", "system_audit"] },
+    "observed_outcomes": { "type": "object" },
+    "projected_vs_actual": { "type": "object" },
+    "adaptation_taken": { "type": "string", "enum": ["continue", "accelerate", "modify", "hold", "abort"] },
+    "rationale": { "type": "string" },
+    "learnings": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "recorded_at": { "type": "integer" }
+  },
+  "required": ["feedback_id", "intervention_id", "feedback_type", "projected_vs_actual", "fingerprint"]
+}

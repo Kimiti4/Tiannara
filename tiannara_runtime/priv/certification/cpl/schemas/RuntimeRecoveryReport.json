@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RuntimeRecoveryReport",
+  "description": "A comprehensive report documenting a complete recovery operation",
+  "type": "object",
+  "properties": {
+    "report_id": {
+      "type": "string",
+      "description": "Unique identifier for this recovery report"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of report generation"
+    },
+    "recovery_id": {
+      "type": "string",
+      "description": "Unique identifier for this recovery operation"
+    },
+    "failure_type": {
+      "type": "string",
+      "enum": ["power_failure", "kernel_panic", "runtime_crash", "process_kill", "disk_failure", "memory_corruption", "network_partition", "database_failure", "storage_failure", "unknown_failure"],
+      "description": "Type of failure that triggered recovery"
+    },
+    "shutdown_type": {
+      "type": "string",
+      "enum": ["graceful", "emergency", "power_loss", "unknown"],
+      "description": "Type of shutdown detected"
+    },
+    "shutdown_timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of shutdown"
+    },
+    "last_checkpoint_found": {
+      "type": "boolean",
+      "description": "Whether a valid checkpoint was found"
+    },
+    "last_checkpoint_id": {
+      "type": "string",
+      "description": "ID of the last checkpoint used"
+    },
+    "checkpoint_validation_results": {
+      "type": "object",
+      "properties": {
+        "runtime_state": {
+          "type": "string",
+          "enum": ["valid", "invalid", "missing"]
+        },
+        "knowledge_graph": {
+          "type": "string",
+          "enum": ["valid", "invalid", "missing"]
+        },
+        "ontology": {
+          "type": "string",
+          "enum": ["valid", "invalid", "missing"]
+        },
+        "experiments": {
+          "type": "string",
+          "enum": ["valid", "invalid", "missing"]
+        },
+        "evolution": {
+          "type": "string",
+          "enum": ["valid", "invalid", "missing"]
+        },
+        "certification": {
+          "type": "string",
+          "enum": ["valid", "invalid", "missing"]
+        },
+        "replay_position": {
+          "type": "string",
+          "enum": ["valid", "invalid", "missing"]
+        },
+        "archaeology_position": {
+          "type": "string",
+          "enum": ["valid", "invalid", "missing"]
+        },
+        "observatory_state": {
+          "type": "string",
+          "enum": ["valid", "invalid", "missing"]
+        }
+      },
+      "required": ["runtime_state", "knowledge_graph", "ontology", "experiments", "evolution", "certification", "replay_position", "archaeology_position", "observatory_state"]
+    },
+    "recovery_process": {
+      "type": "object",
+      "properties": {
+        "state_restored": {
+          "type": "boolean"
+        },
+        "queues_restored": {
+          "type": "boolean"
+        },
+        "experiments_restored": {
+          "type": "integer"
+        },
+        "observatory_restored": {
+          "type": "boolean"
+        },
+        "replay_restored": {
+          "type": "boolean"
+        },
+        "archaeology_restored": {
+          "type": "boolean"
+        },
+        "certification_restored": {
+          "type": "boolean"
+        }
+      },
+      "required": ["state_restored", "queues_restored", "experiments_restored", "observatory_restored", "replay_restored", "archaeology_restored", "certification_restored"]
+    },
+    "verification_results": {
+      "type": "object",
+      "properties": {
+        "replay_integrity_verified": {
+          "type": "boolean"
+        },
+        "knowledge_integrity_verified": {
+          "type": "boolean"
+        },
+        "ontology_integrity_verified": {
+          "type": "boolean"
+        },
+        "experiment_integrity_verified": {
+          "type": "boolean"
+        },
+        "certification_integrity_verified": {
+          "type": "boolean"
+        }
+      },
+      "required": ["replay_integrity_verified", "knowledge_integrity_verified", "ontology_integrity_verified", "experiment_integrity_verified", "certification_integrity_verified"]
+    },
+    "recovery_outcome": {
+      "type": "object",
+      "properties": {
+        "recovery_status": {
+          "type": "string",
+          "enum": ["full_recovery", "partial_recovery", "recovery_failed"]
+        },
+        "knowledge_loss": {
+          "type": "integer"
+        },
+        "experiment_loss": {
+          "type": "integer"
+        },
+        "replay_divergence": {
+          "type": "integer"
+        },
+        "recovery_duration_ms": {
+          "type": "integer"
+        }
+      },
+      "required": ["recovery_status", "knowledge_loss", "experiment_loss", "replay_divergence", "recovery_duration_ms"]
+    },
+    "continuity_certificate": {
+      "type": "string",
+      "description": "ID of the continuity certificate issued"
+    },
+    "previous_report_id": {
+      "type": "string",
+      "description": "ID of the previous recovery report"
+    },
+    "signature": {
+      "type": "string",
+      "description": "Cryptographic signature of the report"
+    }
+  },
+  "required": ["report_id", "timestamp", "recovery_id", "failure_type", "shutdown_type", "checkpoint_validation_results", "recovery_process", "verification_results", "recovery_outcome", "continuity_certificate", "signature"],
+  "additionalProperties": false
+}

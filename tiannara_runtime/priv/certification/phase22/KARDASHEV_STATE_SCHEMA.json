@@ -1,0 +1,19 @@
+{
+  "schema": "KARDASHEV_STATE_SCHEMA",
+  "version": "22.7",
+  "description": "Schema for a Kardashev level state assessment",
+  "kardashev_state": {
+    "fields": {
+      "assessment_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "current_level": {"type": "number", "required": true, "description": "0.0–3.0 Kardashev level"},
+      "total_energy_capture": {"type": "number", "required": true, "description": "Watts"},
+      "energy_source_diversity": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "transition_readiness": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "dimension_scores": {"type": "object", "required": true},
+      "next_level": {"type": "number", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "deterministic", "replayable"]
+  }
+}

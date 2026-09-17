@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/planetary_risk.json",
+  "title": "PlanetaryRisk",
+  "description": "A constitutional risk assessment from the CPRIE.",
+  "type": "object",
+  "properties": {
+    "risk_id": { "type": "string", "pattern": "^risk_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "domain": { "type": "string", "enum": ["climate", "geological", "ecological", "biodiversity", "food", "water", "energy", "health", "infrastructure", "transportation", "communications", "economy", "manufacturing", "cybersecurity", "scientific_capacity", "engineering_capacity", "governance", "space_environment"] },
+    "risk_type": { "type": "string" },
+    "probability": { "type": "number", "minimum": 0, "maximum": 1 },
+    "severity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "urgency": { "type": "number", "minimum": 0, "maximum": 1 },
+    "geographic_scope": { "type": "string", "enum": ["local", "regional", "national", "continental", "global"] },
+    "cascading_potential": { "type": "number", "minimum": 0, "maximum": 1 },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "priority_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "priority_tier": { "type": "string", "enum": ["critical", "high", "medium", "low", "informational", "unknown"] },
+    "sources": { "type": "array", "items": { "type": "string" } },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "propagation_chains": { "type": "array", "items": { "type": "string" } },
+    "certificate_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "assessed_at": { "type": "integer" }
+  },
+  "required": ["risk_id", "name", "domain", "probability", "severity", "confidence", "fingerprint"]
+}

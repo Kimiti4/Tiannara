@@ -1,0 +1,21 @@
+{"id": "TIA-CAP-001", "from": "CERTIFIED", "to": "CERTIFIED", "transition": "retain", "reason": "decided state; contradiction-check only; no contradiction found"}
+{"id": "TIA-CAP-002", "from": "CERTIFIED", "to": "CERTIFIED", "transition": "retain", "reason": "decided state; contradiction-check only; no contradiction found"}
+{"id": "TIA-CAP-003", "from": "CERTIFIED", "to": "CERTIFIED", "transition": "retain", "reason": "decided state; contradiction-check only; no contradiction found"}
+{"id": "TIA-CAP-004", "from": "CERTIFIED", "to": "CERTIFIED", "transition": "retain", "reason": "decided state; contradiction-check only; no contradiction found"}
+{"id": "TIA-CAP-005", "from": "CERTIFIED", "to": "CERTIFIED", "transition": "retain", "reason": "decided state; contradiction-check only; no contradiction found"}
+{"id": "TIA-CAP-006", "from": "BLOCKED", "to": "BLOCKED", "transition": "retain", "reason": "0 runs remains true; no execution artifacts added"}
+{"id": "TIA-CAP-007", "from": "CERTIFIED", "to": "CERTIFIED", "transition": "retain", "reason": "decided state; contradiction-check only; no contradiction found"}
+{"id": "TIA-CAP-008", "from": "BOUNDED", "to": "BOUNDED", "transition": "retain", "reason": "decided state; contradiction-check only; no contradiction found"}
+{"id": "TIA-CAP-009", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "wiring evidenced; no tests, contracts, or effect demonstration found in T0"}
+{"id": "TIA-CAP-010", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "zero evolution test files in T0; strongest insufficiency sharpened, still insufficient for any promotion"}
+{"id": "TIA-CAP-011", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "facade isolation corroborated; behavior undemonstrated"}
+{"id": "TIA-CAP-012", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "record entirely unreferenced in T0 code; no schema, loader, or consumer"}
+{"id": "TIA-CAP-013", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "records entirely unreferenced in T0 code; no schema, no consumer"}
+{"id": "TIA-CAP-014", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "reader + stated policy present; corrupted variants consistent with policy but unattributed to any execution; contradiction narrowed, not resolved"}
+{"id": "TIA-CAP-015", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "concept referenced; the three specific records unconsumed; no schema"}
+{"id": "TIA-CAP-016", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "weakest presence in tranche (probe script + manifest mention); no read/write module"}
+{"id": "TIA-CAP-017", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "module uncalled in T0 (zero callers); no execution or linkage evidence"}
+{"id": "TIA-CAP-018", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "bindings are records not demonstrations; certificate/result value disagreement unresolved (CONTRA-003); no audit-run execution record"}
+{"id": "TIA-CAP-019", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "harness is 3 scripts (corrected count); zero bound execution records"}
+{"id": "TIA-CAP-020", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "records with no producers or consumers in T0 code"}
+{"id": "TIA-CAP-021", "from": "UNKNOWN", "to": "UNKNOWN", "transition": "retain", "reason": "records with no builders, verifiers, or schemas in T0 code"}

@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/review_consensus.json",
+  "title": "ReviewConsensus",
+  "description": "Aggregated consensus from multiple independent reviewers.",
+  "type": "object",
+  "properties": {
+    "consensus_id": { "type": "string", "pattern": "^rcons_[a-f0-9]{16}$" },
+    "artifact_id": { "type": "string" },
+    "aggregation_method": { "type": "string", "enum": ["unanimous", "majority", "weighted", "structured", "dissensus"] },
+    "reviewer_count": { "type": "integer", "minimum": 1 },
+    "per_dimension_agreement": { "type": "object" },
+    "overall_recommendation": { "type": "string", "enum": ["accept", "minor_revision", "major_revision", "replicate", "reject", "insufficient_evidence", "unknown"] },
+    "dissenting_opinions": { "type": "array", "items": { "type": "object", "properties": { "reviewer_id": { "type": "string" }, "opinion": { "type": "string" } } } },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["consensus_id", "artifact_id", "aggregation_method", "reviewer_count", "overall_recommendation", "fingerprint"]
+}

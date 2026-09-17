@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/readiness_certificate.json",
+  "title": "ReadinessCertificate",
+  "description": "Certification attesting that a system is ready for deployment.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^rcert_[a-f0-9]{16}$" },
+    "system_id": { "type": "string" },
+    "readiness_level": { "type": "string", "enum": ["not_ready", "conditionally_ready", "ready", "deployed"] },
+    "assessments": {
+      "type": "object",
+      "properties": {
+        "technical_readiness": { "type": "boolean" },
+        "operational_readiness": { "type": "boolean" },
+        "safety_readiness": { "type": "boolean" },
+        "manufacturing_readiness": { "type": "boolean" },
+        "support_readiness": { "type": "boolean" },
+        "regulatory_readiness": { "type": "boolean" },
+        "constitutional_readiness": { "type": "boolean" }
+      },
+      "required": ["technical_readiness", "safety_readiness", "constitutional_readiness"]
+    },
+    "conditions": { "type": "array", "items": { "type": "string" } },
+    "certifying_entity": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "system_id", "readiness_level", "assessments", "fingerprint"]
+}

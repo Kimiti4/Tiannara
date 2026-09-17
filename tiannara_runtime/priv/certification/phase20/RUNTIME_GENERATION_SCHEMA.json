@@ -1,0 +1,24 @@
+{
+  "schema": "RUNTIME_GENERATION_SCHEMA",
+  "version": "20.5",
+  "description": "Schema for RuntimeGeneration — immutable operating system generation",
+  "generation": {
+    "fields": {
+      "generation_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "semantic_version": {"type": "string", "required": true, "description": "MAJOR.MINOR.GENERATION.BUILD"},
+      "parent_generation": {"type": "string", "required": false, "description": "Reference to parent generation"},
+      "branch": {"type": "string", "required": true, "description": "Constitutional branch identifier"},
+      "constitutional_hash": {"type": "string", "required": true, "description": "SHA-256 of complete generation state"},
+      "runtime_hash": {"type": "string", "required": true, "description": "SHA-256 of runtime module state"},
+      "mathematics_hash": {"type": "string", "required": true, "description": "SHA-256 of mathematics framework"},
+      "knowledge_hash": {"type": "string", "required": true, "description": "SHA-256 of knowledge graph"},
+      "certification_hash": {"type": "string", "required": true, "description": "SHA-256 of certification artifacts"},
+      "replay_root": {"type": "string", "required": true, "description": "Root hash of generation replay chain"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Root hash of generation archaeology"},
+      "creation_timestamp": {"type": "integer", "required": true, "description": "Deterministic creation timestamp"},
+      "status": {"type": "string", "required": true, "description": "Candidate/Validated/Certified/Sandbox/Canary/Production/Frozen/Historical"}
+    },
+    "lifecycle": ["candidate", "validated", "certified", "sandbox", "canary", "production", "frozen", "historical"],
+    "constraints": ["immutable_after_freeze", "deterministic_hash", "content_addressed"]
+  }
+}

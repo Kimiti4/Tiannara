@@ -1,0 +1,32 @@
+{
+  "schema": "READINESS_REPLAY_SCHEMA",
+  "version": "20.98",
+  "description": "Schema for readiness replay — deterministic reconstruction of all readiness calculations",
+  "readiness_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true, "description": "Content-addressed replay identifier"},
+      "replay_type": {"type": "string", "required": true, "description": "Full/Dimension/Domain/Score"},
+      "step_hashes": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "step": {"type": "integer"}, "stage": {"type": "string"},
+            "input_hash": {"type": "string"}, "output_hash": {"type": "string"},
+            "step_hash": {"type": "string"}
+          }
+        }
+      },
+      "root_hash_original": {"type": "string", "required": true},
+      "root_hash_reconstructed": {"type": "string", "required": true},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "scores_replayed": {"type": "integer", "required": true},
+      "dimensions_replayed": {"type": "integer", "required": true},
+      "domains_replayed": {"type": "integer", "required": true},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/DiscrepancyFound/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "replay_types": ["full", "dimension", "domain", "score"],
+    "constraints": ["deterministic_replay", "identical_hashes_required", "cold_storage_independent"]
+  }
+}

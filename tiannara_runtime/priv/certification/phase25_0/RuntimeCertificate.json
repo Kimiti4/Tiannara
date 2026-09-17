@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/runtime_certificate.json",
+  "title": "RuntimeCertificate",
+  "description": "Certification for the planetary runtime or its subsystems.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^rcert_[a-f0-9]{16}$" },
+    "entity_id": { "type": "string" },
+    "entity_type": { "type": "string", "enum": ["planetary_runtime", "subsystem", "checkpoint", "replay", "recovery", "security"] },
+    "certification_type": { "type": "string", "enum": ["architecture", "implementation", "operational", "checkpoint", "replay", "recovery", "security", "compliance"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "constitutional_alignment": { "type": "boolean" },
+        "determinism": { "type": "boolean" },
+        "replayability": { "type": "boolean" },
+        "checkpoint_integrity": { "type": "boolean" },
+        "recovery_correctness": { "type": "boolean" }
+      },
+      "required": ["constitutional_alignment", "determinism", "replayability"]
+    },
+    "certifying_authority": { "type": "string" },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "entity_id", "entity_type", "certification_type", "checks", "fingerprint"]
+}

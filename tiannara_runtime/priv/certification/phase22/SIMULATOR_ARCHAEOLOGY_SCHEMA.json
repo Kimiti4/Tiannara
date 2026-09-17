@@ -1,0 +1,19 @@
+{
+  "schema": "SIMULATOR_ARCHAEOLOGY_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for archaeological reconstruction of simulator evolution",
+  "simulator_archaeology": {
+    "fields": {
+      "excavation_id": {"type": "string", "required": true},
+      "parameter_space_id": {"type": "string", "required": true},
+      "batch_history": {"type": "array", "required": true},
+      "discovered_scenarios": {"type": "array", "required": true},
+      "model_evolution": {"type": "array", "required": true},
+      "fidelity_improvements": {"type": "array", "required": true},
+      "key_findings": {"type": "array", "required": true},
+      "simulation_count_total": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "lineage_preserved", "evidence_linked", "immutable"]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "EXPERIMENT_ARCHAEOLOGY_SCHEMA",
+  "version": "20.7",
+  "description": "Schema for experiment archaeological records",
+  "experiment_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "experiment": {"type": "string", "required": true, "description": "Reference to experiment"},
+      "answers": {
+        "type": "object", "required": true,
+        "fields": {
+          "why_proposed": {"type": "string"},
+          "which_hypothesis": {"type": "string"},
+          "which_knowledge_gap": {"type": "string"},
+          "resources_consumed": {"type": "object"},
+          "theories_changed": {"type": "array"},
+          "engineering_affected": {"type": "array"},
+          "dependent_experiments": {"type": "array"}
+        }
+      },
+      "evidence_chain": {"type": "array", "required": true, "description": "Complete evidence chain references"},
+      "resource_accounting": {"type": "object", "required": true, "description": "Complete resource consumption record"},
+      "theory_changes": {
+        "type": "array", "required": false,
+        "items": {
+          "type": "object",
+          "fields": {
+            "theory_id": {"type": "string"}, "before_state": {"type": "string"},
+            "after_state": {"type": "string"}, "confidence_delta": {"type": "number"}
+          }
+        }
+      },
+      "engineering_impact": {"type": "array", "required": false},
+      "dependency_graph": {"type": "array", "required": false},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "archaeological_questions": [
+      "Why was this experiment proposed?",
+      "Which hypothesis motivated it?",
+      "Which knowledge gap triggered it?",
+      "Which resources were consumed?",
+      "Which theories changed?",
+      "Which engineering systems were affected?",
+      "Which future experiments depend on it?"
+    ],
+    "constraints": [
+      "no_experiment_record_deleted",
+      "failed_experiments_preserved",
+      "all_statistical_results_preserved",
+      "archaeology_reconstructable_from_cold_storage"
+    ]
+  }
+}

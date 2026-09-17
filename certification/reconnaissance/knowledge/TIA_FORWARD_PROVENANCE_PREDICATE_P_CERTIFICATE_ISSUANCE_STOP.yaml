@@ -1,0 +1,194 @@
+artifact: TIA_FORWARD_PROVENANCE_PREDICATE_P_CERTIFICATE_ISSUANCE_STOP
+record_type: PREDICATE GATE STOP (implementation + verification complete)
+recorded_at: 2026-09-13
+authorization: COUNCIL-2026-09-13-P-CERTIFICATE-ISSUANCE
+
+============================================================
+STATUS
+============================================================
+PASS — "P-CERTIFICATE-ISSUANCE implementation was authorized and verified;
+all other predicates remain unauthorized."
+
+============================================================
+PREDICATE AUTHORIZATION
+============================================================
+predicate_id:            P-CERTIFICATE-ISSUANCE
+authorization status:    OPEN_FOR_IMPLEMENTATION (gate passed; predicate verified)
+authorized surface:      single forward issuance under M7=HYBRID (mechanism issuer,
+                         first-writer-wins) over a policy-gated verified chain, with
+                         certificate identity derived ONLY through the frozen
+                         P-IDENTITY-CANONICAL path; append-only canon-v1 JSONL issuance
+                         ledger; replay/resolve; atomic rollback on persistence failure;
+                         fail-closed validation
+authorization record:    certification/reconnaissance/knowledge/TIA_PREDICATE_AUTHORIZATION_P_CERTIFICATE_ISSUANCE.yaml
+
+============================================================
+IMPLEMENTATION
+============================================================
+files added:             2
+  - forward_provenance/lib/certificate_issuance.ex        (module: spec/0, ensure_started/1,
+    register_authority/1, authorized_issuer?/1, issue/1|2, resolve/1, export/0, reset/1,
+    derive_certificate_id/2, identity_spine/1, policy_gate/1)
+  - forward_provenance/test/certificate_issuance_test.exs (26 tests: positive/negative/
+    replay/durability/atomicity/firewall)
+files modified:          0
+implementation summary:
+  - ONE registered issuer (tiannara-fp-forward-issuance-authority-v1, kind mechanism,
+    role issuance) is first-writer-wins; competing issuers rejected; unknown issuers
+    cannot mint. Registry replays idempotently from the issuance ledger on restart.
+  - issue/1 runs a policy gate of 10 all_must_hold conditions derived from the accepted
+    policy document (tiannara-provenance-certification-policy v1.0.0), requires the 4
+    impossible_cases ABSENT, and resolves to a single immutable VALID decision_recorded
+    per certificate_id (identical requests replay; conflicting requests fail closed and
+    preserve the original).
+  - Certificate identity is the frozen fz-b o1 derivation over the my_implemented
+    NORMALIZED spine: identity_spine/1 converts the bridge candidate's integer lineage
+    attempt to the pinned string domain and validates through
+    CertificateIdentity.validate/2 (P-IDENTITY-CANONICAL, reused read-only). There is
+    NO second hash path and NO certificate state inside the evidence bundle.
+  - The decision envelope binds %{"kind" => "lineage"|"bundle"} evidence ids, carries a
+    canon-v1 recomputed payload_hash, and each ledger sentence is canon-v1 canonical
+    JSONL. Persistence is atomic: a ledger-append failure rolls back the registry fully,
+    leaving zero records.
+  - M7 boundary held: CertificateAuthorityBridge.transition/evaluate remain BLOCKED
+    (no certificate in bundle); no revoke/supersede/revoke_by_reason functions exist;
+    state space is closed to VALID | replayed.
+
+============================================================
+POLICY GATE
+============================================================
+all_must_hold (10):     evidence_chain_single_execution_terminal_success;
+                        execution_id_uniqueness_resolved;
+                        source_identity_recorded_recomputable;
+                        contract_identity_recorded_recomputable;
+                        environment_identity_manifests_complete;
+                        result_payload_bound_to_execution;
+                        metric_recomputable_or_partial_with_gap;
+                        reproducibility_class_declared;
+                        canonical_serialization_spec_cited_recomputed;
+                        historical_firewall_passes
+impossible_cases (4):   certificate_on_hash_only_evidence;
+                        certificate_on_unresolvable_execution_id;
+                        certificate_on_partial_or_aborted_execution;
+                        certificate_on_metric_without_manifest_or_corpus
+gate results:           happy path: all 10 PASS, 4 ABSENT; every mutation: FAIL
+                        closed with block_reasons citing the violated condition
+policy document:        TIA_PROVENANCE_CERTIFICATION_POLICY.yaml (UNCHANGED, sole
+                        issuance authority)
+
+============================================================
+NEGATIVE TESTS
+============================================================
+tests executed:         26 total, covering bundle_id mismatch/missing; hash-only;
+                         unresolved execution_id; partial/aborted; metric manifest
+                         corpus mismatch / incomplete / absent; non-recomputable
+                         source/contract; incomplete environment; bad reproducibility
+                         class / canon spec / historical references; tampered evidence
+                         chain; competing issuer; unauthorized issuer; malformed
+                         authority header; invalid policy_ref; revoke/supersede
+                         decisions; missing reason; persistence failure rollback
+fail-closed result:     ALL rejected; zero certificate records produced on any FAIL;
+                         original records preserved under conflict; M7 boundary held
+
+============================================================
+FIREWALL
+============================================================
+A-predicates open:      0 (P-CERTIFICATE-ISSUANCE is the dedicated forward issuance
+                         predicate, authorized only; A01..A12 remain BLOCKED)
+predicates still closed: lifecycle, revocation, supersession, distributed issuance,
+                         distributed verification, autonomous operation, network,
+                         external integration
+certificate state:      1 per identity (immutable VALID decision_recorded, ledger-only,
+                         never inside the evidence bundle)
+issuance state:         IMPLEMENTED (predicate-local; no production integration)
+lifecycle state:        NOT IMPLEMENTED
+revocation state:       NOT IMPLEMENTED
+supersession state:     NOT IMPLEMENTED
+authority state:        LIMITED single mechanism issuer, first-writer-wins, predicate-local
+
+============================================================
+CANONICALIZATION
+============================================================
+canon-v1:  NORMATIVE / UNCHANGED (forward_provenance/spec/canonicalization_spec.yaml)
+fz-b:      FINAL / UNCHANGED (forward_provenance/spec/certificate_identity_spec.yaml;
+           attempt pinned as string domain; normalized via identity_spine/1)
+fz-c:      FINAL / UNCHANGED (expected values intact)
+scope:     no file outside the two authorized files was added or modified
+           (+ evidence matrix forward_provenance/output/predicate_issuance_evidence.json)
+
+============================================================
+BASELINE
+============================================================
+HEAD:      9753a6d08702064f4d00395a1bec1c4bf3887381
+tree:      06f06e5e91f33e75437a47ca901eaa7e97bb0edd
+porcelain: 3380 (unchanged; forward_provenance/ is a single ?? entry by design)
+changed paths: 2 added (listed above); 0 modified among tracked/untracked content
+diff scope:   new files only — lib/certificate_issuance.ex + test/certificate_issuance_test.exs
+              (+ evidence matrix forward_provenance/output/predicate_issuance_evidence.json)
+
+============================================================
+TEST SUITE
+============================================================
+forward_provenance suite: 128 tests, 0 failures (identity 17 + bridge/other 85 + issuance 26)
+mix format:                --check-formatted PASS on lib/certificate_issuance.ex +
+                           test/certificate_issuance_test.exs (scoped; pre-existing
+                           formatting drift in unrelated files untouched)
+
+============================================================
+OBSERVED TRANSIENT FLAKE (baseline, not introduced here)
+============================================================
+observation:  during stress verification (~20 full-suite runs) the BASELINE async
+  test "independent hand-written renderer (not Canon) matches the derivation on
+  every fixture" in test/certificate_identity_test.exs intermittently raised
+  UndefinedFunctionError (IndependentRenderer.render/1 undefined or private).
+cause:       module-load timing race in baseline test design: IndependentRenderer is
+  defined AFTER the async test module in the SAME file; on rare scheduling the async
+  test can invoke it before the module finishes loading. The failing test and module
+  live in baseline code (P-IDENTITY-CANONICAL layer, NOT the authorized surface).
+attribution: NOT attributable to P-CERTIFICATE-ISSUANCE — (a) the issuance test
+  module is async: false and runs strictly after all async tests, so it cannot overlap
+  the failing async test; (b) isolation runs WITHOUT the two authorized files still
+  remain 0-failure over repeated runs (race is rare and load/scheduling dependent);
+  (c) issuance tests are stable green in 10+ consecutive full-suite runs.
+action taken:  none on baseline code (outside authorized surface). Observed for the
+  record; a Council-authorized hardening (e.g., ensure_loaded!/support-file renderer)
+  belongs to a separate predicate/work item, NOT this gate.
+
+============================================================
+SOURCE CONTROL
+============================================================
+commits:         0
+pushes:          0
+index operations: 0
+
+============================================================
+ROLLBACK
+============================================================
+rollback boundary: delete the two added files + the evidence matrix; nothing else
+  changes. No governance record, spec, or policy mutated; no certificate state in
+  the evidence bundle touched; bridge/identity/canon/fz-b/fz-c untouched.
+rollback status:  NOT EXECUTED (gate passed)
+
+============================================================
+NEXT COUNCIL GATE
+============================================================
+STOP. Next predicate (lifecycle, revocation, supersession, distributed verification,
+or any A-predicate A01..A12) requires its own explicit Council authorization via
+predicate_authorization_template.yaml. No predicate is open merely because it appears
+in a design or this report.
+
+FINAL REQUIRED STATE (confirmed):
+  M7                    = HYBRID / APPROVED
+  Serialization freeze  = APPROVED (fz-b + fz-c FINAL / UNCHANGED)
+  canon-v1              = NORMATIVE / UNCHANGED
+  P-IDENTITY-CANONICAL  = OPEN_FOR_IMPLEMENTATION / VERIFIED
+  P-CERTIFICATE-ISSUANCE= OPEN_FOR_IMPLEMENTATION / VERIFIED
+  A-predicates          = 0 OPEN
+  Certificate state     = ledger-only, predicate-local; bundle certificate-free
+  Lifecycle             = NOT IMPLEMENTED
+  Revocation            = NOT IMPLEMENTED
+  Supersession          = NOT IMPLEMENTED
+  Real-time authority   = LIMITED single mechanism issuer (predicate-local) only
+  Production integration= NONE
+  Commits / pushes      = 0
+  Baseline              = LOCKED (beyond intentionally-added new files)

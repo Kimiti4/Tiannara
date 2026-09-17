@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/literature_replay.json",
+  "title": "LiteratureReplay",
+  "description": "A replay event recording a deterministic literature integration operation for full timeline reconstruction.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^lreplay_[a-f0-9]{16}$" },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "acquisition", "authentication", "claim_extraction",
+        "evidence_extraction", "citation_graph_update",
+        "contradiction_detection", "consensus_update",
+        "gap_discovery", "synthesis", "meta_analysis",
+        "knowledge_integration", "certification"
+      ]
+    },
+    "input_snapshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entity_id": { "type": "string" },
+          "entity_type": { "type": "string" },
+          "snapshot": { "type": "object" }
+        },
+        "required": ["entity_id", "entity_type", "snapshot"]
+      }
+    },
+    "output_snapshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entity_id": { "type": "string" },
+          "entity_type": { "type": "string" },
+          "snapshot": { "type": "object" }
+        },
+        "required": ["entity_id", "entity_type", "snapshot"]
+      }
+    },
+    "algorithm_parameters": { "type": "object" },
+    "deterministic_seed": { "type": "integer" },
+    "parent_event_ids": { "type": "array", "items": { "type": "string" } },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshots", "output_snapshots", "content_hash"]
+}

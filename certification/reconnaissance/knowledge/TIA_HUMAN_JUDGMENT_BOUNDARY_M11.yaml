@@ -1,0 +1,30 @@
+# Move 11 — Human Judgment Boundary (preserved; part of the canonical model)
+# Principle: Tiannara augments human intelligence rather than replacing human
+# judgment. The following decisions remain human-governed until sufficient
+# evidence exists for stronger automation. This is a boundary record, not an
+# implementation task.
+artifact: HUMAN_JUDGMENT_BOUNDARY_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+principle: Tiannara augments human intelligence rather than replacing human judgment
+boundaries:
+- pair: recommendation vs decision
+  human_governed_side: decision
+  basis: D3 adapter contract (recommendation != authorization, verified in T0 content); Council five-state decision struct
+  automation_ceiling: Systems may recommend with stated confidence; decisions with downstream effects require human or Council authorization evidence
+- pair: evidence vs authority
+  boundary: Evidence supports; authority decides. No evidence artifact in this program authorizes action by itself (including this file).
+  basis: Program-wide separation of evidence collection from authorization gates
+  automation_ceiling: Automated evidence collection permitted under read-only contracts; authorization transitions require explicit Council signals
+- pair: prediction vs action
+  boundary: Forecasts and predictions do not self-execute. Execution requires a separately authorized execution path (none evidenced as authorized in T0 beyond registered-but-unexecuted interfaces).
+  basis: Forecasting modules analytical-only per R7 record; orchestrator submit/get/cancel interfaces unevaluated for execution semantics
+  automation_ceiling: Prediction pipelines may run observably; action pipelines require per-action authorization evidence
+- pair: automation vs governance
+  boundary: Governance mechanisms (Council supervision, authorization structs, provenance gates) constrain automation; automation may not modify governance (constitutional prohibition transcribed from master.md as VISION_SOURCE, not as measured enforcement)
+  basis: master.md constitutional prohibitions (vision); Council supervisor + authorization struct presence (T0)
+  automation_ceiling: No self-modification of governance, certification, evidence history, or authority (prohibited unless explicitly governed)
+preserved: true
+note: This boundary is constitutional by Council adoption. Its enforcement in running systems is itself an UNKNOWN (no runtime enforcement evidence in baseline) and is recorded as such rather than assumed.

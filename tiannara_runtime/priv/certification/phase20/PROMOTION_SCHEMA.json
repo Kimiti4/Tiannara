@@ -1,0 +1,26 @@
+{
+  "schema": "PROMOTION_SCHEMA",
+  "version": "20.9",
+  "description": "Schema for PromotionDecision — generation promotion decision",
+  "promotion_decision": {
+    "fields": {
+      "decision_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "proposal": {"type": "string", "required": true, "description": "Reference to IntegrationProposal"},
+      "promotion_state": {
+        "type": "string", "required": true,
+        "description": "Candidate/Validated/IntegrationReady/Sandbox/Canary/ProductionCandidate/Current/Historical"
+      },
+      "decision": {"type": "string", "required": true, "description": "Approve/Reject/Defer/Conditional"},
+      "evidence_summary": {"type": "object", "required": true},
+      "conditions": {"type": "array", "required": false},
+      "risk_assessment": {"type": "object", "required": true},
+      "rationale": {"type": "string", "required": true},
+      "decided_by": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "promotion_states": ["candidate", "validated", "integration_ready", "sandbox", "canary", "production_candidate", "current", "historical"],
+    "constraints": ["deterministic_decision", "evidence_based", "replayable"]
+  }
+}

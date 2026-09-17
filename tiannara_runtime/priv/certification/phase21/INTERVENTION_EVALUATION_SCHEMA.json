@@ -1,0 +1,22 @@
+{
+  "schema": "INTERVENTION_EVALUATION_SCHEMA",
+  "version": "21.9",
+  "description": "Schema for evaluating a constitutional intervention across future worlds",
+  "intervention_evaluation": {
+    "fields": {
+      "intervention_id": {"type": "string", "required": true},
+      "future_world_ids": {"type": "array", "required": true},
+      "intervention_type": {"type": "string", "required": true},
+      "expected_benefit": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "expected_risk": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "uncertainty_reduction": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "scientific_leverage": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "civilizational_resilience": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "implementation_feasibility": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "world_scores": {"type": "object", "required": true},
+      "aggregated_score": {"type": "number", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "evidence_based", "multi_world"]
+  }
+}

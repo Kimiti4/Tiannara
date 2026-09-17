@@ -1,0 +1,18 @@
+{
+  "schema": "ENGINEERING_REPLAY_SCHEMA",
+  "version": "22.3",
+  "description": "Schema for replay verification of a civilization engineering event",
+  "engineering_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "engineering_event_type": {"type": "string", "required": true, "enum": ["design_created", "institution_architected", "capability_allocated", "infrastructure_designed", "evaluation_performed", "design_evolved"]},
+      "event_fingerprint": {"type": "string", "required": true},
+      "reconstructed_hash": {"type": "string", "required": true},
+      "stored_hash": {"type": "string", "required": true},
+      "verification_status": {"type": "string", "required": true, "enum": ["verified", "diverged", "incomplete"]},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "immutable", "chain_verified"]
+  }
+}

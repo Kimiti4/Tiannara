@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/future_branch.json",
+  "title": "FutureBranch",
+  "description": "A branching point in the future scenario tree.",
+  "type": "object",
+  "properties": {
+    "branch_id": { "type": "string", "pattern": "^fbranch_[a-f0-9]{16}$" },
+    "parent_scenario_id": { "type": "string" },
+    "branch_type": { "type": "string", "enum": ["decision", "uncertainty", "event", "intervention"] },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "child_scenario_ids": { "type": "array", "items": { "type": "string" } },
+    "branch_point_time": { "type": "integer" },
+    "branch_factor": { "type": "string" },
+    "evidence_at_branch": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["branch_id", "parent_scenario_id", "branch_type", "name", "child_scenario_ids", "fingerprint"]
+}

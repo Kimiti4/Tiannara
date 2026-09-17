@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tiannara-phase6
+  labels:
+    environment: production
+    tiannara.io/runtime-version: "6.0.0"
+    tiannara.io/stability-tier: "meta-compilation"

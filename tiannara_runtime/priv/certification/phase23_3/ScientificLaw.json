@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/scientific_law.json",
+  "title": "ScientificLaw",
+  "description": "A formal scientific law — empirical, derived, probabilistic, or deterministic — with supporting evidence and uncertainty.",
+  "type": "object",
+  "properties": {
+    "law_id": { "type": "string", "pattern": "^law_[a-f0-9]{16}$" },
+    "law_type": {
+      "type": "string",
+      "enum": ["empirical", "derived", "probabilistic", "deterministic", "approximate", "domain_specific", "cross_domain"]
+    },
+    "formal_statement": { "type": "string" },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "domain": { "type": "string" },
+          "unit": { "type": "string" }
+        },
+        "required": ["name", "domain"]
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z_]+$": { "type": "number" }
+      }
+    },
+    "parameter_uncertainties": {
+      "type": "object",
+      "patternProperties": {
+        "^[a-zA-Z_]+$": { "type": "number", "minimum": 0 }
+      }
+    },
+    "supporting_evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "supporting_mechanism_ids": { "type": "array", "items": { "type": "string" } },
+    "boundary_conditions": { "type": "string" },
+    "known_counterexamples": { "type": "array", "items": { "type": "string" } },
+    "derivation_history": { "type": "array", "items": { "type": "string" } },
+    "uncertainty": { "type": "number", "minimum": 0, "maximum": 1 },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["law_id", "law_type", "formal_statement", "variables", "supporting_evidence_ids", "fingerprint"]
+}

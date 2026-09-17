@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/domain_model.json",
+  "title": "DomainModel",
+  "description": "A constitutional representation of a scientific or engineering domain.",
+  "type": "object",
+  "properties": {
+    "domain_id": { "type": "string", "pattern": "^dom_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "concepts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "concept_id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        },
+        "required": ["concept_id", "name"]
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_concept_id": { "type": "string" },
+          "target_concept_id": { "type": "string" },
+          "relationship_type": { "type": "string" }
+        },
+        "required": ["source_concept_id", "target_concept_id", "relationship_type"]
+      }
+    },
+    "mechanisms": { "type": "array", "items": { "type": "string" } },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "laws": { "type": "array", "items": { "type": "string" } },
+    "models": { "type": "array", "items": { "type": "string" } },
+    "theories": { "type": "array", "items": { "type": "string" } },
+    "unknowns": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["domain_id", "name", "concepts", "fingerprint"]
+}

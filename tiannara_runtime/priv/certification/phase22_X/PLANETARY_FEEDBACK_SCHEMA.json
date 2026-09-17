@@ -1,0 +1,19 @@
+{
+  "schema": "PLANETARY_FEEDBACK_SCHEMA",
+  "version": "22.X.8",
+  "description": "Schema for a planetary-civilization feedback loop",
+  "planetary_feedback": {
+    "fields": {
+      "feedback_id": {"type": "string", "required": true},
+      "civilization_action": {"type": "string", "required": true},
+      "planetary_response": {"type": "string", "required": true},
+      "response_magnitude": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "response_timescale": {"type": "string", "required": true, "enum": ["immediate", "years", "decades", "centuries", "millennia"]},
+      "feedback_type": {"type": "string", "required": true, "enum": ["positive", "negative", "tipping_point", "nonlinear"]},
+      "civilization_impact": {"type": "object", "required": true},
+      "uncertainty": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["bidirectional", "deterministic", "replayable"]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "AUDIT_CERTIFICATE_SCHEMA",
+  "version": "20.96",
+  "description": "Schema for AuditCertificate — certifies the independent constitutional audit",
+  "audit_certificate": {
+    "fields": {
+      "certificate_id": {"type": "string", "required": true, "description": "Content-addressed certificate identifier"},
+      "audit_title": {"type": "string", "required": true},
+      "scope": {"type": "string", "required": true, "description": "Reference to AuditScope"},
+      "auditor_identity": {"type": "string", "required": true, "description": "Independent auditor identity"},
+      "independence_confirmation": {"type": "boolean", "required": true},
+      "subsystems_audited": {"type": "array", "required": true, "items": {"type": "string"}},
+      "total_artifacts": {"type": "integer", "required": true},
+      "verified": {"type": "integer", "required": true},
+      "failed": {"type": "integer", "required": true},
+      "findings": {"type": "array", "required": false, "description": "References to AuditFinding"},
+      "critical_findings": {"type": "integer", "required": true},
+      "replay_root_match": {"type": "boolean", "required": true},
+      "overall_verdict": {"type": "string", "required": true, "description": "Pass/ConditionalPass/Fail"},
+      "certificate_hash": {"type": "string", "required": true},
+      "issued_at": {"type": "integer", "required": true, "description": "Deterministic timestamp"},
+      "expires_at": {"type": "integer", "required": true, "description": "Deterministic expiration"},
+      "status": {"type": "string", "required": true, "description": "Draft/UnderReview/Certified/Failed/Archived"}
+    },
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": ["independent_auditor", "evidence_only", "deterministic_verdict", "time_limited"]
+  }
+}

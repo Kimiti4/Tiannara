@@ -1,0 +1,18 @@
+{
+  "schema": "MULTI_CIVILIZATION_REPLAY_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for multi-civilization replay verification",
+  "multi_civilization_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "interaction_ids": {"type": "array", "required": true},
+      "replay_type": {"type": "string", "required": true, "enum": ["relationship", "resource_exchange", "scientific_collaboration", "engineering_collaboration", "ecosystem_optimization", "full_lifecycle"]},
+      "replay_timestamp": {"type": "string", "required": true},
+      "verification_results": {"type": "object", "required": true},
+      "fingerprint_matches": {"type": "boolean", "required": true},
+      "divergence_report": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "verifiable", "replayable"]
+  }
+}

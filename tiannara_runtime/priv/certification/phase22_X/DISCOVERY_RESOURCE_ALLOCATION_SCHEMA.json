@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DiscoveryResourceAllocation",
+  "description": "Resource allocation record in the discovery economics system",
+  "type": "object",
+  "properties": {
+    "allocation_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this allocation"
+    },
+    "program_id": {
+      "type": "string",
+      "description": "Program receiving resources"
+    },
+    "pool_type": {
+      "type": "string",
+      "enum": ["compute", "simulation", "engineering", "laboratory", "observation", "human_review", "energy", "knowledge_processing"],
+      "description": "Type of resource being allocated"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Resource amount allocated"
+    },
+    "allocation_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of allocation"
+    },
+    "allocation_period": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "integer"
+        },
+        "end": {
+          "type": "integer"
+        }
+      },
+      "required": ["start", "end"]
+    },
+    "allocation_type": {
+      "type": "string",
+      "enum": ["strategic", "reallocation", "suspension", "emergency", "reserve"],
+      "description": "Type of allocation operation"
+    },
+    "priority_basis": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Priority score driving this allocation"
+    },
+    "expected_return": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Expected discovery return per unit resource"
+    },
+    "constraints_satisfied": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Constitutional constraints satisfied"
+    },
+    "governance_approval": {
+      "type": "object",
+      "properties": {
+        "approver": {
+          "type": "string"
+        },
+        "approval_date": {
+          "type": "integer"
+        },
+        "approval_type": {
+          "type": "string",
+          "enum": ["standard", "expedited", "emergency"]
+        }
+      },
+      "required": ["approver", "approval_date", "approval_type"]
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["allocation_id", "program_id", "pool_type", "amount", "allocation_date", "allocation_type", "priority_basis", "fingerprint"]
+}

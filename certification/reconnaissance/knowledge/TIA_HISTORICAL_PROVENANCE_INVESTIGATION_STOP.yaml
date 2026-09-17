@@ -1,0 +1,52 @@
+program: TIA_FORENSIC_RECON_ENGINE
+move: HISTORICAL-PROVENANCE-EVIDENCE-RECOVERY-GATE
+schema_version: "1.0.0"
+method: "Read-only git history inspection (log/show/diff/branch/tag/ls-tree/grep/pickaxe) across all refs; recovery of deleted records into temp locations; byte-exact blob comparison; no test execution; no implementation, commits, or pushes"
+STATUS: "HOLD (historical certificate-to-execution binding NOT FOUND IN SEARCHED HISTORY; see GATE and SYSTEMIC-GAP_ASSESSMENT)"
+T0: "PRESERVED 9753a6d / 06f06e5e identical; no commits, pushes, or modifications"
+
+HISTORICAL_SCOPE:
+  - "Full accessible git history of the repository examined read-only (git objects immune to working-tree state)"
+  - "Real commits: 48 (41 on main); oldest d2be619 2026-02-19, T0 9753a6d 2026-09-05"
+  - "Refs examined: main, t0-baseline, 12 sandboxed asc-* candidate branches, tags T0 / asc-adopted-ASC-AE-003 / asc-pre-adoption-ASC-AE-003"
+  - "Sweeps: diff-filter=A/D name-only for certificate, campaign_results, runs, provenance paths; git log -p on '*certificate*.json'; identifier pickaxe over all history (run_id, execution_id, result_id, seed, config_hash, 0.1042/0.1068/0.8041/0.8035/0.7864/0.0746, 409dbc2a, 0b1a6ab6, MOCK-HASH, CERT-5850d111, 20260304, 7a3244ead97d, gc_012)"
+  - "Boundary (stated): pre-git or uncommitted working-tree artifacts prior to T0 are outside the searched boundary; this is why the finding is NOT FOUND IN SEARCHED HISTORY, not NEVER EXISTED"
+
+COMMITS_EXAMINED: "All 48 objects on all refs (oldest d2be619 2026-02-19 to T0 9753a6d 2026-09-05); targeted full-path picks from dbe09f1 (2026-03-02 runs/day10c_pipeline.jsonl), 8cfcf53 (2026-03-05 pros v1.0.0 complete, 20 run files), 5479ee5 / 57e9a16 (runs/ evolution), 16c8294 (= 8610c55^ pre-deletion run state), 8610c55 (2026-07-03 run deletion), 9753a6d (T0 snapshot)"
+BRANCHES_TAGS:
+  - "git log --all: 48 commits; main: 41"
+  - "Branches: main, t0-baseline, asc-adopt-ae003-bulk_gc_ingest, asc-ae001-d1_parallel_boot, asc-ae001-d2_deferred_store, asc-ae002-baseline, asc-ae002-bulk_ingest, asc-ae002-parallel_ingest, asc-ae002-recursive_ingest, asc-ae003-baseline, asc-ae003-bulk_ingest, asc-ae003-bulk_gc_ingest, asc-ae003-chunked_bulk_ingest (sandboxed candidates, 2026-08-18/19)"
+  - "Tags: T0 (peeled 9753a6d), asc-adopted-ASC-AE-003, asc-pre-adoption-ASC-AE-003"
+
+CERTIFICATE_HISTORY: "ALL certificate artifacts entered git for the first time at T0 (9753a6d 'chore: commit working-tree codebase (non-.md, non-test) for full-repo audit'): phase14/certification/certificate.json, certification_certificate.json, campaign_results/gc_001..gc_012, hashes/*, PHASE14_GOVERNANCE_CERTIFICATE.json, PHASE14_GOVERNANCE_CERTIFICATE_FINAL.json, PHASE14_PARTIAL_CERTIFICATE.json, MATHEMATICS_FREEZE_CERTIFICATE.json, docs/RUNTIME_FREEZE_CERTIFICATE.json, data/minimal_repro_package/constitution_certificate.json, generate_phase14_final_certificate.exs - NO pre-T0 versions in any ref; certification output never existed in git before the audit snapshot"
+EXECUTION_HISTORY: "Execution records DID have pre-T0 history: runs/day10c_pipeline.jsonl added dbe09f1 (2026-03-02); 20 run files (packets.jsonl + meta.json) added 8cfcf53 (2026-03-05, pros v1.0.0); runs/ extended 5479ee5 (2026-03-14), 57e9a16 (2026-04-24); ALL runs/* deleted 8610c55 (2026-07-03); re-added at T0 under archive/experiments/2026-Q2/runs/"
+DELETED_RECORDS: "runs/* (incl. best run packets, day10c_pipeline.jsonl, autonomous_experience.jsonl) deleted at 8610c55 (2026-07-03); blobs survive in git object store and were recovered to temp for byte comparison - all 22 run files at pre-deletion state 16c8294 (= 8610c55^) verified BYTE-IDENTICAL to T0 archive copies (0/22 differ)"
+RENAMED_MOVED_RECORDS: "No renames; relocation confirmed: runs/20260304_005515_7a3244ead97d_23abb05c_day10c_pipeline/packets.jsonl -> archive/experiments/2026-Q2/runs/20260304_005515_7a3244ead97d_23abb05c_day10c_pipeline/packets.jsonl with byte-identical blob 11cbe3b6d7a6ec514ed9b8c2a781726fdb86e5bf (same for 20260304_005930 packets f0ceb5fd... and day10c_pipeline.jsonl 1babfe2e...); execution bytes genuinely continuous since 2026-03-05"
+
+HISTORICAL_CERTIFICATE_TO_EXECUTION_BINDINGS: "NOT FOUND IN SEARCHED HISTORY - git log --all -p on '*certificate*.json' contains zero run_id references; execution_id appears ONLY in the T0 minimal-repro constitution certificate (self-minted, MOCK-HASH generator path); no certificate of any commit references any historical or archived run path; at no commit in 48 were certificates and bound execution records co-present (certificates never pre-date T0)"
+BEST_HISTORICAL_CHAIN: "Best execution artifact: archived 2026-03-04 best run packets (run_id 20260304_005515_7a3244ead97d_23abb05c_day10c_pipeline, seed 12345, config_hash 7a3244ead97d), byte-identical across its 2026-03-05 historical commit, its 2026-07 deletion, and T0 - yet NO certificate in any commit ever referenced it; certificate side of any chain simply never existed in history"
+MINIMAL_REPRO_HISTORY: "MOCK-HASH certificate path present in all refs containing the generator (T0 + 6 asc-* branches); lib/mix/tasks/tiannara.generate_minimal_repro_package.ex byte-identical between oldest asc branch (c984b8f) and T0 (zero-byte diff); NO historical non-MOCK version of the minimal-repro certificate ever existed; CERT-5850d111 appears only at T0"
+CONTRA_003: "UNRESOLVED - third gc_012 value set (0.7864/0.1068) is T0-only; sibling values 0.8041/0.8035/0.0746/0.1042 in other records also T0-only; pre-T0 hits of 0.1042/0.1068 (8cfcf53, dbe09f1, 8610c55) are EMG telemetry zcr values inside run packets (e.g. 'zcr': 0.10684756269096808) - numeric coincidence, NOT certificate entropy; history adds no resolution and no alternative explanation for the three-way disagreement"
+GOVERNANCE_HASH_HISTORY: "Stored self-hash 409dbc2a... appears only at T0; recomputed hash 0b1a6ab6... (Get-FileHash of working tree file, byte-exact) appears NOWHERE in history; no pre-T0 governance certificate exists (blob b162bea0... created at T0) - the stored-vs-recomputed mismatch is intrinsic to the artifact as committed, with no git-history drift or prior version to explain it"
+SYSTEMIC_GAP_ASSESSMENT: "NOT FOUND IN SEARCHED HISTORY - evidence supports a certification process that (a) produced certificates entirely outside version control until the T0 audit snapshot, and (b) at no point linked any certificate to any execution record, historical or current; the gap is consistent across all 48 commits, all 12 asc-* candidate branches, and T0 itself; therefore systemic within the searched boundary. NOT asserted as universal 'never existed': pre-git/uncommitted pre-T0 artifacts sit outside the searched boundary"
+
+KNOWLEDGE_CHANGES: "NONE - no existing item meets the change rule"
+KNOWLEDGE_DEBT_IMPACT:
+  - "RQ-001: served (historical execution classes mapped; preservation verified byte-identical; gc_012-specific execution still absent then and now)"
+  - "RQ-004: deepened (re-derivation inputs existed historically and were restored, but no certificate ever referenced them)"
+  - "KD-001/CONTRA-003: deepened (three-way disagreement now bounded to T0-only content; no historical relief)"
+  - "KD-010: deepened (governance hash mismatch now proven intrinsic-to-artifact; meta-chain unanchored)"
+RESEARCH_QUESTION_IMPACT: "Historical gate closes the 'deleted records' hypothesis: run records were deleted then restored byte-identically (real preservation), but no certificate ever referenced them - the missing edge is certificate-to-execution, and it is missing in both linear time and version history"
+
+REMAINING_UNKNOWNS:
+  - "Whether certificates existed outside git before T0 (uncommitted/pre-git; outside searched boundary)"
+  - "Whether the FINAL governance certificate's stated certificate_sha256 (c5896ae4...) covers a canonical subset (recomputed whole-file hash 985e0073... does not match; no canonicalization spec found)"
+  - "Whether a meta.json ever existed for the best run (20260304_005515) prior to the 8610c55 deletion - not present at 16c8294, not present at T0, not present in working tree"
+  - "Whether em/exotic identifier encodings escaped the term sweep (systematic over listed terms only)"
+SMALLEST_NEXT_EVIDENCE: "Any object outside the searched boundary that pairs a certificate with an execution id (e.g., an uncommitted/pre-git certificate found later, or a canonicalization spec for the governance hash); within git, the boundary is exhausted - no smaller in-repo evidence remains"
+
+GATE: "HOLD - historical certificate-to-execution binding NOT FOUND IN SEARCHED HISTORY; execution records historically genuine and byte-continuous, certification wholly absent from history and never bound; failures consistent with the binding-investigation HOLD (R3 best-candidate independence failure) and the execution-record PARTIAL PASS (records exist; chain unclosed)"
+IMPLEMENTATION: "NONE"
+REMEDIATION: "NONE"
+COMMITS: "NONE"
+PUSHES: "NONE"

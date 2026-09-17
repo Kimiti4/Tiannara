@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_trace.json",
+  "title": "EngineeringTrace",
+  "description": "A traceability link connecting engineering lifecycle elements.",
+  "type": "object",
+  "properties": {
+    "trace_id": { "type": "string", "pattern": "^etrace_[a-f0-9]{16}$" },
+    "source_type": { "type": "string", "enum": ["discovery", "theory", "requirement", "architecture", "design", "verification", "certificate", "deployment"] },
+    "source_id": { "type": "string" },
+    "target_type": { "type": "string", "enum": ["discovery", "theory", "requirement", "architecture", "design", "verification", "certificate", "deployment"] },
+    "target_id": { "type": "string" },
+    "relationship": { "type": "string", "enum": ["derives_from", "satisfies", "verifies", "certifies", "implements", "depends_on", "decomposes_to"] },
+    "strength": { "type": "string", "enum": ["direct", "indirect", "partial"] },
+    "direction": { "type": "string", "enum": ["forward", "backward"] },
+    "verified": { "type": "boolean" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["trace_id", "source_type", "source_id", "target_type", "target_id", "relationship", "direction", "fingerprint"]
+}

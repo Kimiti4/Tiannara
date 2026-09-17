@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/planetary_state.json",
+  "title": "PlanetaryState",
+  "description": "The complete planetary state across all domains.",
+  "type": "object",
+  "properties": {
+    "state_id": { "type": "string", "pattern": "^pstate_[a-f0-9]{16}$" },
+    "version": { "type": "integer" },
+    "domain_count": { "type": "integer" },
+    "domains": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "global_health_index": { "type": "number" },
+    "completeness_score": { "type": "number" },
+    "confidence_index": { "type": "number" },
+    "uncertainty_density": { "type": "number" },
+    "timestamp": { "type": "integer" },
+    "checkpoint_id": { "type": "string" },
+    "certification_status": { "type": "string", "enum": ["uncertified", "in_review", "certified", "partially_certified"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "required": ["state_id", "version", "domain_count", "fingerprint"]
+}

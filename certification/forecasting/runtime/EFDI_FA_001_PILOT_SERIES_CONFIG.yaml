@@ -1,0 +1,83 @@
+series: EFDI-FA-001-PILOT
+pilot: EFDI-001-001 (dual-domain Forecast #001)
+recorded_at: 2026-09-13T00:52:00.000Z
+authorization: EFDI_FA_001_PILOT_AUTHORIZATION.yaml (signed, AUTHORIZED)
+status: FROZEN_BEFORE_ISSUE
+
+================================================================
+PRE-REGISTERED WINDOWS (frozen; every forecast must be issued before
+its window begins; no element may change mid-series)
+================================================================
+windows:
+  - leg: BTC_5m
+    question: >
+      "Will the BTC/USD price at window end be >= the BTC/USD price at
+      window open over the 5-minute window?"
+    window: ["2026-09-13T00:55:00.000Z", "2026-09-13T01:00:00.000Z"]
+    T0: 2026-09-13T00:55:00.000Z
+    horizon: 5m
+    flat_eps: none            # no FLAT class this series
+    resolution_rule: >
+      Up if spot_close >= spot_open, else Down. spot = single pre-declared
+      source (below), sampled once just before window start (spot_open) and
+      once after window end (spot_close).
+    primary_resolution_source: >
+      Chainlink BTC/USD (reference: btc-usd-twap-60s-streams TWAP semantics,
+      per EFDI_FA_001_REAL_WORLD_RESOLUTION_PROTOCOL §3.1).
+    accessible_resolution_source (pre-declared): >
+      CoinGecko simple price API (api.coingecko.com/api/v3/simple/price,
+      ids=bitcoin&vs_currencies=usd); sampled at spot_open and spot_close.
+    fallback_source (pre-declared): >
+      CoinDesk API (api.coindesk.com/v1/bpi/currentprice.json) BTC/USD;
+      used ONLY if CoinGecko unavailable at resolution, per §5.2
+      substitution, recorded as resolution_source substitution.
+    B4_benchmark: >
+      Polymarket BTC Up or Down 5m event implied probability for the SAME
+      window, captured at data_cutoff. If not capturable at cutoff: recorded
+      as NOT_CAPTURED (never estimated retroactively).
+
+  - leg: Nairobi_60m
+    question: >
+      "Will measurable precipitation (>= 0.1 mm) occur at Nairobi
+      (HKJK/Jomo Kenyatta) within the 60-minute window?"
+    window: ["2026-09-13T01:00:00.000Z", "2026-09-13T02:00:00.000Z"]
+    T0: 2026-09-13T01:00:00.000Z
+    horizon: 1h
+    flat_eps: none
+    resolution_rule: >
+      YES if any observation within [T0-30m, T0+60m+30m] reports present
+      weather precipitation. NO otherwise. Precip = WMO present weather
+      codes RA(-/+/VC), DZ(-/+/VC), SN(-/+/VC), SHRA, SHSN, TSRA, TS or
+      runway/accumulated precip flags at the pre-declared station.
+    primary_resolution_source (pre-declared, observation-based): >
+      HKJK (Nairobi Jomo Kenyatta) METAR present weather,
+      https://aviationweather.gov/api/data/metar?ids=HKJK, resolved at
+      window end + margin.
+    fallback_source (pre-declared): >
+      open-meteo https://api.open-meteo.com/v1/forecast?latitude=-1.29&
+      longitude=36.82 hourly precipitation for the window (>= 0.1 mm -> YES).
+      Used ONLY if METAR primary unavailable at resolution per §5.2;
+      substitution recorded.
+    B4_benchmark: >
+      open-meteo precipitation (hourly, mm) for the SAME window captured at
+      data_cutoff (NOT Tiannara's answer; a weather-service reference).
+
+================================================================
+CONSTANTS (frozen, Courts-wide)
+================================================================
+constants:
+  reference_time: 2026-09-13T00:51:48.989Z   # UTC (UTC+0)
+  data_cutoff_GLOBAL: >
+    every leg's data_cutoff defaults to this reference_time unless the leg
+    overrides; any evidence with observation time > its data_cutoff is EXCLUDED.
+  issued_at_plan: 2026-09-13T00:52:30.000Z   # > data_cutoff, < both T0
+  series_stage: pilot
+  eps_flat: none
+  B1_lock: >
+    B1 (historical base rate) reference windows are FIXED here and will NOT
+    be refit during the series:
+    - BTC_5m: 5-minute up frequency over the trailing 24h window observable
+      at data_cutoff (approx reference from market data available then).
+    - Nairobi_60m: hourly precip frequency from the trailing 7d observable
+      window at data_cutoff (approx per weather service).
+  series_config_hash: FROZEN (recorded in ledger metadata granule)

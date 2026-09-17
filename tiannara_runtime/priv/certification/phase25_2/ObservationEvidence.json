@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/observation_evidence.json",
+  "title": "ObservationEvidence",
+  "description": "A piece of constitutional evidence derived from one or more observations.",
+  "type": "object",
+  "properties": {
+    "evidence_id": { "type": "string", "pattern": "^evid_[a-f0-9]{16}$" },
+    "observation_ids": { "type": "array", "items": { "type": "string" } },
+    "domain": { "type": "string" },
+    "variable": { "type": "string" },
+    "value": {},
+    "unit": { "type": "string" },
+    "confidence": { "type": "number" },
+    "uncertainty": { "type": "object" },
+    "fusion_method": { "type": "string" },
+    "validation_status": { "type": "string", "enum": ["pending", "validated", "certified"] },
+    "certificate_id": { "type": "string" },
+    "provenance_chain": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["evidence_id", "observation_ids", "domain", "variable", "value", "confidence", "fingerprint"]
+}

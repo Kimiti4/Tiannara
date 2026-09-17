@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/grand_challenge.json",
+  "title": "GrandChallenge",
+  "description": "A scientific grand challenge being managed by the CARSE.",
+  "type": "object",
+  "properties": {
+    "challenge_id": { "type": "string", "pattern": "^gc_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "domains": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["proposed", "active", "paused", "completed", "archived"] },
+    "missions": { "type": "array", "items": { "type": "string" } },
+    "progress_indicators": { "type": "object" },
+    "estimated_horizon": { "type": "integer" },
+    "civilizational_benefit": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "completed_at": { "type": "integer" }
+  },
+  "required": ["challenge_id", "name", "description", "domains", "status", "fingerprint"]
+}

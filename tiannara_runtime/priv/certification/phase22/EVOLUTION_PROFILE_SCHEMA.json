@@ -1,0 +1,20 @@
+{
+  "schema": "EVOLUTION_PROFILE_SCHEMA",
+  "version": "22.6",
+  "description": "Schema for a civilization evolution profile across time horizons",
+  "evolution_profile": {
+    "fields": {
+      "profile_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "evolution_rate": {"type": "number", "required": true},
+      "adaptation_rate": {"type": "number", "required": true},
+      "knowledge_growth_rate": {"type": "number", "required": true},
+      "institutional_stability": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "technological_progress": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "continuity_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "horizon_projections": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "horizon_aware", "replayable"]
+  }
+}

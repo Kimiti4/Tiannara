@@ -1,0 +1,26 @@
+{
+  "schema": "REALITY_MODEL_SCHEMA",
+  "version": "21.8",
+  "description": "Schema for a unified reality model snapshot at a given generation",
+  "reality_model": {
+    "fields": {
+      "model_id": {"type": "string", "required": true},
+      "generation": {"type": "integer", "required": true},
+      "scientific_scope": {"type": "string", "required": true},
+      "supported_domains": {"type": "array", "required": true},
+      "integrated_theories": {"type": "array", "required": true},
+      "mathematical_foundations": {"type": "array", "required": true},
+      "evidence_base_hash": {"type": "string", "required": true},
+      "known_contradictions": {"type": "array", "required": true},
+      "unknown_regions": {"type": "array", "required": true},
+      "confidence_distribution": {"type": "object", "required": true},
+      "completeness_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "consistency_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "model_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_first", "deterministic", "replayable"]
+  }
+}

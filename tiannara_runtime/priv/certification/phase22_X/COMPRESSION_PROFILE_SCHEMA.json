@@ -1,0 +1,20 @@
+{
+  "schema": "COMPRESSION_PROFILE_SCHEMA",
+  "version": "22.X.2",
+  "description": "Schema for a compression profile tracking compression state",
+  "compression_profile": {
+    "fields": {
+      "profile_id": {"type": "string", "required": true},
+      "source_clusters": {"type": "array", "required": true},
+      "target_abstraction_level": {"type": "integer", "required": true, "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+      "compression_ratio": {"type": "number", "required": true},
+      "information_preservation": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "principles_extracted": {"type": "array", "required": false},
+      "laws_discovered": {"type": "array", "required": false},
+      "redundancy_eliminated": {"type": "number", "required": false},
+      "validation_status": {"type": "string", "required": true, "enum": ["pending", "passed", "failed"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["validated", "deterministic", "replayable"]
+  }
+}

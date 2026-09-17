@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/planetary_event.json",
+  "title": "PlanetaryEvent",
+  "description": "An immutable event in the planetary runtime event log.",
+  "type": "object",
+  "properties": {
+    "event_id": { "type": "string", "pattern": "^pevt_[a-f0-9]{16}$" },
+    "event_type": { "type": "string" },
+    "sequence": { "type": "integer" },
+    "parent_event_id": { "type": "string" },
+    "source_subsystem": { "type": "string" },
+    "payload": { "type": "object" },
+    "logical_clock": { "type": "integer" },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "signature": { "type": "string" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["event_id", "event_type", "sequence", "source_subsystem", "payload", "content_hash", "timestamp"]
+}

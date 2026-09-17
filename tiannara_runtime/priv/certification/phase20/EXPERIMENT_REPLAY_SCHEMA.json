@@ -1,0 +1,42 @@
+{
+  "schema": "EXPERIMENT_REPLAY_SCHEMA",
+  "version": "20.7",
+  "description": "Schema for experiment replay chain and reproducibility verification",
+  "experiment_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "experiment": {"type": "string", "required": true, "description": "Reference to experiment"},
+      "replay_type": {"type": "string", "required": true, "description": "Proposal/Design/Environment/Execution/Analysis/Reproducibility/Full"},
+      "step_hashes": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "step": {"type": "integer"}, "stage": {"type": "string"},
+            "input_hash": {"type": "string"}, "output_hash": {"type": "string"},
+            "step_hash": {"type": "string"}
+          }
+        }
+      },
+      "root_hash": {"type": "string", "required": true, "description": "Final replay chain root"},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "replay_types": ["proposal", "design", "environment", "execution", "analysis", "reproducibility", "full"]
+  },
+  "reproducibility_report": {
+    "fields": {
+      "report_id": {"type": "string", "required": true},
+      "experiment": {"type": "string", "required": true},
+      "level": {"type": "string", "required": true, "description": "Full/Computational/Statistical/Conceptual/None"},
+      "stage_results": {"type": "object", "required": true},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "discrepancies": {"type": "array", "required": false},
+      "environment_fingerprint": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "levels": ["full", "computational", "statistical", "conceptual", "none"]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "INTEGRATION_PROPOSAL_SCHEMA",
+  "version": "20.9",
+  "description": "Schema for IntegrationProposal — constitutional self-integration proposal",
+  "integration_proposal": {
+    "fields": {
+      "proposal_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "originating_improvement": {"type": "string", "required": true, "description": "Reference to originating engineering/experiment/optimization"},
+      "origin_phase": {"type": "string", "required": true, "description": "20.6/20.7/20.8"},
+      "evidence_chain": {"type": "array", "required": true, "description": "Complete evidence chain references"},
+      "scope": {"type": "object", "required": true, "description": "Scope of integration"},
+      "affected_subsystems": {"type": "array", "required": true},
+      "expected_impact": {"type": "object", "required": true},
+      "dependencies": {"type": "array", "required": false},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "status": {"type": "string", "required": true, "description": "Proposed/Validated/IntegrationReady/Sandbox/Canary/ProductionCandidate/Current/Historical"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "lifecycle": ["proposed", "validated", "integration_ready", "sandbox", "canary", "production_candidate", "current", "historical"],
+    "constraints": ["evidence_based", "deterministic_scope", "replayable"]
+  }
+}

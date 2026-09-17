@@ -1,0 +1,183 @@
+# Move 11 — Capability to Knowledge Reconciliation (states frozen as recorded)
+# No state changes in this file. Each row states what the capability
+# contributes to canonical knowledge today.
+artifact: CAPABILITY_KNOWLEDGE_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+rows:
+- capability: TIA-CAP-001
+  observed_subsystem: forecasting chain (T0 presence)
+  observed_behavior: none separately demonstrated in this program (Council envelope basis)
+  evidence_quality: Council-record
+  knowledge_contribution: governance knowledge (certified envelope exists and is bounded)
+  knowledge_dependency: none within program scope
+  remaining_uncertainty: Behavior beyond the envelope (out of scope by design)
+  next_discriminating_evidence: none required (decided state, not re-litigated)
+- capability: TIA-CAP-002
+  observed_subsystem: forecasting chain + calibration.ex (T0 presence)
+  observed_behavior: none separately demonstrated in this program
+  evidence_quality: Council-record
+  knowledge_contribution: governance knowledge
+  knowledge_dependency: none within program scope
+  remaining_uncertainty: Behavior beyond the envelope (out of scope by design)
+  next_discriminating_evidence: none required (decided state)
+- capability: TIA-CAP-003
+  observed_subsystem: forecasting chain + decision modules + adapter contract text (T0)
+  observed_behavior: none separately demonstrated in this program
+  evidence_quality: Council-record + contract text
+  knowledge_contribution: governance knowledge (separation rule stated in contract)
+  knowledge_dependency: none within program scope
+  remaining_uncertainty: Runtime enforcement of the separation (carried gap)
+  next_discriminating_evidence: none required for the decided state (enforcement is a separate question)
+- capability: TIA-CAP-004
+  observed_subsystem: forecasting chain + counterfactual/attribution modules (T0)
+  observed_behavior: none separately demonstrated in this program
+  evidence_quality: Council-record
+  knowledge_contribution: governance knowledge
+  knowledge_dependency: none within program scope
+  remaining_uncertainty: Behavior beyond the envelope (out of scope by design)
+  next_discriminating_evidence: none required (decided state)
+- capability: TIA-CAP-005
+  observed_subsystem: forecasting/d5/* + frozen verdict in T0 content
+  observed_behavior: none separately demonstrated in this program
+  evidence_quality: Council-record + T0 content verification
+  knowledge_contribution: governance knowledge + structural knowledge (threshold single-source, three-valued verdict)
+  knowledge_dependency: none within program scope
+  remaining_uncertainty: Behavior beyond the envelope (out of scope by design)
+  next_discriminating_evidence: none required (decided state)
+- capability: TIA-CAP-006
+  observed_subsystem: none (0 runs by protocol definition)
+  observed_behavior: none (no runs)
+  evidence_quality: Protocol record
+  knowledge_contribution: governance knowledge (the block itself is established procedure)
+  knowledge_dependency: [E03 execution authorization]
+  remaining_uncertainty: Everything about regulated emergence behavior (entire experimental space)
+  next_discriminating_evidence: Authorized E03 execution per frozen protocol
+- capability: TIA-CAP-007
+  observed_subsystem: planner boundary + provenance gate (T0 content verified)
+  observed_behavior: none separately demonstrated in this program
+  evidence_quality: Council-record (R7 12/12)
+  knowledge_contribution: governance knowledge + engineering insight K-018
+  knowledge_dependency: none within program scope
+  remaining_uncertainty: Gate invocation coverage beyond Move-0 usage
+  next_discriminating_evidence: none required (decided state)
+- capability: TIA-CAP-008
+  observed_subsystem: POST_T0 recon engine (working tree, not T0)
+  observed_behavior: demonstrated (20/20 RI; 2/2 canonical runs identical)
+  evidence_quality: Demonstrated within explicit bounds
+  knowledge_contribution: runtime knowledge (audit machinery works as specified) + structural knowledge (T0 inventory)
+  knowledge_dependency: none within program scope
+  remaining_uncertainty: Generalization beyond this repository (explicitly out of scope)
+  next_discriminating_evidence: none required (decided state)
+- capability: TIA-CAP-009
+  observed_subsystem: stabilizer modules + wiring (T0); liveness (Move-9 runtime)
+  observed_behavior: alive, action-silent in window; no tests; no effects
+  evidence_quality: Presence + liveness (behavior absent)
+  knowledge_contribution: structural knowledge (wiring map) + runtime knowledge (liveness facts)
+  knowledge_dependency: [Regulator boundary evidence (Q-A2)]
+  remaining_uncertainty: Regulation behavior, invocation, effect, authority
+  next_discriminating_evidence: One attributed regulation action or invocation edge
+- capability: TIA-CAP-010
+  observed_subsystem: evolution modules + SR-4 guards in T0 content
+  observed_behavior: none (zero T0 tests; no execution evidence)
+  evidence_quality: Presence + content verification
+  knowledge_contribution: structural knowledge (module inventory, guard verification)
+  knowledge_dependency: [Execution evidence]
+  remaining_uncertainty: All behavior (strongest insufficiency in program)
+  next_discriminating_evidence: One executed evolution cycle bound to T0 module versions
+- capability: TIA-CAP-011
+  observed_subsystem: logger-only facade in T0 content; no callers
+  observed_behavior: none demonstrated
+  evidence_quality: Content read
+  knowledge_contribution: structural knowledge (isolation corroborated)
+  knowledge_dependency: [Persistence contract or reclassification decision]
+  remaining_uncertainty: Whether the facade needs any certification at all
+  next_discriminating_evidence: A persistence contract, or a Council reclassification decision
+- capability: TIA-CAP-012
+  observed_subsystem: none (JSON record only, unreferenced)
+  observed_behavior: none
+  evidence_quality: Presence only
+  knowledge_contribution: intended architecture (a constitutional-law record is intended to matter; unevidenced that it does)
+  knowledge_dependency: [Consumer evidence]
+  remaining_uncertainty: Entire operational reality of the record
+  next_discriminating_evidence: One consumer reference
+- capability: TIA-CAP-013
+  observed_subsystem: none (JSON records only, unreferenced)
+  observed_behavior: none
+  evidence_quality: Presence only
+  knowledge_contribution: intended architecture
+  knowledge_dependency: [Consumer evidence]
+  remaining_uncertainty: Entire operational reality of the records
+  next_discriminating_evidence: One consumer reference
+- capability: TIA-CAP-014
+  observed_subsystem: council/audit_log.ex reader + rotation policy in T0 content
+  observed_behavior: working-tree DETS writes during boots (rotation path live, files unattributed)
+  evidence_quality: Content + partial runtime (writes observed, attribution absent)
+  knowledge_contribution: structural knowledge (reader + policy) + runtime knowledge (live writes)
+  knowledge_dependency: [File-attribution evidence]
+  remaining_uncertainty: Attribution of the specific T0 files to runs
+  next_discriminating_evidence: Rotation-run record binding file hashes to timestamps
+- capability: TIA-CAP-015
+  observed_subsystem: none for the files (concept referenced nearby)
+  observed_behavior: none
+  evidence_quality: Presence + negative grep results
+  knowledge_contribution: intended architecture
+  knowledge_dependency: [Construction/query evidence]
+  remaining_uncertainty: Entire operational reality of the records
+  next_discriminating_evidence: One query path from code to a record
+- capability: TIA-CAP-016
+  observed_subsystem: none (probe script + manifest mention only)
+  observed_behavior: none
+  evidence_quality: Weak presence
+  knowledge_contribution: intended architecture (at most)
+  knowledge_dependency: [Any operational evidence]
+  remaining_uncertainty: Whether any memory substrate operates at all
+  next_discriminating_evidence: One module performing a memory operation
+- capability: TIA-CAP-017
+  observed_subsystem: single module, zero callers
+  observed_behavior: none
+  evidence_quality: Presence + negative caller evidence
+  knowledge_contribution: structural knowledge (orphan determination)
+  knowledge_dependency: [Intended-role record]
+  remaining_uncertainty: Historical vs pending vs aspirational status
+  next_discriminating_evidence: One design note stating intended role
+- capability: TIA-CAP-018
+  observed_subsystem: phase14 corpus + auditor module + index linkages
+  observed_behavior: auditor executes (self-consistency only); bindings genuine; values disagree (CONTRA-003)
+  evidence_quality: Records + execution observation + recomputed hashes
+  knowledge_contribution: runtime knowledge (auditor characterized) + structural knowledge (bindings verified)
+  knowledge_dependency: [Independent-derivation evidence; CONTRA-003 resolution]
+  remaining_uncertainty: Verification truth; which gc_012 record is correct
+  next_discriminating_evidence: One independently recomputed campaign metric or one recorded auditor run
+- capability: TIA-CAP-019
+  observed_subsystem: 3 bench scripts with fixed inputs
+  observed_behavior: dev-env blocked (missing module); test-env inconclusive; zero measurements
+  evidence_quality: Presence + blocked-execution evidence
+  knowledge_contribution: structural knowledge (harness scope corrected) + runtime knowledge (blockage located)
+  knowledge_dependency: [One executed run with measurements]
+  remaining_uncertainty: Executability under any env; all result properties
+  next_discriminating_evidence: One completed bench run with captured output
+- capability: TIA-CAP-020
+  observed_subsystem: none (JSON records only, no producers/consumers)
+  observed_behavior: none
+  evidence_quality: Presence + negative grep results
+  knowledge_contribution: intended architecture (at most)
+  knowledge_dependency: [Producer or consumer evidence]
+  remaining_uncertainty: Entire operational reality of the records
+  next_discriminating_evidence: One producer or consumer reference
+- capability: TIA-CAP-021
+  observed_subsystem: none (JSON records only, no builders/verifiers/schemas)
+  observed_behavior: none
+  evidence_quality: Presence + negative grep results
+  knowledge_contribution: intended architecture (at most)
+  knowledge_dependency: [Builder, verifier, or schema evidence]
+  remaining_uncertainty: Entire operational reality of the records
+  next_discriminating_evidence: One builder reference or schema document
+aggregate:
+  demonstrated_knowledge: [TIA-CAP-008]
+  structural_knowledge: [TIA-CAP-005, TIA-CAP-009, TIA-CAP-010, TIA-CAP-011, TIA-CAP-014, TIA-CAP-017, TIA-CAP-018, TIA-CAP-019]
+  runtime_knowledge: [TIA-CAP-008, TIA-CAP-009, TIA-CAP-010, TIA-CAP-014, TIA-CAP-018, TIA-CAP-019]
+  governance_knowledge: [TIA-CAP-001, TIA-CAP-002, TIA-CAP-003, TIA-CAP-004, TIA-CAP-005, TIA-CAP-006, TIA-CAP-007]
+  intended_architecture_only: [TIA-CAP-012, TIA-CAP-013, TIA-CAP-015, TIA-CAP-016, TIA-CAP-020, TIA-CAP-021]

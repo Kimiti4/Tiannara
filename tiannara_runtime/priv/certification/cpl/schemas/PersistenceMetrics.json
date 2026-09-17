@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PersistenceMetrics",
+  "description": "Observable metrics for the Constitutional Persistence Layer",
+  "type": "object",
+  "properties": {
+    "runtime_continuity_metrics": {
+      "type": "object",
+      "properties": {
+        "runtime_availability": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "description": "Runtime availability (percentage)"
+        },
+        "active_runtime": {
+          "type": "integer",
+          "description": "Active runtime (milliseconds)"
+        },
+        "elapsed_runtime": {
+          "type": "integer",
+          "description": "Elapsed runtime (milliseconds)"
+        },
+        "recovery_count": {
+          "type": "integer",
+          "description": "Total number of recoveries"
+        },
+        "recovery_success_rate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "description": "Recovery success rate (percentage)"
+        },
+        "knowledge_loss": {
+          "type": "integer",
+          "description": "Number of knowledge records lost"
+        },
+        "experiment_loss": {
+          "type": "integer",
+          "description": "Number of experiments lost"
+        },
+        "replay_divergence": {
+          "type": "integer",
+          "description": "Number of replay divergences"
+        },
+        "continuity_score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "description": "Overall continuity score (0-100)"
+        }
+      },
+      "required": ["runtime_availability", "active_runtime", "elapsed_runtime", "recovery_count", "recovery_success_rate", "knowledge_loss", "experiment_loss", "replay_divergence", "continuity_score"]
+    },
+    "checkpoint_metrics": {
+      "type": "object",
+      "properties": {
+        "checkpoint_creation_rate": {
+          "type": "number",
+          "description": "Checkpoint creation rate (per second)"
+        },
+        "checkpoint_size_per_domain": {
+          "type": "object",
+          "description": "Checkpoint size per domain (bytes)"
+        },
+        "checkpoint_frequency": {
+          "type": "object",
+          "description": "Checkpoint frequency per domain"
+        },
+        "checkpoint_latency": {
+          "type": "integer",
+          "description": "Checkpoint creation latency (milliseconds)"
+        },
+        "checkpoint_verification_time": {
+          "type": "integer",
+          "description": "Checkpoint verification time (milliseconds)"
+        },
+        "checkpoint_success_rate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "description": "Checkpoint success rate (percentage)"
+        }
+      },
+      "required": ["checkpoint_creation_rate", "checkpoint_latency", "checkpoint_success_rate"]
+    },
+    "journal_metrics": {
+      "type": "object",
+      "properties": {
+        "journal_entry_count": {
+          "type": "integer",
+          "description": "Total number of journal entries"
+        },
+        "journal_entries_per_second": {
+          "type": "number",
+          "description": "Journal entries per second"
+        },
+        "journal_size": {
+          "type": "integer",
+          "description": "Journal size (bytes)"
+        },
+        "journal_growth_rate": {
+          "type": "number",
+          "description": "Journal growth rate (bytes/second)"
+        },
+        "journal_query_latency": {
+          "type": "integer",
+          "description": "Journal query latency (milliseconds)"
+        },
+        "journal_search_latency": {
+          "type": "integer",
+          "description": "Journal search latency (milliseconds)"
+        }
+      },
+      "required": ["journal_entry_count", "journal_entries_per_second", "journal_size"]
+    },
+    "recovery_metrics": {
+      "type": "object",
+      "properties": {
+        "recovery_count": {
+          "type": "integer",
+          "description": "Total number of recoveries"
+        },
+        "recovery_success_rate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "description": "Recovery success rate (percentage)"
+        },
+        "recovery_duration": {
+          "type": "integer",
+          "description": "Average recovery duration (milliseconds)"
+        },
+        "recovery_time_by_failure_type": {
+          "type": "object",
+          "description": "Recovery time by failure type"
+        },
+        "recovery_success_by_failure_type": {
+          "type": "object",
+          "description": "Recovery success by failure type"
+        }
+      },
+      "required": ["recovery_count", "recovery_success_rate", "recovery_duration"]
+    },
+    "storage_metrics": {
+      "type": "object",
+      "properties": {
+        "storage_usage_per_tier": {
+          "type": "object",
+          "description": "Storage usage per tier (bytes)"
+        },
+        "storage_growth_rate": {
+          "type": "number",
+          "description": "Storage growth rate (bytes/second)"
+        },
+        "storage_read_latency": {
+          "type": "integer",
+          "description": "Storage read latency (milliseconds)"
+        },
+        "storage_write_latency": {
+          "type": "integer",
+          "description": "Storage write latency (milliseconds)"
+        },
+        "storage_error_rate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "description": "Storage error rate (percentage)"
+        },
+        "storage_availability": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 100.0,
+          "description": "Storage availability (percentage)"
+        }
+      },
+      "required": ["storage_usage_per_tier", "storage_growth_rate", "storage_availability"]
+    }
+  },
+  "required": ["runtime_continuity_metrics", "checkpoint_metrics", "journal_metrics", "recovery_metrics", "storage_metrics"],
+  "additionalProperties": false
+}

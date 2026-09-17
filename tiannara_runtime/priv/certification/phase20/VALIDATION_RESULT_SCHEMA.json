@@ -1,0 +1,28 @@
+{
+  "schema": "VALIDATION_RESULT_SCHEMA",
+  "version": "20.95",
+  "description": "Schema for individual validation result — captures the outcome of a single validation scenario",
+  "validation_result": {
+    "fields": {
+      "result_id": {"type": "string", "required": true, "description": "Content-addressed result identifier"},
+      "campaign": {"type": "string", "required": true, "description": "Campaign label (A-H)"},
+      "scenario": {"type": "string", "required": true, "description": "Scenario identifier within campaign"},
+      "subsystem": {"type": "string", "required": true, "description": "Subsystem under test"},
+      "input_hash": {"type": "string", "required": true, "description": "SHA-256 of scenario inputs"},
+      "output_hash": {"type": "string", "required": true, "description": "SHA-256 of observed output"},
+      "expected_hash": {"type": "string", "required": true, "description": "SHA-256 of expected output"},
+      "match": {"type": "boolean", "required": true, "description": "Does output_hash == expected_hash?"},
+      "failure_category": {"type": "string", "required": false, "description": "Critical/Major/Minor/Observation/Expected"},
+      "failure_detail": {"type": "string", "required": false},
+      "metrics_snapshot": {"type": "object", "required": true},
+      "timestamp": {"type": "integer", "required": true, "description": "Deterministic timestamp"},
+      "replay_hash": {"type": "string", "required": true},
+      "status": {"type": "string", "required": true, "description": "Pass/Fail/Error/Skipped"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "failure_categories": ["critical", "major", "minor", "observation", "expected", "recovered", "irrecoverable"],
+    "constraints": ["deterministic_timestamp", "content_addressed", "replayable"]
+  }
+}

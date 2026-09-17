@@ -1,0 +1,29 @@
+groups:
+- name: tiannara.phase13.fixedpoint
+  rules:
+  - record: phase13_convergence_rate
+    expr: delta(phase13_iteration_success_total[5m]) / 300
+
+  - alert: Phase13ConvergenceStalled
+    expr: phase13_convergence_rate < 0.01
+    for: 5m
+    labels: {severity: warning, layer: phase13}
+    annotations:
+      summary: "Fixed-point synthesis convergence stalled"
+      description: "Rate = {{ $value }}. Attractor allocation delayed. Scaling up negotiators."
+
+- name: tiannara.phase14.federation
+  rules:
+  - record: phase14_federation_quorum_success
+    expr: sum(rate(phase14_quorum_vote_success_total[5m])) / sum(rate(phase14_quorum_vote_requests_total[5m]))
+
+  - record: phase14_novelty_generation_rate
+    expr: sum(rate(phase14_axiom_generated_total[5m]))
+
+  - alert: Phase14FederationSplitBrain
+    expr: phase14_federation_quorum_success < 0.667
+    for: 2m
+    labels: {severity: critical, layer: phase14}
+    annotations:
+      summary: "Federation quorum dropping below supermajority"
+      description: "Q = {{ $value }}. Cross-instance sync blocked. Initiating isolation protocol."

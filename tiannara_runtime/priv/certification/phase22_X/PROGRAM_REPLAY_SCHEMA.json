@@ -1,0 +1,18 @@
+{
+  "schema": "PROGRAM_REPLAY_SCHEMA",
+  "version": "22.X.1",
+  "description": "Schema for program governance replay verification",
+  "program_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "program_ids": {"type": "array", "required": true},
+      "replay_type": {"type": "string", "required": true, "enum": ["portfolio_evolution", "priority_decision", "program_creation", "program_termination", "program_health", "full_program_lifecycle"]},
+      "replay_timestamp": {"type": "string", "required": true},
+      "verification_results": {"type": "object", "required": true},
+      "fingerprint_matches": {"type": "boolean", "required": true},
+      "divergence_report": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "verifiable", "replayable"]
+  }
+}

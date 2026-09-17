@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DiscoveryCertificate",
+  "description": "A certificate verifying constitutional compliance of the Constitutional Scientific Discovery Runtime",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string" },
+    "certificate_type": {
+      "type": "string",
+      "enum": ["discovery_certification"]
+    },
+    "epoch": { "type": "integer" },
+    "timestamp": { "type": "integer" },
+    "certification_level": {
+      "type": "string",
+      "enum": ["basic", "standard", "advanced", "production"]
+    },
+    "certification_results": {
+      "type": "object",
+      "properties": {
+        "determinism_certified": { "type": "boolean" },
+        "reproducibility_certified": { "type": "boolean" },
+        "replayability_certified": { "type": "boolean" },
+        "archaeology_certified": { "type": "boolean" },
+        "evidence_integrity_certified": { "type": "boolean" },
+        "hypothesis_preservation_certified": { "type": "boolean" },
+        "uncertainty_certified": { "type": "boolean" },
+        "governance_certified": { "type": "boolean" }
+      },
+      "required": [
+        "determinism_certified", "reproducibility_certified",
+        "replayability_certified", "archaeology_certified",
+        "evidence_integrity_certified", "hypothesis_preservation_certified",
+        "uncertainty_certified", "governance_certified"
+      ]
+    },
+    "certification_hash": { "type": "string" },
+    "signature": { "type": "string" },
+    "issued_at": { "type": "integer" },
+    "expires_at": { "type": "integer" }
+  },
+  "required": [
+    "certificate_id", "certificate_type", "epoch", "timestamp",
+    "certification_level", "certification_results",
+    "certification_hash", "signature", "issued_at", "expires_at"
+  ],
+  "additionalProperties": false
+}

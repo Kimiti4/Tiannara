@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/planetary_runtime.json",
+  "title": "PlanetaryRuntime",
+  "description": "The root runtime entity for the Constitutional Planetary Runtime.",
+  "type": "object",
+  "properties": {
+    "runtime_id": { "type": "string", "pattern": "^cpr_[a-f0-9]{16}$" },
+    "version": { "type": "string" },
+    "state_machine_state": { "type": "string", "enum": ["initialize", "observe", "synchronize", "update", "checkpoint", "validate", "certify", "continue", "archive"] },
+    "subsystem_count": { "type": "integer" },
+    "uptime_seconds": { "type": "integer" },
+    "last_checkpoint_id": { "type": "string" },
+    "event_log_position": { "type": "integer" },
+    "subsystem_statuses": { "type": "object" },
+    "configuration_hash": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "snapshot_at": { "type": "integer" }
+  },
+  "required": ["runtime_id", "state_machine_state", "subsystem_count", "fingerprint"]
+}

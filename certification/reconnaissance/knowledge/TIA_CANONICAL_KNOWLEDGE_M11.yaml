@@ -1,0 +1,213 @@
+# Move 11 — Canonical Knowledge Model (first epistemic hierarchy)
+# Ladder: OBSERVATION -> EVIDENCE -> FACT -> PATTERN -> HYPOTHESIS ->
+# THEORY -> PRINCIPLE -> ENGINEERING INSIGHT. No auto-promotion: each item
+# sits at the rung its evidence justifies, with explicit provenance.
+# Evidence classes: FACT | EVIDENCE | COUNCIL_DECISION | HYPOTHESIS | ASSUMPTION | UNKNOWN.
+artifact: CANONICAL_KNOWLEDGE_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+items:
+- id: K-001
+  type: FACT
+  statement: T0 tree 06f06e5e contains 4756 entries including 8 runtime .dets, 16 build artifacts, and 1 path-mangled garbage file alongside source, tests, docs, and records
+  evidence: [T0_FILES.jsonl/T0_HASHES.jsonl bijective (Move 0)]
+  provenance: Move-0 certified evidence
+  confidence: HIGH
+  contradictions: [CONTRA-002]
+  assumptions: []
+  unknowns: [Inclusion intent for the 24 non-source entries]
+  status: ACCEPTED
+- id: K-002
+  type: FACT
+  statement: Bucket labels are descriptive content classes; git_tracked is the authoritative T0-membership predicate (4731/16/8/1 split)
+  evidence: [Move-0 reconciliation review]
+  provenance: Move-0 certified evidence
+  confidence: HIGH
+  contradictions: []
+  assumptions: []
+  unknowns: []
+  status: ACCEPTED
+- id: K-003
+  type: FACT
+  statement: D1-D5 forecasting chain is Council-certified bounded; R7 measurement boundary closed 12/12; Move 0 evidence certified (20/20 RI, two-run determinism)
+  evidence: [Council session record; T0_RI_CERTIFICATION.json CERTIFIED]
+  provenance: COUNCIL_DECISION
+  confidence: HIGH
+  contradictions: []
+  assumptions: []
+  unknowns: []
+  status: ACCEPTED
+- id: K-004
+  type: FACT
+  statement: SR-4 nil guards are present in T0 trajectory.ex content; long_horizon tests ungated into the default suite per T0 working-tree state
+  evidence: [T0 git-show reads; SR-2 regression suite 12/12 in session record]
+  provenance: Move-0 worktree observation + Council session record
+  confidence: HIGH
+  contradictions: []
+  assumptions: []
+  unknowns: []
+  status: ACCEPTED
+- id: K-005
+  type: FACT
+  statement: E03 protocol is frozen, verified 24/24, with 0 runs executed and 0 stabilizer invocations; E06/E07 stand falsified
+  evidence: [E03 verifier output; Council gates]
+  provenance: COUNCIL_DECISION
+  confidence: HIGH
+  contradictions: []
+  assumptions: []
+  unknowns: []
+  status: ACCEPTED
+- id: K-006
+  type: EVIDENCE
+  statement: Stabilizer regulators are simultaneously alive (all supervised children alive) and action-silent in a 75s window, with zero cross-references in either direction in T0 code
+  evidence: [EXP-M9-03 probe output; T0 grep negatives]
+  provenance: Move-9 runtime observation
+  confidence: HIGH
+  contradictions: []
+  assumptions: [75s window representative enough to bound, not generalize]
+  unknowns: [Behavior under load; ordering; override capability]
+  status: ACCEPTED
+- id: K-007
+  type: EVIDENCE
+  statement: The phase14 auditor executes to completion, verifies hash bindings correctly, echoes file statuses, overwrites its own report file, and does not compare certificate against result records
+  evidence: [EXP-M9-01 transcript; T0 runner source (File.write! path)]
+  provenance: Move-9 runtime observation
+  confidence: HIGH
+  contradictions: [CONTRA-003]
+  assumptions: []
+  unknowns: [Whether any auditor version re-derives outcomes]
+  status: ACCEPTED
+- id: K-008
+  type: EVIDENCE
+  statement: Four phase14 hash bindings recomputed from T0 content match their stored .sha256 files (gc_012, gc_001, gc_006, certificate self-hash)
+  evidence: [Move-10 recomputation]
+  provenance: Move-10 verification
+  confidence: HIGH
+  contradictions: [CONTRA-003]
+  assumptions: []
+  unknowns: []
+  status: ACCEPTED
+- id: K-009
+  type: EVIDENCE
+  statement: ExecutiveStateManager lacks a :state clause while ExecutiveMetrics calls :state; the metrics pipeline crashes deterministically at runtime
+  evidence: [Boot log trace; T0 clause listing vs caller]
+  provenance: Move-9/10 runtime + static evidence
+  confidence: HIGH
+  contradictions: []
+  assumptions: []
+  unknowns: [Whether :state ever worked historically]
+  status: ACCEPTED
+- id: K-010
+  type: EVIDENCE
+  statement: PhaseΩ health reported 1/16 on one boot and 15/15 on another; the two figures count different populations by different criteria at different times
+  evidence: [Two boot logs; T0 boot_sequencer/runtime_verifier source reads]
+  confidence: MEDIUM
+  contradictions: []
+  assumptions: []
+  unknowns: [Per-subsystem results for the 1/16 run; registry-vs-boot count reconciliation]
+  status: ACCEPTED
+- id: K-011
+  type: PATTERN
+  statement: "Records without consumers recur across the substrate (constitutional laws, governance invariants, knowledge graphs, world-model profiles, discovery chains: present as files, zero code references of the relevant kind)"
+  evidence: [T3 negative grep results across 5 entries; Move-8 confirmation]
+  provenance: Synthesized from Move-2B/3 evidence (pattern-level claim, not a single observation)
+  confidence: MEDIUM
+  contradictions: []
+  assumptions: [Grep coverage approximates consumer absence; dynamic dispatch could hide consumers]
+  unknowns: [Whether dynamic or external consumers exist outside static analysis reach]
+  status: ACCEPTED
+- id: K-012
+  type: PATTERN
+  statement: Wiring without demonstration recurs (stabilizers supervised+wired yet unevaluated; evolution modules present yet untested in T0; bench harness present yet unexecuted)
+  evidence: [T3/Move-7/Move-9 records]
+  provenance: Synthesized from program evidence
+  confidence: MEDIUM
+  contradictions: []
+  assumptions: [Absence of found tests/effects approximates absence, bounded by search coverage]
+  unknowns: [Undiscovered test or execution records]
+  status: ACCEPTED
+- id: K-013
+  type: HYPOTHESIS
+  statement: The gc_012 certificate and result records describe distinct executions at different times
+  evidence: [Timestamp gap (~6 months); small value deltas consistent with re-execution variance]
+  provenance: Analyst hypothesis (NOT evidenced)
+  confidence: LOW
+  contradictions: [CONTRA-003]
+  assumptions: [Re-execution produces nearby-but-different values; no evidence for this mechanism was found]
+  unknowns: [Any execution record at all]
+  status: PROPOSED (not accepted; listed to make the space explicit)
+- id: K-014
+  type: HYPOTHESIS
+  statement: The certificate timestamp is a template placeholder, and the values were transcribed with drift
+  evidence: [Round timestamp 2026-01-01T00:00:00Z consistent with templating]
+  provenance: Analyst hypothesis (NOT evidenced)
+  confidence: LOW
+  contradictions: [CONTRA-003]
+  assumptions: [A templating step exists; no template source found]
+  unknowns: [Template source; transcription path]
+  status: PROPOSED (not accepted; listed to make the space explicit)
+- id: K-015
+  type: PRINCIPLE
+  statement: Hash integrity does not establish semantic truth (an intact hash chain over self-asserted content certifies files, not claims)
+  evidence: [CONTRA-003: four genuine bindings around an unresolved value disagreement; auditor passes both sides]
+  provenance: Empirical (derived from program observations)
+  confidence: HIGH
+  counterevidence: []
+  scope: Any content-addressed evidence package whose contents are self-asserted
+  contradictions: []
+  assumptions: []
+  unknowns: []
+  status: CANDIDATE (not yet ratified beyond this program)
+- id: K-016
+  type: PRINCIPLE
+  statement: Liveness is not authority; presence is not behavior; execution is not correctness; correctness is not certification
+  evidence: [Alive-yet-silent regulators; present-yet-untested modules; executing-yet-nonvalidating auditor]
+  provenance: Empirical (derived from program observations)
+  confidence: HIGH
+  counterevidence: []
+  scope: Capability and authority ascription from static or shallow-runtime evidence
+  contradictions: []
+  assumptions: []
+  unknowns: []
+  status: CANDIDATE (not yet ratified beyond this program)
+- id: K-017
+  type: PRINCIPLE
+  statement: Evidence before confidence; UNKNOWN preserved where evidence is insufficient; contradictions preserved until discriminated
+  evidence: [Program-wide method record Moves 0-10]
+  provenance: Constitutional (Council-authorized method, executed throughout)
+  confidence: HIGH
+  counterevidence: []
+  scope: All audit and certification activity in this program
+  contradictions: []
+  assumptions: []
+  unknowns: []
+  status: CANDIDATE (constitutional by adoption, empirical by execution record)
+- id: K-018
+  type: ENGINEERING_INSIGHT
+  statement: A provenance-kind envelope (simulation vs real-execution) attached at emission time prevents fabricated records from satisfying an evidence gate later
+  evidence: [R3 remediation design + R7 12/12 verification record]
+  provenance: Demonstrated within program scope (Council record)
+  confidence: MEDIUM
+  contradictions: []
+  assumptions: [Downstream consumers honor the gate predicate]
+  unknowns: [Adoption outside the remediated path]
+  status: CANDIDATE
+- id: K-019
+  type: ENGINEERING_INSIGHT
+  statement: An allowlist git choke point plus PRE/POST snapshots plus canonicalized two-run comparison makes a read-only audit mechanically checkable rather than merely asserted
+  evidence: [Move-0 CERTIFIED record: 20/20 RI, 2/2 identical runs, zero T0 mutations across all executions]
+  provenance: Demonstrated within program scope (Council record)
+  confidence: MEDIUM
+  contradictions: []
+  assumptions: [Future audit code preserves the choke point]
+  unknowns: [Generalization beyond this repository]
+  status: CANDIDATE
+theories_claimed: 0
+theories_note: No THEORY-level items are claimed. Nothing in the evidence supports law-like generalization yet; the two PRINCIPLE candidates marked empirical remain program-scoped until independently replicated.
+aggregate:
+  identified: 19
+  supported: 12
+  hypothesized: 2
+  unknown_state_items: 0

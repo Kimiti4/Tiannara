@@ -1,0 +1,20 @@
+{
+  "schema": "PROGRAM_MILESTONE_SCHEMA",
+  "version": "22.X.1",
+  "description": "Schema for a program milestone",
+  "program_milestone": {
+    "fields": {
+      "milestone_id": {"type": "string", "required": true},
+      "program_id": {"type": "string", "required": true},
+      "description": {"type": "string", "required": true},
+      "milestone_type": {"type": "string", "required": true, "enum": ["discovery", "validation", "engineering", "translation", "governance"]},
+      "completion_criteria": {"type": "object", "required": true},
+      "status": {"type": "string", "required": true, "enum": ["planned", "in_progress", "completed", "failed", "superseded"]},
+      "evidence_hash": {"type": "string", "required": false},
+      "completion_date": {"type": "string", "required": false},
+      "dependencies": {"type": "array", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["verifiable", "deterministic", "replayable"]
+  }
+}

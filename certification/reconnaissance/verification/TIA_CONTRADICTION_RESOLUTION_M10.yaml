@@ -1,0 +1,37 @@
+# Move 10 — Contradiction Resolution (recheck with independent classification)
+# Each contradiction classified: CONFIRMED CONTRADICTION | APPARENT
+# CONTRADICTION | SCOPE DIFFERENCE | VERSION DIFFERENCE | ARTIFACT
+# DIFFERENCE | SEMANTIC DIFFERENCE | INSUFFICIENT EVIDENCE | UNRESOLVED.
+# RESOLVED only with evidence explaining why both observations occurred.
+artifact: CONTRADICTION_RESOLUTION_M10
+artifact_status: POST_T0
+move: 10
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+contradictions:
+- id: CONTRA-001
+  left: T0 mix.lock hash 6153ab16
+  right: Working-tree mix.lock hash ef49f19d
+  classification: INSUFFICIENT EVIDENCE
+  rationale: No record attributes the working-tree lockfile to any change; neither evolution nor unrecorded modification is evidenced. Closer examination adds nothing beyond the Move-8 record; no new Move-10 evidence bears on it.
+  status: UNRESOLVED
+- id: CONTRA-002
+  left: T0 commits 24 runtime/build outputs with git_tracked=true
+  right: Baseline hygiene convention excludes such outputs
+  classification: SEMANTIC DIFFERENCE
+  rationale: The right side is a general convention, not a Tiannara-authored requirement; there is no true normative conflict, only an unexplained composition choice. Classified as semantic difference rather than contradiction, but intent remains open, so status stays UNRESOLVED rather than SUPERSEDED (supersession would need evidence the question is moot).
+  status: UNRESOLVED
+- id: CONTRA-003
+  left: certificate.json gc_012 block (2026-01-01T00:00:00Z; 0.8041; 0.1042)
+  right: campaign gc_012 file (2026-07-02T20:06:58Z; 0.8035; 0.0746)
+  classification: CONFIRMED CONTRADICTION
+  rationale: "Move-9 execution plus Move-10 hash recomputation jointly establish: both files are integrity-intact (hashes match stored bindings), both assert the same nominal campaign, and they disagree on timestamp and two measured values with no reconciling record. This is a genuine content contradiction between intact records, not corruption, not scope confusion."
+  status: UNRESOLVED
+  status_reason: Confirmation deepens the contradiction rather than resolving it; resolution still requires execution records absent from T0
+aggregate:
+  reviewed: 3
+  resolved: 0
+  narrowed: 0
+  unresolved: 3
+  classifications: "{CONFIRMED CONTRADICTION: 1, SEMANTIC DIFFERENCE: 1, INSUFFICIENT EVIDENCE: 1}"
+note: CONTRA-003's upgrade from UNRESOLVED-plain to CONFIRMED CONTRADICTION is a classification sharpening under new evidence, not a resolution. The contradiction is now better bounded and still open.

@@ -1,0 +1,84 @@
+artifact: EFDI_FA_001_SERIES_002_010_AUTHORIZATION
+record_type: series-level authorization (frozen)
+recorded_at: 2026-09-13T02:15:00Z
+governing_contract: EFDI_FA_001_AUDIT_CONTRACT (PHASE_0 PASS, PHASE_1 PILOT PASS)
+
+============================================================
+DECISION (Council)
+============================================================
+decision: >
+  APPROVE the harness-validation series Forecasts #002..#010 (N=10 total
+  pilot series; #001 complete) under the EXISTING frozen contract.
+no_configuration_revision: true
+no_methodology_change: true
+measurement_only: true
+approval_scope: >
+  Series-level, measurement-only authorization. It is NOT authorization for
+  Tiannara to modify its forecasting methodology during the series.
+
+============================================================
+SERIES DEFINITION
+============================================================
+series:
+  id: EFDI-FA-001-HARNESS-VALIDATION
+  forecasts: ['EFDI-001-002..#010']   # #001 already complete
+  domains:
+    - BTC_5m_up_down
+    - Nairobi_60m_precip
+  series_stage: pilot          # min sample N=10; no inference permitted
+  governing_schema: EFDI_FA_001_FORECAST_SCHEMA.yaml v1.0.0
+  governing_ledger: EFDI_FA_001_FORECAST_LEDGER.yaml v1.0.0
+  governing_metrics: EFDI_FA_001_METRIC_SCHEMA.yaml v1.0.0
+  governing_baselines: EFDI_FA_001_BASELINE_DEFINITIONS.yaml v1.0.0
+  governing_data_cutoff: EFDI_FA_001_DATA_CUTOFF_PROTOCOL.md
+  governing_resolution: EFDI_FA_001_REAL_WORLD_RESOLUTION_PROTOCOL.md
+  forked_from: EFDI_FA_001_PILOT_SERIES_CONFIG.yaml  (inherited unchanged)
+
+============================================================
+CRITICAL CONSTRAINT (frozen, Council-imposed)
+============================================================
+no_outcome_driven_tuning: >
+  CONSTITUTIONAL: No model, baseline, threshold, feature-selection rule,
+  resolution rule, scoring rule, or forecast-generation procedure may be
+  changed in RESPONSE to an observed outcome within the N=10 series unless
+  the change is separately versioned, justified, and treated as a NEW
+  PRE-REGISTERED EXPERIMENTAL CONDITION. Observed outcomes are recorded
+  (ledger) and may be observed and reported, but never used to tune the
+  next forecast retrospectively.
+violation_treatment: F-16 implementation defect / F-03 epistemic contamination,
+  batch quarantine back to last clean anchor.
+
+============================================================
+INTERPRETIVE FRAMEWORK FOR #002..#010
+============================================================
+interpretation:
+  - Brier/log_loss are interpreted RELATIVE TO FROZEN BASELINES B0..B4,
+    never in isolation.
+  - The pilot question is not "was Tiannara right?" but "does Tiannara
+    produce statistically and practically meaningful predictive information
+    that survives comparison against appropriate baselines, calibration
+    analysis, out-of-sample testing, and replication?"
+  - No correct forecast, and no N=1..10 stretch, upgrades to a capability
+    claim. Closed certification set only (PASS / PASS_WITH_LIMITATIONS /
+    PARTIAL / INSUFFICIENT_EVIDENCE / FAIL / BLOCKED).
+  - Series STOP report is written at N=10 with all Q1/Q2 framing preserved.
+
+============================================================
+PROGRESSION (unchanged)
+============================================================
+progression:
+  - N_1_2 harness execution .......... PASS
+  - N_10 pilot / minimum-sample gate . THIS SERIES (harness validation)
+  - N_100 calibration + preliminary performance (needs separate approval)
+  - N_500+ stronger out-of-sample benchmark (needs separate approval)
+  - multiple horizons + domains (needs separate approval)
+  - replication (needs separate approval)
+  - certification decision
+
+authorization_block:
+  authority: Council (operator)
+  action: EFDI-FA-001-HARNESS-VALIDATION series #002..#010 APPROVED,
+          frozen under existing contract, measurement-only, no tuning
+  next_gate: window issuance begins on explicit go (per-forecast freeze
+             before each T0)
+  signature: EFDI_FA_001_SERIES_002_010_AUTHORIZED

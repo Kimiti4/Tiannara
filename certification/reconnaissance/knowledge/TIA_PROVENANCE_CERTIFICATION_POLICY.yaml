@@ -1,0 +1,119 @@
+program: TIA_FORENSIC_RECON_ENGINE
+move: FORWARD-PROVENANCE-INTEGRATION-CERTIFICATION-GATE
+schema_version: "1.0.0"
+method: "Certification policy synthesis for the forward provenance substrate (TiannaraOS.Provenance) and any future runtime integration. Derived from the minimum provenance model, the independent evidence bundle spec, the certificate-truth investigation, and the integration reconnaissance. Policy only; NOT implemented in this gate."
+STATUS: "POLICY COMPLETE (policy governs implementation when Council authorizes it; no certificate is issued under this policy in this gate)"
+
+purpose:
+  - "Define under what conditions the forward provenance substrate may issue a certificate that is accepted as evidence of what executed, under what contract, on what source, with what inputs, in what environment, producing what result and what metric."
+  - "Bind certificate claims to evidence envelopes rather than to inline values."
+  - "Preserve the historical epistemic boundary absolutely."
+
+authority:
+  principle: "A certificate is an authority-issued binding between a decision and the evidence chain it certifies."
+  authority_kind: "human | mechanism"
+  requirements:
+    - "Every certificate records authority + authority_kind at issuance"
+    - "Mechanism-issued certificates are valid only where the authority registry explicitly delegates to mechanism (e.g., verified structural issuance), never where human judgment is mandated"
+    - "Until the M7 open decision (certification single authority vs distributed model) is resolved, human ratification is required for any runtime-integrated forward certificate"
+  prohibitions:
+    - "Self-named meta-authority is prohibited (the legacy certification_certificate.json self-referential case is explicitly excluded from the forward model)"
+
+issuance_conditions:
+  all_must_hold:
+    - "Evidence chain resolves backward from decision_recorded to one and only one execution (execution_started -> execution_ended, terminal status SUCCESS)"
+    - "execution_id uniqueness resolved through the Central Uniqueness mapping (no cross-runtime substitution)"
+    - "Source identity (repository + commit + tree + manifest hash) recorded and recomputable from bytes"
+    - "Contract identity (contract_hash + version + parameter_set) recorded and recomputable"
+    - "Environment identity including deps_lock_hash; input_manifest and output_manifest complete"
+    - "Result payload + payload_hash bound to the execution (DERIVED_FROM edge)"
+    - "Metric computed from a persisted measurement corpus under a metric_manifest (definition_version + computation_hash + aggregation + seed_dependence); metric recomputable or PARTIALLY REPRODUCIBLE with the exact gap stated"
+    - "Reproducibility class declared (FULL / CONDITIONAL / PARTIAL / NOT)"
+    - "Canonical serialization spec version cited; every payload_hash recomputed under it"
+    - "Historical firewall passes (no reference to historical unverified evidence)"
+  impossible_cases:
+    - "A certificate citing an unresolvable execution_id must not exist"
+    - "A certificate founded on hash-only evidence (no lineage) must not exist"
+    - "A certificate on PARTIAL/ABORTED execution must not exist"
+    - "A certificate on a metric whose manifest/corpus is absent must not exist (the historical RATE 0.99/0.98 self-assertion pattern is excluded)"
+
+certificate_states_and_transitions:
+  note: "STATES AND TRANSITIONS ARE SEMANTICS ONLY; enacted when integration is authorized."
+  states:
+    - state: VALID
+      meaning: "All issuance conditions hold and the chain is independently re-verifiable"
+    - state: SUSPENDED
+      meaning: "Chain temporarily unresolvable (evidence under re-verification); no new claims may cite it while suspended"
+    - state: REVOKED
+      meaning: "Authority records a revocation decision (itself an envelope); revoked certificates are not evidence"
+    - state: UNVERIFIABLE
+      meaning: "Evidence cannot be resolved/restored; recorded with an unresolved-edge (never repaired silently)"
+    - state: SUPERSEDED
+      meaning: "A later certificate supersedes for the same execution clause under schema/authority change; the superseded remains intact and non-citing"
+  transition_rules:
+    - "VALID -> SUSPENDED -> VALID only after full re-verification"
+    - "VALID -> REVOKED on a recorded authority decision; revocation is irreversible for that id"
+    - "VALID -> SUPERSEDED only via issuance of a successor; never by rewriting the original"
+    - "ANY -> UNVERIFIABLE on unresolved evidence; the state persists until evidence returns, then SUSPENDED->VALID path applies"
+  verification_status: "[VERIFIED, UNVERIFIED, CONTESTED, FAILED] applies to envelopes and edges; certificate states above apply to certificates"
+
+invalidation:
+  invalidation_events:
+    - "Evidence deletion / envelope loss (deleted-middle)"
+    - "Authority revocation"
+    - "Canonical spec supersession (schema bump)"
+    - "Any payload_hash recomputation mismatch (tampering)"
+  rule: "Invalidated certificates are never re-validated automatically; the only restoration path is full re-verification against the intact recorded chain (bundle)."
+
+evidence_bundle:
+  principle: "An auditor must be able to answer every audit question from bundle bytes alone."
+  requirements:
+    - "Bundle produced at certification time, never retroactively"
+    - "External storable (non-repository) so repo-path deletion does not invalidate evidence"
+    - "Every bundle item has a hash entry in bundle_manifest.json"
+    - "Missing identity in any legacy-adjacent item is recorded as UNKNOWN, never fabricated"
+
+human_oversight:
+  - "Research Director proposes; never executes (Omega.4)"
+  - "Research Observatory observes read-only; NEVER issues certificates (INV-035: Observatory never deploys; issuance is a governance action, not an observation)"
+  - "Human judgment sits at: (a) certificate authority ratification before runtime adoption, (b) any REVOKE / SUPERSEDE decision, (c) resolution of any UNVERIFIABLE state in certified runs"
+  - "Observatory Council appointment is the governance channel for authority roles (constitutional_role.ex) - unchanged"
+
+historical_firewall:
+  invariant: "FORWARD_PROVENANCE_MUST_NOT_CERTIFY_HISTORICAL_UNVERIFIED_EVIDENCE"
+  rules:
+    - "No certificate may reference pre-T0 or legacy unverified evidence"
+    - "No bundle may be backfilled for historical artifacts"
+    - "No certificate regeneration / repair / reinterpretation against the forward model"
+    - "CONTRA-003 and all RQ-001/RQ-004/RQ-010 historical questions remain UNRESOLVED under this policy; the policy adds no gc_012 verdict"
+
+knowledge_promotion:
+  - "Only forward-certified primary evidence may enter the scientific promotion pipeline as certified input"
+  - "Derived knowledge inherits primary-evidence lineage; it never self-certifies"
+  - "A knowledge item whose certified lineage is absent/contested is quarantined (UNRESOLVED), not promoted"
+
+security:
+  - "Hashes verify bytes; certificate chains carry authority; the two are never conflated"
+  - "Canonical serialization is spec-versioned and auditable; no ad-hoc hashing in production paths"
+  - "Untrusted bytes are hashed as opaque; interpretation is separated from integrity"
+  - "No secrets are introduced; bundles are public evidence"
+
+schema_evolution:
+  - "Envelopes are immutable; evolution is a new envelope, never mutation of issued ones"
+  - "schema_version pins every grammar; a bump supersedes parsing without touching issued records"
+  - "Certificate SUPERSEDED state is the sanctioned evolution channel; historical certificates are not rewritten"
+
+open_questions_this_policy_does_not_resolve:
+  - "Single vs distributed certification authority (M7)"
+  - "Whether mechanism-issued certificates may ever carry human-level authority without ratification"
+  - "RQ-010 ExecutiveMetrics blast radius (historical only; policy is forward-only)"
+  - "Knowledge promotion gate mechanics (certificate reference in lineage)"
+
+knowledge_changes: "NONE"
+implementation: "NONE"
+remediation: "NONE"
+certificate_regeneration: "NONE"
+experiment_execution: "NONE"
+commits: "NONE"
+pushes: "NONE"
+T0_modified: "NO"

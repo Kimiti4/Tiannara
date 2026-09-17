@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/architecture_certificate.json",
+  "title": "ArchitectureCertificate",
+  "description": "Certification attesting that a technology architecture meets constitutional standards.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^acert_[a-f0-9]{16}$" },
+    "architecture_id": { "type": "string" },
+    "certification_level": { "type": "string", "enum": ["preliminary", "intermediate", "final"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "scientific_grounding": { "type": "boolean" },
+        "completeness": { "type": "boolean" },
+        "consistency": { "type": "boolean" },
+        "feasibility": { "type": "boolean" },
+        "safety": { "type": "boolean" },
+        "sustainability": { "type": "boolean" },
+        "traceability": { "type": "boolean" },
+        "evaluability": { "type": "boolean" }
+      },
+      "required": ["scientific_grounding", "completeness", "consistency", "feasibility"]
+    },
+    "certifying_entity": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "architecture_id", "certification_level", "checks", "fingerprint"]
+}

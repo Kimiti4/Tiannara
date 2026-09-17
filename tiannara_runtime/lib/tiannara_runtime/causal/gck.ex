@@ -64,6 +64,7 @@ defmodule TiannaraRuntime.Causal.GCK do
   require Logger
 
   alias TiannaraRuntime.CIS.Supervisor, as: CISSup
+  alias TiannaraRuntime.WorldRegistry
 
   # ── Configuration ─────────────────────────────────────────────────────────
 
@@ -311,45 +312,171 @@ defmodule TiannaraRuntime.Causal.GCK do
   end
 
   defp check_world_contradictions(world_a_id, world_b_id) do
-    # TODO: Implement actual contradiction detection
-    # This would compare world states, observer memories, causal graphs
-    # For now, return empty list (assume compatible)
-    []
+    if Process.whereis(WorldRegistry) do
+      case WorldRegistry.get_world(world_a_id) do
+        {:ok, a} ->
+          case WorldRegistry.get_world(world_b_id) do
+            {:ok, b} ->
+              contradictions = []
+
+              contradictions = if a.parent_world != nil and b.parent_world != nil and
+                                   a.parent_world != b.parent_world and
+                                   a.generation == b.generation do
+                [{:lineage_conflict, "Worlds originate from different parents at same generation"} | contradictions]
+              else
+                contradictions
+              end
+
+              a_config = Map.get(a, :config, %{})
+              b_config = Map.get(b, :config, %{})
+              a_keys = Map.keys(a_config)
+              b_keys = Map.keys(b_config)
+              shared_keys = MapSet.intersection(MapSet.new(a_keys), MapSet.new(b_keys)) |> MapSet.to_list()
+
+              config_conflicts = Enum.reduce(shared_keys, [], fn key, acc ->
+                case {Map.fetch(a_config, key), Map.fetch(b_config, key)} do
+                  {{:ok, val_a}, {:ok, val_b}} when val_a != val_b ->
+                    [{:config_mismatch, "Config key '#{key}' differs: #{inspect(val_a)} vs #{inspect(val_b)}}"} | acc]
+                  _ ->
+                    acc
+                end
+              end)
+
+              contradictions ++ config_conflicts
+
+            _ -> []
+          end
+        _ -> []
+      end
+    else
+      []
+    end
   end
 
-  defp check_merge_creates_cycle(_world_a_id, _world_b_id) do
-    # TODO: Implement cycle detection in merged causal graph
-    # This would analyze causal dependencies between worlds
-    # For now, assume no cycle
-    !!false
+  defp check_merge_creates_cycle(world_a_id, world_b_id) do
+    if Process.whereis(WorldRegistry) do
+      case WorldRegistry.get_world(world_a_id) do
+        {:ok, a} ->
+          case WorldRegistry.get_world(world_b_id) do
+            {:ok, b} ->
+              a_generation = Map.get(a, :generation, 0)
+              b_generation = Map.get(b, :generation, 0)
+              a_parent = Map.get(a, :parent_world)
+              b_parent = Map.get(b, :parent_world)
+
+              cond do
+                a_generation == b_generation and a_parent == b_parent and a_parent != nil ->
+                  true
+                a_parent == world_b_id or b_parent == world_a_id ->
+                  true
+                true ->
+                  false
+              end
+            _ -> false
+          end
+        _ -> false
+      end
+    else
+      false
+    end
   end
 
-  defp check_memory_contradiction(_memory_event) do
-    # TODO: Implement memory contradiction detection
-    # This would check against existing memory lineage
-    # For now, assume no contradiction
-    !!false
+  defp check_memory_contradiction(memory_event) do
+    known_facts = Map.get(memory_event, :facts, %{})
+    known_types = Map.get(memory_event, :types, %{})
+    event_type = Map.get(memory_event, :type)
+
+    with true <- is_map(known_facts) and map_size(known_facts) > 0,
+         true <- not is_nil(event_type) do
+      Enum.any?(known_facts, fn {_key, value} ->
+        is_list(value) and length(value) > 1 and
+          Enum.uniq(value) != value
+      end)
+    else
+      _ -> false
+    end
   end
 
-  defp check_temporal_consistency(_memory_event) do
-    # TODO: Implement temporal consistency check
-    # This would verify event timestamps respect causality
-    # For now, assume consistent
-    !!false
+  defp check_temporal_consistency(memory_event) do
+    timestamps = Map.get(memory_event, :timestamps, [])
+    event_ts = Map.get(memory_event, :timestamp)
+
+    case {timestamps, event_ts} do
+      {[], nil} ->
+        false
+      {_, nil} when is_list(timestamps) and length(timestamps) > 0 ->
+        not Enum.sort(timestamps) == timestamps
+      {[], ts} when not is_nil(ts) ->
+        ts > System.system_time(:second) + 3600
+      {t_list, ts} when is_list(t_list) and not is_nil(ts) ->
+        Enum.any?(t_list, fn t -> t > ts end) or ts > System.system_time(:second) + 3600
+      _ ->
+        false
+    end
   end
 
-  defp check_causal_cycle(_changes) do
-    # TODO: Implement causal cycle detection
-    # This would analyze the modified graph for cycles
-    # For now, assume no cycle
-    !!false
+  defp check_causal_cycle(changes) do
+    edges = Enum.filter(changes, &(Map.get(&1, :type) == :add_edge))
+    graph = Enum.reduce(edges, %{}, fn edge, acc ->
+      from = Map.get(edge, :from)
+      to = Map.get(edge, :to)
+      Map.update(acc, from, [to], &[to | &1])
+    end)
+    all_nodes = MapSet.new(Enum.flat_map(edges, fn e ->
+      [Map.get(e, :from), Map.get(e, :to)]
+    end)) |> MapSet.to_list()
+
+    Enum.any?(all_nodes, fn start ->
+      dfs_cycle?(start, graph, MapSet.new([start]))
+    end)
   end
 
-  defp check_causal_depth(_changes) do
-    # TODO: Implement causal depth calculation
-    # This would measure longest causal chain
-    # For now, assume within limits
-    !!false
+  defp dfs_cycle?(node, graph, visited) do
+    case Map.get(graph, node) do
+      nil -> false
+      neighbors ->
+        Enum.any?(neighbors, fn neighbor ->
+          MapSet.member?(visited, neighbor) or
+            dfs_cycle?(neighbor, graph, MapSet.put(visited, node))
+        end)
+    end
+  end
+
+  defp check_causal_depth(changes) do
+    edges = Enum.filter(changes, &(Map.get(&1, :type) == :add_edge))
+    graph = Enum.reduce(edges, %{}, fn edge, acc ->
+      from = Map.get(edge, :from)
+      to = Map.get(edge, :to)
+      Map.update(acc, from, [to], &[to | &1])
+    end)
+    all_nodes = MapSet.new(Enum.flat_map(edges, fn e ->
+      [Map.get(e, :from), Map.get(e, :to)]
+    end)) |> MapSet.to_list()
+
+    longest = Enum.reduce(all_nodes, 0, fn node, max_len ->
+      depth = compute_depth(node, graph, %{})
+      max(max_len, depth)
+    end)
+
+    longest > @max_causal_depth
+  end
+
+  defp compute_depth(node, graph, memo) do
+    case Map.get(memo, node) do
+      nil ->
+        case Map.get(graph, node) do
+          nil -> 0
+          neighbors ->
+            depths = Enum.map(neighbors, fn n ->
+              1 + compute_depth(n, graph, memo)
+            end)
+            depth = if depths == [], do: 0, else: Enum.max(depths)
+            Map.put(memo, node, depth)
+            depth
+        end
+      cached ->
+        cached
+    end
   end
 
   defp log_and_respond(state, operation_type, decision) do

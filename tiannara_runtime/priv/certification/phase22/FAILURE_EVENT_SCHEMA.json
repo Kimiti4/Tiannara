@@ -1,0 +1,20 @@
+{
+  "schema": "FAILURE_EVENT_SCHEMA",
+  "version": "22.5",
+  "description": "Schema for a cascading failure event in civilizational subsystems",
+  "failure_event": {
+    "fields": {
+      "event_id": {"type": "string", "required": true},
+      "root_cause": {"type": "string", "required": true},
+      "primary_failure": {"type": "string", "required": true},
+      "dependent_failures": {"type": "array", "required": true},
+      "secondary_effects": {"type": "array", "required": true},
+      "system_impact": {"type": "object", "required": true},
+      "cascade_pathway": {"type": "array", "required": true},
+      "propagation_speed": {"type": "number", "required": true},
+      "intervention_points": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["causal", "deterministic", "replayable"]
+  }
+}

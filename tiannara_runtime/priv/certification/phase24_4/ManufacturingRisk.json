@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/manufacturing_risk.json",
+  "title": "ManufacturingRisk",
+  "description": "A risk assessment within the manufacturing ecosystem.",
+  "type": "object",
+  "properties": {
+    "risk_id": { "type": "string", "pattern": "^mrisk_[a-f0-9]{16}$" },
+    "plan_id": { "type": "string" },
+    "risk_category": { "type": "string", "enum": ["technical", "supply", "operational", "quality", "cost", "schedule", "regulatory", "environmental", "geopolitical"] },
+    "description": { "type": "string" },
+    "severity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "likelihood": { "type": "number", "minimum": 0, "maximum": 1 },
+    "detectability": { "type": "number", "minimum": 0, "maximum": 1 },
+    "mitigation_plan": { "type": "string" },
+    "contingency_plan": { "type": "string" },
+    "status": { "type": "string", "enum": ["identified", "analyzed", "mitigated", "monitoring", "closed"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "identified_at": { "type": "integer" }
+  },
+  "required": ["risk_id", "risk_category", "description", "severity", "likelihood", "fingerprint"]
+}

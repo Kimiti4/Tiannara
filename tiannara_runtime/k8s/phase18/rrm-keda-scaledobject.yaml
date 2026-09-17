@@ -1,0 +1,22 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata: {name: phase18-rrm-scaling, namespace: tiarnara-phase18}
+spec:
+  scaleTargetRef: {name: tiarnara-rrm}
+  pollingInterval: 10
+  cooldownPeriod: 120
+  minReplicaCount: 2
+  maxReplicaCount: 16
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+      threshold: "30"
+      query: rrm_evolution_rate
+      metricName: rrm_throughput
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+      threshold: "0.60"
+      query: 1.0 - avg(rrm_equivalence_score) by (pod)
+      metricName: rrm_equivalence_deficit

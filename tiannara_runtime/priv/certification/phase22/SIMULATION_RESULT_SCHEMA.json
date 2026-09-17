@@ -1,0 +1,19 @@
+{
+  "schema": "SIMULATION_RESULT_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for aggregated simulation result analysis",
+  "simulation_result": {
+    "fields": {
+      "result_id": {"type": "string", "required": true},
+      "batch_id": {"type": "string", "required": true},
+      "aggregation_method": {"type": "string", "required": true},
+      "statistical_summary": {"type": "object", "required": true},
+      "discovered_scenarios": {"type": "array", "required": true},
+      "sensitivity_analysis": {"type": "object", "required": true},
+      "confidence_bounds": {"type": "object", "required": true},
+      "simulation_count": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "provenance_preserved", "replayable"]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TimelineEvent",
+  "description": "An event in the mission timeline",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Unique identifier for this timeline event"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": ["discovery", "engineering", "optimization", "evolution", "certification", "milestone", "recovery", "failure", "planetary", "civilization"],
+      "description": "Type of timeline event"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Constitutional timestamp of event"
+    },
+    "title": {
+      "type": "string",
+      "description": "Event title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Event description"
+    },
+    "importance": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Event importance"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Event metadata"
+    },
+    "related_events": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of related events"
+    }
+  },
+  "required": ["event_id", "event_type", "timestamp", "title", "importance"],
+  "additionalProperties": false
+}

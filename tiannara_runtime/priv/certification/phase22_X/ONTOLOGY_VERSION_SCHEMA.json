@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OntologyVersion",
+  "description": "A versioned snapshot of the universal ontology",
+  "type": "object",
+  "properties": {
+    "version_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this ontology version"
+    },
+    "version_number": {
+      "type": "integer",
+      "description": "Sequential version number"
+    },
+    "parent_version_id": {
+      "type": "string",
+      "description": "Previous version reference"
+    },
+    "creation_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of version creation"
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Change IDs included in this version"
+    },
+    "node_count": {
+      "type": "integer",
+      "description": "Total number of ontology nodes in this version"
+    },
+    "relation_count": {
+      "type": "integer",
+      "description": "Total number of ontology relations in this version"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "certified", "superseded", "archived"],
+      "description": "Version lifecycle status"
+    },
+    "certification_reference": {
+      "type": "string",
+      "description": "Constitutional certification reference"
+    },
+    "backward_compatible": {
+      "type": "boolean",
+      "description": "Whether this version is backward compatible with its parent"
+    },
+    "ontology_snapshot_hash": {
+      "type": "string",
+      "description": "Hash of the complete ontology state"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["version_id", "version_number", "creation_date", "node_count", "relation_count", "status", "backward_compatible", "ontology_snapshot_hash", "fingerprint"]
+}

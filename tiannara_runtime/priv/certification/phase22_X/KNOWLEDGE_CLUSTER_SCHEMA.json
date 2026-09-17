@@ -1,0 +1,20 @@
+{
+  "schema": "KNOWLEDGE_CLUSTER_SCHEMA",
+  "version": "22.X.2",
+  "description": "Schema for a knowledge cluster in the compression system",
+  "knowledge_cluster": {
+    "fields": {
+      "cluster_id": {"type": "string", "required": true},
+      "evidence_hashes": {"type": "array", "required": true},
+      "domains": {"type": "array", "required": true},
+      "dependencies": {"type": "array", "required": false},
+      "redundancy_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "compression_level": {"type": "integer", "required": true, "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_supported", "deterministic", "replayable"]
+  }
+}

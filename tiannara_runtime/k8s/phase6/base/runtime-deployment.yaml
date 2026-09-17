@@ -1,0 +1,153 @@
+# Tiannara Phase 6 Runtime Deployment
+# [Original Concept: Observer Physics Compilation Substrate]
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tiannara-runtime
+  namespace: tiannara-phase6
+  labels:
+    app: tiannara-runtime
+    tiannara.io/phase: "6"
+    tiannara.io/component: substrate-engine
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: tiannara-runtime
+  template:
+    metadata:
+      labels:
+        app: tiannara-runtime
+        tiannara.io/phase: "6"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4000"
+        prometheus.io/path: "/metrics"
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.present
+                operator: In
+                values: ["true"]
+      containers:
+      - name: elixir-runtime
+        image: tiannara-runtime:phase6-6.0.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: NATS_URL
+          value: "nats://nats.tiannara-phase6.svc.cluster.local:4222"
+        - name: RELEASE_COOKIE
+          valueFrom:
+            secretKeyRef:
+              name: tiannara-secrets
+              key: release-cookie
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: GPU_ENABLED
+          value: "true"
+        - name: STABILITY_THRESHOLD_PSI
+          value: "0.30"
+        - name: OMEGA_PHI_DIVERGENCE_MAX
+          value: "0.40"
+        ports:
+        - containerPort: 4000
+          name: http
+        - containerPort: 9090
+          name: epmd
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+            nvidia.com/gpu: "1"
+          limits:
+            memory: "16Gi"
+            cpu: "8"
+            nvidia.com/gpu: "1"
+        volumeMounts:
+        - name: native-nifs
+          mountPath: /app/priv/native
+          readOnly: true
+        - name: jetstream-cache
+          mountPath: /tmp/jetstream-cache
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 4000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: 4000
+          failureThreshold: 30
+          periodSeconds: 10
+      - name: nats-sidecar
+        image: natsio/nats-server:2.10-alpine
+        args: ["-js", "-m", "8222", "-c", "/etc/nats/sidecar.conf"]
+        ports:
+        - containerPort: 4223
+          name: sidecar-client
+        - containerPort: 8223
+          name: sidecar-monitoring
+        volumeMounts:
+        - name: nats-sidecar-config
+          mountPath: /etc/nats
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: native-nifs
+        hostPath:
+          path: /opt/tiannara/nifs/phase6
+          type: Directory
+      - name: jetstream-cache
+        emptyDir:
+          sizeLimit: 2Gi
+      - name: nats-sidecar-config
+        configMap:
+          name: nats-sidecar-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tiannara-runtime
+  namespace: tiannara-phase6
+  labels:
+    app: tiannara-runtime
+spec:
+  type: ClusterIP
+  selector:
+    app: tiannara-runtime
+  ports:
+  - name: http
+    port: 80
+    targetPort: 4000
+  - name: epmd
+    port: 9090
+    targetPort: 9090

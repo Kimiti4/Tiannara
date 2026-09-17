@@ -1,0 +1,83 @@
+# Move 9 — Runtime Evidence (per gated question)
+# FACT/EVIDENCE vs ASSUMPTION/HYPOTHESIS/INFERENCE/UNKNOWN kept explicit.
+# Interface existence is never converted to runtime behavior.
+artifact: RUNTIME_EVIDENCE_M9
+artifact_status: POST_T0
+move: 9
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+questions:
+- id: Q-A2
+  question: Stabilization-vs-CIS runtime authority boundary
+  class: EVIDENCE
+  observed:
+  - Both supervisors alive with all children alive (Stabilization 3 subsupervisors; CIS 4 children incl. RegulationExecutor, ImmuneDecisionEngine, CollapsePredictor)
+  - CTL absent from Stabilization children (consistent with supervision-tree record)
+  - Zero regulation decision/action lines from either component in ~75s window (init/boot lines only)
+  - One scheduled governance-compliance line from another subsystem (not attributed to either regulator)
+  determination: UNRESOLVED
+  determination_class: EVIDENCE
+  rationale: Liveness established for both; no precedence mechanism observed; no conflicting decisions observed; 75s window cannot establish inactivity
+- id: Q-D1
+  question: Historical divergence (historical state -> transition -> behavior -> architectural state)
+  class: EVIDENCE
+  observed:
+  - No logs/ tree in T0; no run-history JSONs in T0
+  - Dated artifacts exist: council_audit_log corrupted variants (2026-08-16, pre-September) and gc_012 result (July timestamp)
+  - No record connects historical state through transition to behavior to architectural state
+  determination: UNRESOLVED
+  determination_class: EVIDENCE
+  rationale: Historical fragments exist; the required connective record does not. Current runtime resemblance to any historical explanation was not used as narrowing.
+- id: Q-009-RUNOFF
+  question: Stabilizer runtime behavior (deterministic vs stochastic vs failure-dependent)
+  class: EVIDENCE
+  observed:
+  - Stabilization supervisors alive (OLEF/OCM/HSV); CTL absent
+  - Zero regulation actions in observation window
+  - Zero stabilizer tests in T0 (carried); no effect demonstration
+  determination: UNRESOLVED
+  determination_class: EVIDENCE
+  rationale: Liveness is not behavior; single-window observation cannot classify determinism
+- id: Q-018-RUN
+  question: Phase14 corpus runtime behavior (artifact/interface/path/execution/behavior/validation levels)
+  class: EVIDENCE
+  observed:
+  - Artifact exists: TRUE (162 T0 paths)
+  - Interface exists: TRUE (auditor entries; runner script; hash files)
+  - Code path exists: TRUE (auditor module + script present)
+  - Code path executes: TRUE (auditor ran to Step-5 completion)
+  - Expected behavior occurs: PARTIAL (self-consistency checks pass; fingerprints match stored signatures; 12/12 statuses echoed)
+  - Expected behavior validated: FALSE (no independent re-derivation; values re-printed from JSON, not recomputed)
+  determination: UNRESOLVED (corpus executability demonstrated; verification claim not validated)
+  determination_class: EVIDENCE
+  rationale: Six-level separation applied; the chain breaks at validation, not at execution
+- id: Q-019-RESULTS
+  question: Benchmark harness runtime results
+  class: EVIDENCE
+  observed:
+  - Harness scripts present (3 files); inputs fixed (100/1000 entities, time 5, warmup 2)
+  - Dev-env execution: BLOCKED at CompileError (Phase3Helpers unavailable outside test env)
+  - Test-env execution: INCONCLUSIVE (no output signature captured either way)
+  - Zero Benchee measurement lines in any run
+  determination: UNRESOLVED
+  determination_class: EVIDENCE
+  rationale: No measurements exist; repeatability/variability classification impossible without a first successful run
+- id: Q-CONTRA-003
+  question: Certificate vs result disagreement for gc_012
+  class: EVIDENCE
+  observed:
+  - Auditor executed and reported both records PASSED without comparing them
+  - Certificate block: verified_at 2026-01-01T00:00:00Z, fitness 0.8041, entropy 0.1042
+  - Result file: verified_at 2026-07-02T20:06:58Z, fitness 0.8035, entropy 0.0746
+  - Auditor performs fingerprint + status-field echo, not cross-record comparison or re-derivation
+  determination: UNRESOLVED
+  determination_class: EVIDENCE
+  rationale: Both claims remain compatible with the observation (auditor asserts both without discriminating). Falsification-grade prediction unmet by either side.
+aggregate:
+  questions_total: 6
+  resolved: 0
+  unresolved: 6
+  of_which_narrowed: 2
+narrowed_which:
+- Q-018-RUN (six-level chain now evidenced through validation-break point)
+- Q-CONTRA-003 (auditor characterized as non-discriminating; disagreement precisely located)

@@ -1,0 +1,19 @@
+{
+  "schema": "UNIFIED_PRINCIPLE_SCHEMA",
+  "version": "22.X.3",
+  "description": "Schema for a unified principle spanning multiple domains",
+  "unified_principle": {
+    "fields": {
+      "principle_id": {"type": "string", "required": true},
+      "statement": {"type": "string", "required": true},
+      "source_principles": {"type": "array", "required": true},
+      "source_domains": {"type": "array", "required": true},
+      "unification_type": {"type": "string", "required": true, "enum": ["vertical", "horizontal", "network"]},
+      "domain_specific_forms": {"type": "object", "required": true},
+      "boundary_conditions": {"type": "object", "required": true},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["domain_valid", "deterministic", "replayable"]
+  }
+}

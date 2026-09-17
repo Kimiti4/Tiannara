@@ -1,0 +1,75 @@
+artifact: stage9_serialization_freeze
+stage: 9 (Decision-support ONLY — canonical-serialization freeze scope)
+authority: TIA Council
+posture: DECISION-SUPPORT ONLY — identifies what is already frozen vs what the Council must
+  freeze; does NOT freeze anything and does NOT modify any spec file.
+recorded_at: 2026-09-10
+status: PENDING COUNCIL FREEZE DECISION
+upstream: certificate_identity_design (r4, hash_format), issuance_design
+  (design_dependencies: canonical-serialization spec)
+
+key_finding:
+  statement: "tiannara-fp-canon-v1 ALREADY EXISTS and is NORMATIVE for the forward area."
+  file: forward_provenance/spec/canonicalization_spec.yaml (version 1.0.0, authority
+    TiannaraOS.Provenance.Canon / canon.ex, area forward_provenance only)
+  cited_by: Canon.sha256 (canon.ex), Envelope.build (envelope.ex:61), Contract
+    (contract.ex:18), Bundle (bundle.ex:80), Result (result.ex:29), MetricLineage
+    (metric_lineage.ex passim).
+  implication: the Stage-8 design dependency "canonical-serialization spec must be fixed in
+    a future implementation stage" is REFINED — the RENDERING rules are already frozen;
+    only the CERTIFICATE IDENTITY GRAMMAR and a couple of schema pins remain open.
+
+already_frozen (canon v1, normative copy = spec/canonicalization_spec.yaml):
+  - value domains: null/boolean/integer/float (shortest round-trip, fractional digit
+    guaranteed)/string (JSON-escaped)/array (ordered)/object (byte-lexicographic sorted
+    string keys)
+  - composition: no whitespace outside string literals; recursion total
+  - hashing: sha256(canon(bytes)) = identity hash for a term; sha256(raw bytes) for
+    persisted payloads; envelope payload_hash = sha256(canon(envelope minus payload_hash))
+  - guarantees: determinism, byte-exactness, no float drift in identity-critical positions
+  - verification procedure: independent verifier recomputes envelope payload_hash, identity
+    hashes, metric from corpus, CERTIFICATE payload_hash from decision envelope bytes
+  - encoder note: Canon.to_json/esc_key delegate TO :json.encode (OTP-28 stdlib) for
+    string escaping — an independent implementation must pin the SAME encoder behavior
+    (stdlib :json), stated in the spec; still open as a pin (see open_items).
+
+open_items (this is what the freeze decision must cover):
+  - o1 certificate identity grammar: EXACT composition of the identity input —
+    %{"candidate_id_spec" => <spec,>, "spine" => <ordered list>}; the ordering rule for
+    spine (byte-lexicographic? insertion order?), the allowed field set/names, and the
+    spec string value (tiannara-fp-candidate-cert-v1) — so two implementations produce
+    identical bytes. Currently established only inside certificate_authority_bridge.ex
+    (@candidate_spec) and the Stage-8 design doc, NOT in a spec file.
+  - o2 decision/envelope body schema pin for the future certificate: field names, types,
+    presence rules (certificate_id, decision, reason, authority_header, policy_ref,
+    issuance_spec, evidence_bindings) and the envelope event_type (decision_recorded) —
+    so lifecycle/revocation decision records serialize identically.
+  - o3 authority_header / policy_ref schema: {authority, authority_kind, policy_ref}
+    shape, so a revocation decision envelope and an issuance envelope are structurally
+    comparable and replay-stable.
+  - o4 encoder pin: normative statement in the spec that JSON string emission uses the
+    OTP stdlib :json encoder (as Canon does), preventing a second implementation from
+    substituting a different JSON encoder and producing different escape bytes.
+  - o5 spec versioning/bump rule: how o1-o4 get pinned into a tiannara-fp-*-v1 (or bump to
+    v2) record and how SUPERSEDED interacts (policy schema_evolution: envelope immutable).
+
+freeze_instrument_options (decision-support; NOT chosen):
+  - fz-a extend canonicalization_spec.yaml with a Certificate Identity section (normative,
+    referenced by the bridge spec + Stage-8 identity design). Cheapest; single-file canon.
+  - fz-b NEW spec file (e.g. certificate_identity_spec.yaml) that references canon v1 and
+    pins o1-o5. Keeps identity concerns separate from the canon rendering spec.
+  - fz-c emit a machine-checkable conformance fixture (a fixed table of input->sha256
+    examples) alongside whichever spec file, so any implementation can byte-compare.
+  proposed_recommendation (decision-support): fz-b + fz-c — separate identity spec pinning
+    the grammar AND a conformance fixture table, both layered on the existing canon v1;
+    cheapest verification of cross-implementation byte parity.
+
+relationship_to_bridge:
+  - The bridge already computes candidate_id with Canon.sha256 over %{"candidate_id_spec"
+    => @candidate_spec, "spine" => spine}; o1 is the SPECIFICATION of that exact input
+    shape, not a change to the code. The bridge file is NOT to be edited by the freeze.
+  - stage6/7/8 invariants (NO_AUTHORITY_POLICY, authorized_issuance? false, SAFE-BLOCKED)
+    are code-level and unchanged by any freeze decision.
+
+NOTHING_FROZEN: true
+NOTHING_IMPLEMENTED: true

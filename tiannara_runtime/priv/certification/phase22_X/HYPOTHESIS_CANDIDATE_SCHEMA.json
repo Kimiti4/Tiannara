@@ -1,0 +1,19 @@
+{
+  "schema": "HYPOTHESIS_CANDIDATE_SCHEMA",
+  "version": "22.X.9",
+  "description": "Schema for a testable hypothesis derived from imagination",
+  "hypothesis_candidate": {
+    "fields": {
+      "hypothesis_id": {"type": "string", "required": true},
+      "source_imagination": {"type": "string", "required": true},
+      "hypothesis_statement": {"type": "string", "required": true},
+      "predictions": {"type": "array", "required": true},
+      "falsifiability_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "proposed_experiments": {"type": "array", "required": true},
+      "validation_status": {"type": "string", "required": true, "enum": ["untested", "in_progress", "supported", "falsified", "inconclusive"]},
+      "evidence_summary": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["falsifiable", "deterministic", "replayable"]
+  }
+}

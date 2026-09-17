@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/twin_replay.json",
+  "title": "TwinReplay",
+  "description": "A deterministic replay event for the digital twin.",
+  "type": "object",
+  "properties": {
+    "replay_id": { "type": "string", "pattern": "^treplay_[a-f0-9]{16}$" },
+    "event_type": { "type": "string", "enum": ["twin_reconstruction", "layer_replay", "scenario_replay", "full_replay", "cross_scenario_compare"] },
+    "twin_id": { "type": "string" },
+    "scenario_id": { "type": "string" },
+    "target_time": { "type": "integer" },
+    "input_snapshot": { "type": "object" },
+    "output_snapshot": { "type": "object" },
+    "layers_replayed": { "type": "array", "items": { "type": "string" } },
+    "accuracy_verified": { "type": "boolean" },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["replay_id", "event_type", "input_snapshot", "output_snapshot", "content_hash"]
+}

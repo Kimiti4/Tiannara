@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/planetary_resource.json",
+  "title": "PlanetaryResource",
+  "description": "A resource record from the CPRIE-25.6 resource intelligence engine.",
+  "type": "object",
+  "properties": {
+    "resource_id": { "type": "string", "pattern": "^res_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "category": { "type": "string", "enum": ["energy", "water", "food", "raw_materials", "rare_earth", "compute", "scientific_equipment", "engineering_capacity", "manufacturing_capacity", "human_expertise", "financial_capital", "ecological", "atmospheric", "space"] },
+    "subcategory": { "type": "string" },
+    "quantity": { "type": "number" },
+    "unit": { "type": "string" },
+    "quality_grade": { "type": "string" },
+    "location": { "type": "string" },
+    "accessibility_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "extraction_rate": { "type": "number" },
+    "regeneration_rate": { "type": "number" },
+    "renewable": { "type": "boolean" },
+    "criticality": { "type": "string", "enum": ["critical", "strategic", "common", "luxury"] },
+    "scarcity": { "type": "string", "enum": ["abundant", "sufficient", "constrained", "scarce", "depleting"] },
+    "data_source": { "type": "string" },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "updated_at": { "type": "integer" }
+  },
+  "required": ["resource_id", "name", "category", "quantity", "unit", "confidence", "fingerprint"]
+}

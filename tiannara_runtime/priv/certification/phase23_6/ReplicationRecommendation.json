@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/replication_recommendation.json",
+  "title": "ReplicationRecommendation",
+  "description": "A recommendation that a specific discovery should be independently replicated.",
+  "type": "object",
+  "properties": {
+    "recommendation_id": { "type": "string", "pattern": "^rep_[a-f0-9]{16}$" },
+    "discovery_id": { "type": "string" },
+    "replication_type": { "type": "string", "enum": ["direct", "conceptual", "computational"] },
+    "priority_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "priority_breakdown": {
+      "type": "object",
+      "properties": {
+        "scientific_importance": { "type": "number", "minimum": 0, "maximum": 1 },
+        "engineering_impact": { "type": "number", "minimum": 0, "maximum": 1 },
+        "uncertainty": { "type": "number", "minimum": 0, "maximum": 1 },
+        "controversy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "societal_importance": { "type": "number", "minimum": 0, "maximum": 1 },
+        "resource_cost": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "recommended_methodology": { "type": "string" },
+    "estimated_resources": { "type": "string" },
+    "status": { "type": "string", "enum": ["pending", "in_progress", "completed", "superseded"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["recommendation_id", "discovery_id", "priority_score", "status", "fingerprint"]
+}

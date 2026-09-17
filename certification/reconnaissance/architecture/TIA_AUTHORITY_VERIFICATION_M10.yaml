@@ -1,0 +1,67 @@
+# Move 10 — Authority Verification (unresolved authorities revisited with runtime evidence)
+artifact: AUTHORITY_VERIFICATION_M10
+artifact_status: POST_T0
+move: 10
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+authorities:
+- authority: Stabilization
+  move8_state: UNRESOLVED (wired callers; no tests/effects)
+  move10_evidence_added:
+  - All three subsupervisors alive at probe instant (OLEF/OCM/HSV); CTL absent as supervised
+  - Zero regulation actions in 75s window (init/boot lines only)
+  - Stabilizer modules expose operational verbs without observe/decide/act entry verbs in sampled module
+  determination: UNRESOLVED (liveness is not authority; silence in a window is not inactivity)
+- authority: CIS
+  move8_state: UNRESOLVED (mandate text; no demonstrated regulation)
+  move10_evidence_added:
+  - Four children alive (RegulationExecutor, ImmuneDecisionEngine, CollapsePredictor workers; CISRegistry supervisor)
+  - Zero regulation decisions in 75s window
+  - Zero cross-references either direction between CIS and Stabilization namespaces; zero override/delegate/suppress/precedence verbs
+  determination: UNRESOLVED (mutual-obliviousness now evidenced in code and runtime; precedence still absent)
+- authority: Council
+  move8_state: UNRESOLVED (contract text; no runtime evaluation)
+  move10_evidence_added:
+  - Supervisor + 7 children alive including AuditLog worker
+  - Boot runs wrote council_audit_log.dets in working tree (rotation path live)
+  - One unattributed governance-compliance line observed
+  determination: UNRESOLVED (liveness + write activity observed; decision-making unevaluated)
+- authority: Executive
+  move8_state: UNRESOLVED (memory scope pinned; reflection consumed)
+  move10_evidence_added:
+  - ExecutiveCycle progress logged (Cycle 2 completed)
+  - Metrics pipeline crash demonstrated (GAP-M9-01 root-caused to message-protocol mismatch; deterministic)
+  determination: UNRESOLVED (cycle runs; metrics broken; no authority conclusion drawn from either)
+- authority: Certification
+  move8_state: UNRESOLVED (distributed, no hierarchy)
+  move10_evidence_added:
+  - Auditor executes to completion; fingerprints verify; statuses echoed; report overwritten
+  - Hash bindings recomputed genuine (4 of 4 match)
+  - CONTRA-003 confirmed as content disagreement between intact records
+  determination: UNRESOLVED (auditor demonstrated as self-consistency checker, not independent validator)
+- authority: Civilization_Kernel
+  move8_state: UNRESOLVED (interface evidenced; authority/consumers unevidenced)
+  move10_evidence_added: none (no Move-10 execution targeted the kernel)
+  determination: UNRESOLVED (carried unchanged)
+- authority: Memory_Knowledge
+  move8_state: UNRESOLVED (strongest negative result)
+  move10_evidence_added: none (no Move-10 execution targeted memory/knowledge paths)
+  determination: UNRESOLVED (carried unchanged)
+- authority: Discovery
+  move8_state: UNRESOLVED
+  move10_evidence_added: none (no Move-10 execution targeted discovery paths)
+  determination: UNRESOLVED (carried unchanged)
+- authority: Observatory
+  move8_state: UNRESOLVED (execute-means-check-runner precision recorded)
+  move10_evidence_added: none beyond Move-9 boot lines (checks exist as named functions)
+  determination: UNRESOLVED (carried unchanged)
+- authority: Autonomous_Evolution
+  move8_state: UNRESOLVED (submit/get/cancel interfaces; E03 blocked)
+  move10_evidence_added: none (no Move-10 execution targeted evolution paths)
+  determination: UNRESOLVED (carried unchanged)
+aggregate:
+  reviewed: 10
+  resolved: 0
+  narrowed: 5
+  unresolved: 10
+  narrowed_which: [Stabilization, CIS, Council, Executive, Certification]

@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/scientific_publication.json",
+  "title": "ScientificPublication",
+  "description": "A constitutional representation of a scientific publication with full provenance and authentication.",
+  "type": "object",
+  "properties": {
+    "publication_id": { "type": "string", "pattern": "^pub_[a-f0-9]{16}$" },
+    "title": { "type": "string" },
+    "authors": { "type": "array", "items": { "type": "string" } },
+    "journal": { "type": "string" },
+    "doi": { "type": "string" },
+    "publication_date": { "type": "string", "format": "date" },
+    "source_type": { "type": "string", "enum": ["journal", "preprint", "conference", "book", "standard", "specification", "government_report", "institutional_report"] },
+    "authentication_level": { "type": "string", "enum": ["verified", "provisional", "questionable", "rejected"] },
+    "abstract": { "type": "string" },
+    "sections": { "type": "array", "items": { "type": "object", "properties": { "heading": { "type": "string" }, "content": { "type": "string" } } } },
+    "claim_ids": { "type": "array", "items": { "type": "string" } },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "citation_ids": { "type": "array", "items": { "type": "string" } },
+    "retraction_status": { "type": "string", "enum": ["none", "retracted", "corrected", "expression_of_concern"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "acquired_at": { "type": "integer" }
+  },
+  "required": ["publication_id", "title", "source_type", "authentication_level", "fingerprint"]
+}

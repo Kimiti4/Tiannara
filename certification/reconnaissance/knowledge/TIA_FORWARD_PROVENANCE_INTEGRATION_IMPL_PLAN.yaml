@@ -1,0 +1,83 @@
+# Forward Provenance Integration — Implementation Plan
+
+plan_name: tia-forward-provenance-integration-impl-plan
+version: 1.0.0
+authority: TIA Council
+status: AUTHORIZED
+authorization: FORWARD PROVENANCE INTEGRATION IMPLEMENTATION
+gate_source: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STOP.yaml
+recorded_at: 2026-09-09
+
+## Prior Gate Verdict (binding input)
+- STATUS: PARTIAL PASS
+- DESIGN: ACCEPTED
+- STANDALONE SUBSTRATE: VERIFIED (demo fps_001, 16/16 tests, adversarial A-J 10/10, independent bundle verify ACCEPT 7/7 + 5/5 edges)
+- HISTORICAL FIREWALL: ACCEPTED / ABSOLUTE
+- CONTRA-003: UNRESOLVED (carried, unchanged, NOT re-litigated by any implementation stage)
+- RUNTIME INTEGRATION: NOT YET IMPLEMENTED (this plan is the authorized change engine)
+- CANONICAL EXECUTION ID: BLOCKING (Stage 1)
+- CERTIFICATION AUTHORITY: BLOCKING (Stage 6)
+
+## Mandated Implementation Order (dependencies are binding; do NOT collapse stages)
+1. Identity Authority            (Stage 1 — CANONICAL EXECUTION ID)
+2. Provenance Runtime Contract   (Stage 2)
+3. Runtime Instrumentation       (Stage 3)
+4. Failure + Distributed Semantics (Stage 4)
+5. Metric Lineage                (Stage 5)
+6. Certificate State / Authority (Stage 6 — CERTIFICATION AUTHORITY)
+7. K-T Adversarial Integration   (Stage 7)
+8. Independent Verification      (Stage 8)
+
+Each stage ends with a STOP to the Council before the next stage begins.
+
+## Historical Firewall (absolute, applies to every stage)
+- T0 certificates: not touched.
+- CONTRA-003: unresolved, not re-litigated.
+- Historical runs: not modified.
+- Historical certificates: never regenerated.
+- Historical provenance: never inferred retroactively.
+- Permitted language about any historical artifact: "this historical artifact is
+  unverified". Forbidden language, ever: "the new provenance system has now
+  verified it."
+- The forward provenance layer is future-evidence infrastructure only.
+
+## Stage 1 Scope: Identity Authority
+PURPOSE: exactly one canonical execution identity authority. Every execution id
+that enters the forward provenance universe — whatever its producing runtime —
+must be minted or claimed through ONE registry so that an execution id names one
+and only one execution ACROSS producers. No graph node may join two executions
+on an id that two producers both consider theirs.
+
+IN SCOPE:
+- new module TiannaraOS.Provenance.IdentityAuthority (forward_provenance, zero-dep)
+- authority-controlled minting preserving the forward id format
+  exec_<millis_epoch>_<uuid13>
+- external-id claim path (id_format detection: forward_exec_v1, phase4_exec_v1,
+  opc_integer, other); first-writer-wins; duplicate claim = collision => reject
+  fail-closed from Execution.build
+- ETS-backed registry (authoritative) + append-only JSONL ledger (audit)
+- resolve/export/registered interfaces for the Stage 2 Runtime Contract
+- Execution.build default mint routed through the authority; explicit
+  :execution_id routed through claim
+- Stage 1 tests (mint uniqueness, collision rejection, cross-producer duplicate,
+  ledger replay, Execution integration)
+
+OUT OF SCOPE (later stages):
+- Stage 2: Provenance Runtime Contract (opaque id acceptance, resolver binding)
+- Stage 3: Runtime Instrumentation (edits to lib/tiannara/phase4/real_execution.ex
+  and OPC execution_runtime.ex claiming ids through this authority)
+- Stage 6: Certificate Authority
+- main app: NO path dependency added in Stage 1 (deferred to Stage 2/3);
+  forward_provenance remains zero-dep
+
+## Stage 1 Verification of Completion
+- mix test (forward_provenance) green: prior 16 tests + identity_authority tests
+- duplicate claim across producer types rejected
+- ledger replay reproduces first-writer-wins after registry restart
+- T0 porcelain: 3366 tracked files unchanged; single untracked forward_provenance/
+- no commits, no pushes (only on explicit instruction)
+
+## Acceptance Criteria (Stage 1 gate, to Council)
+- ACCEPT: identity props all green + administrative evidence recorded here
+- REJECT: any duplicate id accepted dual-writer, or Execution.build accepts an
+  already-claimed id, or T0 tracked tree modified

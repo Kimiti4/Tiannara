@@ -1,0 +1,25 @@
+{
+  "schema": "TWIN_STATE_SCHEMA",
+  "version": "22.2",
+  "description": "Schema for a digital twin state snapshot at a given generation",
+  "twin_state": {
+    "fields": {
+      "state_id": {"type": "string", "required": true},
+      "twin_id": {"type": "string", "required": true},
+      "population_hash": {"type": "string", "required": true},
+      "knowledge_graph_hash": {"type": "string", "required": true},
+      "institution_graph_hash": {"type": "string", "required": true},
+      "infrastructure_graph_hash": {"type": "string", "required": true},
+      "resource_graph_hash": {"type": "string", "required": true},
+      "scientific_state_hash": {"type": "string", "required": true},
+      "engineering_state_hash": {"type": "string", "required": true},
+      "economic_state_hash": {"type": "string", "required": true},
+      "governance_state_hash": {"type": "string", "required": true},
+      "environmental_state_hash": {"type": "string", "required": true},
+      "layer_consistency_check": {"type": "string", "required": true},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "layer_independent", "replayable"]
+  }
+}

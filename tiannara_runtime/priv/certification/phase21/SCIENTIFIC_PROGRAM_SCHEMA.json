@@ -1,0 +1,31 @@
+{
+  "schema": "SCIENTIFIC_PROGRAM_SCHEMA",
+  "version": "21.1",
+  "description": "Schema for a scientific program within the research portfolio governance system",
+  "scientific_program": {
+    "fields": {
+      "program_id": {"type": "string", "required": true, "description": "Content-addressed program identifier"},
+      "program_name": {"type": "string", "required": true},
+      "portfolio": {"type": "string", "required": true, "description": "Parent portfolio category"},
+      "priority_score": {"type": "number", "required": true, "description": "Deterministic priority (0.0–1.0)"},
+      "scientific_impact": {"type": "number", "required": true},
+      "knowledge_gap_reduction": {"type": "number", "required": true},
+      "engineering_utility": {"type": "number", "required": true},
+      "mathematical_significance": {"type": "number", "required": true},
+      "cross_domain_influence": {"type": "number", "required": true},
+      "long_term_value": {"type": "number", "required": true},
+      "capital_return": {"type": "number", "required": true},
+      "civilizational_benefit": {"type": "number", "required": true},
+      "reproducibility_confidence": {"type": "number", "required": true},
+      "constitutional_alignment": {"type": "number", "required": true},
+      "capital_allocated": {"type": "number", "required": true},
+      "status": {"type": "string", "required": true, "description": "Proposed/Evaluated/Approved/Funded/Executing/Expanding/Review/Transition/Retired/Archived"},
+      "lifecycle_transitions": {"type": "array", "required": true},
+      "successor_program": {"type": "string", "required": false},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "lifecycle": ["proposed", "evaluated", "approved", "funded", "executing", "expanding", "review", "transition", "retired", "archived"],
+    "constraints": ["evidence_based", "deterministic_priority", "replayable"]
+  }
+}

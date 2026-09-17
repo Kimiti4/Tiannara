@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Evidence",
+  "description": "Immutable evidence produced by experiments and observations, preserved regardless of outcome",
+  "type": "object",
+  "properties": {
+    "evidence_id": { "type": "string" },
+    "experiment_id": { "type": "string" },
+    "hypothesis_id": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["positive", "negative", "contradictory", "null", "unexpected"]
+    },
+    "data": { "type": "object" },
+    "uncertainty": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "value": { "type": "number" },
+        "confidence": { "type": "number" }
+      }
+    },
+    "reproducibility": {
+      "type": "object",
+      "properties": {
+        "attempts": { "type": "integer" },
+        "successes": { "type": "integer" },
+        "consistency": { "type": "number" }
+      }
+    },
+    "collection_method": { "type": "string" },
+    "validation_status": {
+      "type": "string",
+      "enum": ["unvalidated", "verified", "questionable", "invalid"]
+    },
+    "timestamp": { "type": "integer" },
+    "evidence_hash": { "type": "string" },
+    "previous_evidence_id": { "type": ["string", "null"] }
+  },
+  "required": ["evidence_id", "experiment_id", "hypothesis_id", "type", "data", "timestamp", "evidence_hash"],
+  "additionalProperties": false
+}

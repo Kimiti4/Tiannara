@@ -1,0 +1,66 @@
+{
+  "schema": "VALIDATION_SCHEMA",
+  "version": "20.6",
+  "description": "Schema for ValidationReport — acceptance and risk assessment",
+  "validation_report": {
+    "fields": {
+      "report_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "project": {"type": "string", "required": true, "description": "Reference to EngineeringProject"},
+      "requirement_satisfaction": {
+        "type": "object", "required": true,
+        "fields": {
+          "functional_coverage": {"type": "object"},
+          "non_functional_coverage": {"type": "object"},
+          "constitutional_compliance": {"type": "object"},
+          "performance_targets": {"type": "object"},
+          "security_requirements": {"type": "object"},
+          "mathematical_requirements": {"type": "object"},
+          "verification_requirements": {"type": "object"}
+        }
+      },
+      "acceptance_thresholds": {
+        "type": "object", "required": true,
+        "fields": {
+          "performance_minimum": {"type": "object"},
+          "reliability_minimum": {"type": "object"},
+          "resource_maximum": {"type": "object"},
+          "coverage_minimum": {"type": "object"}
+        }
+      },
+      "constitutional_gates": {
+        "type": "object", "required": true,
+        "fields": {
+          "determinism_gate": {"type": "boolean"},
+          "replayability_gate": {"type": "boolean"},
+          "archaeology_gate": {"type": "boolean"},
+          "evidence_gate": {"type": "boolean"},
+          "governance_gate": {"type": "boolean"}
+        }
+      },
+      "reliability_targets": {"type": "object", "required": true},
+      "security_targets": {"type": "object", "required": true},
+      "risk_assessment": {
+        "type": "object", "required": true,
+        "fields": {
+          "technical_risk": {"type": "object"},
+          "integration_risk": {"type": "object"},
+          "performance_risk": {"type": "object"},
+          "security_risk": {"type": "object"},
+          "constitutional_risk": {"type": "object"},
+          "migration_risk": {"type": "object"},
+          "overall_risk_level": {"type": "string"}
+        }
+      },
+      "overall": {"type": "string", "required": true, "description": "Pass/Fail/Conditional"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": [
+      "validation_is_evidence_based",
+      "validation_is_deterministic",
+      "constitutional_gates_must_all_pass",
+      "risk_assessment_must_be_complete"
+    ]
+  }
+}

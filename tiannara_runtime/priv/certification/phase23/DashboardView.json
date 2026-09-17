@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DashboardView",
+  "description": "A dashboard view configuration",
+  "type": "object",
+  "properties": {
+    "view_id": {
+      "type": "string",
+      "description": "Unique identifier for this view"
+    },
+    "view_name": {
+      "type": "string",
+      "description": "Human-readable view name"
+    },
+    "screen_number": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 13,
+      "description": "Screen number (1-13)"
+    },
+    "layout": {
+      "type": "string",
+      "enum": ["grid", "list", "chart", "graph", "map", "timeline"],
+      "description": "Layout type"
+    },
+    "widgets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Widget"
+      },
+      "description": "Array of widgets"
+    },
+    "refresh_rate": {
+      "type": "integer",
+      "description": "Refresh rate in milliseconds"
+    },
+    "filters": {
+      "type": "object",
+      "description": "View filters"
+    }
+  },
+  "required": ["view_id", "view_name", "screen_number", "layout", "widgets"],
+  "additionalProperties": false,
+  "definitions": {
+    "Widget": {
+      "type": "object",
+      "properties": {
+        "widget_id": {
+          "type": "string"
+        },
+        "widget_type": {
+          "type": "string",
+          "enum": ["gauge", "chart", "graph", "map", "table", "list", "timeline"]
+        },
+        "title": {
+          "type": "string"
+        },
+        "data_source": {
+          "type": "string"
+        },
+        "position": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "y": {
+              "type": "integer"
+            },
+            "width": {
+              "type": "integer"
+            },
+            "height": {
+              "type": "integer"
+            }
+          },
+          "required": ["x", "y", "width", "height"]
+        }
+      },
+      "required": ["widget_id", "widget_type", "title", "data_source", "position"]
+    }
+  }
+}

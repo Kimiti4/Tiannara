@@ -1,0 +1,25 @@
+{
+  "schema": "OPTIMIZATION_CANDIDATE_SCHEMA",
+  "version": "20.8",
+  "description": "Schema for OptimizationCandidate — optimization improvement proposal",
+  "optimization_candidate": {
+    "fields": {
+      "candidate_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "originating_problem": {"type": "string", "required": true, "description": "Reference to BottleneckReport"},
+      "originating_metrics": {"type": "string", "required": true, "description": "Reference to MetricSet"},
+      "bottleneck_reference": {"type": "string", "required": true, "description": "Bottleneck causal chain reference"},
+      "expected_gain": {"type": "object", "required": true, "description": "Predicted improvement per metric"},
+      "expected_cost": {"type": "object", "required": true, "description": "Predicted resource cost"},
+      "expected_risk": {"type": "object", "required": true, "description": "Predicted risk level and categories"},
+      "affected_domains": {"type": "array", "required": true, "description": "Subsystems and domains affected"},
+      "mathematical_justification": {"type": "string", "required": true},
+      "source_evidence": {"type": "array", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "status": {"type": "string", "required": true, "description": "Draft/Evaluated/Recommended/Accepted/Rejected"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "lifecycle": ["draft", "evaluated", "recommended", "accepted", "rejected"],
+    "constraints": ["evidence_originated", "deterministic_generation", "replayable"]
+  }
+}

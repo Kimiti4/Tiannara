@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/subsystem.json",
+  "title": "Subsystem",
+  "description": "A constitutional engineering subsystem with allocated functions and interfaces.",
+  "type": "object",
+  "properties": {
+    "subsystem_id": { "type": "string", "pattern": "^ssys_[a-f0-9]{16}$" },
+    "architecture_id": { "type": "string" },
+    "name": { "type": "string" },
+    "subsystem_type": { "type": "string", "enum": ["mechanical", "electrical", "electronics", "software", "ai", "robotics", "communications", "energy", "control", "human_interface", "other"] },
+    "allocated_functions": { "type": "array", "items": { "type": "string" } },
+    "interface_ids": { "type": "array", "items": { "type": "string" } },
+    "parent_subsystem_id": { "type": "string" },
+    "child_subsystem_ids": { "type": "array", "items": { "type": "string" } },
+    "verification_plan_id": { "type": "string" },
+    "status": { "type": "string", "enum": ["concept", "design", "development", "verified", "certified", "operational", "retired"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["subsystem_id", "architecture_id", "name", "subsystem_type", "fingerprint"]
+}

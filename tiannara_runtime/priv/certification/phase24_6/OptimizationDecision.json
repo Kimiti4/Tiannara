@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/optimization_decision.json",
+  "title": "OptimizationDecision",
+  "description": "A recorded decision in the engineering optimization process.",
+  "type": "object",
+  "properties": {
+    "decision_id": { "type": "string", "pattern": "^optdec_[a-f0-9]{16}$" },
+    "candidate_id": { "type": "string" },
+    "decision_type": { "type": "string", "enum": ["bottleneck_priority", "candidate_selection", "tradeoff_resolution", "optimization_approval", "baseline_acceptance"] },
+    "context": { "type": "string" },
+    "alternatives": { "type": "array", "items": { "type": "string" } },
+    "selected_option": { "type": "string" },
+    "rationale": { "type": "string" },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "constitutional_review": { "type": "object", "properties": { "required": { "type": "boolean" }, "passed": { "type": "boolean" } } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "decided_at": { "type": "integer" }
+  },
+  "required": ["decision_id", "candidate_id", "decision_type", "selected_option", "rationale", "fingerprint"]
+}

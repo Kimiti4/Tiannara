@@ -1,0 +1,20 @@
+{
+  "schema": "SCENARIO_SCHEMA",
+  "version": "22.7",
+  "description": "Schema for a forecast scenario",
+  "scenario": {
+    "fields": {
+      "scenario_id": {"type": "string", "required": true},
+      "forecast_id": {"type": "string", "required": true},
+      "scenario_type": {"type": "string", "required": true, "enum": ["baseline", "optimistic", "conservative", "high_risk", "transformational", "black_swan", "exploratory"]},
+      "parameter_variations": {"type": "object", "required": true},
+      "trajectory": {"type": "object", "required": true},
+      "plausibility_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "probability_estimate": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "key_drivers": {"type": "array", "required": true},
+      "signposts": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["constitutionally_bounded", "deterministic", "replayable"]
+  }
+}

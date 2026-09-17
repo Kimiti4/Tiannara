@@ -1,0 +1,188 @@
+# Stage 7 — Certificate Authority Reconciliation — STOP Record
+
+artifact: TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE7_STOP
+version: 1.0.0
+authority: TIA Council
+status: AWAITING AUTHORIZATION FOR STAGE 8
+stage: 7 (Certificate Authority Reconciliation)
+implementation_plan: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_IMPL_PLAN.yaml
+gate: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STOP.yaml
+prior_stage: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE6_STOP.yaml
+recorded_at: 2026-09-10
+
+## Stage 7 Status
+- STATUS: COMPLETE — DELIBERATE STOP — NO CANONICAL AUTHORITY (reconciliation delivered;
+  the recon itself proves a canonical authority CANNOT be selected on current evidence).
+- POSTURE: RECONNAISSANCE / ANALYSIS / RECONCILIATION ONLY. Zero implementation; zero
+  production mutation; zero certificate issuance; zero certificate state mutation; zero
+  issue/revoke/supersede actions; zero commits/pushes/index operations. 8 recon YAML
+  artifacts + 1 reconciliation matrix + this STOP record delivered, all inside
+  forward_provenance/ (except this record, which lives in certification/reconnaissance/
+  knowledge/ exactly as the master prompt requires).
+- Frozen baseline re-verified before, during, and after Stage-7 recon: HEAD
+  9753a6d08702064f4d00395a1bec1c4bf3887381, T0 tree 06f06e5e91f33e75437a47ca901eaa7e97bb0edd,
+  porcelain 3380 lines — EXACT match at Stage-7 STOP. Zero drift.
+
+## Canonical Authority (Q1)
+- NO CANONICAL AUTHORITY EXISTS. Three issuer stacks (root :tiannara, tiannara_runtime,
+  forward authoring area) + one unaccepted policy draft coexist. M7 already records
+  CERTIFICATION authority as "DISTRIBUTED AND UNRESOLVED — no single certifier evidenced"
+  (TIA_CANONICAL_ARCHITECTURE_M7.yaml:109-111; TIA_AUTHORITY_BOUNDARIES_M7.yaml:55-66).
+  Stage-7 recon confirms nothing designates any stack canonical; the unification-mirror
+  (TIA_UNIFICATION_MATRIX_M7.yaml) returns same_authority UNKNOWN across candidate pairs.
+
+## Certificate Identity (Q3)
+- No canonical certificate identity exists. Identity conventions differ per stack:
+  root = subsystem+verdict+issued_at with NO id/hash; runtime = rich ModelCertificate
+  struct (certificate_id + model_id/version + certification_type + fingerprint + issued_by
+  self|auditor + supersedes, generated with strong_rand_bytes); forward = envelope-bound,
+  where the bridge candidate_id (Canon.sha256 of candidate_id_spec+spine) is the ONLY
+  deterministic, replay-identical, evidence-recomputable identity in the repo; forward
+  Certificate.issue/1 certificate_id is a random uuid and its hash is the recomputable
+  envelope payload_hash. Enacting a canonical identity remains gated on policy acceptance
+  + M7 + Council; Stage 7 records, does not enact.
+
+## Lifecycle (Q4)
+- No uniform lifecycle. Root: issuance gates + ephemeral in-memory revoke flag
+  (Tiannara.Omega.CertificationServer.revoke_certificate/2). Runtime: behaviour callbacks
+  certify/re_certify/revoke/verify + DomainState status enums (uncertified|in_review|
+  certified|revoked) + supersedes field. Forward authoring area: NO lifecycle — bridge
+  transition/3 SAFE-BLOCKED by design; the revoked-certificate contrast case remains
+  unrepresentable (Stage-6 §17 condition 2).
+
+## Authority Policy (Q5)
+- REFINED FINDING (vs Stage 6 "policy missing"): a COMPLETE policy draft EXISTS —
+  certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml,
+  STATUS "POLICY COMPLETE (policy governs implementation when Council authorizes it; no
+  certificate is issued under this policy in this gate)". It defines authority principle,
+  authority_kind human|mechanism, mechanism delegation + human ratification until M7,
+  issuance_conditions (all_must_hold + impossible_cases), lifecycle states
+  VALID/SUSPENDED/REVOKED/UNVERIFIABLE/SUPERSEDED + transition rules, invalidation,
+  evidence bundle, human oversight, historical firewall, security, schema evolution. It is
+  NOT ACCEPTED / NOT ENACTED anywhere. Operational status remains NO_AUTHORITY_POLICY
+  (certificate_issuable constant) — the observable Stage-6/7 bridging invariant is
+  unchanged; only the CAUSE is sharpened to an acceptance gap, not an absence of text.
+
+## Revocation / Supersession (Q6)
+- Represented ad hoc, not canonically: root in-memory revoke (ephemeral, duplicated
+  clauses at certification_server.ex:77-120); runtime revoke callback + 'revoked' enum +
+  supersedes field; forward NONE (no revocation function, unrepresentable contrast case).
+  No durable authority revocation record exists anywhere; policy REVOKED/SUPERSEDED are
+  semantics-only.
+
+## Root / Runtime Reconciliation (Q2)
+- The stacks do NOT reconcile today: disjoint identity schemes, no shared root of trust,
+  no common lifecycle vocabulary, no revocation registry, no accepted policy. Runtime
+  priv/certification is itself internally heterogeneous (~40 per-domain certificate JSON
+  schemas with per-domain id patterns). Reconciliation is gated on: policy acceptance,
+  M7 single-vs-distributed disposition, a decision on forward certificate identity, and a
+  defined lifecycle/revocation contract — all Council decisions, all firmly out of Stage-7
+  scope. Options analysis delivered (authority_reconciliation_options.yaml, OPT-A..OPT-E;
+  OPT-B "accept the policy draft" recommended as the cheapest first Council gate).
+
+## Provenance → Authority Boundary (Q7)
+- Provenance substrate (Canon, Identity, Envelope, Verifier, MetricLineage, bridge)
+  records edges/identities/envelopes; authority region binds a VALIDATED edge set to a
+  DECISION. The Stage-6 bridge enforces the boundary fail-closed (every A01..A12 predicate
+  BLOCKED; authorized_issuance? constant false; transition SAFE-BLOCKED). The policy draft
+  codifies the separation: "hashes verify bytes; certificate chains carry authority; the
+  two are never conflated." No mechomenism crosses the boundary today; Certificate.issue/1
+  accepts an UNVALIDATED caller-supplied authority string (authority as data, not as grant)
+  — recorded, not patched.
+
+## CONTRA-003 (Q8)
+- REASSESSMENT: UNRESOLVED (unchanged). Reason: INSUFFICIENT_EVIDENCE — no discriminating
+  gc_012 evidence was produced or consumed in Stage 7; the run ledger binding certificate
+  issuance to a result version remains the minimum discriminating evidence. Not RESOLVED,
+  not PARTIALLY_RESOLVED, not FALSIFIED. Stage-7 authority reconciliation is INDEPENDENT of
+  the gc_012 content disagreement; the policy draft explicitly preserves CONTRA-003 as
+  unresolved. No T0 / archived / phase14 content touched.
+
+## Blocking Unknowns
+- M7 single-vs-distributed certification authority: UNRESOLVED (design record or execution
+  evidence required).
+- Policy acceptance: NO authorization record exists; acceptance is a missing Council
+  decision.
+- Certificate identity canonicalization: no accepted spec; only the bridge candidate_id is
+  deterministic.
+- Lifecycle/revocation authority: no durable revocation registry or authority decision
+  record anywhere.
+- CONTRA-003: unresolved (run ledger missing).
+- Root omega duplicate handle_call clauses and CertificationServer state durability are
+  observations, NOT fixed (out of Stage-7 scope; fail-closed anyway for forward area).
+
+## Evidence (Stage-7 basis)
+- Direct reads: forward_provenance/lib/certificate.ex (issue/1 envelope generator),
+  lib/tiannara/certification/certificate.ex (certify/3 gate authority),
+  lib/tiannara/omega/certification_server.ex (multi-dim cert + in-memory revoke),
+  tiannara_runtime world_model ontology/certificate.ex (ModelCertificate, supersedes,
+  validate), behaviours/certificate_issuer.ex (certify/re_certify/revoke/verify),
+  tiannara_runtime/priv/certification/** (40+ per-domain cert schemas, per-domain id
+  patterns, DomainState/PlanetaryRuntime enums), MATHEMATICS_CERTIFICATE.json, CPL
+  ContinuityCertificate + checkpoint ledger,
+  certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml
+  (complete-but-unaccepted policy), TIA_CANONICAL_ARCHITECTURE_M7.yaml:109-117 (open
+  decisions), TIA_AUTHORITY_BOUNDARIES_M7.yaml:55-66 (CERTIFICATION distributed/unresolved),
+  TIA_UNIFICATION_MATRIX_M7.yaml (same_authority UNKNOWN), TIA_CONTRADICTION_SYNTHESIS_M11.yaml
+  (CONTRA-003 three-way), TIA_CERTIFICATE_TRUTH_INVESTIGATION.yaml (no execution binding),
+  Stage-6 bridge authority closure (A01..A12) and spec.
+- 23 artifact-consistency checks in stage7_reconciliation_matrix.json: all PASS, fails=0
+  (each artifact exists, declares its question, carries NOTHING_IMPLEMENTED, and the
+  invariants NO CANONICAL AUTHORITY / policy NOT ACCEPTED / CONTRA-003 UNRESOLVED /
+  SAFE-BLOCKED / deterministic identity / EVIDENCE-UNKNOWN-PROPOSED cell grammar hold).
+
+## Artifacts
+- forward_provenance/reconnaissance/certificate_authority_inventory.yaml  (Q1; CAND-A..G)
+- forward_provenance/reconnaissance/certificate_stack_reconciliation.yaml  (Q2; DIV-1..6)
+- forward_provenance/reconnaissance/certificate_identity_analysis.yaml  (Q3; ID-M0..M5)
+- forward_provenance/reconnaissance/certificate_lifecycle_analysis.yaml  (Q4+Q6; LC-* + REV-E*)
+- forward_provenance/reconnaissance/authority_policy_analysis.yaml  (Q5; acceptance gap)
+- forward_provenance/reconnaissance/authority_ownership_matrix.yaml  (Q12/Q13; 10 capabilities)
+- forward_provenance/reconnaissance/contra_003_reassessment.yaml  (Q8; UNRESOLVED)
+- forward_provenance/reconnaissance/authority_reconciliation_options.yaml  (Q14; OPT-A..E)
+- forward_provenance/output/stage7_reconciliation_matrix.json  (14 rows Q1..Q14 + 23 checks,
+  status PASS, fails=0, accounting block)
+- THIS record (certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE7_STOP.yaml)
+- No existing file was modified by Stage 7 (see Accounting).
+
+## Tests
+- Stage 7 is analysis-only; no test code path was added or executed. The only executable
+  verification is the artifact-consistency matrix (Stage7Matrix), a PASS/FAIL check over the
+  recon artifacts, NOT over any authority. 0 new tests, 0 authority tests run (none exist
+  that could be; issuance is provably impossible under NO_AUTHORITY_POLICY).
+
+## Regression
+- No regression surface: the forward_provenance suite (85 tests, Stage-6 green) and the
+  root Phase-4 baseline set (66 tests, 0 failures) were NOT re-run for Stage-7 because Stage 7
+  modified NO code. The repository's tree was re-verified unchanged at STOP (accounting below).
+- Note: re-running the root full suite would regenerate tracked scratch files at the repo
+  root (the known Stage-6 probe hazard); NOT re-run, per Stage-7 posture.
+
+## Accounting
+- HEAD commit: 9753a6d08702064f4d00395a1bec1c4bf3887381 — UNCHANGED.
+- T0 tree (git show --format=%T HEAD): 06f06e5e91f33e75437a47ca901eaa7e97bb0edd — UNCHANGED.
+- git status --porcelain at Stage-7 STOP: 3380 lines — EXACT match to Stage-5/6 STOP
+  baseline. No commit, no push, no index operation, no stage/checkout of tracked files.
+- Stage-7 tracked delta: ZERO. New untracked artifacts are inside forward_provenance/
+  (reconnaissance/ + output/stage7_reconciliation_matrix.json) plus this STOP record in
+  certification/reconnaissance/ — all consistent with prior stage accounting convention.
+- All Stage-7 file reads were read-only; no certificate, envelope, or ledger state was
+  created or mutated.
+
+## Implementation (NONE)
+- IMPLEMENTATION: NONE. No code written in root/runtime/forward; no certificate issued,
+  revoked, suspended, or superseded; no authority selected, invented, or wired; no policy
+  accepted; no index/registry created; no repository write except the recon artifacts +
+  this record.
+
+## Next Council Decision
+- Requested decisions (in order): (1) accept the policy draft (TIA_PROVENANCE_CERTIFICATION_POLICY.yaml)
+  or formally reject/substitute it — this is the CHEAPEST closing of the acceptance gap;
+  (2) dispose of M7 single-vs-distributed authority (design record or execution evidence);
+  (3) authorize an implementation stage (a future Stage 8+) for issuance + lifecycle +
+  revocation realization under an accepted policy, using the deterministic candidate
+  identity as the certificate identity basis. Stage 8 is NOT authorized by this record.
+- STOP disposition guidance: PASS-as-COMPLETE (recon delivered, self-verified, baseline
+  untouched) with the DELIBERATE STOP — NO CANONICAL AUTHORITY as the designed outcome.
+  The recon shows the ONLY correct immediate state is continued fail-closed, exactly as
+  the Stage-6/7 bridged contract prescribes.

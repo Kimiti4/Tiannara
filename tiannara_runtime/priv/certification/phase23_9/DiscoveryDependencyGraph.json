@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/discovery_dependency_graph.json",
+  "title": "DiscoveryDependencyGraph",
+  "description": "A directed graph of discovery dependencies showing downstream leverage.",
+  "type": "object",
+  "properties": {
+    "graph_id": { "type": "string", "pattern": "^ddg_[a-f0-9]{16}$" },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "node_id": { "type": "string" },
+          "node_type": { "type": "string", "enum": ["discovery", "technology", "industry", "capability", "theory", "experiment"] },
+          "name": { "type": "string" },
+          "domain": { "type": "string" }
+        },
+        "required": ["node_id", "node_type", "name"]
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_id": { "type": "string" },
+          "target_id": { "type": "string" },
+          "leverage_weight": { "type": "number", "minimum": 0, "maximum": 1 },
+          "relationship_type": { "type": "string", "enum": ["enables", "prerequisite", "inspires", "constrains"] }
+        },
+        "required": ["source_id", "target_id"]
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "node_count": { "type": "integer" },
+        "edge_count": { "type": "integer" },
+        "bottleneck_nodes": { "type": "array", "items": { "type": "string" } },
+        "critical_paths": { "type": "array", "items": { "type": "array", "items": { "type": "string" } } }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "snapshot_at": { "type": "integer" }
+  },
+  "required": ["graph_id", "nodes", "edges", "fingerprint"]
+}

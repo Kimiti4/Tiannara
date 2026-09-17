@@ -1,0 +1,28 @@
+{
+  "schema": "FAILURE_SCHEMA",
+  "version": "20.95",
+  "description": "Schema for failure recording — deterministic classification and archaeology of validation failures",
+  "failure_record": {
+    "fields": {
+      "failure_id": {"type": "string", "required": true, "description": "Content-addressed failure identifier"},
+      "campaign": {"type": "string", "required": true, "description": "Campaign label (A-H)"},
+      "scenario": {"type": "string", "required": true, "description": "Scenario where failure occurred"},
+      "subsystem": {"type": "string", "required": true, "description": "Failing subsystem"},
+      "category": {"type": "string", "required": true, "description": "Critical/Major/Minor/Observation/Expected"},
+      "severity": {"type": "integer", "required": true, "description": "1–5 severity scale"},
+      "recoverable": {"type": "boolean", "required": true},
+      "input_snapshot": {"type": "string", "required": true, "description": "Input hash at failure point"},
+      "observed_output": {"type": "string", "required": true, "description": "Observed output hash"},
+      "expected_output": {"type": "string", "required": true, "description": "Expected output hash"},
+      "failure_chain": {"type": "array", "required": false, "description": "Previous failure references if cascade"},
+      "root_cause": {"type": "string", "required": false},
+      "recovery_action": {"type": "string", "required": false},
+      "archaeology_ref": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "categories": ["critical", "major", "minor", "observation", "expected", "recovered", "irrecoverable"],
+    "constraints": ["deterministic_recording", "content_addressed", "archaeology_preserved"]
+  }
+}

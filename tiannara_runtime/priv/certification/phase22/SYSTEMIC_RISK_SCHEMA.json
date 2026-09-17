@@ -1,0 +1,20 @@
+{
+  "schema": "SYSTEMIC_RISK_SCHEMA",
+  "version": "22.5",
+  "description": "Schema for a systemic civilizational risk entry",
+  "systemic_risk": {
+    "fields": {
+      "risk_id": {"type": "string", "required": true},
+      "risk_domain": {"type": "string", "required": true},
+      "risk_source": {"type": "string", "required": true},
+      "probability": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "impact": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "propagation_pathways": {"type": "array", "required": true},
+      "mitigation_options": {"type": "array", "required": true},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "trend": {"type": "string", "required": true, "enum": ["improving", "stable", "worsening"]},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_linked", "deterministic", "replayable"]
+  }
+}

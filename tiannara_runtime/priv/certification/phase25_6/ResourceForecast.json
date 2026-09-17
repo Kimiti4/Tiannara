@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/resource_forecast.json",
+  "title": "ResourceForecast",
+  "description": "A resource availability or demand forecast.",
+  "type": "object",
+  "properties": {
+    "forecast_id": { "type": "string", "pattern": "^rfcst_[a-f0-9]{16}$" },
+    "resource_id": { "type": "string" },
+    "forecast_type": { "type": "string", "enum": ["supply", "demand", "flow", "price", "availability"] },
+    "horizon": { "type": "string", "enum": ["short_term", "medium_term", "long_term", "generational", "multi_generational"] },
+    "projections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "integer" },
+          "expected_value": { "type": "number" },
+          "lower_bound": { "type": "number" },
+          "upper_bound": { "type": "number" },
+          "confidence": { "type": "number" }
+        },
+        "required": ["timestamp", "expected_value"]
+      }
+    },
+    "scenarios": { "type": "object" },
+    "key_drivers": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated_at": { "type": "integer" }
+  },
+  "required": ["forecast_id", "resource_id", "forecast_type", "horizon", "projections", "fingerprint"]
+}

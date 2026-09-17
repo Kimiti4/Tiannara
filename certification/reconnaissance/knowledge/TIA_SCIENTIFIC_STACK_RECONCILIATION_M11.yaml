@@ -1,0 +1,45 @@
+# Move 11 — Scientific Discovery Stack Reconciliation
+# Proposed hierarchy evaluated level by level. Statuses: OBSERVED (present
+# and evidenced in T0) | SUPPORTED (backed by evidence short of observation)
+# | INTENDED (claimed in vision/proposal material) | HYPOTHESIZED | UNKNOWN.
+# An intended hierarchy is never treated as implemented.
+artifact: SCIENTIFIC_STACK_RECONCILIATION_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+levels:
+- level: Principles
+  status: HYPOTHESIZED
+  basis: K-015/016/017 are CANDIDATE principles (program-scoped, unratified); no ratified principle set exists in T0 evidence
+- level: Domains
+  status: INTENDED
+  basis: Domain vocabulary pervasive in T0 paths and vision material; domain ontology itself unevaluated in this program
+- level: Programs
+  status: INTENDED
+  basis: Campaign records (phase14, E03 protocol) reference programs; program-execution evidence absent (E03 0 runs)
+- level: Theories
+  status: UNKNOWN
+  basis: No theory artifacts distinguished from hypotheses in T0 evidence reviewed
+- level: Laws
+  status: UNKNOWN
+  basis: Constitutional laws exist as records (012) with no enforcement evidence; no scientific-law artifacts distinguished
+- level: Discoveries
+  status: HYPOTHESIZED
+  basis: Discovery records exist (021) without builders; discovery modules exist without demonstrated output linkage
+- level: Interventions
+  status: UNKNOWN
+  basis: Stabilizer intervention interfaces unevidenced; no attributed intervention observed
+- level: Experiments
+  status: INTENDED
+  basis: E03 frozen protocol + bench harness scripts exist; zero authorized executions completed (EXP-M9-02 blocked, EXP-M9-02b inconclusive)
+- level: Outcomes
+  status: SUPPORTED
+  basis: Outcome-shaped records exist (campaign JSONs with measured values, bench inputs fixed); self-asserted, hash-bound, execution-unverified
+aggregate:
+  observed: 0
+  supported: 1
+  intended: 3
+  hypothesized: 2
+  unknown: 3
+note: "The stack reads bottom-heavy with records and top-light with principles: outcomes and programs are documented while the middle (theories, laws, interventions) is the least evidenced. That inversion is itself a finding about where discovery claims outrun demonstration."

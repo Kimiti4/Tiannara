@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/challenge_classification.json",
+  "title": "ChallengeClassification",
+  "description": "A classification record for a discovery challenge.",
+  "type": "object",
+  "properties": {
+    "classification_id": { "type": "string", "pattern": "^dcclass_[a-f0-9]{16}$" },
+    "challenge_id": { "type": "string" },
+    "domain": { "type": "string" },
+    "subdomain": { "type": "string" },
+    "challenge_type": { "type": "string" },
+    "difficulty": { "type": "string" },
+    "urgency": { "type": "string" },
+    "maturity": { "type": "string", "enum": ["identified", "formulated", "approached", "evidence_available", "ready_for_experiment", "ready_for_engineering"] },
+    "interdisciplinary": { "type": "array", "items": { "type": "string" } },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "classified_by": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "classified_at": { "type": "integer" }
+  },
+  "required": ["classification_id", "challenge_id", "domain", "challenge_type", "difficulty", "fingerprint"]
+}

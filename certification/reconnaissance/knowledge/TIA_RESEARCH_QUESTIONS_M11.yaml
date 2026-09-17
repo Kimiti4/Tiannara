@@ -1,0 +1,92 @@
+# Move 11 — Research Questions (from evidence gaps; no experiments designed)
+# Each question states what would change minds. No experiment is specified
+# beyond the required observation class.
+artifact: RESEARCH_QUESTIONS_M11
+artifact_status: POST_T0
+move: 11
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+questions:
+- id: RQ-001
+  question: Which gc_012 record (certificate block vs result file) is semantically correct, or do they describe different propositions?
+  current_knowledge: Both files integrity-intact with genuine hash bindings; values disagree; auditor does not discriminate
+  unknown: Correctness grounds for either record
+  competing_hypotheses: [Distinct executions at different times, placeholder timestamp with transcription drift]
+  required_observation: Execution record binding an issuance to a result version, or equivalent discriminating artifact
+  possible_outcomes: [Certificate vindicated, result vindicated, distinct-propositions established, remains unknown]
+  decision_impact: Determines whether the phase14 corpus can ever support certification conclusions
+- id: RQ-002
+  question: Which subsystem (if any) exercises regulation authority, and under what precedence?
+  current_knowledge: Both regulators alive; wired callers exist; zero cross-references; zero observed actions; zero precedence text
+  unknown: Invocation, effect, precedence, conflict behavior
+  competing_hypotheses: [Stabilization regulates with CIS observing, CIS regulates with stabilizers as actuators, genuinely shared/delegated model, neither regulates (dormant machinery)]
+  required_observation: One attributed regulation action or one precedence declaration
+  possible_outcomes: [Single regulator identified, layered model established, remains unknown]
+  decision_impact: Determines whether bounded-chaos claims have any operational referent; gates E03 interpretation
+- id: RQ-003
+  question: Does the evolution substrate execute (one cycle) as specified by its contracts?
+  current_knowledge: Modules present; guards verified; zero T0 tests; no execution evidence
+  unknown: All runtime behavior
+  competing_hypotheses: [Substrate executes correctly when driven, substrate fails at runtime like the metrics pipeline did]
+  required_observation: One executed evolution cycle bound to T0 module versions with recorded inputs/outputs
+  possible_outcomes: [Executes, fails with diagnosed boundary, remains unknown]
+  decision_impact: Determines whether CAP-010 can leave UNKNOWN; informs stabilizer-experiment design
+- id: RQ-004
+  question: Can any campaign outcome be independently re-derived (not re-read)?
+  current_knowledge: Auditor reads and echoes; bindings genuine; values self-asserted
+  unknown: Independent-derivation feasibility for any campaign
+  competing_hypotheses: [Outcomes re-derivable from inputs plus code, outcomes depend on unrecorded runtime state]
+  required_observation: One independently recomputed campaign metric with matching result
+  possible_outcomes: [Validated corpus member, re-derivation blocked with diagnosed boundary, remains unknown]
+  decision_impact: Determines whether any certificate content can graduate from self-asserted to validated
+- id: RQ-005
+  question: Does the bench harness execute under any environment configuration?
+  current_knowledge: Dev-env structurally blocked (missing test-support module); test-env attempt inconclusive
+  unknown: Executability; all result properties
+  competing_hypotheses: [Harness runs given test env, harness broken regardless of env]
+  required_observation: One completed bench run with captured Benchee output
+  possible_outcomes: [Executes (then repeatability questions open), blocked with diagnosed boundary, remains unknown]
+  decision_impact: Determines whether benchmark evidence is obtainable at all
+- id: RQ-006
+  question: What generated the world-model, knowledge-graph, discovery, constitutional, and governance records, and does anything consume them?
+  current_knowledge: Records present; zero producer/consumer/builder/verifier/query references found (014 excepted as reader-present)
+  unknown: Entire operational reality of six record classes
+  competing_hypotheses: [Records are outputs of unrecorded runs, records are fixtures/templates, records are aspirational placeholders]
+  required_observation: One producer or consumer reference for any record in the class
+  possible_outcomes: [Live linkage established, fixture/template status established, remains unknown]
+  decision_impact: Determines whether six UNKNOWN capabilities have any operational referent
+- id: RQ-007
+  question: Why does PhaseΩ health report 1/16 on one boot and 15/15 on another?
+  current_knowledge: Different populations/criteria/timings between the two checks; per-subsystem results for the 1/16 run not retained
+  unknown: Which members failed and why; registry-vs-boot count reconciliation
+  competing_hypotheses: [Scope/timing difference only, genuine intermittent instability]
+  required_observation: Retained per-subsystem check results from one runtime-verification pass
+  possible_outcomes: [Scope difference confirmed, instability demonstrated, remains unknown]
+  decision_impact: Determines whether PhaseΩ health can serve as any stability signal
+- id: RQ-008
+  question: Is the certification_framework module historical, pending, or aspirational?
+  current_knowledge: Present, zero callers, campaign-framework role per moduledoc
+  unknown: Intended role entirely
+  competing_hypotheses: [Historical scaffold superseded by auditors, pending-integration module, aspirational stub]
+  required_observation: One design note, deprecation marker, or integration plan referencing it
+  possible_outcomes: [Role established (any of the three), remains unknown]
+  decision_impact: Determines whether unification analysis has a live fourth verification actor or a dead one
+- id: RQ-009
+  question: Do the corrupted council_audit_log variants result from the stated archive-on-corruption policy?
+  current_knowledge: Policy stated in module; files consistent with policy output naming; no execution attribution
+  unknown: Attribution of the specific T0 files to rotation runs
+  competing_hypotheses: [Policy-produced archives, manually placed fixtures, unrelated corruption events]
+  required_observation: Rotation-run record binding file hashes to timestamps
+  possible_outcomes: [Attributed (contradiction narrowed toward resolved), remains unknown]
+  decision_impact: Would narrow the audit-log evidence gap to file-attribution only if answered either way
+- id: RQ-010
+  question: Can the metrics pipeline's other consumers survive the :state clause crash, and did any historical record depend on its output?
+  current_knowledge: Crash root-caused (message-protocol mismatch, deterministic); KPI collection fails per cycle; downstream dependence unmapped
+  unknown: Blast radius of the broken pipeline on recorded metrics/health claims
+  competing_hypotheses: [Isolated failure (metrics absent but nothing consumed them), contaminating failure (stale/absent metrics fed decisions or records)]
+  required_observation: Consumer mapping for ExecutiveMetrics outputs plus one historical record citing KPI values
+  possible_outcomes: [Isolated (defect contained), contaminating (recorded metrics suspect), remains unknown]
+  decision_impact: Determines whether any existing metric-derived claim needs quarantine
+aggregate:
+  total: 10
+  note: Bounded set derived from the gap ledger (13 carried + 4 new); each maps to at least one named gap. No experiments specified beyond required-observation classes.

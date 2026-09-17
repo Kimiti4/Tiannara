@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/risk_metrics.json",
+  "title": "RiskMetrics",
+  "description": "Metrics for the CPRIE health and performance.",
+  "type": "object",
+  "properties": {
+    "metrics_id": { "type": "string", "pattern": "^rmet_[a-f0-9]{16}$" },
+    "global_risk_index": { "type": "number" },
+    "resilience_index": { "type": "number" },
+    "unknown_risk_density": { "type": "number" },
+    "prediction_confidence": { "type": "number" },
+    "cascade_probability": { "type": "number" },
+    "infrastructure_vulnerability": { "type": "number" },
+    "recovery_readiness": { "type": "number" },
+    "observation_freshness": { "type": "number" },
+    "replay_accuracy": { "type": "number" },
+    "constitutional_compliance": { "type": "number" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "measured_at": { "type": "integer" }
+  },
+  "required": ["metrics_id", "global_risk_index", "resilience_index", "replay_accuracy", "fingerprint"]
+}

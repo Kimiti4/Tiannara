@@ -1,0 +1,37 @@
+{
+  "schema": "FOUNDATIONAL_FREEZE_SCHEMA",
+  "version": "20.999",
+  "description": "Schema for FoundationalFreeze — permanently freezes the CSOS v1.0 constitution and architecture (complement to CONSTITUTIONAL_FREEZE_SCHEMA — this tracks 12 freeze targets; that tracks freeze process and signatures)",
+  "foundational_freeze": {
+    "fields": {
+      "freeze_id": {"type": "string", "required": true, "description": "Content-addressed freeze identifier"},
+      "csos_version": {"type": "string", "required": true, "description": "CSOS 1.0"},
+      "freeze_targets": {
+        "type": "object", "required": true,
+        "fields": {
+          "constitution": {"type": "boolean", "required": true},
+          "mathematics": {"type": "boolean", "required": true},
+          "logic": {"type": "boolean", "required": true},
+          "information": {"type": "boolean", "required": true},
+          "runtime_interfaces": {"type": "boolean", "required": true},
+          "replay_contracts": {"type": "boolean", "required": true},
+          "engineering_contracts": {"type": "boolean", "required": true},
+          "scientific_contracts": {"type": "boolean", "required": true},
+          "governance_contracts": {"type": "boolean", "required": true},
+          "knowledge_schemas": {"type": "boolean", "required": true},
+          "archaeology_schemas": {"type": "boolean", "required": true},
+          "certification_schemas": {"type": "boolean", "required": true}
+        }
+      },
+      "freeze_hash": {"type": "string", "required": true, "description": "SHA-256 of all frozen targets"},
+      "total_frozen_artifacts": {"type": "integer", "required": true},
+      "freeze_timestamp": {"type": "integer", "required": true, "description": "Deterministic freeze timestamp"},
+      "immutable": {"type": "boolean", "required": true, "description": "Must be true"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "freeze_targets_list": ["constitution", "mathematics", "logic", "information", "runtime_interfaces", "replay_contracts", "engineering_contracts", "scientific_contracts", "governance_contracts", "knowledge_schemas", "archaeology_schemas", "certification_schemas"],
+    "constraints": ["permanent_freeze", "all_targets_required", "irreversible"]
+  }
+}

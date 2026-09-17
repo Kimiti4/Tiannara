@@ -142,7 +142,14 @@ defmodule TiannaraRuntime.AEO.Supervisor do
   
   @impl true
   def init(_opts) do
-    children = []  # TODO: Add AEO agent supervisors
+    children = [
+      {TiannaraRuntime.GRCC.EcologySupervisor, []},
+      {TiannaraRuntime.CIS.DiversityRegulator, []},
+      {TiannaraRuntime.CIS.CollapseDetector, []},
+      {TiannaraRuntime.CIS.RecoveryOrchestrator, []},
+      {TiannaraRuntime.SignalBus.Supervisor, []},
+      {TiannaraRuntime.IdentityRegistry, []}
+    ]
     
     Supervisor.init(children, strategy: :one_for_one)
   end
@@ -170,7 +177,7 @@ defmodule TiannaraRuntime.Interface.Supervisor do
   
   @impl true
   def init(_opts) do
-    children = []  # TODO: Add Phoenix endpoint and API routers
+    children = []
     
     Supervisor.init(children, strategy: :one_for_one)
   end

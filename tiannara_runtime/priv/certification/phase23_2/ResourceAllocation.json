@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ResourceAllocation",
+  "description": "A deterministic allocation of computational and knowledge resources to an experiment, justified constitutionally",
+  "type": "object",
+  "properties": {
+    "allocation_id": {
+      "type": "string",
+      "description": "Content-addressed unique identifier for this allocation"
+    },
+    "experiment_id": {
+      "type": "string",
+      "description": "Reference to the experiment receiving resources"
+    },
+    "resources": {
+      "type": "object",
+      "description": "Allocated resources with usage tracking",
+      "properties": {
+        "cpu": {
+          "type": "object",
+          "properties": {
+            "allocated": { "type": "number" },
+            "used": { "type": "number" },
+            "remaining": { "type": "number" },
+            "unit": { "type": "string" }
+          },
+          "required": ["allocated", "used", "remaining", "unit"]
+        },
+        "gpu": {
+          "type": "object",
+          "properties": {
+            "allocated": { "type": "number" },
+            "used": { "type": "number" },
+            "remaining": { "type": "number" },
+            "unit": { "type": "string" }
+          },
+          "required": ["allocated", "used", "remaining", "unit"]
+        },
+        "memory": {
+          "type": "object",
+          "properties": {
+            "allocated": { "type": "number" },
+            "used": { "type": "number" },
+            "remaining": { "type": "number" },
+            "unit": { "type": "string" }
+          },
+          "required": ["allocated", "used", "remaining", "unit"]
+        },
+        "simulation_capacity": {
+          "type": "object",
+          "properties": {
+            "allocated": { "type": "integer" },
+            "used": { "type": "integer" },
+            "remaining": { "type": "integer" },
+            "unit": { "type": "string" }
+          },
+          "required": ["allocated", "used", "remaining", "unit"]
+        },
+        "storage": {
+          "type": "object",
+          "properties": {
+            "allocated": { "type": "number" },
+            "used": { "type": "number" },
+            "remaining": { "type": "number" },
+            "unit": { "type": "string" }
+          },
+          "required": ["allocated", "used", "remaining", "unit"]
+        }
+      }
+    },
+    "priority_at_allocation": {
+      "type": "number",
+      "description": "Priority score at time of allocation"
+    },
+    "constitutional_justification": {
+      "type": "string",
+      "description": "Constitutional justification for this allocation"
+    },
+    "timestamp": { "type": "integer" },
+    "allocation_hash": { "type": "string" }
+  },
+  "required": [
+    "allocation_id", "experiment_id", "resources",
+    "priority_at_allocation", "constitutional_justification",
+    "timestamp", "allocation_hash"
+  ],
+  "additionalProperties": false
+}

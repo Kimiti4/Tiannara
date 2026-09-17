@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/technology_dependency_graph.json",
+  "title": "TechnologyDependencyGraph",
+  "description": "A directed graph of technology dependencies showing scientific, material, manufacturing, and infrastructure dependencies.",
+  "type": "object",
+  "properties": {
+    "graph_id": { "type": "string", "pattern": "^tdg_[a-f0-9]{16}$" },
+    "technology_architecture_id": { "type": "string" },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "node_id": { "type": "string" },
+          "node_type": { "type": "string", "enum": ["scientific_theory", "technology", "subsystem", "material", "manufacturing_process", "infrastructure", "resource"] },
+          "name": { "type": "string" },
+          "domain": { "type": "string" }
+        },
+        "required": ["node_id", "node_type", "name"]
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_id": { "type": "string" },
+          "target_id": { "type": "string" },
+          "dependency_type": { "type": "string", "enum": ["scientific", "technology", "material", "manufacturing", "infrastructure", "resource"] },
+          "strength": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "required": ["source_id", "target_id", "dependency_type"]
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "snapshot_at": { "type": "integer" }
+  },
+  "required": ["graph_id", "technology_architecture_id", "nodes", "edges", "fingerprint"]
+}

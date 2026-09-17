@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/model_version.json",
+  "title": "ModelVersion",
+  "description": "A specific version of a constitutional engineering model.",
+  "type": "object",
+  "properties": {
+    "version_id": { "type": "string", "pattern": "^mver_[a-f0-9]{16}$" },
+    "model_id": { "type": "string" },
+    "version_number": { "type": "string" },
+    "parent_version_ids": { "type": "array", "items": { "type": "string" } },
+    "branch": { "type": "string" },
+    "change_description": { "type": "string" },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "author": { "type": "string" },
+    "certification_status": { "type": "string", "enum": ["uncertified", "pending", "certified", "superseded"] },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["version_id", "model_id", "version_number", "change_description", "content_hash", "fingerprint"]
+}

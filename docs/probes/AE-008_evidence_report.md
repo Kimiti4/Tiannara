@@ -1,0 +1,366 @@
+# AE-008 Evidence Report — Discovery Diagnosis (F13)
+
+Date: 2026-08-21T14:43:09.111973+00:00
+
+## 1. Authorization
+- Mission: `ASC-AE-008` — Establish the truth about why canonical boot classifies Discovery as degraded. Distinguish among the five hypotheses (duplicate ownership, expected nested startup, incorrect topology, lifecycle contract mismatch, real Discovery failure) and produce a verdict. Remediation is authorized ONLY if the verdict justifies it.
+
+- Status: `AUTHORIZED`; operator `schtickman`
+
+## 2. Phase A — Symptom Characterization
+```json
+{
+  "boot_report_services": [
+    [
+      "event_store",
+      "ok"
+    ],
+    [
+      "executive_memory",
+      "ok"
+    ],
+    [
+      "executive_service_bus",
+      "ok"
+    ],
+    [
+      "discovery_supervisor",
+      "degraded"
+    ],
+    [
+      "constitutional_score_pipeline",
+      "ok"
+    ],
+    [
+      "capability_graph",
+      "ok"
+    ],
+    [
+      "resource_manager",
+      "ok"
+    ],
+    [
+      "identity_trust_manager",
+      "ok"
+    ],
+    [
+      "priority_engine",
+      "ok"
+    ],
+    [
+      "executive_scheduler",
+      "ok"
+    ],
+    [
+      "executive_metrics",
+      "ok"
+    ],
+    [
+      "runtime_policy_engine",
+      "ok"
+    ],
+    [
+      "unified_reality_graph",
+      "ok"
+    ],
+    [
+      "world_mutation_engine",
+      "ok"
+    ],
+    [
+      "provenance_engine",
+      "ok"
+    ],
+    [
+      "unified_world_model",
+      "ok"
+    ],
+    [
+      "version_manager",
+      "ok"
+    ],
+    [
+      "ontology_manager",
+      "ok"
+    ],
+    [
+      "snapshot_manager",
+      "ok"
+    ],
+    [
+      "replay_engine",
+      "ok"
+    ],
+    [
+      "conflict_resolution_engine",
+      "ok"
+    ],
+    [
+      "conflict_detector",
+      "ok"
+    ],
+    [
+      "knowledge_coordinator",
+      "ok"
+    ],
+    [
+      "knowledge_flow_engine",
+      "ok"
+    ],
+    [
+      "epistemic_integrity_service",
+      "ok"
+    ],
+    [
+      "autonomous_research_engine",
+      "ok"
+    ],
+    [
+      "experiment_orchestrator",
+      "ok"
+    ],
+    [
+      "mission_director",
+      "ok"
+    ],
+    [
+      "workflow_engine",
+      "ok"
+    ],
+    [
+      "executive_state_manager",
+      "ok"
+    ],
+    [
+      "decision_predictor",
+      "ok"
+    ],
+    [
+      "executive_digital_twin",
+      "ok"
+    ]
+  ],
+  "cis_present": true,
+  "discovery_supervisor": {
+    "pid": false,
+    "state": "degraded"
+  },
+  "discovery_whereis": false,
+  "eos_status": "degraded",
+  "event_store_healthy": true,
+  "executive_memory_health": "healthy",
+  "failed_critical": [],
+  "mode": "characterize"
+}
+```
+
+## 3. Phase B — Decision Tree (discovered, not hardcoded)
+```json
+{
+  "eos_report": {
+    "discovery_service_state": "degraded",
+    "failed_critical": [],
+    "status": "degraded"
+  },
+  "mode": "diagnose",
+  "raw_boot_report": [
+    [
+      "event_store",
+      "ok"
+    ],
+    [
+      "executive_memory",
+      "ok"
+    ],
+    [
+      "executive_service_bus",
+      "ok"
+    ],
+    [
+      "discovery_supervisor",
+      "degraded"
+    ],
+    [
+      "constitutional_score_pipeline",
+      "ok"
+    ],
+    [
+      "capability_graph",
+      "ok"
+    ],
+    [
+      "resource_manager",
+      "ok"
+    ],
+    [
+      "identity_trust_manager",
+      "ok"
+    ],
+    [
+      "priority_engine",
+      "ok"
+    ],
+    [
+      "executive_scheduler",
+      "ok"
+    ],
+    [
+      "executive_metrics",
+      "ok"
+    ],
+    [
+      "runtime_policy_engine",
+      "ok"
+    ],
+    [
+      "unified_reality_graph",
+      "ok"
+    ],
+    [
+      "world_mutation_engine",
+      "ok"
+    ],
+    [
+      "provenance_engine",
+      "ok"
+    ],
+    [
+      "unified_world_model",
+      "ok"
+    ],
+    [
+      "version_manager",
+      "ok"
+    ],
+    [
+      "ontology_manager",
+      "ok"
+    ],
+    [
+      "snapshot_manager",
+      "ok"
+    ],
+    [
+      "replay_engine",
+      "ok"
+    ],
+    [
+      "conflict_resolution_engine",
+      "ok"
+    ],
+    [
+      "conflict_detector",
+      "ok"
+    ],
+    [
+      "knowledge_coordinator",
+      "ok"
+    ],
+    [
+      "knowledge_flow_engine",
+      "ok"
+    ],
+    [
+      "epistemic_integrity_service",
+      "ok"
+    ],
+    [
+      "autonomous_research_engine",
+      "ok"
+    ],
+    [
+      "experiment_orchestrator",
+      "ok"
+    ],
+    [
+      "mission_director",
+      "ok"
+    ],
+    [
+      "workflow_engine",
+      "ok"
+    ],
+    [
+      "executive_state_manager",
+      "ok"
+    ],
+    [
+      "decision_predictor",
+      "ok"
+    ],
+    [
+      "executive_digital_twin",
+      "ok"
+    ]
+  ],
+  "step1_functionality": {
+    "disc_health": [
+      "degraded",
+      [
+        "discovery_metrics"
+      ]
+    ],
+    "disc_pid_alive": false,
+    "engine_alive": true,
+    "functional": true,
+    "hypothesis": "proceed",
+    "metrics_alive": false,
+    "missing_children": [
+      "discovery_metrics"
+    ],
+    "scheduler_alive": true
+  },
+  "step2_ownership": {
+    "already_started_probe": "already_started",
+    "hypothesis": "H1_or_H2",
+    "owners": [],
+    "ownership_candidates": 0
+  },
+  "step3_topology": {
+    "actual_parent": "not_found_in_either",
+    "hypothesis": "proceed",
+    "intended_parent": "Tiannara.CEL.ServiceSupervisor",
+    "match": false
+  },
+  "step4_contract": {
+    "contract_match": true,
+    "health_shape": "degraded_tuple",
+    "hypothesis": "proceed",
+    "spec": {
+      "criticality": "medium",
+      "depends_on": [
+        "executive_memory",
+        "executive_service_bus"
+      ],
+      "health_check": [
+        "Elixir.Tiannara.Discovery.DiscoverySupervisor",
+        "health",
+        []
+      ]
+    }
+  },
+  "step5_nested": {
+    "already_started": true,
+    "disc_functional": true,
+    "engine_alive": true,
+    "hypothesis": "H2_expected_nested_startup",
+    "missing_metrics": true
+  },
+  "verdict": {
+    "hypothesis": "H5_real_failure_metrics",
+    "patch": false,
+    "reason": "DiscoveryMetrics failed to start, not duplicate ownership",
+    "remedy": "investigate_metrics"
+  }
+}
+```
+
+## 4. Verdict
+- Hypothesis: `H5_real_failure_metrics`
+- Remedy: `investigate_metrics`
+- Patch: `False`
+- Reason: `DiscoveryMetrics failed to start, not duplicate ownership`
+
+## 5. Hard Prohibition Check
+- No signal silenced: degraded remains degraded if truly degraded
+- Diagnosis is read-only, no production mutation

@@ -1,0 +1,40 @@
+# Move 2 — Canonical Truth Model: CONTRADICTIONS
+# Known tensions between records. A contradiction is recorded when two
+# sourced records disagree or when a record disagrees with observed state.
+# Recording a contradiction is not resolving it. Resolution belongs to a
+# later, separately authorized pass.
+artifact: TRUTH_CONTRADICTIONS
+artifact_status: POST_T0
+move: 2
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+spec: master.md Move 2 (section 4 onward); contradictions layer only
+contradictions:
+- id: CONTRA-001
+  statement: Working-tree mix.lock content differs from T0-recorded mix.lock hash
+  side_a:
+    claim: T0 mix.lock sha256 starts 6153ab16
+    kind: MEASURED
+    source: T0_ENVIRONMENT.json dependency_manifests
+  side_b:
+    claim: Working-tree mix.lock sha256 starts ef49f19d
+    kind: MEASURED
+    source: Fresh read-only hash of working-tree mix.lock
+  resolution_status: UNRESOLVED
+  note: Working tree legitimately diverges from T0 (dirty tree is expected state). No action implied; recorded so no consumer mistakes working-tree parses for T0 facts.
+- id: CONTRA-002
+  statement: T0 commits runtime .dets databases and build artifacts (.beam, .pyc) alongside source
+  side_a:
+    claim: T0 contains 8 RUNTIME_STATE + 16 GENERATED rows with git_tracked=true
+    kind: MEASURED
+    source: T0_FILES.jsonl bucket counts
+  side_b:
+    claim: Conventional baseline hygiene excludes runtime/build outputs from versioned snapshots
+    kind: VISION_SOURCE
+    source: General engineering convention (not a Tiannara-authored requirement on record)
+  resolution_status: UNRESOLVED
+  note: Recorded as an observation about T0 composition, not as a defect finding. Findings belong to later moves.
+open_questions:
+- question: Which working-tree divergences from T0 are intentional evolution vs accidental drift?
+  status: UNRESOLVED
+  note: Answering requires the archaeology pass (module/call/contract graphs), which is later Move-2 work, not this record.

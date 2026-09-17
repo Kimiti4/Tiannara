@@ -1,0 +1,24 @@
+{
+  "schema": "CERTIFICATION_SIGNATURE_SCHEMA",
+  "version": "20.999",
+  "description": "Schema for CertificationSignature — the cryptographic signature sealing the certification",
+  "certification_signature": {
+    "fields": {
+      "signature_id": {"type": "string", "required": true, "description": "Content-addressed signature identifier"},
+      "certification_generation": {"type": "string", "required": true},
+      "freeze_hash": {"type": "string", "required": true, "description": "The freeze hash being signed"},
+      "signer_identity": {"type": "string", "required": true},
+      "signer_role": {"type": "string", "required": true, "description": "ConstitutionalArchitect/CouncilMember/HumanAuthority/System"},
+      "signature_method": {"type": "string", "required": true, "description": "Method used to generate signature"},
+      "signature_value": {"type": "string", "required": true, "description": "Cryptographic signature"},
+      "signature_hash": {"type": "string", "required": true, "description": "SHA-256 of signature canonical form"},
+      "timestamp": {"type": "integer", "required": true, "description": "Deterministic signing timestamp"},
+      "witnesses": {"type": "array", "required": false, "description": "Witness signature references"},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "signer_roles": ["constitutional_architect", "council_member", "human_authority", "system"],
+    "constraints": ["deterministic_signing", "content_addressed", "archaeology_preserved"]
+  }
+}

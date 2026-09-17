@@ -1,0 +1,18 @@
+{
+  "schema": "ARCHITECT_REPLAY_SCHEMA",
+  "version": "22.9",
+  "description": "Schema for replay verification of an architect event",
+  "architect_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true},
+      "architect_event_type": {"type": "string", "required": true, "enum": ["requirements_defined", "architecture_generated", "evaluation_completed", "alignment_verified", "plan_created", "recommendation_submitted"]},
+      "event_fingerprint": {"type": "string", "required": true},
+      "reconstructed_hash": {"type": "string", "required": true},
+      "stored_hash": {"type": "string", "required": true},
+      "verification_status": {"type": "string", "required": true, "enum": ["verified", "diverged", "incomplete"]},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "immutable", "chain_verified"]
+  }
+}

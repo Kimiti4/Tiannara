@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_artifact.json",
+  "title": "EngineeringArtifact",
+  "description": "A constitutional engineering artifact that becomes immutable after certification.",
+  "type": "object",
+  "properties": {
+    "artifact_id": { "type": "string", "pattern": "^eart_[a-f0-9]{16}$" },
+    "artifact_type": { "type": "string", "enum": ["requirement", "architecture", "model", "verification_evidence", "validation_evidence", "certificate", "documentation", "configuration", "change_record", "decision_record"] },
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "state": { "type": "string", "enum": ["draft", "proposed", "reviewed", "validated", "approved", "certified", "frozen", "archived"] },
+    "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "parent_artifact_ids": { "type": "array", "items": { "type": "string" } },
+    "source_ids": { "type": "array", "items": { "type": "string" } },
+    "verified_by": { "type": "array", "items": { "type": "string" } },
+    "certificate_id": { "type": "string" },
+    "project_id": { "type": "string" },
+    "program_id": { "type": "string" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["artifact_id", "artifact_type", "name", "state", "content_hash", "fingerprint"]
+}

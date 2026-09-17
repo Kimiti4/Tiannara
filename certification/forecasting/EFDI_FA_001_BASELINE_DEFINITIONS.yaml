@@ -1,0 +1,161 @@
+artifact: EFDI_FA_001_BASELINE_DEFINITIONS
+record_type: baseline hierarchy (frozen)
+recorded_at: 2026-09-13
+governing_contract: EFDI_FA_001_AUDIT_CONTRACT
+status: FROZEN
+
+baseline_version: 1.0.0
+
+constitutional_rule: >
+  Prediction accuracy is not sufficient evidence of intelligence. A forecast
+  can be correct because of genuine predictive information, base-rate
+  reasoning, causal understanding, luck, random chance, leakage, hindsight
+  contamination, selection bias, or overfitting. Therefore EVERY successful
+  forecast is evaluated against ALL applicable baselines below, out of
+  sample, before any superiority claim.
+
+============================================================
+BASELINE HIERARCHY
+============================================================
+baselines:
+  - id: B0
+    name: random
+    definition: >
+      Binomial(0.5) coin per binary question; uniform draw over K classes for
+      categorical; random draw for point questions.
+    purpose: minimum benchmark; floor of the scoreboard.
+    generation: deterministic (seeded) draws, replicated 1000x; report the
+      mean and 5-95 band so a single favorable sample cannot flatter.
+
+  - id: B1
+    name: base_rate
+    definition: >
+      Predict P(class) = historical frequency of that class in the reference
+      window for the same domain/horizon (e.g., crypto: empirical P(down)
+      over the trailing fixed window; weather: climatological probability of
+      measurable precipitation for that location/hour/season). Reference
+      window is FIXED per series in the series configuration BEFORE the
+      first forecast of the series.
+    purpose: tests whether Tiannara adds anything beyond history.
+
+  - id: B2
+    name: persistence
+    definition: >
+      next_state ~= current_state. For binary up/down: predict the SAME
+      direction as the change that just completed over the previous window of
+      the same length (recent_quantile / recent sign). For weather: predict
+      rain_same_as_previous_window_observation. CRITICAL for short horizons.
+    purpose: many apparent predictors cannot beat persistence.
+
+  - id: B3
+    name: simple_statistical
+    definition: >
+      A fixed, decidable model family that depends ONLY on the frozen
+      evidence: moving average / exponential smoothing (alpha fitted on the
+      reference window only) / linear or logistic trend on the reference
+      window / first-order autoregression. Model family and window are pinned
+      before the series; NO online refitting (would leak).
+    purpose: establishes whether Tiannara's machinery beats fixed,
+      reproducible statistical rules.
+
+  - id: B4
+    name: domain_benchmark
+    definition: >
+      The best available EXTERNAL predictor for the same question, recorded
+      at data_cutoff:
+        - crypto: Polymarket 5m/15m implied probability at cutoff (resolution
+          semantics identical to ours), or an equal-weight market average;
+        - weather: the public weather-service probability for the same 60-min
+          window and location (pre-declared service), NOT ours.
+    purpose: external calibration reference; treated as another forecaster,
+      never as truth.
+
+  - id: B5
+    name: tiannara_single_model
+    definition: >
+      Each of Tiannara's contributing models individually, scored SEPARATELY,
+      so the ensemble must justify itself.
+    purpose: guards the ensemble from "diversity theater".
+
+  - id: B6
+    name: tiannara_ensemble
+    definition: >
+      Tiannara's actual issued forecast (the audit subject itself).
+    purpose: the quantity being certified; must beat B0-B4 out of sample, not
+      merely beat 50%.
+
+scoreboard:
+  participants: [B0, B1, B2, B3, B4, B5, B6]
+  per_forecast: {brier, log_loss, directional} for all participants from the
+                SAME frozen evidence base
+  ranking: by calibration-adjusted performance (Brier + reliability + ECE),
+           NOT by confidence.
+
+============================================================
+DOMINANCE RULES (what counts as "better")
+============================================================
+dominance:
+  - rule_D1: >
+      B6 (or B5) must beat each of B0..B4 on Brier AND log_loss AND ECE
+      (jointly, not cherry-picked) on the SAME out-of-sample resolved set,
+      and the signed delta must be statistically significant at the
+      pre-registered level (see significance).
+  - rule_D2: >
+      Directional accuracy superiority alone is NOT enough. If B2 persistence
+      achieves 0.57 directional and B6 achieves 0.56, B6 did NOT demonstrate
+      predictive superiority even if 0.56 > 0.50.
+  - rule_D3: >
+      A materially better Brier/calibration can be a meaningful success even
+      when directional accuracy is only ~0.51 (calibrated low-signal
+      forecasting beats overconfident guessing).
+  - rule_D4: >
+      Superiority on a subset (one horizon, one regime) is reported as a
+      HORIZON/REGIME-LIMITED result, never upgraded to a general claim.
+
+============================================================
+SIGNIFICANCE & SAMPLE RULES
+============================================================
+significance:
+  - level_price: 0.05 (pre-registered; family-wise correction when many
+    comparisons are reported - e.g., Bonferroni over baseline pairs)
+  - pairwise_brier: Diebold-Mariano style test on per-forecast Brier deltas
+    one-sided against null delta <= 0 (implementable as a paired t on
+    bounded squared-error deltas with the DM small-sample variance; details
+    in CALIBRATION_PROTOCOL appendix)
+  - directional_accuracy: one-sided binomial test H0: p <= 0.5 (and vs B2's
+    empirical hit rate in that series)
+  - calibration: ECE = 0 within sampling uncertainty - approximate binomial
+    CIs per bucket, 95%; Wilson interval preferred
+  - minimum_sample:
+      pilot:                10 (harness verification ONLY; no inference)
+      calibration_batch:   100 (per-domain 50; initial assessment)
+      empirical_benchmark: 500 (per-domain 100; serious comparison)
+  - minimum per bucket for calibration claims: n_b >= 20 aggregated; smaller
+    buckets reported but flagged "insufficient"
+
+============================================================
+HORIZON CURVE (Test D requirement)
+============================================================
+horizon:
+  - [5m, 15m, 1h, 4h, 24h, 7d]
+  - rule: do NOT assume equal performance across horizons; report brier and
+    log_loss per horizon and per baseline; the resulting curve is the TOOL of
+    deciding at what temporal scale Tiannara possesses predictive information.
+
+============================================================
+CUMMULATIVE / DRIFT TRACKING
+============================================================
+drift:
+  - track per-baseline and per-model performance(t) over the series
+  - alarms: calibration drift (ECE rising), separation loss vs B1,
+    monoculture convergence, predictability_estimate vs realized edge gap.
+  - any alarm triggers a postmortem entry; none silently dismisses.
+
+============================================================
+DETERMINISM & REPRODUCIBILITY
+============================================================
+reproducibility:
+  - every baseline output is a DETERMINISTIC function of the frozen evidence
+    (seeded; seed stored per forecast)
+  - recomputation from frozen inputs must reproduce the series' baseline rows
+    exactly; divergence -> F-16 quarantine of the affected forecasts

@@ -1,0 +1,39 @@
+# Move 10 — Evidence Integrity (evidence-generation chain analysis)
+# Chain: source -> observation -> artifact generation -> persistence ->
+# hashing -> certificate -> audit. For each stage: can it overwrite, mutate,
+# silently replace, recompute, invalidate, or detach the evidence being used
+# to certify itself? Verification question only; no redesign.
+artifact: EVIDENCE_INTEGRITY_M10
+artifact_status: POST_T0
+move: 10
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+chain:
+- stage: source (campaign JSONs, certificate, manifest in T0)
+  integrity: INTACT (hash bindings recomputed and matching for gc_012, gc_001, gc_006, certificate self-hash)
+  mutation_vector: none observed (T0 content immutable by definition)
+- stage: observation (auditor reads artifacts)
+  integrity: INTACT (read-only File.read paths observed in runner source)
+  mutation_vector: none observed
+- stage: artifact generation (auditor computes fingerprints, prints verdicts)
+  integrity: VERIFIED BEHAVIOR (fingerprints match stored signatures; verdicts echo file statuses)
+  mutation_vector: none observed in generation logic
+- stage: artifact persistence (report write)
+  integrity: COMPROMISED-FOR-ONE-FILE (File.write! overwrites independent_audit_report.json every run by construction)
+  mutation_vector: overwrite (explicit, deterministic, disclosed)
+  scope_note: Only the report file self-mutates; certificate, manifest, campaign results, and hashes are never written by the runner (no write paths to those targets in source)
+- stage: artifact hashing (stored .sha256 files)
+  integrity: VERIFIED (4 recomputed bindings match)
+  mutation_vector: none observed
+- stage: certificate (certificate.json claims)
+  integrity: UNKNOWN (self-asserted statuses; CONTRA-003 disagreement intact within the certificate's own scope)
+  mutation_vector: not applicable (static record)
+- stage: audit (auditor run observed in Move 9)
+  integrity: PARTIAL (executes, fingerprints correctly, echoes faithfully; does not cross-compare or re-derive)
+  mutation_vector: the audit triggers the report overwrite above
+aggregate:
+  stages_verified_intact: 4
+  stages_partial: 1
+  stages_compromised_scoped: 1
+  stages_unknown: 1
+verdict_statement: The evidence chain is intact except for one scoped, by-construction self-mutation (the report file) and one unresolved content disagreement (CONTRA-003). The chain can certify file integrity; it cannot certify measurement truth.

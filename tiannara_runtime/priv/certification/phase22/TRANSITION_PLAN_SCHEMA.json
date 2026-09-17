@@ -1,0 +1,24 @@
+{
+  "schema": "TRANSITION_PLAN_SCHEMA",
+  "version": "22.8",
+  "description": "Schema for a Kardashev stage transition plan",
+  "transition_plan": {
+    "fields": {
+      "plan_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "current_stage": {"type": "integer", "required": true, "enum": [0, 1, 2, 3]},
+      "target_stage": {"type": "integer", "required": true, "enum": [1, 2, 3]},
+      "phases": {"type": "array", "required": true},
+      "milestones": {"type": "array", "required": true},
+      "dependencies": {"type": "object", "required": true},
+      "critical_path": {"type": "array", "required": true},
+      "capability_requirements": {"type": "object", "required": true},
+      "resource_requirements": {"type": "object", "required": true},
+      "estimated_timeline": {"type": "object", "required": true},
+      "risks": {"type": "array", "required": true},
+      "evidence_base_hash": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "evidence_driven", "replayable"]
+  }
+}

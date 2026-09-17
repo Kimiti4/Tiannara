@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/future_scenario.json",
+  "title": "FutureScenario",
+  "description": "A future civilization scenario from the CMFCSE.",
+  "type": "object",
+  "properties": {
+    "scenario_id": { "type": "string", "pattern": "^fscene_[a-f0-9]{16}$" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "scenario_type": { "type": "string", "enum": ["baseline", "variation", "branch", "normative", "exploratory", "counterfactual", "black_swan"] },
+    "parent_scenario_id": { "type": "string" },
+    "probability": { "type": "number", "minimum": 0, "maximum": 1 },
+    "horizon": { "type": "string", "enum": ["short_term", "medium_term", "long_term", "generational", "multi_generational", "civilizational", "deep_future", "transcendent"] },
+    "assumptions": { "type": "array", "items": { "type": "object" } },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "civilizational_state": { "type": "object" },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["active", "pruned", "retired", "speculative"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated_at": { "type": "integer" }
+  },
+  "required": ["scenario_id", "name", "description", "scenario_type", "probability", "fingerprint"]
+}

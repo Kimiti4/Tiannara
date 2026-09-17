@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/challenge_lifecycle.json",
+  "title": "ChallengeLifecycle",
+  "description": "A lifecycle transition record for a discovery challenge.",
+  "type": "object",
+  "properties": {
+    "transition_id": { "type": "string", "pattern": "^dclife_[a-f0-9]{16}$" },
+    "challenge_id": { "type": "string" },
+    "from_status": { "type": "string" },
+    "to_status": { "type": "string" },
+    "trigger": { "type": "string", "enum": ["automatic", "human_decision", "evidence_update", "dependency_met", "external_event", "review_completed"] },
+    "rationale": { "type": "string" },
+    "authorizing_entity": { "type": "string" },
+    "evidence_ids": { "type": "array", "items": { "type": "string" } },
+    "alternative_transitions": { "type": "array", "items": { "type": "string" } },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "timestamp": { "type": "integer" }
+  },
+  "required": ["transition_id", "challenge_id", "from_status", "to_status", "rationale", "fingerprint"]
+}

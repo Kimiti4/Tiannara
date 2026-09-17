@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/supply_chain.json",
+  "title": "SupplyChain",
+  "description": "A constitutional supply chain configuration for manufacturing.",
+  "type": "object",
+  "properties": {
+    "chain_id": { "type": "string", "pattern": "^schain_[a-f0-9]{16}$" },
+    "product_id": { "type": "string" },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "node_id": { "type": "string" },
+          "node_type": { "type": "string", "enum": ["raw_material", "supplier", "manufacturer", "distributor", "warehouse", "customer"] },
+          "name": { "type": "string" },
+          "location": { "type": "string" },
+          "capacity": { "type": "number" }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_id": { "type": "string" },
+          "target_id": { "type": "string" },
+          "material": { "type": "string" },
+          "lead_time": { "type": "number" },
+          "cost": { "type": "number" },
+          "risk_score": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    },
+    "risk_assessment": { "type": "object" },
+    "resilience_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "configured_at": { "type": "integer" }
+  },
+  "required": ["chain_id", "product_id", "nodes", "edges", "fingerprint"]
+}

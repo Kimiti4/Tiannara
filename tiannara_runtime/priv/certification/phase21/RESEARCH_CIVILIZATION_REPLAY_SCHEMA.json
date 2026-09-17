@@ -1,0 +1,33 @@
+{
+  "schema": "RESEARCH_CIVILIZATION_REPLAY_SCHEMA",
+  "version": "21.0",
+  "description": "Schema for research civilization replay — deterministic reconstruction of the complete research civilization",
+  "research_civilization_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true, "description": "Content-addressed replay identifier"},
+      "replay_type": {"type": "string", "required": true, "description": "FullCivilization/Institute/Program/Mission/Portfolio/Capital"},
+      "step_hashes": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "step": {"type": "integer"}, "entity": {"type": "string"},
+            "input_hash": {"type": "string"}, "output_hash": {"type": "string"},
+            "step_hash": {"type": "string"}
+          }
+        }
+      },
+      "root_hash_original": {"type": "string", "required": true},
+      "root_hash_reconstructed": {"type": "string", "required": true},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "institutes_replayed": {"type": "integer", "required": true},
+      "programs_replayed": {"type": "integer", "required": true},
+      "missions_replayed": {"type": "integer", "required": true},
+      "portfolios_replayed": {"type": "integer", "required": true},
+      "capital_ledger_replayed": {"type": "boolean", "required": true},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic_replay", "identical_hashes_required", "cold_storage_independent"]
+  }
+}

@@ -1,0 +1,167 @@
+# Execution-Record Evidence Investigation STOP Report (read-only; no implementation)
+artifact: EXECUTION_RECORD_INVESTIGATION
+artifact_status: POST_T0
+move: EXECUTION-RECORD-GATE
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+method: T0 git-show reads (capped); T0 ls-tree/grep inventory; hash recomputation from T0 bytes; no test execution; no implementation, commits, or pushes
+executive_summary: Genuine execution records exist in T0 (archive packets with run_id, seed, config hash, per-step varying telemetry; physics executions with ids and full I/O config), but no certificate references any of them and no metric-to-certificate binding exists. The full execution-to-certificate chain is NOT established for any campaign. Verdict PARTIAL PASS.
+
+
+section_01:
+  title: "STATUS: PARTIAL PASS"
+  items:
+
+
+section_02:
+  title: "T0: PRESERVED (9753a6d / 06f06e5e identical; no commits, pushes, or modifications)"
+  items:
+
+
+section_03:
+  title: "SEARCH SCOPE:"
+  items:
+    - T0 tree (4756 entries) via ls-tree inventory and targeted git-show reads
+    - "Record dirs inspected: runs/ (8 files), data/ (records + epistemic_seed + interventions + certification_report), phase14/ (corpus, hashes, evidence index, auditor, scripts), archive/experiments/2026-Q2/runs/ (meta + packets), priv/tiannara/real_execution/, priv/tiannara/authorization/, priv/tiannara/remediation/"
+    - "Identifier terms swept: execution_id, run_id, seed, trial/job/attempt variants, lineage, provenance, manifest, replay, metrics, fitness, epoch, commit_sha, git_sha, source_hash, contract_hash, certificate_id, parent"
+    - "Git history examined for deleted records: not performed (history rewrite/destructive checkout prohibited; T0-tree search only)"
+    - "Boundary stated honestly: T0-tree search was systematic for the listed terms and dirs; full-text search of every T0 blob was not performed (prohibitive cost); absence claims below are scoped to the searched corpus"
+
+
+section_04:
+  title: "EXECUTION RECORDS FOUND:"
+  items:
+    - "archive packets (2026-Q2 day10c runs): per-step telemetry with run_id + seed 12345 + config_hash + schema version + timestamps + decisions + commands + safety + feedback metrics; internally consistent (monotonic fatigue, coherent timestamps, matching run_meta)"
+    - "physics executions.jsonl (16 lines, physics_pilot): execution_id + timestamps + full I/O config (initial_state, steps, dt, rk4, trajectory_length, final_state) + subsystem + harness name"
+    - "interventions.ndjson: id + timestamp + inputs (proposal, origins) + expected/actual effects + status"
+    - "health/test/memory/telemetry records in runs/: ids + timestamps + measurements without execution identity"
+    - "epistemic_seed manifest: seeded test entities (seed_obs_*, gaps) — test-fixture manifest, NOT an execution seed record"
+
+
+section_05:
+  title: "QUALIFYING RECORDS:"
+  items:
+    - "archive packets (run 20260304_005515 and siblings): QUALIFYING (execution established via run-bound per-step telemetry with seed + config hash; genesis-proof limits disclosed)"
+    - "physics executions.jsonl rows: QUALIFYING (execution established via ids + full I/O config + timestamps; missing seed/source-version/campaign links disclosed)"
+    - "interventions.ndjson rows: PARTIALLY QUALIFYING (inputs/outputs/status/timestamps present; missing seed, source version, executor, campaign binding)"
+
+
+section_06:
+  title: "PARTIAL RECORDS:"
+  items:
+    - "health_metrics.jsonl, test_memory_validation.jsonl, performance_history.json, telemetry_export, certification_report.json: PARTIALLY QUALIFYING (timestamped measurements with ids; no execution identity, inputs, seeds, or source versions)"
+
+
+section_07:
+  title: "NON-RECORD ARTIFACTS:"
+  items:
+    - "autonomous_experience.jsonl, discovery_memory.jsonl, multi_seed_results.json: EMPTY in T0 (0 content lines)"
+    - "constitution.json, epistemic_seed manifest: static definitions/fixtures, not executions"
+    - "certificate.json blocks, governance blocks, freeze certificates: self-asserted claims, not executions"
+    - "test_contracts.json entries, test definitions, schemas: specifications, not executions"
+
+
+section_08:
+  title: "BEST CANDIDATE:"
+  items:
+    - archive packets run 20260304_005515_7a3244ead97d_23abb05c_day10c_pipeline (seed 12345, config_hash 7a3244ead97d)
+
+
+section_09:
+  title: "EXECUTION → RESULT: STRUCTURAL (run_meta embedded per packet; meta.json binds run to config)"
+  items:
+
+section_10:
+  title: "RESULT → METRIC: PARTIAL (feedback.metrics inline per packet; calculation source unevidenced)"
+  items:
+
+section_11:
+  title: "METRIC → CERTIFICATE: MISSING (no certificate references these runs)"
+  items:
+
+
+section_12:
+  title: "CONTRA-003 STATUS: UNRESOLVED (unchanged)"
+  items:
+    - New evidence does not bear on gc_012 (different subsystem entirely)
+    - "Minimum provenance test applied to best candidate: E established, R bound structurally, M partial, C missing → CHAIN NOT ESTABLISHED"
+    - Distinct-executions vs same-execution question untouched by this gate's findings
+
+
+section_13:
+  title: "SEED EVIDENCE:"
+  items:
+    - "Execution seeds: PRESENT (seed 12345 in archive packets)"
+    - "gc_012 campaign seeds: ABSENT (multi_seed_results.json 0 bytes; no seed fields in gc_012 records)"
+    - "epistemic_seed manifest: test-fixture seeds, explicitly NOT execution seeds (manifest note distinguishes seeded inputs from earned discoveries)"
+    - Non-seeded execution not ruled in or out for gc_012; determinism of gc_012 outcomes unevidenced either way
+
+
+section_14:
+  title: "HISTORICAL EVIDENCE:"
+  items:
+    - "Archive runs dated March 2026 with full meta + packets: genuine historical execution records predating the audit program"
+    - No evidence of deleted records sought via history rewrite (prohibited); no deletion claims made
+    - Historical existence established for pros-pipeline runs; no historical execution evidence found for gc_012 or any phase14 campaign
+
+
+section_15:
+  title: "INDEPENDENT REPLAY:"
+  items:
+    - Not attempted (would require executing the pros pipeline code; bounded execution was authorized only for observation, and replay needs source-version binding absent from meta.json)
+    - "Missing evidence recorded instead: source-version/commit binding in run metadata; harness invocation records"
+
+
+section_16:
+  title: "PROVENANCE CHAIN: NOT ESTABLISHED for any campaign (best candidate reaches MISSING at the metric-to-certificate link)"
+  items:
+
+
+section_17:
+  title: "KNOWLEDGE CHANGES: NONE"
+  items:
+    - "No existing item meets the change rule. In particular: no capability promoted (execution records do not certify capabilities); no contradiction resolved (CONTRA-003 untouched by this evidence); no UNKNOWN lifted (nearest misses documented below, not promoted)"
+
+
+section_18:
+  title: "KNOWLEDGE DEBT IMPACT:"
+  items:
+    - "RQ-001: served positively in part (execution records exist as a class; gc_012-specific execution still absent)"
+    - "RQ-004: served positively in part (re-derivation inputs exist for pros runs: seed + config + per-step data; certificate linkage still absent)"
+    - "KD-001/CONTRA-003: unchanged (different subsystem)"
+    - "KD-010: unchanged in verdict; narrowed in scope (corpus-execution gap now precisely the certificate-linkage gap, not an execution-existence gap)"
+
+
+section_19:
+  title: "RESEARCH QUESTION IMPACT:"
+  items:
+    - "Nearest misses (would-be promotions blocked only by named missing links): archive packets lack only certificate linkage for a validated-corpus claim; physics executions lack only seed/source-version/campaign linkage"
+
+
+section_20:
+  title: "REMAINING UNKNOWNs:"
+  items:
+    - "Whether any certificate references the archive or physics runs (searched: none found in T0)"
+    - "Whether gc_012 has any execution record anywhere (searched T0 tree systematically for identifiers: none found)"
+    - Whether the empty seed/results files were ever populated (history search prohibited from destructive operations; read-only log archaeology deferred)
+    - Source versions for all found runs (no commit bindings in any run metadata)
+
+
+section_21:
+  title: "SMALLEST NEXT EVIDENCE:"
+  items:
+    - A single certificate-to-run reference (one field binding any certificate block to any of the now-established execution ids) would convert the strongest finding into a validated chain end-to-end
+
+
+section_22:
+  title: "GATE: PARTIAL PASS"
+  items:
+    - Genuine execution records exist (archive packets + physics executions qualify)
+    - Downstream provenance links (metric-to-certificate) remain unresolved for every examined chain
+    - HOLD is no longer the accurate gate state for execution existence, but remains accurate for certificate truth
+
+
+section_23:
+  title: "CONSTITUTIONAL TEST:"
+  items:
+    - "Did this investigation increase Tiannara's ability to distinguish what actually happened from what its artifacts merely claim happened? YES: two execution-record corpora were unknown to the program before this gate (discovered via systematic identifier sweep, not assumed from architecture); their exact evidential limits were mapped (structural bindings present, certificate bindings absent, seed/commit gaps named); and the gc_012 question was explicitly fenced off from the new findings rather than contaminated by them."

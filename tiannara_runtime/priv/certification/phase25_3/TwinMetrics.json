@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/twin_metrics.json",
+  "title": "TwinMetrics",
+  "description": "Metrics for the planetary digital twin.",
+  "type": "object",
+  "properties": {
+    "metrics_id": { "type": "string", "pattern": "^tmet_[a-f0-9]{16}$" },
+    "twin_fidelity": { "type": "number" },
+    "synchronization_accuracy": { "type": "number" },
+    "scenario_coverage": { "type": "number" },
+    "prediction_stability": { "type": "number" },
+    "model_completeness": { "type": "number" },
+    "layer_consistency": { "type": "number" },
+    "replay_integrity": { "type": "number" },
+    "twin_readiness": { "type": "number" },
+    "civilizational_representation": { "type": "number" },
+    "constitutional_compliance": { "type": "number" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "measured_at": { "type": "integer" }
+  },
+  "required": ["metrics_id", "twin_fidelity", "synchronization_accuracy", "replay_integrity", "fingerprint"]
+}

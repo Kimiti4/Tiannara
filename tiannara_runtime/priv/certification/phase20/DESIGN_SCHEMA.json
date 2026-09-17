@@ -1,0 +1,68 @@
+{
+  "schema": "DESIGN_SCHEMA",
+  "version": "20.6",
+  "description": "Schema for ArchitectureDesign and DetailedDesign — engineering design artifacts",
+  "architecture_design": {
+    "fields": {
+      "architecture_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "project": {"type": "string", "required": true, "description": "Reference to EngineeringProject"},
+      "requirements": {"type": "string", "required": true, "description": "Reference to RequirementSet"},
+      "components": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "name": {"type": "string"}, "responsibilities": {"type": "array"},
+            "interfaces": {"type": "array"}, "dependencies": {"type": "array"},
+            "state_model": {"type": "object"}, "lifecycle": {"type": "object"}
+          }
+        }
+      },
+      "interfaces": {"type": "array", "required": true, "description": "Interface contracts"},
+      "data_flow": {"type": "array", "required": true, "description": "Data flow specifications"},
+      "control_flow": {"type": "object", "required": true, "description": "Control flow specifications"},
+      "dependencies": {"type": "array", "required": true, "description": "Dependency graph"},
+      "failure_modes": {"type": "array", "required": true, "description": "Failure mode analysis"},
+      "resource_estimates": {"type": "object", "required": true},
+      "complexity_estimates": {"type": "object", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["acyclic_dependencies", "constitutional_compliance", "deterministic_replay"]
+  },
+  "detailed_design": {
+    "fields": {
+      "design_id": {"type": "string", "required": true},
+      "project": {"type": "string", "required": true},
+      "architecture": {"type": "string", "required": true},
+      "modules": {"type": "array", "required": true},
+      "interfaces": {"type": "array", "required": true},
+      "data_structures": {"type": "array", "required": true},
+      "algorithms": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "name": {"type": "string"}, "purpose": {"type": "string"},
+            "inputs": {"type": "object"}, "outputs": {"type": "object"},
+            "steps": {"type": "array"}, "complexity": {"type": "object"},
+            "invariants": {"type": "array"}
+          }
+        }
+      },
+      "protocols": {"type": "array", "required": false},
+      "error_handling": {"type": "object", "required": true},
+      "rollback_design": {"type": "object", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": [
+      "design_consistent_with_architecture",
+      "all_interfaces_fully_specified",
+      "all_algorithms_deterministic",
+      "all_data_structures_support_replay"
+    ]
+  }
+}

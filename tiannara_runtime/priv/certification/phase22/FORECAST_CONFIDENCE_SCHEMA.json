@@ -1,0 +1,24 @@
+{
+  "schema": "FORECAST_CONFIDENCE_SCHEMA",
+  "version": "22.7",
+  "description": "Schema for forecast confidence and uncertainty representation",
+  "forecast_confidence": {
+    "fields": {
+      "confidence_id": {"type": "string", "required": true},
+      "forecast_id": {"type": "string", "required": true},
+      "overall_confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "horizon_confidence": {"type": "object", "required": true},
+      "dimension_confidence": {"type": "object", "required": true},
+      "uncertainty_sources": {"type": "object", "required": true},
+      "observation_uncertainty": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "knowledge_gap_uncertainty": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "model_error_uncertainty": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "simulation_error_uncertainty": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "external_unknown_uncertainty": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "long_horizon_divergence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "confidence_intervals": {"type": "object", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["explicit", "preserved", "deterministic"]
+  }
+}

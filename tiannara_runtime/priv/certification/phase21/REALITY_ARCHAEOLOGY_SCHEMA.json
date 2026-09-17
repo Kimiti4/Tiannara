@@ -1,0 +1,26 @@
+{
+  "schema": "REALITY_ARCHAEOLOGY_SCHEMA",
+  "version": "21.8",
+  "description": "Schema for reality archaeology — the archaeological record of unified reality model evolution",
+  "reality_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true},
+      "generation": {"type": "integer", "required": true},
+      "answers": {
+        "type": "object", "required": true,
+        "fields": {
+          "why_theory_integrated": {"type": "array"},
+          "why_another_preserved_separately": {"type": "array"},
+          "which_discoveries_modified_model": {"type": "array"},
+          "how_causal_hierarchies_evolved": {"type": "string"},
+          "how_unified_model_changed": {"type": "string"},
+          "which_evidence_produced_revisions": {"type": "array"}
+        }
+      },
+      "model_snapshot": {"type": "string", "required": true},
+      "archaeology_hash": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "deterministic", "independently_reconstructible"]
+  }
+}

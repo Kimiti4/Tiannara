@@ -1,0 +1,29 @@
+{
+  "schema": "RESEARCH_ROADMAP_SCHEMA",
+  "version": "21.7",
+  "description": "Schema for a civilizational research roadmap spanning multiple horizons toward a strategic objective",
+  "research_roadmap": {
+    "fields": {
+      "roadmap_id": {"type": "string", "required": true, "description": "Content-addressed roadmap identifier"},
+      "strategic_objective": {"type": "string", "required": true},
+      "roadmap_type": {"type": "string", "required": true, "description": "Foundational/Applied/Transformative/Exploratory/Civilizational/LongHorizon"},
+      "knowledge_dependencies": {"type": "array", "required": true},
+      "mathematical_milestones": {"type": "array", "required": true},
+      "theory_milestones": {"type": "array", "required": true},
+      "engineering_milestones": {"type": "array", "required": true},
+      "simulation_requirements": {"type": "array", "required": false},
+      "experimental_requirements": {"type": "array", "required": false},
+      "expected_information_gain": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "scientific_capital_target": {"type": "number", "required": true},
+      "estimated_time_horizon_min": {"type": "integer", "required": true},
+      "estimated_time_horizon_max": {"type": "integer", "required": true},
+      "status": {"type": "string", "required": true, "description": "Proposed/Active/Completed/Stalled/Archived"},
+      "roadmap_hash": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "types": ["foundational", "applied", "transformative", "exploratory", "civilizational", "long_horizon"],
+    "constraints": ["evidence_derived", "acyclic", "deterministic", "replayable"]
+  }
+}

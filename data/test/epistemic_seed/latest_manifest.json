@@ -1,0 +1,22 @@
+{
+  "domain": "sensor_fusion",
+  "note": "Seeded entities are epistemic INPUTS (provenance origin=:epistemic_seed), not earned discoveries. Compare pipeline counters before/after to locate the absorbing stage.",
+  "entity_ids": [
+    "seed_obs_a_b8a8f331",
+    "seed_obs_b_b8a8f331",
+    "seed_stale_b8a8f331",
+    "seed_lowconf_b8a8f331"
+  ],
+  "entities_created": 4,
+  "entity_failures": [],
+  "gaps_from_seed": [
+    "gap_2b1ffa79dc8e44a3",
+    "gap_f7713baf0ee62a22",
+    "gap_39def250ded8e2ee",
+    "gap_acad232b15594767"
+  ],
+  "contradictions_from_seed": [
+    "Seeded contradiction between observations"
+  ],
+  "seeded_at": "2026-09-10T01:15:40.026000Z"
+}

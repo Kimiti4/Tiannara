@@ -1,0 +1,23 @@
+{
+  "schema": "INSTITUTION_EVOLUTION_SCHEMA",
+  "version": "21.6",
+  "description": "Schema for institutional evolution events within the scientific ecosystem",
+  "institution_evolution": {
+    "fields": {
+      "evolution_id": {"type": "string", "required": true, "description": "Content-addressed evolution event identifier"},
+      "institute": {"type": "string", "required": true},
+      "evolution_type": {"type": "string", "required": true, "description": "Expansion/Specialization/Merger/Division/Transformation/Retirement/SuccessorFormation"},
+      "trigger_evidence": {"type": "string", "required": true, "description": "Evidence that triggered the evolution"},
+      "constitutional_verification": {"type": "boolean", "required": true},
+      "knowledge_preservation_verified": {"type": "boolean", "required": true},
+      "lineage_update_hash": {"type": "string", "required": true},
+      "resulting_institutes": {"type": "array", "required": false},
+      "evolution_generation": {"type": "integer", "required": true},
+      "evolution_hash": {"type": "string", "required": true},
+            "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},"fingerprint": {"type": "string", "required": true}
+    },
+    "evolution_types": ["expansion", "specialization", "merger", "division", "transformation", "retirement", "successor_formation"],
+    "constraints": ["evidence_based", "constitutional", "deterministic", "replayable"]
+  }
+}

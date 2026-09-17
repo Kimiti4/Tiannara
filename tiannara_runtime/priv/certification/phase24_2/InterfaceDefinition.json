@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/interface_definition.json",
+  "title": "InterfaceDefinition",
+  "description": "A constitutional interface specification between subsystems.",
+  "type": "object",
+  "properties": {
+    "interface_id": { "type": "string", "pattern": "^sint_[a-f0-9]{16}$" },
+    "architecture_id": { "type": "string" },
+    "name": { "type": "string" },
+    "interface_category": { "type": "string", "enum": ["mechanical", "electrical", "thermal", "fluid", "information", "communication", "software", "control", "human"] },
+    "source_subsystem_id": { "type": "string" },
+    "target_subsystem_id": { "type": "string" },
+    "specifications": { "type": "object" },
+    "verification_method": { "type": "string" },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["draft", "proposed", "certified", "modified"] },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["interface_id", "architecture_id", "name", "interface_category", "source_subsystem_id", "target_subsystem_id", "specifications", "fingerprint"]
+}

@@ -1,0 +1,83 @@
+artifact: certificate_identity_design
+stage: 8 (Implementation DESIGN — identity contract)
+authority: TIA Council
+posture: DESIGN ONLY
+recorded_at: 2026-09-10
+upstream: certificate_identity_analysis (ID-M0..ID-M5), stage8_design_scope (d1),
+  certificate_stack_reconciliation
+policy_chapters: TIA_PROVENANCE_CERTIFICATION_POLICY.yaml — issuance_conditions (canonical
+  serialization; recomputable hash), security (hashes vs authority never conflated),
+  schema_evolution (SUPERSEDED channel), certificate_states_and_transitions
+
+DESIGN_ONLY: true
+design_status: CONSISTENT (design-level; no contradiction with policy or recon)
+
+summary:
+  question: What is the canonical certificate identity for a forward certificate?
+  answer: certificate_id := deterministic sha256 over a canonical identity-spec-pinned
+    binding of the EVIDENCE SPINE (validated edges' identity hashes + envelope ids), i.e.
+    exactly the bridge's candidate identity
+      Canon.sha256(%{"candidate_id_spec" => @candidate_spec, "spine" => spine})
+    reused by a future realization (design d1). The certificate will additionally carry a
+    DECISION BODY and AUTHORITY HEADER, but the IDENTITY is evidence-derived and replay-
+    identical: the same evidence chain + spec can only ever produce one certificate id.
+
+requirements:
+  - r1 determinism: for identical evidence+context, certificate_id MUST be identical
+    (bridge B2/B3 already prove this for the candidate; identity design inherits it).
+  - r2 no-randomness: no uuid, no utc_now, no strongly-random bytes in the identity. All
+    three existing issuer APIs violate this (ID-M0/M2/M4: utc_now / strong_rand_bytes /
+    uuid); design excludes them.
+  - r3 recomputability-from-evidence: the certificate id must be derivable from the bundle
+    bytes alone (policy evidence_bundle principle: auditor answers from bundle bytes).
+  - r4 spec-pinned: the identity spec version (candidate_id_spec / issuance spec) MUST be
+    part of the hash so a schema bump supersedes cleanly (policy schema_evolution).
+  - r5 separation: identity (what/which evidence) vs decision (certified/failed/contested)
+    vs authority (who bound it, under what policy) are three different fields. Policy
+    security forbids conflation.
+
+identity_contract:
+  fields:
+    - certificate_id: sha256 hex over %{"candidate_id_spec" => <spec_version>,
+        "spine" => <ordered identity-hash+envelope-id list of validated edges>}
+    - evidence_bindings: the identity/envelope refs that certify (mirrors
+      Certificate.issue evidence + Verifier edge checks), carried for audit
+    - decision: certified | failed | contested (the verdict field, NOT the id)
+    - authority_header: {authority, authority_kind, policy_ref} — recorded at issuance,
+      validated against an authority registry in the future realization (design detail;
+      see authority_boundary_design); NOT a free string (Certificate.issue/1's unvalidated
+      passthrough string is documented as the NON-model — see below)
+    - policy_ref: pointer to the accepted policy version under which issuance is lawful
+
+non_model (explicitly NOT adopted):
+  - Certificate.issue/1 identity via "cert_" <> uuid (forward_provenance/lib/certificate.ex:26)
+    — non-deterministic id; authority string unvalidated (:authority from opts); recorded
+    as evidence of the gap, never as the pattern (boundary: docs record it; code untouched).
+  - Runtime strong_rand_bytes ids and root utc_now-based verdict structs — same defect class.
+
+hash_format:
+
+  certificate_id = sha256hex( canonical(%{
+    "candidate_id_spec"  => tiannara-fp-candidate-cert-v1,
+    "spine"              => [identity_hash/edge refs in canonical order],
+  }) )
+
+  where canonical serialization follows the policy requirement "canonical serialization spec
+  version cited; every payload_hash recomputed under it" (policy issuance_conditions all_must_hold,
+  item 9). This design DEPENDS on a canonical-serialization spec being fixed in the future
+  implementation stage (recorded dependency, not resolved here).
+
+design_note:
+  - The certificate ID is the EVIDENCE's id, not the decider's id. Two different authorities
+    evaluating the same evidence propose the SAME certificate_id; that is the property that
+    makes authority comparison honest (bridge A-AMBIGUITY row: ambiguity is surfaced, never
+    papered over).
+  - Supersession stays OUT of the identity: a SUPERSEDED state is a lifecycle property, not
+    a new id on rewritten evidence (policy schema_evolution: envelopes immutable; SUPERSEDED
+    is successor issuance).
+
+consistency_notes:
+  - Recon dependency: certificate_identity_analysis ID-M5 already establishes the property
+    set; this artifact formalizes it as the identity CONTRACT. No contradiction recorded.
+
+NOTHING_IMPLEMENTED: true

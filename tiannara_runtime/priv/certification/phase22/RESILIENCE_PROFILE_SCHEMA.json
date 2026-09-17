@@ -1,0 +1,21 @@
+{
+  "schema": "RESILIENCE_PROFILE_SCHEMA",
+  "version": "22.5",
+  "description": "Schema for a civilization resilience profile assessment",
+  "resilience_profile": {
+    "fields": {
+      "profile_id": {"type": "string", "required": true},
+      "civilization_id": {"type": "string", "required": true},
+      "risk_coverage": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "redundancy_coverage": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "recovery_capacity": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "continuity_score": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "adaptive_capacity": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "composite_cri": {"type": "number", "required": true, "description": "Civilizational Resilience Index 0.0–1.0"},
+      "dimension_scores": {"type": "object", "required": true},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "ontology_derived", "replayable"]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "INSTITUTION_SCHEMA",
+  "version": "22.0",
+  "description": "Schema for an institution entity in the Constitutional Civilizational Ontology",
+  "institution": {
+    "fields": {
+      "institution_id": {"type": "string", "required": true},
+      "institution_type": {"type": "string", "required": true, "enum": ["scientific", "educational", "governmental", "industrial", "healthcare", "financial", "cultural", "infrastructure"]},
+      "purpose": {"type": "string", "required": true},
+      "responsibilities": {"type": "array", "required": true},
+      "capabilities": {"type": "array", "required": true},
+      "dependencies": {"type": "array", "required": true},
+      "resources": {"type": "object", "required": true},
+      "knowledge_holdings": {"type": "array", "required": true},
+      "lineage": {"type": "array", "required": true},
+      "governance_structure": {"type": "object", "required": true},
+      "interfaces": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "replayable", "lineage_preserved"]
+  }
+}

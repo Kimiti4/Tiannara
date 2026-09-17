@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/engineering_project.json",
+  "title": "EngineeringProject",
+  "description": "A constitutional engineering project within a program.",
+  "type": "object",
+  "properties": {
+    "project_id": { "type": "string", "pattern": "^eproj_[a-f0-9]{16}$" },
+    "program_id": { "type": "string" },
+    "name": { "type": "string" },
+    "objectives": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["planning", "active", "monitoring", "completed", "cancelled"] },
+    "milestones": { "type": "array", "items": { "type": "object", "properties": { "milestone_id": { "type": "string" }, "description": { "type": "string" }, "due_date": { "type": "integer" }, "status": { "type": "string", "enum": ["pending", "in_progress", "completed", "overdue"] } } } },
+    "deliverables": { "type": "array", "items": { "type": "string" } },
+    "resources_allocated": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "created_at": { "type": "integer" }
+  },
+  "required": ["project_id", "program_id", "name", "objectives", "status", "fingerprint"]
+}

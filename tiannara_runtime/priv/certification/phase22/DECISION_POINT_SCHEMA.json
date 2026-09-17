@@ -1,0 +1,23 @@
+{
+  "schema": "DECISION_POINT_SCHEMA",
+  "version": "22.7",
+  "description": "Schema for a forecast decision point",
+  "decision_point": {
+    "fields": {
+      "decision_point_id": {"type": "string", "required": true},
+      "forecast_id": {"type": "string", "required": true},
+      "type": {"type": "string", "required": true, "enum": ["scientific_breakthrough", "engineering_discovery", "governance_reform", "energy_transition", "economic_restructuring", "environmental_event", "technological_revolution"]},
+      "description": {"type": "string", "required": true},
+      "probability": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "impact": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "reversibility": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "sensitivity": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "dependencies": {"type": "array", "required": false},
+      "time_window": {"type": "object", "required": true},
+      "decision_options": {"type": "array", "required": true},
+      "forecast_branching": {"type": "object", "required": false},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["causal", "deterministic", "replayable"]
+  }
+}

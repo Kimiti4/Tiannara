@@ -1,0 +1,23 @@
+# Tests TCT limit handling under recursive structure load
+apiVersion: chaos-mesh.org/v1alpha1
+kind: IOChaos
+metadata:
+  name: rtl-tensor-overflow
+  namespace: tiannara-phase8
+spec:
+  action: latency
+  mode: all
+  selector:
+    namespaces: ["tiannara-phase8"]
+    labelSelectors:
+      app: tiannara-rtl
+  path: "/tmp/rtl_tensor_cache"
+  latency: "200ms"
+  duration: "4m"
+  annotations:
+    description: "Simulates transfinite coherence tensor I/O bottleneck"
+    expected_behavior: "TCE caps recursion depth; MOSE synthesizes bridge representations"
+    validation_metrics:
+      - "tiannara_phase8_rtl_transformation_continuity > 0.20"
+      - "No NATS JetStream consumer backlog > 10k"
+      - "Prometheus scrape success rate = 100%"

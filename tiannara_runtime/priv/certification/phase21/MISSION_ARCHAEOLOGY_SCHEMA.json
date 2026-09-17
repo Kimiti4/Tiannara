@@ -1,0 +1,27 @@
+{
+  "schema": "MISSION_ARCHAEOLOGY_SCHEMA",
+  "version": "21.3",
+  "description": "Schema for mission archaeology — the archaeological record of research mission generation",
+  "mission_archaeology": {
+    "fields": {
+      "archaeology_id": {"type": "string", "required": true, "description": "Content-addressed archaeology identifier"},
+      "mission": {"type": "string", "required": true},
+      "answers": {
+        "type": "object", "required": true,
+        "fields": {
+          "why_generated": {"type": "string"},
+          "which_opportunity_produced": {"type": "string"},
+          "which_mathematical_structures_supported": {"type": "array"},
+          "which_domains_participated": {"type": "array"},
+          "why_validation_strategy_selected": {"type": "string"},
+          "which_later_discoveries_depended": {"type": "array"}
+        }
+      },
+      "frontier_snapshot_before": {"type": "string", "required": true},
+      "frontier_snapshot_after": {"type": "string", "required": true},
+      "archaeology_hash": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["evidence_based", "deterministic", "independently_reconstructible"]
+  }
+}

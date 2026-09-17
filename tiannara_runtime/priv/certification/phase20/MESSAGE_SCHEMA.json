@@ -1,0 +1,18 @@
+{
+  "schema": "MESSAGE_SCHEMA",
+  "version": "20.2",
+  "message_categories": ["mission", "evidence", "replay", "knowledge", "coordination", "resource", "audit", "evolution"],
+  "message_structure": {
+    "message_id": {"type": "string", "required": true},
+    "category": {"type": "string", "required": true, "enum": ["mission","evidence","replay","knowledge","coordination","resource","audit","evolution"]},
+    "type": {"type": "string", "required": true},
+    "source": {"type": "string", "required": true},
+    "target": {"type": "string", "required": true},
+    "payload": {"type": "object", "required": false},
+    "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true},
+    "timestamp": {"type": "integer", "required": true}
+  },
+  "constraints": ["immutable", "content_addressed", "no_direct_subsystem_calls"]
+}

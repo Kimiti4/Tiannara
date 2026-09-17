@@ -1,0 +1,19 @@
+{
+  "schema": "SIMULATION_CONTEXT_SCHEMA",
+  "version": "22.2",
+  "description": "Schema for an intervention simulation context branching from a digital twin",
+  "simulation_context": {
+    "fields": {
+      "simulation_id": {"type": "string", "required": true},
+      "twin_id": {"type": "string", "required": true},
+      "parent_state_hash": {"type": "string", "required": true},
+      "intervention_type": {"type": "string", "required": true, "enum": ["scientific_investment", "infrastructure_expansion", "governance_reform", "technology_deployment", "energy_transition", "educational_reform", "engineering_project", "institutional_redesign"]},
+      "intervention_parameters": {"type": "object", "required": true},
+      "projected_outcomes": {"type": "object", "required": true},
+      "simulation_status": {"type": "string", "required": true, "enum": ["running", "completed", "archived"]},
+      "branch_lineage": {"type": "array", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "non_mutating", "replayable"]
+  }
+}

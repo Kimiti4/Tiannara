@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-08-14T20:44:03.766000Z",
+  "phase": "failure_window",
+  "discovery": {
+    "label": "Discovery scheduler is not running",
+    "status": "scheduler_down",
+    "details": "DiscoveryScheduler process is absent — discovery pipeline cannot cycle"
+  },
+  "validated_seconds": 1,
+  "availability_pct": 0.0,
+  "unvalidated_seconds": 0,
+  "challenges_passed": 0,
+  "discoveries": 0,
+  "discovery_cycles": 0,
+  "gaps_detected": 0,
+  "hypotheses_generated": 0,
+  "knowledge_entities": 0,
+  "recovery_verified": true,
+  "challenge_pass_rate": 0.0,
+  "elapsed_hours": 0.0,
+  "failures": 1,
+  "leak": {
+    "detected": false,
+    "slope_mb_per_h": 0.0,
+    "growth_pct": 1.44,
+    "samples": 3
+  },
+  "memory_mb": 47.35,
+  "recoveries": 0,
+  "soak_run_id": "dbg4-124ecf85",
+  "unvalidated_hours": 0.0,
+  "validated_hours": 0.0,
+  "wall_clock_reconciled": true,
+  "elapsed_seconds": 1,
+  "challenges_executed": 0,
+  "health_checks_performed": 3,
+  "latest_health": {
+    "runtime": {
+      "process_count": 108,
+      "run_queue": 0,
+      "at": "2026-08-14T20:44:03.766000Z",
+      "memory_mb": 47.35,
+      "all_healthy": false,
+      "uptime_seconds": 0,
+      "subsystems_healthy": 0,
+      "subsystems_total": 0,
+      "subsystem_probe": "unavailable"
+    },
+    "timestamp": "2026-08-14T20:44:03.766000Z",
+    "discovery": {
+      "at": "2026-08-14T20:44:03.766000Z",
+      "probe": "error",
+      "discovery_cycles": 0,
+      "gaps_detected": 0,
+      "hypotheses_generated": 0,
+      "knowledge_entities": 0,
+      "scheduler_alive": false,
+      "world_entities": 0
+    },
+    "all_healthy": false
+  },
+  "recovery_gate_status": "gate_open"
+}

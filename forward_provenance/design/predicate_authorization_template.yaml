@@ -1,0 +1,70 @@
+artifact: predicate_authorization_template
+stage: 9 (Decision-support ONLY — template for future predicate-specific authorizations)
+authority: TIA Council
+posture: REFERENCE TEMPLATE ONLY — not an authorization instrument; not used to open
+  anything now. Exists so that when the Council DOES authorize implementation it can do so
+  predicate-specifically, as Stage-8 STOP mandated.
+recorded_at: 2026-09-10
+status: TEMPLATE (no predicate opened; no authorization issued)
+policy: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml
+upstream: stage8_design_scope (d3),
+  certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE8_STOP.yaml
+  (Council framing: predicate-specific opening; preserve fail-closed for un-opened predicates)
+
+purpose:
+  - Give the Council a fixed, one-page SHAPE for each predicate-opening authorization so
+    an opening is: (a) unambiguous about surface, (b) burdened by evidence requirements,
+    (c) reversible, and (d) impossible to mistake for a blanket implementation mandate.
+  - Each opening must state the predicate id (A-predicate from CertificateAuthorityBridge
+    authority_map/0 A01..A12), the allowed implementation surface, the evidence that must
+    be produced, and the verification gate before the predicate may actually issue.
+
+template_fields (one authorization per predicate):
+  predicate_id:
+    description: exact A-predicate name from the bridge authority map (e.g. A02
+      state_transition_legality), NOT a category.
+  authority_closure_context:
+    description: current status (BLOCKED, reason) as of the last STOP, to be cited and
+      left FALSE until this opening takes effect.
+  allowed_surface:
+    description: exactly which modules/files may change and which may not (e.g. only
+      forward_provenance/lib/..., never substrate Canon/Envelope/Verifier/MetricLineage/
+      IdentityAuthority, never the bridge's fail-closed defaults for OTHER predicates).
+  required_evidence_before_opening:
+    description: evidence that must EXIST (recorded, not promised) before the predicate
+      may respond with anything other than BLOCKED — e.g. for any issuance predicate:
+      policy acceptance record (exists), M7 disposition record (required), canonical
+      serialization freeze record (required), registry design record (required).
+  verification_gate:
+    description: test-like check(s) that MUST pass and be recorded (e.g. the design matrix
+      + a conformance fixture for the freeze + the bridge test family) before the opening
+      is considered live.
+  fail_closed_preserved_for:
+    description: explicit list of predicates NOT authorized by this record; they stay
+      BLOCKED.
+  rollback:
+    description: how the Council can revoke the opening (a reverse decision record,
+      mirroring the authority-recorded revocation pattern) without touching issued state.
+  authorization_id:
+    description: this template field binds the authorization to a concrete Council record
+      (single source of truth per predicate).
+
+invariants (apply to every use of the template):
+  - Opening one predicate does NOT imply opening any other (Stage-8 STOP rule).
+  - The bridge's authorized_issuance? default stays false until an explicit opening covers
+    the transition that would flip it; no cumulative 'once opened, opened forever'.
+  - No authorization may reference or mutate T0 / CONTRA-003 / archived / historical certs.
+  - Each authorization is itself a governance record in the STOP chain, and is cited by
+    the implementation it permits.
+
+choreography_to_use (future, decision-support):
+  1. Council resolves M7 (single/hybrid/distributed) — stage9_m7_disposition.yaml
+  2. Council freezes serialization scope — stage9_serialization_freeze.yaml (o1..o5)
+  3. Council issues one predicate_authorization record PER predicate, using this template,
+     each citing (a) policy acceptance, (b) M7 disposition, (c) freeze record, (d) its own
+     allowed surface + evidence + verification gate.
+  4. Implementation stage(s) may then act ONLY within the surfaces those records opened;
+     everything else remains SAFE-BLOCKED.
+
+NOTHING_IMPLEMENTED: true
+NO_AUTHORIZATION_ISSUED: true

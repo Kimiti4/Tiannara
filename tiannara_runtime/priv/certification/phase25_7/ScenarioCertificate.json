@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/scenario_certificate.json",
+  "title": "ScenarioCertificate",
+  "description": "Certification for CMFCSE or its components.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^fscert_[a-f0-9]{16}$" },
+    "entity_id": { "type": "string" },
+    "entity_type": { "type": "string", "enum": ["cmfcse", "scenario_generation_engine", "branching_engine", "probability_engine", "comparison_engine", "long_horizon_engine", "black_swan_engine"] },
+    "certification_type": { "type": "string", "enum": ["architecture", "generation", "branching", "probability", "comparison", "long_horizon", "black_swan", "replay", "data"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "constitutional_compliant": { "type": "boolean" },
+        "deterministic": { "type": "boolean" },
+        "replayable": { "type": "boolean" },
+        "uncertainty_explicit": { "type": "boolean" },
+        "evidence_traceable": { "type": "boolean" }
+      },
+      "required": ["constitutional_compliant", "deterministic", "replayable"]
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "entity_id", "entity_type", "certification_type", "checks", "fingerprint"]
+}

@@ -1,0 +1,116 @@
+artifact: EFDI_FA_001_FORECAST_SCHEMA
+record_type: forecast record schema (frozen)
+recorded_at: 2026-09-13
+governing_contract: EFDI_FA_001_AUDIT_CONTRACT
+status: FROZEN
+
+schema_version: 1.0.0
+
+rules:
+  - A forecast record is written exactly once, at issue time, and is IMMUTABLE.
+  - The post-resolution block is APPENDED to the same record after outcome
+    resolution; it never modifies any pre-resolution field.
+  - immutable_hash covers the complete pre-resolution record (canonical
+    serialization per EFDI_FA_001_FORECAST_LEDGER.yaml integrity rules) plus
+    the chain anchor. After resolution the hash recomputes over the FULL
+    record and must remain chain-consistent when replayed.
+  - Every field marked required must be present and non-null at issue time.
+  - probability vector rules: exactly one set for categorical questions
+    (P_UP, P_DOWN, P_FLAT) summing to 1.0; or a continuous Probability(f)
+    for threshold/binary questions such that P(A) = 1 - P(B).
+
+============================================================
+PRE-RESOLUTION RECORD (written at issue time, immutable)
+============================================================
+required:
+  - forecast_id          # uuid v7 / "EFDI-001-<NNN>" pattern; unique
+  - artifact_schema      # "tiannara-efdi-fa-001-forecast-v1.0.0"
+  - question             # exact, pre-registered question text
+  - domain               # enum: crypto | weather | market | synthetic | ecology | engineering | other
+  - target               # what is being predicted (e.g., "BTC/USD TWAP, next 5 min, Up/Down")
+  - horizon              # enum: 5m | 15m | 1h | 4h | 24h | 7d | other
+  - resolution_rule      # canonical reference to the pre-fixed rule + source
+                          # (EFDI_FA_001_REAL_WORLD_RESOLUTION_PROTOCOL.md)
+  - issued_at            # ISO-8601 UTC, frozen clock timestamp
+  - data_cutoff          # ISO-8601 UTC; no information after this used
+  - resolution_time      # ISO-8601 UTC; planned outcome observation time
+  - series_stage         # enum: pilot | calibration_batch | benchmark
+  - evidence_inventory   # list of evidence items actually available at cutoff
+  - signals_used         # list of signal_ids (see SignalRegistry) with
+                          # directional contribution per signal
+  - base_rates           # map: baseline -> value actually used at issue time
+                          # (e.g., B1 historical frequency, B2 local persistence)
+  - assumptions          # explicit assumptions the forecast relies on
+  - unknowns             # explicit list of unresolved unknowns
+  - models               # list of { model_id, version, output (probabilities) }
+  - forecast:
+      probabilities:     # categorical: {UP:, DOWN:, FLAT:} or binary: {P(A):, P(B):}
+                         # continuous: {median:, quantiles:}
+      point_estimate:    # optional numeric point forecast (e.g., expected return)
+      interval:          # optional prediction interval {lower:, upper:, coverage:}
+      confidence:        # reported epistemic confidence (distinct from probability)
+  - model_disagreement   # numeric aggregation metric (see METRIC_SCHEMA)
+  - predictability       # predictability_estimate 0..1 (see METRIC_SCHEMA)
+                          # NATURE: "this is a low-information environment" is a
+                          # legitimate, scoreable output distinct from the P() vector
+  - disconfirming_evidence # list of evidence that would argue against the forecast
+  - base_rate_used       # for binary/categorical: the B1 value
+  - random_seed          # when any randomness was used to generate the forecast
+  - model_versions       # hash-pinned versions of every model/signal used
+
+============================================================
+POST-RESOLUTION APPEND (written after outcome, never edits the above)
+============================================================
+resolved_fields:
+  - outcome             # observed outcome exactly per resolution_rule
+  - resolved_at         # ISO-8601 UTC
+  - resolution_source   # the actual source/stream used (may differ from
+                         # planned only per the REAL_WORLD_RESOLUTION_PROTOCOL
+                         # dispute path; any substitution is recorded here)
+  - outcome_metadata    # supporting values (e.g., realized TWAP move, observed
+                         # precip mm) captured at resolution
+  - scores:
+      brier:            # scalar
+      log_loss:         # scalar
+      mae:              # optional, for point forecasts
+      directional_accuracy: # 0/1 (for categorical/binary only)
+      interval_coverage:    # 0/1 (when interval present)
+  - calibration_bucket  # the probability bucket (0.10 steps) this forecast lands in
+  - baseline_scores:    # map baseline -> {brier:, log_loss:, directional:}
+                         # B0..B4 computed from the SAME frozen evidence base
+  - postmortem:
+      summary:          # what was believed, why, what mattered
+      failure_class:    # F-01..F-17 per FAILURE_TAXONOMY (or null if not a failure)
+      alternative_outcomes: # plausible alternatives under the same information
+      applied_lesson:   # what changes and what does NOT change
+  - immutable_hash_full # recomputed over the complete record (append included)
+
+============================================================
+VALIDATION RULES (fail-close at issue time)
+============================================================
+validation:
+  - resolve_rule_must_precede_forecast: true
+  - data_cutoff_le_resolution_time: true
+  - issued_at_gt_data_cutoff: true
+  - probabilities_close_to_1: tolerance 1e-6
+  - probabilities_in_[0,1]: true
+  - flat_threshold: declared BEFORE the issue (e.g., |move| < eps resolves FLAT
+                     or P_FLAT; the eps used must be fixed in resolution_rule)
+  - any_invalid_field: REJECT and record the rejection in the ledger with
+                       failure class F-16 (implementation defect) or F-10
+                       (measurement error), never silently coerce
+
+============================================================
+EXAMPLE (illustrative, NOT a real forecast)
+============================================================
+example_forecast_id: EFDI-001-001
+example: >
+  question: "Will the Chainlink BTC/USD TWAP (60s stream) at window end be
+  >= the window-open TWAP (5-minute window)?" resolution_rule: Polymarket
+  BTC Up or Down 5m window semantics, window T0..T0+5m, resolution source
+  https://data.chain.link/streams/btc-usd-twap-60s-streams. horizon: 5m.
+  issued_at/data_cutoff/resolution_time: T0-epsilon per data-cutoff rules.
+  forecast.probabilities: {UP: 0.51, DOWN: 0.49}. predictability: 0.15.
+  model_disagreement: 0.12. NOTE: A 51/49 forecast with low predictability
+  is a legitimate, calibration-honest output; a forced 91/09 would be an
+  audit failure signal, not a success signal.

@@ -1,0 +1,20 @@
+{
+  "schema": "SYNCHRONIZATION_EVENT_SCHEMA",
+  "version": "22.2",
+  "description": "Schema for a digital twin synchronization event",
+  "synchronization_event": {
+    "fields": {
+      "sync_id": {"type": "string", "required": true},
+      "twin_id": {"type": "string", "required": true},
+      "evidence_fingerprint": {"type": "string", "required": true},
+      "previous_state_hash": {"type": "string", "required": true},
+      "new_state_hash": {"type": "string", "required": true},
+      "changed_dimensions": {"type": "array", "required": true},
+      "synchronization_source": {"type": "string", "required": true, "enum": ["observation", "experiment", "engineering_deployment", "scientific_discovery", "governance_update"]},
+      "consistency_verified": {"type": "boolean", "required": true},
+      "generation": {"type": "integer", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic", "evidence_driven", "immutable"]
+  }
+}

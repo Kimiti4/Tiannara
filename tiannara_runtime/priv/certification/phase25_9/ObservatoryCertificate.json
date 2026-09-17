@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/observatory_certificate.json",
+  "title": "ObservatoryCertificate",
+  "description": "Certification for the Constitutional Planetary Observatory or its components.",
+  "type": "object",
+  "properties": {
+    "certificate_id": { "type": "string", "pattern": "^obcert_[a-f0-9]{16}$" },
+    "entity_id": { "type": "string" },
+    "entity_type": { "type": "string", "enum": ["cpo", "global_status_panel", "scientific_panel", "engineering_panel", "planetary_panel", "digital_twin_panel", "risk_panel", "resource_panel", "civilization_panel", "discovery_challenge_panel", "replay_visualization", "archaeology_visualization", "alert_engine", "telemetry_model"] },
+    "certification_type": { "type": "string", "enum": ["architecture", "panel", "telemetry", "replay_visualization", "archaeology_visualization", "alert_engine", "data_integrity"] },
+    "checks": {
+      "type": "object",
+      "properties": {
+        "constitutional_compliant": { "type": "boolean" },
+        "data_accurate": { "type": "boolean" },
+        "explainable": { "type": "boolean" },
+        "replayable": { "type": "boolean" },
+        "traceable": { "type": "boolean" },
+        "evidence_backed": { "type": "boolean" }
+      },
+      "required": ["constitutional_compliant", "data_accurate", "explainable", "replayable"]
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "certified_at": { "type": "integer" }
+  },
+  "required": ["certificate_id", "entity_id", "entity_type", "certification_type", "checks", "fingerprint"]
+}

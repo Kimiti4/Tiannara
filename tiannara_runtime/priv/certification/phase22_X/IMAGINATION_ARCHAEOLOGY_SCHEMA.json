@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ImaginationArchaeology",
+  "description": "Archaeological record reconstructing the complete history of scientific imagination activity",
+  "type": "object",
+  "properties": {
+    "archaeology_id": {
+      "type": "string",
+      "description": "Content-addressed identifier for this archaeology record"
+    },
+    "imagination_period": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "integer"
+        },
+        "end": {
+          "type": "integer"
+        }
+      },
+      "required": ["start", "end"]
+    },
+    "archaeology_date": {
+      "type": "integer",
+      "description": "Constitutional timestamp of archaeology analysis"
+    },
+    "hypothesis_histories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hypothesis_id": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string"
+          },
+          "motivating_gap": {
+            "type": "string"
+          },
+          "generation_date": {
+            "type": "integer"
+          },
+          "subsequent_evolution": {
+            "type": "string"
+          },
+          "validation_outcome": {
+            "type": "string"
+          },
+          "influence": {
+            "type": "string"
+          }
+        },
+        "required": ["hypothesis_id", "question", "motivating_gap", "generation_date"]
+      }
+    },
+    "counterfactual_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "world_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "modified_assumptions_summary": {
+            "type": "string"
+          },
+          "insights_gained": {
+            "type": "string"
+          },
+          "inspired_experiments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["world_id", "name", "modified_assumptions_summary"]
+      }
+    },
+    "innovation_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "concept_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "implementation_status": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          }
+        },
+        "required": ["concept_id", "name", "domain", "implementation_status"]
+      }
+    },
+    "validation_outcomes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "artifact_type": {
+            "type": "string"
+          },
+          "validation_status": {
+            "type": "string",
+            "enum": ["succeeded", "failed", "in_progress", "abandoned"]
+          },
+          "validation_evidence_summary": {
+            "type": "string"
+          },
+          "key_lesson": {
+            "type": "string"
+          }
+        },
+        "required": ["artifact_id", "artifact_type", "validation_status"]
+      }
+    },
+    "influence_assessment": {
+      "type": "string",
+      "description": "How imagination influenced scientific progress"
+    },
+    "key_discoveries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "discovery_reference": {
+            "type": "string"
+          },
+          "origin_hypothesis": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          }
+        },
+        "required": ["discovery_reference", "origin_hypothesis"]
+      }
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Deterministic content hash"
+    }
+  },
+  "required": ["archaeology_id", "imagination_period", "archaeology_date", "hypothesis_histories", "fingerprint"]
+}

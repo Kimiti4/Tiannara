@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/infrastructure_network.json",
+  "title": "InfrastructureNetwork",
+  "description": "A constitutional infrastructure network topology model.",
+  "type": "object",
+  "properties": {
+    "network_id": { "type": "string", "pattern": "^inet_[a-f0-9]{16}$" },
+    "infrastructure_id": { "type": "string" },
+    "topology_type": { "type": "string", "enum": ["star", "mesh", "ring", "hierarchical", "hybrid", "distributed"] },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "node_id": { "type": "string" },
+          "name": { "type": "string" },
+          "node_type": { "type": "string" },
+          "capacity": { "type": "number" },
+          "criticality": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "edge_id": { "type": "string" },
+          "source_id": { "type": "string" },
+          "target_id": { "type": "string" },
+          "capacity": { "type": "number" },
+          "redundant": { "type": "boolean" }
+        }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "snapshot_at": { "type": "integer" }
+  },
+  "required": ["network_id", "infrastructure_id", "topology_type", "nodes", "edges", "fingerprint"]
+}

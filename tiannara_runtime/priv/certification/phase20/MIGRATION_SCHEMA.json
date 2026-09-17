@@ -1,0 +1,37 @@
+{
+  "schema": "MIGRATION_SCHEMA",
+  "version": "20.5",
+  "description": "Schema for RuntimeMigration — deterministic generation migration",
+  "migration": {
+    "fields": {
+      "migration_id": {"type": "string", "required": true, "description": "Content-addressed migration identifier"},
+      "source_generation": {"type": "string", "required": true, "description": "Source generation reference"},
+      "target_generation": {"type": "string", "required": true, "description": "Target generation reference"},
+      "migration_steps": {"type": "array", "required": true, "description": "Ordered list of deterministic state transforms"},
+      "migration_steps.item": {
+        "type": "object",
+        "fields": {
+          "step_id": {"type": "string"},
+          "transform_type": {"type": "string"},
+          "input_hash": {"type": "string"},
+          "output_hash": {"type": "string"},
+          "evidence_ref": {"type": "string"}
+        }
+      },
+      "verification_steps": {"type": "array", "required": true, "description": "Verification criteria per step"},
+      "rollback_plan": {"type": "object", "required": true, "description": "Inverse transforms for rollback"},
+      "migration_hash": {"type": "string", "required": true, "description": "SHA-256 of complete migration"},
+      "pre_snapshot_hash": {"type": "string", "required": true, "description": "SHA-256 of source generation snapshot"},
+      "post_snapshot_hash": {"type": "string", "required": true, "description": "SHA-256 of target generation snapshot"},
+      "replay_root": {"type": "string", "required": true, "description": "Root hash of migration replay chain"},
+      "status": {"type": "string", "required": true, "description": "Planned/InProgress/Completed/RolledBack/Failed"}
+    },
+    "lifecycle": ["planned", "snapshot", "transform", "replay", "verify", "audit", "activate", "observe", "freeze"],
+    "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},`n  "constraints": [
+      "deterministic_transforms",
+      "reversible_steps",
+      "replayable_migration",
+      "identical_hashes_every_time"
+    ]
+  }
+}

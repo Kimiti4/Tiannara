@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/scenario_comparison.json",
+  "title": "ScenarioComparison",
+  "description": "A comparison of multiple future scenarios.",
+  "type": "object",
+  "properties": {
+    "comparison_id": { "type": "string", "pattern": "^fscomp_[a-f0-9]{16}$" },
+    "scenario_ids": { "type": "array", "items": { "type": "string" }, "minItems": 2 },
+    "dimensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dimension": { "type": "string" },
+          "scores": { "type": "object" },
+          "winner": { "type": "string" },
+          "spread": { "type": "number" }
+        },
+        "required": ["dimension", "scores"]
+      }
+    },
+    "divergence_points": { "type": "array", "items": { "type": "object" } },
+    "convergences": { "type": "array", "items": { "type": "string" } },
+    "ensemble_metrics": { "type": "object" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated_at": { "type": "integer" }
+  },
+  "required": ["comparison_id", "scenario_ids", "dimensions", "fingerprint"]
+}

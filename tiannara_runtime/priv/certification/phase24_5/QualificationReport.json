@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/qualification_report.json",
+  "title": "QualificationReport",
+  "description": "A comprehensive report on qualification status across all levels.",
+  "type": "object",
+  "properties": {
+    "report_id": { "type": "string", "pattern": "^qreport_[a-f0-9]{16}$" },
+    "system_id": { "type": "string" },
+    "qualification_summary": {
+      "type": "object",
+      "properties": {
+        "current_level": { "type": "string" },
+        "overall_status": { "type": "string", "enum": ["in_progress", "completed", "failed", "not_started"] },
+        "levels_completed": { "type": "integer" },
+        "levels_remaining": { "type": "integer" }
+      }
+    },
+    "level_details": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "level": { "type": "string" },
+          "status": { "type": "string" },
+          "entry_criteria_met": { "type": "boolean" },
+          "exit_criteria_met": { "type": "boolean" },
+          "evidence_count": { "type": "integer" },
+          "certificate_id": { "type": "string" }
+        }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated_at": { "type": "integer" }
+  },
+  "required": ["report_id", "system_id", "qualification_summary", "level_details", "fingerprint"]
+}

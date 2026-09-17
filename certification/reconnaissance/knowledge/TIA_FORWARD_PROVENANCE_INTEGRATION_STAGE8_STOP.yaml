@@ -1,0 +1,156 @@
+# Stage 8 — Implementation DESIGN (issuance/lifecycle/revocation under accepted policy) — STOP Record
+
+artifact: TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE8_STOP
+version: 1.0.0
+authority: TIA Council
+status: ACCEPTED AS COMPLETE / STOP — awaiting M7 + serialization-freeze decisions
+stage: 8 (Implementation DESIGN under accepted policy)
+policy: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY.yaml
+policy_acceptance: certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY_ACCEPTANCE.yaml
+gate: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STOP.yaml
+prior_stage: certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE7_STOP.yaml
+recorded_at: 2026-09-10
+
+## Stage 8 Status
+- STATUS: COMPLETE — PASS-as-COMPLETE (design delivered and self-verified) + DELIBERATE
+  STOP before ANY implementation. Policy ACCEPTED via a governance record; design artifacts
+  delivered for issuance, lifecycle/revocation, identity basis, and authority boundary.
+  Implementation is NOT authorized by this record.
+- SCOPE: EXACTLY the Council-authorized Option B + design-only channel: record policy
+  acceptance (without touching the policy draft file) and produce design-only artifacts
+  (contracts/architecture) for the FUTURE realization of issuance, lifecycle, revocation
+  under the accepted policy, using the deterministic bridge candidate identity as the
+  certificate-identity basis. All design work inside forward_provenance/ (authoring area)
+  plus two governance records next to the STOP chain.
+- POSTURE: DESIGN ONLY. No module, no test, no wiring, no registry, no storage, no
+  certificate state, no commits, no pushes, no index operations.
+
+## Acceptance (recorded, governance act, NOT implementation)
+- TIA_PROVENANCE_CERTIFICATION_POLICY.yaml is ACCEPTED by Council decision recorded in
+  TIA_PROVENANCE_CERTIFICATION_POLICY_ACCEPTANCE.yaml (2026-09-10). The draft file itself
+  is UNCHANGED; the acceptance record is the instrument.
+- Constraints preserved by acceptance: no canonical authority selected (M7 SINGLE VS
+  DISTRIBUTED REMAINS OPEN); no issuance/lifecycle/revocation authorized; no edit of
+  policy/bridge/substrate/stacks; no T0/CONTRA-003/archived/cert changes.
+
+## Certificate Identity (designed)
+- certificate_id := sha256hex(canonical(%{"candidate_id_spec" => <spec>, "spine" => <ordered
+  evidence edges>})) — exactly the Stage-6 bridge candidate identity reused as the identity
+  basis (design d1). Replay-identical, evidence-recomputable, spec-pinned; NO uuid /
+  utc_now / random bytes in identity. Identity vs decision vs authority-header are separate
+  fields (policy security: hashes vs authority never conflated).
+- The three existing issuer APIs' non-deterministic identity (root utc_now verdict structs,
+  runtime strong_rand_bytes ids, forward Certificate.issue "cert_"+uuid) are documented as
+  the NON-model, NOT adopted. Supersession stays a lifecycle property, never an identity
+  rewrite.
+
+## Issuance (designed, NOT enacted)
+- A future realization MAY issue only via an authority-REGISTERED issuer, when EVERY policy
+  all_must_hold condition (1..10) holds and NOT ONE impossible_case is present.
+- All 14 policy issuance conditions are mapped onto bridge mechanisms as the fail-closed
+  evaluation baseline (PC-01..13 + A01..A12 closure; authorized_issuance? remains constant
+  false in code). The design does NOT open a single A-predicate; opening requires per-
+  predicate Council authorization events that DO NOT exist (design d3/d4).
+- Design dependencies recorded (absent today): canonical-serialization spec, authority
+  registry, issued-id ledger/lifecycle store, M7 disposition / human-ratification channel.
+
+## Lifecycle / Revocation / Supersession (designed, NOT enacted)
+- States VALID / SUSPENDED / REVOKED / UNVERIFIABLE / SUPERSEDED with policy transition
+  rules; every transition is an ENVELOPE-BOUND DECISION RECORD (policy wording: revocation
+  is itself an envelope); revocation irreversible for an id; supersession via successor
+  issuance, original never rewritten.
+- Bridge lifecycle_table/0 is the reference vocabulary; transition/3 stays SAFE-BLOCKED;
+  the revoked-contrast case (Stage-6 §17 c.2) is now DESIGNABLE but still absent by policy.
+- Durability (issued-id ledger, lifecycle store, revocation registry) is a future
+  realization item (issuance_design design_dependencies), NOT created in Stage 8.
+
+## Authority Boundary / Ownership (designed, carried)
+- Provenance side (substrate + bridge) is unchanged; authority side concepts designed only
+  (registry, accepted policy now recorded, M7 disposition missing, ratification channel).
+- Seam: a certificate crosses only as a validated decision envelope (certificate_id +
+  decision + authority_header + policy_ref + evidence bindings); authority_header must
+  resolve against a registry. No crossing is designed before registry + M7 disposition.
+- Ownership matrix (Stage 7) carried unchanged; the only delta is policy acceptance now
+  being recorded (legal-status change, not a capability change).
+- Ratification points: rp1 policy acceptance RECORDED; rp2 M7 disposition REQUIRED AND
+  ABSENT; rp3 authority-predicate opening REQUIRED PER PREDICATE AND ABSENT.
+
+## Artifacts
+- forward_provenance/design/stage8_design_scope.yaml  (scope, binding rules, d1..d4)
+- forward_provenance/design/certificate_identity_design.yaml  (identity contract r1..r5,
+  hash format, NON-model)
+- forward_provenance/design/issuance_design.yaml  (issuer registry concept, 14 conditions,
+  bridge mapping, dependencies)
+- forward_provenance/design/lifecycle_design.yaml  (5 states, transitions, decision records,
+  revocation/supersession contracts, durability)
+- forward_provenance/design/authority_boundary_design.yaml  (boundary contract, ownership,
+  not_models, ratification points)
+- forward_provenance/output/stage8_design_matrix.json  (S8-1..S8-6 + 22 consistency checks,
+  status PASS, fails=0; accounting block)
+- certification/reconnaissance/knowledge/TIA_PROVENANCE_CERTIFICATION_POLICY_ACCEPTANCE.yaml
+  (Council acceptance record)
+- THIS record (certification/reconnaissance/knowledge/TIA_FORWARD_PROVENANCE_INTEGRATION_STAGE8_STOP.yaml)
+
+## Tests
+- Stage 8 is design-only: NO test code written or executed. The only executable check is
+  the design matrix (Stage8DesignMatrix) — artifact-checking PASS/FAIL over the design docs
+  + acceptance record + bridge fail-closed constants; it does not test any authority (none
+  exists that could be tested; issuance remains provably impossible under code-level
+  NO_AUTHORITY_POLICY).
+- Matrix results: 22 checks, 0 failures, status PASS (existence, DESIGN-ONLY marker,
+  NOTHING_IMPLEMENTED, acceptance recorded, identity=sha256, bridge fail-closed constants
+  intact, no .ex/.exs under design/, ledger deferred, M7 open).
+
+## Regression
+- No regression surface: no code changed. Existing suites were NOT re-run (would only
+  regenerate tracked scratch files at repo root — the known probe hazard). Tree verified
+  unchanged at STOP (accounting below). Root Phase-4 baseline (66/0) and forward suite
+  (85/0) stand as at Stage 6.
+
+## Accounting
+- HEAD commit: 9753a6d08702064f4d00395a1bec1c4bf3887381 — UNCHANGED.
+- T0 tree (git show --format=%T HEAD): 06f06e5e91f33e75437a47ca901eaa7e97bb0edd — UNCHANGED.
+- git status --porcelain at Stage-8 STOP: 3380 lines — EXACT match to the frozen baseline.
+  No commit, no push, no index operation, no tracked file modified.
+- Stage-8 tracked delta: ZERO. New files: 5 design YAMLs + design matrix (untracked, inside
+  forward_provenance/) and 2 governance records (untracked, next to the STOP chain in
+  certification/reconnaissance/). Aggregate porcelain unaffected (untracked dirs collapse).
+
+## Implementation (NONE)
+- IMPLEMENTATION: NONE. Zero production mutation; zero certificate issued/revoked/suspended/
+  superseded; zero registry/ledger/store created; zero policy/bridge/substrate edits; zero
+  commits/pushes; no authority selected (M7 open); no A-predicate opened.
+
+## Next Council Decision
+- The design is COMPLETE and self-verified; the FAIL-CLOSED posture is correct and proven.
+- Requested decisions before ANY implementation stage:
+  (1) dispose of M7 single-vs-distributed authority (design record or execution evidence) —
+     blocks rp2;
+  (2) authorize an IMPLEMENTATION stage that may open specific A-predicates / realize
+     issuance + lifecycle + revocation under the accepted policy, using the designed
+     deterministic identity — with a mandate that each opened predicate requires this
+     record's authorization to be cited;
+  (3) confirm canonical-serialization spec scope for the identity design (design dep in
+     certificate_identity_design).
+- STOP disposition: PASS-as-COMPLETE with DELIBERATE STOP — DESIGN ONLY, nothing enacted.
+  No Stage-9/implementation work is authorized by this record.
+
+## Council Acceptance (2026-09-10)
+- The Council ACCEPTS Stage 8 as COMPLETE / STOP. Verified clean state confirmed: T0
+  unchanged (9753a6d / 06f06e5e); porcelain 3380 unchanged; policy accepted, draft
+  untouched; M7 explicitly open, no authority designated; design self-verified (6 rows /
+  22 checks / 0 failures); implementation NOT started; certificate state zero; A-predicates
+  zero opened; rp2/rp3 correctly absent; commits/pushes/index operations zero.
+- Council RECOMMENDED SEQUENCE (recorded): (1) dispose of M7 explicitly (do not let
+  implementation imply an authority model); (2) freeze canonical-serialization scope;
+  (3) only then open implementation predicates — predicate-specific, stating each allowed
+  implementation surface and required evidence, preserving fail-closed for every un-opened
+  predicate.
+- Council FRAMING (binding): "Stage 8 design is complete; the Council must resolve the
+  remaining architectural and serialization questions before selectively opening
+  implementation predicates." Design completion does NOT silently become implementation
+  authority.
+- FOLLOW-ON: Stage 9 is defined as decision-support ONLY for (1) M7 disposition and
+  (2) canonical-serialization freeze — analysis artifacts to inform the Council decision;
+  it does NOT make those decisions and does NOT open any predicate. Implementation remains
+  not authorized.

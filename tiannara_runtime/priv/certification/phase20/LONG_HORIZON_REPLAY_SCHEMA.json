@@ -1,0 +1,32 @@
+{
+  "schema": "LONG_HORIZON_REPLAY_SCHEMA",
+  "version": "20.97",
+  "description": "Schema for long-horizon replay — deterministic reconstruction of an entire generation history",
+  "long_horizon_replay": {
+    "fields": {
+      "replay_id": {"type": "string", "required": true, "description": "Content-addressed replay identifier"},
+      "from_generation": {"type": "integer", "required": true},
+      "to_generation": {"type": "integer", "required": true},
+      "replay_type": {"type": "string", "required": true, "description": "Full/GenerationChain/EventChain/DomainChain"},
+      "step_hashes": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "generation": {"type": "integer"}, "event_id": {"type": "string"},
+            "state_hash": {"type": "string"}, "step_hash": {"type": "string"}
+          }
+        }
+      },
+      "root_hash_original": {"type": "string", "required": true},
+      "root_hash_reconstructed": {"type": "string", "required": true},
+      "all_hashes_match": {"type": "boolean", "required": true},
+      "generations_replayed": {"type": "integer", "required": true},
+      "events_replayed": {"type": "integer", "required": true},
+      "continuous": {"type": "boolean", "required": true, "description": "True if no gaps, no drifts, no corruption"},
+      "status": {"type": "string", "required": true, "description": "Pending/Verified/DriftDetected/Failed"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["deterministic_replay", "identical_hashes_required", "cold_storage_independent"]
+  }
+}

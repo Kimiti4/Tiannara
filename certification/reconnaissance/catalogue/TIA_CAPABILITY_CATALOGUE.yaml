@@ -1,0 +1,209 @@
+# Move 2 — Capability Reference Catalogue (SKELETON)
+# Status of this file: SKELETON. Structure and state rules are established;
+# population beyond the Council-record seed entries below belongs to a later
+# Move-2 pass under separate review. No entry here ascribes a capability on
+# the basis of code presence.
+artifact: CAPABILITY_CATALOGUE
+artifact_status: POST_T0
+catalogue_status: SKELETON
+move: 2
+program: TIA_FORENSIC_RECON_ENGINE
+schema_version: 1.0.0
+spec: master.md Move 2 capability-catalogue material, as scoped by Council ruling
+state_model:
+  primary_operational_state:
+    values: [CERTIFIED, BOUNDED, PENDING, BLOCKED]
+    rule: Assigned ONLY with sufficient evidence per master.md sections 6-9. Never by code presence alone. Never by documentation alone.
+  evidence_classification:
+    values: [UNKNOWN]
+    meaning: Insufficient evidence to assign a primary operational state.
+    rule: UNKNOWN is a separate classification, not a fifth primary state. An unevidenced capability is UNKNOWN, never forced into PENDING.
+  promotion_rule: PENDING -> IMPLEMENTED -> BOUNDED -> VALIDATED -> CERTIFIED, each step evidence-backed. DOCUMENTED -> CERTIFIED is invalid.
+entry_schema:
+  required: [id, name, provenance, description]
+  optional: [existence_checks, functional_checks, evidence_requirements, dependencies, primary_state, evidence_class, evidence_refs]
+  provenance_values: [BASELINE, TIANNARA_CORE, EXPERIMENTAL, NOVEL, EMERGENT, CROSS_CUTTING, DEPENDENCY, FUTURE]
+  id_format: TIA-CAP-NNN
+seed_entries:
+- id: TIA-CAP-001
+  name: D1 Signal Intelligence
+  provenance: [TIANNARA_CORE]
+  description: Signal-intelligence forecasting input layer, Council-certified bounded envelope.
+  primary_state: CERTIFIED
+  evidence_class: null
+  evidence_refs: [Council session record (D-series certifications)]
+- id: TIA-CAP-002
+  name: D2 Forecast + Calibration
+  provenance: [TIANNARA_CORE]
+  description: Forecast generation and calibration layer, Council-certified bounded envelope.
+  primary_state: CERTIFIED
+  evidence_class: null
+  evidence_refs: [Council session record (D-series certifications)]
+- id: TIA-CAP-003
+  name: D3 Decision Intelligence
+  provenance: [TIANNARA_CORE]
+  description: Decision layer with forecast/decision/outcome separation, Council-certified bounded envelope.
+  primary_state: CERTIFIED
+  evidence_class: null
+  evidence_refs: [Council session record (D-series certifications)]
+- id: TIA-CAP-004
+  name: D4 Counterfactual / Attribution
+  provenance: [TIANNARA_CORE]
+  description: Counterfactual and attribution layer with temporal firewall, Council-certified bounded envelope.
+  primary_state: CERTIFIED
+  evidence_class: null
+  evidence_refs: [Council session record (D-series certifications)]
+- id: TIA-CAP-005
+  name: D5 Noise / Robustness / Sensitivity
+  provenance: [TIANNARA_CORE]
+  description: Noise and robustness layer, three-valued verdict, Council-certified bounded envelope.
+  primary_state: CERTIFIED
+  evidence_class: null
+  evidence_refs: [Council session record (D-series certifications)]
+- id: TIA-CAP-006
+  name: E03 experimental execution
+  provenance: [EXPERIMENTAL]
+  description: Stabilizer-only emergence campaign execution (0 runs on record).
+  primary_state: BLOCKED
+  evidence_class: null
+  evidence_refs: [Council session record (E03 protocol BLOCKED pending execution-start authorization)]
+- id: TIA-CAP-007
+  name: Measurement integrity boundary
+  provenance: [TIANNARA_CORE]
+  description: Planner outputs carry simulation provenance and cannot satisfy the evidence gate as real execution; fabricated decision records removed at source.
+  primary_state: CERTIFIED
+  evidence_class: null
+  evidence_refs: [Council session record (R7 CERTIFIED 12/12; R3 remediation verified in T0 content)]
+- id: TIA-CAP-008
+  name: Forensic evidence collection (T0-bound inventory)
+  provenance: [EXPERIMENTAL]
+  description: Deterministic read-only inventory of a pinned commit with integrity gate and two-run canonical determinism.
+  primary_state: BOUNDED
+  evidence_class: null
+  evidence_refs: [T0_RI_CERTIFICATION.json verdict CERTIFIED (20/20 RI; 2/2 canonical runs identical)]
+  bounds: T0-bound inventory only; no interpretation, no call graphs, no capability ascription
+- id: TIA-CAP-009
+  name: Stabilizer regulation (OLEF/OCM/HSV/CTL)
+  provenance: [TIANNARA_CORE]
+  description: Stabilizer modules present in T0 (ctl.ex, hsv/*, ocm/*, plus phase13 adapter).
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 file inventory (presence only)]
+  missing_for_state: No behavior, test-execution, or regulation-effect evidence in the baseline record; E03 execution blocked
+- id: TIA-CAP-010
+  name: Long-horizon evolution execution
+  provenance: [TIANNARA_CORE]
+  description: Evolution substrate present in T0 (LongHorizon, DriftAudit, Trajectory with SR-4 guards verified in T0 content).
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 file inventory (presence); T0 content read of trajectory.ex guards]
+  missing_for_state: No execution evidence at baseline; ungated long_horizon tests live in working tree, not verified against T0 content here
+- id: TIA-CAP-011
+  name: Decision-record integrity (DecisionArchive facade)
+  provenance: [EXPERIMENTAL]
+  description: DecisionArchive is a logger-only facade in T0 (record/1 emits Logger.debug; no persistence path in the module).
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 content read of auditor.ex DecisionArchive module]
+  missing_for_state: Facade behavior read from source, not demonstrated by execution; no persistence contract to certify against
+- id: TIA-CAP-012
+  name: Constitutional law registry records
+  provenance: [TIANNARA_CORE]
+  description: Versioned constitutional-law records kept as JSON in T0 (CONSTITUTIONAL_LAWS.json present).
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 path CONSTITUTIONAL_LAWS.json verified present via ls-tree]
+  confidence: HIGH that evidence is insufficient (presence only; no enforcement, versioning-behavior, or consumption evidence in baseline)
+  promotion_notes: Would require evidence of laws being loaded, versioned, and enforced at runtime; none in baseline
+  contradiction_notes: None recorded
+- id: TIA-CAP-013
+  name: Governance invariants and patterns records
+  provenance: [TIANNARA_CORE]
+  description: Governance invariant/pattern records kept as JSON in T0.
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 paths GOVERNANCE_INVARIANTS.json, GOVERNANCE_PATTERNS.json verified present via ls-tree]
+  confidence: HIGH that evidence is insufficient (presence only; no evaluation or enforcement evidence in baseline)
+  promotion_notes: Would require evidence of invariants being evaluated against live state
+  contradiction_notes: None recorded
+- id: TIA-CAP-014
+  name: Council audit log continuity
+  provenance: [TIANNARA_CORE]
+  description: Council audit trail persisted as DETS in T0, including corrupted-rotation variants.
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 council_audit_log.dets plus corrupted-rotation variants verified present via ls-tree (383 matching paths)]
+  confidence: HIGH that evidence is insufficient (presence only; log readability, rotation integrity, and consumption unevidenced; corrupted variants noted without interpretation)
+  promotion_notes: Would require evidence of log readability across rotations and of a live consumer
+  contradiction_notes: Corrupted variants exist in T0; whether they indicate a defect or routine rotation residue is UNRESOLVED (not investigated in this pass)
+- id: TIA-CAP-015
+  name: Knowledge graph records (constitutional/mathematical/scientific)
+  provenance: [TIANNARA_CORE]
+  description: Knowledge-graph snapshot records kept as JSON in T0.
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 paths CONSTITUTIONAL_KNOWLEDGE_GRAPH.json, MATHEMATICS_KNOWLEDGE_GRAPH.json, SCIENTIFIC_KNOWLEDGE_GRAPH.json verified present via ls-tree]
+  confidence: HIGH that evidence is insufficient (presence only; no construction, query, or freshness evidence in baseline)
+  promotion_notes: Would require evidence of graph construction from live state and of query/consumption paths
+  contradiction_notes: None recorded
+- id: TIA-CAP-016
+  name: Memory substrate (mindcache)
+  provenance: [TIANNARA_CORE]
+  description: Mindcache memory-substrate paths present in T0.
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 mindcache/ paths verified present via ls-tree (6 matching paths)]
+  confidence: HIGH that evidence is insufficient (presence only; no read/write/retrieval behavior evidence in baseline)
+  promotion_notes: Would require evidence of memory operations against live state
+  contradiction_notes: None recorded
+- id: TIA-CAP-017
+  name: Certification framework module
+  provenance: [CROSS_CUTTING]
+  description: Certification-framework module present in T0 (certification_framework.ex).
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 path certification_framework.ex verified present via ls-tree]
+  confidence: HIGH that evidence is insufficient (presence only; no execution or certification-output linkage evidence in baseline)
+  promotion_notes: Would require evidence of the framework executing and producing the certificate artifacts found in T0
+  contradiction_notes: None recorded
+- id: TIA-CAP-018
+  name: Phase-14 certification artifact corpus
+  provenance: [EXPERIMENTAL]
+  description: Phase-14 campaign, hash, replay, and governance artifacts present in T0 (162 matching paths).
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 phase14/ tree verified present via ls-tree (162 matching paths)]
+  confidence: HIGH that evidence is insufficient (presence only; artifact-production linkage and replay verification unevidenced in baseline)
+  promotion_notes: Would require evidence binding artifacts to the executions that produced them
+  contradiction_notes: None recorded
+- id: TIA-CAP-019
+  name: Benchmark harness
+  provenance: [BASELINE]
+  description: Benchmark tree present in T0 (11 matching paths).
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 bench/ tree verified present via ls-tree (11 matching paths)]
+  confidence: HIGH that evidence is insufficient (presence only; no benchmark execution records bound to the harness in baseline)
+  promotion_notes: Would require evidence of benchmark runs with recorded results
+  contradiction_notes: None recorded
+- id: TIA-CAP-020
+  name: World-model self-profile records
+  provenance: [TIANNARA_CORE]
+  description: World-model self-profile and subsystem-belief records present in T0.
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 paths world_model/self_profile.json, world_model/subsystem_beliefs.json verified present via ls-tree]
+  confidence: HIGH that evidence is insufficient (presence only; no evidence these records are generated from, or consumed by, live state)
+  promotion_notes: Would require evidence of profile generation from live state and of consumers
+  contradiction_notes: None recorded
+- id: TIA-CAP-021
+  name: Discovery evidence-chain records
+  provenance: [TIANNARA_CORE]
+  description: Discovery evidence-chain and ledger records present in T0.
+  primary_state: null
+  evidence_class: UNKNOWN
+  evidence_refs: [T0 paths DISCOVERY_EVIDENCE_CHAIN.json, TIANNARA_EVIDENCE_LEDGER.json verified present via ls-tree]
+  confidence: HIGH that evidence is insufficient (presence only; no chain-construction or verification evidence in baseline)
+  promotion_notes: Would require evidence of chain construction during live discovery and of independent verification
+  contradiction_notes: None recorded
+population_rule: Further entries require per-entry evidence review. Code presence alone never justifies an entry. Documentation alone never justifies above UNKNOWN.

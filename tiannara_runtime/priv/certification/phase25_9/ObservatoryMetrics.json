@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tiannara.ai/schemas/observatory_metrics.json",
+  "title": "ObservatoryMetrics",
+  "description": "Health metrics for the Constitutional Planetary Observatory.",
+  "type": "object",
+  "properties": {
+    "metrics_id": { "type": "string", "pattern": "^obmetr_[a-f0-9]{16}$" },
+    "observatory_uptime": { "type": "number" },
+    "panel_availability": { "type": "number" },
+    "data_accuracy": { "type": "number" },
+    "display_latency": { "type": "number" },
+    "data_source_connectivity": { "type": "number" },
+    "alert_accuracy": { "type": "number" },
+    "replay_integrity": { "type": "number" },
+    "certification_coverage": { "type": "number" },
+    "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "measured_at": { "type": "integer" }
+  },
+  "required": ["metrics_id", "observatory_uptime", "panel_availability", "data_accuracy", "fingerprint"]
+}

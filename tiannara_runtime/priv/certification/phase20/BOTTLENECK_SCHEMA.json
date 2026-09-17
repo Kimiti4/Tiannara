@@ -1,0 +1,36 @@
+{
+  "schema": "BOTTLENECK_SCHEMA",
+  "version": "20.8",
+  "description": "Schema for BottleneckReport — detected system bottleneck",
+  "bottleneck": {
+    "fields": {
+      "bottleneck_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "subsystem": {"type": "string", "required": true, "description": "Affected subsystem"},
+      "severity": {"type": "string", "required": true, "description": "Critical/Major/Moderate/Minor/Informational"},
+      "frequency": {"type": "string", "required": true, "description": "Continuous/Periodic/Intermittent/Rare"},
+      "resource_usage": {"type": "object", "required": true, "description": "Resource consumption at detection"},
+      "performance_loss": {"type": "object", "required": true, "description": "Quantified performance impact"},
+      "causal_chain": {
+        "type": "array", "required": true,
+        "items": {
+          "type": "object",
+          "fields": {
+            "step": {"type": "integer"}, "cause": {"type": "string"},
+            "effect": {"type": "string"}, "confidence": {"type": "number"},
+            "addressable": {"type": "boolean"}
+          }
+        }
+      },
+      "evidence_root": {"type": "string", "required": true},
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+      "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "severity_levels": ["critical", "major", "moderate", "minor", "informational"],
+    "detection_dimensions": [
+      "runtime", "memory", "reasoning", "planning", "engineering",
+      "research", "knowledge_graph", "mathematics", "world_model", "governance"
+    ],
+    "constraints": ["deterministic_detection", "reproducible_bottleneck", "content_addressed"]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "SCIENTIFIC_LAW_SCHEMA",
+  "version": "22.X.2",
+  "description": "Schema for a discovered scientific law",
+  "scientific_law": {
+    "fields": {
+      "law_id": {"type": "string", "required": true},
+      "statement": {"type": "string", "required": true},
+      "supporting_principles": {"type": "array", "required": true},
+      "supporting_evidence": {"type": "array", "required": true},
+      "mathematical_representation": {"type": "string", "required": false},
+      "applicable_domains": {"type": "array", "required": true},
+      "boundary_conditions": {"type": "object", "required": true},
+      "confidence": {"type": "number", "required": true, "description": "0.0–1.0"},
+      "prediction_accuracy": {"type": "number", "required": false, "description": "0.0–1.0"},
+      "replay_root": {"type": "string", "required": true},
+      "archaeology_root": {"type": "string", "required": true},
+      "fingerprint": {"type": "string", "required": true}
+    },
+    "constraints": ["empirically_testable", "deterministic", "replayable"]
+  }
+}

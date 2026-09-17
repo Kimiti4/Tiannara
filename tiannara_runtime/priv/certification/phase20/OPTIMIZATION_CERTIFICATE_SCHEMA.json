@@ -1,0 +1,40 @@
+{
+  "schema": "OPTIMIZATION_CERTIFICATE_SCHEMA",
+  "version": "20.8",
+  "description": "Schema for OptimizationCertificate — constitutional optimization certification",
+  "optimization_certificate": {
+    "fields": {
+      "certificate_id": {"type": "string", "required": true, "description": "Content-addressed identifier"},
+      "candidate": {"type": "string", "required": true, "description": "Reference to OptimizationCandidate"},
+      "bottleneck": {"type": "string", "required": true, "description": "Reference to BottleneckReport"},
+      "tradeoff_root": {"type": "string", "required": true, "description": "Root hash of trade-off analysis"},
+      "simulation_root": {"type": "string", "required": true, "description": "Root hash of simulation"},
+      "recommendation_root": {"type": "string", "required": true, "description": "Root hash of recommendation"},
+      "certificate_hash": {"type": "string", "required": true, "description": "SHA-256 of certificate canonical form"},
+      "recommendation_type": {"type": "string", "required": true, "description": "Engineering/Experiment/Evolution/Research"},
+      "priority": {"type": "integer", "required": true, "description": "Deterministic priority ranking"},
+      "expected_impact": {"type": "object", "required": true, "description": "Quantified expected impact"},
+      "issued_by": {"type": "string", "required": true, "description": "Constitutional authority entity"},
+      "issued_at": {"type": "integer", "required": true, "description": "Deterministic timestamp"},
+      "scope": {"type": "string", "required": true, "description": "Authorized scope of recommendation"},
+      "status": {"type": "string", "required": true, "description": "Draft/UnderReview/Certified/Actioned/Archived/Revoked"}
+    },
+    "certification_requirements": [
+      "evidence_foundation",
+      "tradeoff_completeness",
+      "simulation_validity",
+      "constitutional_compliance",
+      "recommendation_clarity",
+      "audit_clearance"
+    ],
+    "lifecycle": ["draft", "under_review", "certified", "actioned", "archived", "revoked"],
+      "replay_root": {"type": "string", "required": true, "description": "Content-addressed replay root identifier"},
+  "archaeology_root": {"type": "string", "required": true, "description": "Content-addressed archaeology root identifier"},
+  "constraints": [
+      "no_direct_runtime_modification",
+      "recommendation_only",
+      "integration_through_phase_20_4",
+      "certification_artifacts_immutable"
+    ]
+  }
+}
