@@ -351,7 +351,8 @@ defmodule TiannaraOS.Provenance.CertificateIssuance do
       metric_manifest: metric_manifest,
       declared_class: request["reproducibility_class"],
       historical: request["historical_references"],
-      canon_spec: request["canonical_serialization_spec"]
+      canon_spec: request["canonical_serialization_spec"],
+      epistemic_maturity: request["epistemic_maturity"]
     }
 
     must_hold =
@@ -432,6 +433,10 @@ defmodule TiannaraOS.Provenance.CertificateIssuance do
 
   defp must_hold("canonical_serialization_spec_cited_recomputed", s) do
     if s.canon_spec == @canon_spec, do: "PASS", else: "FAIL"
+  end
+
+  defp must_hold("epistemic_maturity_declared", s) do
+    if s.epistemic_maturity in @epistemic_maturities and s.epistemic_maturity != "UNSPECIFIED", do: "PASS", else: "FAIL"
   end
 
   defp must_hold("historical_firewall_passes", s) do
