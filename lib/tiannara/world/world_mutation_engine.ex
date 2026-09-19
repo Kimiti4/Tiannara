@@ -368,8 +368,19 @@ defmodule Tiannara.World.WorldMutationEngine do
         Tiannara.World.UnifiedRealityGraph.remove_entity(mutation.rollback_data.entity_id)
 
       :remove_relationship ->
-        Tiannara.World.UnifiedRealityGraph.remove_relationships_for_entity(mutation.rollback_data.from_id)
-        :ok
+        case Tiannara.World.UnifiedRealityGraph.get_relationships(
+               mutation.rollback_data.from,
+               :out,
+               mutation.rollback_data.type
+             ) do
+          {:ok, relationships} ->
+            Enum.each(
+              Enum.filter(relationships, &(&1.to == mutation.rollback_data.to)),
+              fn _ -> :ok end
+            )
+            :ok
+          _ -> {:error, :relationship_not_found}
+        end
 
       :restore_entity ->
         restore_entity_from_mutation(mutation)
