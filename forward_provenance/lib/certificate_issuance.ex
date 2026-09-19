@@ -51,6 +51,7 @@ defmodule TiannaraOS.Provenance.CertificateIssuance do
 
   @allowed_decisions ["certifies", "certifies_bounded", "qualifies_partial"]
   @reproducible_classes ["FULL", "CONDITIONAL", "PARTIAL", "NOT"]
+  @epistemic_maturities ["STRUCTURAL", "IMPLEMENTED", "UNIT_VERIFIED", "INTEGRATION_VERIFIED", "RUNTIME_VERIFIED", "EMPIRICALLY_VALIDATED", "LONG_HORIZON_VALIDATED", "UNSPECIFIED"]
 
   @all_must_hold [
     "evidence_chain_single_execution_terminal_success",
@@ -62,7 +63,8 @@ defmodule TiannaraOS.Provenance.CertificateIssuance do
     "metric_recomputable_or_partial_with_gap",
     "reproducibility_class_declared",
     "canonical_serialization_spec_cited_recomputed",
-    "historical_firewall_passes"
+    "historical_firewall_passes",
+    "epistemic_maturity_declared"
   ]
 
   @impossible_cases [
@@ -84,7 +86,8 @@ defmodule TiannaraOS.Provenance.CertificateIssuance do
       "reused_identity" => "TiannaraOS.Provenance.CertificateIdentity (P-IDENTITY-CANONICAL)",
       "canonical_serialization_spec" => @canon_spec,
       "all_must_hold" => @all_must_hold,
-      "impossible_cases" => @impossible_cases
+      "impossible_cases" => @impossible_cases,
+      "epistemic_maturities" => @epistemic_maturities
     }
   end
 
@@ -166,6 +169,8 @@ defmodule TiannaraOS.Provenance.CertificateIssuance do
                             seed_dependence, corpus_sha256}
     reproducibility_class one of #{inspect(@reproducible_classes)}
     historical_references [] (must be empty; historical firewall)
+    epistemic_maturity one of the declared evidence maturity states; this is
+      separate from lifecycle state and never inferred from issuance success.
 
   Returns {:ok, issued} | {:ok, replayed} | {:error, reason, detail}.
   Certificate state changes ONLY on a fully-passing issuance; never otherwise.
@@ -602,6 +607,7 @@ defmodule TiannaraOS.Provenance.CertificateIssuance do
         "impossible_cases" => gate["impossible_cases"]
       },
       "state" => "VALID",
+      "epistemic_maturity" => Map.get(request, "epistemic_maturity", "UNSPECIFIED"),
       "recorded_at" => DateTime.utc_now() |> DateTime.to_iso8601()
     }
 
