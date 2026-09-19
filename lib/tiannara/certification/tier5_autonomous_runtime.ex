@@ -120,7 +120,8 @@ defmodule Tiannara.Certification.Tier5AutonomousRuntime do
         passed: false,
         duration_us: System.monotonic_time(:microsecond) - start_time,
         error: "No non-critical supervisors available for kill test",
-        confidence: 0.0
+        confidence: nil,
+      confidence_basis: :not_derived_from_test_outcome
       }
     else
       Enum.each(targets, fn sup ->
@@ -145,7 +146,8 @@ defmodule Tiannara.Certification.Tier5AutonomousRuntime do
         duration_us: System.monotonic_time(:microsecond) - start_time,
         supervisors_killed: length(targets),
         supervisors_recovered: final_alive,
-        confidence: if(passed, do: 0.75, else: 0.0)
+        confidence: nil,
+        confidence_basis: :not_derived_from_test_outcome
       }
     end
   end
@@ -158,7 +160,8 @@ defmodule Tiannara.Certification.Tier5AutonomousRuntime do
       evidence_class: :not_verified,
       passed: false,
       duration_us: 0,
-      confidence: 0.0,
+      confidence: nil,
+      confidence_basis: :not_derived_from_test_outcome,
       verification: :not_verified,
       reason: reason
     }
