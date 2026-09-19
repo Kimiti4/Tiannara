@@ -106,7 +106,7 @@ defmodule Tiannara.Certification.Tier5AutonomousRuntime do
 
     targets =
       if length(app_supervisors) >= 3 do
-        Enum.take_random(app_supervisors, 3)
+        Enum.take(app_supervisors, 3)
       else
         []
       end
