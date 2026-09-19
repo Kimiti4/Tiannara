@@ -33,7 +33,7 @@ defmodule Tiannara.World.UnifiedRealityGraph do
   @impl true
   def constitutional_score do
     stats = if Process.whereis(__MODULE__), do: GenServer.call(__MODULE__, :stats), else: %{healthy: true, entity_count: 0, relationship_count: 0, entities_with_provenance: 0}
-    prov_ratio = if stats.entity_count > 0, do: stats.entities_with_provenance / stats.entity_count, else: 1.0
+    prov_ratio = if stats.entity_count > 0, do: stats.entities_with_provenance / stats.entity_count, else: 0.0
 
     %ConstitutionalScore{
       service_id: id(), health: if(stats.healthy, do: 1.0, else: 0.0),
@@ -103,8 +103,9 @@ defmodule Tiannara.World.UnifiedRealityGraph do
   @impl true
   def handle_call({:remove_entity, entity_id}, _from, state) do
     vertex = {:entity, entity_id}
+    existed = :digraph.vertex(state.graph, vertex) != false
     :digraph.del_vertex(state.graph, vertex)
-    {:reply, :ok, state}
+    {:reply, :ok, if(existed, do: %{state | entity_count: max(0, state.entity_count - 1)}, else: state)}
   end
 
   @impl true
@@ -123,10 +124,8 @@ defmodule Tiannara.World.UnifiedRealityGraph do
       case {:digraph.vertex(state.graph, from), :digraph.vertex(state.graph, to)} do
         {false, _} -> {:reply, {:error, {:missing_entity, spec.from_id}}, state}
         {_, false} -> {:reply, {:error, {:missing_entity, spec.to_id}}, state}
-        _ -> :ok
-      end
-
-      case :digraph.add_edge(state.graph, from, to, spec.type, spec) do
+        _ ->
+          case :digraph.add_edge(state.graph, from, to, spec.type, spec) do
         {:error, {:bad_edge, _}} -> {:reply, {:error, :circular_dependency}, state}
         edge -> {:reply, {:ok, edge}, %{state | relationship_count: state.relationship_count + 1}}
       end
