@@ -302,7 +302,7 @@ defmodule Tiannara.CRAV.LaunchReadiness do
   defp compute_recommendation(overall, blockers) do
     has_critical =
       Enum.any?(blockers, fn b ->
-        b == "Critical supervisor failure"
+        b in ["Critical supervisor failure", "Phase Ω verification incomplete"]
       end)
 
     cond do
