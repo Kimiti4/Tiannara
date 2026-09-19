@@ -64,7 +64,8 @@ defmodule Tiannara.Certification.ExerciseRunner do
           output: output,
           duration_us: duration_us,
           passed: Map.get(evaluation, :passed, false),
-          confidence: Map.get(evaluation, :confidence, 0.0),
+          confidence: nil,
+          confidence_basis: :not_derived_from_test_outcome,
           metrics: Map.get(evaluation, :metrics, %{})
         }
 
