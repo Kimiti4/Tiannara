@@ -95,7 +95,7 @@ defmodule Tiannara.World.SnapshotManager do
       entity_count: world_stats.entity_count,
       relationship_count: world_stats.relationship_count,
       relationships: snapshot_relationships(),
-      hash: compute_hash(snapshot_id <> to_string(world_stats.entity_count))
+      hash: compute_snapshot_hash(snapshot_data)
     }
 
     ExecutiveMemory.record_decision(
@@ -223,6 +223,13 @@ defmodule Tiannara.World.SnapshotManager do
     :crypto.hash(:sha256, data) |> Base.encode16(case: :lower)
   end
 
+  defp compute_snapshot_hash(snapshot) do
+    snapshot
+    |> Map.delete(:hash)
+    |> :erlang.term_to_binary()
+    |> compute_hash()
+  end
+
   defp snapshot_relationships do
     case UnifiedRealityGraph.query_entities(limit: 100_000) do
       {:ok, ids} ->
@@ -248,7 +255,7 @@ defmodule Tiannara.World.SnapshotManager do
   end
 
   defp verify_snapshot_hash(snapshot) do
-    expected = compute_hash(snapshot.id <> to_string(snapshot.entity_count))
+    expected = compute_snapshot_hash(snapshot)
     if snapshot.hash == expected, do: :ok, else: raise "snapshot integrity check failed"
   end
 
