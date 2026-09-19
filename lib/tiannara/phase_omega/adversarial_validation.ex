@@ -9,7 +9,7 @@ defmodule Tiannara.PhaseOmega.AdversarialValidation do
 
   @required_steps [:injected, :observed, :detected, :classified, :blocked, :restored]
 
-  def verify(mutation \ nil) do
+  def verify(mutation \\ nil) do
     case mutation do
       %{evidence: evidence} when is_map(evidence) ->
         evaluate(evidence)

@@ -14,11 +14,12 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
           starter :: (ServiceRegistry.service_spec() -> {:ok, pid()} | {:error, term()}),
           health_checker :: (ServiceRegistry.service_spec() -> :healthy | :unhealthy),
           score_checker :: (ServiceRegistry.service_spec() -> ConstitutionalScore.t()),
-          resource_checker :: (ServiceRegistry.service_spec() -> :sufficient | :insufficient)
+          resource_checker :: (ServiceRegistry.service_spec() -> :sufficient | :insufficient),
+          services :: [ServiceRegistry.service_spec()] | nil
         ) :: boot_result()
-  def boot(starter, health_checker, score_checker, resource_checker) do
+  def boot(starter, health_checker, score_checker, resource_checker, services \\ nil) do
     start_time = System.monotonic_time(:millisecond)
-    order = ServiceRegistry.boot_order()
+    order = services || ServiceRegistry.boot_order()
 
     {results, failed_critical, gate_results} =
       Enum.reduce(order, {[], [], %{}}, fn spec, {acc, failed_crit, gates} ->
@@ -115,14 +116,14 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
     mod = spec.module
 
     with true <- function_exported?(mod, :capabilities, 0),
-         capabilities when is_list(capabilities) <- mod.capabilities(),
-         true <- Enum.all?(spec.provides, &(&1 in capabilities)) do
-      :pass
+         capabilities when is_list(capabilities) <- mod.capabilities() do
+      missing = Enum.reject(spec.provides, &(&1 in capabilities))
+
+      if missing == [],
+        do: :pass,
+        else: {:fail, "Declared capabilities not implemented: #{inspect(missing)}"}
     else
       false -> {:fail, "Service does not expose its declared capabilities"}
-      capabilities when is_list(capabilities) ->
-        missing = Enum.reject(spec.provides, &(&1 in capabilities))
-        {:fail, "Declared capabilities not implemented: #{inspect(missing)}"}
       _ -> {:fail, "Invalid capabilities/0 result"}
     end
   rescue

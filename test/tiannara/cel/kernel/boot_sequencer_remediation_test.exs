@@ -38,7 +38,8 @@ defmodule Tiannara.CEL.Kernel.BootSequencerRemediationTest do
           human_oversight: 1.0,
           computed_at: DateTime.utc_now()
         } end,
-        fn _ -> :sufficient end
+        fn _ -> :sufficient end,
+        [spec()]
       )
 
     assert result.status == :failed
@@ -53,7 +54,8 @@ defmodule Tiannara.CEL.Kernel.BootSequencerRemediationTest do
         fn _ -> {:ok, self()} end,
         fn _ -> :healthy end,
         fn _ -> raise "score unavailable" end,
-        fn _ -> :sufficient end
+        fn _ -> :sufficient end,
+        [spec()]
       )
 
     assert result.status == :failed
