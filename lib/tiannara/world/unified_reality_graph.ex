@@ -47,6 +47,7 @@ defmodule Tiannara.World.UnifiedRealityGraph do
   def add_entity(spec), do: GenServer.call(__MODULE__, {:add_entity, spec})
   def remove_entity(entity_id), do: GenServer.call(__MODULE__, {:remove_entity, entity_id})
   def remove_relationships_for_entity(entity_id), do: GenServer.call(__MODULE__, {:remove_relationships_for_entity, entity_id})
+  def remove_relationship(from_id, to_id, type), do: GenServer.call(__MODULE__, {:remove_relationship, from_id, to_id, type})
   def add_relationship(spec), do: GenServer.call(__MODULE__, {:add_relationship, spec})
   def get_entity(entity_id), do: GenServer.call(__MODULE__, {:get_entity, entity_id})
   def query_entities(opts \\ []), do: GenServer.call(__MODULE__, {:query_entities, opts})
@@ -111,10 +112,26 @@ defmodule Tiannara.World.UnifiedRealityGraph do
   @impl true
   def handle_call({:remove_relationships_for_entity, entity_id}, _from, state) do
     vertex = {:entity, entity_id}
-    in_edges = :digraph.in_edges(state.graph, vertex)
-    out_edges = :digraph.out_edges(state.graph, vertex)
-    Enum.each(in_edges ++ out_edges, fn edge -> :digraph.del_edge(state.graph, edge) end)
-    {:reply, :ok, state}
+    edges = Enum.uniq(:digraph.in_edges(state.graph, vertex) ++ :digraph.out_edges(state.graph, vertex))
+    Enum.each(edges, &:digraph.del_edge(state.graph, &1))
+    {:reply, :ok, %{state | relationship_count: max(0, state.relationship_count - length(edges))}}
+  end
+
+  @impl true
+  def handle_call({:remove_relationship, from_id, to_id, type}, _from, state) do
+    edges = :digraph.out_edges(state.graph, {:entity, from_id})
+
+    matching =
+      Enum.filter(edges, fn edge ->
+        case :digraph.edge(state.graph, edge) do
+          {_, { :entity, ^from_id}, {:entity, ^to_id}, ^type, _} -> true
+          _ -> false
+        end
+      end)
+
+    Enum.each(matching, &:digraph.del_edge(state.graph, &1))
+    {:reply, if(matching == [], do: {:error, :relationship_not_found}, else: :ok),
+     %{state | relationship_count: max(0, state.relationship_count - length(matching))}}
   end
 
   @impl true
