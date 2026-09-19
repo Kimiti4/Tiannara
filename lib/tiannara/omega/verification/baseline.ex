@@ -29,7 +29,9 @@ defmodule Tiannara.Omega.Verification.Baseline do
 
     {:ok, grant} =
       Authorization.human_grant(auth, :human_1,
-        ttl: 3600, candidate_content_hash: content_hash)
+        ttl: 3600,
+        candidate_content_hash: content_hash,
+        effect_descriptor: DeploymentGateway.deployment_effect_descriptor(candidate, :human_1))
 
     %__MODULE__{
       candidate: candidate,
