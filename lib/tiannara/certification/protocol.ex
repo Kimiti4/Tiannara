@@ -47,8 +47,10 @@ defmodule Tiannara.Certification.Protocol do
     }
 
     Logger.info("[TCCP] Full certification: #{report.overall_status} — #{report.total_passed} passed, #{unknown_count} unknown, #{failed_count} failed")
-    GenServer.cast(__MODULE__, {:store_report, report})
-    report
+    case GenServer.call(__MODULE__, {:store_report, report}) do
+      :ok -> report
+      {:error, reason} -> Map.put(report, :overall_status, :inconclusive) |> Map.put(:persistence_error, reason)
+    end
   end
 
   def run_tier(:cognitive), do: Tiannara.Certification.Tier1Cognitive.run_all()
@@ -64,10 +66,26 @@ defmodule Tiannara.Certification.Protocol do
   def init(_opts), do: {:ok, %{last_certification: nil, history: []}}
 
   @impl true
-  def handle_cast({:store_report, report}, state) do
-    {:noreply, %{state | last_certification: report, history: [report | state.history] |> Enum.take(100)}}
+  def handle_call({:store_report, report}, _from, state) do
+    case persist_report(report) do
+      :ok -> {:reply, :ok, %{state | last_certification: report, history: [report | state.history] |> Enum.take(100)}}
+      {:error, reason} -> {:reply, {:error, reason}, state}
+    end
   end
 
   @impl true
   def handle_call(:last_report, _from, state), do: {:reply, state.last_certification, state}
+
+  defp persist_report(report) do
+    path = System.get_env("TIANNARA_CERTIFICATION_REPORT") || "tmp/certification/latest.json"
+    dir = Path.dirname(path)
+
+    with :ok <- File.mkdir_p(dir),
+         json <- Jason.encode!(report, pretty: true),
+         :ok <- File.write(path, json) do
+      :ok
+    end
+  rescue
+    error -> {:error, Exception.message(error)}
+  end
 end
