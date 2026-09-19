@@ -45,6 +45,34 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
     assert record.granted_by == :human_1
   end
 
+  test "ADVERSARIAL: an unbound grant cannot cross the deployment effect boundary" do
+    {candidate, cert, lineage, grant, identity} = approved_candidate_with_grant()
+    unbound_grant = %{grant | effect_id: nil}
+
+    assert {:error, :grant_does_not_match_effect} =
+             DeploymentGateway.deploy(candidate, cert, lineage, unbound_grant, identity)
+  end
+
+  test "ADVERSARIAL: a grant bound to one deployment effect cannot authorize another" do
+    {candidate, cert, lineage, grant, identity} = approved_candidate_with_grant()
+
+    altered_descriptor =
+      DeploymentGateway.deployment_effect_descriptor(candidate, :human_1)
+      |> Map.put(:operation, "rollback")
+
+    {:ok, auth} = Authorization.prepare(%{explanation_id: candidate.proposal_id})
+    {:ok, pending} = Authorization.request(auth)
+    {:ok, mismatched_grant} =
+      Authorization.human_grant(pending, :human_1,
+        candidate_content_hash: DeploymentGateway.content_hash(candidate),
+        effect_descriptor: altered_descriptor)
+
+    assert mismatched_grant.effect_id != grant.effect_id
+
+    assert {:error, :grant_does_not_match_effect} =
+             DeploymentGateway.deploy(candidate, cert, lineage, mismatched_grant, identity)
+  end
+
   test "ADVERSARIAL: bypass human authorization — no grant" do
     {candidate, cert, lineage, _grant, identity} = approved_candidate_with_grant()
 
