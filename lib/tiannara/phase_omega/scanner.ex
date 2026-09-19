@@ -158,7 +158,7 @@ defmodule Tiannara.PhaseOmega.Scanner do
     result = Tiannara.PhaseOmega.TelemetryCoverageAuditor.audit()
     %{
       deliverable: "Ω.9 — Telemetry Coverage",
-      status: if(result.missing_count == 0, do: :pass, else: :warn),
+      status: result.status,
       detail: "#{result.covered}/#{result.total_required} events covered, #{result.missing_count} missing",
       data: result
     }
