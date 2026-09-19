@@ -71,7 +71,7 @@ defmodule Tiannara.World.UnifiedRealityGraph do
 
   @impl true
   def init(_opts) do
-    graph = :digraph.new([:cyclic, :protected])
+    graph = :digraph.new([:acyclic, :protected])
     Process.send_after(self(), :snapshot, @snapshot_interval)
     {:ok, %{
       graph: graph, entity_count: 0, relationship_count: 0,
@@ -120,8 +120,11 @@ defmodule Tiannara.World.UnifiedRealityGraph do
   def handle_call({:add_relationship, spec}, _from, state) do
     with :ok <- validate_spec(spec, [:from_id, :to_id, :type]) do
       from = {:entity, spec.from_id}; to = {:entity, spec.to_id}
-      ensure_vertex(state.graph, from, spec.from_id)
-      ensure_vertex(state.graph, to, spec.to_id)
+      case {:digraph.vertex(state.graph, from), :digraph.vertex(state.graph, to)} do
+        {false, _} -> {:reply, {:error, {:missing_entity, spec.from_id}}, state}
+        {_, false} -> {:reply, {:error, {:missing_entity, spec.to_id}}, state}
+        _ -> :ok
+      end
 
       case :digraph.add_edge(state.graph, from, to, spec.type, spec) do
         {:error, {:bad_edge, _}} -> {:reply, {:error, :circular_dependency}, state}
@@ -274,9 +277,7 @@ defmodule Tiannara.World.UnifiedRealityGraph do
     if missing == [], do: :ok, else: {:error, {:missing_fields, missing}}
   end
 
-  defp ensure_vertex(graph, vertex, id) do
-    unless :digraph.vertex(graph, vertex), do: :digraph.add_vertex(graph, vertex, %{id: id, auto_created: true, ingested_at: DateTime.utc_now()})
-  end
+  defp ensure_vertex(_graph, _vertex, _id), do: :ok
 
   defp get_edges(graph, vertex, direction) do
     case direction do
