@@ -148,7 +148,7 @@ defmodule Tiannara.PhaseOmega.Scanner do
     full = Tiannara.PhaseOmega.RuntimeAuditor.audit_all()
     %{
       deliverable: "Ω.8 — Scheduler Audit",
-      status: if(full.schedulers.running == full.schedulers.known_timers.total, do: :pass, else: :warn),
+      status: if(full.schedulers.running == full.schedulers.known_timers.total, do: :unknown, else: :warn),
       detail: "#{full.schedulers.running}/#{full.schedulers.known_timers.total} known timers running",
       data: full.schedulers
     }
@@ -287,8 +287,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     status = if rq < 100, do: :pass, else: :warn
     %{
       deliverable: "Ω.18 — Load Verification",
-      status: status,
-      detail: "Run queue length: #{rq}",
+      status: if(status == :pass, do: :unknown, else: status),
+      detail: "Run queue length: #{rq}; load governance not independently verified",
       data: %{run_queue: rq, schedulers: :erlang.system_info(:schedulers_online)}
     }
   end
