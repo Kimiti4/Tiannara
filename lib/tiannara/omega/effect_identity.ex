@@ -179,13 +179,17 @@ defmodule Tiannara.Omega.EffectIdentity do
   defp canonical_term(value), do: value
 
   defp encode_json({:object, pairs}) do
-    [?{, Enum.map_intersperse(pairs, ?,, fn {key, value} ->
-      [:json.encode(key), ?:, encode_json(value)]
-    end), ?}]
+    [
+      ?{,
+      Enum.map_intersperse(pairs, ?,, fn {key, value} ->
+        [:json.encode(key), ?:, encode_json(value)]
+      end),
+      ?}
+    ]
   end
 
   defp encode_json({:array, values}) do
-    [?[ , Enum.map_intersperse(values, ?,, &encode_json/1), ?]]
+    [?[, Enum.map_intersperse(values, ?,, &encode_json/1), ?]]
   end
 
   defp encode_json(value) when is_binary(value), do: :json.encode(value)

@@ -16,7 +16,7 @@ defmodule Tiannara.Omega.EffectIdentityTest do
         semantic_version: "1",
         identity_version: EffectIdentity.identity_version()
       },
-      overrides
+      Map.new(overrides)
     )
   end
 
@@ -43,9 +43,7 @@ defmodule Tiannara.Omega.EffectIdentityTest do
              EffectIdentity.effect_id(descriptor(operation: "delete"))
 
     assert {:ok, changed_target} =
-             EffectIdentity.effect_id(
-               descriptor(target: %{type: "candidate", id: "candidate-2"})
-             )
+             EffectIdentity.effect_id(descriptor(target: %{type: "candidate", id: "candidate-2"}))
 
     assert original != changed_operation
     assert original != changed_target
@@ -74,23 +72,24 @@ defmodule Tiannara.Omega.EffectIdentityTest do
   end
 
   test "unsupported semantic values are rejected rather than guessed" do
-    assert {:error, {:unsupported_value, self()}} =
-             EffectIdentity.effect_id(descriptor(parameters: %{pid: self()}))
+    pid = self()
+
+    assert {:error, {:unsupported_value, ^pid}} =
+             EffectIdentity.effect_id(descriptor(parameters: %{pid: pid}))
   end
 
   test "atom and string keys normalize to the same semantic representation" do
-    string_descriptor =
-      descriptor(%{
-        "principal" => "human:alice",
-        "authority_scope" => "candidate:deploy",
-        "operation" => "deploy",
-        "target" => %{"type" => "candidate", "id" => "candidate-1"},
-        "parameters" => %{"mode" => "production"},
-        "environment" => %{"region" => "ke-1"},
-        "intent" => "deploy the certified candidate",
-        "semantic_version" => "1",
-        "identity_version" => EffectIdentity.identity_version()
-      })
+    string_descriptor = %{
+      "principal" => "human:alice",
+      "authority_scope" => "candidate:deploy",
+      "operation" => "deploy",
+      "target" => %{"type" => "candidate", "id" => "candidate-1"},
+      "parameters" => %{"mode" => "production"},
+      "environment" => %{"region" => "ke-1"},
+      "intent" => "deploy the certified candidate",
+      "semantic_version" => "1",
+      "identity_version" => EffectIdentity.identity_version()
+    }
 
     atom_descriptor = descriptor()
 
