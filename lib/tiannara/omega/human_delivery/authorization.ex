@@ -12,8 +12,15 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
 
   Constitutional basis: augmentation clause, Safety and Reliability ("Capability
   must never outpace verification"), "Maintain audit trails".
+
+  Effect boundary: a grant may be minted bound to the canonical identity of a
+  specific consequential effect (see `Tiannara.Omega.EffectIdentity`). A grant
+  names either no effect or exactly one; a grant that names no effect can never
+  be valid for a specific effect. This prevents an authorization granted for one
+  effect from being replayed against a different effect.
   """
 
+  alias Tiannara.Omega.EffectIdentity
   alias Tiannara.Omega.HumanDelivery.Explanation
 
   @enforce_keys [:authorization_id, :explanation_id]
@@ -24,6 +31,7 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
     :granted_at,
     :ttl,
     :candidate_content_hash,
+    :effect_id,
     :decision,
     :reason,
     :lineage,
@@ -92,21 +100,30 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
   Mint an AuthorizationGrant with an optional TTL and candidate content hash.
   The content hash binds the grant to the candidate's state at authorization
   time, preventing post-authorization mutation.
+
+  The `:effect_descriptor` option binds the grant to the canonical identity of
+  the consequential effect being authorized. Binding is enforced at mint time:
+  an invalid descriptor prevents the grant from being minted.
   """
   def human_grant(%__MODULE__{status: :pending_authorization} = auth, human_id, opts)
       when not is_nil(human_id) do
     ttl = Keyword.get(opts, :ttl, @default_ttl)
     candidate_content_hash = Keyword.get(opts, :candidate_content_hash)
 
-    {:ok,
-     %{auth
-      | status: :granted,
-        human_id: human_id,
-        decision: :granted,
-        granted_at: System.system_time(:second),
-        ttl: ttl,
-        candidate_content_hash: candidate_content_hash,
-        lineage: auth.lineage ++ [{:granted_by, human_id}]}}
+    with {:ok, effect_id} <- bind_effect(Keyword.get(opts, :effect_descriptor)) do
+      {:ok,
+       %{
+         auth
+         | status: :granted,
+           human_id: human_id,
+           decision: :granted,
+           granted_at: System.system_time(:second),
+           ttl: ttl,
+           candidate_content_hash: candidate_content_hash,
+           effect_id: effect_id,
+           lineage: auth.lineage ++ [{:granted_by, human_id}]
+       }}
+    end
   end
 
   def human_grant(%__MODULE__{status: :pending_authorization}, nil, _opts),
@@ -119,11 +136,13 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
   def human_deny(%__MODULE__{status: :pending_authorization} = auth, reason)
       when not is_nil(reason) do
     {:ok,
-     %{auth
-      | status: :denied,
-        decision: :denied,
-        reason: reason,
-        lineage: auth.lineage ++ [{:denied_for, reason}]}}
+     %{
+       auth
+       | status: :denied,
+         decision: :denied,
+         reason: reason,
+         lineage: auth.lineage ++ [{:denied_for, reason}]
+     }}
   end
 
   def human_deny(%__MODULE__{status: :pending_authorization}, nil),
@@ -140,6 +159,18 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
     do: eid == explanation_id
 
   def valid_for?(_auth, _explanation_id), do: false
+
+  @doc """
+  The deployer's effect-boundary check. A grant is valid for an effect only if
+  it was minted bound to that exact canonical effect identity. A grant that
+  names no effect can never authorize a specific effect.
+  """
+  def valid_for_effect?(%__MODULE__{status: :granted, effect_id: effect_id}, descriptor)
+      when is_binary(effect_id) do
+    EffectIdentity.verify(descriptor, effect_id) == :ok
+  end
+
+  def valid_for_effect?(_auth, _descriptor), do: false
 
   @doc """
   Returns true if the grant has expired. A grant is expired if it is granted and
@@ -171,6 +202,18 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
 
   def expire(%__MODULE__{status: status}, _now),
     do: {:error, {:illegal_transition, from: status, to: :expired}}
+
+  defp bind_effect(nil), do: {:ok, nil}
+
+  defp bind_effect(descriptor) when is_map(descriptor) do
+    case EffectIdentity.effect_id(descriptor) do
+      {:ok, effect_id} -> {:ok, effect_id}
+      {:error, reason} -> {:error, {:invalid_effect_descriptor, reason}}
+    end
+  end
+
+  defp bind_effect(_descriptor),
+    do: {:error, {:invalid_effect_descriptor, :descriptor_must_be_a_map}}
 
   defp make_id, do: :"auth-#{System.unique_integer([:monotonic])}"
 end
