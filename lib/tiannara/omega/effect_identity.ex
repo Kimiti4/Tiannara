@@ -160,24 +160,22 @@ defmodule Tiannara.Omega.EffectIdentity do
     map
     |> Enum.map(fn {key, value} -> {key, canonical_term(value)} end)
     |> Enum.sort_by(fn {key, _value} -> key end)
+    |> then(&{:object, &1})
   end
 
-  defp canonical_term(list) when is_list(list), do: Enum.map(list, &canonical_term/1)
+  defp canonical_term(list) when is_list(list),
+    do: {:array, Enum.map(list, &canonical_term/1)}
+
   defp canonical_term(value), do: value
 
-  defp encode_json(term) when is_list(term) and term == [], do: "[]"
+  defp encode_json({:object, pairs}) do
+    [?{, Enum.map_intersperse(pairs, ?,, fn {key, value} ->
+      [:json.encode(key), ?:, encode_json(value)]
+    end), ?}]
+  end
 
-  defp encode_json(term) when is_list(term) do
-    # Canonical maps are represented as sorted key/value pairs, while arrays
-    # remain ordinary lists. The descriptor normalization above guarantees
-    # that map keys are binaries, so map encoding can be handled explicitly.
-    if Keyword.keyword?(term) do
-      [?{, Enum.map_intersperse(term, ?,, fn {key, value} ->
-        [:json.encode(key), ?:, encode_json(value)]
-      end), ?}]
-    else
-      [?[, Enum.map_intersperse(term, ?,, &encode_json/1), ?]]
-    end
+  defp encode_json({:array, values}) do
+    [?[ , Enum.map_intersperse(values, ?,, &encode_json/1), ?]]
   end
 
   defp encode_json(value) when is_binary(value), do: :json.encode(value)
