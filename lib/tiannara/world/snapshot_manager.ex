@@ -197,6 +197,7 @@ defmodule Tiannara.World.SnapshotManager do
           })
         end)
         Enum.each(Map.get(snapshot, :relationships, []), &UnifiedRealityGraph.add_relationship/1)
+        UnifiedWorldModel.reconcile_from_graph()
         {:reply, :ok, state}
     end
   end
