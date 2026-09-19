@@ -43,7 +43,7 @@ defmodule Tiannara.World.SnapshotManager do
       constitutional_alignment: 1.0,
       transparency: 1.0,
       explainability: 1.0,
-      evidence_quality: 1.0,
+      evidence_quality: if(stats.snapshot_count > 0, do: 1.0, else: 0.0),
       human_oversight: 1.0,
       computed_at: DateTime.utc_now()
     }
@@ -104,6 +104,7 @@ defmodule Tiannara.World.SnapshotManager do
       snapshot_data
     )
 
+    persist_snapshot(snapshot_data)
     persist_snapshot(snapshot_data)
     new_snapshots = [snapshot_data | state.snapshots] |> Enum.take(@retention_count)
 
