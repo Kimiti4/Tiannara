@@ -265,19 +265,13 @@ defmodule Tiannara.PhaseOmega.Scanner do
   end
 
   defp run_omega_17 do
-    # FailureInjection — check Sentinel and OED for failure handling
-    _has_sentinel = Code.ensure_loaded?(Tiannara.Sentinel.Supervisor)
-    sentinel_pid = Process.whereis(Tiannara.Sentinel.Supervisor)
-    sentinel_alive = is_pid(sentinel_pid) && Process.alive?(sentinel_pid)
-    _has_oed = Code.ensure_loaded?(Tiannara.OED.Supervisor)
-    oed_pid = Process.whereis(Tiannara.OED.Supervisor)
-    oed_alive = is_pid(oed_pid) && Process.alive?(oed_pid)
-    status = if sentinel_alive && oed_alive, do: :unknown, else: :warn
+    # FailureInjection — readiness is not execution evidence.
+    result = Tiannara.PhaseOmega.AdversarialValidation.verify()
     %{
-      deliverable: "Ω.17 — Failure Injection Readiness",
-      status: status,
-      detail: "Sentinel alive=#{sentinel_alive}, OED alive=#{oed_alive}",
-      data: %{sentinel_alive: sentinel_alive, oed_alive: oed_alive}
+      deliverable: "Ω.17 — Failure Injection Verification",
+      status: result.status,
+      detail: Map.get(result, :reason, "Mutation evidence evaluated"),
+      data: result
     }
   end
 
