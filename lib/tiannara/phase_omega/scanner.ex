@@ -72,8 +72,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     certs = Tiannara.PhaseOmega.SubsystemRegistry.list_boot_certificates()
     %{
       deliverable: "Ω.2 — Boot Sequence",
-      status: :pass,
-      detail: "#{length(certs)} boot certificates issued",
+      status: if(certs == [], do: :unknown, else: :pass),
+      detail: "#{length(certs)} boot certificates present; issuance validity not independently re-verified",
       data: %{certificates: certs}
     }
   end
@@ -93,8 +93,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     specs = Tiannara.PhaseOmega.WiringEngine.defined_specs()
     %{
       deliverable: "Ω.4 — Wiring Engine",
-      status: :pass,
-      detail: "#{length(specs)} dark subsystem specs defined",
+      status: :unknown,
+      detail: "#{length(specs)} wiring specs defined; runtime wiring not independently verified",
       data: %{specs: specs}
     }
   end
@@ -103,9 +103,13 @@ defmodule Tiannara.PhaseOmega.Scanner do
     result = Tiannara.PhaseOmega.EventFlowVerifier.verify_all()
     has_observatory = Code.ensure_loaded?(ObservatoryApi.Router)
     status = if has_observatory do
-      if(result.failed_paths == 0, do: :pass, else: :warn)
+      cond do
+        result.unknown_paths > 0 -> :unknown
+        result.failed_paths == 0 -> :pass
+        true -> :warn
+      end
     else
-      :pass
+      :unknown
     end
     %{
       deliverable: "Ω.5 — Event Flow Verification",
@@ -120,8 +124,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     auditor = Tiannara.PhaseOmega.RuntimeAuditor.audit_supervisors()
     %{
       deliverable: "Ω.6 — Supervisor Audit",
-      status: :pass,
-      detail: "#{auditor.total} supervisors inspected",
+      status: :unknown,
+      detail: "#{auditor.total} supervisors inspected; supervisor correctness not independently established",
       data: auditor
     }
   end
@@ -144,8 +148,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     full = Tiannara.PhaseOmega.RuntimeAuditor.audit_all()
     %{
       deliverable: "Ω.8 — Scheduler Audit",
-      status: :pass,
-      detail: "#{full.schedulers.running}/#{full.schedulers.known_timers.total} timers running",
+      status: if(full.schedulers.running == full.schedulers.known_timers.total, do: :pass, else: :warn),
+      detail: "#{full.schedulers.running}/#{full.schedulers.known_timers.total} known timers running",
       data: full.schedulers
     }
   end
@@ -164,7 +168,7 @@ defmodule Tiannara.PhaseOmega.Scanner do
     # ObservatoryRegistration — check if Phoenix endpoint is alive
     api_available = Code.ensure_loaded?(ObservatoryApi.Router)
     endpoint_alive = Process.whereis(TiannaraWeb.Endpoint) && Process.alive?(Process.whereis(TiannaraWeb.Endpoint))
-    status = if api_available, do: :pass, else: :pass
+    status = if api_available && endpoint_alive, do: :pass, else: :unknown
     %{
       deliverable: "Ω.10 — Observatory Registration",
       status: status,
@@ -211,8 +215,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     has_rate_limit = Code.ensure_loaded?(ObservatoryApi.Plugs.RateLimit)
     %{
       deliverable: "Ω.13 — Security Verification",
-      status: :pass,
-      detail: "RBAC=#{rbac_loaded}, RateLimit=#{has_rate_limit}",
+      status: if(rbac_loaded && has_rate_limit, do: :unknown, else: :unknown),
+      detail: "RBAC=#{rbac_loaded}, RateLimit=#{has_rate_limit}; security properties not independently exercised",
       data: %{rbac: rbac_loaded, rate_limit: has_rate_limit}
     }
   end
@@ -225,8 +229,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     boot_certs = Tiannara.PhaseOmega.SubsystemRegistry.list_boot_certificates()
     %{
       deliverable: "Ω.14 — Replay Verification",
-      status: :pass,
-      detail: "OMCE.MemoryContinuity alive=#{omce_alive}, #{length(boot_certs)} certs replayable",
+      status: :unknown,
+      detail: "OMCE.MemoryContinuity alive=#{omce_alive}, #{length(boot_certs)} boot certs present; replay not executed",
       data: %{omce_alive: omce_alive, boot_certificates: length(boot_certs)}
     }
   end
@@ -237,8 +241,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     has_law_arch = Code.ensure_loaded?(Tiannara.SOPL.LawArchaeology)
     %{
       deliverable: "Ω.15 — Archaeology Verification",
-      status: :pass,
-      detail: "MetaArchaeology=#{arch_loaded}, LawArchaeology=#{has_law_arch}",
+      status: :unknown,
+      detail: "MetaArchaeology=#{arch_loaded}, LawArchaeology=#{has_law_arch}; reconstruction not independently executed",
       data: %{meta_archaeology: arch_loaded, law_archaeology: has_law_arch}
     }
   end
@@ -249,8 +253,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     processes = :erlang.system_info(:process_count)
     %{
       deliverable: "Ω.16 — Resource Verification",
-      status: :pass,
-      detail: "Memory=#{div(mem_info, 1024)}KB, Processes=#{processes}",
+      status: :unknown,
+      detail: "Memory=#{div(mem_info, 1024)}KB, Processes=#{processes}; resource governance not exercised",
       data: %{
         total_memory_bytes: mem_info,
         process_count: processes,
@@ -268,7 +272,7 @@ defmodule Tiannara.PhaseOmega.Scanner do
     _has_oed = Code.ensure_loaded?(Tiannara.OED.Supervisor)
     oed_pid = Process.whereis(Tiannara.OED.Supervisor)
     oed_alive = is_pid(oed_pid) && Process.alive?(oed_pid)
-    status = if sentinel_alive && oed_alive, do: :pass, else: :warn
+    status = if sentinel_alive && oed_alive, do: :unknown, else: :warn
     %{
       deliverable: "Ω.17 — Failure Injection Readiness",
       status: status,
@@ -305,8 +309,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     # LaunchReportGenerator — summarizes everything in this scan
     %{
       deliverable: "Ω.20 — Launch Report",
-      status: :pass,
-      detail: "Generated as part of this scan",
+      status: :unknown,
+      detail: "Report generated; launch readiness is not independently verified",
       data: %{
         scan_time: DateTime.utc_now(),
         node: Node.self()
@@ -322,7 +326,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
       passed: Enum.count(statuses, &(&1 == :pass)),
       warnings: Enum.count(statuses, &(&1 == :warn)),
       failed: Enum.count(statuses, &(&1 == :fail)),
-      healthy: Enum.all?(statuses, &(&1 in [:pass, :warn])),
+      healthy: Enum.all?(statuses, &(&1 == :pass)),
+      inconclusive: Enum.count(statuses, &(&1 == :unknown)),
       scanned_at: DateTime.utc_now()
     }
   end
