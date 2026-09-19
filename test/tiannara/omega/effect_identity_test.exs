@@ -27,7 +27,7 @@ defmodule Tiannara.Omega.EffectIdentityTest do
     assert first == second
   end
 
-  test "map key ordering does not change identity" do
+  test "nested map key ordering does not change identity" do
     a = descriptor(parameters: %{mode: "production", timeout: 30})
     b = descriptor(parameters: %{timeout: 30, mode: "production"})
 
@@ -51,17 +51,11 @@ defmodule Tiannara.Omega.EffectIdentityTest do
     assert original != changed_target
   end
 
-  test "runtime metadata does not affect identity when excluded from semantics" do
-    base = descriptor()
-    retry = Map.put(base, :retry_count, 4)
-    worker = Map.put(base, :worker_id, "worker-99")
+  test "runtime metadata is not accepted as part of the semantic descriptor" do
+    assert {:error, {:unknown_fields, fields}} =
+             EffectIdentity.effect_id(Map.put(descriptor(), :retry_count, 4))
 
-    assert {:ok, original} = EffectIdentity.effect_id(base)
-    assert {:ok, retry_id} = EffectIdentity.effect_id(retry)
-    assert {:ok, worker_id} = EffectIdentity.effect_id(worker)
-
-    assert original == retry_id
-    assert original == worker_id
+    assert "retry_count" in fields
   end
 
   test "claimed identity is verified against canonical semantics" do
