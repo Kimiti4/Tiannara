@@ -127,7 +127,8 @@ defmodule Tiannara.World.UnifiedRealityGraph do
         _ ->
           case :digraph.add_edge(state.graph, from, to, spec.type, spec) do
         {:error, {:bad_edge, _}} -> {:reply, {:error, :circular_dependency}, state}
-        edge -> {:reply, {:ok, edge}, %{state | relationship_count: state.relationship_count + 1}}
+            edge -> {:reply, {:ok, edge}, %{state | relationship_count: state.relationship_count + 1}}
+          end
       end
     else {:error, r} -> {:reply, {:error, r}, state} end
   end
