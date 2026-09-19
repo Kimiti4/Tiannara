@@ -45,9 +45,9 @@ defmodule Tiannara.Omega.DeploymentGateway do
     # Serialize the whole check→commit critical section so two concurrent
     # deployments of the same grant cannot both pass all checks before either
     # records (at-most-one-deployment invariant).
-    with_lock registry_path, fn ->
+    with_lock(registry_path, fn ->
       do_deploy(candidate, certification, lineage, grant, identity, registry_path)
-    end
+    end)
   end
 
   defp do_deploy(candidate, certification, lineage, grant, identity, registry_path) do
@@ -72,7 +72,12 @@ defmodule Tiannara.Omega.DeploymentGateway do
       }
 
       if registry_path,
-        do: DeploymentRegistry.record_deployment(grant.authorization_id, record.deployment_id, registry_path)
+        do:
+          DeploymentRegistry.record_deployment(
+            grant.authorization_id,
+            record.deployment_id,
+            registry_path
+          )
 
       {:ok, record, deployed_candidate}
     end
@@ -89,6 +94,7 @@ defmodule Tiannara.Omega.DeploymentGateway do
     table = ensure_lock_table()
     key = {:deploy, registry_path}
     claim(table, key, self())
+
     try do
       fun.()
     after
@@ -188,7 +194,10 @@ defmodule Tiannara.Omega.DeploymentGateway do
       not Authorization.valid_for?(grant, candidate.proposal_id) ->
         {:error, :grant_does_not_match_candidate}
 
-      not Authorization.valid_for_effect?(grant, deployment_effect_descriptor(candidate, grant.human_id)) ->
+      not Authorization.valid_for_effect?(
+        grant,
+        deployment_effect_descriptor(candidate, grant.human_id)
+      ) ->
         {:error, :grant_does_not_match_effect}
 
       true ->
@@ -205,7 +214,7 @@ defmodule Tiannara.Omega.DeploymentGateway do
   different candidate content while retaining the same effect identity.
   """
   def deployment_effect_descriptor(%Candidate{} = candidate, principal) do
-    %{
+    semantic_value(%{
       principal: principal,
       authority_scope: "candidate:deploy",
       operation: "deploy",
@@ -221,8 +230,20 @@ defmodule Tiannara.Omega.DeploymentGateway do
       intent: %{kind: "candidate_deployment"},
       semantic_version: "1",
       identity_version: EffectIdentity.identity_version()
-    }
+    })
   end
+
+  defp semantic_value(value) when is_atom(value), do: Atom.to_string(value)
+
+  defp semantic_value(value) when is_map(value) do
+    Map.new(value, fn {key, val} -> {key, semantic_value(val)} end)
+  end
+
+  defp semantic_value(value) when is_list(value) do
+    Enum.map(value, &semantic_value/1)
+  end
+
+  defp semantic_value(value), do: value
 
   defp check_grant_unexpired(%Authorization{} = grant) do
     if Authorization.expired?(grant) do
@@ -232,7 +253,10 @@ defmodule Tiannara.Omega.DeploymentGateway do
     end
   end
 
-  defp check_identity_authenticated(%AuthenticatedHumanIdentity{} = identity, %Authorization{} = grant) do
+  defp check_identity_authenticated(
+         %AuthenticatedHumanIdentity{} = identity,
+         %Authorization{} = grant
+       ) do
     cond do
       not AuthenticatedHumanIdentity.authenticated?(identity) ->
         {:error, :identity_not_authenticated}
@@ -259,7 +283,10 @@ defmodule Tiannara.Omega.DeploymentGateway do
 
   @doc "Compute a content hash for a candidate (for mutation detection)."
   def content_hash(%Candidate{content: content}) do
-    content |> :erlang.term_to_binary() |> then(&:crypto.hash(:sha256, &1)) |> Base.encode16(case: :lower)
+    content
+    |> :erlang.term_to_binary()
+    |> then(&:crypto.hash(:sha256, &1))
+    |> Base.encode16(case: :lower)
   end
 
   defp make_id, do: :"deploy-#{System.unique_integer([:monotonic])}"

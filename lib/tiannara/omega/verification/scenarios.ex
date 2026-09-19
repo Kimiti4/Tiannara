@@ -20,12 +20,26 @@ defmodule Tiannara.Omega.Verification.Scenarios do
 
     def attack(world, baseline) do
       result =
-        DeploymentGateway.deploy(baseline.candidate, baseline.certification,
-          baseline.lineage, nil, baseline.identity, world.deployment_registry_path)
+        DeploymentGateway.deploy(
+          baseline.candidate,
+          baseline.certification,
+          baseline.lineage,
+          nil,
+          baseline.identity,
+          world.deployment_registry_path
+        )
 
       outcome = classify(result)
-      ScenarioOutcome.new(name(), attack_type(), invariant(), outcome, :rejected,
-        [{:attempted, :deploy_without_grant}], baseline.lineage)
+
+      ScenarioOutcome.new(
+        name(),
+        attack_type(),
+        invariant(),
+        outcome,
+        :rejected,
+        [{:attempted, :deploy_without_grant}],
+        baseline.lineage
+      )
     end
 
     defp classify({:error, :authorization_grant_required}), do: :rejected
@@ -46,12 +60,26 @@ defmodule Tiannara.Omega.Verification.Scenarios do
       expired_grant = %{baseline.authorization | granted_at: System.system_time(:second) - 9999}
 
       result =
-        DeploymentGateway.deploy(baseline.candidate, baseline.certification,
-          baseline.lineage, expired_grant, baseline.identity, world.deployment_registry_path)
+        DeploymentGateway.deploy(
+          baseline.candidate,
+          baseline.certification,
+          baseline.lineage,
+          expired_grant,
+          baseline.identity,
+          world.deployment_registry_path
+        )
 
       outcome = classify(result)
-      ScenarioOutcome.new(name(), attack_type(), invariant(), outcome, :rejected,
-        [{:attempted, :deploy_with_expired_grant}], baseline.lineage)
+
+      ScenarioOutcome.new(
+        name(),
+        attack_type(),
+        invariant(),
+        outcome,
+        :rejected,
+        [{:attempted, :deploy_with_expired_grant}],
+        baseline.lineage
+      )
     end
 
     defp classify({:error, :grant_expired}), do: :rejected
@@ -69,17 +97,33 @@ defmodule Tiannara.Omega.Verification.Scenarios do
 
     def attack(world, baseline) do
       forged = %AuthenticatedHumanIdentity{
-        identity_id: :forged, human_id: :human_1,
-        authenticated_at: nil, method: :forged
+        identity_id: :forged,
+        human_id: :human_1,
+        authenticated_at: nil,
+        method: :forged
       }
 
       result =
-        DeploymentGateway.deploy(baseline.candidate, baseline.certification,
-          baseline.lineage, baseline.authorization, forged, world.deployment_registry_path)
+        DeploymentGateway.deploy(
+          baseline.candidate,
+          baseline.certification,
+          baseline.lineage,
+          baseline.authorization,
+          forged,
+          world.deployment_registry_path
+        )
 
       outcome = classify(result)
-      ScenarioOutcome.new(name(), attack_type(), invariant(), outcome, :rejected,
-        [{:attempted, :deploy_with_forged_identity}], baseline.lineage)
+
+      ScenarioOutcome.new(
+        name(),
+        attack_type(),
+        invariant(),
+        outcome,
+        :rejected,
+        [{:attempted, :deploy_with_forged_identity}],
+        baseline.lineage
+      )
     end
 
     defp classify({:error, :identity_not_authenticated}), do: :rejected
@@ -99,13 +143,26 @@ defmodule Tiannara.Omega.Verification.Scenarios do
       bad_cert = %{verdict: :not_certified}
 
       result =
-        DeploymentGateway.deploy(baseline.candidate, bad_cert,
-          baseline.lineage, baseline.authorization, baseline.identity,
-          world.deployment_registry_path)
+        DeploymentGateway.deploy(
+          baseline.candidate,
+          bad_cert,
+          baseline.lineage,
+          baseline.authorization,
+          baseline.identity,
+          world.deployment_registry_path
+        )
 
       outcome = classify(result)
-      ScenarioOutcome.new(name(), attack_type(), invariant(), outcome, :rejected,
-        [{:attempted, :deploy_uncertified}], baseline.lineage)
+
+      ScenarioOutcome.new(
+        name(),
+        attack_type(),
+        invariant(),
+        outcome,
+        :rejected,
+        [{:attempted, :deploy_uncertified}],
+        baseline.lineage
+      )
     end
 
     defp classify({:error, :certification_invalid}), do: :rejected
@@ -122,19 +179,38 @@ defmodule Tiannara.Omega.Verification.Scenarios do
     def boundary, do: :candidate_integrity
 
     def attack(world, baseline) do
-      mutated = %{baseline.candidate | content: %{baseline.candidate.content | target: :malicious}}
+      mutated = %{
+        baseline.candidate
+        | content: %{baseline.candidate.content | target: :malicious}
+      }
 
       result =
-        DeploymentGateway.deploy(mutated, baseline.certification,
-          baseline.lineage, baseline.authorization, baseline.identity,
-          world.deployment_registry_path)
+        DeploymentGateway.deploy(
+          mutated,
+          baseline.certification,
+          baseline.lineage,
+          baseline.authorization,
+          baseline.identity,
+          world.deployment_registry_path
+        )
 
       outcome = classify(result)
-      ScenarioOutcome.new(name(), attack_type(), invariant(), outcome, :rejected,
-        [{:attempted, :deploy_mutated_candidate}], baseline.lineage)
+
+      ScenarioOutcome.new(
+        name(),
+        attack_type(),
+        invariant(),
+        outcome,
+        :rejected,
+        [{:attempted, :deploy_mutated_candidate}],
+        baseline.lineage
+      )
     end
 
-    defp classify({:error, :candidate_mutated_after_authorization}), do: :rejected
+defp classify({:error, reason})
+         when reason in [:candidate_mutated_after_authorization, :grant_does_not_match_effect],
+         do: :rejected
+
     defp classify({:ok, _, _}), do: :accepted
     defp classify(_), do: :inconclusive
   end
@@ -148,16 +224,30 @@ defmodule Tiannara.Omega.Verification.Scenarios do
     def boundary, do: :lineage_integrity
 
     def attack(world, baseline) do
-      tampered_lineage = []  # empty lineage = broken lineage
+      # empty lineage = broken lineage
+      tampered_lineage = []
 
       result =
-        DeploymentGateway.deploy(baseline.candidate, baseline.certification,
-          tampered_lineage, baseline.authorization, baseline.identity,
-          world.deployment_registry_path)
+        DeploymentGateway.deploy(
+          baseline.candidate,
+          baseline.certification,
+          tampered_lineage,
+          baseline.authorization,
+          baseline.identity,
+          world.deployment_registry_path
+        )
 
       outcome = classify(result)
-      ScenarioOutcome.new(name(), attack_type(), invariant(), outcome, :rejected,
-        [{:attempted, :deploy_with_tampered_lineage}], baseline.lineage)
+
+      ScenarioOutcome.new(
+        name(),
+        attack_type(),
+        invariant(),
+        outcome,
+        :rejected,
+        [{:attempted, :deploy_with_tampered_lineage}],
+        baseline.lineage
+      )
     end
 
     defp classify({:error, :lineage_invalid}), do: :rejected
@@ -177,12 +267,26 @@ defmodule Tiannara.Omega.Verification.Scenarios do
       # Simulate restart by re-reading the lineage store
       case Tiannara.Lineage.Store.reconstruct(world.lineage_path) do
         {:ok, entries} when is_list(entries) ->
-          ScenarioOutcome.new(name(), attack_type(), invariant(), :recovered, :recovered,
-            [{:lineage_entries, length(entries)}], baseline.lineage)
+          ScenarioOutcome.new(
+            name(),
+            attack_type(),
+            invariant(),
+            :recovered,
+            :recovered,
+            [{:lineage_entries, length(entries)}],
+            baseline.lineage
+          )
 
         {:error, reason} ->
-          ScenarioOutcome.new(name(), attack_type(), invariant(), {:error, reason}, :recovered,
-            [{:reconstruct_failed, reason}], baseline.lineage)
+          ScenarioOutcome.new(
+            name(),
+            attack_type(),
+            invariant(),
+            {:error, reason},
+            :recovered,
+            [{:reconstruct_failed, reason}],
+            baseline.lineage
+          )
       end
     end
   end
@@ -201,9 +305,14 @@ defmodule Tiannara.Omega.Verification.Scenarios do
         1..2
         |> Enum.map(fn _ ->
           Task.async(fn ->
-            DeploymentGateway.deploy(baseline.candidate, baseline.certification,
-              baseline.lineage, baseline.authorization, baseline.identity,
-              world.deployment_registry_path)
+            DeploymentGateway.deploy(
+              baseline.candidate,
+              baseline.certification,
+              baseline.lineage,
+              baseline.authorization,
+              baseline.identity,
+              world.deployment_registry_path
+            )
           end)
         end)
         |> Enum.map(&Task.await/1)
@@ -217,8 +326,15 @@ defmodule Tiannara.Omega.Verification.Scenarios do
           true -> :multiple_deployments
         end
 
-      ScenarioOutcome.new(name(), attack_type(), invariant(), outcome, :exactly_one_deployment,
-        [{:deployment_count, deployments}], baseline.lineage)
+      ScenarioOutcome.new(
+        name(),
+        attack_type(),
+        invariant(),
+        outcome,
+        :exactly_one_deployment,
+        [{:deployment_count, deployments}],
+        baseline.lineage
+      )
     end
   end
 
@@ -235,15 +351,28 @@ defmodule Tiannara.Omega.Verification.Scenarios do
       corrupted_cert = %{verdict: :certified, evidence: :corrupted}
 
       result =
-        DeploymentGateway.deploy(baseline.candidate, corrupted_cert,
-          baseline.lineage, baseline.authorization, baseline.identity,
-          world.deployment_registry_path)
+        DeploymentGateway.deploy(
+          baseline.candidate,
+          corrupted_cert,
+          baseline.lineage,
+          baseline.authorization,
+          baseline.identity,
+          world.deployment_registry_path
+        )
 
       # A corrupted evidence chain should be detectable. Here we model it as
       # the certification becoming invalid.
       outcome = classify(result)
-      ScenarioOutcome.new(name(), attack_type(), invariant(), outcome, :rejected,
-        [{:attempted, :deploy_with_corrupted_evidence}], baseline.lineage)
+
+      ScenarioOutcome.new(
+        name(),
+        attack_type(),
+        invariant(),
+        outcome,
+        :rejected,
+        [{:attempted, :deploy_with_corrupted_evidence}],
+        baseline.lineage
+      )
     end
 
     defp classify({:error, _}), do: :rejected
@@ -268,12 +397,20 @@ defmodule Tiannara.Omega.Verification.Scenarios do
 
       outcome =
         case result do
-          {:ok, _} -> :accepted   # would indicate a bypass exists
+          # would indicate a bypass exists
+          {:ok, _} -> :accepted
           {:error, _} -> :rejected
         end
 
-      ScenarioOutcome.new(name(), attack_type(), invariant(), outcome, :rejected,
-        [{:attempted, :deploy_via_direct_transition}], baseline.lineage)
+      ScenarioOutcome.new(
+        name(),
+        attack_type(),
+        invariant(),
+        outcome,
+        :rejected,
+        [{:attempted, :deploy_via_direct_transition}],
+        baseline.lineage
+      )
     end
   end
 
@@ -288,15 +425,25 @@ defmodule Tiannara.Omega.Verification.Scenarios do
     def attack(world, baseline) do
       # First deployment succeeds
       first =
-        DeploymentGateway.deploy(baseline.candidate, baseline.certification,
-          baseline.lineage, baseline.authorization, baseline.identity,
-          world.deployment_registry_path)
+        DeploymentGateway.deploy(
+          baseline.candidate,
+          baseline.certification,
+          baseline.lineage,
+          baseline.authorization,
+          baseline.identity,
+          world.deployment_registry_path
+        )
 
       # Replay the same authorization
       replay =
-        DeploymentGateway.deploy(baseline.candidate, baseline.certification,
-          baseline.lineage, baseline.authorization, baseline.identity,
-          world.deployment_registry_path)
+        DeploymentGateway.deploy(
+          baseline.candidate,
+          baseline.certification,
+          baseline.lineage,
+          baseline.authorization,
+          baseline.identity,
+          world.deployment_registry_path
+        )
 
       outcome =
         case {first, replay} do
@@ -305,8 +452,15 @@ defmodule Tiannara.Omega.Verification.Scenarios do
           _ -> :inconclusive
         end
 
-      ScenarioOutcome.new(name(), attack_type(), invariant(), outcome, :replay_rejected,
-        [{:first, elem_type(first)}, {:replay, elem_type(replay)}], baseline.lineage)
+      ScenarioOutcome.new(
+        name(),
+        attack_type(),
+        invariant(),
+        outcome,
+        :replay_rejected,
+        [{:first, elem_type(first)}, {:replay, elem_type(replay)}],
+        baseline.lineage
+      )
     end
 
     defp elem_type({:ok, _, _}), do: :deployed
