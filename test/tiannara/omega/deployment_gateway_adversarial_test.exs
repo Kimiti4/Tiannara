@@ -28,7 +28,9 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
 
     content_hash = DeploymentGateway.content_hash(approved)
     {:ok, grant} = Authorization.human_grant(pending, :human_1,
-      ttl: 3600, candidate_content_hash: content_hash)
+      ttl: 3600,
+      candidate_content_hash: content_hash,
+      effect_descriptor: DeploymentGateway.deployment_effect_descriptor(approved, :human_1))
 
     {approved, %{verdict: :certified}, [:obs_1, :hyp_1, :prop_1], grant, identity}
   end
@@ -100,7 +102,9 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
     {:ok, auth} = Authorization.prepare(%{explanation_id: :prop_1})
     {:ok, pending} = Authorization.request(auth)
     {:ok, grant} = Authorization.human_grant(pending, :human_1,
-      ttl: 1, candidate_content_hash: content_hash)
+      ttl: 1,
+      candidate_content_hash: content_hash,
+      effect_descriptor: DeploymentGateway.deployment_effect_descriptor(candidate, :human_1))
 
     # Simulate time passing beyond TTL
     expired_grant = %{grant | granted_at: System.system_time(:second) - 100}
@@ -117,7 +121,9 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
     {:ok, auth} = Authorization.prepare(%{explanation_id: :prop_1})
     {:ok, pending} = Authorization.request(auth)
     {:ok, grant} = Authorization.human_grant(pending, :human_1,
-      ttl: 3600, candidate_content_hash: content_hash)
+      ttl: 3600,
+      candidate_content_hash: content_hash,
+      effect_descriptor: DeploymentGateway.deployment_effect_descriptor(candidate, :human_1))
 
     # Mutate the candidate AFTER authorization
     mutated_candidate = %{candidate | content: %{candidate.content | target: :malicious}}
@@ -149,7 +155,9 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
     {:ok, auth} = Authorization.prepare(%{explanation_id: :prop_1})
     {:ok, pending} = Authorization.request(auth)
     {:ok, grant} = Authorization.human_grant(pending, :human_1,
-      ttl: 3600, candidate_content_hash: content_hash)
+      ttl: 3600,
+      candidate_content_hash: content_hash,
+      effect_descriptor: DeploymentGateway.deployment_effect_descriptor(certified_only, :human_1))
 
     assert {:error, {:candidate_not_approved, :certified}} =
              DeploymentGateway.deploy(certified_only, %{verdict: :certified},
