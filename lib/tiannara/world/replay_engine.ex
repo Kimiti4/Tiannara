@@ -72,7 +72,7 @@ defmodule Tiannara.World.ReplayEngine do
     session_id = "replay_#{:crypto.strong_rand_bytes(8) |> Base.encode16(case: :lower)}"
     Logger.info("ReplayEngine: Starting replay session #{session_id} from #{inspect(start_ref)} to #{inspect(end_ref)}")
 
-    mutations = fetch_mutations(start_ref, end_ref)
+    {:ok, mutations} = fetch_mutations(start_ref, end_ref)
     replay_results = execute_sandboxed_mutations(mutations)
 
     ExecutiveMemory.record_decision(
