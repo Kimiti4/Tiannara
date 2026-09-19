@@ -27,6 +27,7 @@ defmodule Tiannara.Omega.DeploymentGateway do
   """
 
   alias Tiannara.Omega.PatchGenerator.Candidate
+  alias Tiannara.Omega.EffectIdentity
   alias Tiannara.Omega.HumanDelivery.{Authorization, AuthenticatedHumanIdentity}
   alias Tiannara.Omega.DeploymentGateway.DeploymentRecord
   alias Tiannara.Omega.DeploymentGateway.DeploymentRegistry
@@ -183,11 +184,44 @@ defmodule Tiannara.Omega.DeploymentGateway do
   defp check_grant_present(_), do: {:error, :authorization_grant_required}
 
   defp check_grant_matches(%Authorization{} = grant, %Candidate{} = candidate) do
-    if Authorization.valid_for?(grant, candidate.proposal_id) do
-      :ok
-    else
-      {:error, :grant_does_not_match_candidate}
+    cond do
+      not Authorization.valid_for?(grant, candidate.proposal_id) ->
+        {:error, :grant_does_not_match_candidate}
+
+      not Authorization.valid_for_effect?(grant, deployment_effect_descriptor(candidate, grant.human_id)) ->
+        {:error, :grant_does_not_match_effect}
+
+      true ->
+        :ok
     end
+  end
+
+  @doc """
+  Build the canonical semantic descriptor for a candidate deployment.
+
+  This is the deployment-specific interpretation of the generic effect-identity
+  contract. It is derived from the actual candidate at the sink boundary, so a
+  grant cannot be reused for a different candidate, different proposal, or
+  different candidate content while retaining the same effect identity.
+  """
+  def deployment_effect_descriptor(%Candidate{} = candidate, principal) do
+    %{
+      principal: principal,
+      authority_scope: "candidate:deploy",
+      operation: "deploy",
+      target: %{
+        candidate_id: candidate.id,
+        proposal_id: candidate.proposal_id,
+        candidate_type: candidate.type
+      },
+      parameters: %{
+        candidate_content_hash: content_hash(candidate)
+      },
+      environment: %{},
+      intent: %{kind: "candidate_deployment"},
+      semantic_version: "1",
+      identity_version: EffectIdentity.identity_version()
+    }
   end
 
   defp check_grant_unexpired(%Authorization{} = grant) do
