@@ -143,9 +143,9 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
     if map_size(state.running) >= @max_concurrency do
       {:reply, :concurrency_limit_reached, state}
     else
-      case :queue.out(state.queue) do
-        {{:value, job}, new_queue} ->
-          running = Map.put(state.running, job.id, {job.mission_id, worker_id, DateTime.utc_now()})
+      case select_next_job(state.queue) do
+        {:ok, job, new_queue} ->
+          running = Map.put(state.running, job.id, {job.mission_id, worker_id, DateTime.utc_now(), job.allocation})
 
           safely_record(:job_scheduled, %{
             job_id: job.id, mission_id: job.mission_id, worker: worker_id, priority: job.effective_priority
@@ -162,13 +162,16 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
   @impl true
   def handle_call({:preempt, job_id, reason}, _from, state) do
     case Map.fetch(state.running, job_id) do
-      {:ok, {mission_id, worker_id, _started_at}} ->
+      {:ok, {mission_id, _worker_id, _started_at, allocation}} ->
         Logger.warning("Scheduler: Preempting job #{job_id} (#{mission_id}): #{reason}")
+        ResourceManager.release(mission_id, allocation)
         {:reply, :ok, %{state | running: Map.delete(state.running, job_id)}}
 
       :error ->
         case find_and_remove_from_queue(state.queue, job_id) do
-          {:found, _job, new_queue} -> {:reply, :ok, %{state | queue: new_queue}}
+          {:found, job, new_queue} ->
+            ResourceManager.release(job.mission_id, job.allocation)
+            {:reply, :ok, %{state | queue: new_queue}}
           :not_found -> {:reply, {:error, :job_not_found}, state}
         end
     end
@@ -205,7 +208,8 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
   @impl true
   def handle_cast({:complete, job_id, outcome}, state) do
     case Map.pop(state.running, job_id) do
-      {{_mission_id, _worker_id, _started_at}, new_running} ->
+      {{mission_id, _worker_id, _started_at, allocation}, new_running} ->
+        ResourceManager.release(mission_id, allocation)
         emit_constitutional_event(:work_completed, %{outcome: outcome}, %{job_id: job_id})
         {:noreply, %{state | running: new_running}}
       {nil, _} ->
@@ -250,6 +254,17 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
     {:found, removed, Enum.reduce(keep, :queue.new(), &:queue.in(&2, &1))}
   rescue
     _ -> :not_found
+  end
+
+  defp select_next_job(queue) do
+    jobs = :queue.to_list(queue)
+
+    case jobs do
+      [] -> :empty
+      _ ->
+        job = Enum.max_by(jobs, fn j -> {j.effective_priority, DateTime.to_unix(j.submitted_at, :millisecond) * -1} end)
+        {:ok, job, :queue.filter(fn j -> j.id != job.id end, queue)}
+    end
   end
 
   defp safely_record(event_type, payload) do

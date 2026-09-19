@@ -179,19 +179,13 @@ defmodule Tiannara.CEL.Services.ResourceManager do
   end
 
   defp compute_available(state) do
+    reserve_factor = 1.0 - @sustainability_reserve
+
     %{
-      cpu:
-        max(0, round(state.total.cpu * @sustainability_reserve)) +
-          max(0, state.total.cpu - state.allocated.cpu),
-      memory_mb:
-        max(0, round(state.total.memory_mb * @sustainability_reserve)) +
-          max(0, state.total.memory_mb - state.allocated.memory_mb),
-      gpu:
-        max(0, round(state.total.gpu * @sustainability_reserve)) +
-          max(0, state.total.gpu - state.allocated.gpu),
-      storage_gb:
-        max(0, round(state.total.storage_gb * @sustainability_reserve)) +
-          max(0, state.total.storage_gb - state.allocated.storage_gb)
+      cpu: max(0, round(state.total.cpu * reserve_factor) - state.allocated.cpu),
+      memory_mb: max(0, round(state.total.memory_mb * reserve_factor) - state.allocated.memory_mb),
+      gpu: max(0, round(state.total.gpu * reserve_factor) - state.allocated.gpu),
+      storage_gb: max(0, round(state.total.storage_gb * reserve_factor) - state.allocated.storage_gb)
     }
   end
 

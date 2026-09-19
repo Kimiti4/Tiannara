@@ -33,7 +33,7 @@ defmodule Tiannara.World.UnifiedRealityGraph do
   @impl true
   def constitutional_score do
     stats = if Process.whereis(__MODULE__), do: GenServer.call(__MODULE__, :stats), else: %{healthy: true, entity_count: 0, relationship_count: 0, entities_with_provenance: 0}
-    prov_ratio = if stats.entity_count > 0, do: stats.entities_with_provenance / stats.entity_count, else: 1.0
+    prov_ratio = if stats.entity_count > 0, do: stats.entities_with_provenance / stats.entity_count, else: 0.0
 
     %ConstitutionalScore{
       service_id: id(), health: if(stats.healthy, do: 1.0, else: 0.0),
@@ -47,6 +47,7 @@ defmodule Tiannara.World.UnifiedRealityGraph do
   def add_entity(spec), do: GenServer.call(__MODULE__, {:add_entity, spec})
   def remove_entity(entity_id), do: GenServer.call(__MODULE__, {:remove_entity, entity_id})
   def remove_relationships_for_entity(entity_id), do: GenServer.call(__MODULE__, {:remove_relationships_for_entity, entity_id})
+  def remove_relationship(from_id, to_id, type), do: GenServer.call(__MODULE__, {:remove_relationship, from_id, to_id, type})
   def add_relationship(spec), do: GenServer.call(__MODULE__, {:add_relationship, spec})
   def get_entity(entity_id), do: GenServer.call(__MODULE__, {:get_entity, entity_id})
   def query_entities(opts \\ []), do: GenServer.call(__MODULE__, {:query_entities, opts})
@@ -71,7 +72,7 @@ defmodule Tiannara.World.UnifiedRealityGraph do
 
   @impl true
   def init(_opts) do
-    graph = :digraph.new([:cyclic, :protected])
+    graph = :digraph.new([:acyclic, :protected])
     Process.send_after(self(), :snapshot, @snapshot_interval)
     {:ok, %{
       graph: graph, entity_count: 0, relationship_count: 0,
@@ -103,29 +104,48 @@ defmodule Tiannara.World.UnifiedRealityGraph do
   @impl true
   def handle_call({:remove_entity, entity_id}, _from, state) do
     vertex = {:entity, entity_id}
+    existed = :digraph.vertex(state.graph, vertex) != false
     :digraph.del_vertex(state.graph, vertex)
-    {:reply, :ok, state}
+    {:reply, :ok, if(existed, do: %{state | entity_count: max(0, state.entity_count - 1)}, else: state)}
   end
 
   @impl true
   def handle_call({:remove_relationships_for_entity, entity_id}, _from, state) do
     vertex = {:entity, entity_id}
-    in_edges = :digraph.in_edges(state.graph, vertex)
-    out_edges = :digraph.out_edges(state.graph, vertex)
-    Enum.each(in_edges ++ out_edges, fn edge -> :digraph.del_edge(state.graph, edge) end)
-    {:reply, :ok, state}
+    edges = Enum.uniq(:digraph.in_edges(state.graph, vertex) ++ :digraph.out_edges(state.graph, vertex))
+    Enum.each(edges, &:digraph.del_edge(state.graph, &1))
+    {:reply, :ok, %{state | relationship_count: max(0, state.relationship_count - length(edges))}}
+  end
+
+  @impl true
+  def handle_call({:remove_relationship, from_id, to_id, type}, _from, state) do
+    edges = :digraph.out_edges(state.graph, {:entity, from_id})
+
+    matching =
+      Enum.filter(edges, fn edge ->
+        case :digraph.edge(state.graph, edge) do
+          {_, { :entity, ^from_id}, {:entity, ^to_id}, ^type, _} -> true
+          _ -> false
+        end
+      end)
+
+    Enum.each(matching, &:digraph.del_edge(state.graph, &1))
+    {:reply, if(matching == [], do: {:error, :relationship_not_found}, else: :ok),
+     %{state | relationship_count: max(0, state.relationship_count - length(matching))}}
   end
 
   @impl true
   def handle_call({:add_relationship, spec}, _from, state) do
     with :ok <- validate_spec(spec, [:from_id, :to_id, :type]) do
       from = {:entity, spec.from_id}; to = {:entity, spec.to_id}
-      ensure_vertex(state.graph, from, spec.from_id)
-      ensure_vertex(state.graph, to, spec.to_id)
-
-      case :digraph.add_edge(state.graph, from, to, spec.type, spec) do
+      case {:digraph.vertex(state.graph, from), :digraph.vertex(state.graph, to)} do
+        {false, _} -> {:reply, {:error, {:missing_entity, spec.from_id}}, state}
+        {_, false} -> {:reply, {:error, {:missing_entity, spec.to_id}}, state}
+        _ ->
+          case :digraph.add_edge(state.graph, from, to, spec.type, spec) do
         {:error, {:bad_edge, _}} -> {:reply, {:error, :circular_dependency}, state}
-        edge -> {:reply, {:ok, edge}, %{state | relationship_count: state.relationship_count + 1}}
+            edge -> {:reply, {:ok, edge}, %{state | relationship_count: state.relationship_count + 1}}
+          end
       end
     else {:error, r} -> {:reply, {:error, r}, state} end
   end
@@ -274,9 +294,7 @@ defmodule Tiannara.World.UnifiedRealityGraph do
     if missing == [], do: :ok, else: {:error, {:missing_fields, missing}}
   end
 
-  defp ensure_vertex(graph, vertex, id) do
-    unless :digraph.vertex(graph, vertex), do: :digraph.add_vertex(graph, vertex, %{id: id, auto_created: true, ingested_at: DateTime.utc_now()})
-  end
+  defp ensure_vertex(_graph, _vertex, _id), do: :ok
 
   defp get_edges(graph, vertex, direction) do
     case direction do
