@@ -364,10 +364,30 @@ defmodule Tiannara.World.WorldMutationEngine do
 
   defp execute_rollback(mutation) do
     case mutation.rollback_data.action do
-      :remove_entity -> :ok
-      :remove_relationship -> :ok
-      :restore_entity -> :ok
-      _ -> {:error, :unknown_rollback_action}
+      :remove_entity ->
+        Tiannara.World.UnifiedRealityGraph.remove_entity(mutation.rollback_data.entity_id)
+
+      :remove_relationship ->
+        Tiannara.World.UnifiedRealityGraph.remove_relationships_for_entity(mutation.rollback_data.from_id)
+        :ok
+
+      :restore_entity ->
+        restore_entity_from_mutation(mutation)
+
+      _ ->
+        {:error, :unknown_rollback_action}
+    end
+  end
+
+  defp restore_entity_from_mutation(mutation) do
+    case Map.get(mutation, :spec) do
+      %{current: current} -> Tiannara.World.UnifiedRealityGraph.add_entity(current)
+      %{id: id} ->
+        case Tiannara.CEL.Services.ExecutiveMemory.get_decision(id) do
+          {:ok, current} -> Tiannara.World.UnifiedRealityGraph.add_entity(current)
+          _ -> {:error, :original_state_unavailable}
+        end
+      _ -> {:error, :original_state_unavailable}
     end
   end
 end
