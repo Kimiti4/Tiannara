@@ -262,20 +262,16 @@ defmodule Tiannara.World.SnapshotManager do
   defp schedule_snapshot do
     Process.send_after(self(), :schedule_snapshot, @snapshot_interval)
   end
-end    snapshot_data =
-      %{
-        id: snapshot_id,
-        timestamp: DateTime.utc_now(),
-        metadata: metadata,
-        entity_count: world_stats.entity_count,
-        relationship_count: world_stats.relationship_count,
-        relationships: snapshot_relationships(),
-        entity_snapshots: entity_snapshots
-      }
-      |> Map.put(:hash, nil)
-      |> Map.put(:hash, fn snapshot ->
-        compute_snapshot_hash(snapshot)
-      end.())
+end    snapshot_base = %{
+      id: snapshot_id,
+      timestamp: DateTime.utc_now(),
+      metadata: metadata,
+      entity_count: world_stats.entity_count,
+      relationship_count: world_stats.relationship_count,
+      relationships: snapshot_relationships(),
+      entity_snapshots: entity_snapshots
+    }
+    snapshot_data = Map.put(snapshot_base, :hash, compute_snapshot_hash(snapshot_base))
 
     ExecutiveMemory.record_decision(
       snapshot_id,
