@@ -33,8 +33,9 @@ defmodule Tiannara.Omega.EffectIdentity do
   @spec new(map()) :: {:ok, descriptor()} | {:error, term()}
   def new(attrs) when is_map(attrs) do
     with {:ok, descriptor} <- normalize_descriptor(attrs),
-         :ok <- validate_descriptor(descriptor) do
-      {:ok, descriptor}
+         :ok <- validate_descriptor(descriptor),
+         :ok <- validate_allowed_fields(descriptor) do
+      {:ok, Map.take(descriptor, @required_fields)}
     end
   end
 
@@ -125,6 +126,15 @@ defmodule Tiannara.Omega.EffectIdentity do
     else
       {:error, {:missing_fields, missing}}
     end
+  end
+
+  defp validate_allowed_fields(descriptor) do
+    unknown =
+      descriptor
+      |> Map.keys()
+      |> Enum.reject(&(&1 in @required_fields))
+
+    if unknown == [], do: :ok, else: {:error, {:unknown_fields, unknown}}
   end
 
   defp validate_versions(descriptor) do
