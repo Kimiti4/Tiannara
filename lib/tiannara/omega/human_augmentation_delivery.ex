@@ -24,6 +24,7 @@ defmodule Tiannara.Omega.HumanAugmentationDelivery.Authorization do
   defdelegate human_grant(auth, human_id, opts), to: Tiannara.Omega.HumanDelivery.Authorization
   defdelegate human_deny(auth, reason), to: Tiannara.Omega.HumanDelivery.Authorization
   defdelegate valid_for?(auth, explanation_id), to: Tiannara.Omega.HumanDelivery.Authorization
+  defdelegate valid_for_effect?(auth, descriptor), to: Tiannara.Omega.HumanDelivery.Authorization
   defdelegate expired?(grant), to: Tiannara.Omega.HumanDelivery.Authorization
   defdelegate expired?(grant, now), to: Tiannara.Omega.HumanDelivery.Authorization
   defdelegate expire(auth), to: Tiannara.Omega.HumanDelivery.Authorization
