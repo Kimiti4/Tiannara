@@ -9,7 +9,7 @@ defmodule Tiannara.World.SnapshotManager do
   require Logger
 
   alias Tiannara.World.{UnifiedWorldModel, UnifiedRealityGraph}
-  alias Tiannara.CEL.Services.{EventBus, ExecutiveMemory}
+  alias Tiannara.CEL.Services.{EventBus, ExecutiveMemory, EventStore}
   alias Tiannara.CEL.Kernel.ConstitutionalScore
 
   @snapshot_interval :timer.hours(1)
@@ -94,6 +94,7 @@ defmodule Tiannara.World.SnapshotManager do
       timestamp: DateTime.utc_now(),
       entity_count: world_stats.entity_count,
       relationship_count: world_stats.relationship_count,
+      relationships: snapshot_relationships(),
       hash: compute_hash(snapshot_id <> to_string(world_stats.entity_count))
     }
 
@@ -103,6 +104,7 @@ defmodule Tiannara.World.SnapshotManager do
       snapshot_data
     )
 
+    persist_snapshot(snapshot_data)
     new_snapshots = [snapshot_data | state.snapshots] |> Enum.take(@retention_count)
 
     EventBus.publish("world.snapshot.created", snapshot_data)
@@ -137,6 +139,7 @@ defmodule Tiannara.World.SnapshotManager do
       metadata: metadata,
       entity_count: world_stats.entity_count,
       relationship_count: world_stats.relationship_count,
+      relationships: snapshot_relationships(),
       entity_snapshots: entity_snapshots,
       hash: compute_hash(snapshot_id <> to_string(world_stats.entity_count))
     }
@@ -163,11 +166,12 @@ defmodule Tiannara.World.SnapshotManager do
 
   @impl true
   def handle_call({:restore_from_snapshot, snapshot_id}, _from, state) do
-    snapshot = Enum.find(state.snapshots, &(&1.id == snapshot_id))
+    snapshot = Enum.find(state.snapshots, &(&1.id == snapshot_id)) || load_snapshot(snapshot_id)
     case snapshot do
       nil -> {:reply, {:error, :not_found}, state}
       _ ->
         Logger.info("SnapshotManager: Restoring from snapshot #{snapshot_id}")
+        :ok = verify_snapshot_hash(snapshot)
         entity_snapshots = Map.get(snapshot, :entity_snapshots, [])
         Enum.each(entity_snapshots, fn entity_data ->
           nested = Map.get(entity_data, :attributes, %{})
@@ -191,6 +195,7 @@ defmodule Tiannara.World.SnapshotManager do
             version: Map.get(entity_data, :version, 1)
           })
         end)
+        Enum.each(Map.get(snapshot, :relationships, []), &UnifiedRealityGraph.add_relationship/1)
         {:reply, :ok, state}
     end
   end
@@ -214,6 +219,35 @@ defmodule Tiannara.World.SnapshotManager do
 
   defp compute_hash(data) do
     :crypto.hash(:sha256, data) |> Base.encode16(case: :lower)
+  end
+
+  defp snapshot_relationships do
+    case UnifiedRealityGraph.query_entities(limit: 100_000) do
+      {:ok, ids} ->
+        Enum.flat_map(ids, fn id ->
+          case UnifiedRealityGraph.get_relationships(id, :out) do
+            {:ok, rels} -> rels |> Enum.map(fn r -> Map.take(r, [:from_id, :to_id, :type, :metadata]) end)
+            _ -> []
+          end
+        end) |> Enum.uniq()
+      _ -> []
+    end
+  end
+
+  defp persist_snapshot(snapshot) do
+    ExecutiveMemory.record_decision(snapshot.id, :world_snapshot_data, snapshot)
+  end
+
+  defp load_snapshot(id) do
+    case ExecutiveMemory.get_decision(id) do
+      {:ok, snapshot} -> snapshot
+      _ -> nil
+    end
+  end
+
+  defp verify_snapshot_hash(snapshot) do
+    expected = compute_hash(snapshot.id <> to_string(snapshot.entity_count))
+    if snapshot.hash == expected, do: :ok, else: raise "snapshot integrity check failed"
   end
 
   defp schedule_snapshot do
