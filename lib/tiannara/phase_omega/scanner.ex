@@ -188,7 +188,7 @@ defmodule Tiannara.PhaseOmega.Scanner do
     pipeline_ready = has_core && has_physics && has_topology
     %{
       deliverable: "Ω.11 — Scientific Pipeline",
-      status: if(pipeline_ready, do: :pass, else: :fail),
+      status: if(pipeline_ready, do: :unknown, else: :fail),
       detail: "Core=#{has_core}, Physics=#{has_physics}, Topology=#{has_topology}",
       data: %{core: has_core, physics: has_physics, topology: has_topology}
     }
@@ -203,8 +203,8 @@ defmodule Tiannara.PhaseOmega.Scanner do
     status = if rea_alive && rel_loaded, do: :pass, else: :warn
     %{
       deliverable: "Ω.12 — Ecological Verification",
-      status: status,
-      detail: "REA.Supervisor=#{rea_alive}, REL.EconomyEngine=#{rel_loaded}",
+      status: if(status == :pass, do: :unknown, else: status),
+      detail: "REA.Supervisor=#{rea_alive}, REL.EconomyEngine=#{rel_loaded}; ecological behavior not independently exercised",
       data: %{rea_supervisor_loaded: rea_loaded, rea_alive: rea_alive, rel_loaded: rel_loaded}
     }
   end
@@ -215,7 +215,7 @@ defmodule Tiannara.PhaseOmega.Scanner do
     has_rate_limit = Code.ensure_loaded?(ObservatoryApi.Plugs.RateLimit)
     %{
       deliverable: "Ω.13 — Security Verification",
-      status: if(rbac_loaded && has_rate_limit, do: :unknown, else: :unknown),
+      status: :unknown,
       detail: "RBAC=#{rbac_loaded}, RateLimit=#{has_rate_limit}; security properties not independently exercised",
       data: %{rbac: rbac_loaded, rate_limit: has_rate_limit}
     }
