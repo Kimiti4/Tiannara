@@ -5,7 +5,8 @@ defmodule Tiannara.HAI.ReviewRouterTest do
   alias Tiannara.HAI.Domain.ReviewRequest
 
   setup do
-    start_supervised!(ReviewRouter)
+    pid = Process.whereis(ReviewRouter)
+    assert is_pid(pid), "ReviewRouter must be started by the application"
     :ok
   end
 

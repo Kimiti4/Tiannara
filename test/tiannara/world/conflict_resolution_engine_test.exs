@@ -4,7 +4,8 @@ defmodule Tiannara.World.ConflictResolutionEngineTest do
   alias Tiannara.World.{ConflictResolutionEngine, KnowledgeCoordinator, UnifiedWorldModel}
 
   setup do
-    {:ok, engine} = start_supervised(ConflictResolutionEngine)
+    engine = Process.whereis(ConflictResolutionEngine)
+    assert is_pid(engine), "ConflictResolutionEngine must be started by the application"
     {:ok, %{engine: engine}}
   end
 
