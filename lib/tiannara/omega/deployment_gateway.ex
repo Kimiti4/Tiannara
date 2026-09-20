@@ -23,12 +23,12 @@ defmodule Tiannara.Omega.DeploymentGateway do
   defp do_deploy(candidate, certification, lineage, grant, identity, registry_path) do
     with :ok <- check_not_already_deployed(grant, registry_path),
          :ok <- check_candidate_status(candidate),
-         {:ok, _certificate} <- check_certification(certification),
          :ok <- check_lineage(lineage),
          :ok <- check_grant_present(grant),
          :ok <- check_grant_matches(grant, candidate),
          :ok <- check_grant_unexpired(grant),
          :ok <- check_identity_authenticated(identity, grant),
+         {:ok, _certificate} <- check_certification(certification),
          :ok <- check_candidate_unmutated(candidate, grant),
          {:ok, deployed_candidate} <- Candidate.deploy_transition(candidate) do
       record = %DeploymentRecord{
