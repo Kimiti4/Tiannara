@@ -79,7 +79,7 @@ defmodule Tiannara.CRAV.AlphaLaunch do
   @spec launch() :: {:error, :authorization_required | term()}
   def launch, do: {:error, :authorization_required}
 
-  @spec launch(Term.t(), Tiannara.Omega.HumanDelivery.Authorization.t(), Tiannara.Omega.HumanDelivery.AuthenticatedHumanIdentity.t(), binary()) ::
+  @spec launch(term(), Tiannara.Omega.HumanDelivery.Authorization.t(), Tiannara.Omega.HumanDelivery.AuthenticatedHumanIdentity.t(), binary()) ::
           {:ok, map()} | {:error, term()}
   def launch(_action_id, grant, identity, registry_path) when is_binary(registry_path) do
     action_id = :crav_alpha_launch
@@ -176,7 +176,7 @@ defmodule Tiannara.CRAV.AlphaLaunch do
     launch_record = generate_launch_record(checklist, authorization_receipt)
 
     if gen_server_running?() do
-      GenServer.cast(__MODULE__, {:transition, :active, cert})
+      GenServer.cast(__MODULE__, {:transition, :active, launch_record})
     end
 
     measurements = %{
@@ -194,9 +194,9 @@ defmodule Tiannara.CRAV.AlphaLaunch do
 
     :telemetry.execute(@telemetry_event, measurements, metadata)
 
-    Logger.info("[AlphaLaunch] Launch complete — certificate=#{cert.certificate_id}")
+    Logger.info("[AlphaLaunch] Launch complete — action=#{launch_record.action_id}")
 
-    {:ok, %{certificate: cert, state: :active}}
+    {:ok, %{launch: launch_record, state: :active}}
   end
 
   defp has_critical_blockers?(checklist) do
