@@ -38,7 +38,8 @@ defmodule Tiannara.CEL.Services.EventBus do
   def version, do: "2.0.0"
 
   @impl true
-  def capabilities, do: [:event_transport, :command_routing, :observation_broadcast, :durable_replay, :dead_letter_queue]
+  def capabilities, do: [:event_transport, :command_routing, :observation_broadcast, :durable_replay, :dead_letter_queue,
+    :durable_delivery, :replay, :dead_letter_handling]
 
   @impl true
   def dependencies, do: [:event_store]

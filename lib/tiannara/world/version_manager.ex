@@ -15,7 +15,8 @@ defmodule Tiannara.World.VersionManager do
 
   @impl Tiannara.ExecutiveService
   def capabilities do
-    [:immutable_versioning, :branch_management, :rollback, :version_comparison, :tagging]
+    [:immutable_versioning, :branch_management, :rollback, :version_comparison, :tagging,
+     :historical_retrieval, :branching, :merging]
   end
 
   @impl Tiannara.ExecutiveService

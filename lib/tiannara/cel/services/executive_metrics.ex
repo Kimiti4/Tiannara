@@ -7,6 +7,7 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
   alias Tiannara.CEL.Services.{ExecutiveMemory, EventBus}
 
   @collection_interval_ms 60_000
+  @initial_collect_delay_ms 5_000
   @max_history 50
 
   def start_link(_opts) do
@@ -38,7 +39,8 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
   @impl true
   def capabilities do
     [:organizational_kpis, :performance_tracking, :kpi_alerting,
-     :trend_analysis, :constitutional_metrics]
+     :trend_analysis, :constitutional_metrics, :kpi_aggregation,
+     :constitutional_compliance_tracking]
   end
 
   @impl true
@@ -74,7 +76,7 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
 
   @impl true
   def init(_opts) do
-    send(self(), :collect)
+    Process.send_after(self(), :collect, @initial_collect_delay_ms)
     {:ok, %{
       kpis: %{},
       history: [],
@@ -184,8 +186,8 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
       pid ->
         try do
           GenServer.call(pid, :stats, 2_000)
-        rescue
-          _ -> %{}
+        catch
+          :exit, _ -> %{}
         end
     end
   end
@@ -196,8 +198,8 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
       pid ->
         try do
           GenServer.call(pid, :state, 2_000)
-        rescue
-          _ -> %{}
+        catch
+          :exit, _ -> %{}
         end
     end
   end
@@ -208,8 +210,8 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
       pid ->
         try do
           GenServer.call(pid, :get_report, 2_000)
-        rescue
-          _ -> nil
+        catch
+          :exit, _ -> nil
         end
     end
   end
@@ -219,9 +221,9 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
       nil -> %{}
       pid ->
         try do
-          GenServer.call(pid, :state, 2_000)
-        rescue
-          _ -> %{}
+          GenServer.call(pid, :current_state, 2_000)
+        catch
+          :exit, _ -> %{}
         end
     end
   end
@@ -231,12 +233,12 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
        do: ratio(c, max(s, 1))
   defp calc_throughput(_), do: 0.0
 
-  defp calc_rate(nil, _), do: 0.0
-  defp calc_rate(_, nil), do: 0.0
+  defp calc_rate(nil, _), do: 0.5
+  defp calc_rate(_, nil), do: 0.5
   defp calc_rate(_success, total) when total == 0, do: 0.0
   defp calc_rate(success, total), do: success / max(success + abs(total), 1)
 
-  defp ratio(_numerator, denominator) when not is_number(denominator), do: 0.0
+  defp ratio(_numerator, denominator) when not is_number(denominator), do: 0.5
   defp ratio(_numerator, 0), do: 0.0
   defp ratio(numerator, denominator) when is_number(numerator) and is_number(denominator) and denominator != 0 and denominator != 0.0 do
     numerator / denominator

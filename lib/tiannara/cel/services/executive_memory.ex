@@ -47,7 +47,8 @@ defmodule Tiannara.CEL.Services.ExecutiveMemory do
   def version, do: "2.0.0"
 
   @impl true
-  def capabilities, do: [:persistent_memory, :decision_history, :institutional_knowledge, :event_sourced_lineage]
+  def capabilities, do: [:persistent_memory, :decision_history, :institutional_knowledge,
+    :event_sourced_lineage, :lesson_retrieval, :event_sourcing, :snapshot_recovery]
 
   @impl true
   def dependencies, do: [:event_store]

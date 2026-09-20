@@ -110,7 +110,8 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
   @impl true
   def capabilities do
     [:capability_registration, :dependency_reasoning, :blast_radius_analysis,
-     :optimal_delegation, :cycle_detection, :redundancy_analysis, :capability_versioning]
+     :optimal_delegation, :cycle_detection, :redundancy_analysis, :capability_versioning,
+     :capability_discovery, :intelligent_delegation, :workload_balancing, :dependency_analysis]
   end
 
   @impl true

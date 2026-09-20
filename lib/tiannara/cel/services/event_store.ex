@@ -33,6 +33,9 @@ defmodule Tiannara.CEL.Services.EventStore do
   def version, do: "2.0.0"
 
   @impl Tiannara.ExecutiveService
+  def capabilities, do: [:durable_persistence, :replay, :offset_tracking]
+
+  @impl Tiannara.ExecutiveService
   def constitutional_score do
     %Tiannara.CEL.Kernel.ConstitutionalScore{
       service_id: id(),

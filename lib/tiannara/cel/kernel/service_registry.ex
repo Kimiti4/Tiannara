@@ -113,8 +113,7 @@ defmodule Tiannara.CEL.Kernel.ServiceRegistry do
       %{id: :executive_service_bus, module: Tiannara.CEL.Services.EventBus, version: "2.0.0",
         criticality: :critical, depends_on: [:event_store],
         provides: [:event_transport, :command_routing, :observation_broadcast,
-                   :context_propagation, :durable_delivery, :replay,
-                   :dead_letter_handling, :backpressure], requires: [:durable_persistence],
+                   :durable_delivery, :replay, :dead_letter_handling], requires: [:durable_persistence],
         health_check: {Tiannara.CEL.Services.EventBus, :health, []},
         constitutional_score_check: {Tiannara.CEL.Services.EventBus, :constitutional_score, []},
         boot_timeout: 5_000, deprecated: false},
@@ -137,7 +136,7 @@ defmodule Tiannara.CEL.Kernel.ServiceRegistry do
 
       %{id: :resource_manager, module: Tiannara.CEL.Services.ResourceManager, version: "1.0.0",
         criticality: :high, depends_on: [:executive_memory],
-        provides: [:resource_allocation, :sustainability_enforcement, :bottleneck_detection], requires: [:persistent_memory],
+        provides: [:resource_allocation, :sustainability_enforcement], requires: [:persistent_memory],
         health_check: {Tiannara.CEL.Services.ResourceManager, :health, []},
         constitutional_score_check: {Tiannara.CEL.Services.ResourceManager, :constitutional_score, []},
         boot_timeout: 5_000, deprecated: false},
@@ -338,15 +337,14 @@ defmodule Tiannara.CEL.Kernel.ServiceRegistry do
 
       %{id: :decision_predictor, module: Tiannara.CEL.Services.DecisionPredictor, version: "1.0.0",
         criticality: :high, depends_on: [:executive_memory, :capability_graph, :resource_manager],
-        provides: [:outcome_forecasting, :bottleneck_prediction, :roi_analysis, :risk_assessment, :anomaly_detection], requires: [],
+        provides: [:outcome_forecasting, :bottleneck_prediction, :risk_assessment], requires: [],
         health_check: {Tiannara.CEL.Services.DecisionPredictor, :health, []},
         constitutional_score_check: {Tiannara.CEL.Services.DecisionPredictor, :constitutional_score, []},
         boot_timeout: 5_000, deprecated: false},
 
       %{id: :executive_digital_twin, module: Tiannara.CEL.Services.ExecutiveDigitalTwin, version: "1.0.0",
         criticality: :high, depends_on: [:executive_memory, :capability_graph, :resource_manager, :executive_scheduler],
-        provides: [:mission_simulation, :strategy_comparison, :what_if_analysis, :resource_prediction,
-                   :failure_simulation, :council_advisory], requires: [],
+        provides: [:mission_simulation, :what_if_analysis, :council_advisory], requires: [],
         health_check: {Tiannara.CEL.Services.ExecutiveDigitalTwin, :health, []},
         constitutional_score_check: {Tiannara.CEL.Services.ExecutiveDigitalTwin, :constitutional_score, []},
         boot_timeout: 10_000, deprecated: false}
