@@ -20,7 +20,7 @@ defmodule Tiannara.World.EpistemicIntegrityService do
     [
       :contradiction_rate_monitoring, :evidence_quality_measurement,
       :provenance_completeness_tracking, :stale_theory_detection,
-      :experiment_recommendation
+      :experiment_recommendation, :epistemic_drift_detection
     ]
   end
 

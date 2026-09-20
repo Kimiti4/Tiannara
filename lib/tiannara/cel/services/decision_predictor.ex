@@ -67,7 +67,8 @@ defmodule Tiannara.CEL.Services.DecisionPredictor do
   def capabilities do
     [:mission_outcome_prediction, :service_overload_forecasting,
      :dependency_failure_prediction, :uncertainty_quantification,
-     :experiment_recommendation, :risk_assessment]
+     :experiment_recommendation, :risk_assessment,
+     :outcome_forecasting, :bottleneck_prediction]
   end
 
   @impl true

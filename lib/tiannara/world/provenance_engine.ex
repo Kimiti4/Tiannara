@@ -79,7 +79,7 @@ defmodule Tiannara.World.ProvenanceEngine do
           entity_id: entity_id, confidence: prov.confidence,
           evidence_count: length(prov.evidence), contributor_count: length(prov.contributors),
           confidence_sources: Enum.map(prov.evidence, fn e ->
-            %{evidence: e, weight: 1.0 / max(1, length(prov.evidence))}
+            %{evidence: e, weight: evidence_weight(e, prov.evidence)}
           end)
         }
         {:reply, {:ok, path}, state}
@@ -103,7 +103,18 @@ defmodule Tiannara.World.ProvenanceEngine do
 
   @impl true
   def handle_call(:stats, _from, state) do
-    {:reply, %{healthy: state.healthy, total_records: state.total_records, entities_with_provenance: map_size(state.records)}, state}
+    {:reply, %{healthy: state.healthy, total_records: state.total, entities_with_provenance: map_size(state.records)}, state}
+  end
+
+  defp evidence_weight(evidence, all) do
+    reliability = Map.get(evidence, :reliability, Map.get(evidence, "reliability", 0.5))
+    independent = Map.get(evidence, :independence, Map.get(evidence, "independence", 1.0))
+    base = max(0.0, min(1.0, reliability * independent))
+    total = Enum.reduce(all, 0.0, fn item, acc ->
+      acc + max(0.0, min(1.0, Map.get(item, :reliability, Map.get(item, "reliability", 0.5)) *
+        Map.get(item, :independence, Map.get(item, "independence", 1.0))))
+    end)
+    if total > 0, do: base / total, else: 0.0
   end
 
   defp build_lineage(entity_id, entity_spec, records, visited) do

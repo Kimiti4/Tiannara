@@ -10,15 +10,47 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
           duration_ms: non_neg_integer()
         }
 
+  @doc """
+  Canonical CEL kernel boot entry point.
+
+  Boots a set of service specs through the full fail-closed gate pipeline:
+  resource, capability, health, constitutional-score, and critical-dependency
+  propagation (`:skipped` for dependents of a failed or degraded critical
+  service). The `status` derivation (`:ready` | `:degraded` | `:failed`) and
+  the per-service `gate_results` map are produced identically regardless of
+  which form is used.
+
+  Two documented forms:
+
+    * `services \\\\ nil` (default) — platform boot. Reads the canonical
+      `ServiceRegistry.boot_order/0` and boots every registered service.
+
+    * explicit `services` list — deterministic, registry-independent boot.
+      The SAME gate semantics run, in the given order, over an explicit list
+      of `ServiceRegistry.service_spec()` structs. Used by fail-closed
+      verification and tests so all gate decisions are reproducible and
+      decoupled from live runtime registry state. Callers MUST supply a
+      complete, dependency-consistent snapshot; dependency cascades are still
+      derived from each spec's `depends_on`.
+
+  ## Contract decision (recorded 2026-09-20)
+
+  `boot/5` is the canonical boot API. The optional `services` argument is a
+  first-class, verified entry point — not a test-only fixture. Any future boot
+  strategy must preserve: the five-gate fail-closed semantics, `:skipped`
+  propagation for dependents of failed critical services, and the
+  `:ready`/`:degraded`/`:failed` status derivation.
+  """
   @spec boot(
           starter :: (ServiceRegistry.service_spec() -> {:ok, pid()} | {:error, term()}),
           health_checker :: (ServiceRegistry.service_spec() -> :healthy | :unhealthy),
           score_checker :: (ServiceRegistry.service_spec() -> ConstitutionalScore.t()),
-          resource_checker :: (ServiceRegistry.service_spec() -> :sufficient | :insufficient)
+          resource_checker :: (ServiceRegistry.service_spec() -> :sufficient | :insufficient),
+          services :: [ServiceRegistry.service_spec()] | nil
         ) :: boot_result()
-  def boot(starter, health_checker, score_checker, resource_checker) do
+  def boot(starter, health_checker, score_checker, resource_checker, services \\ nil) do
     start_time = System.monotonic_time(:millisecond)
-    order = ServiceRegistry.boot_order()
+    order = services || ServiceRegistry.boot_order()
 
     {results, failed_critical, gate_results} =
       Enum.reduce(order, {[], [], %{}}, fn spec, {acc, failed_crit, gates} ->
@@ -65,7 +97,7 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
          {:ok, _pid} <- starter.(spec),
          {:ok, gates} <- run_gate(:health, gates, fn -> check_health(spec, health_checker) end),
          {:ok, gates} <- run_gate(:constitution, gates, fn -> check_constitution(spec, score_checker) end),
-         {:ok, gates} <- run_gate(:capability, gates, fn -> :pass end),
+         {:ok, gates} <- run_gate(:capability, gates, fn -> check_capability(spec) end),
          {:ok, gates} <- run_gate(:resource, gates, fn -> resource_checker.(spec) |> to_gate() end) do
       {:ok, gates}
     else
@@ -107,8 +139,26 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
       score = score_checker.(spec)
       if ConstitutionalScore.boot_ready?(score), do: :pass, else: {:fail, "Constitutional score below threshold"}
     catch
-      _, _ -> :pass
+      _, _ -> {:fail, "Constitutional score check raised or threw"}
     end
+  end
+
+  defp check_capability(spec) do
+    mod = spec.module
+
+    with true <- function_exported?(mod, :capabilities, 0),
+         capabilities when is_list(capabilities) <- mod.capabilities() do
+      missing = Enum.reject(spec.provides, &(&1 in capabilities))
+
+      if missing == [],
+        do: :pass,
+        else: {:fail, "Declared capabilities not implemented: #{inspect(missing)}"}
+    else
+      false -> {:fail, "Service does not expose its declared capabilities"}
+      _ -> {:fail, "Invalid capabilities/0 result"}
+    end
+  rescue
+    _ -> {:fail, "Capability check raised"}
   end
 
   defp to_gate(:sufficient), do: :pass

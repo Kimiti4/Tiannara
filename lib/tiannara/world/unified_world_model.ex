@@ -140,6 +140,7 @@ defmodule Tiannara.World.UnifiedWorldModel do
     do: create_entity(build_spec(:knowledge_entity, subtype, attributes, opts))
 
   def stats, do: GenServer.call(__MODULE__, :stats)
+  def reconcile_from_graph, do: GenServer.call(__MODULE__, :reconcile_from_graph)
 
   @impl true
   def init(_opts) do
@@ -415,6 +416,17 @@ defmodule Tiannara.World.UnifiedWorldModel do
       err ->
         {:reply, err, state}
     end
+  end
+
+  @impl true
+  def handle_call(:reconcile_from_graph, _from, state) do
+    graph_stats = UnifiedRealityGraph.stats()
+    {:reply, :ok, %{state |
+      total_entities: graph_stats.entity_count,
+      total_relationships: graph_stats.relationship_count,
+      entities_with_provenance: graph_stats.entities_with_provenance,
+      healthy: graph_stats.healthy
+    }}
   end
 
   @impl true

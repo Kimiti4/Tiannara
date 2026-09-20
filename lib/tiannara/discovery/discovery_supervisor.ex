@@ -7,6 +7,11 @@ defmodule Tiannara.Discovery.DiscoverySupervisor do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
+  def capabilities do
+    [:discovery_orchestration, :hypothesis_generation, :gap_analysis,
+     :contradiction_analysis, :experiment_planning, :discovery_lineage]
+  end
+
   def init(_opts) do
     children = [
       {DiscoveryEngine, []},

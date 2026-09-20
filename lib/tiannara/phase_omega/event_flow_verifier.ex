@@ -91,7 +91,8 @@ defmodule Tiannara.PhaseOmega.EventFlowVerifier do
         total_paths: length(@known_paths),
         healthy_paths: 0,
         failed_paths: 0,
-        paths: Enum.map(@known_paths, fn p -> %{path: p.name, label: p.label, healthy: true, stages: %{}, details: "Headless mode — skipped"} end),
+        unknown_paths: length(@known_paths),
+        paths: Enum.map(@known_paths, fn p -> %{path: p.name, label: p.label, healthy: false, status: :unknown, stages: %{}, details: "Headless mode — verification not performed"} end),
         timestamp: DateTime.utc_now()
       }
     else
@@ -107,12 +108,18 @@ defmodule Tiannara.PhaseOmega.EventFlowVerifier do
         {stage_id, result}
       end)
 
-      path_healthy = Enum.all?(stages, fn {_id, r} -> r == :pass end)
+      path_unknown = Enum.any?(stages, fn {_id, r} -> r == :unknown end)
+      path_healthy = not path_unknown and Enum.all?(stages, fn {_id, r} -> r == :pass end)
 
       %{
         path: path.name,
         label: path.label,
         healthy: path_healthy,
+        status: cond do
+          path_unknown -> :unknown
+          path_healthy -> :pass
+          true -> :fail
+        end,
         stages: Enum.into(stages, %{}),
         details: if(!path_healthy, do: explain_failures(stages), else: nil)
       }
@@ -121,7 +128,8 @@ defmodule Tiannara.PhaseOmega.EventFlowVerifier do
     %{
       total_paths: length(results),
       healthy_paths: Enum.count(results, & &1.healthy),
-      failed_paths: Enum.count(results, fn r -> !r.healthy end),
+      failed_paths: Enum.count(results, fn r -> r.status == :fail end),
+      unknown_paths: Enum.count(results, fn r -> r.status == :unknown end),
       paths: results,
       timestamp: DateTime.utc_now()
     }
@@ -135,7 +143,7 @@ defmodule Tiannara.PhaseOmega.EventFlowVerifier do
       rescue
         _ -> []
       end
-      if handlers != [], do: :pass, else: :fail
+      if handlers != [], do: :unknown, else: :fail
     else
       :skip
     end
@@ -173,7 +181,7 @@ defmodule Tiannara.PhaseOmega.EventFlowVerifier do
 
   defp verify_stage(:message_decode) do
     # NATSBridge handles Jason.decode! internally; check module loaded
-    if Code.ensure_loaded?(Jason), do: :pass, else: :fail
+    if Code.ensure_loaded?(Jason), do: :unknown, else: :fail
   end
 
   defp verify_stage(:gateway_ingest) do
@@ -224,7 +232,7 @@ defmodule Tiannara.PhaseOmega.EventFlowVerifier do
   end
 
   defp verify_stage(:status_endpoint) do
-    :pass # same controller
+    :unknown
   end
 
   defp verify_stage(:certification_endpoint) do

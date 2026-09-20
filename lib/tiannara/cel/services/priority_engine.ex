@@ -52,7 +52,9 @@ defmodule Tiannara.CEL.Services.PriorityEngine do
   @impl true
   def capabilities do
     [:adaptive_prioritization, :evidence_driven_learning, :calibration,
-     :drift_detection, :explainable_priority]
+     :drift_detection, :explainable_priority, :global_prioritization,
+     :evidence_weighting, :mission_alignment, :adaptive_learning,
+     :uncertainty_quantification]
   end
 
   @impl true

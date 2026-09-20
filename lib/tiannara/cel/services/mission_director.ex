@@ -37,10 +37,10 @@ defmodule Tiannara.CEL.Services.MissionDirector do
         do: GenServer.call(__MODULE__, :stats),
         else: %{missions_by_status: %{}, total_missions: 1}
 
-    stuck = Map.get(stats.missions_by_status, :validating, 0)
-    failed = Map.get(stats.missions_by_status, :failed, 0)
-    total = stats.total_missions || 1
-    health = 1.0 - ((stuck * 0.1 + failed * 0.2) / total)
+stuck = Map.get(stats.missions_by_status, :validating, 0)
+      failed = Map.get(stats.missions_by_status, :failed, 0)
+      total = if stats.total_missions in [0, nil], do: 1, else: stats.total_missions
+      health = 1.0 - ((stuck * 0.1 + failed * 0.2) / total)
 
     %ConstitutionalScore{
       service_id: id(),

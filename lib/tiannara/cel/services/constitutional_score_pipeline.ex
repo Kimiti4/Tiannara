@@ -24,7 +24,8 @@ defmodule Tiannara.CEL.Services.ConstitutionalScorePipeline do
   def version, do: "1.0.0"
 
   @impl true
-  def capabilities, do: [:constitutional_scoring, :telemetry_analysis, :score_aggregation]
+  def capabilities, do: [:constitutional_scoring, :telemetry_analysis, :score_aggregation,
+    :evidence_scoring, :constitutional_analytics]
 
   @impl true
   def health, do: :healthy
