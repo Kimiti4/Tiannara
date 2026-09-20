@@ -107,6 +107,8 @@ defmodule Tiannara.CRAV.AlphaLaunch do
     end
   end
 
+  def launch(_action_id, _grant, _identity, _registry_path), do: {:error, :invalid_alpha_launch_authorization}
+
   @spec status() :: {:ok, atom()} | {:error, term()}
   def status do
     if gen_server_running?() do
@@ -116,7 +118,7 @@ defmodule Tiannara.CRAV.AlphaLaunch do
     end
   end
 
-  @spec certificate() :: {:ok, map() | nil} | {:error, term()}
+  @spec launch_record() :: {:ok, map() | nil} | {:error, term()}
   def launch_record do
     if gen_server_running?() do
       {:ok, GenServer.call(__MODULE__, :launch_record)}
@@ -149,7 +151,7 @@ defmodule Tiannara.CRAV.AlphaLaunch do
 
   @impl true
   def handle_call(:launch_record, _from, state) do
-    {:reply, state.certificate, state}
+    {:reply, state.launch_record, state}
   end
 
   @impl true
