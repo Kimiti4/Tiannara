@@ -13,11 +13,10 @@ defmodule Tiannara.Validation.LifecycleInvariantTest do
   alias Tiannara.LifecycleRegistry
   
   setup do
-    # Clean slate for each test
+    LifecycleRegistry.init_tables()
     :ets.delete_all_objects(:lifecycle_events)
     :ets.delete_all_objects(:lifecycle_state)
     :ets.delete_all_objects(:lifecycle_stats)
-    
     :ok
   end
   
