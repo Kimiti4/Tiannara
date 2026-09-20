@@ -162,7 +162,7 @@ defmodule Tiannara.CRAV.AlphaLaunch do
   @impl true
   def handle_cast(:abort, _state) do
     {:noreply,
-     %__MODULE__{state: :pre_launch, certificate: nil, launched_at: nil, pre_flight_result: nil}}
+     %__MODULE__{state: :pre_launch, launch_record: nil, launched_at: nil, pre_flight_result: nil}}
   end
 
   @impl true
