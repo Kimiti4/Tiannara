@@ -9,10 +9,10 @@ defmodule Tiannara.World.Phase3PipelineTest do
   alias Tiannara.Validation.Scenarios.Phase3
 
   setup do
-    start_supervised(KnowledgeCoordinator)
-    start_supervised(KnowledgeFlowEngine)
-    start_supervised(ConflictResolutionEngine)
-    start_supervised(ValidationCampaigns)
+    assert is_pid(Process.whereis(KnowledgeCoordinator))
+    assert is_pid(Process.whereis(KnowledgeFlowEngine))
+    assert is_pid(Process.whereis(ConflictResolutionEngine))
+    assert is_pid(Process.whereis(ValidationCampaigns))
     :ok
   end
 
