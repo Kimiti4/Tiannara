@@ -101,6 +101,8 @@ defmodule Tiannara.Omega.ConsequentialActionGate do
       :undefined ->
         try do
           :ets.new(table, [:named_table, :public, :set])
+          replay_registry(table, path)
+          table
         rescue
           ArgumentError -> table
         end
@@ -142,6 +144,24 @@ defmodule Tiannara.Omega.ConsequentialActionGate do
     else
       {:error, :authorization_already_consumed}
     end
+  end
+
+  defp replay_registry(table, path) do
+    if File.regular?(path) do
+      path
+      |> File.stream!([], :line)
+      |> Enum.each(fn line ->
+        case Jason.decode(String.trim(line)) do
+          {:ok, %{"authorization_id" => authorization_id}} ->
+            :ets.insert(table, {{:action, authorization_id}, :consumed})
+
+          _ ->
+            :ok
+        end
+      end)
+    end
+  rescue
+    _ -> :ok
   end
 
   defp with_lock(key, fun) do
