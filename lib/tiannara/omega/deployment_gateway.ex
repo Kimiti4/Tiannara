@@ -23,7 +23,7 @@ defmodule Tiannara.Omega.DeploymentGateway do
   defp do_deploy(candidate, certification, lineage, grant, identity, registry_path) do
     with :ok <- check_not_already_deployed(grant, registry_path),
          :ok <- check_candidate_status(candidate),
-         {:ok, certificate} <- check_certification(certification),
+         {:ok, _certificate} <- check_certification(certification),
          :ok <- check_lineage(lineage),
          :ok <- check_grant_present(grant),
          :ok <- check_grant_matches(grant, candidate),
@@ -50,7 +50,7 @@ defmodule Tiannara.Omega.DeploymentGateway do
           )
       end
 
-      {:ok, record, deployed_candidate, certificate}
+      {:ok, record, deployed_candidate}
     end
   end
 
