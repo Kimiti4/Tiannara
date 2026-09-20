@@ -62,6 +62,7 @@ defmodule ObservatoryApi.Controllers.StatusController do
 
   defp safe_certificates do
     CertificateIssuance.export()
+    |> Enum.filter(&(&1["state"] == "VALID"))
     |> Enum.map(fn record ->
       Map.take(record, ["certificate_id", "state", "decision"])
     end)
