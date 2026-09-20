@@ -76,8 +76,14 @@ defmodule Tiannara.CRAV.AlphaLaunch do
     end
   end
 
-  @spec launch() :: {:ok, map()} | {:error, term()}
-  def launch do
+  @spec launch() :: {:error, :authorization_required | term()}
+  def launch, do: {:error, :authorization_required}
+
+  @spec launch(Term.t(), Tiannara.Omega.HumanDelivery.Authorization.t(), Tiannara.Omega.HumanDelivery.AuthenticatedHumanIdentity.t(), binary()) ::
+          {:ok, map()} | {:error, term()}
+  def launch(_action_id, grant, identity, registry_path) when is_binary(registry_path) do
+    action_id = :crav_alpha_launch
+
     case pre_flight() do
       {:ok, checklist} ->
         cond do
@@ -85,7 +91,15 @@ defmodule Tiannara.CRAV.AlphaLaunch do
             {:error, {:launch_blocked, checklist.critical_blockers}}
 
           true ->
-            execute_launch(checklist)
+            case Tiannara.Omega.ConsequentialActionGate.consume(
+                   action_id,
+                   grant,
+                   identity,
+                   registry_path
+                 ) do
+              {:ok, receipt} -> execute_launch(checklist, receipt)
+              {:error, reason} -> {:error, {:authorization_required, reason}}
+            end
         end
 
       {:error, _} = err ->
@@ -154,12 +168,12 @@ defmodule Tiannara.CRAV.AlphaLaunch do
     {:noreply, %{state | state: new_state, certificate: cert, launched_at: DateTime.utc_now()}}
   end
 
-  defp execute_launch(checklist) do
+  defp execute_launch(checklist, authorization_receipt) do
     if gen_server_running?() do
       GenServer.cast(__MODULE__, {:transition, :launching, nil})
     end
 
-    cert = generate_certificate(checklist)
+    launch_record = generate_launch_record(checklist, authorization_receipt)
 
     if gen_server_running?() do
       GenServer.cast(__MODULE__, {:transition, :active, cert})
@@ -172,9 +186,10 @@ defmodule Tiannara.CRAV.AlphaLaunch do
     }
 
     metadata = %{
-      certificate_id: cert.certificate_id,
-      recommendation: cert.recommendation,
-      timestamp: cert.issued_at
+      action_id: launch_record.action_id,
+      authorization_id: launch_record.authorization_id,
+      recommendation: launch_record.recommendation,
+      timestamp: launch_record.activated_at
     }
 
     :telemetry.execute(@telemetry_event, measurements, metadata)
@@ -356,8 +371,7 @@ defmodule Tiannara.CRAV.AlphaLaunch do
     end
   end
 
-  defp generate_certificate(checklist) do
-    cert_id = generate_certificate_id()
+  defp generate_launch_record(checklist, authorization_receipt) do
     now = DateTime.utc_now()
 
     conditions = %{
@@ -373,8 +387,9 @@ defmodule Tiannara.CRAV.AlphaLaunch do
 
     hash_input =
       Jason.encode!(%{
-        certificate_id: cert_id,
-        issued_at: DateTime.to_iso8601(now),
+        action_id: authorization_receipt.action_id,
+        authorization_id: authorization_receipt.authorization_id,
+        activated_at: DateTime.to_iso8601(now),
         conditions: conditions,
         recommendation: Atom.to_string(recommendation),
         self_assessment_state: sac.state,
@@ -384,14 +399,15 @@ defmodule Tiannara.CRAV.AlphaLaunch do
     hash = :crypto.hash(:sha256, hash_input) |> Base.encode16(case: :lower)
 
     %{
-      certificate_id: cert_id,
-      issued_at: now,
-      hash: hash,
+      action_id: authorization_receipt.action_id,
+      authorization_id: authorization_receipt.authorization_id,
+      activated_at: now,
+      activation_hash: hash,
       launch_conditions: conditions,
       recommendation: recommendation,
       self_assessment: sac,
-      signed_by: :tiannara_crav,
-      version: "1.0.0"
+      authorized_by: authorization_receipt.human_id,
+      version: "2.0.0"
     }
   end
 
@@ -433,10 +449,6 @@ defmodule Tiannara.CRAV.AlphaLaunch do
     }
   end
 
-  defp generate_certificate_id do
-    random_bytes = :crypto.strong_rand_bytes(16)
-    "ALPHA-#{Base.encode16(random_bytes, case: :upper)}"
-  end
 
   defp compute_launch_recommendation(checklist) do
     pass_count =
