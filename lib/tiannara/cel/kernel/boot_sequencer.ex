@@ -10,6 +10,37 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
           duration_ms: non_neg_integer()
         }
 
+  @doc """
+  Canonical CEL kernel boot entry point.
+
+  Boots a set of service specs through the full fail-closed gate pipeline:
+  resource, capability, health, constitutional-score, and critical-dependency
+  propagation (`:skipped` for dependents of a failed or degraded critical
+  service). The `status` derivation (`:ready` | `:degraded` | `:failed`) and
+  the per-service `gate_results` map are produced identically regardless of
+  which form is used.
+
+  Two documented forms:
+
+    * `services \\\\ nil` (default) — platform boot. Reads the canonical
+      `ServiceRegistry.boot_order/0` and boots every registered service.
+
+    * explicit `services` list — deterministic, registry-independent boot.
+      The SAME gate semantics run, in the given order, over an explicit list
+      of `ServiceRegistry.service_spec()` structs. Used by fail-closed
+      verification and tests so all gate decisions are reproducible and
+      decoupled from live runtime registry state. Callers MUST supply a
+      complete, dependency-consistent snapshot; dependency cascades are still
+      derived from each spec's `depends_on`.
+
+  ## Contract decision (recorded 2026-09-20)
+
+  `boot/5` is the canonical boot API. The optional `services` argument is a
+  first-class, verified entry point — not a test-only fixture. Any future boot
+  strategy must preserve: the five-gate fail-closed semantics, `:skipped`
+  propagation for dependents of failed critical services, and the
+  `:ready`/`:degraded`/`:failed` status derivation.
+  """
   @spec boot(
           starter :: (ServiceRegistry.service_spec() -> {:ok, pid()} | {:error, term()}),
           health_checker :: (ServiceRegistry.service_spec() -> :healthy | :unhealthy),
