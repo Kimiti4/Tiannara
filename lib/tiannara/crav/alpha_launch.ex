@@ -2,10 +2,9 @@ defmodule Tiannara.CRAV.AlphaLaunch do
   @moduledoc """
   Manages the Alpha Discovery Challenge launch protocol.
 
-  Executes a pre-flight checklist, runtime census, discovery chain
-  verification, observatory coverage check, soak test validation,
-  constitutional compliance audit, and generates a signed launch
-  certificate with SHA-256 hash.
+  Executes a pre-flight checklist and, only after a valid human authorization,
+  records an auditable launch activation record. This module does not mint
+  certification certificates.
   """
 
   use GenServer
@@ -19,7 +18,7 @@ defmodule Tiannara.CRAV.AlphaLaunch do
   @min_observatory_coverage 50.0
   @min_compliance_score 0.80
 
-  defstruct [:state, :certificate, :launched_at, :pre_flight_result]
+  defstruct [:state, :launch_record, :launched_at, :pre_flight_result]
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -81,8 +80,9 @@ defmodule Tiannara.CRAV.AlphaLaunch do
 
   @spec launch(term(), Tiannara.Omega.HumanDelivery.Authorization.t(), Tiannara.Omega.HumanDelivery.AuthenticatedHumanIdentity.t(), binary()) ::
           {:ok, map()} | {:error, term()}
-  def launch(_action_id, grant, identity, registry_path) when is_binary(registry_path) do
+  def launch(:crav_alpha_launch, grant, identity, registry_path) when is_binary(registry_path) do
     action_id = :crav_alpha_launch
+
 
     case pre_flight() do
       {:ok, checklist} ->
@@ -117,9 +117,9 @@ defmodule Tiannara.CRAV.AlphaLaunch do
   end
 
   @spec certificate() :: {:ok, map() | nil} | {:error, term()}
-  def certificate do
+  def launch_record do
     if gen_server_running?() do
-      {:ok, GenServer.call(__MODULE__, :certificate)}
+      {:ok, GenServer.call(__MODULE__, :launch_record)}
     else
       {:ok, nil}
     end
@@ -139,7 +139,7 @@ defmodule Tiannara.CRAV.AlphaLaunch do
   @impl true
   def init(_opts) do
     {:ok,
-     %__MODULE__{state: :pre_launch, certificate: nil, launched_at: nil, pre_flight_result: nil}}
+     %__MODULE__{state: :pre_launch, launch_record: nil, launched_at: nil, pre_flight_result: nil}}
   end
 
   @impl true
@@ -148,7 +148,7 @@ defmodule Tiannara.CRAV.AlphaLaunch do
   end
 
   @impl true
-  def handle_call(:certificate, _from, state) do
+  def handle_call(:launch_record, _from, state) do
     {:reply, state.certificate, state}
   end
 
@@ -164,8 +164,8 @@ defmodule Tiannara.CRAV.AlphaLaunch do
   end
 
   @impl true
-  def handle_cast({:transition, new_state, cert}, state) do
-    {:noreply, %{state | state: new_state, certificate: cert, launched_at: DateTime.utc_now()}}
+  def handle_cast({:transition, new_state, launch_record}, state) do
+    {:noreply, %{state | state: new_state, launch_record: launch_record, launched_at: DateTime.utc_now()}}
   end
 
   defp execute_launch(checklist, authorization_receipt) do
