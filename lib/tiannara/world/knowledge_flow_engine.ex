@@ -62,7 +62,7 @@ defmodule Tiannara.World.KnowledgeFlowEngine do
 
   def force_propagate(entity_id), do: GenServer.call(__MODULE__, {:force_propagate, entity_id})
 
-  def stats, do: GenServer.call(__MODULE__, :stats)
+  def stats, do: {:ok, GenServer.call(__MODULE__, :stats)}
 
   @impl true
   def init(_opts) do

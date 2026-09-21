@@ -89,7 +89,7 @@ defmodule Tiannara.World.KnowledgeCoordinator do
     GenServer.call(__MODULE__, {:certify_discovery, discovery})
   end
 
-  def stats, do: GenServer.call(__MODULE__, :stats)
+  def stats, do: {:ok, GenServer.call(__MODULE__, :stats)}
 
   @impl true
   def init(_opts) do
@@ -119,7 +119,11 @@ defmodule Tiannara.World.KnowledgeCoordinator do
           id: spec.id,
           type: spec.type,
           subtype: determine_initial_stage(spec.type),
-          attributes: Map.get(spec, :attributes, %{}),
+          attributes: Map.put(
+            Map.get(spec, :attributes, %{}),
+            :evidence,
+            Map.get(spec, :evidence, [])
+          ),
           confidence: spec.confidence,
           uncertainty: 1.0 - spec.confidence,
           provenance: spec.provenance,
@@ -309,7 +313,7 @@ defmodule Tiannara.World.KnowledgeCoordinator do
         UnifiedWorldModel.update_entity(entity_id, %{
           confidence: final_conf,
           uncertainty: 1.0 - final_conf,
-          attributes: Map.put(entity.attributes || %{}, :evidence, existing_evidence ++ new_evidence),
+          evidence: existing_evidence ++ new_evidence,
           updated_at: DateTime.utc_now()
         })
 

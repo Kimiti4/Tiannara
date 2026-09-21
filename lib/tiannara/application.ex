@@ -99,6 +99,7 @@ defmodule Tiannara.Application do
       # Observatory Validation Campaign Infrastructure
       {Registry, keys: :unique, name: Tiannara.Observatory.ValidationRegistry},
       Tiannara.Observatory.ValidationSupervisor,
+      Tiannara.ValidationCampaigns,
 
       # Civilization Kernel (Top-level State Substrate)
       Supervisor.child_spec({TiannaraOS.CivilizationKernel, [:tiannara_civilization, %{}]},

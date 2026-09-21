@@ -20,7 +20,11 @@ defmodule Tiannara.World.UnifiedWorldModel do
                   :capability_entity,
                   :knowledge_entity,
                   :event_entity,
-                  :constraint_entity
+                  :constraint_entity,
+                  :observation,
+                  :experimental_result,
+                  :experiment,
+                  :capital_delta
                 ] ++ @canonical_types
 
   @relationship_types [
