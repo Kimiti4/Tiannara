@@ -12,8 +12,16 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
 
   Constitutional basis: augmentation clause, Safety and Reliability ("Capability
   must never outpace verification"), "Maintain audit trails".
+
+  Effect boundary: a grant may be bound to the canonical identity of one
+  specific consequential effect (see `Tiannara.Omega.EffectIdentity`). A grant
+  that names no effect can never be valid for a specific effect, and a grant
+  that names an effect can never be rebound to a different one. This prevents
+  an authorization granted for one effect from being replayed against a
+  different effect (bounded D165-class protection for one sink path).
   """
 
+  alias Tiannara.Omega.EffectIdentity
   alias Tiannara.Omega.HumanDelivery.Explanation
 
   @enforce_keys [:authorization_id, :explanation_id]
@@ -24,6 +32,7 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
     :granted_at,
     :ttl,
     :candidate_content_hash,
+    :effect_id,
     :decision,
     :reason,
     :lineage,
@@ -140,6 +149,45 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
     do: eid == explanation_id
 
   def valid_for?(_auth, _explanation_id), do: false
+
+  @doc """
+  Bind a granted authorization to the canonical identity of exactly one
+  consequential effect. Binding is one-shot: a grant that already names an
+  effect can never be rebound. Only a granted authorization can be bound.
+  """
+  def bind_effect(%__MODULE__{status: :granted, effect_id: nil} = auth, descriptor)
+      when is_map(descriptor) do
+    case EffectIdentity.effect_id(descriptor) do
+      {:ok, effect_id} ->
+        {:ok,
+         %__MODULE__{auth
+                      | effect_id: effect_id,
+                        lineage: auth.lineage ++ [{:bound_to_effect, effect_id}]}}
+
+      {:error, reason} ->
+        {:error, {:invalid_effect_descriptor, reason}}
+    end
+  end
+
+  def bind_effect(%__MODULE__{status: :granted, effect_id: existing}, _descriptor)
+      when is_binary(existing) do
+    {:error, {:already_bound, existing}}
+  end
+
+  def bind_effect(%__MODULE__{}, _descriptor), do: {:error, :authorization_not_granted}
+  def bind_effect(_auth, _descriptor), do: {:error, :authorization_required}
+
+  @doc """
+  The effect-boundary check a governed sink MUST perform. A grant is valid for
+  an effect only if it is granted AND was bound to that exact canonical effect
+  identity. A grant that names no effect can never authorize a specific effect.
+  """
+  def valid_for_effect?(%__MODULE__{status: :granted, effect_id: effect_id}, descriptor)
+      when is_binary(effect_id) do
+    EffectIdentity.verify(descriptor, effect_id) == :ok
+  end
+
+  def valid_for_effect?(_auth, _descriptor), do: false
 
   @doc """
   Returns true if the grant has expired. A grant is expired if it is granted and

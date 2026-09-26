@@ -261,7 +261,7 @@ defmodule Tiannara.CEL.Services.EventStore do
   defp read_all(topic) do
     :dets.traverse(@table, fn
       {{t, offset}, event, ts} when t == topic -> {:continue, {offset, event, ts}}
-      _ -> {:continue}
+      _ -> :continue
     end)
     |> Enum.sort_by(fn {offset, _e, _ts} -> offset end)
   end
