@@ -1,0 +1,91 @@
+name: Elixir CI
+
+# Guards the Elixir constitutional core. The branch that introduced EHTC/LEOC
+# shipped with fatal compile errors and a test file under lib/ that `mix test`
+# never executes; this workflow exists so neither can reach main silently.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - "lib/**"
+      - "test/**"
+      - "mix.exs"
+      - "mix.lock"
+      - ".github/workflows/elixir_ci.yml"
+
+jobs:
+  compile:
+    name: Compile (warnings reported, errors fatal)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - run: mix deps.get
+      - run: mix compile --force --color
+
+  misfiled-tests:
+    name: Test placement guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail if any test file lives under lib/
+        run: |
+          set -euo pipefail
+          matches="$(find lib -name '*_test.exs' -o -name '*_test.ex' -print || true)"
+          if [ -n "$matches" ]; then
+            echo "::error::Test files under lib/ are never executed by \`mix test\`."
+            echo "$matches"
+            exit 1
+          fi
+          echo "No misfiled test sources."
+
+  smoke-tests:
+    name: Runtime smoke suite
+    runs-on: ubuntu-latest
+    needs: [compile, misfiled-tests]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - run: mix deps.get
+
+      # Focused, hermetic suite: the subsystems that must never regress to stubs.
+      - name: Run EHTC / LEOC / CEL / agency tests
+        env:
+          MIX_ENV: test
+          TIANNARA_SMOKE_TEST: "1"
+        run: |
+          mix test \
+            test/tiannara/ehtc_leoc_jarvis_runtime_test.exs \
+            test/tiannara/complex_task_runtime_test.exs \
+            test/tiannara/leoc_adaptive_anchor_test.exs \
+            test/tiannara/cel/
