@@ -21,9 +21,7 @@ defmodule Tiannara.Physics.NDE do
     {:error, :physics_substrate_unavailable}
   end
 
-  def get_negentropic_patterns() do
-    {:error, :physics_substrate_unavailable}
-  end
+  def get_negentropic_patterns() do\n    GenServer.call(__MODULE__, :get_negentropic_patterns)\n  end
 
   def calculate_negentropy_level(_pattern_id) do
     {:error, :physics_substrate_unavailable}
@@ -33,21 +31,15 @@ defmodule Tiannara.Physics.NDE do
     {:error, :physics_substrate_unavailable}
   end
 
-  def get_negentropy_metrics() do
-    {:error, :physics_substrate_unavailable}
-  end
+  def get_negentropy_metrics() do\n    GenServer.call(__MODULE__, :get_negentropy_metrics)\n  end
 
-  def validate_negentropic_integrity() do
-    {:error, :physics_substrate_unavailable}
-  end
+  def validate_negentropic_integrity() do\n    GenServer.call(__MODULE__, :validate_negentropic_integrity)\n  end
 
   def simulate_negentropic_process(_chaotic_input, _steps \\ 1000) do
     {:error, :physics_substrate_unavailable}
   end
 
-  def get_chaos_reduction_statistics() do
-    {:error, :physics_substrate_unavailable}
-  end
+  def get_chaos_reduction_statistics() do\n    GenServer.call(__MODULE__, :get_chaos_reduction_statistics)\n  end
 
   def export_negentropic_model(_model_id) do
     {:error, :physics_substrate_unavailable}
