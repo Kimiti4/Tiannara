@@ -23,8 +23,7 @@ defmodule Tiannara.LEOC.Encoder do
     with :ok <- validate_shapes(state, baseline),
          {:ok, basis, mean, latent, mse} <- project(state, baseline, latent_dimensions, opts),
          {:ok, basis_hash} <- Tiannara.LEOC.BasisRegistry.put(basis, mean) do
-      latent32 = Nx.as_type(latent, {:f, 32})
-      latent_binary = Nx.to_binary(latent32)
+      latent_binary = Nx.to_binary(latent)
       source_hash = Tiannara.LEOC.AnchorRegistry.hash_tensor(state)
       id_material = :erlang.term_to_binary({world_id, epoch, latent_binary})
       id = :crypto.hash(:sha256, id_material)
@@ -35,7 +34,7 @@ defmodule Tiannara.LEOC.Encoder do
          world_id: world_id,
          epoch: epoch,
          latent_binary: latent_binary,
-         latent_shape: Nx.shape(latent32),
+         latent_shape: Nx.shape(latent),
          baseline_hash: Tiannara.LEOC.AnchorRegistry.hash_tensor(baseline),
          basis_hash: basis_hash,
          source_state_hash: source_hash,
@@ -57,13 +56,21 @@ defmodule Tiannara.LEOC.Encoder do
              Tiannara.EHTC.compute_principal_eigenvectors(delta, latent_dimensions, opts) do
         mean = meta.mean
         centered = Nx.subtract(delta, mean)
-        latent = Nx.dot(centered, basis)
+
+        # The latent payload is persisted as float32, so the reconstruction
+        # error must be measured against the float32 latent the decoder will
+        # actually read. Measuring it against the higher-precision projection
+        # would understate the true decoder error.
+        latent =
+          Nx.dot(centered, basis)
+          |> Nx.as_type({:f, 32})
+
         reconstructed_delta = Nx.add(Nx.dot(latent, Nx.transpose(basis)), mean)
 
         mse =
           reconstructed_delta
           |> Nx.subtract(delta)
-          |> Nx.square()
+          |> Nx.pow(2)
           |> Nx.mean()
           |> Nx.to_number()
 

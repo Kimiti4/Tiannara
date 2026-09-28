@@ -10,6 +10,11 @@ defmodule Tiannara.Twp.SurvivabilityEstimator do
   end
   def estimate(_), do: {:error, :insufficient_branch_state}
 
-  defp number(map, key, default), do: case Map.get(map, key, default) do x when is_number(x) -> x; _ -> default end
+  defp number(map, key, default) do
+    case Map.get(map, key, default) do
+      x when is_number(x) -> x
+      _ -> default
+    end
+  end
   defp clamp(x), do: x |> max(0.0) |> min(1.0)
 end

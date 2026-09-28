@@ -21,23 +21,33 @@ defmodule Tiannara.Physics.TWP do
     {:error, :physics_substrate_unavailable}
   end
 
-  def get_temporal_states() do\n    GenServer.call(__MODULE__, :get_temporal_states)\n  end
+  def get_temporal_states() do
+    GenServer.call(__MODULE__, :get_temporal_states)
+  end
 
-  def calculate_temporal_coherence() do\n    GenServer.call(__MODULE__, :calculate_temporal_coherence)\n  end
+  def calculate_temporal_coherence() do
+    GenServer.call(__MODULE__, :calculate_temporal_coherence)
+  end
 
   def prune_future_branches(_branch_entropy_threshold \\ 0.8) do
     {:error, :physics_substrate_unavailable}
   end
 
-  def get_temporal_metrics() do\n    GenServer.call(__MODULE__, :get_temporal_metrics)\n  end
+  def get_temporal_metrics() do
+    GenServer.call(__MODULE__, :get_temporal_metrics)
+  end
 
-  def validate_temporal_consistency() do\n    GenServer.call(__MODULE__, :validate_temporal_consistency)\n  end
+  def validate_temporal_consistency() do
+    GenServer.call(__MODULE__, :validate_temporal_consistency)
+  end
 
   def collapse_temporal_wavefunction(_target_state_id) do
     {:error, :physics_substrate_unavailable}
   end
 
-  def get_temporal_predictions() do\n    GenServer.call(__MODULE__, :get_temporal_predictions)\n  end
+  def get_temporal_predictions() do
+    GenServer.call(__MODULE__, :get_temporal_predictions)
+  end
 
   # Server callbacks
   @impl true
