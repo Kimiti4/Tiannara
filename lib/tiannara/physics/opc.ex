@@ -13,45 +13,27 @@ defmodule Tiannara.Physics.OPC do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def compile_observer_physics(_observer_data, _physics_model, _opts \\ []) do
-    {:error, :physics_substrate_unavailable}
+  def compile_observer_physics(observer_data, physics_model, opts \\ []) do
+    GenServer.call(__MODULE__, {:compile_observer_physics, observer_data, physics_model, opts}, 35_000)
   end
 
-  def get_observer_status(_observer_id) do
-    {:error, :physics_substrate_unavailable}
-  end
+  def get_observer_status(observer_id), do: GenServer.call(__MODULE__, {:get_observer_status, observer_id})
 
-  def get_all_observers() do
-    {:error, :physics_substrate_unavailable}
-  end
+  def get_all_observers(), do: GenServer.call(__MODULE__, :get_all_observers)
 
-  def apply_observer_effect(_observer_id, _target_system, _effect_data) do
-    {:error, :physics_substrate_unavailable}
-  end
+  def apply_observer_effect(observer_id, target_system, effect_data), do: GenServer.call(__MODULE__, {:apply_observer_effect, observer_id, target_system, effect_data})
 
-  def compile_deterministic_physics(_physics_spec, _observer_constraints \\ []) do
-    {:error, :physics_substrate_unavailable}
-  end
+  def compile_deterministic_physics(physics_spec, observer_constraints \\ []), do: GenServer.call(__MODULE__, {:compile_deterministic_physics, physics_spec, observer_constraints})
 
-  def get_compilation_metrics() do
-    {:error, :physics_substrate_unavailable}
-  end
+  def get_compilation_metrics(), do: GenServer.call(__MODULE__, :get_compilation_metrics)
 
-  def validate_observer_consistency(_observer_id) do
-    {:error, :physics_substrate_unavailable}
-  end
+  def validate_observer_consistency(observer_id), do: GenServer.call(__MODULE__, {:validate_observer_consistency, observer_id})
 
-  def get_physics_stability_metrics() do
-    {:error, :physics_substrate_unavailable}
-  end
+  def get_physics_stability_metrics(), do: GenServer.call(__MODULE__, :get_physics_stability_metrics)
 
-  def optimize_observer_physics(_observer_id, _optimization_params) do
-    {:error, :physics_substrate_unavailable}
-  end
+  def optimize_observer_physics(observer_id, params), do: GenServer.call(__MODULE__, {:optimize_observer_physics, observer_id, params})
 
-  def export_physics_model(_model_id, _format \\ :json) do
-    {:error, :physics_substrate_unavailable}
-  end
+  def export_physics_model(model_id, format \\ :json), do: GenServer.call(__MODULE__, {:export_physics_model, model_id, format})
 
   # Server callbacks
   @impl true
