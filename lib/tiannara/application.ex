@@ -105,8 +105,11 @@ defmodule Tiannara.Application do
         id: :civilization_kernel
       ),
 
-      # LEOC LatentVault
+      # LEOC latent runtime: compact seeds, versioned anchors, decoder bases
       Tiannara.LEOC.LatentVault,
+      Tiannara.LEOC.AnchorRegistry,
+      Tiannara.LEOC.BasisRegistry,
+      Tiannara.LEOC.SeedVault,
 
       # ROS Dynamic Shard Architecture (Must start before Core since Reality Ontological Shards (ROS)
       Tiannara.ROS.Registry,
