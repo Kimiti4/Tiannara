@@ -4,7 +4,7 @@ defmodule Tiannara.Ctl.BranchValidator do
   This module works with the CausalRegistry to ensure branch integrity.
   """
 
-  alias Tiannara.Ctl.CausalRegistry
+  alias Tiannara.CTL.CausalRegistry
 
   @type branch_id :: String.t()
   @type branch_record :: map()
@@ -24,7 +24,7 @@ defmodule Tiannara.Ctl.BranchValidator do
   @spec check_causal_stress(branch_record(), branch_record()) :: :ok | {:error, :stress_exceeded}
   def check_causal_stress(branch_a, branch_b) do
     # Calculate combined stress
-    combined_stress = (branch_a.stress + branch_b.stress) / 2
+    combined_stress = (Map.get(branch_a, :stress, 0.0) + Map.get(branch_b, :stress, 0.0)) / 2
     
     if combined_stress > 0.7 do
       {:error, :stress_exceeded}
@@ -34,14 +34,13 @@ defmodule Tiannara.Ctl.BranchValidator do
   end
 
   @spec prevent_merge(branch_id(), branch_id()) :: :ok
-  def prevent_merge(_branch_a_id, _branch_b_id) do
-    # Log the prevented merge
-    :ok
+  def prevent_merge(branch_a_id, branch_b_id) do
+    {:error, {:merge_blocked, branch_a_id, branch_b_id}}
   end
 
   @spec log_validation_result(term()) :: :ok
-  def log_validation_result(_result) do
-    # Emit telemetry event
+  def log_validation_result(result) do
+    :telemetry.execute([:tiannara, :ctl, :branch_validation], %{count: 1}, %{result: result})
     :ok
   end
 end
