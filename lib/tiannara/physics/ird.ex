@@ -25,13 +25,17 @@ defmodule Tiannara.Physics.IRD do
     {:error, :physics_substrate_unavailable}
   end
 
-  def get_all_interventions() do\n    GenServer.call(__MODULE__, :get_all_interventions)\n  end
+  def get_all_interventions() do
+    {:error, :physics_substrate_unavailable}
+  end
 
   def coordinate_distributed_intervention(_target_systems, _intervention_data) do
     {:error, :physics_substrate_unavailable}
   end
 
-  def get_resonance_damping_metrics() do\n    GenServer.call(__MODULE__, :get_resonance_damping_metrics)\n  end
+  def get_resonance_damping_metrics() do
+    {:error, :physics_substrate_unavailable}
+  end
 
   def validate_intervention_safety(_intervention_data) do
     {:error, :physics_substrate_unavailable}
@@ -41,7 +45,9 @@ defmodule Tiannara.Physics.IRD do
     {:error, :physics_substrate_unavailable}
   end
 
-  def get_system_coordination_status() do\n    GenServer.call(__MODULE__, :get_system_coordination_status)\n  end
+  def get_system_coordination_status() do
+    {:error, :physics_substrate_unavailable}
+  end
 
   def publish_coordination_event(_event_data) do
     {:error, :physics_substrate_unavailable}

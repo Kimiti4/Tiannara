@@ -8,5 +8,10 @@ defmodule TiannaraOS.ScientificCapitalLedger do
   end
   def calculate_delta(_, _), do: {:error, :invalid_ledger_entry}
 
-  defp numeric(map, key, default), do: case Map.get(map, key, default) do x when is_number(x) -> x; _ -> default end
+  defp numeric(map, key, default) do
+    case Map.get(map, key, default) do
+      x when is_number(x) -> x
+      _ -> default
+    end
+  end
 end
