@@ -4,7 +4,8 @@ defmodule Tiannara.World.KnowledgeFlowEngineTest do
   alias Tiannara.World.{KnowledgeFlowEngine, KnowledgeCoordinator, UnifiedWorldModel}
 
   setup do
-    {:ok, engine} = start_supervised(KnowledgeFlowEngine)
+    engine = Process.whereis(KnowledgeFlowEngine)
+    assert is_pid(engine), "KnowledgeFlowEngine must be started by the application"
     {:ok, %{engine: engine}}
   end
 

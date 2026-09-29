@@ -180,7 +180,8 @@ defmodule Tiannara.Sentinel.ActivationEngineTest do
 
   describe "Engine process" do
     setup do
-      {:ok, _pid} = Engine.start_link([])
+      pid = Process.whereis(Engine)
+      assert is_pid(pid), "Activation.Engine must be started by the application"
       :ok
     end
 
