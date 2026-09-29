@@ -1,0 +1,31 @@
+{
+  "schema": "tiannara-effect-v1-fixture-v1",
+  "positive": [
+    {
+      "id": "E-P01-map-order",
+      "descriptor": {
+        "effect_schema_version": "effect-v1",
+        "principal": "human:amos",
+        "authority": {"id":"omega-deployer","scope":"production"},
+        "authorization_scope": {"resource_scope":"candidate","operation_scope":["deploy"],"parameter_constraints":{}},
+        "operation": "deploy",
+        "target": {"namespace":"omega","resource_type":"candidate","resource_id":"cand-001","subresource":null},
+        "parameters": {"mode":"supervised","replicas":1},
+        "intent": "deploy candidate",
+        "environment_scope": {"type":"production","id":"prod-ke-1","region":"ke-central"},
+        "authority_epoch": "epoch-7",
+        "policy_version": "policy-42"
+      },
+      "expected_effect_id": "a565edecfc000c7f6be7c3714183b21241f067e80305072fce77b6485a8e2a50"
+    }
+  ],
+  "negative": [
+    {"id":"E-N01-principal","field":"principal","value":"human:other"},
+    {"id":"E-N02-operation","field":"operation","value":"delete"},
+    {"id":"E-N03-target","field":"target","value":{"namespace":"omega","resource_type":"candidate","resource_id":"cand-002","subresource":null}},
+    {"id":"E-N04-parameter","field":"parameters","value":{"mode":"supervised","replicas":2}},
+    {"id":"E-N05-intent","field":"intent","value":"delete candidate"},
+    {"id":"E-N06-epoch","field":"authority_epoch","value":"epoch-8"},
+    {"id":"E-N07-policy","field":"policy_version","value":"policy-43"}
+  ]
+}
