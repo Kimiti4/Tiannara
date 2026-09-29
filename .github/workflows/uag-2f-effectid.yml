@@ -11,8 +11,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
+        with:
+          python-version: "3.12"
       - run: python3 effect_identity/independent/python_effect_id.py
       - uses: actions/setup-node@v4
-        with: { node-version: "22" }
+        with:
+          node-version: "22"
       - run: node effect_identity/independent/typescript_effect_id.mjs
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cargo run --manifest-path effect_identity/independent/rust/Cargo.toml --quiet
+  elixir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18.4"
+          otp-version: "28"
+      - run: mix deps.get
+      - run: mix test tiannara_runtime/test/tiannara_runtime/governance/effect_identity_test.exs
