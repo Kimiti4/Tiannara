@@ -172,7 +172,7 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
   defp canonical_json(value) when is_map(value) do
     entries =
       value
-      |> Enum.sort_by(fn {key, _} -> key end, :binary)
+      |> Enum.sort_by(fn {key, _} -> key end)
       |> Enum.map(fn {key, item} -> [Jason.encode!(key), ":", canonical_json(item)] end)
 
     ["{", Enum.intersperse(entries, ","), "}"] |> IO.iodata_to_binary()
