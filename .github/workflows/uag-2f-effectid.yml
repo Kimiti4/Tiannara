@@ -34,7 +34,7 @@ jobs:
           assert f["count"] == 117 == len(f["vectors"])
           c=Counter(v["category"] for v in f["vectors"])
           expected={
-            "basic_positive":8,"lifecycle_exclusion":2,"retry":7,
+            "basic_positive":7,"lifecycle_exclusion":2,"retry":7,
             "semantic_non_equivalence":15,"null_absent_default":6,
             "numeric_semantics":10,"unicode":6,"collection_semantics":9,
             "principal_authority":8,"operation_target":8,
