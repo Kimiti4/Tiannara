@@ -53,12 +53,7 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
   @doc "Returns canonical UTF-8 JSON bytes for a valid descriptor."
   def canonical_bytes(descriptor) do
     with {:ok, normalized} <- normalize(descriptor) do
-      try do
-        {:ok, Jason.encode!(normalized)}
-      rescue
-        error in [Protocol.UndefinedError, ArgumentError] ->
-          {:error, {:serialization_error, Exception.message(error)}}
-      end
+      {:ok, canonical_json(normalized)}
     end
   end
 
