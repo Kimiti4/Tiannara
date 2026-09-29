@@ -1,0 +1,18 @@
+name: UAG-2F EffectID Conformance
+
+on:
+  push:
+    branches: [uag-2f-effectid-conformance]
+  pull_request:
+
+jobs:
+  independent-renderers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python3 effect_identity/independent/python_effect_id.py
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: node effect_identity/independent/typescript_effect_id.mjs
