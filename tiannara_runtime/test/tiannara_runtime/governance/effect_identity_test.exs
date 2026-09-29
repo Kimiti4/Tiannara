@@ -5,13 +5,13 @@ defmodule TiannaraRuntime.Governance.EffectIdentityTest do
   @base %{
     effect_schema_version: "effect-v1",
     principal: "human:amos",
-    authority: %{id: "omega-deployer", scope: "production"},
-    authorization_scope: %{resource_scope: "candidate", operation_scope: ["deploy"], parameter_constraints: %{}},
+    authority: %{"id" => "omega-deployer", "scope" => "production"},
+    authorization_scope: %{"resource_scope" => "candidate", "operation_scope" => ["deploy"], "parameter_constraints" => %{}},
     operation: "deploy",
-    target: %{namespace: "omega", resource_type: "candidate", resource_id: "cand-001", subresource: nil},
+    target: %{"namespace" => "omega", "resource_type" => "candidate", "resource_id" => "cand-001", "subresource" => nil},
     parameters: %{mode: "supervised", replicas: 1},
     intent: "deploy candidate",
-    environment_scope: %{type: "production", id: "prod-ke-1", region: "ke-central"},
+    environment_scope: %{"type" => "production", "id" => "prod-ke-1", "region" => "ke-central"},
     authority_epoch: "epoch-7",
     policy_version: "policy-42"
   }
