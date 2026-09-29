@@ -1,0 +1,57 @@
+name: UAG-2F EffectID Conformance
+
+on:
+  push:
+    branches: [uag-2f-effectid-conformance]
+  pull_request:
+
+jobs:
+  independent-renderers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 effect_identity/independent/python_effect_id.py > /tmp/python.out
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node effect_identity/independent/typescript_effect_id.mjs > /tmp/typescript.out
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - run: cargo run --manifest-path effect_identity/independent/rust/Cargo.toml --quiet > /tmp/rust.out
+      - name: Compare independent renderer outputs
+        run: |
+          diff -u /tmp/python.out /tmp/typescript.out
+          diff -u /tmp/python.out /tmp/rust.out
+      - name: Verify fixture taxonomy
+        run: |
+          python3 - <<'PY'
+          import json
+          from collections import Counter
+          p="effect_identity/fixtures/effect_id_v1.json"
+          f=json.load(open(p,encoding="utf-8"))
+          assert f["count"] == 117 == len(f["vectors"])
+          c=Counter(v["category"] for v in f["vectors"])
+          expected={
+            "basic_positive":7,"lifecycle_exclusion":2,"retry":7,
+            "semantic_non_equivalence":15,"null_absent_default":6,
+            "numeric_semantics":10,"unicode":6,"collection_semantics":9,
+            "principal_authority":8,"operation_target":8,
+            "environment_epoch_policy":8,"schema_evolution":5,
+            "invalid_unsupported":10,"binding_forgery":10,"recovery":6
+          }
+          assert c == expected, c
+          print(c)
+          PY
+
+  elixir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18.4"
+          otp-version: "28"
+      - run: mix deps.get
+      - run: mix test tiannara_runtime/test/tiannara_runtime/governance/effect_identity_test.exs

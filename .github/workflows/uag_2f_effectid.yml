@@ -1,0 +1,44 @@
+name: UAG-2F EffectID Conformance
+
+on:
+  push:
+    branches: ["uag-2f-effectid-conformance"]
+    paths:
+      - "effect_identity/**"
+      - "tiannara_runtime/lib/tiannara_runtime/governance/effect_identity.ex"
+      - "tiannara_runtime/test/tiannara_runtime/governance/effect_identity_test.exs"
+  pull_request:
+    paths:
+      - "effect_identity/**"
+      - "tiannara_runtime/lib/tiannara_runtime/governance/effect_identity.ex"
+      - "tiannara_runtime/test/tiannara_runtime/governance/effect_identity_test.exs"
+
+jobs:
+  cross-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+      - run: python effect_identity/conformance/run.py
+
+  elixir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.18.4"
+          otp-version: "28"
+          version-type: strict
+      - working-directory: tiannara_runtime
+        run: mix deps.get
+      - working-directory: tiannara_runtime
+        run: mix test test/tiannara_runtime/governance/effect_identity_test.exs
