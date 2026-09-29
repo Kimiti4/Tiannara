@@ -125,3 +125,70 @@ jobs:
           else
             echo "Suite left tracked artifacts untouched."
           fi
+
+  ignore-hygiene:
+    name: Ignore hygiene (blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      # A path matched by an ignore rule is invisible to `git status` and is
+      # skipped by `git add`, so anything new created under it can only be
+      # committed with `git add -f`. Whole classes of correctness work therefore
+      # become silently uncommittable, and neither reviewer nor CI learns they
+      # exist. Reproduced on a developer host on 2026-09-29: freshly created
+      # test/zz_probe_test.exs and .github/zz_probe.yml were absent from both
+      # `git status` and `git add -A --dry-run`.
+      #
+      # This probes behaviour rather than grepping ignore files: the hazard is
+      # what a rule does to a new file, not how the rule is spelled. It also
+      # cannot be satisfied by editing a comment.
+      - name: Correctness-critical paths must be visible to git
+        run: |
+          set -uo pipefail
+          failed=0
+
+          report() {
+            printf '::error file=.gitignore,title=Ignore hygiene::%s\n' "$1"
+            failed=1
+          }
+
+          # 1. Directories that must never be ignored.
+          for dir in test tests .github; do
+            if [ ! -d "$dir" ]; then
+              report "expected directory '$dir' is missing from the checkout"
+              continue
+            fi
+            if rule=$(git check-ignore --no-index --verbose "$dir" 2>/dev/null); then
+              report "'$dir' is ignored ($rule), so new files there need git add -f"
+            fi
+          done
+
+          # 2. End-to-end proof: a brand new test and workflow must be addable.
+          mkdir -p test/tiannara .github/workflows
+          probe_test=test/tiannara/zz_ignore_hygiene_probe_test.exs
+          probe_wf=.github/workflows/zz_ignore_hygiene_probe.yml
+          printf 'defmodule ZzIgnoreHygieneProbe do\nend\n' > "$probe_test"
+          printf 'name: ZzIgnoreHygieneProbe\n' > "$probe_wf"
+          for probe in "$probe_test" "$probe_wf"; do
+            if rule=$(git check-ignore --no-index --verbose "$probe" 2>/dev/null); then
+              report "'$probe' is ignored ($rule)"
+            elif ! git add --dry-run -- "$probe" >/dev/null 2>&1; then
+              report "'$probe' is not addable by git add without -f"
+            fi
+          done
+          rm -f "$probe_test" "$probe_wf"
+
+          # 3. The ignore policy must itself be versioned, or the rules that hide
+          #    tests escape review.
+          for policy in .gitignore .gitattributes; do
+            if [ -e "$policy" ] && ! git ls-files --error-unmatch "$policy" >/dev/null 2>&1; then
+              report "'$policy' exists but is not tracked"
+            fi
+          done
+
+          if [ "$failed" -eq 0 ]; then
+            echo "test/, tests/, .github/ and newly created test/workflow files are visible to git."
+          fi
+          exit "$failed"
