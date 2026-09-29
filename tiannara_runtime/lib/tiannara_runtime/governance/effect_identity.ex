@@ -92,7 +92,7 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
 
   defp normalize_target(value) when is_map(value) do
     required = ~w(namespace resource_type resource_id subresource)
-    if Enum.all?(required, fn k -> Map.has_key?(value, k) or Map.has_key?(value, k) end) do
+    if Enum.all?(required, &has_field?(value, &1)) do
       normalize_object(value, :target)
     else
       {:error, {:missing_target_fields, required}}
@@ -116,6 +116,10 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
     if String.valid?(key), do: {:ok, key}, else: {:error, :invalid_utf8_key}
   end
   defp object_key(_), do: {:error, :invalid_object_key}
+
+  defp has_field?(map, key) do
+    Map.has_key?(map, key) or Enum.any?(Map.keys(map), fn k -> is_atom(k) and Atom.to_string(k) == key end)
+  end
 
   # Cross-runtime semantic wrappers:
   # {"$number":"int:..."} / {"$number":"decimal:..."} preserve numeric type
