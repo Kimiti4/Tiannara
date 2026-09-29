@@ -67,16 +67,124 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fail if any test file lives under lib/
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      # Detection is AST-based on purpose. The first version of this job used
+      # `find lib -name '*_test.ex*'`, which on this repository was wrong in
+      # both directions at once - measured over all 1,646 lib/**/*.ex sources:
+      #
+      #   * FALSE POSITIVE: lib/tiannara/crav/soak_test.ex is
+      #     Tiannara.CRAV.SoakTest, a GenServer soak driver called from
+      #     web/crav_challenge_controller.ex, crav/alpha_launch.ex and
+      #     asc/agency/sentinel.ex. Its tests already live correctly in
+      #     test/tiannara/crav/soak_test_test.exs. Acting on that report would
+      #     have moved production code out of lib/ and broken four callers.
+      #   * FALSE NEGATIVE: lib/tiannara/omega/human_delivery/explanation.ex
+      #     declares Tiannara.Omega.HumanDelivery.ExplanationTest with
+      #     `use ExUnit.Case`, and nothing under test/ covers that module. That
+      #     test has never been executed by any CI run or any `mix test`.
+      #
+      # Grepping for `use ExUnit.Case` is also insufficient: that exact text
+      # appears inside code-generation heredocs in
+      # lib/tiannara/tool_forge/tool_builder.ex and
+      # lib/tiannara/asc/implementation/adapter/elixir.ex. A string literal is
+      # not a call, so parsing removes both error classes. Files that fail to
+      # parse are treated as failures rather than silently skipped, because the
+      # compile job has already accepted them.
+      - name: Fail if any lib/ module declares an ExUnit test case
         run: |
           set -euo pipefail
-          matches="$(find lib \( -name '*_test.exs' -o -name '*_test.ex' \) -print || true)"
-          if [ -n "$matches" ]; then
-            echo "::error::Test files under lib/ are never executed by mix test."
-            echo "$matches"
-            exit 1
+          cat > /tmp/misfiled_check.exs <<'ELIXIR'
+          defmodule MisfiledCheck do
+            @styles [[:ExUnit, :Case], [:ExUnit, :AsyncCase], [:ExUnit, :DataCase]]
+
+            def test_module?(ast) do
+              {_, found} =
+                Macro.prewalk(ast, false, fn
+                  {:use, _, [{:__aliases__, _, mods} | _]} = node, acc ->
+                    if Enum.member?(@styles, mods) do
+                      {node, true}
+                    else
+                      {node, acc}
+                    end
+
+                  other, acc ->
+                    {other, acc}
+                end)
+
+              found
+            end
+          end
+
+          root = System.argv() |> List.first() || "lib"
+
+          {scanned, misfiled, unparsed} =
+            Path.wildcard(Path.join(root, "**/*.ex"))
+            |> Enum.reduce({0, [], []}, fn file, {n, bad, unparsed} ->
+              case Code.string_to_quoted(File.read!(file)) do
+                {:ok, ast} ->
+                  if MisfiledCheck.test_module?(ast) do
+                    {n + 1, [file | bad], unparsed}
+                  else
+                    {n + 1, bad, unparsed}
+                  end
+
+                {:error, where} ->
+                  {n + 1, bad, [{file, where} | unparsed]}
+              end
+            end)
+
+          IO.puts("scanned #{scanned} sources under #{root}/")
+
+          # Non-vacuity: a scan that read nothing proves nothing. Observed in
+          # local testing when a wrong root produced "scanned 0 sources" and
+          # exited 0, which would have turned this gate green by accident.
+          if scanned == 0 do
+            IO.puts(:stderr, "::error::no .ex sources found under #{root}/: the check saw nothing and cannot pass")
+            System.halt(1)
+          end
+
+          if unparsed != [] do
+            IO.puts(:stderr, "::error::unparseable sources under #{root}/: cannot classify, failing closed")
+
+            Enum.each(Enum.sort(unparsed), fn {f, where} ->
+              IO.puts(:stderr, "  #{f} #{inspect(where)}")
+            end)
+          end
+
+          if misfiled != [] do
+            IO.puts(:stderr, "::error::ExUnit test modules under #{root}/ are never executed by mix test (test_paths is [\"test\"])")
+
+            Enum.each(Enum.sort(misfiled), fn f ->
+              IO.puts(:stderr, "  #{f}")
+            end)
+
+            System.halt(1)
+          end
+
+          if unparsed != [] do
+            System.halt(1)
+          end
+          ELIXIR
+          elixir /tmp/misfiled_check.exs lib
+
+      # Advisory only. A module whose name ends in Test while living under lib/
+      # is confusing - Tiannara.CRAV.SoakTest is exactly that - but naming is
+      # not a correctness defect, so it is reported instead of enforced.
+      - name: Report Test-shaped filenames under lib/
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          hits="$(find lib \( -name '*_test.ex' -o -name '*_test.exs' \) -print || true)"
+          if [ -n "$hits" ]; then
+            echo "::warning::Test-shaped filenames under lib/ confuse readers and tooling; consider renaming if they are production code."
+            echo "$hits"
+          else
+            echo "No Test-shaped filenames under lib/."
           fi
-          echo "No misfiled test sources."
 
   suite:
     name: Suite signal (advisory)
