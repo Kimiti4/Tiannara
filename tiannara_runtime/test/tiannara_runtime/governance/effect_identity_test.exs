@@ -56,6 +56,20 @@ defmodule TiannaraRuntime.Governance.EffectIdentityTest do
     assert {:error, {:missing_fields, _}} = EffectIdentity.effect_id(Map.delete(@base, :intent))
   end
 
+  test "typed numeric and collection wrappers are cross-runtime deterministic" do
+    set_a = %{@base | parameters: %{"$collection" => "set", "items" => ["a", "b", "a"]}}
+    set_b = %{@base | parameters: %{"$collection" => "set", "items" => ["b", "a"]}}
+    assert EffectIdentity.effect_id(set_a) == EffectIdentity.effect_id(set_b)
+
+    int = %{@base | parameters: %{"value" => %{"$number" => "int:1"}}}
+    decimal = %{@base | parameters: %{"value" => %{"$number" => "decimal:1.0"}}}
+    assert {:ok, int_id} = EffectIdentity.effect_id(int)
+    assert {:ok, decimal_id} = EffectIdentity.effect_id(decimal)
+    refute int_id == decimal_id
+
+    assert {:error, {:native_float_forbidden, :parameters}} = EffectIdentity.effect_id(%{@base | parameters: 1.0})
+  end
+
   test "forged EffectID is rejected" do
     assert {:error, {:effect_id_mismatch, _}} = EffectIdentity.verify(@base, String.duplicate("0", 64))
   end
