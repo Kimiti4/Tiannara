@@ -2,23 +2,16 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
   @moduledoc """
   UAG-2F — Universal semantic EffectID v1.
 
-  This module is deliberately narrower than the existing shared canonicalizer:
-  lifecycle/correlation identifiers are excluded, semantic fields are validated,
-  unsupported BEAM terms are rejected, and the digest uses an explicit domain
-  separation prefix.
-
-  This module does not authorize or execute an effect. It only constructs and
-  verifies semantic identity.
+  Cross-runtime canonical identity only. This module does not authorize,
+  bind, admit, deploy, mutate, or execute an effect.
   """
 
   @version "effect-v1"
   @domain "tiannara-effect-v1"
   @required ~w(effect_schema_version principal authority authorization_scope operation target parameters intent environment_scope authority_epoch policy_version)a
 
-  @doc "Returns the frozen semantic schema version."
   def version, do: @version
 
-  @doc "Normalizes and validates an EffectDescriptorV1."
   def normalize(descriptor) when is_map(descriptor) do
     with :ok <- required_fields(descriptor),
          :ok <- schema_version(descriptor),
@@ -50,21 +43,18 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
 
   def normalize(_), do: {:error, :descriptor_must_be_map}
 
-  @doc "Returns canonical UTF-8 JSON bytes for a valid descriptor."
   def canonical_bytes(descriptor) do
     with {:ok, normalized} <- normalize(descriptor) do
       {:ok, canonical_json(normalized)}
     end
   end
 
-  @doc "Computes the lowercase SHA-256 EffectID."
   def effect_id(descriptor) do
     with {:ok, bytes} <- canonical_bytes(descriptor) do
       {:ok, :crypto.hash(:sha256, @domain <> <<0>> <> bytes) |> Base.encode16(case: :lower)}
     end
   end
 
-  @doc "Verifies that an EffectID belongs to a descriptor."
   def verify(descriptor, expected_id) when is_binary(expected_id) do
     case effect_id(descriptor) do
       {:ok, ^expected_id} -> :ok
@@ -102,7 +92,7 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
 
   defp normalize_target(value) when is_map(value) do
     required = ~w(namespace resource_type resource_id subresource)
-    if Enum.all?(required, fn k -> Map.has_key?(value, k) or Map.has_key?(value, String.to_atom(k)) end) do
+    if Enum.all?(required, fn k -> Map.has_key?(value, k) or Map.has_key?(value, k) end) do
       normalize_object(value, :target)
     else
       {:error, {:missing_target_fields, required}}
@@ -125,24 +115,44 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
   defp object_key(key) when is_binary(key) do
     if String.valid?(key), do: {:ok, key}, else: {:error, :invalid_utf8_key}
   end
-  defp object_key(key) when is_atom(key) and key != nil, do: {:ok, Atom.to_string(key)}
   defp object_key(_), do: {:error, :invalid_object_key}
+
+  # Cross-runtime semantic wrappers:
+  # {"$number":"int:..."} / {"$number":"decimal:..."} preserve numeric type
+  # across runtimes whose native numeric model collapses integer/float forms.
+  # {"$collection":"set","items":[...]} and "multiset" provide explicit
+  # collection semantics without relying on runtime-specific container types.
+  defp normalize_value(%{"$number" => token}, field) when is_binary(token) do
+    case token do
+      "int:" <> digits when digits != "" ->
+        if Regex.match?(~r/^-?(0|[1-9][0-9]*)$/, digits), do: {:ok, %{"$number" => token}}, else: {:error, {:invalid_numeric_token, field}}
+      "decimal:" <> digits when digits != "" ->
+        if Regex.match?(~r/^-?(0|[1-9][0-9]*)\.[0-9]+$/, digits), do: {:ok, %{"$number" => token}}, else: {:error, {:invalid_numeric_token, field}}
+      _ -> {:error, {:invalid_numeric_token, field}}
+    end
+  end
+
+  defp normalize_value(%{"$collection" => kind, "items" => items}, field)
+       when kind in ["set", "multiset"] and is_list(items) do
+    with {:ok, normalized} <- normalize_list(items, field) do
+      canonical_items = Enum.map(normalized, &canonical_json/1) |> Enum.sort()
+      items = if kind == "set", do: Enum.uniq(canonical_items), else: canonical_items
+      {:ok, %{"$collection" => kind, "items" => Enum.map(items, &Jason.decode!/1)}}
+    end
+  end
 
   defp normalize_value(nil, _), do: {:ok, nil}
   defp normalize_value(value, _) when is_boolean(value), do: {:ok, value}
   defp normalize_value(value, _) when is_integer(value), do: {:ok, value}
-  defp normalize_value(value, field) when is_float(value) do
-    cond do
-      value != value -> {:error, {:non_finite_number, field}}
-      value == 0.0 -> {:ok, 0.0}
-      true -> {:ok, value}
-    end
-  end
+  defp normalize_value(value, field) when is_float(value), do: {:error, {:native_float_forbidden, field}}
   defp normalize_value(value, field) when is_binary(value) do
     if String.valid?(value), do: {:ok, value}, else: {:error, {:invalid_utf8, field}}
   end
   defp normalize_value(value, field) when is_map(value), do: normalize_object(value, field)
-  defp normalize_value(value, field) when is_list(value) do
+  defp normalize_value(value, field) when is_list(value), do: normalize_list(value, field)
+  defp normalize_value(_, field), do: {:error, {:unsupported_value, field}}
+
+  defp normalize_list(value, field) do
     Enum.reduce_while(value, {:ok, []}, fn item, {:ok, acc} ->
       case normalize_value(item, field) do
         {:ok, normalized} -> {:cont, {:ok, [normalized | acc]}}
@@ -154,5 +164,20 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
       error -> error
     end
   end
-  defp normalize_value(_, field), do: {:error, {:unsupported_value, field}}
+
+  defp canonical_json(value) when is_map(value) do
+    entries =
+      value
+      |> Enum.sort_by(fn {key, _} -> key end, :binary)
+      |> Enum.map(fn {key, item} -> [Jason.encode!(key), ":", canonical_json(item)] end)
+
+    ["{", Enum.intersperse(entries, ","), "}"] |> IO.iodata_to_binary()
+  end
+  defp canonical_json(value) when is_list(value) do
+    ["[", Enum.intersperse(Enum.map(value, &canonical_json/1), ","), "]"] |> IO.iodata_to_binary()
+  end
+  defp canonical_json(value) when is_binary(value), do: Jason.encode!(value)
+  defp canonical_json(value) when is_boolean(value), do: if(value, do: "true", else: "false")
+  defp canonical_json(nil), do: "null"
+  defp canonical_json(value) when is_integer(value), do: Integer.to_string(value)
 end
