@@ -1,38 +1,98 @@
 #!/usr/bin/env python3
-"""UAG-2F independent Python EffectID v1 renderer.
-
-This implementation intentionally does not import Tiannara's Elixir canonicalizer.
-"""
-import hashlib
-import json
+"""UAG-2F independent Python renderer and fixture runner."""
+import hashlib, json, re
 from pathlib import Path
 
 DOMAIN = b"tiannara-effect-v1\x00"
-EXPECTED = "a565edecfc000c7f6be7c3714183b21241f067e80305072fce77b6485a8e2a50"
+REQUIRED = ["effect_schema_version","principal","authority","authorization_scope","operation","target","parameters","intent","environment_scope","authority_epoch","policy_version"]
+FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "effect_id_v1.json"
 
-DESCRIPTOR = {
-    "effect_schema_version":"effect-v1",
-    "principal":"human:amos",
-    "authority":{"id":"omega-deployer","scope":"production"},
-    "authorization_scope":{"resource_scope":"candidate","operation_scope":["deploy"],"parameter_constraints":{}},
-    "operation":"deploy",
-    "target":{"namespace":"omega","resource_type":"candidate","resource_id":"cand-001","subresource":None},
-    "parameters":{"mode":"supervised","replicas":1},
-    "intent":"deploy candidate",
-    "environment_scope":{"type":"production","id":"prod-ke-1","region":"ke-central"},
-    "authority_epoch":"epoch-7",
-    "policy_version":"policy-42",
-}
+def canonical(v):
+    if isinstance(v, dict):
+        if "$collection" in v and "items" in v and len(v) == 2 and v["$collection"] in ("set","multiset"):
+            items = [canonical(x) for x in v["items"]]
+            items.sort()
+            if v["$collection"] == "set":
+                dedup = []
+                for item in items:
+                    if not dedup or dedup[-1] != item:
+                        dedup.append(item)
+                items = dedup
+            return '{"$collection":' + json.dumps(v["$collection"], ensure_ascii=False, separators=(",",":")) + ',"items":[' + ",".join(items) + ']}'
+        return "{" + ",".join(json.dumps(k,ensure_ascii=False,separators=(",",":")) + ":" + canonical(v[k]) for k in sorted(v, key=lambda s: s.encode("utf-8"))) + "}"
+    if isinstance(v, list):
+        return "[" + ",".join(canonical(x) for x in v) + "]"
+    if isinstance(v, bool):
+        return "true" if v else "false"
+    if v is None:
+        return "null"
+    if isinstance(v, int) and not isinstance(v, bool):
+        return str(v)
+    if isinstance(v, float):
+        raise ValueError("native_float_forbidden")
+    if isinstance(v, str):
+        return json.dumps(v, ensure_ascii=False, separators=(",",":"))
+    raise ValueError("unsupported_value")
 
-def canonical_bytes(value):
-    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+def validate_value(v):
+    if isinstance(v, dict):
+        if "$number" in v:
+            if set(v) != {"$number"} or not isinstance(v["$number"],str):
+                raise ValueError("invalid_numeric_token")
+            if not re.fullmatch(r"(?:int:-?(?:0|[1-9][0-9]*)|decimal:-?(?:0|[1-9][0-9]*)\.[0-9]+)", v["$number"]):
+                raise ValueError("invalid_numeric_token")
+            return
+        if "$collection" in v:
+            if set(v) != {"$collection","items"} or v["$collection"] not in ("set","multiset") or not isinstance(v["items"],list):
+                raise ValueError("invalid_collection")
+            for x in v["items"]: validate_value(x)
+            return
+        for k,x in v.items():
+            if not isinstance(k,str): raise ValueError("invalid_key")
+            validate_value(x)
+        return
+    if isinstance(v,list):
+        for x in v: validate_value(x)
+        return
+    if isinstance(v,(str,int,bool)) or v is None: return
+    raise ValueError("unsupported_value")
 
-def effect_id(value):
-    return hashlib.sha256(DOMAIN + canonical_bytes(value)).hexdigest()
+def project(d):
+    if not isinstance(d,dict): raise ValueError("descriptor")
+    for k in REQUIRED:
+        if k not in d: raise ValueError("missing_"+k)
+    if d["effect_schema_version"] != "effect-v1": raise ValueError("schema")
+    for k in ("principal","intent","authority_epoch","policy_version"):
+        if not isinstance(d[k],str): raise ValueError("text_"+k)
+    if not isinstance(d["operation"],str) or not d["operation"] or d["operation"].strip()!=d["operation"]: raise ValueError("operation")
+    for k in ("authority","authorization_scope","environment_scope"):
+        if not isinstance(d[k],dict): raise ValueError("object_"+k)
+    if not isinstance(d["target"],dict): raise ValueError("target")
+    for k in ("namespace","resource_type","resource_id","subresource"):
+        if k not in d["target"]: raise ValueError("target_"+k)
+    validate_value(d["authority"]); validate_value(d["authorization_scope"]); validate_value(d["target"])
+    validate_value(d["parameters"]); validate_value(d["intent"]); validate_value(d["environment_scope"])
+    return {k:d[k] for k in REQUIRED}
 
-if __name__ == "__main__":
-    encoded = canonical_bytes(DESCRIPTOR)
-    actual = effect_id(DESCRIPTOR)
-    assert actual == EXPECTED, (actual, EXPECTED)
-    print(encoded.decode("utf-8"))
-    print(actual)
+def effect_id(d):
+    b = canonical(project(d)).encode("utf-8")
+    return hashlib.sha256(DOMAIN+b).hexdigest()
+
+def main():
+    fixture=json.loads(FIXTURE.read_text(encoding="utf-8"))
+    assert fixture["count"] == len(fixture["vectors"]) == 117
+    assert effect_id(fixture["vectors"][0]["descriptor_a"]) == fixture["expected_base_effect_id"]
+    lines=[]
+    for v in fixture["vectors"]:
+        try:
+            a=effect_id(v["descriptor_a"]); b=effect_id(v["descriptor_b"])
+            if v["expect"]=="error": raise AssertionError(v["id"]+" expected error")
+            observed="same" if a==b else "different"
+            if observed != v["expect"]: raise AssertionError(f'{v["id"]}: {observed} != {v["expect"]}')
+            lines.append(f'{v["id"]}|{a}|{b}')
+        except Exception:
+            if v["expect"] != "error": raise
+            lines.append(f'{v["id"]}|ERROR')
+    print("\n".join(lines))
+
+if __name__ == "__main__": main()
