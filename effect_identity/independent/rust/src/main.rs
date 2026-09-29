@@ -34,7 +34,7 @@ fn regex_ok(s:&str)->bool{
 }
 fn integer_ok(s:&str)->bool{
     let x=s.strip_prefix('-').unwrap_or(s);
-    !x.is_empty() && (x=="0" || (x.starts_with(|c:char| c!='0') && x.chars().all(|c|c.is_ascii_digit())))
+    !x.is_empty() && (x=="0" || (x.as_bytes()[0] != b'0' && x.chars().all(|c|c.is_ascii_digit())))
 }
 fn project(d:&Value)->Result<Value,String>{
     let o=d.as_object().ok_or("descriptor")?;
@@ -65,7 +65,7 @@ fn canonical(v:&Value)->String{
                 }
             }
             let mut keys=m.keys().collect::<Vec<_>>();keys.sort_by(|a,b|a.as_bytes().cmp(b.as_bytes()));
-            format!("{{{}}}",keys.iter().map(|k|format!("{}:{}",serde_json::to_string(k).unwrap(),canonical(&m[*k]))).collect::<Vec<_>>().join(","))
+            format!("{{{}}}",keys.iter().map(|k|format!("{}:{}",serde_json::to_string(k).unwrap(),canonical(m.get(*k).unwrap()))).collect::<Vec<_>>().join(","))
         }
     }
 }
