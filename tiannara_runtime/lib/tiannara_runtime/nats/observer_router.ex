@@ -80,9 +80,9 @@ defmodule Tiannara.Meta.Mesh.ObserverRouter do
   def classify_entropy(metrics) do
     with {:ok, entropy_score} <- calculate_entropy_score(metrics) do
       cond do
-        entropy_score > @high_entropy_threshold -> {:ok, :high}
-        entropy_score > @medium_entropy_threshold -> {:ok, :medium}
-        true -> {:ok, :low}
+        entropy_score > @high_entropy_threshold -> :high
+        entropy_score > @medium_entropy_threshold -> :medium
+        true -> :low
       end
     end
   end
@@ -103,7 +103,7 @@ defmodule Tiannara.Meta.Mesh.ObserverRouter do
   @impl true
   def handle_cast({:route, observer_id, metrics}, state) do
     case classify_entropy(metrics) do
-      {:ok, zone} ->
+      zone when zone in [:high, :medium, :low] ->
         RealityBus.publish_partitioned("observer.activity", %{
           observer_id: observer_id,
           metrics: metrics,
