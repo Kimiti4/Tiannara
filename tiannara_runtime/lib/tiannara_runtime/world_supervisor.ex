@@ -64,7 +64,7 @@ defmodule TiannaraRuntime.WorldSupervisor do
   Stop a world supervisor and all its children.
   """
   def stop_world(world_id) do
-    case Registry.lookup(TiannaraRuntime.WorldRegistry, world_id) do
+    case Registry.lookup(TiannaraRuntime.WorldProcessRegistry, world_id) do
       [{pid, _}] ->
         Supervisor.stop(pid, :normal)
         Logger.info("🛑 Stopped world #{world_id}")
