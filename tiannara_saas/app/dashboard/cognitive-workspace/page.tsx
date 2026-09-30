@@ -377,6 +377,11 @@ export default function CognitiveWorkspacePage() {
               </>
             )}
           </button>
+          {activeTab === 'text' && !imageFile && textInput.trim() && (
+            <button onClick={sendToTiannara} disabled={isAnalyzing} className="px-6 py-3 rounded-xl border border-cyan-400/20 bg-cyan-400/10 text-cyan-200 font-medium disabled:opacity-50">
+              Communicate with Tiannara
+            </button>
+          )}
 
           {(imageFile || textInput) && (
             <button
