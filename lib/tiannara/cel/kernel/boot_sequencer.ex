@@ -88,6 +88,7 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
       :healthy -> {:ok, Map.put(gates, gate_name, :pass)}
       :sufficient -> {:ok, Map.put(gates, gate_name, :pass)}
       {:fail, reason} -> {:gate_failed, gate_name, reason, Map.put(gates, gate_name, {:fail, reason})}
+      {:error, reason} -> {:gate_failed, gate_name, inspect(reason), Map.put(gates, gate_name, {:fail, inspect(reason)})}
       :unhealthy -> {:gate_failed, gate_name, "Health check failed", Map.put(gates, gate_name, :fail)}
       :insufficient -> {:gate_failed, gate_name, "Insufficient resources", Map.put(gates, gate_name, :fail)}
       other -> {:gate_failed, gate_name, inspect(other), Map.put(gates, gate_name, :fail)}
