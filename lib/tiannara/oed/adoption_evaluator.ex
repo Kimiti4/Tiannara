@@ -9,20 +9,9 @@ defmodule Tiannara.OED.AdoptionEvaluator do
 
   @dangerous_keywords ["Paradox", "Infinite", "Quantum", "Recombination", "Self-Sealing"]
 
-  @doc "Evaluates the adoption impact of a discovery."
-  def evaluate(civ_id, shard_id, discovery) do
-    # Simulate an existential risk assessment
-    is_dangerous = Enum.any?(@dangerous_keywords, fn keyword ->
-      String.contains?(discovery.name, keyword)
-    end)
-    
-    # Even if dangerous, not all are catastrophic. 10% chance to trigger Quarantine.
-    if is_dangerous and :rand.uniform() < 0.10 do
-      trigger_quarantine(civ_id, shard_id, discovery)
-      {:quarantine, discovery.id}
-    else
-      {:safe, discovery.id}
-    end
+  @doc "Evaluates adoption impact only when an evidence-backed risk provider is available."
+  def evaluate(_civ_id, _shard_id, _discovery) do
+    {:error, :adoption_risk_provider_unavailable}
   end
 
   defp trigger_quarantine(civ_id, shard_id, discovery) do
