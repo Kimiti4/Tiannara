@@ -7,7 +7,6 @@ defmodule Tiannara.World.ScientificResearch do
   supplied by registered domain modules; unavailable solvers remain unavailable.
   """
 
-  alias Tiannara.Discovery.Validation.EvidenceAuditor
   alias Tiannara.Math.Probability
 
   @spec investigate(module(), map(), map(), keyword()) :: {:ok, map()} | {:error, term()}
@@ -95,14 +94,17 @@ defmodule Tiannara.World.ScientificResearch do
     %{
       replication_consistent: replication.deterministic,
       structural_validation: Map.get(validation, :valid, false),
-      evidence_audit: EvidenceAuditor.audit_chain([
-        %{id: "simulation", parent_evidence_id: nil, timestamp: DateTime.utc_now()}
-      ]),
+      evidence_audit: audit_provenance(simulation),
       adversarial_challenge: :not_implemented,
       proof_status: if(Map.get(validation, :verification_method) in [:formal_proof, :formal_verification],
         do: :bounded_proof,
         else: :bounded_structural_verification)
     }
+  end
+
+  defp audit_provenance(simulation) do
+    provenance = Map.get(simulation, :provenance)
+    if is_map(provenance), do: %{status: :present, provenance: provenance}, else: %{status: :missing}
   end
 
   defp final_status(validation, defense) do
