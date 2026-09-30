@@ -57,7 +57,7 @@ defmodule TiannaraRuntime.WorldSupervisor do
   Get the Registry tuple for a world supervisor.
   """
   def via_tuple(world_id) do
-    {:via, Registry, {TiannaraRuntime.WorldRegistry, world_id}}
+    {:via, Registry, {TiannaraRuntime.WorldProcessRegistry, world_id}}
   end
   
   @doc """
