@@ -67,11 +67,15 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
   defp execute_tick(state) do
     world_id = state.world_id
     try do
-      cal_result = execute_cal_step(world_id)
-      cis_result = execute_cis_step(world_id, cal_result)
-      update_world_state(world_id, cal_result, cis_result)
-      publish_events(world_id, cal_result, cis_result)
-      store_memory_snapshot(world_id, cal_result, cis_result)
+      with {:ok, cal_result} <- execute_cal_step(world_id),
+           {:ok, cis_result} <- execute_cis_step(world_id, cal_result),
+           :ok <- update_world_state(world_id, cal_result, cis_result),
+           :ok <- publish_events(world_id, cal_result, cis_result),
+           :ok <- store_memory_snapshot(world_id, cal_result, cis_result) do
+        :ok
+      else
+        {:error, reason} -> Logger.error("World #{world_id} tick not executed: #{inspect(reason)}")
+      end
     rescue
       e ->
         Logger.error("Error in world #{world_id} tick: #{inspect(e)}")
@@ -89,10 +93,10 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
           TiannaraRuntime.WorldStateManager.update_cal_state(state_manager_pid, cal_result)
           cal_result
         else
-          default_cal_result()
+          {:error, :world_state_manager_unavailable}
         end
       [] ->
-        default_cal_result()
+        {:error, :world_not_running}
     end
   end
 
@@ -112,10 +116,10 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
           TiannaraRuntime.WorldStateManager.update_metrics(state_manager_pid, cis_result.metrics)
           cis_result
         else
-          default_cis_result()
+          {:error, :world_state_manager_unavailable}
         end
       [] ->
-        default_cis_result()
+        {:error, :world_not_running}
     end
   end
 
@@ -136,13 +140,9 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
     }
   end
 
-  defp update_world_state(world_id, cal_result, cis_result) do
-    Logger.debug("Updated state for world #{world_id}")
-  end
+  defp update_world_state(_world_id, _cal_result, _cis_result), do: :ok
 
-  defp publish_events(world_id, cal_result, cis_result) do
-    Logger.debug("Published events for world #{world_id}")
-  end
+  defp publish_events(_world_id, _cal_result, _cis_result), do: :ok
 
   defp store_memory_snapshot(world_id, cal_result, cis_result) do
     case Registry.lookup(TiannaraRuntime.WorldRegistry, world_id) do
