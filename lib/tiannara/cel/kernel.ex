@@ -46,7 +46,7 @@ defmodule Tiannara.CEL.Kernel do
             fn spec -> start_service(spec, state.dyn_sup) end,
             fn spec -> check_health(spec) end,
             fn spec -> check_constitutional_score(spec) end,
-            fn _spec -> :sufficient end
+            fn spec -> check_resources(spec) end
           )
 
         new_state =
@@ -145,6 +145,17 @@ defmodule Tiannara.CEL.Kernel do
       end
     catch
       _, _ -> :unhealthy
+    end
+  end
+
+  defp check_resources(spec) do
+    try do
+      case Map.get(spec, :resource_check) do
+        fun when is_function(fun, 0) -> fun.()
+        _ -> :sufficient
+      end
+    catch
+      _, _ -> :insufficient
     end
   end
 
