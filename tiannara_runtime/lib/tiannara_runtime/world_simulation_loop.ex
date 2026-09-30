@@ -90,7 +90,7 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
   end
 
   defp execute_cal_step(world_id) do
-    case Registry.lookup(TiannaraRuntime.WorldRegistry, world_id) do
+    case Registry.lookup(TiannaraRuntime.WorldProcessRegistry, world_id) do
       [{supervisor_pid, _}] ->
         children = Supervisor.which_children(supervisor_pid)
         state_manager_pid = find_child(children, TiannaraRuntime.WorldStateManager)
