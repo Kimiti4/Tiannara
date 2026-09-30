@@ -54,7 +54,7 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
         royalty_rate: calculate_royalty_rate(discovery, program),
         license_type: :permissive,
         maturity: :experimental,
-        confidence: discovery.confidence || 0.8,
+        confidence: require_numeric(discovery, :confidence),
         utility: calculate_utility(discovery, program),
         created_at: :os.system_time(:millisecond),
         updated_at: :os.system_time(:millisecond),
@@ -134,7 +134,7 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
   @spec calculate_asset_value(map(), ResearchProgram.t(), State.t()) :: float()
   defp calculate_asset_value(discovery, program, _state) do
     # Base value from confidence
-    base_value = discovery.confidence * 100.0
+    base_value = require_numeric(discovery, :confidence) * 100.0
     
     # Quality multiplier from strategy effectiveness
     quality_multiplier = 1.0 + (program.metrics.strategy_effectiveness * 0.5)
@@ -225,7 +225,7 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
   @spec calculate_utility(map(), ResearchProgram.t()) :: float()
   defp calculate_utility(discovery, program) do
     # Base utility from confidence
-    base_utility = (discovery.confidence || 0.8) * 1.0
+    base_utility = require_numeric(discovery, :confidence)
     
     # Strategy quality bonus
     genome_quality = (
@@ -244,6 +244,13 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
     end)
   end
   
+  defp require_numeric(discovery, key) do
+    case Map.get(discovery, key) do
+      value when is_number(value) -> value
+      _ -> raise ArgumentError, "discovery #{inspect(discovery.id)} missing numeric #{key}"
+    end
+  end
+
   @spec get_initial_value(DiscoveryAsset.t()) :: float()
   defp get_initial_value(%DiscoveryAsset{} = asset) do
     case List.first(asset.transaction_history) do
@@ -345,14 +352,15 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
         # Auto-create discovery asset when hitting L5
         asset = %DiscoveryAsset{
           discovery_id: discovery_id,
-          valuation: 1000.0,
-          royalty_rate: 0.02,
+          valuation: discovery.evidence_score * 100.0,
+          royalty_rate: 0.02 * discovery.confidence,
           license_type: :permissive,
           maturity: :validated,
-          confidence: 0.9,
-          utility: 0.8,
+          confidence: discovery.confidence,
+          utility: discovery.utility,
           created_at: :os.system_time(:millisecond),
-          updated_at: :os.system_time(:millisecond)
+          updated_at: :os.system_time(:millisecond),
+          transaction_history: [%{type: :creation, value: discovery.evidence_score * 100.0, timestamp: :os.system_time(:millisecond), owner_program: discovery.origin_program_id}]
         }
         {:ok, %{state_with_discovery | discovery_assets: Map.put(state_with_discovery.discovery_assets, discovery_id, asset)}}
     end
