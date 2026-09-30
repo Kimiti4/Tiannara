@@ -184,9 +184,7 @@ defmodule TiannaraOS.ExecutiveDashboard do
     end
   end
   
-  defp estimate_stability_trend do
-    :stable  # Placeholder
-  end
+  defp estimate_stability_trend, do: :unavailable
   
   defp calculate_prediction_accuracy do
     # Measure theory prediction success rate
