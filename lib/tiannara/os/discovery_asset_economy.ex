@@ -261,20 +261,30 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
   """
   @spec create_discovery_asset(State.t(), atom()) :: State.t()
   def create_discovery_asset(%State{} = state, discovery_id) do
-    discovery = Map.get(state.discoveries, discovery_id, %{confidence: 0.8})
-    asset = %DiscoveryAsset{
-      discovery_id: discovery_id,
-      valuation: 500.0,
-      royalty_rate: 0.02,
-      license_type: :permissive,
-      maturity: :experimental,
-      confidence: Map.get(discovery, :confidence, 0.8),
-      utility: 0.8,
-      created_at: :os.system_time(:millisecond),
-      updated_at: :os.system_time(:millisecond),
-      transaction_history: [%{type: :creation, value: 500.0, timestamp: :os.system_time(:millisecond)}]
-    }
-    %{state | discovery_assets: Map.put(state.discovery_assets, discovery_id, asset)}
+    case Map.get(state.discoveries, discovery_id) do
+      nil -> {:error, :discovery_not_found}
+      discovery ->
+        confidence = Map.get(discovery, :confidence)
+        evidence_score = Map.get(discovery, :evidence_score, 0.0)
+        if discovery.status in [:validated, :candidate] and is_number(confidence) and evidence_score > 0.0 do
+          valuation = confidence * 100.0
+          asset = %DiscoveryAsset{
+            discovery_id: discovery_id,
+            valuation: valuation,
+            royalty_rate: 0.02 * confidence,
+            license_type: :permissive,
+            maturity: if(discovery.status == :validated, do: :validated, else: :experimental),
+            confidence: confidence,
+            utility: confidence,
+            created_at: :os.system_time(:millisecond),
+            updated_at: :os.system_time(:millisecond),
+            transaction_history: [%{type: :creation, value: valuation, timestamp: :os.system_time(:millisecond)}]
+          }
+          {:ok, %{state | discovery_assets: Map.put(state.discovery_assets, discovery_id, asset)}}
+        else
+          {:error, :insufficient_evidence}
+        end
+    end
   end
 
   @doc """
@@ -292,8 +302,8 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
       evidence_ids: evidence_ids,
       validation_level: :l1,
       status: :candidate,
-      evidence_score: 0.7,
-      validation_history: [%{level: :l1, timestamp: :os.system_time(:millisecond), reason: "Proposed"}]
+      evidence_score: 0.0,
+      validation_history: [%{level: :l1, timestamp: :os.system_time(:millisecond), reason: "Candidate proposed; evidence pending"}]
     }
     %{state | discoveries: Map.put(state.discoveries, id, discovery)}
   end
@@ -310,7 +320,7 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
           discovery.validation_level == :l4 and discovery.replication_score > 0.5 -> :l5
           discovery.validation_level == :l3 and discovery.transferability_score > 0.5 -> :l4
           discovery.validation_level == :l2 and discovery.replication_score > 0.5 -> :l3
-          discovery.validation_level == :l1 and discovery.evidence_score > 0.6 -> :l2
+          discovery.validation_level == :l1 and discovery.evidence_score >= 0.6 and length(discovery.evidence_ids || []) >= 2 -> :l2
           true -> discovery.validation_level
         end
         updated = %{discovery | validation_level: new_level, validation_history: discovery.validation_history ++ [%{level: new_level, timestamp: :os.system_time(:millisecond)}]}
