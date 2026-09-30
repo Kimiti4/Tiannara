@@ -60,13 +60,17 @@ defmodule Tiannara.Research.EvidenceScorer do
 
   @impl true
   def handle_call({:score, experiment, results}, _from, state) do
-    evidence = compute_evidence(experiment, results)
+    with :ok <- validate_result_contract(experiment, results),
+         evidence <- compute_evidence(experiment, results) do
 
     new_state = %{state | total_scored: state.total_scored + 1, last_score_at: DateTime.utc_now(), history: [evidence | Enum.take(state.history, 99)]}
 
     :telemetry.execute([:tiannara, :research, :evidence_scored], %{confidence: evidence.confidence}, %{experiment_id: experiment.id})
 
     {:reply, evidence, new_state}
+    else
+      {:error, reason} -> {:reply, {:error, reason}, state}
+    end
   end
 
   @impl true
@@ -98,16 +102,46 @@ defmodule Tiannara.Research.EvidenceScorer do
     }
   end
 
-  defp compute_reproducibility(observations) when length(observations) >= 3, do: 0.8
-  defp compute_reproducibility(observations) when length(observations) >= 1, do: 0.5
-  defp compute_reproducibility(_), do: 0.2
+  defp validate_result_contract(experiment, results) do
+    cond do
+      not is_map(experiment) -> {:error, :invalid_experiment}
+      not is_map(results) -> {:error, :invalid_results}
+      Map.get(results, :executed) != true -> {:error, :execution_not_verified}
+      not is_list(Map.get(results, :observations)) or Map.get(results, :observations) == [] -> {:error, :no_observations}
+      is_nil(Map.get(results, :provenance)) -> {:error, :missing_provenance}
+      true -> :ok
+    end
+  end
+
+  defp compute_reproducibility(observations) when length(observations) >= 3 do
+    values = Enum.map(observations, &numeric_value/1)
+    mean = Enum.sum(values) / length(values)
+    variance = Enum.sum(Enum.map(values, fn v -> :math.pow(v - mean, 2) end)) / length(values)
+    1.0 / (1.0 + :math.sqrt(variance))
+  end
+  defp compute_reproducibility(_), do: 0.0
 
   defp compute_effect_size(observations) do
     values = Enum.map(observations, fn obs -> obs[:value] || 0 end)
-    if length(values) > 0, do: min(Enum.sum(values) / length(values) / 100.0, 1.0), else: 0.0
+    if length(values) > 0 do
+      mean = Enum.sum(values) / length(values)
+      max(0.0, min(abs(mean) / (1.0 + abs(mean)), 1.0))
+    else
+      0.0
+    end
   end
 
+  defp numeric_value(%{value: value}) when is_number(value), do: value / 1.0
+  defp numeric_value(_), do: 0.0
+
   defp compute_consistency(observations) do
-    if length(observations) > 0, do: 0.75, else: 0.0
+    if length(observations) > 1 do
+      values = Enum.map(observations, &numeric_value/1)
+      mean = Enum.sum(values) / length(values)
+      spread = Enum.sum(Enum.map(values, fn v -> abs(v - mean) end)) / length(values)
+      1.0 / (1.0 + spread)
+    else
+      0.0
+    end
   end
 end
