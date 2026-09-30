@@ -95,8 +95,10 @@ defmodule TiannaraRuntime.WorldRegistry do
   
   @impl true
   def handle_call({:create_world, parent_world_id, config}, _from, state) do
-    world_id = "W-#{UUID.uuid4()}"
-    generation = if parent_world_id, do: get_generation(state, parent_world_id) + 1, else: 0
+    requested_id = Map.get(config, :id) || Map.get(config, "id")
+    world_id = requested_id || "W-#{UUID.uuid4()}"
+    generation = if parent_world_id, do: get_generation(state, parent_world_id) + 1, else: Map.get(config, :generation, 0)
+    if Map.has_key?(state.worlds, world_id), do: throw({:error, :world_id_exists})
     
     world_metadata = %{
       id: world_id,
