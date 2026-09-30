@@ -86,20 +86,21 @@ defmodule Tiannara.Research.EvidenceScorer do
   defp compute_evidence(experiment, results) do
     observations = results[:observations] || []
 
-    reproducibility = compute_reproducibility(observations)
-    effect_size = compute_effect_size(observations)
-    consistency = compute_consistency(observations)
+    with {:ok, reproducibility} <- compute_reproducibility(observations),
+         {:ok, effect_size} <- compute_effect_size(observations),
+         {:ok, consistency} <- compute_consistency(observations) do
     falsification_attempted = experiment[:failure_criteria] != nil
 
     confidence = Float.round(min(reproducibility * 0.3 + effect_size * 0.3 + consistency * 0.2 + (if falsification_attempted, do: 0.2, else: 0.0), 1.0), 4)
 
-    %{
+    {:ok, %{
       id: Types.new_id(), experiment_id: experiment.id, hypothesis_id: experiment.hypothesis[:id],
       confidence: confidence, reproducibility: reproducibility, effect_size: effect_size,
       consistency: consistency, falsification_attempted: falsification_attempted,
       rationale: "Evidence scored: reproducibility=#{Float.round(reproducibility, 2)}, effect_size=#{Float.round(effect_size, 2)}, consistency=#{Float.round(consistency, 2)}, falsification_attempted=#{falsification_attempted}.",
       observations: observations, scored_at: DateTime.utc_now()
-    }
+    }}
+    end
   end
 
   defp validate_result_contract(experiment, results) do
@@ -114,34 +115,45 @@ defmodule Tiannara.Research.EvidenceScorer do
   end
 
   defp compute_reproducibility(observations) when length(observations) >= 3 do
-    values = Enum.map(observations, &numeric_value/1)
-    mean = Enum.sum(values) / length(values)
-    variance = Enum.sum(Enum.map(values, fn v -> :math.pow(v - mean, 2) end)) / length(values)
-    1.0 / (1.0 + :math.sqrt(variance))
+    with {:ok, values} <- numeric_values(observations) do
+      mean = Enum.sum(values) / length(values)
+      variance = Enum.sum(Enum.map(values, fn v -> :math.pow(v - mean, 2) end)) / length(values)
+      {:ok, 1.0 / (1.0 + :math.sqrt(variance))}
+    end
   end
-  defp compute_reproducibility(_), do: 0.0
+  defp compute_reproducibility(_), do: {:ok, 0.0}
 
   defp compute_effect_size(observations) do
-    values = Enum.map(observations, fn obs -> obs[:value] || 0 end)
-    if length(values) > 0 do
+    with {:ok, values} <- numeric_values(observations), true <- values != [] do
       mean = Enum.sum(values) / length(values)
-      max(0.0, min(abs(mean) / (1.0 + abs(mean)), 1.0))
+      {:ok, max(0.0, min(abs(mean) / (1.0 + abs(mean)), 1.0))}
     else
-      0.0
+      false -> {:ok, 0.0}
+      {:error, reason} -> {:error, reason}
     end
   end
 
-  defp numeric_value(%{value: value}) when is_number(value), do: value / 1.0
-  defp numeric_value(_), do: 0.0
+  defp numeric_values(observations) do
+    values = Enum.map(observations, fn
+      %{value: value} when is_number(value) -> {:ok, value / 1.0}
+      _ -> {:error, :non_numeric_observation}
+    end)
+    if Enum.any?(values, &match?({:error, _}, &1)) do
+      {:error, :non_numeric_observation}
+    else
+      {:ok, Enum.map(values, fn {:ok, value} -> value end)}
+    end
+  end
 
   defp compute_consistency(observations) do
     if length(observations) > 1 do
-      values = Enum.map(observations, &numeric_value/1)
-      mean = Enum.sum(values) / length(values)
-      spread = Enum.sum(Enum.map(values, fn v -> abs(v - mean) end)) / length(values)
-      1.0 / (1.0 + spread)
+      with {:ok, values} <- numeric_values(observations) do
+        mean = Enum.sum(values) / length(values)
+        spread = Enum.sum(Enum.map(values, fn v -> abs(v - mean) end)) / length(values)
+        {:ok, 1.0 / (1.0 + spread)}
+      end
     else
-      0.0
+      {:ok, 0.0}
     end
   end
 end
