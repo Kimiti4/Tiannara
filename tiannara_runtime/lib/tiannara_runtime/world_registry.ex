@@ -85,8 +85,18 @@ defmodule TiannaraRuntime.WorldRegistry do
             _ -> Tiannara.Genetics.WorldGenome.new(id, if(parent, do: [parent], else: []))
           end
         world = %{id: id, parent_world: parent, generation: generation, genome: genome, config: config, status: :active, fitness: 0.0, created_at: System.system_time(:millisecond), last_updated: System.system_time(:millisecond)}
-        lineage = if parent, do: Map.update(state.lineage, parent, [id], fn ids -> Enum.uniq([id | ids]) end), else: state.lineage
-        {:reply, {:ok, id}, %{state | worlds: Map.put(state.worlds, id, world), lineage: lineage, active_count: state.active_count + 1, total_created: state.total_created + 1}}
+        case Process.whereis(TiannaraRuntime.WorldRuntimeSupervisor) do
+          nil ->
+            {:reply, {:error, :world_runtime_supervisor_unavailable}, state}
+          _ ->
+            case DynamicSupervisor.start_child(TiannaraRuntime.WorldRuntimeSupervisor, {TiannaraRuntime.WorldSupervisor, world}) do
+              {:ok, _pid} ->
+                lineage = if parent, do: Map.update(state.lineage, parent, [id], fn ids -> Enum.uniq([id | ids]) end), else: state.lineage
+                {:reply, {:ok, id}, %{state | worlds: Map.put(state.worlds, id, world), lineage: lineage, active_count: state.active_count + 1, total_created: state.total_created + 1}}
+              {:error, reason} ->
+                {:reply, {:error, {:world_runtime_start_failed, reason}}, state}
+            end
+        end
     end
   end
 end
