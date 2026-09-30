@@ -8,8 +8,8 @@ defmodule Tiannara.CEL.TruthBoundaryTest do
   end
 
   test "CIS rejects plans without evidence and provenance" do
-    assert {:error, {:immune_constraints, reasons}} =
-             Tiannara.CISConstraint.validate_plan(%{id: :p, steps: [:x], authority: :operator})
+    assert {:error, reasons} =
+             Tiannara.CIS.validate_plan(%{id: :p, steps: [:x], authority: :operator})
     assert :missing_evidence in reasons
     assert :missing_provenance in reasons
   end
