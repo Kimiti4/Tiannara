@@ -120,8 +120,7 @@ defmodule TiannaraOS.ExecutiveDashboard do
   end
   
   defp count_high_priority_unknowns do
-    # Would query UnknownRegistry.get_by_priority(:high)
-    28
+    count_by_priority(:high)
   end
   
   defp estimate_debt_trend do
