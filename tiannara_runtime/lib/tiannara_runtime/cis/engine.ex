@@ -12,14 +12,14 @@ defmodule TiannaraRuntime.CIS.Engine do
   @recovery_step 0.02
 
   def evaluate(cis_state, cal_result, metrics) when is_map(cis_state) and is_map(metrics) do
-    entropy = numeric(Map.get(metrics, :entropy), 0.0)
-    coherence = numeric(Map.get(metrics, :coherence), 0.5)
-    stability = numeric(Map.get(metrics, :stability_score), 0.5)
-
-    risks = []
+    with {:ok, entropy} <- required_numeric(metrics, :entropy),
+         {:ok, coherence} <- required_numeric(metrics, :coherence),
+         {:ok, stability} <- required_numeric(metrics, :stability_score),
+         {:ok, entropy_delta} <- required_numeric(cal_result, :entropy_delta) do
+      risks = []
     risks = if entropy > @max_entropy, do: [:entropy_exceeded | risks], else: risks
     risks = if coherence < @min_coherence, do: [:coherence_below_floor | risks], else: risks
-    risks = if Map.get(cal_result, :entropy_delta, 0.0) > 0.02, do: [:coalition_instability | risks], else: risks
+    risks = if entropy_delta > 0.02, do: [:coalition_instability | risks], else: risks
 
     interventions =
       Enum.map(risks, fn
@@ -31,24 +31,31 @@ defmodule TiannaraRuntime.CIS.Engine do
     next_stability =
       if risks == [], do: min(1.0, stability + @recovery_step), else: max(0.0, stability - @recovery_step)
 
-    %{
-      interventions: interventions,
-      stability_score: next_stability,
-      thresholds_adjusted: [],
-      metrics: %{
+      %{
+        interventions: interventions,
+        stability_score: next_stability,
+        thresholds_adjusted: [],
+        metrics: %{
         entropy: entropy,
         coherence: coherence,
         stability_score: next_stability,
         collapse_frequency: if(risks == [], do: 0.0, else: length(risks) / 3.0),
         cis_risk_count: length(risks)
       },
-      decision: if(risks == [], do: :monitor, else: :constrain),
-      source: :observed_world_state
-    }
+        decision: if(risks == [], do: :monitor, else: :constrain),
+        source: :observed_world_state
+      }
+    else
+      {:error, reason} -> {:error, {:incomplete_cis_telemetry, reason}}
+    end
   end
 
   def evaluate(_, _, _), do: {:error, :invalid_cis_inputs}
 
-  defp numeric(value, default) when is_number(value), do: value / 1.0
-  defp numeric(_, default), do: default
+  defp required_numeric(map, key) do
+    case Map.get(map, key, Map.get(map, Atom.to_string(key))) do
+      value when is_number(value) -> {:ok, value / 1.0}
+      _ -> {:error, {:missing_numeric_metric, key}}
+    end
+  end
 end
