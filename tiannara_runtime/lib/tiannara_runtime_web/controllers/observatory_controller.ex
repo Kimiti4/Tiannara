@@ -210,48 +210,36 @@ defmodule TiannaraRuntimeWeb.ObservatoryController do
   end
 
   def worlds(conn, _params) do
-    json(conn, %{
-      success: true,
-      worlds: [
-        %{
-          id: "world_a",
-          status: "operational",
-          generation: 42,
-          bias: "rationalist",
-          entropy: 0.65,
-          semantic_diversity: 0.72,
-          attractor_convergence: 0.48,
-          stabilizer_overreach: 0.35,
-          msg_pressure: 0.42,
-          coherence: 0.88,
-          active_civilizations: 8,
-          active_branches: 12,
-          agent_count: 1247,
-          history: [
-            %{semantic_diversity: 0.72, attractor_convergence: 0.48, msg_pressure: 0.42, timestamp: 0},
-            %{semantic_diversity: 0.71, attractor_convergence: 0.47, msg_pressure: 0.43, timestamp: 1}
-          ]
-        },
-        %{
-          id: "world_b",
-          status: "operational",
-          generation: 38,
-          bias: "empiricist",
-          entropy: 0.58,
-          semantic_diversity: 0.68,
-          attractor_convergence: 0.52,
-          stabilizer_overreach: 0.28,
-          msg_pressure: 0.38,
-          coherence: 0.91,
-          active_civilizations: 6,
-          active_branches: 9,
-          agent_count: 983,
-          history: [
-            %{semantic_diversity: 0.68, attractor_convergence: 0.52, msg_pressure: 0.38, timestamp: 0}
-          ]
-        }
-      ]
-    })
+    case TiannaraRuntime.WorldRegistry.list_worlds() do
+      {:ok, worlds} ->
+        normalized =
+          Enum.map(worlds, fn world ->
+            %{
+              id: Map.get(world, :id) || Map.get(world, "id"),
+              parent_world: Map.get(world, :parent_world) || Map.get(world, "parent_world"),
+              generation: Map.get(world, :generation, 0),
+              fitness: Map.get(world, :fitness),
+              status: Map.get(world, :status, :active),
+              coherence: Map.get(world, :coherence),
+              entropy: Map.get(world, :entropy),
+              created_at: Map.get(world, :created_at),
+              last_updated: Map.get(world, :last_updated),
+              provenance: :world_registry
+            }
+          end)
+
+        json(conn, %{
+          success: true,
+          worlds: normalized,
+          total_count: length(normalized),
+          provenance: "TiannaraRuntime.WorldRegistry"
+        })
+
+      {:error, reason} ->
+        conn
+        |> put_status(:service_unavailable)
+        |> json(%{success: false, error: inspect(reason), provenance: :unavailable})
+    end
   end
 
   def intervene_world(conn, %{"id" => id, "type" => type}) do
