@@ -129,6 +129,7 @@ defmodule TiannaraRuntime.WorldRegistry do
     Logger.info("🌐 Created world #{world_id} (gen #{generation}, parent: #{inspect(parent_world_id)})")
     
     {:reply, {:ok, world_id}, new_state}
+    end
   end
   
   @impl true
