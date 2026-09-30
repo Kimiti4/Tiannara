@@ -81,7 +81,7 @@ defmodule Tiannara.World.ScientificResearch do
 
     case runs do
       {:ok, results} ->
-        hashes = Enum.map(results, &:crypto.hash(:sha256, :erlang.term_to_binary(&1)))
+        hashes = Enum.map(results, fn result -> :crypto.hash(:sha256, :erlang.term_to_binary(result)) end)
         {:ok, %{
           count: length(results),
           deterministic: length(Enum.uniq(hashes)) == 1,
