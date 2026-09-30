@@ -119,10 +119,16 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
         state_manager_pid = find_child(children, TiannaraRuntime.WorldStateManager)
         if state_manager_pid do
           {:ok, world_state} = TiannaraRuntime.WorldStateManager.get_state(state_manager_pid)
+          cal_score = Map.get(cal_result, :arbitration_score, 0.0)
+          entropy = Map.get(world_state.system_metrics, :entropy, 0.5)
+          effective_metrics =
+            world_state.system_metrics
+            |> Map.put(:entropy, min(1.0, max(0.0, entropy + Map.get(cal_result, :entropy_delta, 0.0))))
+            |> Map.put(:coherence, min(1.0, max(0.0, 0.5 + cal_score * 0.5)))
           case TiannaraRuntime.CIS.Engine.evaluate(
             world_state.cis_state,
             cal_result,
-            world_state.system_metrics
+            effective_metrics
           ) do
             {:error, reason} -> {:error, reason}
             cis_result ->
