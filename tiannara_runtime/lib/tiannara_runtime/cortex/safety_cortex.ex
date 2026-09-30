@@ -312,8 +312,8 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
     # Determine regulation strength based on risk level
     regulation_strength = calculate_regulation_strength(risk)
 
-    # Apply entropy damping
-    apply_entropy_dampening(world_id, regulation_strength)
+    regulation_result = apply_entropy_dampening(world_id, regulation_strength)
+
     emit_constraint_signal(%ConstraintSignal{
       source: :safety_cortex,
       target_layer: :execution,
@@ -330,8 +330,13 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
       timestamp: DateTime.utc_now()
     })
 
-    # Log intervention
-    new_log = [{DateTime.utc_now(), world_id, :regulation, "strength=#{regulation_strength}"} | state.intervention_log]
+    status =
+      case regulation_result do
+        :accepted -> :requested
+        {:error, reason} -> {:rejected, reason}
+      end
+
+    new_log = [{DateTime.utc_now(), world_id, :regulation, %{strength: regulation_strength, status: status}} | state.intervention_log]
 
     %{state | intervention_log: Enum.take(new_log, 100)}
   end
@@ -344,13 +349,24 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
 
   defp apply_entropy_dampening(world_id, strength) do
     # Send regulation command via NATS to world runtime
-    MetaEvolutionStreamManager.publish_regulation_command(%{
-      world_id: world_id,
-      action: :entropy_dampening,
-      strength: strength
-    })
-
-    Logger.debug("   Applied entropy dampening (strength: #{Float.round(strength, 2)})")
+    case MetaEvolutionStreamManager.publish_regulation_command(%{
+           world_id: world_id,
+           action: :entropy_dampening,
+           strength: strength
+         }) do
+      :ok ->
+        Logger.debug("   Regulation command accepted for dispatch (strength: #{Float.round(strength, 2)})")
+        :accepted
+      {:ok, _event} ->
+        Logger.debug("   Regulation command accepted for dispatch (strength: #{Float.round(strength, 2)})")
+        :accepted
+      {:error, reason} ->
+        Logger.warning("   Regulation command rejected: #{inspect(reason)}")
+        {:error, reason}
+      other ->
+        Logger.warning("   Regulation command returned unexpected result: #{inspect(other)}")
+        {:error, {:unexpected_dispatch_result, other}}
+    end
   end
 
   defp emit_constraint_signal(%ConstraintSignal{} = signal) do
