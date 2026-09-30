@@ -95,7 +95,10 @@ defmodule TiannaraRuntime.Cortex.ImmuneCortex do
 
     # Trigger SafetyCortex if needed
     if action in [:regulate, :escalate] do
-      trigger_safety_cortex(world_id, risk, action)
+      case trigger_safety_cortex(world_id, risk, action) do
+        :ok -> :ok
+        {:error, reason} -> {:reply, {:error, {:safety_cortex_unavailable, reason}}, state}
+      end
     end
 
     # Update state
@@ -109,8 +112,6 @@ defmodule TiannaraRuntime.Cortex.ImmuneCortex do
 
   @impl true
   def handle_call({:get_risk_score, world_id}, _from, state) do
-    # For now, return cached risk or nil
-    # In full implementation, this would query a risk cache
     case Map.get(state.risk_by_world, world_id) do
       nil -> {:reply, {:error, :risk_not_assessed}, state}
       assessment -> {:reply, {:ok, assessment}, state}
@@ -155,7 +156,11 @@ defmodule TiannaraRuntime.Cortex.ImmuneCortex do
   end
 
   defp trigger_safety_cortex(world_id, risk, action) do
-    # Notify SafetyCortex via cast (async, non-blocking)
-    TiannaraRuntime.Cortex.SafetyCortex.handle_world_risk(world_id, risk, action)
+    if function_exported?(TiannaraRuntime.Cortex.SafetyCortex, :handle_world_risk, 3) and Process.whereis(TiannaraRuntime.Cortex.SafetyCortex) do
+      TiannaraRuntime.Cortex.SafetyCortex.handle_world_risk(world_id, risk, action)
+      :ok
+    else
+      {:error, :safety_cortex_not_running}
+    end
   end
 end
