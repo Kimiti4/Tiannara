@@ -203,55 +203,19 @@ def get_or_create_mock_worlds():
 
 @router.get("/calibration/worlds")
 async def get_calibration_worlds():
-    """Get active world metrics for calibration analysis (Semantic Diversity, Attractors, MSG)."""
-    try:
-        # Request live data from Elixir node calibration endpoint
-        data = await call_runtime_api("/calibration/worlds")
-        return {"success": True, "worlds": data}
-    except Exception as e:
-        logger.warning(f"Unable to reach Elixir calibration API: {e}. Falling back to high-fidelity simulation.")
-        # Fallback to simulated local calibration metrics
-        worlds_data = get_or_create_mock_worlds()
-        return {"success": True, "worlds": list(worlds_data.values())}
-
+    """Return measured calibration state from the runtime only."""
+    data = await call_runtime_api("/calibration/worlds")
+    return {"success": True, "worlds": data}
 
 @router.post("/calibration/intervene")
 async def trigger_calibration_intervention(payload: dict):
-    """Trigger CIS/MSG stabilization intervention in calibration run."""
+    """Forward a calibration intervention to the real runtime."""
     world_id = payload.get("world_id")
     intervention = payload.get("intervention")
-    
     if not world_id or not intervention:
         raise HTTPException(status_code=400, detail="Missing world_id or intervention fields")
-        
-    try:
-        # Cast to Elixir node
-        await call_runtime_api("/calibration/intervene", method="POST", json=payload)
-        return {"success": True, "message": f"Intervention {intervention} sent to Elixir runtime for {world_id}"}
-    except Exception as e:
-        logger.warning(f"Could not forward intervention to Elixir: {e}. Applying to local high-fidelity simulator.")
-        
-        # Apply to simulated fallback data
-        worlds_data = get_or_create_mock_worlds()
-        if world_id in worlds_data:
-            world = worlds_data[world_id]
-            if intervention == "mild_diversity_boost":
-                world["semantic_diversity"] = min(0.98, world["semantic_diversity"] + 0.18)
-                world["attractor_convergence"] = max(0.10, world["attractor_convergence"] - 0.15)
-                world["stabilizer_overreach"] = max(0.05, world["stabilizer_overreach"] - 0.08)
-            elif intervention == "entropy_injection":
-                world["entropy"] = min(0.98, world["entropy"] + 0.20)
-                world["semantic_diversity"] = min(0.98, world["semantic_diversity"] + 0.10)
-                world["stabilizer_overreach"] = max(0.05, world["stabilizer_overreach"] - 0.12)
-            elif intervention == "heavy_suppression":
-                world["entropy"] = max(0.10, world["entropy"] - 0.18)
-                world["stabilizer_overreach"] = min(0.90, world["stabilizer_overreach"] + 0.22)
-                world["coherence"] = min(0.98, world["coherence"] + 0.08)
-                
-            return {"success": True, "message": f"Intervention {intervention} applied in-memory for {world_id}"}
-        else:
-            raise HTTPException(status_code=404, detail=f"World {world_id} not found")
-
+    result = await call_runtime_api("/calibration/intervene", method="POST", json=payload)
+    return {"success": True, "runtime_result": result}
 
 # ============================================================================
 # Hourly World Health CSV Reports (Downloadable Reports)
@@ -261,77 +225,6 @@ from fastapi.responses import FileResponse
 
 REPORTS_DIR = Path("reports")
 REPORTS_DIR.mkdir(exist_ok=True)
-
-def populate_initial_reports():
-    """Pre-populate a few mock historical hourly reports with 10-dimensional capabilities."""
-    if not list(REPORTS_DIR.glob("*.csv")):
-        import math
-        now = datetime.utcnow()
-        for h in range(1, 6):
-            timestamp = now - timedelta(hours=h)
-            filename = f"world_health_epoch_{timestamp.strftime('%Y%m%d_%H0000')}.csv"
-            file_path = REPORTS_DIR / filename
-            
-            with open(file_path, "w", newline="") as f:
-                writer = csv.writer(f)
-                writer.writerow(["Report Name", "Tiannara 12-World Health Calibration Epoch (10D Capability Lattice)"])
-                writer.writerow(["Generated At", timestamp.isoformat()])
-                writer.writerow([])
-                writer.writerow([
-                    "World ID", "Status", "Bias", "Generation", 
-                    "Entropy", "Coherence", "Semantic Diversity", 
-                    "Attractor Convergence", "Stabilizer Overreach", "MSG Pressure",
-                    "Engineering", "Computation", "Medicine", "Agriculture", 
-                    "Energy", "Logistics", "Governance", "Science", 
-                    "Cognition", "Finance", "Niche Diversity Index H(N)"
-                ])
-                
-                biases = ["robotics_embodiment", "organic_biosynthesis", "thermodynamic_entropy", "algorithmic_governance", "cognitive_symbiosis", "swarm_coordination", "quantum_information", "ecological_regeneration", "astro_logistics", "epistemic_validation", "metabolic_efficiency", "temporal_coherence"]
-                
-                for idx in range(12):
-                    wid = f"world_{idx + 1}"
-                    status = "operational"
-                    if idx == 9 and h > 2:  # Simulating overregulation in older epochs
-                        status = "stagnant"
-                    
-                    entropy_val = round(0.65 + 0.01 * idx, 3)
-                    sd_val = round(0.78 + 0.002 * idx, 3)
-                    
-                    # Compute 10-D capability lattice based on seed
-                    seed = (entropy_val + sd_val) * 10
-                    eng = min(1.0, round((45 + (seed * 3) % 45) / 100.0, 3))
-                    comp = min(1.0, round((50 + (seed * 7) % 45) / 100.0, 3))
-                    med = min(1.0, round((40 + (seed * 11) % 50) / 100.0, 3))
-                    agri = min(1.0, round((35 + (seed * 13) % 55) / 100.0, 3))
-                    nrg = min(1.0, round((30 + (seed * 5) % 60) / 100.0, 3))
-                    logi = min(1.0, round((45 + (seed * 17) % 45) / 100.0, 3))
-                    gov = min(1.0, round((25 + (seed * 19) % 55) / 100.0, 3))
-                    sci = min(1.0, round((40 + (seed * 23) % 50) / 100.0, 3))
-                    cogn = min(1.0, round((30 + (seed * 29) % 65) / 100.0, 3))
-                    fina = min(1.0, round((35 + (seed * 31) % 55) / 100.0, 3))
-                    
-                    # Shannon Entropy Niche Diversity Index H(N)
-                    saturations = [max(0.01, v) for v in [eng, comp, med, agri, nrg, logi, gov, sci, cogn, fina]]
-                    total_s = sum(saturations)
-                    probs = [v / total_s for v in saturations]
-                    entropy_hn = -sum(p * math.log2(p) for p in probs)
-                    norm_hn = round(entropy_hn / math.log2(10), 3)
-                    
-                    writer.writerow([
-                        wid,
-                        status,
-                        biases[idx % 12],
-                        240 - h * 10,
-                        entropy_val,
-                        round(0.72 - 0.005 * idx, 3),
-                        sd_val,
-                        round(0.32 - 0.01 * idx, 3),
-                        round(0.22 + 0.01 * idx, 3),
-                        round(0.28, 3),
-                        eng, comp, med, agri, nrg, logi, gov, sci, cogn, fina,
-                        norm_hn
-                    ])
-
 
 @router.get("/calibration/reports")
 async def list_reports():
