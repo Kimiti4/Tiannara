@@ -109,7 +109,8 @@ defmodule Tiannara.World.ScientificResearch do
 
   defp final_status(validation, defense) do
     cond do
-      defense.replication_consistent and Map.get(validation, :valid, false) -> :bounded_verified
+      defense.replication_consistent and Map.get(validation, :valid, false) and defense.proof_status == :bounded_proof -> :bounded_verified
+      defense.replication_consistent and Map.get(validation, :valid, false) -> :validated_replicated
       defense.replication_consistent -> :replicated_unverified
       true -> :inconclusive
     end
