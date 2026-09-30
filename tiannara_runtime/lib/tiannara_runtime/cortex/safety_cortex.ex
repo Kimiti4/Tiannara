@@ -435,17 +435,18 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
   end
 
   defp update_world_state(state, world_id, metrics, risk) do
-    # Create or update world safety state
+    # Persist only telemetry that was actually supplied. Missing optional fields remain unknown.
     safety_state = %{
       world_id: world_id,
-      entropy_pressure: Map.get(metrics, :entropy_pressure, 0.0),
-      causal_stability: Map.get(metrics, :causal_stability, 1.0),
-      evolutionary_velocity: Map.get(metrics, :evolutionary_velocity, 0.0),
+      entropy_pressure: Map.get(metrics, :entropy_pressure),
+      entropy_growth_rate: Map.get(metrics, :entropy_growth_rate),
+      causal_stability: Map.get(metrics, :causal_stability),
+      evolutionary_velocity: Map.get(metrics, :evolutionary_velocity),
       kill_risk: if(risk > 0.9, do: 1.0, else: 0.0),
       freeze_risk: if(risk > 0.7, do: risk, else: 0.0),
-      stability_credit: Map.get(metrics, :stability_credit, 100.0),
-      paradox_load: Map.get(metrics, :paradox_load, 0.0),
-      prediction_horizon_ms: Map.get(metrics, :prediction_horizon_ms, 5000)
+      stability_credit: Map.get(metrics, :stability_credit),
+      paradox_load: Map.get(metrics, :paradox_load),
+      prediction_horizon_ms: Map.get(metrics, :prediction_horizon_ms)
     }
 
     put_in(state.world_states[world_id], safety_state)
