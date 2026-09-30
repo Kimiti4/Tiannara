@@ -286,7 +286,7 @@ defmodule TiannaraRuntime.Evolution.Supervisor do
   end
   
   defp try_world_state_metrics(world_id) do
-    case Registry.lookup(TiannaraRuntime.WorldRegistry, world_id) do
+    case Registry.lookup(TiannaraRuntime.WorldProcessRegistry, world_id) do
       [{sup_pid, _}] ->
         children = Supervisor.which_children(sup_pid)
         case Enum.find(children, fn {id, _, _, _} -> id == TiannaraRuntime.WorldStateManager end) do
