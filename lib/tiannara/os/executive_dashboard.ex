@@ -123,15 +123,8 @@ defmodule TiannaraOS.ExecutiveDashboard do
     count_by_priority(:high)
   end
   
-  defp estimate_debt_trend do
-    # Would compare current vs historical debt levels
-    :decreasing  # Placeholder
-  end
-  
-  defp calculate_unknown_resolution_rate do
-    # Would calculate resolved / total over time window
-    0.15  # 15% resolution rate
-  end
+  defp estimate_debt_trend, do: :unavailable
+  defp calculate_unknown_resolution_rate, do: :unavailable
   
   defp calculate_innovation_velocity do
     # Measure discoveries per time period
