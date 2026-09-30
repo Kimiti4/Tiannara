@@ -38,17 +38,7 @@ defmodule Tiannara.CEL.Executive do
 
   @impl true
   def handle_call(:constitutional_score, _from, state) do
-    score = %Tiannara.CEL.Kernel.ConstitutionalScore{
-      service_id: :executive,
-      health: 1.0,
-      constitutional_alignment: 0.98,
-      transparency: 0.95,
-      explainability: 0.95,
-      evidence_quality: 0.9,
-      human_oversight: 0.9,
-      computed_at: DateTime.utc_now()
-    }
-    {:reply, score, state}
+    {:reply, score_from_state(state), state}
   end
 
   @impl true
