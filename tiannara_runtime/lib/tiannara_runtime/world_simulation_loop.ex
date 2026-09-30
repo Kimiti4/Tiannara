@@ -48,7 +48,7 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
     if state.running do
       {:noreply, state}
     else
-      schedule_tick()
+      schedule_tick(state.tick_interval)
       {:noreply, %{state | running: true}}
     end
   end
@@ -62,16 +62,14 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
   def handle_info(:tick, state) do
     if state.running do
       execute_tick(state)
-      schedule_tick()
+      schedule_tick(state.tick_interval)
       {:noreply, %{state | tick_count: state.tick_count + 1}}
     else
       {:noreply, state}
     end
   end
 
-  defp schedule_tick do
-    Process.send_after(self(), :tick, @default_tick_interval)
-  end
+  defp schedule_tick(interval), do: Process.send_after(self(), :tick, interval)
 
   defp execute_tick(state) do
     world_id = state.world_id
