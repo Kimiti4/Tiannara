@@ -186,27 +186,9 @@ defmodule TiannaraOS.ExecutiveDashboard do
   
   defp estimate_stability_trend, do: :unavailable
   
-  defp calculate_prediction_accuracy do
-    # Measure theory prediction success rate
-    # Would analyze prediction vs outcome data from ResearchCycleResults
-    %{
-      accuracy_rate: 0.68,  # Placeholder
-      total_predictions: 450,
-      successful_predictions: 306,
-      accuracy_trend: :improving
-    }
-  end
+  defp calculate_prediction_accuracy, do: %{status: :unavailable, reason: :prediction_outcome_store_not_connected}
   
-  defp calculate_replication_success do
-    # Measure validated discovery rate
-    # Would analyze BeliefRevisionResult validation outcomes
-    %{
-      replication_rate: 0.72,  # Placeholder
-      total_validations: 280,
-      successful_replications: 202,
-      replication_trend: :stable
-    }
-  end
+  defp calculate_replication_success, do: %{status: :unavailable, reason: :replication_outcome_store_not_connected}
   
   defp calculate_scientific_momentum do
     # Composite health indicator combining multiple metrics
