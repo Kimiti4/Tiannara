@@ -161,9 +161,27 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
     }
   end
 
-  defp update_world_state(_world_id, _cal_result, _cis_result), do: :ok
+  defp update_world_state(world_id, cal_result, cis_result) do
+    fitness = (Map.get(cal_result, :arbitration_score, 0.0) + Map.get(cis_result, :stability_score, 0.0)) / 2.0
+    TiannaraRuntime.WorldRegistry.update_fitness(world_id, fitness)
+    :ok
+  end
 
-  defp publish_events(_world_id, _cal_result, _cis_result), do: :ok
+  defp publish_events(world_id, cal_result, cis_result) do
+    case Registry.lookup(TiannaraRuntime.WorldRegistry, world_id) do
+      [{supervisor_pid, _}] ->
+        processor = find_child(Supervisor.which_children(supervisor_pid), TiannaraRuntime.WorldEventProcessor)
+        if processor do
+          TiannaraRuntime.WorldEventProcessor.publish_cal_event(processor, cal_result)
+          TiannaraRuntime.WorldEventProcessor.publish_cis_event(processor, cis_result)
+          TiannaraRuntime.WorldEventProcessor.publish_state_update(processor, %{cal: cal_result, cis: cis_result})
+          :ok
+        else
+          {:error, :event_processor_unavailable}
+        end
+      [] -> {:error, :world_not_running}
+    end
+  end
 
   defp store_memory_snapshot(world_id, cal_result, cis_result) do
     case Registry.lookup(TiannaraRuntime.WorldRegistry, world_id) do
@@ -174,12 +192,15 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
           snapshot_data = %{
             cal_result: cal_result,
             cis_result: cis_result,
-            timestamp: :erlang.unique_integer([:positive])
+            timestamp: System.system_time(:millisecond)
           }
           TiannaraRuntime.WorldMemoryStore.append_snapshot(memory_store_pid, snapshot_data)
+          :ok
+        else
+          {:error, :memory_store_unavailable}
         end
       [] ->
-        Logger.warning("World supervisor not found for #{world_id}")
+        {:error, :world_not_running}
     end
   end
 
