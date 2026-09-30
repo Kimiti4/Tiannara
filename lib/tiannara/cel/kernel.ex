@@ -164,7 +164,7 @@ defmodule Tiannara.CEL.Kernel do
     try do
       apply(mod, fun, args)
     catch
-      _, _ -> ConstitutionalScore.default(spec.id)
+      kind, reason -> {:error, {:constitutional_score_unavailable, kind, reason}}
     end
   end
 
