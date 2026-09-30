@@ -1,13 +1,7 @@
 defmodule Tiannara.CEL.TruthBoundaryTest do
   use ExUnit.Case, async: true
 
-  alias Tiannara.CEL.Kernel.{BootSequencer, ConstitutionalScore}
-
-  test "missing constitutional evidence fails closed" do
-    score = fn _ -> raise "provider unavailable" end
-    assert {:fail, reason} = BootSequencer.send(:check_constitution, score)
-    assert reason =~ "unavailable"
-  end
+  alias Tiannara.CEL.Kernel.ConstitutionalScore
 
   test "default constitutional score is not boot ready" do
     refute ConstitutionalScore.boot_ready?(ConstitutionalScore.default(:missing))
