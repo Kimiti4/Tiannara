@@ -57,16 +57,20 @@ defmodule Tiannara.Sentinel.EpistemicShadowGraph do
     # Fetch the compressed LEOC vector and sparse causal graph snapshot safely
     latent_state =
       if Code.ensure_loaded?(Tiannara.Meta.Epistemics.LongitudinalMemory) do
-        Tiannara.Meta.Epistemics.LongitudinalMemory.get_compressed_state(world_id)
+        case Tiannara.Meta.Epistemics.LongitudinalMemory.get_compressed_state(world_id) do
+          {:ok, value} -> value
+          value when is_map(value) or is_list(value) -> value
+          _ -> throw({:unavailable, :latent_state_unavailable})
+        end
       else
-        %{leoc: [1.0, 0.0, 0.0, 0.0]}
+        throw({:unavailable, :latent_memory_provider_unavailable})
       end
 
     causal_snapshot =
       if Code.ensure_loaded?(Tiannara.Meta.CausalDataLayer.Traversal) do
         Tiannara.Meta.CausalDataLayer.Traversal.get_sparse_snapshot(world_id)
       else
-        %{nodes: [], edges: []}
+        throw({:unavailable, :causal_snapshot_provider_unavailable})
       end
     
     # Store in a temporary, high-speed ETS table dedicated to shadows
@@ -97,9 +101,9 @@ defmodule Tiannara.Sentinel.EpistemicShadowGraph do
           ticks
         )
       else
-        mutated_state
+        throw({:unavailable, :causal_projection_engine_unavailable})
       end
-    
+
     %{initial: shadow_data.latent_state, final: final_state, ticks: ticks}
   end
 
@@ -120,16 +124,39 @@ defmodule Tiannara.Sentinel.EpistemicShadowGraph do
     end
   end
 
-  defp apply_intervention_to_latent_state(latent_state, _cure) do
-    # Placeholder for the actual mathematical application of the cure
-    # e.g., modifying the LEOC vector based on the cure's parameters
-    latent_state
+  defp apply_intervention_to_latent_state(latent_state, :observe_only), do: latent_state
+  defp apply_intervention_to_latent_state(latent_state, cure) when is_map(latent_state) do
+    case Map.get(latent_state, :leoc, Map.get(latent_state, "leoc")) do
+      vector when is_list(vector) ->
+        delta = case cure do
+          :tighten_constraints -> -0.01
+          :inject_novelty -> 0.01
+          :prune_branch -> -0.005
+          _ -> 0.0
+        end
+        Map.put(latent_state, :leoc, Enum.map(vector, fn x -> if is_number(x), do: x + delta, else: x end))
+      _ -> latent_state
+    end
+  end
+  defp apply_intervention_to_latent_state(latent_state, _cure), do: latent_state
+
+  defp calculate_ontological_divergence(initial, final) do
+    a = numeric_vector(initial)
+    b = numeric_vector(final)
+    if a == [] or b == [] do
+      1.0
+    else
+      n = min(length(a), length(b))
+      {aa, bb} = {Enum.take(a, n), Enum.take(b, n)}
+      distance = :math.sqrt(Enum.zip(aa, bb) |> Enum.reduce(0.0, fn {x, y}, acc -> acc + :math.pow(x - y, 2) end))
+      distance / max(:math.sqrt(Enum.reduce(aa, 0.0, fn x, acc -> acc + x*x end)), 1.0)
+    end
   end
 
-  defp calculate_ontological_divergence(_initial, _final) do
-    # Placeholder for cosine distance or similar metric between two latent vectors
-    0.1 # Mock value
-  end
+  defp numeric_vector(value) when is_list(value), do: Enum.filter(value, &is_number/1)
+  defp numeric_vector(value) when is_map(value), do: value |> Map.values() |> Enum.flat_map(&numeric_vector/1)
+  defp numeric_vector(value) when is_number(value), do: [value]
+  defp numeric_vector(_), do: []
 
   defp destroy_shadow(shadow_id) do
     :ets.delete(:esg_active_shadows, shadow_id)
