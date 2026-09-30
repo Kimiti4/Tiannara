@@ -15,7 +15,7 @@ Integrates with TiannaraRuntime Elixir backend via HTTP API calls.
 from fastapi import APIRouter, HTTPException, Query, Depends
 from tiannara_api.security.auth_deps import require_auth
 from typing import Optional, List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 import csv
 import httpx
@@ -261,82 +261,29 @@ async def download_report(filename: str):
 
 @router.post("/calibration/reports/generate")
 async def generate_manual_report():
-    """Manually generate the latest hourly world health report (10D capability lattice)."""
-    import math
+    """Generate a CSV from the runtime's measured calibration payload."""
     timestamp = datetime.utcnow()
     filename = f"world_health_epoch_{timestamp.strftime('%Y%m%d_%H%M%S')}.csv"
     file_path = REPORTS_DIR / filename
-    
-    try:
-        worlds_data = get_or_create_mock_worlds()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get worlds: {str(e)}")
-        
+    data = await call_runtime_api("/calibration/worlds")
+    worlds = data.get("worlds", data)
+    if not isinstance(worlds, list):
+        worlds = list(worlds.values()) if isinstance(worlds, dict) else []
+    if not worlds:
+        raise HTTPException(status_code=503, detail="Runtime returned no measured calibration worlds")
+    columns = sorted({key for world in worlds if isinstance(world, dict) for key in world.keys()})
     with open(file_path, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["Report Name", "Tiannara 12-World Health Calibration Epoch (10D Capability Lattice)"])
-        writer.writerow(["Generated At", timestamp.isoformat()])
-        writer.writerow([])
-        writer.writerow([
-            "World ID", "Status", "Bias", "Generation", 
-            "Entropy", "Coherence", "Semantic Diversity", 
-            "Attractor Convergence", "Stabilizer Overreach", "MSG Pressure", 
-            "Engineering", "Computation", "Medicine", "Agriculture", 
-            "Energy", "Logistics", "Governance", "Science", 
-            "Cognition", "Finance", "Niche Diversity Index H(N)",
-            "Active Branches", "Civilizations", "Agents"
-        ])
-        
-        for wid, world in worlds_data.items():
-            entropy_val = world["entropy"]
-            sd_val = world["semantic_diversity"]
-            
-            # Compute 10-D capability lattice based on seed
-            seed = (entropy_val + sd_val) * 10
-            eng = min(1.0, round((45 + (seed * 3) % 45) / 100.0, 3))
-            comp = min(1.0, round((50 + (seed * 7) % 45) / 100.0, 3))
-            med = min(1.0, round((40 + (seed * 11) % 50) / 100.0, 3))
-            agri = min(1.0, round((35 + (seed * 13) % 55) / 100.0, 3))
-            nrg = min(1.0, round((30 + (seed * 5) % 60) / 100.0, 3))
-            logi = min(1.0, round((45 + (seed * 17) % 45) / 100.0, 3))
-            gov = min(1.0, round((25 + (seed * 19) % 55) / 100.0, 3))
-            sci = min(1.0, round((40 + (seed * 23) % 50) / 100.0, 3))
-            cogn = min(1.0, round((30 + (seed * 29) % 65) / 100.0, 3))
-            fina = min(1.0, round((35 + (seed * 31) % 55) / 100.0, 3))
-            
-            # Shannon Entropy Niche Diversity Index H(N)
-            saturations = [max(0.01, v) for v in [eng, comp, med, agri, nrg, logi, gov, sci, cogn, fina]]
-            total_s = sum(saturations)
-            probs = [v / total_s for v in saturations]
-            entropy_hn = -sum(p * math.log2(p) for p in probs)
-            norm_hn = round(entropy_hn / math.log2(10), 3)
-            
-            writer.writerow([
-                world["id"],
-                world["status"],
-                world["bias"],
-                world["generation"],
-                entropy_val,
-                world["coherence"],
-                sd_val,
-                world["attractor_convergence"],
-                world["stabilizer_overreach"],
-                world["msg_pressure"],
-                eng, comp, med, agri, nrg, logi, gov, sci, cogn, fina,
-                norm_hn,
-                world.get("active_branches", 12),
-                world.get("active_civilizations", 6),
-                world.get("agent_count", 1500)
-            ])
-            
+        writer = csv.DictWriter(f, fieldnames=columns)
+        writer.writeheader()
+        for world in worlds:
+            writer.writerow({key: world.get(key) for key in columns})
     return {
-        "success": True, 
-        "message": f"Report {filename} generated successfully",
+        "success": True,
+        "message": f"Report {filename} generated from measured runtime state",
         "report": {
             "filename": filename,
             "created_at": timestamp.isoformat(),
-            "size_bytes": file_path.stat().st_size
-        }
+            "size_bytes": file_path.stat().st_size,
+            "world_count": len(worlds),
+        },
     }
-
-
