@@ -148,9 +148,7 @@ defmodule TiannaraOS.ExecutiveDashboard do
     end
   end
   
-  defp estimate_velocity_trend do
-    :increasing  # Placeholder
-  end
+  defp estimate_velocity_trend, do: :unavailable
   
   defp identify_top_domains_by_discovery(domains) do
     domains
