@@ -112,6 +112,11 @@ defmodule TiannaraRuntime.EventGateway do
   end
   
   @impl true
+  def handle_call(:status, _from, state) do
+    {:reply, %{transport: if(is_pid(state.gnat_pid), do: :connected, else: :unavailable), subscriptions: Enum.reject(state.subscriptions, &is_nil/1), message_count: state.message_count, last_message_time: state.last_message_time}, state}
+  end
+
+  @impl true
   def handle_cast({:publish, subject, payload}, state) do
     if state.gnat_pid do
       case Gnat.pub(state.gnat_pid, subject, payload) do
@@ -121,9 +126,9 @@ defmodule TiannaraRuntime.EventGateway do
           Logger.error("Failed to publish to #{subject}: #{inspect(reason)}")
       end
     else
-      Logger.warning("Cannot publish: NATS not connected")
+      Logger.warning("Cannot publish: NATS transport unavailable")
     end
-    
+
     {:noreply, state}
   end
   
@@ -166,9 +171,9 @@ defmodule TiannaraRuntime.EventGateway do
   def handle_info(:health_pulse, state) do
     # Publish health pulse
     payload = Jason.encode!(%{
-      type: "health_pulse",
-      timestamp: :erlang.unique_integer([:positive]) |> Integer.to_string(),
-      status: "healthy"
+      type: "transport_pulse",
+      timestamp: DateTime.utc_now() |> DateTime.to_iso8601(),
+      status: if(is_pid(state.gnat_pid), do: "connected", else: "unavailable")
     })
     
     publish_event("runtime.health.pulse", payload)
@@ -180,8 +185,7 @@ defmodule TiannaraRuntime.EventGateway do
   # Private Functions
   
   defp connect_nats() do
-    # NATS is optional for tests; return an error to trigger reconnection logic
-    {:error, :unavailable}
+    {:error, :nats_provider_not_configured}
   end
   
   defp subscribe_to_topic(gnat_pid, topic) do
@@ -261,8 +265,8 @@ defmodule TiannaraRuntime.EventGateway do
   end
   
   defp handle_entropy_tick(data) do
-    entropy = Map.get(data, "entropy", 0.0)
-    Logger.info("📊 Entropy tick: #{Float.round(entropy, 3)}")
+    entropy = Map.get(data, "entropy")
+    if is_number(entropy), do: Logger.info("📊 Entropy tick: #{Float.round(entropy, 3)}"), else: Logger.warning("📊 Entropy tick missing numeric entropy")
     
     # Forward to CIS EntropyMonitor
     # TiannaraRuntime.CIS.EntropyMonitor.update_entropy(entropy)
@@ -281,9 +285,9 @@ defmodule TiannaraRuntime.EventGateway do
   end
   
   defp evaluate_cis_rules(sim_state) do
-    # CIS evaluation logic from specification
-    
     cond do
+      not is_number(sim_state.entropy) or not is_number(sim_state.dominance) ->
+        Logger.warning("CIS evaluation skipped: incomplete simulation telemetry")
       sim_state.dominance > 0.95 ->
         Logger.warning("⚠️ CRITICAL: Extreme dominance detected (#{sim_state.dominance})")
         trigger_intervention("heavy_suppression", %{
