@@ -213,8 +213,10 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
 
   @impl true
   def handle_call({:get_risk, world_id}, _from, state) do
-    risk = Map.get(state.risk_cache, world_id, 0.0)
-    {:reply, {:ok, risk}, state}
+    case Map.fetch(state.risk_cache, world_id) do
+      {:ok, risk} -> {:reply, {:ok, risk}, state}
+      :error -> {:reply, {:error, :risk_not_assessed}, state}
+    end
   end
 
   @impl true
