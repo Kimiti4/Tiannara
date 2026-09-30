@@ -10,7 +10,7 @@ defmodule Tiannara.NATS.MetaEvolutionStreamManager do
 
   @impl true
   def init(_opts) do
-    {:ok, %{connection: nil, connected: true, subscriptions: []}}
+    {:ok, %{connection: nil, connected: false, subscriptions: []}}
   end
 
   def publish_cortex_event(event_data) when is_map(event_data) do
@@ -40,7 +40,7 @@ defmodule Tiannara.NATS.MetaEvolutionStreamManager do
   end
 
   def publish(topic, payload) when is_binary(topic) and is_map(payload) do
-    GenServer.cast(__MODULE__, {:publish, topic, payload})
+    GenServer.call(__MODULE__, {:publish, topic, payload})
   end
 
   def subscribe(topic, handler_pid) do
@@ -54,21 +54,41 @@ defmodule Tiannara.NATS.MetaEvolutionStreamManager do
   @impl true
   def handle_cast({:publish, topic, payload}, state) do
     encoded = Jason.encode!(payload)
-    TiannaraRuntime.NATS.Bus.publish(topic, encoded)
-    {:noreply, state}
+
+    case TiannaraRuntime.NATS.Bus.publish(topic, encoded) do
+      :ok ->
+        {:reply, :ok, state}
+
+      {:ok, _} = result ->
+        {:reply, result, state}
+
+      {:error, reason} ->
+        {:reply, {:error, reason}, %{state | connected: false}}
+
+      other ->
+        {:reply, {:error, {:unexpected_publish_result, other}}, state}
+    end
   end
 
   @impl true
   def handle_cast({:subscribe, topic, handler_pid}, state) do
-    TiannaraRuntime.NATS.Bus.subscribe(topic)
-    {:noreply, %{state | subscriptions: [topic | state.subscriptions]}}
+    case TiannaraRuntime.NATS.Bus.subscribe(topic) do
+      :ok ->
+        {:noreply, %{state | subscriptions: Enum.uniq([topic | state.subscriptions]), connected: true}}
+
+      {:error, _reason} ->
+        {:noreply, state}
+
+      _ ->
+        {:noreply, state}
+    end
   end
 
   @impl true
   def handle_call(:get_status, _from, state) do
     status = %{
       connected: state.connected,
-      url: "nats://127.0.0.1:4222",
+      url: @nats_url,
       active_subscriptions: length(state.subscriptions),
       topics: state.subscriptions
     }
