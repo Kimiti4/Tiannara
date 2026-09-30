@@ -195,11 +195,10 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
   def handle_cast({:emergency_escalation, world_id, reason}, state) do
     Logger.error("🚨 Emergency escalation for #{world_id}: #{reason}")
 
-    # Immediate freeze without prediction
-    freeze_world(world_id, :emergency_escalation)
+    # Request freeze without claiming that execution has already occurred.
+    freeze_result = freeze_world(world_id, :emergency_escalation)
 
-    # Log intervention
-    new_log = [{DateTime.utc_now(), world_id, :emergency_freeze, reason} | state.intervention_log]
+    new_log = [{DateTime.utc_now(), world_id, :emergency_freeze, %{reason: reason, status: freeze_result}} | state.intervention_log]
 
     {:noreply, %{state | intervention_log: Enum.take(new_log, 100)}}
   end
@@ -278,8 +277,8 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
   defp escalate(state, world_id, risk) do
     Logger.warning("⚠️  Safety Cortex escalation: #{world_id} (risk: #{Float.round(risk, 3)})")
 
-    # Freeze world execution
-    freeze_world(world_id, :cortex_escalation)
+    # Request world freeze; execution must report the resulting effect separately.
+    freeze_result = freeze_world(world_id, :cortex_escalation)
     emit_constraint_signal(%ConstraintSignal{
       source: :safety_cortex,
       target_layer: :ecology,
@@ -297,7 +296,7 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
     })
 
     # Log intervention
-    new_log = [{DateTime.utc_now(), world_id, :escalation_freeze, "risk=#{risk}"} | state.intervention_log]
+    new_log = [{DateTime.utc_now(), world_id, :escalation_freeze, %{risk: risk, status: freeze_result}} | state.intervention_log]
 
     %{state | intervention_log: Enum.take(new_log, 100)}
   end
@@ -408,16 +407,21 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
   # ============================================================================
 
   defp freeze_world(world_id, reason) do
-    Logger.info("❄️  Freezing world #{world_id} (reason: #{reason})")
+    Logger.info("❄️  Requesting freeze for world #{world_id} (reason: #{reason})")
 
-    # Send freeze message to HardenedKillSwitch
-    send(TiannaraRuntime.MultiWorld.HardenedKillSwitch, {:freeze_request, world_id, reason})
+    kill_switch = Process.whereis(TiannaraRuntime.MultiWorld.HardenedKillSwitch)
+    world_supervisor = Process.whereis(TiannaraRuntime.MultiWorld.WorldSupervisor)
 
-    # Also notify WorldSupervisor if available
-    try do
-      send(TiannaraRuntime.MultiWorld.WorldSupervisor, {:freeze_world, world_id})
-    rescue
-      _ -> Logger.warning("WorldSupervisor not available for freeze notification")
+    cond do
+      is_pid(kill_switch) ->
+        send(kill_switch, {:freeze_request, world_id, reason})
+        :requested
+      is_pid(world_supervisor) ->
+        send(world_supervisor, {:freeze_world, world_id})
+        :requested
+      true ->
+        Logger.warning("No freeze executor is running for #{inspect(world_id)}")
+        {:error, :freeze_executor_unavailable}
     end
   end
 
