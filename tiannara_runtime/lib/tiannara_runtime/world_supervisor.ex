@@ -30,12 +30,8 @@ defmodule TiannaraRuntime.WorldSupervisor do
       # State manager - isolated world state
       {TiannaraRuntime.WorldStateManager, world_config},
       
-      # CAL engine - coalition arbitration logic
-      {TiannaraRuntime.CAL.Engine, world_config},
-      
-      # CIS engine - immune regulation
-      {TiannaraRuntime.CIS.Engine, world_config},
-      
+      # CAL and CIS are deterministic domain functions invoked by the simulation loop;
+      # they are not OTP processes and therefore are not supervised as children.
       # Memory store - append-only timeline
       {TiannaraRuntime.WorldMemoryStore, world_config},
       
