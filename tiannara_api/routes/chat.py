@@ -129,17 +129,26 @@ async def research(req: ResearchRequest):
         for i, s in enumerate(sources)
     )
 
-    try:
-        analysis = _core().process_intent(
-            f"Research question: {req.query}",
-            {"research": True, "source_count": len(sources), "source_text": source_text},
-        )
-    except Exception as exc:
-        analysis = {
-            "success": False,
-            "error": str(exc),
-            "provenance": "research_acquisition_only",
+    evidence = [
+        {
+            "source": s["url"],
+            "title": s["title"],
+            "snippet": s["snippet"],
+            "quality": 0.5 if s.get("fetched") else 0.25,
         }
+        for s in sources
+    ]
+    native = _NATIVE_DIALOGUE.respond(
+        f"Research question: {req.query}",
+        _NATIVE_DIALOGUE.state.get_conversation_history("research")[-10:],
+        {
+            "evidence": evidence,
+            "known_facts": [],
+            "unknowns": ["independent verification of fetched claims"],
+            "source_text": source_text,
+        },
+    )
+    analysis = native.as_dict()
 
     return {
         "query": req.query,
