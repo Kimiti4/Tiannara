@@ -98,9 +98,12 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
         state_manager_pid = find_child(children, TiannaraRuntime.WorldStateManager)
         if state_manager_pid do
           {:ok, world_state} = TiannaraRuntime.WorldStateManager.get_state(state_manager_pid)
-          cal_result = TiannaraRuntime.CAL.Engine.step(world_state.cal_state)
-          TiannaraRuntime.WorldStateManager.update_cal_state(state_manager_pid, cal_result)
-          {:ok, cal_result}
+          case TiannaraRuntime.CAL.Engine.step(world_state.cal_state) do
+            {:ok, cal_result} ->
+              TiannaraRuntime.WorldStateManager.update_cal_state(state_manager_pid, cal_result)
+              {:ok, cal_result}
+            {:error, reason} -> {:error, reason}
+          end
         else
           {:error, :world_state_manager_unavailable}
         end
@@ -116,14 +119,17 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
         state_manager_pid = find_child(children, TiannaraRuntime.WorldStateManager)
         if state_manager_pid do
           {:ok, world_state} = TiannaraRuntime.WorldStateManager.get_state(state_manager_pid)
-          cis_result = TiannaraRuntime.CIS.Engine.evaluate(
+          case TiannaraRuntime.CIS.Engine.evaluate(
             world_state.cis_state,
             cal_result,
             world_state.system_metrics
-          )
-          TiannaraRuntime.WorldStateManager.update_cis_state(state_manager_pid, cis_result)
-          TiannaraRuntime.WorldStateManager.update_metrics(state_manager_pid, cis_result.metrics)
-          {:ok, cis_result}
+          ) do
+            {:error, reason} -> {:error, reason}
+            cis_result ->
+              TiannaraRuntime.WorldStateManager.update_cis_state(state_manager_pid, cis_result)
+              TiannaraRuntime.WorldStateManager.update_metrics(state_manager_pid, cis_result.metrics)
+              {:ok, cis_result}
+          end
         else
           {:error, :world_state_manager_unavailable}
         end
