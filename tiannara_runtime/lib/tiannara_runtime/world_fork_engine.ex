@@ -71,7 +71,6 @@ defmodule TiannaraRuntime.WorldForkEngine do
     }
     case TiannaraRuntime.WorldRegistry.create_world_with_id(child_world_id, parent_world.id, child_config) do
       {:ok, ^child_world_id} ->
-        spawn_world_supervisor(child_config)
         TiannaraRuntime.WorldRegistry.add_child(parent_world.id, child_world_id)
         {:ok, child_world_id}
       {:error, reason} ->
