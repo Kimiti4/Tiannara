@@ -86,22 +86,20 @@ export default function DashboardLayout({
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await apiClient.logout()
     apiClient.clearToken()
     router.push('/login')
   }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (searchQuery.trim()) {
-      // TODO: Implement search functionality
-      console.log('Searching for:', searchQuery)
-      alert(`Search functionality coming soon! Query: ${searchQuery}`)
-    }
+    if (searchQuery.trim()) router.push('/dashboard/research?q=' + encodeURIComponent(searchQuery.trim()))
   }
 
   const sidebarItems = [
     { icon: Sparkles, label: 'Cognitive Workspace', href: '/dashboard/cognitive-workspace', section: 'main', highlight: true },
+    { icon: FlaskConical, label: 'Research Lab', href: '/dashboard/research', section: 'main' },
     { icon: Home, label: 'Dashboard', href: '/dashboard', section: 'main' },
     { icon: Workflow, label: 'Workflows', href: '/dashboard/workflows', section: 'main' },
     { icon: Zap, label: 'Automations', href: '/dashboard/automations', section: 'main' },
