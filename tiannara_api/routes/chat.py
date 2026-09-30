@@ -3,7 +3,7 @@
 The gateway deliberately separates:
 - conversational processing through TiannaraCore;
 - external evidence acquisition through WebDataFetcher;
-- optional external LLM synthesis when explicitly configured.
+- native deterministic epistemic synthesis without an external LLM.
 
 No external result is represented as a Tiannara-generated fact without source
 metadata. Research responses always preserve the URLs returned by the search
@@ -84,7 +84,7 @@ async def chat(req: ChatRequest):
         "response": response,
         "result": result,
         "metadata": {
-            "provider": "tiannara_core",
+            "provider": "tiannara_native_cognition",
             "timestamp": datetime.now(timezone.utc).isoformat(),
         },
     }
