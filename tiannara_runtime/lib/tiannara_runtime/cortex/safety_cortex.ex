@@ -150,19 +150,19 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
 
   @impl true
   def handle_cast({:world_metrics, world_id, metrics}, state) do
-    # Layer 1: Predict instability
-    risk = predict_instability(metrics)
+    case predict_instability(metrics) do
+      {:ok, risk} ->
+        new_state =
+          state
+          |> put_in([:risk_cache, world_id], risk)
+          |> update_world_state(world_id, metrics, risk)
 
-    # Update state
-    new_state =
-      state
-      |> put_in([:risk_cache, world_id], risk)
-      |> update_world_state(world_id, metrics, risk)
+        {:noreply, route_intervention(new_state, world_id, metrics, risk)}
 
-    # Layer 2-4: Route to appropriate intervention
-    routed_state = route_intervention(new_state, world_id, metrics, risk)
-
-    {:noreply, routed_state}
+      {:error, reason} ->
+        Logger.warning("SafetyCortex rejecting incomplete metrics for #{inspect(world_id)}: #{inspect(reason)}")
+        {:noreply, state}
+    end
   end
 
   @impl true
@@ -230,25 +230,28 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
   # ============================================================================
 
   defp predict_instability(metrics) do
-    # Calculate entropy growth rate (derivative approximation)
-    entropy_growth = Map.get(metrics, :entropy_growth_rate, 0.0)
+    with {:ok, entropy_growth} <- required_metric(metrics, :entropy_growth_rate),
+         {:ok, causal_stability} <- required_metric(metrics, :causal_stability),
+         {:ok, evolution_velocity} <- required_metric(metrics, :evolutionary_velocity) do
+      causal_breakage = if causal_stability < 0.4, do: 1.0, else: 0.0
+      evolution_spike = min(evolution_velocity / 3.0, 1.0)
 
-    # Check for causal breakage
-    causal_stability = Map.get(metrics, :causal_stability, 1.0)
-    causal_breakage = if causal_stability < 0.4, do: 1.0, else: 0.0
+      risk =
+        @weight_entropy_growth * entropy_growth +
+        @weight_causal_breakage * causal_breakage +
+        @weight_evolution_spike * evolution_spike
 
-    # Detect evolution velocity spikes
-    evolution_velocity = Map.get(metrics, :evolutionary_velocity, 0.0)
-    evolution_spike = min(evolution_velocity / 3.0, 1.0)
+      {:ok, max(0.0, min(1.0, risk))}
+    else
+      {:error, reason} -> {:error, {:incomplete_safety_telemetry, reason}}
+    end
+  end
 
-    # Weighted risk calculation
-    risk =
-      @weight_entropy_growth * entropy_growth +
-      @weight_causal_breakage * causal_breakage +
-      @weight_evolution_spike * evolution_spike
-
-    # Clamp to [0.0, 1.0]
-    max(0.0, min(1.0, risk))
+  defp required_metric(metrics, key) do
+    case Map.get(metrics, key, Map.get(metrics, Atom.to_string(key))) do
+      value when is_number(value) -> {:ok, value / 1.0}
+      _ -> {:error, {:missing_numeric_metric, key}}
+    end
   end
 
   # ============================================================================
