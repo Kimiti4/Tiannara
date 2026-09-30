@@ -48,6 +48,11 @@ defmodule Tiannara.ToolForge.ToolForgeEngine do
           tools_built: [tool | state.tools_built],
           total_tools_built: state.total_tools_built + 1
         }
+      {:pending_human_review, %{tool: tool}} ->
+        %{state |
+          tools_built: [tool | state.tools_built],
+          total_tools_built: state.total_tools_built + 1
+        }
       {:error, _} ->
         %{state | total_tools_failed: state.total_tools_failed + 1}
     end
@@ -65,6 +70,12 @@ defmodule Tiannara.ToolForge.ToolForgeEngine do
       result = run_pipeline(top_need)
       new_state = case result do
         {:ok, tool} ->
+          %{state |
+            tools_built: [tool | state.tools_built],
+            total_needs_detected: state.total_needs_detected + length(needs),
+            total_tools_built: state.total_tools_built + 1
+          }
+        {:pending_human_review, %{tool: tool}} ->
           %{state |
             tools_built: [tool | state.tools_built],
             total_needs_detected: state.total_needs_detected + length(needs),
