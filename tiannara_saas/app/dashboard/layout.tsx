@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { 
-  Home, Workflow, Zap, BarChart3, Activity, Users, Key, CreditCard, Settings,
+  Home, Workflow, Zap, BarChart3, Activity, Users, Key, CreditCard, Settings, FlaskConical,
   Search, Bell, Plus, ArrowRight, CheckCircle, TrendingUp, Brain, Shield, Archive,
   Eye, Globe, Sparkles, LogOut, User, ChevronDown
 } from 'lucide-react'
