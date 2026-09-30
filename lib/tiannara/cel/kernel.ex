@@ -76,7 +76,22 @@ defmodule Tiannara.CEL.Kernel do
   @impl true
   def handle_call({:transition, new_state}, _from, state) do
     if RuntimeStates.valid_transition?(state.runtime_state, new_state) do
-      {:reply, :ok, transition_state(state, new_state)}
+      authorization =
+        Council.authorize(:architectural_change, %{
+          action: :kernel_state_transition,
+          from: state.runtime_state,
+          to: new_state
+        })
+
+      case authorization do
+        %Authorization{decision: d} when d in [:approved, :conditional] ->
+          next = transition_state(state, new_state)
+          log_to_council(:kernel_state_transition, %{from: state.runtime_state, to: new_state})
+          {:reply, :ok, next}
+
+        %Authorization{} = auth ->
+          {:reply, {:error, :council_denied, auth.explanation}, state}
+      end
     else
       {:reply, {:error, {:invalid_transition, state.runtime_state, new_state}}, state}
     end
