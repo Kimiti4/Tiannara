@@ -89,6 +89,15 @@ async def chat(req: ChatRequest):
         },
     }
 
+@router.post("/initiate")
+async def initiate(context: dict[str, Any] | None = None):
+    """Ask native Tiannara what deserves attention now, grounded in current state."""
+    response = _NATIVE_DIALOGUE.initiate(
+        f"proactive_{secrets.token_urlsafe(8)}",
+        context or {},
+    )
+    return response.as_dict()
+
 
 @router.post("/research")
 async def research(req: ResearchRequest):
