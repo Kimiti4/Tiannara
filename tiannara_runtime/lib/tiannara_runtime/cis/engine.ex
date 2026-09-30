@@ -17,9 +17,9 @@ defmodule TiannaraRuntime.CIS.Engine do
          {:ok, stability} <- required_numeric(metrics, :stability_score),
          {:ok, entropy_delta} <- required_numeric(cal_result, :entropy_delta) do
       risks = []
-    risks = if entropy > @max_entropy, do: [:entropy_exceeded | risks], else: risks
-    risks = if coherence < @min_coherence, do: [:coherence_below_floor | risks], else: risks
-    risks = if entropy_delta > 0.02, do: [:coalition_instability | risks], else: risks
+      risks = if entropy > @max_entropy, do: [:entropy_exceeded | risks], else: risks
+      risks = if coherence < @min_coherence, do: [:coherence_below_floor | risks], else: risks
+      risks = if entropy_delta > 0.02, do: [:coalition_instability | risks], else: risks
 
     interventions =
       Enum.map(risks, fn
@@ -36,12 +36,12 @@ defmodule TiannaraRuntime.CIS.Engine do
         stability_score: next_stability,
         thresholds_adjusted: [],
         metrics: %{
-        entropy: entropy,
-        coherence: coherence,
-        stability_score: next_stability,
-        collapse_frequency: if(risks == [], do: 0.0, else: length(risks) / 3.0),
-        cis_risk_count: length(risks)
-      },
+          entropy: entropy,
+          coherence: coherence,
+          stability_score: next_stability,
+          collapse_frequency: if(risks == [], do: 0.0, else: length(risks) / 3.0),
+          cis_risk_count: length(risks)
+        },
         decision: if(risks == [], do: :monitor, else: :constrain),
         source: :observed_world_state
       }
