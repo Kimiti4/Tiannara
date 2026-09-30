@@ -9,6 +9,9 @@ defmodule Tiannara.CIS do
   def validate_plan(plan) when is_map(plan) do
     violations =
       []
+      |> require_field(plan, :id)
+      |> require_field(plan, :steps)
+      |> require_field(plan, :authority)
       |> require_field(plan, :evidence)
       |> require_field(plan, :provenance)
       |> reject_unbounded_risk(plan)
@@ -47,7 +50,12 @@ defmodule Tiannara.CIS do
 
   defp reject_unbounded_risk(errors, plan) do
     risk = Map.get(plan, :risk, Map.get(plan, :risk_score))
-    if is_number(risk) and risk > 0.8, do: [:risk_exceeds_cis_threshold | errors], else: errors
+
+    cond do
+      not is_number(risk) -> [:risk_unavailable | errors]
+      risk > 0.8 -> [:risk_exceeds_cis_threshold | errors]
+      true -> errors
+    end
   end
 
   defp reject_missing_authority(errors, plan) do
