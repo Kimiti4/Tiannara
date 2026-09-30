@@ -78,12 +78,12 @@ defmodule Tiannara.Meta.Mesh.ObserverRouter do
       # Returns: :high
   """
   def classify_entropy(metrics) do
-    entropy_score = calculate_entropy_score(metrics)
-
-    cond do
-      entropy_score > @high_entropy_threshold -> :high
-      entropy_score > @medium_entropy_threshold -> :medium
-      true -> :low
+    with {:ok, entropy_score} <- calculate_entropy_score(metrics) do
+      cond do
+        entropy_score > @high_entropy_threshold -> {:ok, :high}
+        entropy_score > @medium_entropy_threshold -> {:ok, :medium}
+        true -> {:ok, :low}
+      end
     end
   end
 
@@ -102,42 +102,46 @@ defmodule Tiannara.Meta.Mesh.ObserverRouter do
 
   @impl true
   def handle_cast({:route, observer_id, metrics}, state) do
-    zone = classify_entropy(metrics)
+    case classify_entropy(metrics) do
+      {:ok, zone} ->
+        RealityBus.publish_partitioned("observer.activity", %{
+          observer_id: observer_id,
+          metrics: metrics,
+          zone: zone
+        }, zone)
 
-    # Publish to partitioned subject
-    RealityBus.publish_partitioned("observer.activity", %{
-      observer_id: observer_id,
-      metrics: metrics,
-      zone: zone
-    }, zone)
+        new_zones = Map.put(state.observer_zones, observer_id, zone)
+        Logger.debug("🧭 [ObserverRouter] Routed #{observer_id} to #{zone} entropy zone")
 
-    # Update zone tracking
-    new_zones = Map.put(state.observer_zones, observer_id, zone)
+        {:noreply, %{state |
+          observer_zones: new_zones,
+          routing_count: state.routing_count + 1
+        }}
 
-    Logger.debug("🧭 [ObserverRouter] Routed #{observer_id} to #{zone} entropy zone")
-
-    {:noreply, %{state |
-      observer_zones: new_zones,
-      routing_count: state.routing_count + 1
-    }}
+      {:error, reason} ->
+        Logger.warning("🧭 [ObserverRouter] Rejected incomplete observer metrics: #{inspect(reason)}")
+        {:noreply, state}
+    end
   end
 
   # ── Private Functions ─────────────────────────────────────────────────────
 
   defp calculate_entropy_score(metrics) do
-    # Weighted combination of entropy factors
-    entropy = Map.get(metrics, :entropy, 0.5)
-    branch_rate = Map.get(metrics, :branch_rate, 0.0)
-    paradox_density = Map.get(metrics, :paradox_density, 0.0)
-    mscl_pressure = Map.get(metrics, :mscl_pressure, 0.0)
+    with {:ok, entropy} <- required_metric(metrics, :entropy),
+         {:ok, branch_rate} <- required_metric(metrics, :branch_rate),
+         {:ok, paradox_density} <- required_metric(metrics, :paradox_density),
+         {:ok, mscl_pressure} <- required_metric(metrics, :mscl_pressure) do
+      normalized_branch_rate = min(branch_rate / 10.0, 1.0)
+      {:ok, (entropy * 0.4) + (normalized_branch_rate * 0.3) + (paradox_density * 0.2) + (mscl_pressure * 0.1)}
+    else
+      {:error, reason} -> {:error, {:missing_observer_metric, reason}}
+    end
+  end
 
-    # Normalize branch rate (assume max 10 branches/min)
-    normalized_branch_rate = min(branch_rate / 10.0, 1.0)
-
-    # Weighted score
-    (entropy * 0.4) +
-    (normalized_branch_rate * 0.3) +
-    (paradox_density * 0.2) +
-    (mscl_pressure * 0.1)
+  defp required_metric(metrics, key) do
+    case Map.get(metrics, key, Map.get(metrics, Atom.to_string(key))) do
+      value when is_number(value) -> {:ok, value / 1.0}
+      _ -> {:error, key}
+    end
   end
 end
