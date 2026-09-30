@@ -23,6 +23,15 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
     GenServer.cast(pid, :stop_simulation)
   end
 
+  def research(world_id, domain, hypothesis, context \\ %{}) do
+    case TiannaraRuntime.WorldRegistry.get_world(world_id) do
+      {:ok, world} ->
+        merged = Map.merge(Map.get(world, :config, %{}), context)
+        Tiannara.World.ScientificResearch.investigate(domain, hypothesis, merged)
+      error -> error
+    end
+  end
+
   @impl true
   def init(world_config) do
     world_id = world_config.id
