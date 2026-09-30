@@ -23,6 +23,10 @@ from pydantic import BaseModel, Field
 from tiannara_api.security.auth_deps import require_auth
 from tiannara_core.core import create_tiannara
 from tiannara_core.integration.web_fetcher import WebDataFetcher
+from tiannara_core.conversation.native_dialogue import NativeDialogueEngine
+
+_NATIVE_DIALOGUE = NativeDialogueEngine()
+
 
 router = APIRouter(prefix="/chat", tags=["Tiannara Conversation"], dependencies=[Depends(require_auth)])
 
@@ -143,70 +147,10 @@ async def research(req: ResearchRequest):
 
 
 async def _reply(message: str, history: list[dict[str, str]], context: dict[str, Any]):
-    """Use a configured model for natural conversation; otherwise use real bounded discovery."""
-    api_key = os.getenv("OPENAI_API_KEY")
-    if api_key:
-        try:
-            from openai import AsyncOpenAI
-            client = AsyncOpenAI(api_key=api_key)
-            model = os.getenv("TIANNARA_CHAT_MODEL", "gpt-5-mini")
-            system = (
-                "You are the conversational interface to Tiannara. Be precise. "
-                "Separate evidence, inference, hypothesis and unknowns. Never claim "
-                "an external source was verified unless source evidence is present."
-            )
-            messages = [{"role": "system", "content": system}] + history[-12:] + [
-                {"role": "user", "content": message}
-            ]
-            completion = await client.chat.completions.create(
-                model=model,
-                messages=messages,
-                temperature=0.2,
-            )
-            text = completion.choices[0].message.content or ""
-            return text, {
-                "success": True,
-                "provider": "configured_openai",
-                "model": model,
-                "provenance": "external_model_assisted",
-            }
-        except Exception as exc:
-            fallback_reason = f"configured model unavailable: {exc}"
-        else:
-            fallback_reason = ""
-    else:
-        fallback_reason = "no external model configured"
-
-    try:
-        from tiannara_api.main import DISCOVERY_ENGINE
-        report = DISCOVERY_ENGINE.analyze(
-            question=message,
-            text=context.get("source_text"),
-            source="conversation",
-        )
-        hypotheses = report.get("hypotheses", [])
-        experiments = report.get("experiments", [])
-        response = (
-            f"Tiannara research framing for: {message}\n\n"
-            f"Hypotheses generated: {len(hypotheses)}. "
-            f"Experiments proposed: {len(experiments)}.\n"
-            f"Safety gate: {report.get('safety_gate', {}).get('approved', 'unknown')}.\n\n"
-            "This is a bounded discovery result, not a claim that the hypothesis is true. "
-            "Use Research Lab to gather external evidence."
-        )
-        return response, {
-            "success": True,
-            "provider": "tiannara_discovery",
-            "provenance": "local_discovery_engine",
-            "fallback_reason": fallback_reason,
-            "report": report,
-        }
-    except Exception as exc:
-        return (
-            "Tiannara could not complete the local discovery path. "
-            f"Reason: {exc}",
-            {"success": False, "provider": "unavailable", "error": str(exc), "fallback_reason": fallback_reason},
-        )
+    """Native conversation path; no generative-model dependency."""
+    session_id = str(context.get("conversation_id", "default"))
+    response = _NATIVE_DIALOGUE.respond(session_id, message, context)
+    return response.text, response.as_dict()
 
 
 def _humanize_core_result(message: str, result: dict[str, Any]) -> str:
