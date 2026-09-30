@@ -124,18 +124,22 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
               world_state.system_metrics
               |> Map.put(:entropy, min(1.0, max(0.0, entropy + entropy_delta)))
               |> Map.put(:coherence, min(1.0, max(0.0, cal_score)))
+
             case TiannaraRuntime.CIS.Engine.evaluate(
-            world_state.cis_state,
-            cal_result,
-            effective_metrics
-          ) do
-            {:error, reason} -> {:error, reason}
-            cis_result ->
-              TiannaraRuntime.WorldStateManager.update_cis_state(state_manager_pid, cis_result)
-              TiannaraRuntime.WorldStateManager.update_metrics(state_manager_pid, cis_result.metrics)
-              {:ok, cis_result}
+                   world_state.cis_state,
+                   cal_result,
+                   effective_metrics
+                 ) do
+              {:error, reason} -> {:error, reason}
+              cis_result ->
+                TiannaraRuntime.WorldStateManager.update_cis_state(state_manager_pid, cis_result)
+                TiannaraRuntime.WorldStateManager.update_metrics(state_manager_pid, cis_result.metrics)
+                {:ok, cis_result}
             end
           else
+            {:error, reason} -> {:error, {:invalid_cis_inputs, reason}}
+          end
+        else
           {:error, :world_state_manager_unavailable}
         end
       [] ->
