@@ -152,7 +152,8 @@ defmodule Tiannara.CEL.Kernel do
     try do
       case Map.get(spec, :resource_check) do
         fun when is_function(fun, 0) -> fun.()
-        _ -> :sufficient
+        nil -> :insufficient
+        _ -> :insufficient
       end
     catch
       _, _ -> :insufficient
