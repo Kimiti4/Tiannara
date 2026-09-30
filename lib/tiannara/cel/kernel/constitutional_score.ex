@@ -50,4 +50,4 @@ defmodule Tiannara.CEL.Kernel.ConstitutionalScore do
       human_oversight: 0.0,
       computed_at: DateTime.utc_now()
     }
-  endnd
+  end
