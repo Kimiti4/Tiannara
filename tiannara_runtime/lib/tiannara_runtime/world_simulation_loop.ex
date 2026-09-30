@@ -111,19 +111,20 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
   end
 
   defp execute_cis_step(world_id, cal_result) do
-    case Registry.lookup(TiannaraRuntime.WorldRegistry, world_id) do
+    case Registry.lookup(TiannaraRuntime.WorldProcessRegistry, world_id) do
       [{supervisor_pid, _}] ->
         children = Supervisor.which_children(supervisor_pid)
         state_manager_pid = find_child(children, TiannaraRuntime.WorldStateManager)
         if state_manager_pid do
           {:ok, world_state} = TiannaraRuntime.WorldStateManager.get_state(state_manager_pid)
-          cal_score = Map.get(cal_result, :arbitration_score, 0.0)
-          entropy = Map.get(world_state.system_metrics, :entropy, 0.5)
-          effective_metrics =
-            world_state.system_metrics
-            |> Map.put(:entropy, min(1.0, max(0.0, entropy + Map.get(cal_result, :entropy_delta, 0.0))))
-            |> Map.put(:coherence, min(1.0, max(0.0, 0.5 + cal_score * 0.5)))
-          case TiannaraRuntime.CIS.Engine.evaluate(
+          with {:ok, cal_score} <- require_numeric(cal_result, :arbitration_score),
+               {:ok, entropy} <- require_numeric(world_state.system_metrics, :entropy),
+               {:ok, entropy_delta} <- optional_numeric(cal_result, :entropy_delta, 0.0) do
+            effective_metrics =
+              world_state.system_metrics
+              |> Map.put(:entropy, min(1.0, max(0.0, entropy + entropy_delta)))
+              |> Map.put(:coherence, min(1.0, max(0.0, cal_score)))
+            case TiannaraRuntime.CIS.Engine.evaluate(
             world_state.cis_state,
             cal_result,
             effective_metrics
@@ -133,8 +134,8 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
               TiannaraRuntime.WorldStateManager.update_cis_state(state_manager_pid, cis_result)
               TiannaraRuntime.WorldStateManager.update_metrics(state_manager_pid, cis_result.metrics)
               {:ok, cis_result}
-          end
-        else
+            end
+          else
           {:error, :world_state_manager_unavailable}
         end
       [] ->
@@ -160,9 +161,29 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
   end
 
   defp update_world_state(world_id, cal_result, cis_result) do
-    fitness = (Map.get(cal_result, :arbitration_score, 0.0) + Map.get(cis_result, :stability_score, 0.0)) / 2.0
-    TiannaraRuntime.WorldRegistry.update_fitness(world_id, fitness)
-    :ok
+    with {:ok, arbitration_score} <- require_numeric(cal_result, :arbitration_score),
+         {:ok, stability_score} <- require_numeric(cis_result, :stability_score) do
+      fitness = (arbitration_score + stability_score) / 2.0
+      TiannaraRuntime.WorldRegistry.update_fitness(world_id, fitness)
+      :ok
+    else
+      {:error, reason} -> {:error, {:invalid_fitness_inputs, reason}}
+    end
+  end
+
+  defp require_numeric(map, key) do
+    case Map.get(map, key) do
+      value when is_number(value) -> {:ok, value / 1.0}
+      _ -> {:error, {:missing_numeric_metric, key}}
+    end
+  end
+
+  defp optional_numeric(map, key, default) do
+    case Map.get(map, key) do
+      nil -> {:ok, default}
+      value when is_number(value) -> {:ok, value / 1.0}
+      _ -> {:error, {:invalid_numeric_metric, key}}
+    end
   end
 
   defp publish_events(world_id, cal_result, cis_result) do
