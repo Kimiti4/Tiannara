@@ -25,7 +25,21 @@ defmodule Tiannara.Autonomy.ConstitutionalAutonomy do
 
   @spec health() :: map()
   def health do
-    %{status: :healthy, active_proposals: ProposalGenerator.active_count(), running_simulations: SimulationManager.running_count(), active_deployments: DeploymentPipeline.active_count(), total_improvements_deployed: DeploymentPipeline.total_deployed(), total_rollbacks: RollbackEngine.total_rollbacks(), constitutional_violations: ConstitutionalValidator.total_violations()}
+    components = [RollbackEngine, ConstitutionalValidator, ImprovementEngine, ProposalGenerator, SimulationManager, DeploymentPipeline, __MODULE__.Orchestrator]
+
+    if Enum.all?(components, &Process.whereis/1) do
+      %{
+        status: :operational,
+        active_proposals: ProposalGenerator.active_count(),
+        running_simulations: SimulationManager.running_count(),
+        active_deployments: DeploymentPipeline.active_count(),
+        total_improvements_deployed: DeploymentPipeline.total_deployed(),
+        total_rollbacks: RollbackEngine.total_rollbacks(),
+        constitutional_violations: ConstitutionalValidator.total_violations()
+      }
+    else
+      %{status: :unavailable, reason: :autonomy_component_not_running}
+    end
   end
 
   @spec run_cycle() :: {:ok, map()} | {:error, term()}
