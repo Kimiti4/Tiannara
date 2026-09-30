@@ -107,10 +107,9 @@ defmodule Tiannara.ToolForge.ToolForgeEngine do
       Logger.info("ToolForge: Built #{tool.name} (#{map_size(tool.source_files)} files)"),
       :ok <- validate_tool(tool),
       Logger.info("ToolForge: Validated #{tool.name}"),
-      :ok <- request_human_review(tool, spec),
-      Logger.info("ToolForge: Human review passed for #{tool.name}")
+      {:pending_human_review, review} <- request_human_review(tool, spec)
     do
-      {:ok, tool}
+      {:pending_human_review, %{tool: tool, review: review}}
     else
       {:error, reason} ->
         Logger.warning("ToolForge: Pipeline failed for #{need.description}: #{inspect(reason)}")
@@ -128,17 +127,17 @@ defmodule Tiannara.ToolForge.ToolForgeEngine do
 
   defp request_human_review(%GeneratedTool{} = tool, %ToolSpecification{} = spec) do
     try do
-      Tiannara.HAI.Domain.ReviewRequest.new(%{
+      review = Tiannara.HAI.Domain.ReviewRequest.new(%{
         source_subsystem: :tool_forge,
         decision_type: :tool_deployment,
-        summary: "Deploy generated tool: #{tool.name} (#{tool.language})",
+        summary: "Review generated tool: #{tool.name} (#{tool.language})",
         impact_level: :medium,
-        confidence: 0.7,
-        uncertainty: 0.3
+        confidence: 0.0,
+        uncertainty: 1.0
       })
-      :ok
+      {:pending_human_review, review}
     rescue
-      _ -> :ok
+      error -> {:error, {:review_request_failed, error}}
     end
   end
 end
