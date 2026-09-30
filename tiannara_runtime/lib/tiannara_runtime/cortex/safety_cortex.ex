@@ -311,7 +311,8 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
     # Determine regulation strength based on risk level
     regulation_strength = calculate_regulation_strength(risk)
 
-    regulation_result = apply_entropy_dampening(world_id, regulation_strength)
+    intervention_id = intervention_id(world_id, :entropy_dampening)
+    regulation_result = apply_entropy_dampening(world_id, regulation_strength, intervention_id)
 
     emit_constraint_signal(%ConstraintSignal{
       source: :safety_cortex,
@@ -331,11 +332,18 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
 
     status =
       case regulation_result do
-        :accepted -> :requested
+        :requested -> :requested
         {:error, reason} -> {:rejected, reason}
       end
 
-    new_log = [{DateTime.utc_now(), world_id, :regulation, %{strength: regulation_strength, status: status}} | state.intervention_log]
+    new_log = [
+      {DateTime.utc_now(), world_id, :regulation, %{
+        intervention_id: intervention_id,
+        strength: regulation_strength,
+        status: status,
+        execution_state: :not_observed
+      }} | state.intervention_log
+    ]
 
     %{state | intervention_log: Enum.take(new_log, 100)}
   end
@@ -346,16 +354,17 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
     0.3 + (normalized * 0.5)
   end
 
-  defp apply_entropy_dampening(world_id, strength) do
+  defp apply_entropy_dampening(world_id, strength, intervention_id) do
     # Send regulation command via NATS to world runtime
     case MetaEvolutionStreamManager.publish_regulation_command(%{
            world_id: world_id,
            action: :entropy_dampening,
-           strength: strength
+           strength: strength,
+           intervention_id: intervention_id
          }) do
       :ok ->
         Logger.debug("   Regulation command accepted for dispatch (strength: #{Float.round(strength, 2)})")
-        :accepted
+        :requested
       {:ok, _event} ->
         Logger.debug("   Regulation command accepted for dispatch (strength: #{Float.round(strength, 2)})")
         :accepted
@@ -450,6 +459,11 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
 
     # Apply entropy dampening
     apply_entropy_dampening(world_id, regulation_strength)
+  end
+
+  defp intervention_id(world_id, action) do
+    :crypto.hash(:sha256, :erlang.term_to_binary({world_id, action, System.unique_integer([:positive])}))
+    |> Base.encode16(case: :lower)
   end
 
   defp log_intervention(state, world_id, action_type, details) do
