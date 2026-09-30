@@ -56,18 +56,13 @@ defmodule Tiannara.REL.DiscoveryEngine do
         domain = Enum.random(@domains)
         disc = Discovery.new(%{
           id: "disc_ql_#{:crypto.strong_rand_bytes(4) |> Base.encode16()}",
-          name: "Quantum Leap in #{String.capitalize(to_string(domain))}",
+          name: "Quantum Leap candidate in #{String.capitalize(to_string(domain))}",
           domain: domain,
           originator_civ_id: civ_id,
-          complexity_cost: 50, # High maintenance
-          stability: 0.1 + (:rand.uniform() * 0.4), # Highly unstable initially
-          prerequisites: [] # Skipped prerequisites
-        }) |> Tiannara.OAVL.DiscoveryVerifier.evaluate()
-           |> apply_epistemic_capital_impact(civ_id)
-        
-        Tiannara.OED.AdoptionEvaluator.evaluate(civ_id, shard_id, disc)
-        DiscoveryLedger.register_discovery(civ_id, disc)
-        {:ok, disc}
+          complexity_cost: 50,
+          prerequisites: []
+        })
+        validate_and_register(civ_id, shard_id, disc)
       err ->
         Logger.debug("❌ [DiscoveryEngine] #{civ_id} failed Quantum Leap due to costs.")
         err
@@ -89,18 +84,14 @@ defmodule Tiannara.REL.DiscoveryEngine do
           domain = parent_a.domain # Inherits domain of A
           disc = Discovery.new(%{
             id: "disc_rec_#{:crypto.strong_rand_bytes(4) |> Base.encode16()}",
-            name: "Recombination: #{parent_a.name} x #{parent_b.name}",
+            name: "Recombination candidate: #{parent_a.name} x #{parent_b.name}",
             domain: domain,
             originator_civ_id: civ_id,
             complexity_cost: 20,
-            stability: (parent_a.stability + parent_b.stability) / 2.0,
-            parents: [parent_a.id, parent_b.id]
-          }) |> Tiannara.OAVL.DiscoveryVerifier.evaluate()
-             |> apply_epistemic_capital_impact(civ_id)
-
-          Tiannara.OED.AdoptionEvaluator.evaluate(civ_id, shard_id, disc)
-          DiscoveryLedger.register_discovery(civ_id, disc)
-          {:ok, disc}
+            parents: [parent_a.id, parent_b.id],
+            evidence: []
+          })
+          validate_and_register(civ_id, shard_id, disc)
         err -> err
       end
     end
@@ -113,30 +104,28 @@ defmodule Tiannara.REL.DiscoveryEngine do
         domain = Enum.random(@domains)
         disc = Discovery.new(%{
           id: "disc_norm_#{:crypto.strong_rand_bytes(4) |> Base.encode16()}",
-          name: "Advance in #{String.capitalize(to_string(domain))}",
+          name: "Advance candidate in #{String.capitalize(to_string(domain))}",
           domain: domain,
           originator_civ_id: civ_id,
           complexity_cost: 10,
-          stability: 0.8 + (:rand.uniform() * 0.2)
-        }) |> Tiannara.OAVL.DiscoveryVerifier.evaluate()
-           |> apply_epistemic_capital_impact(civ_id)
-
-        Tiannara.OED.AdoptionEvaluator.evaluate(civ_id, shard_id, disc)
-        DiscoveryLedger.register_discovery(civ_id, disc)
-        {:ok, disc}
+          evidence: []
+        })
+        validate_and_register(civ_id, shard_id, disc)
       err -> err
     end
   end
 
-  defp apply_epistemic_capital_impact(disc, civ_id) do
-    cond do
-      disc.stability >= 0.8 ->
-        EconomyEngine.grant_truth_capital(civ_id, 20.0)
-      disc.stability < 0.2 ->
-        EconomyEngine.penalize_truth_capital(civ_id, 20.0)
-      true ->
-        :ok
+  defp validate_and_register(civ_id, shard_id, discovery) do
+    case Tiannara.OAVL.DiscoveryVerifier.evaluate(discovery) do
+      {:ok, validated} ->
+        case Tiannara.OED.AdoptionEvaluator.evaluate(civ_id, shard_id, validated) do
+          {:safe, _} ->
+            DiscoveryLedger.register_discovery(civ_id, validated)
+            {:ok, validated}
+          {:quarantine, id} -> {:error, {:quarantined, id}}
+        end
+      {:error, reason} ->
+        {:error, {:discovery_unvalidated, reason}}
     end
-    disc
   end
 end
