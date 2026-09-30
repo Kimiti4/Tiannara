@@ -67,19 +67,11 @@ async def chat(req: ChatRequest):
     history.append({"role": "user", "content": req.message})
     history[:] = history[-20:]
 
-    try:
-        result = _core().process_intent(
-            req.message,
-            {
-                **req.context,
-                "conversation_id": conversation_id,
-                "history": history[:-1],
-            },
-        )
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Tiannara core processing failed: {exc}") from exc
-
-    response = _humanize_core_result(req.message, result)
+    response, result = await _reply(
+        req.message,
+        history[:-1],
+        req.context,
+    )
     history.append({"role": "assistant", "content": response})
     history[:] = history[-20:]
 
@@ -148,6 +140,73 @@ async def research(req: ResearchRequest):
             "from its own analysis."
         ),
     }
+
+
+async def _reply(message: str, history: list[dict[str, str]], context: dict[str, Any]):
+    """Use a configured model for natural conversation; otherwise use real bounded discovery."""
+    api_key = os.getenv("OPENAI_API_KEY")
+    if api_key:
+        try:
+            from openai import AsyncOpenAI
+            client = AsyncOpenAI(api_key=api_key)
+            model = os.getenv("TIANNARA_CHAT_MODEL", "gpt-5-mini")
+            system = (
+                "You are the conversational interface to Tiannara. Be precise. "
+                "Separate evidence, inference, hypothesis and unknowns. Never claim "
+                "an external source was verified unless source evidence is present."
+            )
+            messages = [{"role": "system", "content": system}] + history[-12:] + [
+                {"role": "user", "content": message}
+            ]
+            completion = await client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=0.2,
+            )
+            text = completion.choices[0].message.content or ""
+            return text, {
+                "success": True,
+                "provider": "configured_openai",
+                "model": model,
+                "provenance": "external_model_assisted",
+            }
+        except Exception as exc:
+            fallback_reason = f"configured model unavailable: {exc}"
+        else:
+            fallback_reason = ""
+    else:
+        fallback_reason = "no external model configured"
+
+    try:
+        from tiannara_api.main import DISCOVERY_ENGINE
+        report = DISCOVERY_ENGINE.analyze(
+            question=message,
+            text=context.get("source_text"),
+            source="conversation",
+        )
+        hypotheses = report.get("hypotheses", [])
+        experiments = report.get("experiments", [])
+        response = (
+            f"Tiannara research framing for: {message}\n\n"
+            f"Hypotheses generated: {len(hypotheses)}. "
+            f"Experiments proposed: {len(experiments)}.\n"
+            f"Safety gate: {report.get('safety_gate', {}).get('approved', 'unknown')}.\n\n"
+            "This is a bounded discovery result, not a claim that the hypothesis is true. "
+            "Use Research Lab to gather external evidence."
+        )
+        return response, {
+            "success": True,
+            "provider": "tiannara_discovery",
+            "provenance": "local_discovery_engine",
+            "fallback_reason": fallback_reason,
+            "report": report,
+        }
+    except Exception as exc:
+        return (
+            "Tiannara could not complete the local discovery path. "
+            f"Reason: {exc}",
+            {"success": False, "provider": "unavailable", "error": str(exc), "fallback_reason": fallback_reason},
+        )
 
 
 def _humanize_core_result(message: str, result: dict[str, Any]) -> str:
