@@ -8,6 +8,7 @@ defmodule Tiannara.Forecasting.Drift do
 
   def mean_shift(reference, current, opts \\ []) do
     threshold = Keyword.get(opts, :standardized_threshold, 2.0)
+    min_samples = Keyword.get(opts, :min_samples, 5)
 
     cond do
       not valid_series?(reference) or not valid_series?(current) ->
@@ -15,6 +16,9 @@ defmodule Tiannara.Forecasting.Drift do
 
       reference == [] or current == [] ->
         {:error, :empty_series}
+
+      length(reference) < min_samples or length(current) < min_samples ->
+        {:error, :insufficient_history}
 
       true ->
         ref_mean = mean(reference)
