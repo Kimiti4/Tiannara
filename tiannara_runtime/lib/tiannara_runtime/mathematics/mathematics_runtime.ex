@@ -18,6 +18,11 @@ defmodule TiannaraRuntime.Mathematics.MathematicsRuntime do
   alias TiannaraRuntime.Mathematics.ProofEngine
   alias TiannaraRuntime.Mathematics.ConjectureEngine
   alias TiannaraRuntime.Mathematics.FormalVerificationEngine
+  alias TiannaraRuntime.Mathematics.ProofPlanner
+  alias TiannaraRuntime.Mathematics.ProofComposer
+  alias TiannaraRuntime.Mathematics.DiscoveryEngine
+  alias TiannaraRuntime.Mathematics.LemmaEngine
+  alias TiannaraRuntime.Mathematics.CounterexampleEngine
   alias __MODULE__.DependencyResolver
   alias __MODULE__.MathematicsScheduler
   alias __MODULE__.VerificationCoordinator
@@ -225,19 +230,38 @@ defmodule TiannaraRuntime.Mathematics.MathematicsRuntime do
     def verify(result) do
       type = Map.get(result, "type", "")
 
-      verified =
-        case type do
-          "proof_execution" ->
-            Map.put(result, "verification_status", "verified")
-          "expression_execution" ->
-            Map.put(result, "verification_status", "verified")
-          "conjecture_generation" ->
-            Map.put(result, "verification_status", "verified")
-          _ ->
-            Map.put(result, "verification_status", "verified")
-        end
+      case Map.get(result, "verification_status") do
+        "verified" -> {:ok, result}
+        _ -> {:ok, Map.put(result, "verification_status", "unverified")}
+      end
+    end
+  end
 
-      {:ok, verified}
+  defmodule DiscoveryExecutor do
+    def execute(request) do
+      case DiscoveryEngine.discover(Map.get(request, "seed"), Map.to_list(Map.get(request, "opts", %{}))) do
+        {:ok, d} -> {:ok, %{"request_id" => Map.get(request, "request_id", "discovery_#{d.discovery_id}"), "type" => "mathematical_discovery", "status" => "candidate", "discovery_id" => d.discovery_id, "verification_status" => "unverified", "certification_eligible" => false}}
+        {:error, reason} -> {:error, reason}
+      end
+    end
+  end
+
+  defmodule LemmaExecutor do
+    def execute(request), do: LemmaEngine.generate(Map.get(request, "problem", request), Map.to_list(Map.get(request, "opts", %{})))
+  end
+
+  defmodule ProofPlannerExecutor do
+    def execute(request), do: ProofPlanner.plan(Map.get(request, "assertion"), Map.to_list(Map.get(request, "opts", %{})))
+  end
+
+  defmodule ProofCompositionExecutor do
+    def execute(request), do: ProofComposer.compose(Map.get(request, "assertion_id"), Map.get(request, "components", []))
+  end
+
+  defmodule CounterexampleExecutor do
+    def execute(request) do
+      backend = Map.get(request, "backend")
+      CounterexampleEngine.search(Map.get(request, "statement"), backend: backend)
     end
   end
 
@@ -434,6 +458,11 @@ defmodule TiannaraRuntime.Mathematics.MathematicsRuntime do
       "expression" -> ExpressionExecutor.execute(request)
       "proof" -> ProofExecutor.execute(request)
       "conjecture" -> ConjectureCoordinator.execute(request)
+      "discovery" -> DiscoveryExecutor.execute(request)
+      "lemma_generation" -> LemmaExecutor.execute(request)
+      "proof_plan" -> ProofPlannerExecutor.execute(request)
+      "proof_composition" -> ProofCompositionExecutor.execute(request)
+      "counterexample_search" -> CounterexampleExecutor.execute(request)
       "verification" -> execute_verification_request(request)
       _ -> {:error, "unknown request type: #{type}"}
     end
