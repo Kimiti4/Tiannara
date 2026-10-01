@@ -193,7 +193,7 @@ defmodule TiannaraOS.AdoptionEngine do
       experiment_design = foreign_artifact.experiment
       
       # Execute locally (simplified - in real implementation, would run actual experiment)
-      local_evidence = execute_local_replication(experiment_design)
+      local_evidence = case execute_local_replication(experiment_design) do\n        {:error, reason} -> throw({:replication_error, reason})\n        evidence -> evidence\n      end
       
       # Compare with original evidence
       comparison = compare_evidence(foreign_artifact.evidence, local_evidence)
@@ -238,24 +238,40 @@ defmodule TiannaraOS.AdoptionEngine do
   # ==================== Private Helpers ====================
   
   # Phase 1: Governance Review
-  defp governance_review(kernel_pid, foreign_artifact, _opts, state) do
+  defp governance_review(kernel_pid, foreign_artifact, opts, state) do
     Logger.info("[AdoptionEngine] Phase 1: Governance review of foreign artifact")
     
     # Check if artifact meets local constitutional requirements
     # In real implementation, would query Governance Engine
     
-    governance_approval = case Tiannara.CEL.validate(foreign_artifact) do
-      {:ok, approval} -> Map.merge(%{approved: true}, approval)
-      {:error, reason} -> %{approved: false, reason: reason}
+    governance_approval =
+      case Map.get(opts, :governance_provider) do
+        provider when is_function(provider, 2) ->
+          provider.(foreign_artifact, kernel_pid)
+        _ ->
+          {:error, :governance_backend_unavailable}
+      end
+
+    case governance_approval do
+      {:ok, approval} when is_map(approval) and approval[:approved] == true ->
+        approval
+        |> Map.put(:reviewed_at_tick, get_current_tick(kernel_pid))
+        |> Map.put_new(:reviewer, :local_governance)
+        |> Map.put_new(:conditions, [])
+        |> then(fn approval ->
+          emit_governance_event(kernel_pid, foreign_artifact, approval)
+          {:ok, state}
+        end)
+
+      {:ok, approval} ->
+        {:error, {:governance_rejected, approval}}
+
+      {:error, reason} ->
+        {:error, reason}
+
+      other ->
+        {:error, {:invalid_governance_result, other}}
     end
-
-    if not governance_approval.approved, do: {:error, {:governance_rejected, governance_approval.reason}}
-
-    governance_approval = Map.merge(governance_approval, %{
-      reviewed_at_tick: get_current_tick(kernel_pid),
-      reviewer: :local_governance,
-      conditions: []
-    })
     
     # Emit governance event
     emit_governance_event(kernel_pid, foreign_artifact, governance_approval)
@@ -268,18 +284,24 @@ defmodule TiannaraOS.AdoptionEngine do
     Logger.info("[AdoptionEngine] Phase 2: Validating artifact integrity")
     
     # Validate constitutional compliance of foreign artifact
+    checks = [
+      has_complete_traceability: has_traceability?(foreign_artifact),
+      has_valid_outcome: has_valid_outcome?(foreign_artifact),
+      has_provenance: has_provenance?(foreign_artifact),
+      checksum_valid: checksum_valid?(foreign_artifact)
+    ]
+
     validation_result = %{
-      valid: true,
-      checks: [
-        has_complete_traceability: has_traceability?(foreign_artifact),
-        has_valid_outcome: has_valid_outcome?(foreign_artifact),
-        has_provenance: has_provenance?(foreign_artifact),
-        checksum_valid: checksum_valid?(foreign_artifact)
-      ],
+      valid: Enum.all?(checks, fn {_name, passed} -> passed == true end),
+      checks: checks,
       validated_at_tick: get_current_tick(kernel_pid)
     }
-    
-    {:ok, validation_result, state}
+
+    if validation_result.valid do
+      {:ok, validation_result, state}
+    else
+      {:error, {:validation_failed, validation_result.checks}}
+    end
   end
   
   # Phase 3: Replication (see public API above)
