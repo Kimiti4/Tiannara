@@ -49,7 +49,20 @@ defmodule Tiannara.Omega.CertificationServer do
       validation_passed: :unevaluated
     }
 
-    certificate = CertPipeline.evaluate(gate_results, 
+    evidence = event.evidence_envelope || %{}
+
+    # An experiment-completed event is not certification evidence by itself.
+    # Certification requires an explicit real execution result plus observed
+    # and independently verified effects. Simulation/planning envelopes remain
+    # non-certifying.
+    gate_results =
+      if certifiable_execution_evidence?(evidence) do
+        gate_results
+      else
+        Map.new(gate_results, fn {id, _value} -> {id, :unevaluated} end)
+      end
+
+    certificate = CertPipeline.evaluate(gate_results,
       subsystem: :omega_improvement,
       issuer: "omega-certification-authority",
       version: 1
@@ -59,14 +72,32 @@ defmodule Tiannara.Omega.CertificationServer do
       type: :knowledge_updated,
       severity: :medium,
       payload: %{certificate: certificate, for: event.payload},
-      confidence: 0.9,
-      evidence: []
+      confidence: nil,
+      uncertainty: 1.0,
+      evidence: [evidence],
+      evidence_envelope: %{
+        evidence_class: :real,
+        execution_mode: :real_execution,
+        source: :omega_certification_server,
+        certification_eligible: certificate.verdict == :certified
+      }
     })
 
     {:noreply, %{state | certificates: [certificate | state.certificates]}}
   end
 
   def handle_info({:epistemic_event, _event}, state), do: {:noreply, state}
+
+  defp certifiable_execution_evidence?(evidence) when is_map(evidence) do
+    Map.get(evidence, :evidence_class) == :real and
+      Map.get(evidence, :execution_mode) == :real_execution and
+      Map.get(evidence, :real_observation) == true and
+      Map.get(evidence, :effect_verified) == true and
+      Map.get(evidence, :acl_status) in [:pass, :passed] and
+      Map.get(evidence, :oavl_status) in [:pass, :passed]
+  end
+
+  defp certifiable_execution_evidence?(_), do: false
 
   @impl true
   def handle_call(:certificates, _from, state) do
