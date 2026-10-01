@@ -13,6 +13,20 @@ defmodule Tiannara.SOPL.ShadowValidator do
   Filters out laws that violate the Constitution or have extreme pressure.
   Returns a list sorted by safety (lowest pressure first).
   """
+  @doc """
+  Same shadow evaluation with an explicit evidence envelope. Shadow output is
+  simulation-only and is never eligible for operational validation.
+  """
+  def validate_with_evidence(mutated_laws) do
+    %{
+      evidence_class: :simulated,
+      execution_mode: :simulation,
+      source: :sopl_shadow_validator,
+      certification_eligible: false,
+      results: validate(mutated_laws)
+    }
+  end
+
   def validate(mutated_laws) do
     Logger.info("🌌 [SOPL-2 Shadow Validator] Validating #{length(mutated_laws)} child laws...")
 
