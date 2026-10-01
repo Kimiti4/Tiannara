@@ -423,7 +423,14 @@ defmodule TiannaraOS.DiscoveryRegistry do
 
   defp normalize_evidence(_), do: {:error, :invalid_evidence_envelope}
 
-  defp validate_registration_status(:simulated, _), do: :ok
+  defp validate_registration_status(:simulated, envelope) do
+    if Map.get(envelope, :evidence_class) == :simulated and
+         Map.get(envelope, :execution_mode) == :simulation do
+      :ok
+    else
+      {:error, :simulated_registration_requires_simulation_evidence}
+    end
+  end
   defp validate_registration_status(:reproduced, _envelope), do: {:error, :registration_must_start_simulated}
   defp validate_registration_status(:operationally_validated, _envelope), do: {:error, :registration_must_start_simulated}
   defp validate_registration_status(_, _), do: {:error, :invalid_validation_status}
