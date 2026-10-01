@@ -444,11 +444,11 @@ defmodule TiannaraRuntime.Mathematics.MathematicsRuntime do
         "execution_count" => total,
         "replay_success_rate" => replay_success,
         "verified_count" => verified,
-        "average_scheduling_time_ms" => 0.0,
+        "average_scheduling_time_ms" => :unavailable,
         "execution_cost" => total,
         "verification_cost" => verified,
         "average_dependency_depth" => Float.round(avg_dep_depth, 2),
-        "runtime_utilization" => Float.round(if(total > 0, do: 1.0, else: 0.0), 4)
+        "runtime_utilization" => :unavailable
       }
     end
   end
