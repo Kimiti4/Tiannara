@@ -1,14 +1,23 @@
 defmodule Tiannara.EpistemicMirror.CollapsePredictor do
   @moduledoc """
-  Forecasts structural failure based on current topology stress.
-  """
-  require Logger
+  Evidence-bound structural failure predictor.
 
-  def predict(scenario, _payload) do
-    if scenario == :simulated_collapse do
-      Logger.error("📉 [Mirror] CollapsePredictor forecasting cascading failure...")
-      Tiannara.Metrics.Aggregator.push_event([:tiannara, :mirror, :collapse_prediction_lead_time], 5000)
-      Tiannara.Metrics.Aggregator.push_event([:tiannara, :mirror, :prediction_calibration], 0.99)
+  A prediction requires an explicit predictor implementation. This module does
+  not emit fabricated lead-time or calibration metrics.
+  """
+
+  def predict(_scenario, payload) when is_map(payload) do
+    case Map.get(payload, :predictor) do
+      predictor when is_function(predictor, 1) ->
+        case predictor.(payload) do
+          {:ok, prediction} -> {:ok, prediction}
+          {:error, reason} -> {:error, reason}
+          other -> {:error, {:invalid_prediction, other}}
+        end
+      _ ->
+        {:error, :prediction_backend_unavailable}
     end
   end
+
+  def predict(_, _), do: {:error, :invalid_prediction_request}
 end
