@@ -8,8 +8,9 @@ defmodule Tiannara.Forecasting.ModelComparison do
 
   def compare(model_results, baseline_results) when is_list(model_results) and is_list(baseline_results) do
     pairs = Enum.zip(model_results, baseline_results)
+    min_pairs = 5
 
-    if pairs == [] do
+    if length(pairs) < min_pairs do
       {:error, :no_comparable_results}
     else
       model_errors = errors(model_results)
@@ -17,11 +18,14 @@ defmodule Tiannara.Forecasting.ModelComparison do
 
       {:ok, %{
         pairs: length(pairs),
+        sufficient_sample: length(pairs) >= min_pairs,
         model_mae: mean(model_errors),
         baseline_mae: mean(baseline_errors),
         delta_mae: mean(model_errors) - mean(baseline_errors),
         status: :comparison_only,
-        acceptance: :requires_independent_review
+        acceptance: :requires_independent_review,
+        winner: :not_assigned,
+        certification_eligible: false
       }}
     end
   end
