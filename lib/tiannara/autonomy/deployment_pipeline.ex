@@ -110,12 +110,29 @@ defmodule Tiannara.Autonomy.DeploymentPipeline do
   end
 
   defp proceed_with_deployment(deployment_id, deployments, state) do
-    checkpoint_id = Types.new_id()
-    deployed_at = DateTime.utc_now()
-    monitoring_until = DateTime.add(deployed_at, state.monitoring_duration_seconds, :second)
-    updated = %{deployments[deployment_id] | stage: :monitoring, checkpoint_id: checkpoint_id, deployed_at: deployed_at, monitoring_until: monitoring_until}
-    Logger.info("[DeploymentPipeline] Deployed. Checkpoint: #{checkpoint_id} Monitoring until: #{DateTime.to_iso8601(monitoring_until)}")
-    :telemetry.execute([:tiannara, :autonomy, :deployment_monitoring], %{count: 1}, %{deployment_id: deployment_id})
-    Map.put(deployments, deployment_id, updated)
+    deployment = Map.fetch!(deployments, deployment_id)
+    executor = get_in(deployment.lineage, [:proposal, :executor])
+    if is_function(executor, 1) do
+      case executor.(deployment.lineage.proposal) do
+        {:ok, checkpoint_id} ->
+          deployed_at = DateTime.utc_now()
+          monitoring_until = DateTime.add(deployed_at, state.monitoring_duration_seconds, :second)
+          updated = %{deployment | stage: :monitoring, checkpoint_id: checkpoint_id,
+            deployed_at: deployed_at, monitoring_until: monitoring_until}
+          :telemetry.execute([:tiannara, :autonomy, :deployment_monitoring], %{count: 1},
+            %{deployment_id: deployment_id})
+          Map.put(deployments, deployment_id, updated)
+        {:error, _reason} ->
+          Map.put(deployments, deployment_id, %{deployment | stage: :rejected,
+            rollback_reason: "deployment_executor_failed"})
+        other ->
+          Map.put(deployments, deployment_id, %{deployment | stage: :rejected,
+            rollback_reason: "invalid_deployment_executor_result: #{inspect(other)}"})
+      end
+    else
+      Logger.warning("[DeploymentPipeline] Real deployment executor unavailable")
+      Map.put(deployments, deployment_id, %{deployment | stage: :rejected,
+        rollback_reason: "deployment_executor_unavailable"})
+    end
   end
 end
