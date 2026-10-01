@@ -133,6 +133,39 @@ defmodule TiannaraRuntime.Mathematics.ConjectureEngine do
     end
   end
 
+  @doc """
+  Attach actual mathematical test evidence to a conjecture.
+
+  Testing can falsify or support a conjecture, but never promotes it to a
+  theorem. A successful test therefore remains evidence, not proof.
+  """
+  @spec test_conjecture(map(), map()) :: {:ok, map()} | {:error, String.t()}
+  def test_conjecture(conjecture, evidence) when is_map(conjecture) and is_map(evidence) do
+    with {:ok, _} <- validate_conjecture(conjecture),
+         :ok <- validate_test_evidence(evidence) do
+      tests = Map.get(conjecture, "test_evidence", [])
+      updated = Map.merge(conjecture, %{
+        "test_evidence" => tests ++ [evidence],
+        "status" => if(Map.get(evidence, "result") == "counterexample", do: "falsified", else: "tested"),
+        "proof_required" => true
+      })
+      {:ok, updated}
+    end
+  end
+
+  @doc "Promote a conjecture only when a separately verified proof is attached."
+  @spec promote_with_verified_proof(map(), map()) :: {:ok, map()} | {:error, String.t()}
+  def promote_with_verified_proof(conjecture, proof) when is_map(conjecture) and is_map(proof) do
+    with {:ok, _} <- validate_conjecture(conjecture),
+         :ok <- validate_verified_proof(proof) do
+      {:ok, Map.merge(conjecture, %{
+        "status" => "theorem",
+        "proof" => proof,
+        "uncertainty" => 0.0
+      })}
+    end
+  end
+
   # ---------------------------------------------------------------------------
   # Lifecycle transitions
   # ---------------------------------------------------------------------------
@@ -357,6 +390,27 @@ defmodule TiannaraRuntime.Mathematics.ConjectureEngine do
   # ---------------------------------------------------------------------------
   # Internal: Validation
   # ---------------------------------------------------------------------------
+  defp validate_test_evidence(evidence) do
+    required = ["method", "result", "executed_at"]
+    missing = Enum.reject(required, fn k -> Map.get(evidence, k) not in [nil, ""] end)
+    cond do
+      missing != [] -> {:error, "test evidence missing fields: #{Enum.join(missing, ", ")}"}
+      Map.get(evidence, "result") not in ["supported", "counterexample", "inconclusive"] ->
+        {:error, "invalid mathematical test result"}
+      true -> :ok
+    end
+  end
+
+  defp validate_verified_proof(proof) do
+    if Map.get(proof, "verification_status") == "verified" and
+         is_binary(Map.get(proof, "proof_hash")) and
+         Map.get(proof, "proof_hash") != "" do
+      :ok
+    else
+      {:error, "theorem promotion requires a separately verified proof"}
+    end
+  end
+
 
   defp validate_source(src) when src in @sources, do: :ok
   defp validate_source(src), do: {:error, "invalid conjecture source: #{src}. Valid: #{inspect(@sources)}"}
