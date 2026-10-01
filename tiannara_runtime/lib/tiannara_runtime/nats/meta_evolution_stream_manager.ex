@@ -43,7 +43,23 @@ defmodule Tiannara.NATS.MetaEvolutionStreamManager do
   end
 
   def publish(topic, payload) when is_binary(topic) and is_map(payload) do
-    GenServer.call(__MODULE__, {:publish, topic, payload})
+    with :ok <- validate_evidence_metadata(payload) do
+      GenServer.call(__MODULE__, {:publish, topic, payload})
+    end
+  end
+
+  defp validate_evidence_metadata(payload) do
+    case Map.get(payload, :evidence, Map.get(payload, "evidence")) do
+      evidence when is_map(evidence) ->
+        if Map.has_key?(evidence, :evidence_class) or Map.has_key?(evidence, "evidence_class") do
+          :ok
+        else
+          {:error, :evidence_class_required}
+        end
+
+      _ ->
+        {:error, :evidence_envelope_required}
+    end
   end
 
   def subscribe(topic, handler_pid) do
