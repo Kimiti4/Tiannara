@@ -30,7 +30,14 @@ defmodule Tiannara.AEO do
   end
 
   @doc "Submit execution request to Runtime."
-  def submit_to_runtime(_execution_graph) do
-    {:ok, :submitted_to_runtime}
+  def submit_to_runtime(%{id: _id} = execution_graph) do
+    case Process.whereis(Tiannara.Runtime) do
+      pid when is_pid(pid) -> GenServer.call(pid, {:submit_execution, execution_graph})
+      _ -> {:error, :runtime_executor_unavailable}
+    end
+  catch
+    :exit, reason -> {:error, {:runtime_executor_unavailable, reason}}
   end
+
+  def submit_to_runtime(_), do: {:error, :invalid_execution_graph}
 end
