@@ -414,7 +414,7 @@ defmodule TiannaraOS.DiscoveryRegistry do
     class = Map.get(envelope, :evidence_class, Map.get(envelope, "evidence_class", :unknown))
     mode = Map.get(envelope, :execution_mode, Map.get(envelope, "execution_mode", :unknown))
 
-    if class in [:simulated, :real, :unknown] and mode in [:simulation, :real, :unknown] do
+    if class in [:simulated, :real, :unknown] and mode in [:simulation, :real_execution, :unknown] do
       {:ok, Map.put(envelope, :evidence_class, class) |> Map.put(:execution_mode, mode)}
     else
       {:error, :invalid_evidence_envelope}
@@ -424,8 +424,8 @@ defmodule TiannaraOS.DiscoveryRegistry do
   defp normalize_evidence(_), do: {:error, :invalid_evidence_envelope}
 
   defp validate_registration_status(:simulated, _), do: :ok
-  defp validate_registration_status(status, envelope) when status in [:reproduced, :operationally_validated],
-    do: validate_transition_evidence(status, envelope)
+  defp validate_registration_status(:reproduced, _envelope), do: {:error, :registration_must_start_simulated}
+  defp validate_registration_status(:operationally_validated, _envelope), do: {:error, :registration_must_start_simulated}
   defp validate_registration_status(_, _), do: {:error, :invalid_validation_status}
 
   defp validate_transition_evidence(:reproduced, envelope) do
