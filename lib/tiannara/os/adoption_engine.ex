@@ -193,7 +193,7 @@ defmodule TiannaraOS.AdoptionEngine do
       experiment_design = foreign_artifact.experiment
       
       # Execute locally (simplified - in real implementation, would run actual experiment)
-      local_evidence = case execute_local_replication(experiment_design) do\n        {:error, reason} -> throw({:replication_error, reason})\n        evidence -> evidence\n      end
+      local_evidence = execute_local_replication(experiment_design)
       
       # Compare with original evidence
       comparison = compare_evidence(foreign_artifact.evidence, local_evidence)
