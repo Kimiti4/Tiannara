@@ -367,7 +367,7 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
         :requested
       {:ok, _event} ->
         Logger.debug("   Regulation command accepted for dispatch (strength: #{Float.round(strength, 2)})")
-        :accepted
+        :requested
       {:error, reason} ->
         Logger.warning("   Regulation command rejected: #{inspect(reason)}")
         {:error, reason}
