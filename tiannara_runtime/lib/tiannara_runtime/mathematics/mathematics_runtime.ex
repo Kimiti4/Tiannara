@@ -76,6 +76,12 @@ defmodule TiannaraRuntime.Mathematics.MathematicsRuntime do
     execute(request, %{type: "verification"})
   end
 
+  def execute_discovery(request), do: execute(request, %{type: "discovery"})
+  def execute_lemma_generation(request), do: execute(request, %{type: "lemma_generation"})
+  def execute_proof_plan(request), do: execute(request, %{type: "proof_plan"})
+  def execute_proof_composition(request), do: execute(request, %{type: "proof_composition"})
+  def execute_counterexample_search(request), do: execute(request, %{type: "counterexample_search"})
+
   # ---------------------------------------------------------------------------
   # Component: MathematicsScheduler
   # ---------------------------------------------------------------------------
