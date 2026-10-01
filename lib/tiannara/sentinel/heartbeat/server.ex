@@ -41,6 +41,9 @@ defmodule Tiannara.Sentinel.Heartbeat.Server do
          (not is_function(observer, 0) or not is_function(analyzer, 2) or not is_function(emitter, 1)) do
       {:stop, :certification_providers_unavailable}
     else
+    observer = observer || fn -> [] end
+    analyzer = analyzer || fn _obs, _cycle -> [] end
+    emitter = emitter || fn _event -> :ok end
 
     state = %{
       interval: interval,
