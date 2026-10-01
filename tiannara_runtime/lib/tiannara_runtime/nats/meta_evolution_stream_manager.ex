@@ -10,7 +10,10 @@ defmodule Tiannara.NATS.MetaEvolutionStreamManager do
 
   @impl true
   def init(_opts) do
-    {:ok, %{connection: nil, connected: false, subscriptions: []}}
+    case TiannaraRuntime.NATS.Bus.subscribe_all() do
+      :ok -> {:ok, %{connection: nil, connected: true, subscriptions: []}}
+      {:error, reason} -> {:ok, %{connection: nil, connected: false, subscriptions: [], init_error: reason}}
+    end
   end
 
   def publish_cortex_event(event_data) when is_map(event_data) do
@@ -72,18 +75,9 @@ defmodule Tiannara.NATS.MetaEvolutionStreamManager do
 
   @impl true
   def handle_cast({:subscribe, topic, handler_pid}, state) do
-    case TiannaraRuntime.NATS.Bus.subscribe(topic) do
-      :ok ->
-        Process.monitor(handler_pid)
-        subscriptions = Enum.uniq([{topic, handler_pid} | state.subscriptions])
-        {:noreply, %{state | subscriptions: subscriptions, connected: true}}
-
-      {:error, _reason} ->
-        {:noreply, state}
-
-      _ ->
-        {:noreply, state}
-    end
+    Process.monitor(handler_pid)
+    subscriptions = Enum.uniq([{topic, handler_pid} | state.subscriptions])
+    {:noreply, %{state | subscriptions: subscriptions}}
   end
 
   @impl true
