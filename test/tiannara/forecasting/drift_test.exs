@@ -17,6 +17,10 @@ defmodule Tiannara.Forecasting.DriftTest do
     assert result.relative_degradation == 2.0
   end
 
+  test "insufficient history does not create a drift signal" do
+    assert {:error, :insufficient_history} = Drift.mean_shift([1, 2], [3, 4])
+  end
+
   test "invalid drift samples fail closed" do
     assert {:error, :invalid_series} = Drift.mean_shift([1, 2], [:bad])
   end
