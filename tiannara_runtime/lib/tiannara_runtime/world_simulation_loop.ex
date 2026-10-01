@@ -27,7 +27,8 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
     case TiannaraRuntime.WorldRegistry.get_world(world_id) do
       {:ok, world} ->
         merged = Map.merge(Map.get(world, :config, %{}), context)
-        Tiannara.World.ScientificResearch.investigate(domain, hypothesis, merged)
+        result = Tiannara.World.ScientificResearch.investigate(domain, hypothesis, merged)
+        {:ok, %{evidence_class: :simulated, execution_mode: :simulation, certification_eligible: false, source: :world_simulation_loop, world_id: world_id, domain: domain, hypothesis: hypothesis, result: result}}
       error -> error
     end
   end
@@ -215,7 +216,8 @@ defmodule TiannaraRuntime.WorldSimulationLoop do
           snapshot_data = %{
             cal_result: cal_result,
             cis_result: cis_result,
-            timestamp: System.system_time(:millisecond)
+            timestamp: System.system_time(:millisecond),
+            evidence_envelope: %{evidence_class: :simulated, execution_mode: :simulation, source: :world_simulation_loop, world_id: world_id, certification_eligible: false}
           }
           TiannaraRuntime.WorldMemoryStore.append_snapshot(memory_store_pid, snapshot_data)
           :ok
