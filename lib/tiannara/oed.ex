@@ -19,8 +19,16 @@ defmodule Tiannara.OED do
   def validate_constitution(_), do: {:error, :invalid_execution_plan}
 
   @doc "Cross-validate a domain conclusion using multiple ontologies."
-  def cross_validate_conclusion(domain_output) do
-    # Placeholder: conclusions valid for now
-    {:ok, domain_output}
+  def cross_validate_conclusion(domain_output) when is_map(domain_output) do
+    evidence = Map.get(domain_output, :evidence, Map.get(domain_output, "evidence"))
+    provenance = Map.get(domain_output, :provenance, Map.get(domain_output, "provenance"))
+
+    if is_list(evidence) and evidence != [] and not is_nil(provenance) do
+      {:ok, Map.put(domain_output, :oed_status, :evidence_present)}
+    else
+      {:error, :cross_validation_evidence_unavailable}
+    end
   end
+
+  def cross_validate_conclusion(_), do: {:error, :invalid_domain_output}
 end
