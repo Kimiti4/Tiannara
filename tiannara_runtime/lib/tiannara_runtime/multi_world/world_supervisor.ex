@@ -154,7 +154,7 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
   def handle_info({:terminate_world, world_id, reason}, state) do
     Logger.warning("World #{world_id} termination requested by ResourceQuota: #{reason}")
     terminate_world(world_id, reason)
-    {:ok, state}
+    {:noreply, state}
   end
 
   @impl true
@@ -168,7 +168,7 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
     end
 
     TiannaraRuntime.MultiWorld.ResourceQuota.terminate_world(world_id, :killed)
-    {:ok, state}
+    {:noreply, state}
   end
 
   @impl true
@@ -181,7 +181,7 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
       send(world_pid, :pause)
     end
 
-    {:ok, state}
+    {:noreply, state}
   end
 
   @impl true
@@ -194,7 +194,18 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
       send(world_pid, :resume)
     end
 
-    {:ok, state}
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info({:freeze_world, world_id}, state) do
+    case freeze_world(world_id) do
+      :ok -> Logger.info("World #{world_id} freeze executed")
+      {:ok, _} -> Logger.info("World #{world_id} freeze executed")
+      {:error, reason} -> Logger.warning("World #{world_id} freeze failed: #{inspect(reason)}")
+      other -> Logger.warning("World #{world_id} freeze returned: #{inspect(other)}")
+    end
+    {:noreply, state}
   end
 
   defp generate_world_id do
@@ -216,8 +227,8 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
   defp find_world_pid(world_id) do
     children = DynamicSupervisor.which_children(__MODULE__)
 
-    Enum.find_value(children, fn {_id, pid, _type, _modules} ->
-      pid
+    Enum.find_value(children, fn {child_id, pid, _type, _modules} ->
+      if child_id == world_id, do: pid
     end)
   end
 end
