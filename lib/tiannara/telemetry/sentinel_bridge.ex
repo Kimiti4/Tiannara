@@ -46,12 +46,25 @@ defmodule Tiannara.Telemetry.SentinelBridge do
   @doc "Convert detected anomalies into `:anomaly_detected` epistemic events."
   def to_epistemic_events(anomalies) when is_list(anomalies) do
     Enum.map(anomalies, fn anomaly ->
+      evidence_items = Map.get(anomaly, :evidence, [])
+      evidence_envelope = %{
+        evidence_class: :real,
+        execution_mode: :real_observation,
+        source: :runtime_telemetry,
+        certification_eligible: true,
+        observed_at: DateTime.utc_now(),
+        evidence_items: evidence_items
+      }
+
       %EpistemicEvent{
         type: :anomaly_detected,
         severity: anomaly.severity,
         payload: anomaly,
-        confidence: 0.7,
-        evidence: Map.get(anomaly, :evidence, [])
+        confidence: nil,
+        uncertainty: nil,
+        source: :sentinel_bridge,
+        evidence_envelope: evidence_envelope,
+        evidence: evidence_items
       }
     end)
   end
