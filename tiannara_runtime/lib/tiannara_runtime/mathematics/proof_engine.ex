@@ -136,13 +136,24 @@ defmodule TiannaraRuntime.Mathematics.ProofEngine do
   def logical_verify(proof) do
     steps = Map.get(proof, "steps", [])
     sorted = Enum.sort_by(steps, fn s -> Map.get(s, "step_number", 0) end)
-    expected = Enum.to_list(0..(length(sorted) - 1))
+    expected = if sorted == [], do: [], else: Enum.to_list(0..(length(sorted) - 1))
     actual = Enum.map(sorted, fn s -> Map.get(s, "step_number", -1) end)
 
-    if actual == expected do
-      {:ok, proof}
-    else
-      {:error, "logical verification failed: step numbers not sequential. Expected: #{inspect(expected)}, got: #{inspect(actual)}"}
+    cond do
+      actual != expected ->
+        {:error, "logical verification failed: step numbers not sequential. Expected: #{inspect(expected)}, got: #{inspect(actual)}"}
+
+      sorted == [] ->
+        {:error, "logical verification failed: proof has no derivation steps"}
+
+      Enum.any?(sorted, fn s -> Map.get(s, "rule_applied") in [nil, ""] end) ->
+        {:error, "logical verification failed: derivation rule missing"}
+
+      Enum.any?(sorted, fn s -> Map.get(s, "output_object") in [nil, ""] end) ->
+        {:error, "logical verification failed: derived conclusion missing"}
+
+      true ->
+        {:ok, proof}
     end
   end
 
