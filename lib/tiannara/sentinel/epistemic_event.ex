@@ -28,6 +28,8 @@ defmodule Tiannara.Sentinel.EpistemicEvent do
     :uncertainty,
     :source,
     :context,
+    :intervention_id,
+    evidence_envelope: %{},
     evidence: [],
     timestamp: nil
   ]
@@ -41,6 +43,8 @@ defmodule Tiannara.Sentinel.EpistemicEvent do
     uncertainty: float() | nil,
     source: atom() | nil,
     context: map() | nil,
+    intervention_id: String.t() | nil,
+    evidence_envelope: map(),
     evidence: list(),
     timestamp: DateTime.t() | nil
   }
@@ -56,6 +60,8 @@ defmodule Tiannara.Sentinel.EpistemicEvent do
       uncertainty: Keyword.get(opts, :uncertainty),
       source: Keyword.get(opts, :source),
       context: Keyword.get(opts, :context),
+      intervention_id: Keyword.get(opts, :intervention_id),
+      evidence_envelope: Keyword.get(opts, :evidence_envelope, %{}),
       evidence: Keyword.get(opts, :evidence, []),
       timestamp: Keyword.get(opts, :timestamp) || DateTime.utc_now()
     }
