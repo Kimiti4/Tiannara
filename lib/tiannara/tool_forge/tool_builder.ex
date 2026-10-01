@@ -94,8 +94,10 @@ defmodule Tiannara.ToolForge.ToolBuilder do
       @impl true
       def handle_call({:execute, input}, _from, state) do
         try do
-          result = do_execute(input)
-          {:reply, {:ok, result}, %{state | executions: state.executions + 1}}
+          case do_execute(input) do
+            {:error, reason} -> {:reply, {:error, reason}, %{state | errors: state.errors + 1}}
+            result -> {:reply, {:ok, result}, %{state | executions: state.executions + 1}}
+          end
         rescue
           e ->
             Logger.error("Tiannara.Tools.#{module_name}: execution failed: __INSPECT_E__")
@@ -149,13 +151,13 @@ defmodule Tiannara.ToolForge.ToolBuilder do
       end
 
       test "execute is explicit until an implementation is supplied" do
-        assert {:ok, {:error, :not_implemented}} = #{module_name}.execute(%{test: true})
+        assert {:error, :not_implemented} = #{module_name}.execute(%{test: true})
       end
 
       test "metrics tracks executions" do
-        #{module_name}.execute(%{test: 1})
+        assert {:error, :not_implemented} = #{module_name}.execute(%{test: 1})
         metrics = #{module_name}.metrics()
-        assert metrics.executions >= 1
+        assert metrics.errors >= 1
       end
     end
     """
