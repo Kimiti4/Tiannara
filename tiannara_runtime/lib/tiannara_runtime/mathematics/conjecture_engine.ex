@@ -392,7 +392,7 @@ defmodule TiannaraRuntime.Mathematics.ConjectureEngine do
   # ---------------------------------------------------------------------------
   defp validate_test_evidence(evidence) do
     required = ["method", "result", "executed_at"]
-    missing = Enum.reject(required, fn k -> Map.get(evidence, k) not in [nil, ""] end)
+    missing = Enum.filter(required, fn k -> Map.get(evidence, k) in [nil, ""] end)
     cond do
       missing != [] -> {:error, "test evidence missing fields: #{Enum.join(missing, ", ")}"}
       Map.get(evidence, "result") not in ["supported", "counterexample", "inconclusive"] ->
