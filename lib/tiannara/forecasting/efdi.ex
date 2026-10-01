@@ -32,7 +32,8 @@ defmodule Tiannara.Forecasting do
                               ForecastEngine, ForecastRegistry, Calibration,
                               DecisionEngine, DecisionRegistry, Contracts,
                               Counterfactual, AlternativeHistory, Attribution,
-                              Selection, RegressionToMean, TemporalFirewall}
+                              Selection, RegressionToMean, TemporalFirewall,
+                              OutcomeResolution, PerformanceLedger}
 
   @spec start_link(Keyword.t()) :: GenServer.on_start()
   def start_link(opts \\ []) do
@@ -93,6 +94,25 @@ defmodule Tiannara.Forecasting do
 
   @doc "D2: score a forecast (Brier / log_loss)."
   def score_forecast(%Contracts.Forecast{} = f, observed), do: Calibration.score(f, observed)
+
+  @doc "Resolve a forecast against an observed outcome without certifying it."
+  @spec resolve_forecast_outcome(Contracts.Forecast.t(), map(), map()) ::
+          {:ok, map()} | {:error, term()}
+  def resolve_forecast_outcome(%Contracts.Forecast{} = forecast, outcome, evidence \\ %{}),
+    do: OutcomeResolution.resolve(forecast, outcome, evidence)
+
+  @doc "Append a resolved forecast record to descriptive performance history."
+  @spec record_forecast_performance(map()) :: :ok | {:error, term()}
+  def record_forecast_performance(record), do: PerformanceLedger.append(record)
+
+  @doc "Read descriptive performance history; this never selects a model."
+  @spec forecast_performance_history(String.t(), String.t() | nil) :: [map()]
+  def forecast_performance_history(model_ref, forecast_version \\ nil),
+    do: PerformanceLedger.history(model_ref, forecast_version)
+
+  @doc "Summarize descriptive performance history; no certification or model selection."
+  @spec forecast_performance_summary([map()]) :: map()
+  def forecast_performance_summary(records), do: PerformanceLedger.summarize(records)
 
   @doc "D3: build and analyze a decision (expected value, risk, recommendation)."
   @spec decide(map() | Contracts.DecisionRequest.t()) ::
