@@ -1,32 +1,28 @@
 defmodule Tiannara.Forecasting.ForecastAuditor do
   @moduledoc """
-  Continuously tracks forecast predictions against actual outcomes to calculate Brier scores and calibration.
+  Evidence-bound forecast auditor.
+
+  Historical versions emitted hard-coded metrics. This auditor now accepts only
+  measured resolution records and returns descriptive performance summaries.
+  It never changes calibration parameters automatically.
   """
-  require Logger
-  alias Tiannara.Metrics.Aggregator
+  alias Tiannara.Forecasting.PerformanceLedger
 
-  def audit(scenario, _payload) do
+  @spec audit(atom(), map()) :: {:ok, map()} | {:error, term()}
+  def audit(scenario, payload) when is_atom(scenario) and is_map(payload) do
     case scenario do
-      :forecast_accuracy ->
-        Logger.info("⚖️ [Auditor] Auditing 1,000 historical civilization timelines...")
-        Aggregator.push_event([:tiannara, :forecasting, :forecast_accuracy], 0.92)
-        Aggregator.push_event([:tiannara, :forecasting, :brier_score], 0.12)
-        Aggregator.push_event([:tiannara, :forecasting, :prediction_calibration], 0.94)
-
-      :collapse_prediction ->
-        Logger.info("⚖️ [Auditor] Auditing collapse prediction against dependency cascade injection...")
-        Aggregator.push_event([:tiannara, :forecasting, :collapse_prediction_accuracy], 0.96)
-        Aggregator.push_event([:tiannara, :forecasting, :lead_time], 500)
-        Aggregator.push_event([:tiannara, :forecasting, :forecast_confidence_accuracy], 0.95)
-
-      :forecast_self_correction ->
-        Logger.info("⚖️ [Auditor] Detected known forecasting error. Updating calibration parameters...")
-        Aggregator.push_event([:tiannara, :forecasting, :adaptive_calibration_gain], 0.08)
-
-      _ ->
-        :ok
+      :forecast_accuracy -> summarize_records(payload)
+      :collapse_prediction -> summarize_records(payload)
+      :forecast_self_correction -> {:error, :automatic_self_correction_disabled}
+      _ -> {:error, :unknown_audit_scenario}
     end
   end
+
+  defp summarize_records(%{records: records}) when is_list(records) do
+    {:ok, PerformanceLedger.summarize(records)}
+  end
+
+  defp summarize_records(_), do: {:error, :measured_records_required}
 end
 
 defmodule Tiannara.Forecasting.DecisionArchive do
