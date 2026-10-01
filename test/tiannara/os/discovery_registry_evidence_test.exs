@@ -23,6 +23,25 @@ defmodule TiannaraOS.DiscoveryRegistryEvidenceTest do
     }
   end
 
+  test "simulated registration requires an explicit simulation envelope" do
+    assert {:error, :simulated_registration_requires_simulation_evidence} =
+             DiscoveryRegistry.register(
+               Map.merge(base(:missing_simulation_envelope), %{
+                 evidence_envelope: %{evidence_class: :real, execution_mode: :real_execution}
+               })
+             )
+
+    assert {:ok, discovery} =
+             DiscoveryRegistry.register(
+               Map.merge(base(:explicit_simulation_envelope), %{
+                 evidence_envelope: %{evidence_class: :simulated, execution_mode: :simulation}
+               })
+             )
+
+    assert discovery.validation_status == :simulated
+    assert discovery.evidence_envelope.evidence_class == :simulated
+  end
+
   test "registration cannot claim reproduced or operational validation" do
     assert {:error, :registration_must_start_simulated} =
              DiscoveryRegistry.register(Map.put(base(:registration_reproduced), :validation_status, :reproduced))
