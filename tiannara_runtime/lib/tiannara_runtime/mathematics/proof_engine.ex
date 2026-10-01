@@ -133,6 +133,32 @@ defmodule TiannaraRuntime.Mathematics.ProofEngine do
 
   @doc "Logical verification: each step follows from previous."
   @spec logical_verify(map()) :: {:ok, map()} | {:error, String.t()}
+  @doc """
+  Verify a proof and return a status suitable for theorem promotion.
+
+  This does not invent missing proof steps. It requires an independently
+  supplied verifier callback, then records the verification result.
+  """
+  def verify_for_theorem(proof, verifier) when is_map(proof) and is_function(verifier, 1) do
+    with {:ok, proof} <- logical_verify(proof),
+         {:ok, result} <- verifier.(proof) do
+      case result do
+        :verified ->
+          {:ok, Map.put(proof, "verification_status", "verified")}
+        {:verified, details} ->
+          {:ok, proof |> Map.put("verification_status", "verified") |> Map.put("verification_details", details)}
+        :rejected ->
+          {:error, :proof_verification_rejected}
+        {:error, reason} ->
+          {:error, reason}
+        other ->
+          {:error, {:invalid_verifier_result, other}}
+      end
+    end
+  end
+
+  def verify_for_theorem(_proof, _verifier), do: {:error, :proof_verifier_required}
+
   def logical_verify(proof) do
     steps = Map.get(proof, "steps", [])
     sorted = Enum.sort_by(steps, fn s -> Map.get(s, "step_number", 0) end)
