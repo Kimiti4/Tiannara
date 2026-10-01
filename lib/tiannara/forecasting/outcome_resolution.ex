@@ -18,6 +18,7 @@ defmodule Tiannara.Forecasting.OutcomeResolution do
         forecast_id: forecast.id,
         forecast_version: forecast.forecast_version,
         model_ref: forecast.model_ref,
+        forecast_created_at: forecast.created_at,
         observed_outcome: outcome.observed_outcome,
         observed_at: outcome.observed_at,
         resolution_source: outcome.source,
