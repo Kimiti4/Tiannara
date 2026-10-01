@@ -31,10 +31,16 @@ defmodule Tiannara.Sentinel.Heartbeat.Server do
   @impl true
   def init(opts) do
     interval = Keyword.get(opts, :interval, 1_000)
-    observer = Keyword.get(opts, :observer, fn -> [] end)
-    analyzer = Keyword.get(opts, :analyzer, fn _obs, _cycle -> [] end)
-    emitter = Keyword.get(opts, :emitter, fn _event -> :ok end)
+    observer = Keyword.get(opts, :observer)
+    analyzer = Keyword.get(opts, :analyzer)
+    emitter = Keyword.get(opts, :emitter)
+    certification_mode = Keyword.get(opts, :certification_mode, false)
     autostart = Keyword.get(opts, :autostart, true)
+
+    if certification_mode and
+         (not is_function(observer, 0) or not is_function(analyzer, 2) or not is_function(emitter, 1)) do
+      {:stop, :certification_providers_unavailable}
+    else
 
     state = %{
       interval: interval,
@@ -43,11 +49,13 @@ defmodule Tiannara.Sentinel.Heartbeat.Server do
       emitter: emitter,
       cycle: 0,
       running: autostart,
-      events_emitted: 0
+      events_emitted: 0,
+      certification_mode: certification_mode
     }
 
     if autostart, do: schedule_next(interval)
     {:ok, state}
+    end
   end
 
   @impl true
@@ -78,6 +86,9 @@ defmodule Tiannara.Sentinel.Heartbeat.Server do
   defp run_cycle(state) do
     cycle = state.cycle + 1
     observations = state.observer.()
+    if state.certification_mode and not Enum.all?(observations, &is_map/1) do
+      raise "heartbeat_observation_envelope_invalid"
+    end
     events = state.analyzer.(observations, cycle)
 
     Enum.each(events, fn %EpistemicEvent{} = e -> state.emitter.(e) end)
