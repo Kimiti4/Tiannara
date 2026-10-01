@@ -19,15 +19,15 @@ defmodule Tiannara.Forecasting.PerformanceLedger do
         Map.update(state, key(record), [record], fn existing -> existing ++ [record] end)
       end)
     end
-  catch
-    :exit, _ -> {:error, :performance_ledger_unavailable}
+  rescue
+    _ -> {:error, :performance_ledger_unavailable}
   end
 
   @spec history(String.t(), String.t() | nil) :: [map()]
   def history(model_ref, forecast_version \\ nil) when is_binary(model_ref) do
     Agent.get(__MODULE__, &Map.get(&1, {model_ref, forecast_version}, []))
-  catch
-    :exit, _ -> []
+  rescue
+    _ -> []
   end
 
   @spec summarize([map()]) :: map()
