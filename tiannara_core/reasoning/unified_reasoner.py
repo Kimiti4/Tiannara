@@ -144,11 +144,11 @@ export default function {component_name}({{
     
     def _generate_python_code(self, prompt: str, context: dict) -> str:
         """Generate Python/FastAPI code"""
-        return "# Python code generation placeholder\n# To be implemented"
+        raise RuntimeError("python_code_generation_backend_unavailable")
     
     def _generate_generic_response(self, prompt: str, context: dict) -> str:
         """Generate generic text response"""
-        return f"Response to: {prompt[:100]}..."
+        raise RuntimeError("generic_generation_backend_unavailable")
     
     def _refine_output(self, current_output: str, state: dict) -> str:
         """Refine existing output based on evaluation feedback"""
@@ -157,10 +157,10 @@ export default function {component_name}({{
         
         if score < 0.7:
             # Low quality: major revision needed
-            return current_output + "\n\n# Refined version with improvements"
+            raise RuntimeError("reasoning_refinement_backend_unavailable")
         elif score < 0.9:
             # Medium quality: minor improvements
-            return current_output + "\n# Minor refinements applied"
+            raise RuntimeError("reasoning_refinement_backend_unavailable")
         else:
             # High quality: keep as is
             return current_output
