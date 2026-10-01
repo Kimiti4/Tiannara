@@ -85,7 +85,9 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
       type: event.type,
       payload: event.payload,
       confidence: event.confidence,
-      evidence: event.evidence || []
+      evidence: event.evidence || [],
+      evidence_envelope: event.evidence_envelope || %{},
+      intervention_id: event.intervention_id
     }
   end
 
@@ -170,7 +172,7 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
         :contradicted -> 0.3
       end
 
-    relevance = opportunity.confidence
+    relevance = opportunity.confidence || 0.0
 
     Enum.map(@experiment_archetypes, fn archetype ->
       %{
@@ -185,7 +187,7 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
         risk: archetype.risk,
         reproducibility: archetype.reproducibility,
         feasibility: feasibility,
-        constitutional_ok: true,
+        constitutional_ok: :unevaluated,
         dependencies_available: feasibility >= 0.4
       }
     end)
@@ -203,7 +205,9 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
       rank: candidate.rank,
       status: :proposed,
       lineage: [event.type, opportunity.id, candidate.hypothesis_id, candidate.id],
-      uncertainty: Float.round(1.0 - candidate.composite_score, 4)
+      uncertainty: Float.round(1.0 - candidate.composite_score, 4),
+      evidence_envelope: opportunity.evidence_envelope,
+      intervention_id: opportunity.intervention_id
     }
   end
 
