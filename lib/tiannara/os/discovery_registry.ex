@@ -69,7 +69,8 @@ defmodule TiannaraOS.DiscoveryRegistry do
     :uncertainty,
     :created_at,
     :validated_at,
-    :lifecycle_events
+    :lifecycle_events,
+    :evidence_envelope
   ]
 
   @type t :: %__MODULE__{
@@ -88,7 +89,8 @@ defmodule TiannaraOS.DiscoveryRegistry do
     uncertainty: float(),
     created_at: DateTime.t(),
     validated_at: DateTime.t() | nil,
-    lifecycle_events: [map()]
+    lifecycle_events: [map()],
+    evidence_envelope: map()
   }
 
   # ==================== Public API ====================
@@ -187,8 +189,8 @@ defmodule TiannaraOS.DiscoveryRegistry do
   ## Returns
   {:ok, Discovery.t()} | {:error, String.t()}
   """
-  def update_validation_status(discovery_id, new_status) do
-    GenServer.call(__MODULE__, {:update_validation_status, discovery_id, new_status})
+  def update_validation_status(discovery_id, new_status, evidence_envelope \\ %{}) do
+    GenServer.call(__MODULE__, {:update_validation_status, discovery_id, new_status, evidence_envelope})
   end
 
   @doc """
@@ -255,9 +257,12 @@ defmodule TiannaraOS.DiscoveryRegistry do
 
   @impl true
   def handle_call({:register, discovery_data}, _from, state) do
-    # Validate required fields
+    # Registration is always conservative: callers cannot claim a higher
+    # epistemic state merely by supplying validation_status/confidence.
     with :ok <- validate_required_fields(discovery_data),
-         discovery <- build_discovery(discovery_data) do
+         {:ok, evidence_envelope} <- normalize_evidence(Map.get(discovery_data, :evidence_envelope, %{})),
+         :ok <- validate_registration_status(Map.get(discovery_data, :validation_status, :simulated), evidence_envelope),
+         discovery <- build_discovery(Map.put(discovery_data, :evidence_envelope, evidence_envelope)) do
       if Map.has_key?(state.discoveries, discovery.id) do
         {:reply, {:error, "Discovery already exists: #{discovery.id}"}, state}
       else
@@ -294,13 +299,14 @@ defmodule TiannaraOS.DiscoveryRegistry do
   end
 
   @impl true
-  def handle_call({:update_validation_status, discovery_id, new_status}, _from, state) do
+  def handle_call({:update_validation_status, discovery_id, new_status, evidence_envelope}, _from, state) do
     case Map.get(state.discoveries, discovery_id) do
       nil ->
         {:reply, {:error, "Discovery not found: #{inspect(discovery_id)}"}, state}
 
       discovery ->
-        # Validate status transition
+        # A state transition is evidence-gated; enum changes alone never
+        # increase confidence or establish operational validity.
         valid_transitions = %{
           :simulated => [:reproduced],
           :reproduced => [:operationally_validated],
@@ -309,22 +315,30 @@ defmodule TiannaraOS.DiscoveryRegistry do
 
         allowed = Map.get(valid_transitions, discovery.validation_status, [])
 
-        if new_status not in allowed do
-          {:reply, {:error, "Invalid status transition: #{discovery.validation_status} → #{new_status}"}, state}
-        else
-          updated = %{discovery |
-            validation_status: new_status,
-            validated_at: if(new_status == :operationally_validated, do: DateTime.utc_now(), else: discovery.validated_at)
-          }
+        cond do
+          new_status not in allowed ->
+            {:reply, {:error, "Invalid status transition: #{discovery.validation_status} → #{new_status}"}, state}
 
-          # Increase confidence based on validation level
-          updated = update_confidence_for_validation(updated)
+          true ->
+            with {:ok, envelope} <- normalize_evidence(evidence_envelope),
+                 :ok <- validate_transition_evidence(new_status, envelope) do
+              updated = %{discovery |
+                validation_status: new_status,
+                evidence_envelope: merge_evidence(discovery.evidence_envelope, envelope),
+                validated_at: if(new_status == :operationally_validated, do: DateTime.utc_now(), else: discovery.validated_at),
+                lifecycle_events: discovery.lifecycle_events ++ [
+                  %{event: :validation_updated, from: discovery.validation_status, to: new_status, evidence: envelope}
+                ]
+              }
 
-          state = put_in(state.discoveries[discovery_id], updated)
+              state = put_in(state.discoveries[discovery_id], updated)
 
-          Logger.debug(fn -> "LifecycleRegistry.track_entity would have been called for :discovery, #{inspect(discovery_id)}, :validation_updated, old=#{discovery.validation_status}, new=#{new_status}" end)
+              Logger.debug(fn -> "Discovery validation evidence accepted: #{inspect(discovery_id)} #{discovery.validation_status} → #{new_status}" end)
 
-          {:reply, {:ok, updated}, state}
+              {:reply, {:ok, updated}, state}
+            else
+              {:error, reason} -> {:reply, {:error, reason}, state}
+            end
         end
     end
   end
@@ -373,12 +387,14 @@ defmodule TiannaraOS.DiscoveryRegistry do
       theory_ids: Map.get(data, :theory_ids, []),
       law_id: Map.get(data, :law_id),
       applications: Map.get(data, :applications, []),
-      validation_status: Map.get(data, :validation_status, :simulated),
-      confidence: Map.get(data, :confidence, 0.5),
-      uncertainty: Map.get(data, :uncertainty, 0.5),
+      # Never trust caller-supplied confidence/status as evidence.
+      validation_status: :simulated,
+      confidence: 0.0,
+      uncertainty: 1.0,
       created_at: Map.get(data, :created_at, DateTime.utc_now()),
       validated_at: Map.get(data, :validated_at),
-      lifecycle_events: Map.get(data, :lifecycle_events, [])
+      lifecycle_events: Map.get(data, :lifecycle_events, []),
+      evidence_envelope: Map.get(data, :evidence_envelope, %{})
     }
   end
 
@@ -394,24 +410,50 @@ defmodule TiannaraOS.DiscoveryRegistry do
     end)
   end
 
-  defp update_confidence_for_validation(discovery) do
-    base_confidence = discovery.confidence
+  defp normalize_evidence(envelope) when is_map(envelope) do
+    class = Map.get(envelope, :evidence_class, Map.get(envelope, "evidence_class", :unknown))
+    mode = Map.get(envelope, :execution_mode, Map.get(envelope, "execution_mode", :unknown))
 
-    confidence_boost = case discovery.validation_status do
-      :simulated -> 0.0
-      :reproduced -> 0.15
-      :operationally_validated -> 0.30
-      _ -> 0.0
+    if class in [:simulated, :real, :unknown] and mode in [:simulation, :real, :unknown] do
+      {:ok, Map.put(envelope, :evidence_class, class) |> Map.put(:execution_mode, mode)}
+    else
+      {:error, :invalid_evidence_envelope}
     end
-
-    new_confidence = min(base_confidence + confidence_boost, 1.0)
-
-    # Recalculate uncertainty as inverse of confidence
-    new_uncertainty = Float.round(1.0 - new_confidence, 2)
-
-    %{discovery |
-      confidence: Float.round(new_confidence, 2),
-      uncertainty: new_uncertainty
-    }
   end
+
+  defp normalize_evidence(_), do: {:error, :invalid_evidence_envelope}
+
+  defp validate_registration_status(:simulated, _), do: :ok
+  defp validate_registration_status(status, envelope) when status in [:reproduced, :operationally_validated],
+    do: validate_transition_evidence(status, envelope)
+  defp validate_registration_status(_, _), do: {:error, :invalid_validation_status}
+
+  defp validate_transition_evidence(:reproduced, envelope) do
+    reproduced = Map.get(envelope, :reproduction_evidence, Map.get(envelope, "reproduction_evidence"))
+    if present?(reproduced), do: :ok, else: {:error, :reproduction_evidence_required}
+  end
+
+  defp validate_transition_evidence(:operationally_validated, envelope) do
+    real = Map.get(envelope, :evidence_class)
+    mode = Map.get(envelope, :execution_mode)
+    real_observed = Map.get(envelope, :real_observation, false)
+    effect_verified = Map.get(envelope, :effect_verified, false)
+    acl = Map.get(envelope, :acl_status)
+    oavl = Map.get(envelope, :oavl_status)
+
+    cond do
+      real != :real -> {:error, :real_evidence_required}
+      mode != :real_execution -> {:error, :real_execution_required}
+      real_observed != true -> {:error, :real_observation_required}
+      effect_verified != true -> {:error, :effect_verification_required}
+      acl not in [:pass, :passed] -> {:error, :acl_validation_required}
+      oavl not in [:pass, :passed] -> {:error, :oavl_validation_required}
+      true -> :ok
+    end
+  end
+
+  defp merge_evidence(old, new), do: Map.merge(old || %{}, new)
+
+  defp present?(value), do: not is_nil(value) and value not in [[], %{}, "", false]
+
 end
