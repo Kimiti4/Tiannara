@@ -162,8 +162,7 @@ class CausalGraphDiscovery:
         
         logger.info(f"Discovering causal graph with {n_vars} variables, {n_samples} observations")
         
-        # For now, use pairwise conditional independence testing
-        # In production, would use PC algorithm or similar
+        raise RuntimeError(\n            "causal_graph_discovery_backend_unavailable: observational pairwise residual association " \n            "cannot establish causal direction; use an externally supplied graph or PCMCI for temporal discovery"\n        )
         edges = []
         confidence_scores = {}
         
