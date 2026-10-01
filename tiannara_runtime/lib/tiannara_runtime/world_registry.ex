@@ -84,7 +84,8 @@ defmodule TiannaraRuntime.WorldRegistry do
             %Tiannara.Genetics.WorldGenome{} = value -> value
             _ -> Tiannara.Genetics.WorldGenome.new(id, if(parent, do: [parent], else: []))
           end
-        world = %{id: id, parent_world: parent, generation: generation, genome: genome, config: config, status: :active, fitness: 0.0, created_at: System.system_time(:millisecond), last_updated: System.system_time(:millisecond)}
+        world = %{id: id, parent_world: parent, generation: generation, genome: genome, config: config, status: :active, fitness: 0.0, created_at: System.system_time(:millisecond), last_updated: System.system_time(:millisecond),
+          evidence_envelope: %{evidence_class: :simulated, execution_mode: :simulation, source: :world_registry, world_id: id, certification_eligible: false}}
         case Process.whereis(TiannaraRuntime.WorldRuntimeSupervisor) do
           nil ->
             {:reply, {:error, :world_runtime_supervisor_unavailable}, state}
