@@ -95,6 +95,13 @@ defmodule Tiannara.Forecasting do
   @doc "D2: score a forecast (Brier / log_loss)."
   def score_forecast(%Contracts.Forecast{} = f, observed), do: Calibration.score(f, observed)
 
+  @doc "Evaluate resolved forecasts across a locked temporal holdout."
+  @spec temporal_forecast_evaluation([map()], DateTime.t(), keyword()) ::
+          {:ok, map()} | {:error, term()}
+  def temporal_forecast_evaluation(records, cutoff, opts \\ []) do
+    Tiannara.Forecasting.TemporalEvaluation.evaluate(records, cutoff, opts)
+  end
+
   @doc "Resolve a forecast against an observed outcome without certifying it."
   @spec resolve_forecast_outcome(Contracts.Forecast.t(), map(), map()) ::
           {:ok, map()} | {:error, term()}
