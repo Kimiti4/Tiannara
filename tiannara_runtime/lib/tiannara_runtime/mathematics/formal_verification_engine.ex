@@ -74,16 +74,19 @@ defmodule TiannaraRuntime.Mathematics.FormalVerificationEngine do
   @doc "Check a single property against a target."
   @spec check_property(String.t(), String.t(), atom(), atom(), keyword()) ::
           {:pass, map()} | {:fail, map()} | {:error, String.t()}
-  def check_property(_target_id, _target_type, _mode, :correctness, _opts), do: {:pass, %{}}
-  def check_property(_target_id, _target_type, _mode, :consistency, _opts), do: {:pass, %{}}
-  def check_property(_target_id, _target_type, _mode, :completeness, _opts), do: {:pass, %{}}
-  def check_property(_target_id, _target_type, _mode, :convergence, _opts), do: {:pass, %{}}
-  def check_property(_target_id, _target_type, _mode, :stability, _opts), do: {:pass, %{}}
-  def check_property(_target_id, _target_type, _mode, :safety, _opts), do: {:pass, %{}}
-  def check_property(_target_id, _target_type, _mode, :termination, _opts), do: {:pass, %{}}
-  def check_property(_target_id, _target_type, _mode, :bounded, _opts), do: {:pass, %{}}
-  def check_property(_target_id, _target_type, _mode, :invariant_satisfaction, _opts), do: {:pass, %{}}
-  def check_property(_target_id, _target_type, _mode, :constraint_satisfaction, _opts), do: {:pass, %{}}
+  def check_property(_target_id, _target_type, _mode, _property, opts) do
+    case if(is_list(opts), do: Keyword.get(opts, :property_checker), else: Map.get(opts, :property_checker)) do
+      checker when is_function(checker, 3) ->
+        case checker.(_target_id, _mode, _property) do
+          {:pass, detail} -> {:pass, detail}
+          {:fail, detail} -> {:fail, detail}
+          {:error, reason} -> {:error, reason}
+          other -> {:error, {:invalid_checker_result, other}}
+        end
+      _ ->
+        {:error, :property_checker_unavailable}
+    end
+  end
 
   # ---------------------------------------------------------------------------
   # Verification Modes
