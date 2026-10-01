@@ -8,24 +8,13 @@ defmodule Tiannara.ASC.Repair.RootCauseAnalyzer do
   """
 
   @spec analyze(map()) :: {:ok, map()}
-  def analyze(anomaly) do
-    # Stub: pattern-match on metric name
-    root_cause = case Map.get(anomaly, :metric) do
-      "latency"  -> :database_bottleneck
-      "errors"   -> :unhandled_exception
-      "memory"   -> :memory_leak
-      _          -> :unknown
-    end
-    {:ok, %{root_cause: root_cause, strategy: :patch_and_verify, confidence: 0.5}}
-  end
+  def analyze(_anomaly), do: {:error, :root_cause_analysis_backend_unavailable}
 end
 
 defmodule Tiannara.ASC.Repair.PatchGenerator do
   @moduledoc "Generates a candidate patch using Implementation sub-civilization. Phase H stub."
   @spec generate(map(), map()) :: {:ok, map()}
-  def generate(_project, _root_cause_analysis) do
-    {:ok, %{patch_id: "patch_#{:erlang.unique_integer([:positive])}", type: :stub}}
-  end
+  def generate(_project, _root_cause_analysis), do: {:error, :patch_generation_backend_unavailable}
 end
 
 defmodule Tiannara.ASC.Repair.SandboxValidator do
