@@ -23,6 +23,7 @@ defmodule TiannaraRuntime.Mathematics.MathematicsRuntime do
   alias TiannaraRuntime.Mathematics.DiscoveryEngine
   alias TiannaraRuntime.Mathematics.LemmaEngine
   alias TiannaraRuntime.Mathematics.CounterexampleEngine
+  alias TiannaraRuntime.Mathematics.FormalProblem
   alias __MODULE__.DependencyResolver
   alias __MODULE__.MathematicsScheduler
   alias __MODULE__.VerificationCoordinator
@@ -81,6 +82,11 @@ defmodule TiannaraRuntime.Mathematics.MathematicsRuntime do
   def execute_proof_plan(request), do: execute(request, %{type: "proof_plan"})
   def execute_proof_composition(request), do: execute(request, %{type: "proof_composition"})
   def execute_counterexample_search(request), do: execute(request, %{type: "counterexample_search"})
+
+  @doc "Create a canonical machine-readable mathematical research problem."
+  def formalize_problem(attrs) when is_map(attrs) do
+    FormalProblem.new(attrs)
+  end
 
   # ---------------------------------------------------------------------------
   # Component: MathematicsScheduler
