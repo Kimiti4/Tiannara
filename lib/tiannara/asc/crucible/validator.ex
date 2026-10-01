@@ -439,22 +439,27 @@ defmodule Tiannara.ASC.Crucible.Validator do
   end
 
   defp execute_test_suite(artifact_path) do
-    # Discover and run tests associated with the artifact
-    test_files = discover_test_files(artifact_path)
-    Enum.map(test_files, fn test_file ->
-      %{file: test_file, status: :pass}
-    end)
-  end
+    base_path = if File.dir?(artifact_path), do: artifact_path, else: Path.dirname(artifact_path)
 
-  defp discover_test_files(artifact_path) do
-    # Find test files related to the artifact
-    base_path = Path.dirname(artifact_path)
-    test_pattern = Path.join(base_path, "**/*_test.*")
-    case Path.wildcard(test_pattern) do
-      [] -> []
-      files -> files
+    cond do
+      File.exists?(Path.join(base_path, "mix.exs")) ->
+        case System.cmd("mix", ["test"], cd: base_path, stderr_to_stdout: true) do
+          {_output, 0} -> [%{file: Path.join(base_path, "mix test"), status: :pass}]
+          {output, code} -> [%{file: Path.join(base_path, "mix test"), status: :fail, exit_code: code, output: String.slice(output, 0, 4000)}]
+        end
+
+      File.exists?(Path.join(base_path, "package.json")) ->
+        case System.cmd("npm", ["test", "--", "--runInBand"], cd: base_path, stderr_to_stdout: true) do
+          {_output, 0} -> [%{file: Path.join(base_path, "npm test"), status: :pass}]
+          {output, code} -> [%{file: Path.join(base_path, "npm test"), status: :fail, exit_code: code, output: String.slice(output, 0, 4000)}]
+        end
+
+      true ->
+        [%{file: base_path, status: :fail, reason: :test_runner_unavailable}]
     end
   end
+
+  defp discover_test_files(_artifact_path), do: []
 
   defp compute_coverage(test_results) do
     case length(test_results) do
