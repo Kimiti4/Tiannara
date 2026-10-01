@@ -140,8 +140,8 @@ class CTNNatsPublisher:
     async def connect(self):
         """Establish connection to NATS server."""
         if not NATS_AVAILABLE:
-            logger.warning("⚠️  NATS not available. Running in simulation mode.")
-            self.connected = True
+            logger.warning("⚠️  NATS library unavailable; CTN event publication is unavailable.")
+            self.connected = False
             return
         
         try:
@@ -151,8 +151,7 @@ class CTNNatsPublisher:
             logger.info(f"✅ Connected to NATS server at {self.nats_url}")
         except Exception as e:
             logger.warning(f"⚠️  Failed to connect to NATS: {e}")
-            logger.warning("   Running in simulation mode (events logged but not published)")
-            self.connected = True  # Allow operation without NATS
+            self.connected = False
     
     async def disconnect(self):
         """Close NATS connection."""
@@ -185,9 +184,8 @@ class CTNNatsPublisher:
             except Exception as e:
                 logger.error(f"❌ Failed to publish event: {e}")
         else:
-            # Simulation mode - just log
-            self.published_count += 1
-            logger.info(f"📤 [SIM] Published {event.event_type}: {payload[:100]}...")
+            logger.error("❌ CTN event not published: NATS connection unavailable")
+            raise RuntimeError("nats_unavailable")
     
     async def publish_node_created(self, node_id: str, forward_entropy: float,
                                    backward_entropy: float, tension: float,

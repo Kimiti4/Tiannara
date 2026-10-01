@@ -44,7 +44,7 @@ defmodule TiannaraRuntime.Cortex.ImmuneCortex do
   def init(_opts) do
     Mix.shell().info("🛡️  ImmuneCortex initialized (risk assessment engine)")
 
-    {:ok, %{assessments: 0, worlds_monitored: MapSet.new()}}
+    {:ok, %{assessments: 0, worlds_monitored: MapSet.new(), risk_by_world: %{}}}
   end
 
   @doc """
@@ -77,7 +77,7 @@ defmodule TiannaraRuntime.Cortex.ImmuneCortex do
   @impl true
   def handle_call({:assess_risk, world_id, metrics}, _from, state) do
     # Calculate weighted risk score
-    risk = compute_risk(metrics)
+    with {:ok, risk} <- compute_risk(metrics) do
 
     # Determine action based on thresholds
     action = determine_action(risk)
@@ -95,24 +95,27 @@ defmodule TiannaraRuntime.Cortex.ImmuneCortex do
 
     # Trigger SafetyCortex if needed
     if action in [:regulate, :escalate] do
-      trigger_safety_cortex(world_id, risk, action)
+      case trigger_safety_cortex(world_id, risk, action) do
+        :ok -> :ok
+        {:error, reason} -> {:reply, {:error, {:safety_cortex_unavailable, reason}}, state}
+      end
     end
 
     # Update state
-    new_state = %{
-      state
-      | assessments: state.assessments + 1,
-        worlds_monitored: MapSet.put(state.worlds_monitored, world_id)
-    }
+    new_state = %{state | assessments: state.assessments + 1, worlds_monitored: MapSet.put(state.worlds_monitored, world_id), risk_by_world: Map.put(state.risk_by_world, world_id, %{risk_score: risk, action: action, metrics: metrics, assessed_at: DateTime.utc_now()})}
 
     {:reply, %{risk_score: risk, action: action}, new_state}
+    else
+      {:error, reason} -> {:reply, {:error, reason}, state}
+    end
   end
 
   @impl true
   def handle_call({:get_risk_score, world_id}, _from, state) do
-    # For now, return cached risk or nil
-    # In full implementation, this would query a risk cache
-    {:reply, nil, state}
+    case Map.get(state.risk_by_world, world_id) do
+      nil -> {:reply, {:error, :risk_not_assessed}, state}
+      assessment -> {:reply, {:ok, assessment}, state}
+    end
   end
 
   @impl true
@@ -124,24 +127,20 @@ defmodule TiannaraRuntime.Cortex.ImmuneCortex do
   # Private functions
   # ----------------------------
 
-  defp compute_risk(%{entropy: entropy, cascade_rate: cascade, divergence: divergence}) do
+  defp compute_risk(%{entropy: entropy, cascade_rate: cascade, divergence: divergence})
+       when is_number(entropy) and is_number(cascade) and is_number(divergence) do
     # Weighted instability field
-    0.4 * normalize(entropy) +
-    0.3 * normalize(cascade) +
-    0.3 * normalize(divergence)
+    {:ok, 0.4 * normalize(entropy) + 0.3 * normalize(cascade) + 0.3 * normalize(divergence)}
   end
 
-  defp compute_risk(_metrics) do
-    # Default risk if metrics incomplete
-    0.5
-  end
+  defp compute_risk(_metrics), do: {:error, :incomplete_or_invalid_metrics}
 
   defp normalize(value) when is_number(value) do
     # Clamp to [0.0, 1.0]
     max(0.0, min(1.0, value))
   end
 
-  defp normalize(_), do: 0.5
+  defp normalize(_), do: raise(ArgumentError, "risk metric must be numeric")
 
   defp determine_action(risk) do
     cond do
@@ -157,7 +156,11 @@ defmodule TiannaraRuntime.Cortex.ImmuneCortex do
   end
 
   defp trigger_safety_cortex(world_id, risk, action) do
-    # Notify SafetyCortex via cast (async, non-blocking)
-    TiannaraRuntime.Cortex.SafetyCortex.handle_world_risk(world_id, risk, action)
+    if function_exported?(TiannaraRuntime.Cortex.SafetyCortex, :handle_world_risk, 3) and Process.whereis(TiannaraRuntime.Cortex.SafetyCortex) do
+      TiannaraRuntime.Cortex.SafetyCortex.handle_world_risk(world_id, risk, action)
+      :ok
+    else
+      {:error, :safety_cortex_not_running}
+    end
   end
 end

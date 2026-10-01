@@ -148,7 +148,7 @@ defmodule Tiannara.Sentinel.AnomalyDetector do
       anomaly_key: key,
       explanation_id: :measurement_drift,
       description: "Sensor calibration drift or measurement artifact in #{key} readings",
-      likelihood: 0.35,
+      likelihood: evidence_likelihood("measurement_drift", primary, trend_direction),
       evidence: build_evidence("measurement_drift", primary, trend_direction),
       testable: true,
       suggested_test: "Deploy redundant sensor and cross-calibrate against reference standard"
@@ -158,7 +158,7 @@ defmodule Tiannara.Sentinel.AnomalyDetector do
       anomaly_key: key,
       explanation_id: :systemic_phase_transition,
       description: "Underlying system entering a phase transition affecting #{key} dynamics",
-      likelihood: 0.28,
+      likelihood: evidence_likelihood("phase_transition", primary, trend_direction),
       evidence: build_evidence("phase_transition", primary, trend_direction),
       testable: true,
       suggested_test: "Monitor higher-order statistics and variance for non-stationarity indicators"
@@ -168,7 +168,7 @@ defmodule Tiannara.Sentinel.AnomalyDetector do
       anomaly_key: key,
       explanation_id: :coupled_feedback_loop,
       description: "Coupled feedback loop from correlated subsystem amplifying #{key} deviation",
-      likelihood: 0.22,
+      likelihood: evidence_likelihood("feedback_loop", primary, trend_direction),
       evidence: build_evidence("feedback_loop", primary, trend_direction),
       testable: true,
       suggested_test: "Isolate the variable and measure response without feedback coupling"
@@ -195,10 +195,12 @@ defmodule Tiannara.Sentinel.AnomalyDetector do
   defp trend_alignment(_, :stable), do: :inconsistent
   defp trend_alignment(_, _), do: :inconclusive
 
-  defp precedent_count("measurement_drift"), do: 14
-  defp precedent_count("phase_transition"), do: 7
-  defp precedent_count("feedback_loop"), do: 11
-  defp precedent_count(_), do: 0
+  defp precedent_count(_kind), do: 0
+
+  defp evidence_likelihood(_kind, nil, _direction), do: 0.0
+  defp evidence_likelihood(_kind, _anomaly, :inconclusive), do: 0.0
+  defp evidence_likelihood(_kind, _anomaly, :unknown), do: 0.0
+  defp evidence_likelihood(_kind, _anomaly, :consistent), do: 0.0
 
   defp identify_at_risk_designs([], _anomaly_keys, _world_model), do: []
 

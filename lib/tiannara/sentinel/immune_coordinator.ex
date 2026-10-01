@@ -39,16 +39,22 @@ defmodule Tiannara.Sentinel.ImmuneCoordinator do
     shadow_graph_id = fork_shadow_reality(subsystem)
 
     # 3. Test the cure on the Shadow-Graph
-    confidence_score = test_intervention_in_shadow(shadow_graph_id, proposed_cure)
+    result = Tiannara.Sentinel.EpistemicShadowGraph.validate_intervention(
+      shadow_graph_id,
+      proposed_cure,
+      Map.get(anomaly, :telemetry, Map.get(anomaly, :details, %{}))
+    )
 
-    # 4. Evaluate the mathematical confidence of the cure
-    if confidence_score >= @confidence_threshold do
-      Logger.info("✅ [SENTINEL] Shadow-Graph stabilized (Score: #{Float.round(confidence_score, 4)}). Striking live substrate.")
-      execute_live_intervention(subsystem, proposed_cure)
-    else
-      Logger.error("⚠️ [SENTINEL] Intervention failed in Shadow-Graph. Calculating alternative...")
-      # Escalation logic would go here
-      escalate_to_quarantine(subsystem)
+    case result do
+      {:approved, score} when score >= @confidence_threshold ->
+        Logger.info("✅ [SENTINEL] Shadow validation passed (score=#{Float.round(score, 4)}).")
+        request_governed_intervention(subsystem, proposed_cure, score)
+      {:rejected, score} ->
+        Logger.warning("⚠️ [SENTINEL] Shadow validation rejected intervention (score=#{Float.round(score, 4)}).")
+        escalate_to_quarantine(subsystem)
+      {:unavailable, reason} ->
+        Logger.warning("⚠️ [SENTINEL] Shadow validation unavailable: #{inspect(reason)}. No live mutation.")
+        {:unavailable, reason}
     end
 
     destroy_shadow_reality(shadow_graph_id)
@@ -64,16 +70,9 @@ defmodule Tiannara.Sentinel.ImmuneCoordinator do
 
   defp fork_shadow_reality(subsystem), do: "shadow_#{subsystem}_#{System.unique_integer()}"
 
-  defp test_intervention_in_shadow(_shadow_id, :observe_only), do: 1.0
-  defp test_intervention_in_shadow(_shadow_id, _cure) do
-    # In a real implementation, this would involve the EpistemicShadowGraph module
-    # and running a simulation. For now, we simulate a successful result.
-    :rand.uniform() * 0.4 + 0.6 # 0.6 - 1.0
-  end
-
-  defp execute_live_intervention(subsystem, cure) do
-    Logger.info("🔥 [SENTINEL] Executing #{cure} on #{subsystem} substrate.")
-    :ok
+  defp request_governed_intervention(subsystem, cure, score) do
+    Logger.info("🛡️ [SENTINEL] Intervention #{inspect(cure)} for #{inspect(subsystem)} passed shadow validation; awaiting CEL/C14 authorization (score=#{score}).")
+    {:pending_authorization, %{subsystem: subsystem, cure: cure, score: score}}
   end
 
   defp escalate_to_quarantine(subsystem) do

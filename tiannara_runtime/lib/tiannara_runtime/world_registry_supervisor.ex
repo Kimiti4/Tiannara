@@ -22,6 +22,7 @@ defmodule TiannaraRuntime.WorldRegistrySupervisor do
     children = [
       # Registry tracks all active worlds and their metadata
       {TiannaraRuntime.WorldRegistry, []},
+      {Registry, keys: :unique, name: TiannaraRuntime.WorldProcessRegistry},
       
       # DynamicSupervisor spawns isolated world runtime trees
       # Each world gets its own supervision subtree

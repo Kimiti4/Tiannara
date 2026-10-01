@@ -41,6 +41,26 @@ export default function CognitiveWorkspacePage() {
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const [conversationId, setConversationId] = useState<string | undefined>(undefined)
+
+  const sendToTiannara = async () => {
+    if (!textInput.trim() || isAnalyzing) return
+    setIsAnalyzing(true); setError(null)
+    try {
+      const response = await fetch('/api/v1/chat', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: textInput, conversation_id: conversationId })
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.detail || 'Tiannara request failed')
+      setConversationId(data.conversation_id)
+      setResult({ nlp: { summary: data.response || 'No response', entities: [], sentiment: 'neutral' } })
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Tiannara request failed')
+    } finally { setIsAnalyzing(false) }
+  }
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -175,6 +195,7 @@ export default function CognitiveWorkspacePage() {
     setError(null)
   }
 
+  // Tiannara conversational controls are intentionally separate from image analysis.
   return (
     <div className="p-8 max-w-7xl mx-auto">
       {/* Header */}
@@ -356,6 +377,11 @@ export default function CognitiveWorkspacePage() {
               </>
             )}
           </button>
+          {activeTab === 'text' && !imageFile && textInput.trim() && (
+            <button onClick={sendToTiannara} disabled={isAnalyzing} className="px-6 py-3 rounded-xl border border-cyan-400/20 bg-cyan-400/10 text-cyan-200 font-medium disabled:opacity-50">
+              Communicate with Tiannara
+            </button>
+          )}
 
           {(imageFile || textInput) && (
             <button

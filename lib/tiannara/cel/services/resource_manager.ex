@@ -29,7 +29,12 @@ defmodule Tiannara.CEL.Services.ResourceManager do
   def capabilities, do: [:resource_allocation, :sustainability_enforcement, :capacity_planning]
 
   @impl true
-  def health, do: :healthy
+  def health do
+    case Process.whereis(__MODULE__) do
+      nil -> :unhealthy
+      _ -> if ready?(), do: :healthy, else: :unhealthy
+    end
+  end
 
   @impl true
   def constitutional_score do
@@ -179,19 +184,12 @@ defmodule Tiannara.CEL.Services.ResourceManager do
   end
 
   defp compute_available(state) do
+    # The reserve is protected capacity, not extra capacity.
     %{
-      cpu:
-        max(0, round(state.total.cpu * @sustainability_reserve)) +
-          max(0, state.total.cpu - state.allocated.cpu),
-      memory_mb:
-        max(0, round(state.total.memory_mb * @sustainability_reserve)) +
-          max(0, state.total.memory_mb - state.allocated.memory_mb),
-      gpu:
-        max(0, round(state.total.gpu * @sustainability_reserve)) +
-          max(0, state.total.gpu - state.allocated.gpu),
-      storage_gb:
-        max(0, round(state.total.storage_gb * @sustainability_reserve)) +
-          max(0, state.total.storage_gb - state.allocated.storage_gb)
+      cpu: max(0, round(state.total.cpu * (1.0 - @sustainability_reserve)) - state.allocated.cpu),
+      memory_mb: max(0, round(state.total.memory_mb * (1.0 - @sustainability_reserve)) - state.allocated.memory_mb),
+      gpu: max(0, round(state.total.gpu * (1.0 - @sustainability_reserve)) - state.allocated.gpu),
+      storage_gb: max(0, round(state.total.storage_gb * (1.0 - @sustainability_reserve)) - state.allocated.storage_gb)
     }
   end
 

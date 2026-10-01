@@ -279,12 +279,12 @@ defmodule Tiannara.Genetics.WorldGenome do
     end
   end
 
-  defp calculate_generation(parent_ids) do
-    case parent_ids do
-      [] -> 0
-      _ -> 1  # Will be properly set by parent tracking
-    end
+  def generation_from_parents([]), do: 0
+  def generation_from_parents(parent_generations) when is_list(parent_generations) do
+    1 + Enum.max(parent_generations, fn -> 0 end)
   end
+
+  defp calculate_generation(parent_ids), do: if(parent_ids == [], do: 0, else: 1)
 
   defp mutate_subsystem(genes, mutation_rate, mutation_strength) do
     if :rand.uniform() <= mutation_rate do
@@ -302,8 +302,8 @@ defmodule Tiannara.Genetics.WorldGenome do
   end
 
   defp select_subsystem(field_type, genome_a, genome_b, subsystem_fitness, tau_selection) do
-    phi_a = Map.get(subsystem_fitness, field_type, 0.5)
-    phi_b = Map.get(subsystem_fitness, field_type, 0.5)
+    phi_a = Map.get(subsystem_fitness, {field_type, genome_a.world_id}, Map.get(subsystem_fitness, field_type, 0.5))
+    phi_b = Map.get(subsystem_fitness, {field_type, genome_b.world_id}, Map.get(subsystem_fitness, field_type, 0.5))
     
     # Boltzmann selection probability
     p_a = :math.exp(phi_a / tau_selection)

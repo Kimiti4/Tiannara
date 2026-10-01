@@ -120,8 +120,8 @@ defmodule Tiannara.ToolForge.ToolBuilder do
       @impl true
       def handle_info(_, state), do: {:noreply, state}
 
-      defp do_execute(input) do
-        {:error, {:not_implemented, input}}
+      defp do_execute(_input) do
+        {:error, :not_implemented}
       end
     end
     """
@@ -148,8 +148,8 @@ defmodule Tiannara.ToolForge.ToolBuilder do
         assert health.healthy == true
       end
 
-      test "execute returns result" do
-        assert {:ok, _} = #{module_name}.execute(%{test: true})
+      test "execute is explicit until an implementation is supplied" do
+        assert {:ok, {:error, :not_implemented}} = #{module_name}.execute(%{test: true})
       end
 
       test "metrics tracks executions" do
@@ -245,9 +245,8 @@ defmodule Tiannara.ToolForge.ToolBuilder do
             return ExecuteResponse(result={"error": str(e)}, execution_time_ms=(time.time() - start) * 1000)
 
 
-    def do_execute(input_data: Dict[str, Any]) -> Any:
-        # TODO: Implementation generated from specification.
-        return {"status": "implemented", "input": input_data}
+    def do_execute(_input_data: Dict[str, Any]) -> Any:
+        raise NotImplementedError("ToolForge generated execution body is not implemented")
 
 
     if __name__ == "__main__":

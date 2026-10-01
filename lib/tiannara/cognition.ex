@@ -3,6 +3,6 @@ defmodule Tiannara.Cognition do
 
   defstruct []
 
-  @doc "Placeholder planning API — returns an example tuple."
-  def plan(_state, _goal), do: {:ok, :no_plan_available}
+  @doc "Planning requires an actual planning backend; never fabricate a plan."
+  def plan(_state, _goal), do: {:error, :planning_backend_unavailable}
 end

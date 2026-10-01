@@ -55,7 +55,23 @@ defmodule Tiannara.Research.ResearchDirector do
 
   @spec health() :: map()
   def health do
-    %{status: :healthy, active_hypotheses: HypothesisRanker.active_count(), pending_experiments: ResearchQueue.pending_count(), running_experiments: ResearchQueue.running_count(), validated_knowledge: KnowledgeIntegrator.total_integrated(), evidence_scored: EvidenceScorer.total_scored()}
+    try do
+      queue = ResearchQueue.status()
+      ranker = HypothesisRanker.status()
+      planner = ExperimentPlanner.status()
+      scorer = EvidenceScorer.status()
+      integrator = KnowledgeIntegrator.status()
+      running = ResearchQueue.running_count()
+      pending = ResearchQueue.pending_count()
+      status = if running > 0 or pending >= 0, do: :operational, else: :degraded
+      %{status: status, active_hypotheses: HypothesisRanker.active_count(), pending_experiments: pending, running_experiments: running,
+        validated_knowledge: KnowledgeIntegrator.total_integrated(), evidence_scored: EvidenceScorer.total_scored(),
+        components: %{queue: queue, ranker: ranker, planner: planner, scorer: scorer, integrator: integrator}}
+    rescue
+      error -> %{status: :unavailable, error: Exception.message(error)}
+    catch
+      kind, reason -> %{status: :unavailable, error: inspect({kind, reason})}
+    end
   end
 
   @spec ingest_priorities([map()]) :: {:ok, non_neg_integer()}

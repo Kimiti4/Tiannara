@@ -61,13 +61,18 @@ defmodule Tiannara.Sentinel.SentinelRuntime do
 
   @spec health() :: map()
   def health do
-    %{
-      status: :healthy,
-      observations_total: ObservationBuffer.total_observations(),
-      anomalies_detected: AnomalyClassifier.total_detected(),
-      active_priorities: PriorityEngine.active_count(),
-      patterns_tracked: PatternDetector.tracked_count()
-    }
+    components = [ObservationScheduler, ObservationBuffer, PatternDetector, AnomalyClassifier, PriorityEngine]
+    if Enum.all?(components, &Process.whereis/1) do
+      %{
+        status: :operational,
+        observations_total: ObservationBuffer.total_observations(),
+        anomalies_detected: AnomalyClassifier.total_detected(),
+        active_priorities: PriorityEngine.active_count(),
+        patterns_tracked: PatternDetector.tracked_count()
+      }
+    else
+      %{status: :unavailable, reason: :sentinel_component_not_running}
+    end
   end
 
   @spec recent_observations(non_neg_integer()) :: [map()]

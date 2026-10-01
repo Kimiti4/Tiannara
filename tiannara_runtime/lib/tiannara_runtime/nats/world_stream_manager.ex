@@ -19,7 +19,7 @@ defmodule TiannaraRuntime.NATS.WorldStreamManager do
   end
 
   def publish(topic, message) do
-    GenServer.cast(__MODULE__, {:publish, topic, message})
+    GenServer.call(__MODULE__, {:publish, topic, message})
   end
 
   def subscribe(topic, handler_pid) do
@@ -46,16 +46,21 @@ defmodule TiannaraRuntime.NATS.WorldStreamManager do
       connection: nil,
       subscriptions: %{},
       reconnect_attempts: 0,
-      connected: true
+      connected: false
     }
     {:ok, state}
   end
 
   @impl true
-  def handle_cast({:publish, topic, message}, state) do
+  def handle_call({:publish, topic, message}, _from, state) do
     json_payload = Jason.encode!(message)
-    TiannaraRuntime.NATS.Bus.publish(topic, json_payload)
-    {:noreply, state}
+
+    case TiannaraRuntime.NATS.Bus.publish(topic, json_payload) do
+      :ok -> {:reply, :ok, %{state | connected: true}}
+      {:ok, _} = result -> {:reply, result, %{state | connected: true}}
+      {:error, reason} -> {:reply, {:error, reason}, %{state | connected: false, reconnect_attempts: state.reconnect_attempts + 1}}
+      other -> {:reply, {:error, {:unexpected_publish_result, other}}, state}
+    end
   end
 
   @impl true
@@ -63,9 +68,15 @@ defmodule TiannaraRuntime.NATS.WorldStreamManager do
     if Map.has_key?(state.subscriptions, topic) do
       {:reply, {:error, :already_subscribed}, state}
     else
-      TiannaraRuntime.NATS.Bus.subscribe(topic)
-      new_subscriptions = Map.put(state.subscriptions, topic, handler_pid)
-      {:reply, :ok, %{state | subscriptions: new_subscriptions}}
+      case TiannaraRuntime.NATS.Bus.subscribe(topic) do
+        :ok ->
+          new_subscriptions = Map.put(state.subscriptions, topic, handler_pid)
+          {:reply, :ok, %{state | subscriptions: new_subscriptions, connected: true}}
+        {:error, reason} ->
+          {:reply, {:error, reason}, %{state | connected: false}}
+        other ->
+          {:reply, {:error, {:unexpected_subscribe_result, other}}, state}
+      end
     end
   end
 

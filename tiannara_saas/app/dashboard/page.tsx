@@ -110,7 +110,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="tiannara-grid min-h-full p-8 max-w-[1500px] mx-auto">
       {/* Connection Status */}
       <div className="mb-4 flex items-center justify-end">
         <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs ${
@@ -124,9 +124,9 @@ export default function Dashboard() {
       </div>
 
       {/* Welcome Section */}
-      <div className="mb-8 bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-xl p-6">
-        <h1 className="text-2xl font-bold text-white mb-2">Welcome back{onboardingData ? ', User' : ''} 👋</h1>
-        <p className="text-slate-400">Your AI systems are running normally.</p>
+      <div className="tiannara-panel tiannara-accent mb-8 rounded-2xl p-7">
+        <div className="flex items-start justify-between gap-6"><div><p className="text-xs uppercase tracking-[0.25em] text-cyan-300/80 mb-2">Cognitive Operations</p><h1 className="text-3xl font-bold text-white mb-2">Welcome back{userName(onboardingData)} 👋</h1>
+        <p className="text-slate-400">Research, reasoning, workflows, evidence and runtime state in one workspace.</p></div><a href="/dashboard/cognitive-workspace" className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white hover:bg-white/10">Open workspace →</a></div>
       </div>
 
       {loading ? (
@@ -217,7 +217,7 @@ export default function Dashboard() {
       {/* System Insights */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-white mb-4">System Insights</h2>
-        <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 space-y-4">
+        <div className="tiannara-panel rounded-2xl p-6 space-y-4">
           {insights.length > 0 ? (
             insights.map((insight) => (
               <InsightCard
@@ -246,7 +246,7 @@ function StatCard({ title, value, subtitle, icon: Icon, color }: any) {
   }
 
   return (
-    <div className={`bg-gradient-to-br ${colors[color as keyof typeof colors]} border rounded-xl p-6`}>
+    <div className={`tiannara-panel bg-gradient-to-br ${colors[color as keyof typeof colors]} rounded-2xl p-6`}>
       <div className="flex items-start justify-between mb-4">
         <Icon className="w-6 h-6 text-white opacity-80" />
       </div>
@@ -264,7 +264,7 @@ function WorkflowCard({ name, steps, status, lastRun, accuracy, statusColor }: a
   }
 
   return (
-    <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-purple-500/40 transition-colors">
+    <div className="tiannara-panel rounded-2xl p-6 transition-colors">
       <div className="flex items-start justify-between mb-3">
         <div>
           <h3 className="text-base font-semibold text-white mb-1">{name}</h3>
@@ -299,7 +299,7 @@ function QuickActionCard({ title, icon: Icon, href }: any) {
 
 function InsightCard({ type, icon: Icon, message }: any) {
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-start gap-3 rounded-xl border border-white/5 bg-white/[.02] p-3">
       <div className="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
         <Icon className="w-4 h-4 text-purple-400" />
       </div>
@@ -310,3 +310,5 @@ function InsightCard({ type, icon: Icon, message }: any) {
     </div>
   )
 }
+
+function userName(data: any) { return data ? 'there' : ''; }

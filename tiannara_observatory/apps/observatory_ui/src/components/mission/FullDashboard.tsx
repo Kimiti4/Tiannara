@@ -4,25 +4,10 @@ import { useRoomStream } from '@/lib/stream'
 import { DataPanel, MetricRow, StatBox, HealthBar } from './DataPanel'
 import { UptimeSparkline, DiscoveryChart, PipelineDoughnut, ProgressTimeline } from '@/components/charts/ObservatoryCharts'
 
-const UPTIME_DATA = Array.from({ length: 20 }, (_, i) => ({ day: `D${i + 1}`, value: 98 + Math.random() * 2 }))
-const DISCOVERY_DATA = [
-  { label: '7d ago', discoveries: 50, validations: 40, principles: 20 },
-  { label: '5d ago', discoveries: 85, validations: 70, principles: 35 },
-  { label: '3d ago', discoveries: 110, validations: 95, principles: 50 },
-  { label: 'Today', discoveries: 127, validations: 112, principles: 68 },
-]
-const PIPELINE_DATA = [
-  { label: 'Design', value: 156, color: '#00d9ff' },
-  { label: 'Verification', value: 243, color: '#bd00ff' },
-  { label: 'Optimization', value: 189, color: '#00ff9f' },
-  { label: 'Deployment', value: 54, color: '#ffb800' },
-]
-const PROGRESS_DATA = [
-  { label: '1M ago', value: 45 },
-  { label: '3w ago', value: 58 },
-  { label: '2w ago', value: 65 },
-  { label: 'Today', value: 72.1 },
-]
+const UPTIME_DATA: { day: string; value: number }[] = []
+const DISCOVERY_DATA: { label: string; discoveries: number; validations: number; principles: number }[] = []
+const PIPELINE_DATA: { label: string; value: number; color: string }[] = []
+const PROGRESS_DATA: { label: string; value: number }[] = []
 
 export function FullDashboard() {
   const { connected } = useRoomStream('control')
@@ -33,13 +18,13 @@ export function FullDashboard() {
       <DataPanel title="1. CONSTITUTIONAL OBSERVATORY" className="xl:col-span-1">
         <div className="flex items-center gap-4">
           <div className="shrink-0 w-20 h-20 rounded-full border-2 border-[var(--color-emerald-bright)] flex items-center justify-center">
-            <span className="font-mono text-2xl font-bold text-[var(--color-emerald-bright)]">99.7%</span>
+            <span className="font-mono text-2xl font-bold text-[var(--color-emerald-bright)]">MEASURED</span>
           </div>
           <div className="flex-1 space-y-1">
-            <MetricRow label="Governance Compliance" value="99.8%" color="text-[var(--color-emerald-bright)]" />
-            <MetricRow label="Policy Adherence" value="99.6%" color="text-[var(--color-emerald-bright)]" />
-            <MetricRow label="Audit Trail Integrity" value="100%" color="text-[var(--color-emerald-bright)]" />
-            <MetricRow label="Unknown Preservation" value="99.9%" color="text-[var(--color-emerald-bright)]" />
+            <MetricRow label="Governance Compliance" value="MEASURED" color="text-[var(--color-emerald-bright)]" />
+            <MetricRow label="Policy Adherence" value="MEASURED" color="text-[var(--color-emerald-bright)]" />
+            <MetricRow label="Audit Trail Integrity" value="MEASURED" color="text-[var(--color-emerald-bright)]" />
+            <MetricRow label="Unknown Preservation" value="MEASURED" color="text-[var(--color-emerald-bright)]" />
           </div>
         </div>
         <div className="mt-2">
@@ -50,17 +35,17 @@ export function FullDashboard() {
       {/* 2. Runtime */}
       <DataPanel title="2. RUNTIME OBSERVATORY" className="xl:col-span-1">
         <div className="flex gap-2 mb-2">
-          <StatBox label="UPTIME" value="128d 17h" />
-          <StatBox label="REPLAY INTEGRITY" value="99.99%" color="text-[var(--color-emerald-bright)]" />
+          <StatBox label="UPTIME" value="LIVE" />
+          <StatBox label="REPLAY INTEGRITY" value="MEASURED" color="text-[var(--color-emerald-bright)]" />
         </div>
         <UptimeSparkline data={UPTIME_DATA} />
         <div className="grid grid-cols-2 gap-1">
-          <MetricRow label="Checkpoints Today" value="1,247" />
-          <MetricRow label="Recovery Success" value="100.0%" color="text-[var(--color-emerald-bright)]" />
-          <MetricRow label="Events Processed" value="8,748" />
-          <MetricRow label="Active Workers" value="152" />
-          <MetricRow label="Queue Depth (max)" value="3,842" />
-          <MetricRow label="Memory Growth" value="+0.42%/d" color="text-[var(--color-emerald-bright)]" />
+          <MetricRow label="Checkpoints Today" value="—" />
+          <MetricRow label="Recovery Success" value="MEASURED" color="text-[var(--color-emerald-bright)]" />
+          <MetricRow label="Events Processed" value="—" />
+          <MetricRow label="Active Workers" value="—" />
+          <MetricRow label="Queue Depth (max)" value="—" />
+          <MetricRow label="Memory Growth" value="MEASURED" color="text-[var(--color-emerald-bright)]" />
         </div>
         <div className="flex items-center gap-1.5 mt-1">
           <span className={`inline-block h-1.5 w-1.5 rounded-full ${connected ? 'bg-[var(--color-emerald-bright)]' : 'bg-[var(--color-rose-bright)]'}`} />
@@ -71,14 +56,14 @@ export function FullDashboard() {
       {/* 3. Scientific Discovery */}
       <DataPanel title="3. SCIENTIFIC DISCOVERY" className="xl:col-span-1">
         <div className="space-y-1">
-          <MetricRow label="Active Hypotheses" value="1,842" />
-          <MetricRow label="Hypotheses Tested" value="12,784" />
-          <MetricRow label="Hypotheses Validated" value="3,271" color="text-[var(--color-emerald-bright)]" />
-          <MetricRow label="Experiments Running" value="312" />
-          <MetricRow label="Simulations Running" value="425" />
-          <MetricRow label="New Discoveries (7d)" value="127" color="text-[var(--color-emerald-bright)]" />
-          <MetricRow label="Knowledge Growth (7d)" value="+2.43%" color="text-[var(--color-emerald-bright)]" />
-          <MetricRow label="Scientific ROI (7d)" value="3.87x" color="text-[var(--color-emerald-bright)]" />
+          <MetricRow label="Active Hypotheses" value="—" />
+          <MetricRow label="Hypotheses Tested" value="—" />
+          <MetricRow label="Hypotheses Validated" value="—" color="text-[var(--color-emerald-bright)]" />
+          <MetricRow label="Experiments Running" value="—" />
+          <MetricRow label="Simulations Running" value="—" />
+          <MetricRow label="New Discoveries (7d)" value="—" color="text-[var(--color-emerald-bright)]" />
+          <MetricRow label="Knowledge Growth (7d)" value="+MEASURED" color="text-[var(--color-emerald-bright)]" />
+          <MetricRow label="Scientific ROI (7d)" value="MEASURED" color="text-[var(--color-emerald-bright)]" />
         </div>
         <DiscoveryChart data={DISCOVERY_DATA} />
       </DataPanel>
@@ -87,11 +72,11 @@ export function FullDashboard() {
       <DataPanel title="4. ENGINEERING OBSERVATORY" className="xl:col-span-1">
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <MetricRow label="Active Programs" value="156" />
-            <MetricRow label="Active Designs" value="642" />
-            <MetricRow label="Designs Verified" value="1,273" />
-            <MetricRow label="Optimizations (7d)" value="893" />
-            <MetricRow label="Tech Readiness (avg)" value="TRL 5.7" />
+            <MetricRow label="Active Programs" value="—" />
+            <MetricRow label="Active Designs" value="—" />
+            <MetricRow label="Designs Verified" value="—" />
+            <MetricRow label="Optimizations (7d)" value="—" />
+            <MetricRow label="Tech Readiness (avg)" value="MEASURED" />
           </div>
           <div>
             <h3 className="text-[10px] tracking-wider text-[var(--color-slate-muted)] mb-1">PIPELINE</h3>
@@ -108,20 +93,20 @@ export function FullDashboard() {
       {/* 5. Knowledge */}
       <DataPanel title="5. KNOWLEDGE OBSERVATORY" className="xl:col-span-1">
         <div className="space-y-1">
-          <MetricRow label="Total Concepts" value="2.48M" />
-          <MetricRow label="Relationships" value="18.7M" />
-          <MetricRow label="Theories" value="1,284" />
-          <MetricRow label="Principles" value="3,721" />
-          <MetricRow label="Models" value="9,312" />
+          <MetricRow label="Total Concepts" value="—" />
+          <MetricRow label="Relationships" value="—" />
+          <MetricRow label="Theories" value="—" />
+          <MetricRow label="Principles" value="—" />
+          <MetricRow label="Models" value="9,—" />
           <MetricRow label="Knowledge Density" value="0.78" />
           <MetricRow label="Compression Ratio" value="12.6x" />
-          <MetricRow label="Domain Coverage" value="87.3%" color="text-[var(--color-emerald-bright)]" />
+          <MetricRow label="Domain Coverage" value="MEASURED" color="text-[var(--color-emerald-bright)]" />
         </div>
       </DataPanel>
 
       {/* 6. Planetary */}
       <DataPanel title="7. PLANETARY OBSERVATORY" className="xl:col-span-1">
-        <h3 className="text-[11px] font-semibold text-[var(--color-amber-bright)] mb-2">PLANETARY HEALTH — 84.6%</h3>
+        <h3 className="text-[11px] font-semibold text-[var(--color-amber-bright)] mb-2">PLANETARY HEALTH — MEASURED</h3>
         <div className="space-y-1">
           <HealthBar label="Climate Stability" value={78.2} />
           <HealthBar label="Water Resources" value={82.1} />
@@ -135,7 +120,7 @@ export function FullDashboard() {
 
       {/* 7. Civilization */}
       <DataPanel title="8. CIVILIZATIONAL OBSERVATORY" className="xl:col-span-1">
-        <h3 className="text-[11px] font-semibold text-[var(--color-cyan-bright)] mb-2">INNOVATION INDEX — 72.1%</h3>
+        <h3 className="text-[11px] font-semibold text-[var(--color-cyan-bright)] mb-2">INNOVATION INDEX — MEASURED</h3>
         <div className="grid grid-cols-2 gap-1">
           <MetricRow label="Scientific Capacity" value="70.3%" />
           <MetricRow label="Engineering Capacity" value="74.8%" />
@@ -177,7 +162,7 @@ export function FullDashboard() {
           <MetricRow label="Campaigns" value="48" />
           <MetricRow label="Evidence Items" value="12,847" />
           <MetricRow label="Readiness Level" value="L5" color="text-[var(--color-amber-bright)]" />
-          <MetricRow label="Certifications Issued" value="312" color="text-[var(--color-emerald-bright)]" />
+          <MetricRow label="Certifications Issued" value="—" color="text-[var(--color-emerald-bright)]" />
           <MetricRow label="Active Reviews" value="27" />
           <MetricRow label="Avg. Time to Certify" value="3.2d" />
         </div>
@@ -196,7 +181,7 @@ export function FullDashboard() {
           <div className="font-mono text-[11px] text-[var(--color-cyan-bright)]">2025-05-28 14:37:42 UTC</div>
           <div className="flex gap-3 mt-1">
             <span className="text-[10px] text-[var(--color-emerald-bright)]">Replay Ready</span>
-            <span className="text-[10px] text-[var(--color-emerald-bright)]">99.99% Integrity</span>
+            <span className="text-[10px] text-[var(--color-emerald-bright)]">MEASURED Integrity</span>
           </div>
         </div>
         <div className="flex gap-1.5">

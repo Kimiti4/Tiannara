@@ -30,12 +30,8 @@ defmodule TiannaraRuntime.WorldSupervisor do
       # State manager - isolated world state
       {TiannaraRuntime.WorldStateManager, world_config},
       
-      # CAL engine - coalition arbitration logic
-      {TiannaraRuntime.CAL.Engine, world_config},
-      
-      # CIS engine - immune regulation
-      {TiannaraRuntime.CIS.Engine, world_config},
-      
+      # CAL and CIS are deterministic domain functions invoked by the simulation loop;
+      # they are not OTP processes and therefore are not supervised as children.
       # Memory store - append-only timeline
       {TiannaraRuntime.WorldMemoryStore, world_config},
       
@@ -57,14 +53,14 @@ defmodule TiannaraRuntime.WorldSupervisor do
   Get the Registry tuple for a world supervisor.
   """
   def via_tuple(world_id) do
-    {:via, Registry, {TiannaraRuntime.WorldRegistry, world_id}}
+    {:via, Registry, {TiannaraRuntime.WorldProcessRegistry, world_id}}
   end
   
   @doc """
   Stop a world supervisor and all its children.
   """
   def stop_world(world_id) do
-    case Registry.lookup(TiannaraRuntime.WorldRegistry, world_id) do
+    case Registry.lookup(TiannaraRuntime.WorldProcessRegistry, world_id) do
       [{pid, _}] ->
         Supervisor.stop(pid, :normal)
         Logger.info("🛑 Stopped world #{world_id}")

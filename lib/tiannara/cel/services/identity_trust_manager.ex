@@ -44,7 +44,12 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
   def capabilities, do: [:identity_management, :trust_scoring, :credential_verification, :capability_authorization]
 
   @impl true
-  def health, do: :healthy
+  def health do
+    case Process.whereis(__MODULE__) do
+      pid when is_pid(pid) -> :healthy
+      _ -> :unhealthy
+    end
+  end
 
   @impl true
   def constitutional_score do
