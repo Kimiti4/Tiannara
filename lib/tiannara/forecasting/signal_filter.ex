@@ -10,6 +10,7 @@ defmodule Tiannara.Forecasting.SignalFilter do
 
   def filter(data, opts \\ []) when is_list(data) do
     min_support = Keyword.get(opts, :min_support, 2)
+    rare_policy = Keyword.get(opts, :rare_policy, :flag)
     numeric_only = Keyword.get(opts, :numeric_only, true)
 
     if numeric_only and not Enum.all?(data, &valid_numeric_datum?/1) do
@@ -19,13 +20,13 @@ defmodule Tiannara.Forecasting.SignalFilter do
         data
         |> Enum.with_index()
         |> Enum.split_with(fn {datum, _index} ->
-          supported?(datum, data, min_support)
+          supported?(datum, data, min_support) or rare_policy == :preserve
         end)
 
       {:ok, %{
         accepted: Enum.map(accepted, &elem(&1, 0)),
         rejected: Enum.map(rejected, &annotate_rejection(elem(&1, 0), data, min_support)),
-        policy: %{min_support: min_support, numeric_only: numeric_only},
+        policy: %{min_support: min_support, numeric_only: numeric_only, rare_policy: rare_policy},
         status: :filtered_not_certified
       }}
     end
