@@ -29,42 +29,40 @@ defmodule Tiannara.Sentinel.ImmuneCoordinator do
 
   @impl true
   def handle_cast({:triage, %{type: anomaly_type, subsystem: subsystem, details: _details} = anomaly}, state) do
-    case require_anomaly_evidence(anomaly) do
-      :ok -> :ok
+    with :ok <- require_anomaly_evidence(anomaly) do
+      Logger.warning("🛡️ [SENTINEL] Triage initiated for #{anomaly_type} in #{subsystem}.")
+      proposed_cure = generate_intervention_strategy(anomaly_type, anomaly)
+      intervention_id = "immune-#{System.unique_integer([:positive])}"
+      shadow_graph_id = fork_shadow_reality(subsystem)
+
+      result =
+        Tiannara.Sentinel.EpistemicShadowGraph.validate_intervention(
+          shadow_graph_id,
+          proposed_cure,
+          Map.get(anomaly, :telemetry, Map.get(anomaly, :details, %{}))
+        )
+
+      response =
+        case result do
+          {:approved, score} when score >= @confidence_threshold ->
+            Logger.info("✅ [SENTINEL] Shadow simulation passed threshold (score=#{Float.round(score, 4)}); no live effect inferred.")
+            request_governed_intervention(intervention_id, subsystem, proposed_cure, score, anomaly, result)
+          {:rejected, score} ->
+            Logger.warning("⚠️ [SENTINEL] Shadow validation rejected intervention (score=#{Float.round(score, 4)}).")
+            escalate_to_quarantine(subsystem)
+          {:unavailable, reason} ->
+            Logger.warning("⚠️ [SENTINEL] Shadow validation unavailable: #{inspect(reason)}. No live mutation.")
+            {:unavailable, reason}
+        end
+
+      destroy_shadow_reality(shadow_graph_id)
+      response
+    else
       {:error, reason} ->
-        Logger.warning("🛑 [SENTINEL] Immune triage rejected: missing/invalid observation evidence: #{inspect(reason)}.")
-        return_without_mutation(reason)
-    end
-    Logger.warning("🛡️ [SENTINEL] Triage initiated for #{anomaly_type} in #{subsystem}.")
-
-    # 1. Generate a proposed intervention strategy
-    proposed_cure = generate_intervention_strategy(anomaly_type, anomaly)
-
-    # 2. Fork the world into a localized, accelerated Epistemic Shadow-Graph
-    # For now, we simulate this as a call to the EpistemicShadowGraph module if it exists
-    intervention_id = "immune-#{System.unique_integer([:positive])}"
-    shadow_graph_id = fork_shadow_reality(subsystem)
-
-    # 3. Test the cure on the Shadow-Graph
-    result = Tiannara.Sentinel.EpistemicShadowGraph.validate_intervention(
-      shadow_graph_id,
-      proposed_cure,
-      Map.get(anomaly, :telemetry, Map.get(anomaly, :details, %{}))
-    )
-
-    case result do
-      {:approved, score} when score >= @confidence_threshold ->
-        Logger.info("✅ [SENTINEL] Shadow simulation passed threshold (score=#{Float.round(score, 4)}); no live effect inferred.")
-        request_governed_intervention(intervention_id, subsystem, proposed_cure, score, anomaly, result)
-      {:rejected, score} ->
-        Logger.warning("⚠️ [SENTINEL] Shadow validation rejected intervention (score=#{Float.round(score, 4)}).")
-        escalate_to_quarantine(subsystem)
-      {:unavailable, reason} ->
-        Logger.warning("⚠️ [SENTINEL] Shadow validation unavailable: #{inspect(reason)}. No live mutation.")
-        {:unavailable, reason}
+        Logger.warning("🛑 [SENTINEL] Immune triage rejected: #{inspect(reason)}.")
+        :ok
     end
 
-    destroy_shadow_reality(shadow_graph_id)
     {:noreply, state}
   end
 
