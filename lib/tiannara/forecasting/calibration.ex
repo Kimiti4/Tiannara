@@ -10,6 +10,7 @@ defmodule Tiannara.Forecasting.Calibration do
   alias Tiannara.Foundations.InformationTheory
 
   @min_sample 5
+  @brier_clamp_epsilon 1.0e-15
   @log_epsilon 1.0e-15
 
   @type score_result :: %{method: atom(), value: number() | :unknown, sample_size: non_neg_integer()}
@@ -26,7 +27,7 @@ defmodule Tiannara.Forecasting.Calibration do
     end
   end
 
-  def brier(p, observed) when is_number(p) and observed in [0, 1], do: :math.pow(p - observed, 2)
+  def brier(p, observed) when is_number(p) and observed in [0, 1] and p >= 0 and p <= 1, do: :math.pow(p - observed, 2)
   def brier(_, _), do: :unknown
 
   def log_loss(p, observed) when is_number(p) and observed in [0, 1] do
@@ -68,6 +69,11 @@ defmodule Tiannara.Forecasting.Calibration do
     end
   end
   def sharpness(_), do: :unknown
+
+  def calibration_status(pairs) when is_list(pairs) do
+    n = length(pairs)
+    if n < @min_sample, do: :insufficient_sample, else: :diagnostic_only
+  end
 
   def reliability(binned) when is_list(binned) do
     %{reliability_diagram: binned,
