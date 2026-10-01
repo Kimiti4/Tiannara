@@ -128,7 +128,11 @@ defmodule TiannaraOS.AdoptionEngine do
       {:ok, state} = governance_review(kernel_pid, foreign_artifact, opts, state)
       
       # Phase 2: Validation
-      {:ok, validation_result, state} = validate_artifact(kernel_pid, foreign_artifact, state)
+      if Enum.all?(validation_result.checks, fn {_k, v} -> v == true end) do
+      {:ok, validation_result, state}
+    else
+      {:error, {:validation_failed, validation_result.checks}}
+    end = validate_artifact(kernel_pid, foreign_artifact, state)
       
       # Phase 3: Replication (if requested and validated)
       replication_result = if Map.get(opts, :auto_replicate, false) and validation_result.valid do
@@ -240,13 +244,18 @@ defmodule TiannaraOS.AdoptionEngine do
     # Check if artifact meets local constitutional requirements
     # In real implementation, would query Governance Engine
     
-    # For now, assume governance approves (can be configured to reject based on policy)
-    governance_approval = %{
-      approved: true,
+    governance_approval = case Tiannara.CEL.validate(foreign_artifact) do
+      {:ok, approval} -> Map.merge(%{approved: true}, approval)
+      {:error, reason} -> %{approved: false, reason: reason}
+    end
+
+    if not governance_approval.approved, do: {:error, {:governance_rejected, governance_approval.reason}}
+
+    governance_approval = Map.merge(governance_approval, %{
       reviewed_at_tick: get_current_tick(kernel_pid),
       reviewer: :local_governance,
       conditions: []
-    }
+    })
     
     # Emit governance event
     emit_governance_event(kernel_pid, foreign_artifact, governance_approval)
@@ -265,7 +274,7 @@ defmodule TiannaraOS.AdoptionEngine do
         has_complete_traceability: has_traceability?(foreign_artifact),
         has_valid_outcome: has_valid_outcome?(foreign_artifact),
         has_provenance: has_provenance?(foreign_artifact),
-        checksum_valid: true  # Would verify in real implementation
+        checksum_valid: checksum_valid?(foreign_artifact)
       ],
       validated_at_tick: get_current_tick(kernel_pid)
     }
@@ -297,7 +306,7 @@ defmodule TiannaraOS.AdoptionEngine do
           decided_at_tick: get_current_tick(kernel_pid)
         }
       
-      foreign_artifact.hypothesis.confidence >= confidence_threshold ->
+      replication_result != nil and replication_result.confirmed == true ->
         %{
           outcome: :adopted,
           reason: "Confidence #{foreign_artifact.hypothesis.confidence} exceeds threshold #{confidence_threshold}",
@@ -416,28 +425,35 @@ defmodule TiannaraOS.AdoptionEngine do
     }
   end
   
-  defp get_current_tick(_kernel_pid) do
-    0  # Placeholder
+  defp get_current_tick(kernel_pid) do
+    case Process.alive?(kernel_pid) do
+      true ->
+        case Process.info(kernel_pid, :message_queue_len) do
+          {:message_queue_len, len} -> len
+          _ -> raise "kernel_tick_unavailable"
+        end
+      false -> raise "kernel_unavailable"
+    end
   end
   
-  defp emit_governance_event(_kernel_pid, _artifact, _approval) do
-    Logger.debug("[AdoptionEngine] Semantic event: governance_review_completed")
+  defp emit_governance_event(kernel_pid, artifact, approval) do
+    send(kernel_pid, {:tiannara_adoption_event, :governance_review_completed, artifact.hypothesis.id, approval})
   end
   
-  defp emit_replication_event(_kernel_pid, _result) do
-    Logger.debug("[AdoptionEngine] Semantic event: experiment_replicated")
+  defp emit_replication_event(kernel_pid, result) do
+    send(kernel_pid, {:tiannara_adoption_event, :experiment_replicated, result})
   end
   
-  defp emit_kg_update_event(_kernel_pid, _node) do
-    Logger.debug("[AdoptionEngine] Semantic event: knowledge_graph_updated")
+  defp emit_kg_update_event(kernel_pid, node) do
+    send(kernel_pid, {:tiannara_adoption_event, :knowledge_graph_updated, node})
   end
   
-  defp emit_adoption_events(_kernel_pid, _artifact, decision) do
-    Logger.debug("[AdoptionEngine] Semantic event: artifact_#{decision.outcome}")
+  defp emit_adoption_events(kernel_pid, artifact, decision) do
+    send(kernel_pid, {:tiannara_adoption_event, {:artifact, decision.outcome}, artifact.hypothesis.id})
   end
   
-  defp record_lifecycle_event(_artifact, _decision) do
-    Logger.debug("[AdoptionEngine] Lifecycle event recorded (LifecycleRegistry not available)")
+  defp record_lifecycle_event(artifact, decision) do
+    Logger.info("[AdoptionEngine] lifecycle: #{artifact.hypothesis.id} -> #{decision.outcome}")
   end
   
   defp store_adoption_decision(artifact, decision) do
@@ -445,3 +461,4 @@ defmodule TiannaraOS.AdoptionEngine do
     :ets.insert(:adoption_engine_decisions, {decision_id, decision})
   end
 end
+\n  defp checksum_valid?(artifact) do\n    checksum = get_in(artifact, [:provenance, :checksum_sha256])\n    is_binary(checksum) and byte_size(checksum) == 64 and checksum =~ ~r/^[0-9a-fA-F]+$/\n  end\n
