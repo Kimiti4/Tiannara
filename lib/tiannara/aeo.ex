@@ -13,9 +13,11 @@ defmodule Tiannara.AEO do
   """
 
   @doc "Convert intent into execution graph."
-  def translate_intent(_intent) do
-    {:ok, :execution_graph_placeholder}
+  def translate_intent(%{id: id, goal: goal, steps: steps} = intent) when is_list(steps) and steps != [] do
+    {:ok, %{id: id, goal: goal, steps: steps, source: intent}}
   end
+
+  def translate_intent(_), do: {:error, :intent_requires_explicit_execution_steps}
 
   @doc "Assemble domain team for a goal based on meta-cognition weights."
   def assemble_domain_team(_goal, domain_weights) do
