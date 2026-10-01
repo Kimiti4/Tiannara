@@ -356,7 +356,10 @@ defmodule TiannaraOS.Governance.DeploymentOrchestrator do
     case RFCRegistry.get_rfc(rfc_id) do
       {:ok, rfc} ->
         # Apply RFC changes to GovernanceLedger
-        {:ok, events_applied} = apply_rfc_to_ledger(rfc)
+        case apply_rfc_to_ledger(rfc) do
+          {:error, reason} -> throw({:apply_failed, reason})
+          {:ok, events_applied} -> events_applied
+        end
 
         %{
           phase: :apply_changes,
@@ -407,9 +410,7 @@ defmodule TiannaraOS.Governance.DeploymentOrchestrator do
           restored_hash = :crypto.hash(:sha256, snapshot.serialized_state) |> Base.encode16(case: :lower)
           
           if restored_hash == snapshot.state_hash do
-            # State integrity verified - in production, would update GovernanceLedger
-            IO.puts("Rollback successful: Restored state from #{inspect(snapshot.timestamp)}")
-            :ok
+            {:error, :rollback_backend_unavailable}
           else
             {:error, :hash_mismatch}
           end
@@ -479,23 +480,7 @@ defmodule TiannaraOS.Governance.DeploymentOrchestrator do
     %{available: true, details: "Resources available"}
   end
 
-  defp apply_rfc_to_ledger(rfc) do
-    # Apply RFC proposal changes to GovernanceLedger
-    # In production: this would create ledger events based on RFC content
-    
-    # For now: simulate event creation
-    events = [
-      %{
-        type: :rfc_deployed,
-        rfc_id: rfc.rfc_id,
-        timestamp: DateTime.utc_now(),
-        data: %{title: rfc.title, author: rfc.author}
-      }
-    ]
-    
-    # Append events to ledger (in production, would use GovernanceLedger.append_event)
-    {:ok, events}
-  end
+  defp apply_rfc_to_ledger(_rfc), do: {:error, :governance_ledger_backend_unavailable}d
 
   defp run_post_deployment_verifications(rfc_id) do
     # Run validation campaigns after deployment
