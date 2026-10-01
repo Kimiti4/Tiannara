@@ -45,6 +45,7 @@ defmodule TiannaraRuntime.WorldEventProcessor do
     topic = "tiannara.world.#{state.world_id}.cal"
     message = %{
       world_id: state.world_id,
+      evidence_envelope: simulation_envelope(state.world_id),
       type: "cal_decision",
       payload: event_data,
       timestamp: :erlang.unique_integer([:positive])
@@ -58,6 +59,7 @@ defmodule TiannaraRuntime.WorldEventProcessor do
     topic = "tiannara.world.#{state.world_id}.cis"
     message = %{
       world_id: state.world_id,
+      evidence_envelope: simulation_envelope(state.world_id),
       type: "cis_intervention",
       payload: event_data,
       timestamp: :erlang.unique_integer([:positive])
@@ -71,6 +73,7 @@ defmodule TiannaraRuntime.WorldEventProcessor do
     topic = "tiannara.world.#{state.world_id}.state"
     message = %{
       world_id: state.world_id,
+      evidence_envelope: simulation_envelope(state.world_id),
       type: "state_update",
       payload: state_data,
       timestamp: :erlang.unique_integer([:positive])
@@ -85,6 +88,7 @@ defmodule TiannaraRuntime.WorldEventProcessor do
     topic = "tiannara.world.#{state.world_id}.memory"
     message = %{
       world_id: state.world_id,
+      evidence_envelope: simulation_envelope(state.world_id),
       type: "memory_snapshot",
       payload: snapshot_data,
       timestamp: :erlang.unique_integer([:positive])
@@ -98,12 +102,23 @@ defmodule TiannaraRuntime.WorldEventProcessor do
     topic = "tiannara.world.#{state.world_id}.event"
     message = %{
       world_id: state.world_id,
+      evidence_envelope: simulation_envelope(state.world_id),
       type: event_type,
       payload: payload,
       timestamp: :erlang.unique_integer([:positive])
     }
     publish_to_nats(topic, message)
     {:noreply, state}
+  end
+
+  defp simulation_envelope(world_id) do
+    %{
+      evidence_class: :simulated,
+      execution_mode: :simulation,
+      source: :world_event_processor,
+      world_id: world_id,
+      certification_eligible: false
+    }
   end
 
   defp publish_to_nats(topic, message) do
