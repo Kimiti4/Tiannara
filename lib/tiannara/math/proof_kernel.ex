@@ -144,9 +144,12 @@ defmodule Tiannara.Math.ProofKernel do
   end
 
   defp validate_propositions(values) when is_list(values) do
-    if Enum.all?(values, &match?({:_, _, _}, &1) or match?({:_, _}, &1) or match?({:_, _}, &1)),
-      do: :ok,
-      else: {:error, :invalid_proposition}
+    Enum.reduce_while(values, :ok, fn value, :ok ->
+      case validate_proposition(value) do
+        :ok -> {:cont, :ok}
+        {:error, reason} -> {:halt, {:error, reason}}
+      end
+    end)
   end
 
   defp validate_proposition(value) do
