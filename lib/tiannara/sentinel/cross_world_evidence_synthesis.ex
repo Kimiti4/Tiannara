@@ -12,6 +12,7 @@ defmodule Tiannara.Sentinel.CrossWorldEvidenceSynthesis do
   @spec synthesize(map(), [map()]) :: {:ok, map()} | {:error, term()}
   def synthesize(theory, results) when is_map(theory) and is_list(results) do
     with :ok <- validate_results(results),
+         :ok <- validate_audits(results),
          {:ok, groups} <- group_results(results) do
       status = classify(groups)
 
@@ -44,6 +45,14 @@ defmodule Tiannara.Sentinel.CrossWorldEvidenceSynthesis do
       is_map(Map.get(r, :validation_audit, %{}))
   end
   defp valid_result?(_), do: false
+
+  defp validate_audits(results) do
+    if Enum.all?(results, fn r ->
+         audit = Map.get(r, :validation_audit, %{})
+         is_map(audit) and Map.get(audit, :audited) == true and
+           is_map(Map.get(audit, :acl)) and is_map(Map.get(audit, :oavl))
+       end), do: :ok, else: {:error, :acl_oavl_audit_required}
+  end
 
   defp group_results(results) do
     {:ok, %{
