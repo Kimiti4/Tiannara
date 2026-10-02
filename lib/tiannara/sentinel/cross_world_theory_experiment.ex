@@ -10,6 +10,8 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryExperiment do
 
   alias Tiannara.Sentinel.CrossWorldTheoryTransfer
   alias Tiannara.Sentinel.MathematicalEvidence
+  alias Tiannara.Sentinel.TheoryValidationGate
+  alias Tiannara.Sentinel.ValidationEvidenceEnvelope
 
   @type executor ::
           (map() -> {:ok, map()} | {:error, term()})
@@ -63,16 +65,30 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryExperiment do
       outcome: Map.get(result, :outcome),
       observations: Map.get(result, :observations, []),
       counterevidence: Map.get(result, :counterevidence, []),
+      assumptions: Map.get(result, :assumptions_held, []) ++ Map.get(result, :assumptions_changed, []),
+      provenance: %{
+        source_evidence_id: Map.get(transfer, :source_evidence_id),
+        transfer_id: Map.get(transfer, :transfer_id),
+        scenario_id: Map.get(result, :scenario_id)
+      },
       execution_mode: :simulation,
-      evidence_class: :simulated,
-      certification_eligible: false
+      evidence_class: :simulated
     }
 
-    with {:ok, acl_result} <- invoke_validator(acl, evidence, :acl),
-         {:ok, oavl_result} <- invoke_validator(oavl, Map.put(evidence, :acl_result, acl_result), :oavl) do
-      audit = %{acl: acl_result, oavl: oavl_result, audited: true,
-                certification_eligible: false}
-      audit_each(transfer, rest, acl, oavl, [Map.put(result, :validation_audit, audit) | acc])
+    with {:ok, envelope} <- ValidationEvidenceEnvelope.build(evidence),
+         {:ok, validation} <- TheoryValidationGate.validate(envelope, acl, oavl) do
+      audit = Map.merge(validation, %{
+        audited: true,
+        certification_eligible: false
+      })
+
+      audit_each(
+        transfer,
+        rest,
+        acl,
+        oavl,
+        [Map.put(result, :validation_audit, audit) | acc]
+      )
     end
   end
 
