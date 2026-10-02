@@ -26,6 +26,44 @@ defmodule Tiannara.Sentinel.DomainDependencyPlanner do
     end
   end
 
+  @doc """
+  Expands a candidate plan using dependencies discovered by independent domain
+  reviews. Newly identified domains are marked as review-derived and must be
+  independently verified; they never become certified merely by being named.
+  """
+  @spec expand(map(), [map()]) :: {:ok, map()} | {:error, term()}
+  def expand(plan, domain_findings) when is_map(plan) and is_list(domain_findings) do
+    discovered =
+      Enum.flat_map(domain_findings, fn finding ->
+        finding
+        |> Map.get(:new_dependencies, [])
+        |> Enum.map(fn
+          %{domain: domain} = dep when is_atom(domain) ->
+            Map.put_new(dep, :basis, :domain_discovered_dependency)
+          domain when is_atom(domain) ->
+            %{domain: domain, basis: :domain_discovered_dependency}
+          _ -> nil
+        end)
+        |> Enum.reject(&is_nil/1)
+      end)
+
+    existing = Map.get(plan, :candidates, [])
+    merged = (existing ++ discovered ++ [%{domain: :mathematics, basis: :mandatory_epistemic_substrate}])
+      |> Enum.uniq_by(& &1.domain)
+
+    if Enum.all?(merged, &(valid?(&1.domain))) do
+      {:ok, Map.merge(plan, %{
+        candidates: merged,
+        expansion_count: Map.get(plan, :expansion_count, 0) + if(discovered == [], do: 0, else: 1),
+        newly_discovered_domains: Enum.map(discovered, & &1.domain),
+        status: if(discovered == [], do: :stable_candidate_plan, else: :expanded_candidate_plan),
+        certification_eligible: false
+      })}
+    else
+      {:error, :unknown_domain_in_expanded_plan}
+    end
+  end
+
   def infer(_), do: {:error, :invalid_discovery}
 
   defp validate(d) do
