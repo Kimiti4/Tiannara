@@ -15,6 +15,26 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryExperiment do
           (map() -> {:ok, map()} | {:error, term()})
 
   @spec run(map(), [map()], executor() | nil) :: {:ok, map()} | {:error, term()}
+
+  @doc """
+  Audits every produced scenario evidence through both ACL and OAVL.
+
+  This applies equally to supported, refuted, mixed, and inconclusive results:
+  a failed theory can be falsely refuted by a bad model, and a successful theory
+  can be falsely supported by a structurally invalid model. Neither outcome is
+  promoted without both independent validation layers.
+  """
+  @spec audit_results(map(), [map()], (map() -> term()) | nil, (map() -> term()) | nil) ::
+          {:ok, [map()]} | {:error, term()}
+  def audit_results(transfer, results, acl_validator, oavl_validator)
+      when is_map(transfer) and is_list(results) do
+    with :ok <- require_validator(acl_validator, :acl),
+         :ok <- require_validator(oavl_validator, :oavl),
+         {:ok, audited} <- audit_each(transfer, results, acl_validator, oavl_validator, []) do
+      {:ok, Enum.reverse(audited)}
+    end
+  end
+
   def run(transfer, scenarios, executor)
       when is_map(transfer) and is_list(scenarios) do
     with :ok <- validate_transfer(transfer),
@@ -34,6 +54,41 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryExperiment do
   end
 
   def run(_, _, _), do: {:error, :invalid_cross_world_experiment}
+
+  defp audit_each(_transfer, [], _acl, _oavl, acc), do: {:ok, acc}
+  defp audit_each(transfer, [result | rest], acl, oavl, acc) do
+    evidence = %{
+      evidence_id: Map.get(result, :evidence_id),
+      theory_id: Map.get(transfer, :source_evidence_id),
+      outcome: Map.get(result, :outcome),
+      observations: Map.get(result, :observations, []),
+      counterevidence: Map.get(result, :counterevidence, []),
+      execution_mode: :simulation,
+      evidence_class: :simulated,
+      certification_eligible: false
+    }
+
+    with {:ok, acl_result} <- invoke_validator(acl, evidence, :acl),
+         {:ok, oavl_result} <- invoke_validator(oavl, Map.put(evidence, :acl_result, acl_result), :oavl) do
+      audit = %{acl: acl_result, oavl: oavl_result, audited: true,
+                certification_eligible: false}
+      audit_each(transfer, rest, acl, oavl, [Map.put(result, :validation_audit, audit) | acc])
+    end
+  end
+
+  defp require_validator(fun, _name) when is_function(fun, 1), do: :ok
+  defp require_validator(_, name), do: {:error, {name, :validation_provider_unavailable}}
+
+  defp invoke_validator(fun, evidence, name) do
+    case fun.(evidence) do
+      {:ok, result} when is_map(result) -> {:ok, result}
+      result when is_map(result) -> {:ok, result}
+      {:error, reason} -> {:error, {name, reason}}
+      other -> {:error, {:invalid_validation_result, name, other}}
+    end
+  rescue
+    exception -> {:error, {:validation_provider_crashed, name, exception}}
+  end
 
   defp execute_scenarios(_transfer, [], _executor, acc), do: {:ok, Enum.reverse(acc)}
 
