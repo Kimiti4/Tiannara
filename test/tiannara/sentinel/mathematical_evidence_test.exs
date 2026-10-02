@@ -2,64 +2,38 @@ defmodule Tiannara.Sentinel.MathematicalEvidenceTest do
   use ExUnit.Case, async: true
   alias Tiannara.Sentinel.MathematicalEvidence
 
-  test "accepts proof evidence with replay provenance" do
-    artifact = %{
-      status: :proven_under_assumptions,
-      assumptions: [{:atom, :P}],
-      conclusion: {:atom, :P},
-      checked_steps: 1,
-      kernel: "Tiannara.Math.ProofKernel.v1"
-    }
-
-    assert {:ok, evidence} =
-      MathematicalEvidence.build(:proof_checked, artifact, %{proof_steps: [%{id: 1}]})
-
-    assert evidence.kind == :proof_checked
-    assert evidence.status == :proven_under_assumptions
+  test "retains refuted civilization reasoning" do
+    assert {:ok, record} = MathematicalEvidence.store(%{
+      kind: :scientific_reasoning,
+      statement: "candidate causal explanation",
+      artifact: %{reasoning_steps: [:observe, :hypothesize, :test]},
+      status: :refuted,
+      evidence: %{failure_point: :counterexample},
+      provenance: %{world_id: "world-1", civilization_id: "civ-1"}
+    })
+    assert record.status == :refuted
   end
 
-  test "rejects proof evidence without replay steps" do
-    artifact = %{
-      status: :proven_under_assumptions,
-      assumptions: [],
-      conclusion: {:atom, :P},
-      checked_steps: 0,
-      kernel: "Tiannara.Math.ProofKernel.v1"
-    }
-
-    assert {:error, :invalid_proof_evidence} =
-      MathematicalEvidence.build(:proof_checked, artifact, %{})
+  test "supports parent-linked evidence lineage" do
+    assert {:ok, parent} = MathematicalEvidence.store(%{
+      kind: :theorem, statement: "P", artifact: %{origin: :civilization},
+      status: :conjecture, provenance: %{world_id: "world-2"}
+    })
+    assert {:ok, child} = MathematicalEvidence.store(%{
+      kind: :proof, statement: "P", artifact: %{proof_steps: [1]},
+      status: :rejected, parent_ids: [parent.id],
+      provenance: %{world_id: "world-2"}
+    })
+    assert child.parent_ids == [parent.id]
+    assert is_binary(child.hash)
   end
 
-  test "stores a bounded non-falsification result as bounded evidence" do
-    artifact = %{
-      status: :no_counterexample_in_domain,
-      tested_cases: 100,
-      domain: :finite_domain,
-      search_complete: true
-    }
-
-    assert {:ok, evidence} =
-      MathematicalEvidence.build(:bounded_non_falsification, artifact, %{
-        search_definition: %{strategy: :exhaustive}
-      })
-
-    assert evidence.status == :survived_tested_domain
-  end
-
-  test "counterexamples remain explicitly refutational" do
-    artifact = %{
-      status: :counterexample_found,
-      witness: 5,
-      tested_cases: 6,
-      domain: [0, 1, 2, 3, 4, 5]
-    }
-
-    assert {:ok, evidence} =
-      MathematicalEvidence.build(:counterexample_found, artifact, %{
-        search_definition: %{strategy: :exhaustive}
-      })
-
-    assert evidence.status == :refuted_in_tested_domain
+  test "retains superseded knowledge" do
+    assert {:ok, record} = MathematicalEvidence.store(%{
+      kind: :theorem, statement: "old model",
+      artifact: %{reasoning: [:a, :b]}, status: :superseded,
+      provenance: %{world_id: "world-3"}
+    })
+    assert record.status == :superseded
   end
 end
