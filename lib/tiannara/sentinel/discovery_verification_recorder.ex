@@ -141,6 +141,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
            ),
          {:ok, evidence} <-
            build_revision_evidence(discovery, enhancement, verification),
+         :ok <- require_parent_node(enhancement),
          {:ok, validation} <- TheoryValidationGate.validate(evidence, acl, oavl),
          {:ok, revision_node} <-
            record_revision(
@@ -333,6 +334,13 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
       domain: domain,
       recorded_at: DateTime.utc_now()
     }
+  end
+
+  defp require_parent_node(enhancement) do
+    case Map.get(enhancement, :parent_node_id) do
+      id when is_binary(id) and byte_size(id) > 0 -> :ok
+      _ -> {:error, :enhancement_parent_node_required}
+    end
   end
 
   defp existing_parent_ids(map) do
