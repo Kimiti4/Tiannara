@@ -25,7 +25,9 @@ defmodule Tiannara.Sentinel.DomainVerification do
         primary_domain: Map.get(discovery, :domain),
         required_domains: plan.domains,
         dependency_reasons: plan.reasons,
+        dependency_plan_status: Map.get(plan, :status, :candidate_plan),
         results: results,
+        newly_discovered_dependencies: discover_new_dependencies(results),
         mathematics: Map.fetch!(results, :mathematics),
         all_domains_passed: Enum.all?(Map.values(results), &passed?/1),
         enhancements: collect_enhancements(results),
@@ -137,6 +139,12 @@ defmodule Tiannara.Sentinel.DomainVerification do
       Map.get(result, :independent, false) == true
   end
   defp passed?(_), do: false
+
+  defp discover_new_dependencies(results) do
+    results
+    |> Enum.flat_map(fn {_domain, result} -> Map.get(result, :new_dependencies, []) end)
+    |> Enum.uniq()
+  end
 
   defp collect_enhancements(results) do
     results
