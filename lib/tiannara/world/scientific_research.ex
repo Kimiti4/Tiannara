@@ -18,7 +18,7 @@ defmodule Tiannara.World.ScientificResearch do
          {:ok, first} <- simulate(domain, hypothesis, context),
          {:ok, validation} <- validate(domain, first),
          {:ok, replicas} <- replicate(domain, hypothesis, context, replications),
-         defense <- defend(first, replicas, validation) do
+         {:ok, defense} <- defend(first, replicas, validation, opts) do
       {:ok, %{
         status: final_status(validation, defense),
         hypothesis: hypothesis,
@@ -90,17 +90,47 @@ defmodule Tiannara.World.ScientificResearch do
     end
   end
 
-  defp defend(simulation, replication, validation) do
-    %{
+  defp defend(simulation, replication, validation, opts) do
+    base = %{
       replication_consistent: replication.deterministic,
       structural_validation: Map.get(validation, :valid, false),
       evidence_audit: audit_provenance(simulation),
-      adversarial_challenge: :not_implemented,
       proof_status: if(Map.get(validation, :verification_method) in [:formal_proof, :formal_verification],
         do: :bounded_proof,
         else: :bounded_structural_verification)
     }
+
+    challenger = Keyword.get(opts, :adversarial_challenger)
+
+    case challenger do
+      fun when is_function(fun, 3) ->
+        case fun.(simulation, validation, replication) do
+          {:ok, result} when is_map(result) ->
+            {:ok, Map.put(base, :adversarial_challenge, result)}
+
+          {:error, reason} ->
+            {:error, {:adversarial_challenge_failed, reason}}
+
+          other ->
+            {:error, {:invalid_adversarial_challenge_result, other}}
+        end
+
+      nil ->
+        {:error, :adversarial_challenger_unavailable}
+
+      _ ->
+        {:error, :invalid_adversarial_challenger}
+    end
+  rescue
+    exception ->
+      {:error, {:adversarial_challenger_crashed, exception}}
   end
+
+  defp adversarially_survived?(result) when is_map(result) do
+    Map.get(result, :status) in [:survived, :passed, :no_counterexample]
+  end
+
+  defp adversarially_survived?(_), do: false
 
   defp audit_provenance(simulation) do
     provenance = Map.get(simulation, :provenance)
@@ -109,8 +139,11 @@ defmodule Tiannara.World.ScientificResearch do
 
   defp final_status(validation, defense) do
     cond do
-      defense.replication_consistent and Map.get(validation, :valid, false) and defense.proof_status == :bounded_proof -> :bounded_verified
-      defense.replication_consistent and Map.get(validation, :valid, false) -> :validated_replicated
+      defense.replication_consistent and Map.get(validation, :valid, false) and
+          adversarially_survived?(defense.adversarial_challenge) and
+          defense.proof_status == :bounded_proof -> :bounded_verified
+      defense.replication_consistent and Map.get(validation, :valid, false) and
+          adversarially_survived?(defense.adversarial_challenge) -> :validated_replicated
       defense.replication_consistent -> :replicated_unverified
       true -> :inconclusive
     end
