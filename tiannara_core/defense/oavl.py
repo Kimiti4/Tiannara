@@ -57,6 +57,93 @@ class OntologicalAlignmentValidationLattice:
             return 0.4 # Unbounded things are hostile to stabilization budgets
         return 0.95
 
+
+    def evaluate_evidence(self, evidence: Dict[str, Any]) -> OAVLResult:
+        """
+        Evidence-aware OAVL path.
+
+        Unlike the legacy text evaluator, this path never infers ontological
+        validity from keywords. It validates provenance, assumptions, execution
+        boundaries and explicit evidence structure. Domain-specific adversarial
+        checks must be supplied by the evidence producer; missing critical
+        evidence fails closed.
+        """
+        required = (
+            "evidence_id", "theory_id", "outcome", "observations",
+            "counterevidence", "assumptions", "provenance",
+            "execution_mode", "evidence_class"
+        )
+        missing = [key for key in required if key not in evidence]
+        if missing:
+            return OAVLResult(
+                approved=False,
+                reason=f"Evidence envelope incomplete: {missing}",
+                alignment_score=0.0,
+                metrics={"evidence_completeness": 0.0},
+                policy_hits=[],
+                suggestions="Complete provenance and evidence envelope before OAVL."
+            )
+
+        if evidence["outcome"] not in {"supported", "refuted", "inconclusive", "mixed"}:
+            return OAVLResult(
+                approved=False,
+                reason="Invalid epistemic outcome.",
+                alignment_score=0.0,
+                metrics={"evidence_completeness": 0.0},
+                policy_hits=[]
+            )
+
+        if evidence["execution_mode"] not in {"simulation", "real_execution"}:
+            return OAVLResult(
+                approved=False,
+                reason="Invalid execution boundary.",
+                alignment_score=0.0,
+                metrics={"evidence_completeness": 0.0},
+                policy_hits=[]
+            )
+
+        if evidence["evidence_class"] not in {"simulated", "real"}:
+            return OAVLResult(
+                approved=False,
+                reason="Invalid evidence class.",
+                alignment_score=0.0,
+                metrics={"evidence_completeness": 0.0},
+                policy_hits=[]
+            )
+
+        observations = evidence["observations"]
+        counterevidence = evidence["counterevidence"]
+        assumptions = evidence["assumptions"]
+        provenance = evidence["provenance"]
+
+        metrics = {
+            "observation_presence": float(bool(observations)),
+            "counterevidence_recorded": float(bool(counterevidence)),
+            "assumption_traceability": float(bool(assumptions)),
+            "provenance_completeness": float(bool(provenance)),
+            "execution_boundary_explicit": 1.0,
+        }
+        completeness = sum(metrics.values()) / len(metrics)
+
+        if completeness < 1.0:
+            return OAVLResult(
+                approved=False,
+                reason="Evidence is structurally incomplete for ontological validation.",
+                alignment_score=completeness,
+                metrics=metrics,
+                policy_hits=[],
+                suggestions="Record observations, counterevidence, assumptions and provenance."
+            )
+
+        return OAVLResult(
+            approved=True,
+            reason="Evidence-aware OAVL structural validation passed.",
+            alignment_score=1.0,
+            metrics=metrics,
+            policy_hits=[],
+            suggestions=None
+        )
+
     def evaluate(self, text: str) -> OAVLResult:
         """
         Runs the full reality immune system check.
