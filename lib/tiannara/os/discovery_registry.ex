@@ -70,7 +70,9 @@ defmodule TiannaraOS.DiscoveryRegistry do
     :created_at,
     :validated_at,
     :lifecycle_events,
-    :evidence_envelope
+    :evidence_envelope,
+    :verification_graph_ids,
+    :archive_ids
   ]
 
   @type t :: %__MODULE__{
@@ -90,7 +92,9 @@ defmodule TiannaraOS.DiscoveryRegistry do
     created_at: DateTime.t(),
     validated_at: DateTime.t() | nil,
     lifecycle_events: [map()],
-    evidence_envelope: map()
+    evidence_envelope: map(),
+    verification_graph_ids: [String.t()],
+    archive_ids: [String.t()]
   }
 
   # ==================== Public API ====================
@@ -191,6 +195,10 @@ defmodule TiannaraOS.DiscoveryRegistry do
   """
   def update_validation_status(discovery_id, new_status, evidence_envelope \\ %{}) do
     GenServer.call(__MODULE__, {:update_validation_status, discovery_id, new_status, evidence_envelope})
+  end
+
+  def update_validation_status_with_lineage(discovery_id, new_status, evidence_envelope, lineage_writer) do
+    GenServer.call(__MODULE__, {:update_validation_status_with_lineage, discovery_id, new_status, evidence_envelope, lineage_writer})
   end
 
   @doc """
@@ -344,6 +352,28 @@ defmodule TiannaraOS.DiscoveryRegistry do
   end
 
   @impl true
+  def handle_call({:update_validation_status_with_lineage, discovery_id, new_status, evidence_envelope, lineage_writer}, _from, state) do
+    with {:ok, discovery} <- fetch_discovery(state, discovery_id),
+         {:ok, envelope} <- normalize_evidence(evidence_envelope),
+         allowed when is_list(allowed) <- Map.get(%{simulated: [:reproduced], reproduced: [:operationally_validated], operationally_validated: []}, discovery.validation_status, []),
+         true <- new_status in allowed,
+         :ok <- validate_transition_evidence(new_status, envelope),
+         {:ok, lineage} <- write_validation_lineage(discovery, new_status, envelope, lineage_writer) do
+      updated = %{discovery |
+        validation_status: new_status,
+        evidence_envelope: merge_evidence(discovery.evidence_envelope, envelope),
+        validated_at: if(new_status == :operationally_validated, do: DateTime.utc_now(), else: discovery.validated_at),
+        lifecycle_events: discovery.lifecycle_events ++ [%{event: :validation_updated, from: discovery.validation_status, to: new_status, evidence: envelope, lineage: lineage}]
+      }
+      {:reply, {:ok, updated}, put_in(state.discoveries[discovery_id], updated)}
+    else
+      {:error, reason} -> {:reply, {:error, reason}, state}
+      false -> {:reply, {:error, :invalid_status_transition}, state}
+      _ -> {:reply, {:error, :invalid_status_transition}, state}
+    end
+  end
+
+  @impl true
   def handle_call({:link_to_law, discovery_id, law_id}, _from, state) do
     case Map.get(state.discoveries, discovery_id) do
       nil ->
@@ -358,6 +388,33 @@ defmodule TiannaraOS.DiscoveryRegistry do
         {:reply, {:ok, updated}, state}
     end
   end
+
+  defp fetch_discovery(state, id) do
+    case Map.get(state.discoveries, id) do
+      nil -> {:error, :discovery_not_found}
+      discovery -> {:ok, discovery}
+    end
+  end
+
+  defp write_validation_lineage(discovery, new_status, envelope, writer) when is_function(writer, 1) do
+    node = %{
+      kind: :discovery_validation_transition,
+      discovery_id: discovery.id,
+      parent_ids: Map.get(discovery, :verification_graph_ids, []),
+      provenance: %{source: :discovery_registry, transition: {discovery.validation_status, new_status}},
+      status: new_status,
+      artifact: %{from: discovery.validation_status, to: new_status, evidence: envelope}
+    }
+
+    case Tiannara.Sentinel.DiscoveryVerificationGraph.append_with_archive(node, writer) do
+      {:ok, %{graph: graph, archive: archive}} ->
+        {:ok, %{graph_id: graph.node_id, archive_hash: archive.hash}}
+      {:error, reason} -> {:error, {:lineage_write_failed, reason}}
+    end
+  end
+
+  defp write_validation_lineage(_discovery, _new_status, _envelope, _writer),
+    do: {:error, :lineage_writer_unavailable}
 
   # ==================== Private Functions ====================
 
@@ -394,7 +451,9 @@ defmodule TiannaraOS.DiscoveryRegistry do
       created_at: Map.get(data, :created_at, DateTime.utc_now()),
       validated_at: Map.get(data, :validated_at),
       lifecycle_events: Map.get(data, :lifecycle_events, []),
-      evidence_envelope: Map.get(data, :evidence_envelope, %{})
+      evidence_envelope: Map.get(data, :evidence_envelope, %{}),
+      verification_graph_ids: Map.get(data, :verification_graph_ids, []),
+      archive_ids: Map.get(data, :archive_ids, [])
     }
   end
 
