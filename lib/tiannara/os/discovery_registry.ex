@@ -324,6 +324,8 @@ defmodule TiannaraOS.DiscoveryRegistry do
       updated = %{discovery |
         validation_status: new_status,
         evidence_envelope: merge_evidence(discovery.evidence_envelope, envelope),
+        verification_graph_ids: discovery.verification_graph_ids ++ [lineage.graph_id],
+        archive_ids: discovery.archive_ids ++ [lineage.archive_hash],
         validated_at: if(new_status == :operationally_validated, do: DateTime.utc_now(), else: discovery.validated_at),
         lifecycle_events: discovery.lifecycle_events ++ [%{event: :validation_updated, from: discovery.validation_status, to: new_status, evidence: envelope, lineage: lineage}]
       }
