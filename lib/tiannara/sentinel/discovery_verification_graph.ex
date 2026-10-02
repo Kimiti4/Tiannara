@@ -68,10 +68,11 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
     if MapSet.member?(seen, node.node_id) do
       []
     else
+      next_seen = MapSet.put(seen, node.node_id)
       parents = Enum.flat_map(Map.get(node, :parent_ids, []), fn id ->
         case Map.get(nodes, id) do
           nil -> []
-          parent -> walk(parent, nodes, MapSet.put(seen, node.node_id))
+          parent -> walk(parent, nodes, next_seen)
         end
       end)
       [node | parents]
