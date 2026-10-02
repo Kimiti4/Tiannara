@@ -95,6 +95,11 @@ defmodule Tiannara.Forecasting do
   @doc "D2: score a forecast (Brier / log_loss)."
   def score_forecast(%Contracts.Forecast{} = f, observed), do: Calibration.score(f, observed)
 
+  @doc "Assemble an evidence-bound model-improvement candidate without authorization."
+  @spec assess_forecast_model_update(map()) :: {:ok, map()} | {:error, term()}
+  def assess_forecast_model_update(packet),
+    do: Tiannara.Forecasting.ModelUpdateGate.assess(packet)
+
   @doc "Evaluate resolved forecasts across a locked temporal holdout."
   @spec temporal_forecast_evaluation([map()], DateTime.t(), keyword()) ::
           {:ok, map()} | {:error, term()}
