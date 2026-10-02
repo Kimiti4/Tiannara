@@ -16,6 +16,7 @@ defmodule Tiannara.Math.CounterexampleSearch do
           domain_size: non_neg_integer(),
           witness: term() | nil,
           domain: term(),
+          search_complete: boolean(),
           strategy: :exhaustive,
           global_proof: false,
           certification_eligible: false
@@ -41,6 +42,7 @@ defmodule Tiannara.Math.CounterexampleSearch do
       domain_size: tested,
       witness: nil,
       domain: :exhausted_supplied_domain,
+      search_complete: true,
       strategy: :exhaustive,
       global_proof: false,
       certification_eligible: false
@@ -59,6 +61,7 @@ defmodule Tiannara.Math.CounterexampleSearch do
           domain_size: tested + 1 + length(rest),
           witness: candidate,
           domain: :supplied_finite_domain,
+          search_complete: false,
           strategy: :exhaustive,
           global_proof: false,
           certification_eligible: false
