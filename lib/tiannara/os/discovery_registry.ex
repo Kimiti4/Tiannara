@@ -193,8 +193,15 @@ defmodule TiannaraOS.DiscoveryRegistry do
   ## Returns
   {:ok, Discovery.t()} | {:error, String.t()}
   """
-  def update_validation_status(discovery_id, new_status, evidence_envelope \\ %{}) do
-    GenServer.call(__MODULE__, {:update_validation_status, discovery_id, new_status, evidence_envelope})
+  @doc """
+  Legacy promotion API intentionally fails closed.
+
+  Validation-state changes must use update_validation_status_with_lineage/4
+  so the registry cannot advance epistemic state without an immutable
+  verification-graph/archive record.
+  """
+  def update_validation_status(_discovery_id, _new_status, _evidence_envelope \\ %{}) do
+    {:error, :validation_transition_requires_lineage}
   end
 
   def update_validation_status_with_lineage(discovery_id, new_status, evidence_envelope, lineage_writer) do
@@ -303,51 +310,6 @@ defmodule TiannaraOS.DiscoveryRegistry do
         Logger.debug(fn -> "LifecycleRegistry.track_entity would have been called for :discovery, #{inspect(discovery_id)}, :application_added, name=#{Map.get(application, :name)}" end)
 
         {:reply, {:ok, updated}, state}
-    end
-  end
-
-  @impl true
-  def handle_call({:update_validation_status, discovery_id, new_status, evidence_envelope}, _from, state) do
-    case Map.get(state.discoveries, discovery_id) do
-      nil ->
-        {:reply, {:error, "Discovery not found: #{inspect(discovery_id)}"}, state}
-
-      discovery ->
-        # A state transition is evidence-gated; enum changes alone never
-        # increase confidence or establish operational validity.
-        valid_transitions = %{
-          :simulated => [:reproduced],
-          :reproduced => [:operationally_validated],
-          :operationally_validated => []
-        }
-
-        allowed = Map.get(valid_transitions, discovery.validation_status, [])
-
-        cond do
-          new_status not in allowed ->
-            {:reply, {:error, "Invalid status transition: #{discovery.validation_status} → #{new_status}"}, state}
-
-          true ->
-            with {:ok, envelope} <- normalize_evidence(evidence_envelope),
-                 :ok <- validate_transition_evidence(new_status, envelope) do
-              updated = %{discovery |
-                validation_status: new_status,
-                evidence_envelope: merge_evidence(discovery.evidence_envelope, envelope),
-                validated_at: if(new_status == :operationally_validated, do: DateTime.utc_now(), else: discovery.validated_at),
-                lifecycle_events: discovery.lifecycle_events ++ [
-                  %{event: :validation_updated, from: discovery.validation_status, to: new_status, evidence: envelope}
-                ]
-              }
-
-              state = put_in(state.discoveries[discovery_id], updated)
-
-              Logger.debug(fn -> "Discovery validation evidence accepted: #{inspect(discovery_id)} #{discovery.validation_status} → #{new_status}" end)
-
-              {:reply, {:ok, updated}, state}
-            else
-              {:error, reason} -> {:reply, {:error, reason}, state}
-            end
-        end
     end
   end
 
