@@ -28,6 +28,7 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
 
   alias Tiannara.Sentinel.EpistemicEvent
   alias Tiannara.Research.{EvidenceAssessment, ExperimentRanker}
+  alias Tiannara.Sentinel.DiscoveryVerificationRecorder
 
   defstruct [:opportunity, :evidence_assessment, :hypotheses,
              :experiment_candidates, :selected, :proposals,
@@ -46,6 +47,30 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
 
   def research_relevant?(%EpistemicEvent{type: type}), do: type in @research_events
   def research_relevant?(_), do: false
+
+  @doc """
+  Run investigation and, when a caller supplies the real discovery-verification
+  providers, bind discovery candidates to the evidence lineage automatically.
+
+  The plain investigate/1 path remains proposal-only. This entrypoint is the
+  production integration boundary and fails closed when required providers are
+  absent.
+  """
+  @spec investigate_and_record(EpistemicEvent.t(), map()) :: {:ok, map()} | {:error, term()}
+  def investigate_and_record(%EpistemicEvent{} = event, opts) when is_map(opts) do
+    investigation = investigate(event)
+
+    with {:ok, discovery} <- build_discovery_candidate(investigation, event, opts),
+         {:ok, recorded} <-
+           DiscoveryVerificationRecorder.verify_and_record(
+             discovery,
+             Map.get(opts, :related_domains, []),
+             Map.get(opts, :domain_verifier),
+             opts
+           ) do
+      {:ok, %{investigation: investigation, discovery: discovery, verification: recorded}}
+    end
+  end
 
   @doc "Run the full evidence-driven investigation pipeline (deterministic)."
   def investigate(%EpistemicEvent{} = event) do
@@ -75,6 +100,28 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
       lineage: [event.type, opportunity.id],
       uncertainty: uncertainty
     }
+  end
+
+  defp build_discovery_candidate(investigation, event, opts) do
+    builder = Map.get(opts, :discovery_builder)
+
+    if is_function(builder, 2) do
+      case builder.(investigation, event) do
+        {:ok, discovery} when is_map(discovery) ->
+          {:ok, discovery}
+
+        {:error, reason} ->
+          {:error, {:discovery_builder_failed, reason}}
+
+        other ->
+          {:error, {:invalid_discovery_builder_result, other}}
+      end
+    else
+      {:error, :discovery_builder_unavailable}
+    end
+  rescue
+    exception ->
+      {:error, {:discovery_builder_crashed, exception}}
   end
 
   # --- opportunity --------------------------------------------------------
