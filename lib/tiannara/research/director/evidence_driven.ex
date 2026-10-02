@@ -29,6 +29,7 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
   alias Tiannara.Sentinel.EpistemicEvent
   alias Tiannara.Research.{EvidenceAssessment, ExperimentRanker}
   alias Tiannara.Sentinel.DiscoveryVerificationRecorder
+  alias TiannaraOS.DiscoveryRegistry
 
   defstruct [:opportunity, :evidence_assessment, :hypotheses,
              :experiment_candidates, :selected, :proposals,
@@ -67,8 +68,9 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
              Map.get(opts, :related_domains, []),
              Map.get(opts, :domain_verifier),
              opts
-           ) do
-      {:ok, %{investigation: investigation, discovery: discovery, verification: recorded}}
+           ),
+         {:ok, registered} <- register_verified_discovery(discovery, recorded, opts) do
+      {:ok, %{investigation: investigation, discovery: discovery, verification: recorded, registry: registered}}
     end
   end
 
@@ -122,6 +124,23 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
   rescue
     exception ->
       {:error, {:discovery_builder_crashed, exception}}
+  end
+
+  defp register_verified_discovery(discovery, recorded, opts) do
+    registry = Map.get(opts, :discovery_registry, &DiscoveryRegistry.register_verified/2)
+
+    if is_function(registry, 2) do
+      case registry.(discovery, recorded) do
+        {:ok, registered} -> {:ok, registered}
+        {:error, reason} -> {:error, {:discovery_registry_failed, reason}}
+        other -> {:error, {:invalid_discovery_registry_result, other}}
+      end
+    else
+      {:error, :discovery_registry_unavailable}
+    end
+  rescue
+    exception ->
+      {:error, {:discovery_registry_crashed, exception}}
   end
 
   # --- opportunity --------------------------------------------------------
