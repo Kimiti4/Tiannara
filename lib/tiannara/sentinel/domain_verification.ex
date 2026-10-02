@@ -1,11 +1,10 @@
 defmodule Tiannara.Sentinel.DomainVerification do
   @moduledoc """
-  Independent domain verification gate for discoveries.
+  Evidence-first independent domain verification and discovery enhancement.
 
-  A discovery is not domain-certified merely because its originating domain
-  validates it. Every declared related domain must independently evaluate the
-  same canonical evidence. The mathematics substrate is mandatory for every
-  discovery and is kept separate from the 20-domain ontology.
+  Domains may verify, reject, identify uncertainty, or propose a correction.
+  Corrections are hypotheses for a subsequent controlled validation cycle, never
+  silent mutations of the original discovery.
   """
 
   alias Tiannara.Domains.CanonicalRegistry
@@ -23,13 +22,41 @@ defmodule Tiannara.Sentinel.DomainVerification do
         discovery_id: Map.get(discovery, :id),
         primary_domain: Map.get(discovery, :domain),
         required_domains: plan.domains,
+        dependency_reasons: plan.reasons,
         results: results,
         mathematics: Map.fetch!(results, :mathematics),
         all_domains_passed: Enum.all?(Map.values(results), &passed?/1),
+        enhancements: collect_enhancements(results),
         certification_eligible: false,
         epistemic_boundary: :independent_domain_verification
       }}
     end
+  end
+
+  @doc """
+  Builds a verification plan from explicit discovery dependencies.
+
+  The planner accepts declared domain dependencies and evidence references
+  rather than maintaining a hard-coded domain implication table.
+  """
+  @spec plan(map(), [map() | atom()]) :: {:ok, map()} | {:error, term()}
+  def plan(discovery, dependency_declarations)
+      when is_map(discovery) and is_list(dependency_declarations) do
+    primary = Map.get(discovery, :domain)
+
+    declarations =
+      dependency_declarations
+      |> Enum.map(&normalize_dependency/1)
+      |> Enum.reject(&is_nil/1)
+
+    domains =
+      ([%{domain: primary, reason: :originating_domain}] ++ declarations ++
+         [%{domain: :mathematics, reason: :mandatory_epistemic_substrate}])
+      |> Enum.uniq_by(& &1.domain)
+
+    if Enum.all?(domains, &(valid_domain_id?(&1.domain))),
+      do: {:ok, %{domains: Enum.map(domains, & &1.domain), reasons: domains}},
+      else: {:error, :unknown_domain_in_verification_plan}
   end
 
   def verify(_, _, _), do: {:error, :invalid_domain_verification_request}
@@ -43,15 +70,20 @@ defmodule Tiannara.Sentinel.DomainVerification do
   end
 
   defp build_plan(discovery, related_domains) do
-    primary = Map.fetch!(discovery, :domain)
-    domains =
-      ([primary | related_domains] ++ [:mathematics])
-      |> Enum.uniq()
+    declarations = Enum.map(related_domains, fn
+      domain when is_atom(domain) -> %{domain: domain, reason: :declared_related_domain}
+      declaration when is_map(declaration) -> declaration
+      _ -> nil
+    end) |> Enum.reject(&is_nil/1)
 
-    if Enum.all?(domains, &valid_domain_id?/1),
-      do: {:ok, %{domains: domains}},
-      else: {:error, :unknown_domain_in_verification_plan}
+    plan(discovery, declarations)
   end
+
+  defp normalize_dependency(domain) when is_atom(domain),
+    do: %{domain: domain, reason: :declared_related_domain}
+  defp normalize_dependency(%{domain: domain} = declaration) when is_atom(domain),
+    do: Map.put_new(declaration, :reason, :evidence_declared_dependency)
+  defp normalize_dependency(_), do: nil
 
   defp valid_domain_id?(:mathematics), do: true
   defp valid_domain_id?(domain) when is_atom(domain) do
@@ -82,7 +114,6 @@ defmodule Tiannara.Sentinel.DomainVerification do
     case invoke(verifier, evidence) do
       {:ok, result} ->
         verify_domains(rest, discovery, verifier, Map.put(acc, domain, result))
-
       {:error, reason} ->
         {:error, {:domain_verification_failed, domain, reason}}
     end
@@ -104,4 +135,26 @@ defmodule Tiannara.Sentinel.DomainVerification do
       Map.get(result, :independent, false) == true
   end
   defp passed?(_), do: false
+
+  defp collect_enhancements(results) do
+    results
+    |> Enum.flat_map(fn {domain, result} ->
+      result
+      |> Map.get(:corrections, [])
+      |> Enum.map(fn correction ->
+        %{
+          domain: domain,
+          correction: correction,
+          enhancement_status: :proposed,
+          original_discovery_unchanged: true,
+          requires_revalidation: true,
+          learning_artifact: %{
+            source: :independent_domain_review,
+            domain: domain,
+            recorded_for_acl_oavl: true
+          }
+        }
+      end)
+    end)
+  end
 end
