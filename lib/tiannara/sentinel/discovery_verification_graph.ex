@@ -11,10 +11,19 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
 
   @genesis "DISCOVERY_VERIFICATION_GRAPH_GENESIS"
 
-  def start_link(opts \ []), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  def start_link(opts \\ []), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
 
   @spec append(map()) :: {:ok, map()} | {:error, term()}
   def append(node) when is_map(node), do: GenServer.call(__MODULE__, {:append, node})
+
+  @spec append_with_archive(map(), (map() -> {:ok, map()} | {:error, term()})) ::
+          {:ok, map()} | {:error, term()}
+  def append_with_archive(node, archive_fun)
+      when is_map(node) and is_function(archive_fun, 1) do
+    GenServer.call(__MODULE__, {:append_with_archive, node, archive_fun})
+  end
+
+  def append_with_archive(_, _), do: {:error, :archive_writer_unavailable}
 
   @spec lineage(term()) :: {:ok, [map()]} | {:error, term()}
   def lineage(id), do: GenServer.call(__MODULE__, {:lineage, id})
@@ -25,15 +34,30 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
   def init(_), do: {:ok, %{order: [], nodes: %{}, last_hash: @genesis}}
 
   def handle_call({:append, node}, _from, state) do
+    case append_internal(node, state) do
+      {:ok, stored, next_state} -> {:reply, {:ok, stored}, next_state}
+      {:error, reason} -> {:reply, {:error, reason}, state}
+    end
+  end
+
+  def handle_call({:append_with_archive, node, archive_fun}, _from, state) do
+    with {:ok, stored, next_state} <- append_internal(node, state),
+         {:ok, archived} <- archive_node(stored, state.nodes, archive_fun) do
+      {:reply, {:ok, %{graph: stored, archive: archived}}, next_state}
+    else
+      {:error, reason} -> {:reply, {:error, reason}, state}
+    end
+  end
+
+  defp append_internal(node, state) do
     with :ok <- validate_node(node),
          :ok <- validate_parents(node, state.nodes) do
-      record = Map.merge(node, %{
-        node_id: Map.get(node, :node_id, unique_id()),
-        previous_hash: state.last_hash
-      })
+      record = Map.merge(node, %{node_id: Map.get(node, :node_id, unique_id()), previous_hash: state.last_hash})
       hash = hash_record(record)
       stored = Map.put(record, :hash, hash)
-      {:reply, {:ok, stored}, %{state | order: state.order ++ [stored.node_id], nodes: Map.put(state.nodes, stored.node_id, stored), last_hash: hash}}
+      next_state = %{state | order: state.order ++ [stored.node_id],
+        nodes: Map.put(state.nodes, stored.node_id, stored), last_hash: hash}
+      {:ok, stored, next_state}
     end
   end
 
@@ -48,6 +72,16 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
     case verify_order(state.order, state.nodes, @genesis, nil) do
       :ok -> {:reply, :ok, state}
       error -> {:reply, error, state}
+    end
+  end
+
+  defp archive_node(node, nodes, archive_fun) do
+    parents = Enum.map(Map.get(node, :parent_ids, []), &Map.fetch!(nodes, &1))
+    record = %{id: node.node_id, kind: node.kind, status: Map.get(node, :status, :recorded),
+      artifact: node, provenance: node.provenance}
+    case Tiannara.Sentinel.MathematicalEvidenceArchive.append(record, parents) do
+      {:ok, archived} -> archive_fun.(archived)
+      {:error, reason} -> {:error, {:evidence_archive_rejected, reason}}
     end
   end
 
