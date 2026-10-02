@@ -8,6 +8,7 @@ defmodule Tiannara.Sentinel.DomainVerification do
   """
 
   alias Tiannara.Domains.CanonicalRegistry
+  alias Tiannara.Sentinel.DomainDependencyPlanner
 
   @type verifier :: (map() -> {:ok, map()} | {:error, term()} | map())
 
@@ -15,7 +16,8 @@ defmodule Tiannara.Sentinel.DomainVerification do
   def verify(discovery, related_domains, verifier)
       when is_map(discovery) and is_list(related_domains) do
     with :ok <- validate_discovery(discovery),
-         {:ok, plan} <- build_plan(discovery, related_domains),
+         {:ok, inferred} <- DomainDependencyPlanner.infer(discovery),
+         {:ok, plan} <- build_plan(discovery, related_domains, inferred),
          :ok <- require_verifier(verifier),
          {:ok, results} <- verify_domains(plan, discovery, verifier, []) do
       {:ok, %{
@@ -69,14 +71,14 @@ defmodule Tiannara.Sentinel.DomainVerification do
     end
   end
 
-  defp build_plan(discovery, related_domains) do
+  defp build_plan(discovery, related_domains, inferred) do
     declarations = Enum.map(related_domains, fn
       domain when is_atom(domain) -> %{domain: domain, reason: :declared_related_domain}
       declaration when is_map(declaration) -> declaration
       _ -> nil
     end) |> Enum.reject(&is_nil/1)
 
-    plan(discovery, declarations)
+    plan(discovery, declarations ++ inferred.candidates)
   end
 
   defp normalize_dependency(domain) when is_atom(domain),
