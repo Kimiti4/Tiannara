@@ -99,6 +99,9 @@ defmodule TiannaraOS.DiscoveryRegistryLineageTest do
     assert event.to == :reproduced
     assert event.lineage.graph_id
     assert event.lineage.archive_hash
+    assert updated.verification_graph_ids == [event.lineage.graph_id]
+    assert updated.archive_ids == [event.lineage.archive_hash]
+    assert :ok = Tiannara.Sentinel.DiscoveryVerificationGraph.verify_chain()
   end
 
   test "operational promotion requires real evidence and lineage" do
