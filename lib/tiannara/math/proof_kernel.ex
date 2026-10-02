@@ -13,9 +13,7 @@ defmodule Tiannara.Math.ProofKernel do
     * reflexivity;
     * assumption;
     * conjunction introduction/elimination;
-    * implication introduction/elimination;
-    * equality substitution;
-    * modus ponens via implication elimination.
+    * implication elimination (modus ponens).
 
   A successful check means the conclusion follows in this kernel's formal
   fragment from the supplied assumptions. It does not establish that external
@@ -104,15 +102,6 @@ defmodule Tiannara.Math.ProofKernel do
       {:ok, proposition}
     else
       _ -> {:error, :right_conjunction_elimination_failed}
-    end
-  end
-
-  defp check_step(%{rule: :imp_intro, refs: [assumption_id, body_id], proposition: {:imp, antecedent, consequent}}, ctx) do
-    with {:ok, antecedent_ref} <- ref(ctx, assumption_id),
-         {:ok, body} <- ref(ctx, body_id),
-         :ok <- exact(antecedent_ref, antecedent),
-         :ok <- exact(body, consequent) do
-      {:ok, {:imp, antecedent, consequent}}
     end
   end
 
