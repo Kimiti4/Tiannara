@@ -94,6 +94,33 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
   end
 
   @doc """
+  Executes the controlled enhancement evaluation, records its result, and only
+  permits re-verification when the experiment satisfies all readiness gates.
+  """
+  @spec evaluate_and_record_enhancement(map(), map(), map(), map(), writer()) ::
+          {:ok, map()} | {:error, term()}
+  def evaluate_and_record_enhancement(discovery, enhancement, experiment, evaluator, writer)
+      when is_map(discovery) and is_map(enhancement) and is_map(experiment) do
+    with {:ok, tested} <-
+           Tiannara.Sentinel.DiscoveryEnhancement.evaluate(enhancement, experiment, evaluator),
+         {:ok, experiment_node} <- record_experiment(discovery, tested, tested.test_result, writer) do
+      if Tiannara.Sentinel.DiscoveryEnhancement.ready_for_reverification?(tested) do
+        {:ok, %{
+          status: :ready_for_reverification,
+          enhancement: tested,
+          experiment_node: experiment_node
+        }}
+      else
+        {:ok, %{
+          status: :reverification_blocked,
+          enhancement: tested,
+          experiment_node: experiment_node
+        }}
+      end
+    end
+  end
+
+  @doc """
   Records a revised discovery only after callers provide the completed
   re-verification/ACL/OAVL evidence. No status is inferred from confidence.
   """
@@ -125,7 +152,8 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
       discovery_id: Map.fetch!(discovery, :id),
       provenance: provenance(discovery, :discovery),
       status: Map.get(discovery, :validation_status, :recorded),
-      artifact: discovery
+      artifact: discovery,
+      parent_ids: existing_parent_ids(discovery)
     }
   end
 
@@ -222,7 +250,13 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
   end
 
   defp append(node, writer) do
-    DiscoveryVerificationGraph.append_with_archive(node, writer)
+    case DiscoveryVerificationGraph.append_with_archive(node, writer) do
+      {:ok, %{graph: graph, archive: archive}} ->
+        {:ok, Map.put(graph, :archive, archive)}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   defp collect_counterevidence(verification) do
