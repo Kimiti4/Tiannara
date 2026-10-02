@@ -1,4 +1,6 @@
 defmodule Tiannara.Sentinel.CrossWorldEvidenceSynthesis do
+  alias Tiannara.Sentinel.TheoryValidationGate
+  alias Tiannara.Sentinel.ValidationEvidenceEnvelope
   @moduledoc """
   Synthesizes evidence for one theory across worlds/scenarios without
   collapsing conditional results into a universal truth claim.
@@ -34,6 +36,43 @@ defmodule Tiannara.Sentinel.CrossWorldEvidenceSynthesis do
   end
 
   def synthesize(_, _), do: {:error, :invalid_cross_world_evidence}
+
+  @doc """
+  Audits the aggregate synthesis itself. Scenario-level ACL/OAVL results are
+  necessary but are not sufficient: grouping, contradiction preservation,
+  assumptions, and boundary conditions form a new evidence object and must be
+  independently validated before any downstream promotion.
+  """
+  @spec audit_synthesis(map(), map(), (map() -> term()) | nil, (map() -> term()) | nil) ::
+          {:ok, map()} | {:error, term()}
+  def audit_synthesis(theory, synthesis, acl_validator, oavl_validator)
+      when is_map(theory) and is_map(synthesis) do
+    evidence = %{
+      evidence_id: Map.get(synthesis, :evidence_id, "synthesis:" <> Integer.to_string(:erlang.phash2(synthesis))),
+      theory_id: Map.get(theory, :id, Map.get(theory, :theory_id, :unknown)),
+      outcome: synthesis_outcome(synthesis.status),
+      observations: Map.get(synthesis, :supporting_evidence, []),
+      counterevidence: Map.get(synthesis, :refuting_evidence, []),
+      assumptions: Map.get(synthesis, :assumptions, []),
+      provenance: %{
+        source: :cross_world_evidence_synthesis,
+        evidence_count: Map.get(synthesis, :evidence_count, 0),
+        contradictions_preserved: Map.get(synthesis, :contradictions_preserved, false),
+        boundary_conditions: Map.get(synthesis, :boundary_conditions, [])
+      },
+      execution_mode: :simulation,
+      evidence_class: :simulated
+    }
+
+    with {:ok, envelope} <- ValidationEvidenceEnvelope.build(evidence),
+         {:ok, audit} <- TheoryValidationGate.validate(envelope, acl_validator, oavl_validator) do
+      {:ok, Map.merge(synthesis, %{
+        validation_audit: audit,
+        audit_required: [],
+        certification_eligible: false
+      })}
+    end
+  end
 
   defp validate_results([]), do: {:error, :cross_world_evidence_required}
   defp validate_results(results) do
@@ -84,4 +123,9 @@ defmodule Tiannara.Sentinel.CrossWorldEvidenceSynthesis do
     |> Enum.reject(&(&1 == %{}))
     |> Enum.uniq()
   end
+end
+
+  defp synthesis_outcome(:supported_under_tested_conditions), do: :supported
+  defp synthesis_outcome(:refuted_under_tested_conditions), do: :refuted
+  defp synthesis_outcome(:conditional_or_conflicting), do: :mixed
 end
