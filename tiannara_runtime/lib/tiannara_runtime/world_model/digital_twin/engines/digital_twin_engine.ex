@@ -64,7 +64,12 @@ defmodule TiannaraRuntime.WorldModel.DigitalTwin.Engines.DigitalTwinEngine do
   def run_simulation(twin, scenario) do
     with {:ok, events} <- EventEngine.schedule(scenario.events || []),
          {:ok, interventions} <- InterventionScheduler.schedule(scenario.interventions || []),
-         {:ok, final_twin, outcome} <- execute_steps(twin, events, interventions, scenario) do
+         prepared <- %{twin | event_timeline: events,
+           intervention_queue: %TiannaraRuntime.WorldModel.DigitalTwin.InterventionQueue{
+             interventions: interventions
+           }},
+         {:ok, final_twin, outcome} <- execute_steps(prepared, events, interventions, scenario),
+         {:ok, _status, _verified} <- verify_replay(final_twin) do
       {:ok, final_twin, outcome}
     end
   end
