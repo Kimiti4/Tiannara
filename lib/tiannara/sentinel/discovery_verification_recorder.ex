@@ -121,6 +121,50 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
   end
 
   @doc """
+  Re-verifies a tested enhancement as a new discovery revision. The original
+  discovery remains immutable; ACL/OAVL must pass on the re-verification
+  evidence before the revision is recorded.
+  """
+  @spec reverify_and_record_revision(map(), map(), [atom()], (map() -> {:ok, map()} | map() | {:error, term()}), map()) ::
+          {:ok, map()} | {:error, term()}
+  def reverify_and_record_revision(discovery, enhancement, related_domains, verifier, opts)
+      when is_map(discovery) and is_map(enhancement) and is_list(related_domains) and is_map(opts) do
+    with true <- Tiannara.Sentinel.DiscoveryEnhancement.ready_for_reverification?(enhancement),
+         {:ok, writer} <- required_fun(opts, :archive_writer),
+         {:ok, acl} <- required_fun(opts, :acl_validator),
+         {:ok, oavl} <- required_fun(opts, :oavl_validator),
+         {:ok, verification} <-
+           DomainVerification.verify(
+             Map.put(enhancement, :id, Map.get(enhancement, :enhancement_id)),
+             related_domains,
+             verifier
+           ),
+         {:ok, evidence} <-
+           build_revision_evidence(discovery, enhancement, verification),
+         {:ok, validation} <- TheoryValidationGate.validate(evidence, acl, oavl),
+         {:ok, revision_node} <-
+           record_revision(
+             discovery,
+             %{parent_ids: [Map.get(enhancement, :parent_node_id)], enhancement: enhancement,
+               verification: verification},
+             validation,
+             writer
+           ) do
+      {:ok, %{
+        status: :revision_recorded,
+        enhancement: enhancement,
+        verification: verification,
+        validation: validation,
+        revision_node: revision_node,
+        certification_eligible: false
+      }}
+    else
+      false -> {:error, :enhancement_not_ready_for_reverification}
+      {:error, _} = error -> error
+    end
+  end
+
+  @doc """
   Records a revised discovery only after callers provide the completed
   re-verification/ACL/OAVL evidence. No status is inferred from confidence.
   """
@@ -218,6 +262,22 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
       {:ok, nodes} -> {:ok, Enum.reverse(nodes)}
       error -> error
     end
+  end
+
+  defp build_revision_evidence(discovery, enhancement, verification) do
+    {:ok, %{
+      evidence_id: "dvr-" <> Integer.to_string(System.unique_integer([:positive])),
+      theory_id: Map.fetch!(discovery, :id),
+      outcome: verification.all_domains_passed,
+      observations: Map.values(verification.results),
+      counterevidence: collect_counterevidence(verification),
+      assumptions: Map.get(enhancement, :assumptions, Map.get(discovery, :assumptions, [])),
+      provenance: provenance(discovery, :discovery_revision),
+      execution_mode: :real_execution,
+      evidence_class: :real,
+      enhancement_id: Map.get(enhancement, :enhancement_id),
+      original_discovery_id: Map.fetch!(discovery, :id)
+    }}
   end
 
   defp build_validation_evidence(discovery, verification, domain_nodes) do
