@@ -26,6 +26,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
          {:ok, verification} <- DomainVerification.verify(discovery, related_domains, verifier),
          {:ok, discovery_node} <- append(discovery_node(discovery), writer),
          {:ok, domain_nodes} <- append_domain_results(discovery, verification, discovery_node, writer),
+         {:ok, correction_nodes} <- append_corrections(discovery, verification, domain_nodes, writer),
          {:ok, evidence} <- build_validation_evidence(discovery, verification, domain_nodes),
          {:ok, validation} <- TheoryValidationGate.validate(evidence, acl, oavl),
          {:ok, acl_node} <- append(validation_node(:acl_audit, discovery, validation, domain_nodes, :acl), writer),
@@ -34,6 +35,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
         discovery: discovery_node,
         verification: verification,
         domain_nodes: domain_nodes,
+        correction_nodes: correction_nodes,
         validation: validation,
         acl_node: acl_node,
         oavl_node: oavl_node,
@@ -148,6 +150,40 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
       case append(node, writer) do
         {:ok, stored} -> {:cont, {:ok, [stored | acc]}}
         {:error, reason} -> {:halt, {:error, reason}}
+      end
+    end)
+    |> case do
+      {:ok, nodes} -> {:ok, Enum.reverse(nodes)}
+      error -> error
+    end
+  end
+
+  defp append_corrections(discovery, verification, domain_nodes, writer) do
+    nodes_by_domain = Map.new(domain_nodes, fn node ->
+      {get_in(node, [:artifact, :domain]), node}
+    end)
+
+    verification.enhancements
+    |> Enum.reduce_while({:ok, []}, fn enhancement, {:ok, acc} ->
+      domain = Map.get(enhancement, :domain)
+      parent = Map.get(nodes_by_domain, domain)
+
+      if parent do
+        node = %{
+          kind: :domain_correction,
+          discovery_id: Map.fetch!(discovery, :id),
+          parent_ids: [parent.node_id],
+          provenance: provenance(discovery, :domain_correction, domain),
+          status: :proposed,
+          artifact: enhancement
+        }
+
+        case append(node, writer) do
+          {:ok, stored} -> {:cont, {:ok, [stored | acc]}}
+          {:error, reason} -> {:halt, {:error, reason}}
+        end
+      else
+        {:halt, {:error, {:correction_domain_not_recorded, domain}}}
       end
     end)
     |> case do
