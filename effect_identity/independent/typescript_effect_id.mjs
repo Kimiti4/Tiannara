@@ -16,7 +16,7 @@ function validate(v){
       if(Object.keys(v).length!==2||!["set","multiset"].includes(v.$collection)||!Array.isArray(v.items)) throw new Error("invalid_collection");
       v.items.forEach(validate); return;
     }
-    for(const [k,x] of Object.entries(v)){if(typeof k!=="string") throw new Error("invalid_key");validate(x);}
+    for(const [k,x] of Object.entries(v)){if(typeof k!=="string") throw new Error("invalid_key");if(k.startsWith("$")) throw new Error("unsupported_special_key");validate(x);}
     return;
   }
   throw new Error("unsupported_value");
@@ -43,7 +43,7 @@ function canonical(v){
     if("$collection"in v&&"items"in v&&Object.keys(v).length===2&&["set","multiset"].includes(v.$collection)){
       let items=v.items.map(canonical).sort();
       if(v.$collection==="set")items=[...new Set(items)];
-      return JSON.stringify("$collection")+":"+JSON.stringify(v.$collection)+","+JSON.stringify("items")+":["+items.join(",")+"]";
+      return "{"+JSON.stringify("$collection")+":"+JSON.stringify(v.$collection)+","+JSON.stringify("items")+":["+items.join(",")+"]"+"}";
     }
     return"{"+Object.keys(v).sort((a,b)=>Buffer.from(a).compare(Buffer.from(b))).map(k=>JSON.stringify(k)+":"+canonical(v[k])).join(",")+"}";
   }
@@ -53,5 +53,21 @@ function id(d){const bytes=Buffer.from(canonical(project(d)),"utf8");return crea
 if(fixture.count!==117||fixture.vectors.length!==117)throw new Error("fixture_count");
 if(id(fixture.vectors[0].descriptor_a)!==fixture.expected_base_effect_id)throw new Error("base_hash");
 const lines=[];
-for(const v of fixture.vectors){try{const a=id(v.descriptor_a),b=id(v.descriptor_b);if(v.expect==="error")throw new Error("expected_error");const observed=a===b?"same":"different";if(observed!==v.expect)throw new Error(v.id+" relation");lines.push(v.id+"|"+a+"|"+b);}catch(e){if(v.expect!=="error")throw e;lines.push(v.id+"|ERROR");}}
+for(const v of fixture.vectors){
+  const render=d=>{try{return id(d);}catch(e){return null;}};
+  const a=render(v.descriptor_a),b=render(v.descriptor_b);
+  if(v.expect==="error"){
+    if(a===null)throw new Error(v.id+": error vector requires descriptor_a to render");
+    if(b!==null)throw new Error(v.id+": error vector requires descriptor_b to fail");
+    lines.push(v.id+"|ERROR");
+  }else if(v.expect==="same"){
+    if(a===null||b===null)throw new Error(v.id+": same vector requires both sides to render");
+    if(a!==b)throw new Error(v.id+": expected same, got different");
+    lines.push(v.id+"|"+a+"|"+b);
+  }else{
+    if(a===null||b===null)lines.push(v.id+"|ERROR");
+    else if(a===b)throw new Error(v.id+": expected different, got same");
+    else lines.push(v.id+"|"+a+"|"+b);
+  }
+}
 console.log(lines.join("\n"));

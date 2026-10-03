@@ -48,6 +48,7 @@ def validate_value(v):
             for x in v["items"]: validate_value(x)
             return
         for k,x in v.items():
+            if isinstance(k,str) and k.startswith("$"): raise ValueError("unsupported_special_key")
             if not isinstance(k,str): raise ValueError("invalid_key")
             validate_value(x)
         return
@@ -84,15 +85,27 @@ def main():
     assert effect_id(fixture["vectors"][0]["descriptor_a"]) == fixture["expected_base_effect_id"]
     lines=[]
     for v in fixture["vectors"]:
-        try:
-            a=effect_id(v["descriptor_a"]); b=effect_id(v["descriptor_b"])
-            if v["expect"]=="error": raise AssertionError(v["id"]+" expected error")
-            observed="same" if a==b else "different"
-            if observed != v["expect"]: raise AssertionError(f'{v["id"]}: {observed} != {v["expect"]}')
-            lines.append(f'{v["id"]}|{a}|{b}')
-        except Exception:
-            if v["expect"] != "error": raise
+        a=b=None
+        try: a=effect_id(v["descriptor_a"])
+        except Exception: a=None
+        try: b=effect_id(v["descriptor_b"])
+        except Exception: b=None
+        expect=v["expect"]
+        if expect=="error":
+            if a is None: raise AssertionError(v["id"]+": error vector requires descriptor_a to render")
+            if b is not None: raise AssertionError(v["id"]+": error vector requires descriptor_b to fail")
             lines.append(f'{v["id"]}|ERROR')
+        elif expect=="same":
+            if a is None or b is None: raise AssertionError(v["id"]+": same vector requires both sides to render")
+            if a != b: raise AssertionError(f'{v["id"]}: expected same, got different')
+            lines.append(f'{v["id"]}|{a}|{b}')
+        else:
+            if a is None or b is None:
+                lines.append(f'{v["id"]}|ERROR')
+            elif a == b:
+                raise AssertionError(f'{v["id"]}: expected different, got same')
+            else:
+                lines.append(f'{v["id"]}|{a}|{b}')
     print("\n".join(lines))
 
 if __name__ == "__main__": main()

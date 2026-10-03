@@ -1,4 +1,4 @@
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
 use std::{fs, path::PathBuf};
 
@@ -21,7 +21,7 @@ fn validate(v:&Value)->Result<(),String>{
                 if m.len()!=2 || !matches!(kind,"set"|"multiset"){return Err("invalid_collection".into())}
                 for x in items{validate(x)?;} return Ok(())
             }
-            for (k,x) in m{if k.is_empty(){return Err("invalid_key".into())}validate(x)?;} Ok(())
+            for (k,x) in m{if k.is_empty(){return Err("invalid_key".into())}if k.starts_with('$'){return Err("unsupported_special_key".into())}validate(x)?;} Ok(())
         }
     }
 }
@@ -79,10 +79,29 @@ fn main(){
     let vectors=fixture["vectors"].as_array().unwrap();
     assert_eq!(effect_id(&vectors[0]["descriptor_a"]).unwrap(),fixture["expected_base_effect_id"].as_str().unwrap());
     let mut lines=Vec::new();
-    for v in vectors{
-        let a=effect_id(&v["descriptor_a"]);let b=effect_id(&v["descriptor_b"]);
-        if v["expect"]=="error"{assert!(a.is_err()||b.is_err());lines.push(format!("{}|ERROR",v["id"].as_str().unwrap()));continue}
-        let ai=a.unwrap();let bi=b.unwrap();let observed=if ai==bi{"same"}else{"different"};assert_eq!(observed,v["expect"].as_str().unwrap(),"{}",v["id"]);lines.push(format!("{}|{}|{}",v["id"],ai,bi));
+    for v in vectors {
+        let vid=v["id"].as_str().unwrap();
+        let a=effect_id(&v["descriptor_a"]).ok();
+        let b=effect_id(&v["descriptor_b"]).ok();
+        let expect=v["expect"].as_str().unwrap();
+        match expect {
+            "error" => {
+                assert!(a.is_some(),"{}: error vector requires descriptor_a to render",vid);
+                assert!(b.is_none(),"{}: error vector requires descriptor_b to fail",vid);
+                lines.push(format!("{}|ERROR",vid));
+            }
+            "same" => {
+                let (ai,bi)=(a.expect("same vector requires both sides to render"),b.expect("same vector requires both sides to render"));
+                assert_eq!(ai,bi,"{}: expected same",vid);
+                lines.push(format!("{}|{}|{}",vid,ai,bi));
+            }
+            _ => {
+                match (a,b) {
+                    (Some(ai),Some(bi)) => { assert_ne!(ai,bi,"{}: expected different",vid); lines.push(format!("{}|{}|{}",vid,ai,bi)); }
+                    _ => lines.push(format!("{}|ERROR",vid)),
+                }
+            }
+        }
     }
     println!("{}",lines.join("\n"));
 }
