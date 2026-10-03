@@ -73,4 +73,59 @@ defmodule TiannaraRuntime.Governance.EffectIdentityTest do
   test "forged EffectID is rejected" do
     assert {:error, {:effect_id_mismatch, _}} = EffectIdentity.verify(@base, String.duplicate("0", 64))
   end
+
+  # --- Stage UAG-2F: retry / idempotency proof (gate 6) ---
+
+  test "retry: repeated and concurrent computation is idempotent" do
+    {:ok, base_id} = EffectIdentity.effect_id(@base)
+    results =
+      1..32
+      |> Task.async_stream(fn _ -> EffectIdentity.effect_id(@base) end, max_concurrency: 8)
+      |> Enum.map(fn {:ok, result} -> result end)
+
+    assert length(results) == 32
+    assert Enum.all?(results, &(&1 == {:ok, base_id}))
+  end
+
+  test "retry: attempt, execution_id, and request_id do not change EffectID" do
+    {:ok, base_id} = EffectIdentity.effect_id(@base)
+    for attempt <- 1..3 do
+      retried = Map.merge(@base, %{attempt: attempt, execution_id: "e-#{attempt}", request_id: "r-#{attempt}"})
+      assert EffectIdentity.effect_id(retried) == {:ok, base_id}
+    end
+  end
+
+  # --- Stage UAG-2F: recovery / reconstruction proof (gate 5) ---
+
+  test "recovery: EffectID reconstructs identically through JSON round-trip" do
+    {:ok, id1} = EffectIdentity.effect_id(@base)
+    restored = @base |> Jason.encode!() |> Jason.decode!()
+    assert EffectIdentity.effect_id(restored) == {:ok, id1}
+  end
+
+  test "recovery: EffectID reconstructs from a persisted descriptor file" do
+    {:ok, id1} = EffectIdentity.effect_id(@base)
+    path = Path.join(System.tmp_dir!(), "uag2f-recovery-#{System.unique_integer([:positive])}.json")
+    on_exit(fn -> File.rm(path) end)
+    File.write!(path, Jason.encode!(@base))
+    restored = path |> File.read!() |> Jason.decode!()
+    assert EffectIdentity.effect_id(restored) == {:ok, id1}
+  end
+
+  test "recovery: canonical bytes are a fixed point of decode and re-encode" do
+    {:ok, bytes1} = EffectIdentity.canonical_bytes(@base)
+    {:ok, bytes2} = bytes1 |> Jason.decode!() |> EffectIdentity.canonical_bytes()
+    assert bytes1 == bytes2
+    {:ok, id} = EffectIdentity.effect_id(@base)
+    hash = :crypto.hash(:sha256, "tiannara-effect-v1" <> <<0>> <> bytes1) |> Base.encode16(case: :lower)
+    assert hash == id
+  end
+
+  test "recovery: distinct recovery targets never collide" do
+    a = put_in(@base[:target]["resource_id"], "cand-10")
+    b = put_in(@base[:target]["resource_id"], "cand-20")
+    assert {:ok, id_a} = EffectIdentity.effect_id(a)
+    assert {:ok, id_b} = EffectIdentity.effect_id(b)
+    refute id_a == id_b
+  end
 end
