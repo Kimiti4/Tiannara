@@ -1,4 +1,4 @@
-name: UAG-2F EffectID Conformance
+name: UAG-2F Independent Renderers
 
 on:
   push:
@@ -18,7 +18,6 @@ jobs:
         with:
           node-version: "22"
       - run: node effect_identity/independent/typescript_effect_id.mjs > /tmp/typescript.out
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
       - run: cargo run --manifest-path effect_identity/independent/rust/Cargo.toml --quiet > /tmp/rust.out
       - name: Compare independent renderer outputs
         run: |
@@ -54,4 +53,6 @@ jobs:
           elixir-version: "1.18.4"
           otp-version: "28"
       - run: mix deps.get
-      - run: mix test tiannara_runtime/test/tiannara_runtime/governance/effect_identity_test.exs
+        working-directory: tiannara_runtime
+      - run: mix test test/tiannara_runtime/governance/effect_identity_test.exs
+        working-directory: tiannara_runtime

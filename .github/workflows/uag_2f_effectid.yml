@@ -1,17 +1,17 @@
-name: UAG-2F EffectID Conformance
+name: UAG-2F Cross-Runtime Conformance
 
 on:
   push:
     branches: ["uag-2f-effectid-conformance"]
     paths:
       - "effect_identity/**"
-      - "tiannara_runtime/lib/tiannara_runtime/governance/effect_identity.ex"
-      - "tiannara_runtime/test/tiannara_runtime/governance/effect_identity_test.exs"
+      - "tiannara_runtime/**"
+      - ".github/workflows/uag_2f_effectid.yml"
   pull_request:
     paths:
       - "effect_identity/**"
-      - "tiannara_runtime/lib/tiannara_runtime/governance/effect_identity.ex"
-      - "tiannara_runtime/test/tiannara_runtime/governance/effect_identity_test.exs"
+      - "tiannara_runtime/**"
+      - ".github/workflows/uag_2f_effectid.yml"
 
 jobs:
   cross-runtime:
@@ -24,10 +24,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: erlef/setup-beam@v1
         with:
-          toolchain: stable
-      - run: python effect_identity/conformance/run.py
+          elixir-version: "1.18.4"
+          otp-version: "28"
+      - name: Fetch Elixir dependencies
+        working-directory: tiannara_runtime
+        run: mix deps.get
+      - name: Run 4-runtime corpus matrix
+        run: python effect_identity/conformance/run.py --evidence /tmp/uag2f_cross_runtime_matrix.json
+      - name: Show evidence matrix
+        run: cat /tmp/uag2f_cross_runtime_matrix.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: uag2f-cross-runtime-matrix
+          path: /tmp/uag2f_cross_runtime_matrix.json
 
   elixir:
     runs-on: ubuntu-latest
@@ -37,7 +48,6 @@ jobs:
         with:
           elixir-version: "1.18.4"
           otp-version: "28"
-          version-type: strict
       - working-directory: tiannara_runtime
         run: mix deps.get
       - working-directory: tiannara_runtime
