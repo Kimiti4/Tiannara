@@ -101,20 +101,36 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
   defp normalize_target(_), do: {:error, :target_must_be_object}
 
   defp normalize_object(value, field) when is_map(value) do
-    Enum.reduce_while(value, {:ok, %{}}, fn {key, item}, {:ok, acc} ->
-      with {:ok, key} <- object_key(key),
-           {:ok, item} <- normalize_value(item, {field, key}) do
-        {:cont, {:ok, Map.put(acc, key, item)}}
-      else
-        {:error, reason} -> {:halt, {:error, reason}}
-      end
-    end)
+    with :ok <- reserved_keys_ok(value, field) do
+      Enum.reduce_while(value, {:ok, %{}}, fn {key, item}, {:ok, acc} ->
+        with {:ok, key} <- object_key(key),
+             {:ok, item} <- normalize_value(item, {field, key}) do
+          {:cont, {:ok, Map.put(acc, key, item)}}
+        else
+          {:error, reason} -> {:halt, {:error, reason}}
+        end
+      end)
+    end
   end
   defp normalize_object(_, field), do: {:error, {:object_required, field}}
+
+  # $-prefixed object keys are reserved for the declared semantic wrappers
+  # ($number, $collection), which are consumed by their own normalize_value
+  # clauses before ever reaching normalize_object. Any map that arrives here
+  # carrying a $-key therefore has an unsupported shape/value and must
+  # hard-fail, mirroring the independent renderers.
+  defp reserved_keys_ok(map, field) do
+    if Enum.any?(Map.keys(map), &is_binary(&1) and String.starts_with?(&1, "$")) do
+      {:error, {:unsupported_special_key, field}}
+    else
+      :ok
+    end
+  end
 
   defp object_key(key) when is_binary(key) do
     if String.valid?(key), do: {:ok, key}, else: {:error, :invalid_utf8_key}
   end
+  defp object_key(key) when is_atom(key), do: object_key(Atom.to_string(key))
   defp object_key(_), do: {:error, :invalid_object_key}
 
   defp has_field?(map, key) do
@@ -126,7 +142,8 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
   # across runtimes whose native numeric model collapses integer/float forms.
   # {"$collection":"set","items":[...]} and "multiset" provide explicit
   # collection semantics without relying on runtime-specific container types.
-  defp normalize_value(%{"$number" => token}, field) when is_binary(token) do
+  defp normalize_value(%{"$number" => token} = wrapper, field)
+       when is_binary(token) and map_size(wrapper) == 1 do
     case token do
       "int:" <> digits when digits != "" ->
         if Regex.match?(~r/^-?(0|[1-9][0-9]*)$/, digits), do: {:ok, %{"$number" => token}}, else: {:error, {:invalid_numeric_token, field}}
@@ -136,8 +153,8 @@ defmodule TiannaraRuntime.Governance.EffectIdentity do
     end
   end
 
-  defp normalize_value(%{"$collection" => kind, "items" => items}, field)
-       when kind in ["set", "multiset"] and is_list(items) do
+  defp normalize_value(%{"$collection" => kind, "items" => items} = wrapper, field)
+       when kind in ["set", "multiset"] and is_list(items) and map_size(wrapper) == 2 do
     with {:ok, normalized} <- normalize_list(items, field) do
       canonical_items = Enum.map(normalized, &canonical_json/1) |> Enum.sort()
       items = if kind == "set", do: Enum.uniq(canonical_items), else: canonical_items
