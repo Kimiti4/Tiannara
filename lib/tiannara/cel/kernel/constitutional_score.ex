@@ -51,3 +51,5 @@ defmodule Tiannara.CEL.Kernel.ConstitutionalScore do
       computed_at: DateTime.utc_now()
     }
   end
+
+end
