@@ -41,6 +41,22 @@ defmodule Tiannara.CEL.Executive do
     {:reply, score_from_state(state), state}
   end
 
+  # Executive state contains no independent evidence-quality measurement.
+  # Keep that dimension explicitly unverified instead of manufacturing a
+  # positive score from process health alone.
+  defp score_from_state(_state) do
+    %Tiannara.CEL.Kernel.ConstitutionalScore{
+      service_id: :executive,
+      health: if(Process.alive?(self()), do: 1.0, else: 0.0),
+      constitutional_alignment: 1.0,
+      transparency: 1.0,
+      explainability: 1.0,
+      evidence_quality: 0.0,
+      human_oversight: 1.0,
+      computed_at: DateTime.utc_now()
+    }
+  end
+
   @impl true
   def handle_cast({:escalation, event}, state) do
     Logger.error("Executive: Received escalation for unhandled event #{event.id}")
