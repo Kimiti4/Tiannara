@@ -15,7 +15,7 @@ defmodule Tiannara.Forecasting.Calibration do
 
   @type score_result :: %{method: atom(), value: number() | :unknown, sample_size: non_neg_integer()}
 
-  def score(%Forecast{} = f, observed, method \ :brier) do
+  def score(%Forecast{} = f, observed, method \\ :brier) do
     case forecast_probability(f, observed) do
       p when is_number(p) ->
         case score_method(method, p, observed) do
