@@ -480,7 +480,7 @@ defmodule TiannaraOS.Governance.DeploymentOrchestrator do
     %{available: true, details: "Resources available"}
   end
 
-  defp apply_rfc_to_ledger(_rfc), do: {:error, :governance_ledger_backend_unavailable}d
+  defp apply_rfc_to_ledger(_rfc), do: {:error, :governance_ledger_backend_unavailable}
 
   defp run_post_deployment_verifications(rfc_id) do
     # Run validation campaigns after deployment
