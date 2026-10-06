@@ -326,7 +326,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorder do
     |> Enum.flat_map(&Map.get(&1, :counterevidence, []))
   end
 
-  defp provenance(discovery, kind, domain \ nil) do
+  defp provenance(discovery, kind, domain \\ nil) do
     %{
       source: :discovery_verification_recorder,
       artifact_kind: kind,
