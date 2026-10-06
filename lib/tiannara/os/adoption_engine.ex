@@ -483,4 +483,7 @@ defmodule TiannaraOS.AdoptionEngine do
     :ets.insert(:adoption_engine_decisions, {decision_id, decision})
   end
 end
-\n  defp checksum_valid?(artifact) do\n    checksum = get_in(artifact, [:provenance, :checksum_sha256])\n    is_binary(checksum) and byte_size(checksum) == 64 and checksum =~ ~r/^[0-9a-fA-F]+$/\n  end\n
+  defp checksum_valid?(artifact) do
+    checksum = get_in(artifact, [:provenance, :checksum_sha256])
+    is_binary(checksum) and byte_size(checksum) == 64 and checksum =~ ~r/^[0-9a-fA-F]+$/
+  end
