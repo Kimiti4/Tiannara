@@ -482,7 +482,7 @@ defmodule TiannaraOS.AdoptionEngine do
     decision_id = "adopt_#{artifact.hypothesis.id}"
     :ets.insert(:adoption_engine_decisions, {decision_id, decision})
   end
-end
+
   defp checksum_valid?(artifact) do
     checksum = get_in(artifact, [:provenance, :checksum_sha256])
     is_binary(checksum) and byte_size(checksum) == 64 and checksum =~ ~r/^[0-9a-fA-F]+$/
