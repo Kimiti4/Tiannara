@@ -487,3 +487,4 @@ defmodule TiannaraOS.AdoptionEngine do
     checksum = get_in(artifact, [:provenance, :checksum_sha256])
     is_binary(checksum) and byte_size(checksum) == 64 and checksum =~ ~r/^[0-9a-fA-F]+$/
   end
+end
