@@ -128,11 +128,7 @@ defmodule TiannaraOS.AdoptionEngine do
       {:ok, state} = governance_review(kernel_pid, foreign_artifact, opts, state)
       
       # Phase 2: Validation
-      if Enum.all?(validation_result.checks, fn {_k, v} -> v == true end) do
-      {:ok, validation_result, state}
-    else
-      {:error, {:validation_failed, validation_result.checks}}
-    end = validate_artifact(kernel_pid, foreign_artifact, state)
+      {:ok, validation_result, state} = validate_artifact(kernel_pid, foreign_artifact, state)
       
       # Phase 3: Replication (if requested and validated)
       replication_result = if Map.get(opts, :auto_replicate, false) and validation_result.valid do
@@ -297,11 +293,7 @@ defmodule TiannaraOS.AdoptionEngine do
       validated_at_tick: get_current_tick(kernel_pid)
     }
 
-    if validation_result.valid do
-      {:ok, validation_result, state}
-    else
-      {:error, {:validation_failed, validation_result.checks}}
-    end
+    {:ok, validation_result, state}
   end
   
   # Phase 3: Replication (see public API above)
