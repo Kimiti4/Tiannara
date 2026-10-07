@@ -272,13 +272,27 @@ defmodule Tiannara.ASC.ASCTest do
 
   describe "adversarial: contradictory evidence" do
     test "contradictions reduce confidence" do
-      {:ok, asset} =
-        Tiannara.ASC.KnowledgeEconomy.ingest_discovery(:test_ke, %{
-          id: "d_contra",
-          domain: :physics,
-          content: "Controversial theory",
-          confidence: 0.8
-        })
+      discovery = %{
+        id: "d_contra_#{System.unique_integer([:positive])}",
+        domain: :physics,
+        content: "Controversial theory",
+        confidence: 0.8
+      }
+      {:ok, asset} = Tiannara.ASC.KnowledgeEconomy.ingest_discovery(:test_ke, discovery)
+
+      assert {:ok, _} = TiannaraOS.DiscoveryRegistry.register(%{
+        id: discovery.id,
+        name: "ASC lineage source",
+        domain_id: discovery.domain,
+        experiment_ids: ["exp-#{discovery.id}"],
+        evidence_ids: ["ev-#{discovery.id}"],
+        theory_ids: [:asc]
+      })
+      assert {:ok, promoted} = TiannaraOS.DiscoveryRegistry.update_validation_status_with_lineage(
+        discovery.id, :reproduced, %{reproduction_evidence: %{replications: 2}}
+      )
+      [graph_id] = promoted.verification_graph_ids
+      [archive_hash] = promoted.archive_ids
 
       evidence = [
         %{id: "e1", quality: 0.9, contradicts_asset: asset.id},
@@ -286,7 +300,10 @@ defmodule Tiannara.ASC.ASCTest do
       ]
 
       {:ok, validated} =
-        Tiannara.ASC.KnowledgeEconomy.validate_asset(:test_ke, asset.id, evidence)
+        Tiannara.ASC.KnowledgeEconomy.validate_asset(:test_ke, asset.id, %{
+          evidence: evidence,
+          lineage: %{graph_id: graph_id, archive_hash: archive_hash}
+        })
 
       assert validated.confidence < 0.8
       assert length(validated.contradictions) == 2
