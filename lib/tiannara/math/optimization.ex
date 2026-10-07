@@ -69,7 +69,6 @@ defmodule Tiannara.Math.Optimization do
         end
       end
     end
-  end
 
   defp result(params, objective, iterations, converged, termination, gradient_norm) do
     %{params: params, objective: objective / 1.0, iterations: iterations,
