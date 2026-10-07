@@ -198,15 +198,20 @@ defmodule Tiannara.World.UnifiedRealityGraph do
     case :digraph.vertex(state.graph, vertex) do
       false -> {:reply, {:error, :not_found}, state}
       {_, spec} ->
-        updated = %{spec | confidence: new_confidence, uncertainty: 1.0 - new_confidence,
-          evidence: (Map.get(spec, :evidence, []) ++ [evidence]), last_updated: DateTime.utc_now()}
+        updated =
+          spec
+          |> Map.put(:confidence, new_confidence)
+          |> Map.put(:uncertainty, 1.0 - new_confidence)
+          |> Map.put(:evidence, Map.get(spec, :evidence, []) ++ [evidence])
+          |> Map.put(:last_updated, DateTime.utc_now())
         :digraph.add_vertex(state.graph, vertex, updated)
 
         Enum.each(get_connected(state.graph, vertex, :depends_on, :in), fn dep_id ->
           case :digraph.vertex(state.graph, {:entity, dep_id}) do
             {_, dep_spec} ->
-              dep_conf = (dep_spec.confidence + new_confidence) / 2.0
-              :digraph.add_vertex(state.graph, {:entity, dep_id}, %{dep_spec | confidence: dep_conf, last_updated: DateTime.utc_now()})
+              dep_conf = (Map.get(dep_spec, :confidence, new_confidence) + new_confidence) / 2.0
+              updated_dep = Map.merge(dep_spec, %{confidence: dep_conf, last_updated: DateTime.utc_now()})
+              :digraph.add_vertex(state.graph, {:entity, dep_id}, updated_dep)
             _ -> :ok
           end
         end)

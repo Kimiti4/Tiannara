@@ -82,14 +82,28 @@ defmodule Tiannara.World.ConflictResolutionEngine do
     UnifiedWorldModel.get_entity(entity_id)
   end
 
-  def active_conflicts, do: GenServer.call(__MODULE__, :active_conflicts)
+  def active_conflicts, do: {:ok, GenServer.call(__MODULE__, :active_conflicts)}
 
-  def stats, do: GenServer.call(__MODULE__, :stats)
+  def stats, do: {:ok, GenServer.call(__MODULE__, :stats)}
+
+  @doc """
+  Compacts the conflict store by rotating it through the DETS Rotator.
+  Archived conflicts are moved to `conflict_resolution_engine.dets.archive.<stamp>`
+  and the live file is rebuilt from live records (dead space dropped).
+  """
+  def rotate, do: GenServer.call(__MODULE__, :rotate)
+
+  @doc """
+  Deletes resolved conflicts older than the retention window from the live
+  store. Logical hygiene only — use `rotate/0` to shrink physical file size.
+  """
+  def prune, do: GenServer.call(__MODULE__, :prune)
 
   @impl true
   def init(_opts) do
     case :dets.open_file(@conflict_table, type: :set, file: @conflict_file) do
       {:ok, _} ->
+        compact_bloated_store()
         EventBus.subscribe("world.consistency.violation", self())
         Logger.info("ConflictResolutionEngine: initialized")
         {:ok, %{
@@ -309,6 +323,48 @@ defmodule Tiannara.World.ConflictResolutionEngine do
   end
 
   @impl true
+  def handle_call(:rotate, _from, %{healthy: false} = state) do
+    {:reply, {:error, :engine_unhealthy}, state}
+  end
+
+  def handle_call(:rotate, _from, state) do
+    case Tiannara.Storage.Rotator.rotate(@conflict_table, @conflict_file, type: :set) do
+      {:ok, archive} -> {:reply, {:ok, archive}, state}
+      {:error, reason} -> {:reply, {:error, reason}, state}
+    end
+  end
+
+  @impl true
+  def handle_call(:prune, _from, %{healthy: false} = state) do
+    {:reply, {:error, :engine_unhealthy}, state}
+  end
+
+  def handle_call(:prune, _from, state) do
+    cutoff =
+      DateTime.utc_now()
+      |> DateTime.add(-(conflict_retention_hours() * 3600), :second)
+
+    stale_ids =
+      :dets.foldl(
+        fn
+          {id, %{status: :resolved, resolved_at: ts}}, acc when is_struct(ts, DateTime) ->
+            if DateTime.compare(ts, cutoff) == :lt, do: [id | acc], else: acc
+
+          {id, %{status: :resolved, updated_at: ts}}, acc when is_struct(ts, DateTime) ->
+            if DateTime.compare(ts, cutoff) == :lt, do: [id | acc], else: acc
+
+          _, acc ->
+            acc
+        end,
+        [],
+        @conflict_table
+      )
+
+    Enum.each(stale_ids, &:dets.delete(@conflict_table, &1))
+    {:reply, {:ok, length(stale_ids)}, state}
+  end
+
+  @impl true
   def handle_info({:event, event}, state) do
     payload = event.raw_payload
     event_type = Map.get(payload, :topic, event.type)
@@ -428,10 +484,44 @@ defmodule Tiannara.World.ConflictResolutionEngine do
     Logger.warning("ConflictResolutionEngine: Conflict #{conflict_id} escalated for human review")
   end
 
-  defp active_conflicts_list do
-    :dets.traverse(@conflict_table, fn
-      {_id, %{status: :unresolved} = conflict} -> {:continue, conflict}
-      _ -> {:continue}
-    end)
+defp active_conflicts_list do
+    :dets.foldl(
+      fn
+        {_id, %{status: :unresolved} = conflict}, acc -> [conflict | acc]
+        _, acc -> acc
+      end,
+      [],
+      @conflict_table
+    )
+  end
+
+  defp conflict_retention_hours do
+    Application.get_env(:tiannara, :conflict_retention_hours, 168)
+  end
+
+  defp conflict_rotate_bytes do
+    Application.get_env(:tiannara, :conflict_rotate_bytes, 64_000_000)
+  end
+
+  # Bounds physical file size at boot: if the store crossed the rotation
+  # threshold, compact it through the Rotator before serving. Using the
+  # Rotator (instead of `:dets.delete`) is load-bearing — DETS reuse of freed
+  # space is best-effort and the file still tends toward 2 GB; rotation copies
+  # live records into a fresh file, actively shrinking the store.
+  defp compact_bloated_store do
+    threshold = conflict_rotate_bytes()
+
+    case File.stat(@conflict_file) do
+      {:ok, %{size: size}} when size >= threshold ->
+        case Tiannara.Storage.Rotator.rotate(@conflict_table, @conflict_file, type: :set) do
+          {:ok, _archive} -> Logger.info("ConflictResolutionEngine: store compacted on boot")
+          {:error, reason} -> Logger.warning("ConflictResolutionEngine: boot compaction skipped: #{inspect(reason)}")
+        end
+
+      _ ->
+        :ok
+    end
+  rescue
+    _ -> :ok
   end
 end

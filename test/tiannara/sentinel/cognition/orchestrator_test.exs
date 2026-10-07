@@ -9,7 +9,8 @@ defmodule Tiannara.Sentinel.Cognition.OrchestratorTest do
   }
 
   setup do
-    start_supervised!(Tiannara.Sentinel.Cognition.Supervisor)
+    pid = Process.whereis(Tiannara.Sentinel.Cognition.Supervisor)
+    assert is_pid(pid), "Cognition.Supervisor must be started by the application"
     :ok
   end
 

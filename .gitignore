@@ -25,7 +25,6 @@ node_modules
 tiannara_gui/
 tiannara_internal_dashboard/
 tiannara_mobile/
-tests/
 pytest_cache_files-*/
 *.txt
 *.log
@@ -36,7 +35,20 @@ dist/
 # Technical documentation (exclude from git)
 SECURITY_AUDIT.md
 OPTIMIZATION_SUMMARY.md
-test_security_fixes.py
 node_modules
 node_modules
 node_modules
+
+# Correctness-critical paths must stay visible to git.
+#
+# An ignore rule does not untrack files that are already committed, but it does
+# hide every newly created file at that path: `git status`, `git diff` and
+# `git add` all skip it silently, so a test or CI definition written on such a
+# host never reaches a branch and no reviewer ever sees it. Reproduced on a
+# developer machine on 2026-09-29 with throwaway probe files.
+#
+# Do not re-add any of the following, here or in a per-host .git/info/exclude:
+#   .github/  test/  tests/  **/test/  **/tests/
+#   *_test.exs  *_test.ex  *_test.py  test_*.py  test_*.exs  conftest.py
+#   .gitignore  .gitattributes
+# The 'ignore-hygiene' job in .github/workflows/elixir_ci.yml enforces this.
