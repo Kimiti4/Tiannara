@@ -46,7 +46,7 @@ defmodule Tiannara.CEL.Kernel do
             fn spec -> start_service(spec, state.dyn_sup) end,
             fn spec -> check_health(spec) end,
             fn spec -> check_constitutional_score(spec) end,
-            fn _spec -> :sufficient end
+            fn spec -> check_resources(spec) end
           )
 
         new_state =
@@ -132,6 +132,8 @@ defmodule Tiannara.CEL.Kernel do
       _, _ -> :unhealthy
     end
   end
+
+  defp check_resources(_spec), do: :sufficient
 
   defp check_constitutional_score(spec) do
     {mod, fun, args} = spec.constitutional_score_check

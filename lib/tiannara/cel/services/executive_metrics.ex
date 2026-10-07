@@ -231,9 +231,9 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
        do: ratio(c, max(s, 1))
   defp calc_throughput(_), do: 0.0
 
-  defp calc_rate(nil, _), do: 1.0
-  defp calc_rate(_, nil), do: 1.0
-  defp calc_rate(success, total) when total == 0, do: 1.0
+  defp calc_rate(nil, _), do: 0.0
+  defp calc_rate(_, nil), do: 0.0
+  defp calc_rate(_success, total) when total == 0, do: 0.0
   defp calc_rate(success, total), do: success / max(success + abs(total), 1)
 
   defp ratio(_numerator, denominator) when not is_number(denominator), do: 0.0
@@ -258,7 +258,7 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
       max(0.0, min(1.0, avg))
     end
   end
-  defp resource_efficiency(_), do: 0.5
+  defp resource_efficiency(_), do: 0.0
 
   defp pe_report_confidence(nil), do: 0.5
   defp pe_report_confidence(r), do: max(0.0, min(1.0, Map.get(r, :prio, 0.5)))

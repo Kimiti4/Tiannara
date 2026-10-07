@@ -65,7 +65,7 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
          {:ok, _pid} <- starter.(spec),
          {:ok, gates} <- run_gate(:health, gates, fn -> check_health(spec, health_checker) end),
          {:ok, gates} <- run_gate(:constitution, gates, fn -> check_constitution(spec, score_checker) end),
-         {:ok, gates} <- run_gate(:capability, gates, fn -> :pass end),
+         {:ok, gates} <- run_gate(:capability, gates, fn -> check_capability(spec) end),
          {:ok, gates} <- run_gate(:resource, gates, fn -> resource_checker.(spec) |> to_gate() end) do
       {:ok, gates}
     else
@@ -107,8 +107,26 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
       score = score_checker.(spec)
       if ConstitutionalScore.boot_ready?(score), do: :pass, else: {:fail, "Constitutional score below threshold"}
     catch
-      _, _ -> :pass
+      _, _ -> {:fail, "Constitutional score check raised or threw"}
     end
+  end
+
+  defp check_capability(spec) do
+    mod = spec.module
+
+    with true <- function_exported?(mod, :capabilities, 0),
+         capabilities when is_list(capabilities) <- mod.capabilities(),
+         true <- Enum.all?(spec.provides, &(&1 in capabilities)) do
+      :pass
+    else
+      false -> {:fail, "Service does not expose its declared capabilities"}
+      capabilities when is_list(capabilities) ->
+        missing = Enum.reject(spec.provides, &(&1 in capabilities))
+        {:fail, "Declared capabilities not implemented: #{inspect(missing)}"}
+      _ -> {:fail, "Invalid capabilities/0 result"}
+    end
+  rescue
+    _ -> {:fail, "Capability check raised"}
   end
 
   defp to_gate(:sufficient), do: :pass
