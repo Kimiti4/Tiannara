@@ -11,9 +11,39 @@ defmodule Tiannara.Validation.LifecycleInvariantTest do
   use ExUnit.Case, async: false
   
   alias Tiannara.LifecycleRegistry
-  
+
+  setup_all do
+    # A dedicated keeper process creates the named ETS tables ONCE for the
+    # whole module. If a test process creates them instead, it becomes the
+    # owner — and the next test's setup can find the still-dying previous
+    # owner's table, only for that owner's death to yank the table out from
+    # under the running test (ArgumentError: "table identifier does not
+    # refer to an existing ETS table"). The keeper outlives every test and
+    # is stopped after the module finishes.
+    parent = self()
+
+    keeper =
+      spawn(fn ->
+        LifecycleRegistry.init_tables()
+        send(parent, :tables_ready)
+
+        receive do
+          :stop -> :ok
+        end
+      end)
+
+    receive do
+      :tables_ready -> :ok
+    end
+
+    on_exit(fn -> send(keeper, :stop) end)
+
+    :ok
+  end
+
   setup do
-    # Clean slate for each test
+    # Clean slate for each test (init_tables is idempotent; the keeper owns
+    # the tables, this only clears rows).
     LifecycleRegistry.init_tables()
     :ets.delete_all_objects(:lifecycle_events)
     :ets.delete_all_objects(:lifecycle_state)

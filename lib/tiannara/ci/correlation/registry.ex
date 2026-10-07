@@ -61,11 +61,15 @@ defmodule Tiannara.CI.Correlation.Registry do
       {:ok, records} ->
         records
         |> Enum.filter(&(&1.correlation_id == correlation_id))
-        |> Enum.sort_by(& &1.recorded_at, :desc)
-        |> List.first()
+        |> Enum.with_index()
+        # recorded_at has millisecond resolution, so a register and a complete
+        # in the same millisecond tie. Sort desc by timestamp and break ties by
+        # append order (load_all is append order) so the later-appended record —
+        # the genuinely most recent one — wins.
+        |> Enum.sort_by(fn {record, index} -> {record.recorded_at, index} end, :desc)
         |> case do
-          nil -> :not_found
-          record -> {:ok, record}
+          [] -> :not_found
+          [{record, _index} | _] -> {:ok, record}
         end
 
       {:error, _} = e ->
