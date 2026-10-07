@@ -163,14 +163,49 @@ defmodule TiannaraRuntime.WorldModel.ModelRegistry do
     - any -> archived
   """
   @spec transition_status(String.t(), non_neg_integer(), atom()) :: {:ok, map()} | {:error, String.t()}
-  def transition_status(model_id, version, new_status) do
+  def transition_status(model_id, version, new_status),
+    do: transition_status(model_id, version, new_status, %{})
+
+  @spec transition_status(String.t(), non_neg_integer(), atom(), map()) ::
+          {:ok, map()} | {:error, term()}
+  def transition_status(model_id, version, new_status, evidence) when is_map(evidence) do
     init_table()
 
     with {:ok, entry} <- get_model(model_id, version),
-         :ok <- validate_transition(entry.status, new_status) do
-      update_model(model_id, version, status: new_status)
+         :ok <- validate_transition(entry.status, new_status),
+         :ok <- validate_epistemic_transition(new_status, evidence),
+         {:ok, graph_id} <- lineage_graph_id(evidence),
+         {:ok, archive_hash} <- lineage_archive_hash(evidence),
+         :ok <- Tiannara.Sentinel.DiscoveryVerificationGraph.verify_chain(),
+         :ok <- Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(archive_hash),
+         {:ok, graph} <- Tiannara.Sentinel.DiscoveryVerificationGraph.get(graph_id),
+         true <- Map.get(graph, :model_id) == model_id do
+      update_model(model_id, version,
+        status: new_status,
+        verification_graph_ids: Enum.uniq(Map.get(entry, :verification_graph_ids, []) ++ [graph_id]),
+        archive_ids: Enum.uniq(Map.get(entry, :archive_ids, []) ++ [archive_hash])
+      )
+    else
+      false -> {:error, :lineage_model_mismatch}
+      {:error, _} = error -> error
     end
   end
+
+  defp validate_epistemic_transition(status, evidence)
+       when status in [:validated, :operational] do
+    required = [:evidence_class, :execution_mode, :lineage]
+    if Enum.all?(required, &Map.has_key?(evidence, &1)),
+      do: :ok,
+      else: {:error, :epistemic_evidence_required}
+  end
+
+  defp validate_epistemic_transition(_status, _evidence), do: :ok
+
+  defp lineage_graph_id(%{lineage: %{graph_id: id}}) when is_binary(id), do: {:ok, id}
+  defp lineage_graph_id(_), do: {:error, :verification_graph_required}
+
+  defp lineage_archive_hash(%{lineage: %{archive_hash: hash}}) when is_binary(hash), do: {:ok, hash}
+  defp lineage_archive_hash(_), do: {:error, :evidence_archive_required}
 
   @doc """
   Soft-delete a model by transitioning it to :archived.
