@@ -2,11 +2,6 @@ ExUnit.start(trace: true, seed: 0, timeout: 30_000, max_cases: 4, assert_receive
 
 Application.put_env(:tiannara, :test_mode, true)
 
-case Application.ensure_all_started(:tiannara) do
-  {:ok, _apps} -> :ok
-  {:error, reason} -> raise "Tiannara test boot failed: #{inspect(reason)}"
-end
-
 test_data_path = Application.get_env(:tiannara, :dets_base_path, "./test_data/dets")
 File.rm_rf!(test_data_path)
 File.mkdir_p!(test_data_path)
