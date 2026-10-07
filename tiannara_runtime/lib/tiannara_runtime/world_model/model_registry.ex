@@ -135,6 +135,14 @@ defmodule TiannaraRuntime.WorldModel.ModelRegistry do
   """
   @spec update_model(String.t(), non_neg_integer(), keyword()) :: {:ok, map()} | {:error, term()}
   def update_model(model_id, version, updates) do
+    if Keyword.has_key?(updates, :status) do
+      {:error, :status_changes_require_transition_api}
+    else
+      update_model_fields(model_id, version, updates)
+    end
+  end
+
+  defp update_model_fields(model_id, version, updates) do
     init_table()
     key = {model_id, version}
 
@@ -180,7 +188,7 @@ defmodule TiannaraRuntime.WorldModel.ModelRegistry do
          :ok <- Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(archive_hash),
          {:ok, graph} <- Tiannara.Sentinel.DiscoveryVerificationGraph.get(graph_id),
          true <- Map.get(graph, :model_id) == model_id do
-      update_model(model_id, version,
+      update_model_fields(model_id, version,
         status: new_status,
         verification_graph_ids: Enum.uniq(Map.get(entry, :verification_graph_ids, []) ++ [graph_id]),
         archive_ids: Enum.uniq(Map.get(entry, :archive_ids, []) ++ [archive_hash])
@@ -295,7 +303,12 @@ defmodule TiannaraRuntime.WorldModel.ModelRegistry do
     model_id = model.model_id
     version = model.version
 
+    requested_status = Map.get(model, :status, :draft)
+
     cond do
+      requested_status != :draft ->
+        {:error, :initial_model_must_be_draft}
+
       is_nil(model_id) ->
         {:error, "model_id is required"}
 
