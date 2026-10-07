@@ -79,15 +79,17 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
           true -> {:cont, node.hash}
         end
       end)
-    if result == @genesis, do: {:reply, :ok, state}, else: {:reply, result_to_reply(result), state}
+    reply = case result do
+      {:error, _} = error -> error
+      _hash -> :ok
+    end
+    {:reply, reply, state}
   end
-
-  defp result_to_reply(:ok), do: :ok
-  defp result_to_reply({:error, _} = error), do: error
 
   defp build_graph_node(node, state) do
     graph = Map.merge(node, %{
       node_id: Map.get(node, :node_id, unique_id()),
+      sequence: length(state.order) + 1,
       previous_hash: state.last_hash
     })
     {:ok, Map.put(graph, :hash, hash_record(graph))}
