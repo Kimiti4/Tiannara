@@ -22,6 +22,11 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
     GenServer.call(__MODULE__, {:append_with_archive, node, archive_fun})
   end
 
+  def get(id) do
+    ensure_started()
+    GenServer.call(__MODULE__, {:get, id})
+  end
+
   def lineage(id) do
     ensure_started()
     GenServer.call(__MODULE__, {:lineage, id})
@@ -54,6 +59,15 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
     else
       {:error, reason} -> {:reply, {:error, reason}, state}
     end
+  end
+
+  def handle_call({:get, id}, _from, state) do
+    reply =
+      case :dets.lookup(@table, id) do
+        [{^id, node}] -> {:ok, node}
+        [] -> {:error, :node_not_found}
+      end
+    {:reply, reply, state}
   end
 
   def handle_call({:lineage, id}, _from, state) do
