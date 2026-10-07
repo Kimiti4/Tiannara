@@ -128,17 +128,17 @@ defmodule Tiannara.Sentinel.MathematicalEvidence do
   end
 
   defp validate(attrs) do
-    with :ok <- require(attrs, :kind),
-         :ok <- require(attrs, :statement),
-         :ok <- require(attrs, :artifact),
-         :ok <- require(attrs, :status),
+    with :ok <- require_field(attrs, :kind),
+         :ok <- require_field(attrs, :statement),
+         :ok <- require_field(attrs, :artifact),
+         :ok <- require_field(attrs, :status),
          :ok <- validate_kind(attrs.kind),
          :ok <- validate_status(attrs.kind, attrs.status) do
       :ok
     end
   end
 
-  defp require(attrs, key), do: if(Map.has_key?(attrs, key), do: :ok, else: {:error, {:missing_field, key}})
+  defp require_field(attrs, key), do: if(Map.has_key?(attrs, key), do: :ok, else: {:error, {:missing_field, key}})
   defp validate_kind(kind) when kind in [:theorem, :proof, :counterexample_search, :mathematical_test, :scientific_reasoning], do: :ok
   defp validate_kind(_), do: {:error, :invalid_mathematical_evidence_kind}
   defp validate_status(:proof, status) when status in [:candidate, :proven_under_assumptions, :rejected, :refuted, :superseded], do: :ok
