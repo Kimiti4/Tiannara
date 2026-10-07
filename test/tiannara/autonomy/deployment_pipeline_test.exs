@@ -61,7 +61,7 @@ defmodule Tiannara.Autonomy.DeploymentPipelineTest do
   describe "metrics" do
     test "active_count returns correct count" do
       before = DeploymentPipeline.active_count()
-      DeploymentPipeline.deploy(sample_simulation(human_required: false))
+      DeploymentPipeline.deploy(sample_simulation(human_required: true))
       assert DeploymentPipeline.active_count() == before + 1
     end
 

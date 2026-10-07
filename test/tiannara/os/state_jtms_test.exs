@@ -30,11 +30,11 @@ defmodule TiannaraOS.StateJTMSTest do
     # Add all nodes
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim)
-      |> EvidenceEngine.add_node(hypothesis)
-      |> EvidenceEngine.add_node(experiment)
-      |> EvidenceEngine.add_node(evidence)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim.id, claim)
+      |> EvidenceEngine.add_node(hypothesis.id, hypothesis)
+      |> EvidenceEngine.add_node(experiment.id, experiment)
+      |> EvidenceEngine.add_node(evidence.id, evidence)
 
     # Establish bidirectional relations
     state =
@@ -75,9 +75,9 @@ defmodule TiannaraOS.StateJTMSTest do
 
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim)
-      |> EvidenceEngine.add_node(evidence)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim.id, claim)
+      |> EvidenceEngine.add_node(evidence.id, evidence)
       |> EvidenceEngine.add_relation(:theory_1, :predicts, :claim_1)
       |> EvidenceEngine.add_relation(:ev_1, :supports, :claim_1)
 
@@ -104,11 +104,11 @@ defmodule TiannaraOS.StateJTMSTest do
 
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim)
-      |> EvidenceEngine.add_node(hyp)
-      |> EvidenceEngine.add_node(exp)
-      |> EvidenceEngine.add_node(evidence)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim.id, claim)
+      |> EvidenceEngine.add_node(hyp.id, hyp)
+      |> EvidenceEngine.add_node(exp.id, exp)
+      |> EvidenceEngine.add_node(evidence.id, evidence)
       |> EvidenceEngine.add_relation(:theory_1, :predicts, :claim_1)
       |> EvidenceEngine.add_relation(:claim_1, :predicts, :hyp_1)
       |> EvidenceEngine.add_relation(:hyp_1, :tested_by, :exp_1)
@@ -144,9 +144,9 @@ defmodule TiannaraOS.StateJTMSTest do
 
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim)
-      |> EvidenceEngine.add_node(evidence)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim.id, claim)
+      |> EvidenceEngine.add_node(evidence.id, evidence)
       |> EvidenceEngine.add_relation(:theory_1, :predicts, :claim_1)
       |> EvidenceEngine.add_relation(:ev_1, :supports, :claim_1)
 
@@ -183,10 +183,10 @@ defmodule TiannaraOS.StateJTMSTest do
 
       state =
         state
-        |> EvidenceEngine.add_node(theory)
-        |> EvidenceEngine.add_node(claim)
-        |> EvidenceEngine.add_node(evidence)
-        |> EvidenceEngine.add_node(discovery)
+        |> EvidenceEngine.add_node(theory.id, theory)
+        |> EvidenceEngine.add_node(claim.id, claim)
+        |> EvidenceEngine.add_node(evidence.id, evidence)
+        |> EvidenceEngine.add_node(discovery.id, discovery)
         |> EvidenceEngine.add_relation(:theory_1, :predicts, :claim_1)
         |> EvidenceEngine.add_relation(:ev_1, :supports, :claim_1)
         # discovery depends on theory_1
@@ -219,14 +219,14 @@ defmodule TiannaraOS.StateJTMSTest do
 
     state =
       state
-      |> EvidenceEngine.add_node(t_a)
-      |> EvidenceEngine.add_node(c_a)
-      |> EvidenceEngine.add_node(e_a)
-      |> EvidenceEngine.add_node(ev_a)
-      |> EvidenceEngine.add_node(t_b)
-      |> EvidenceEngine.add_node(c_b)
-      |> EvidenceEngine.add_node(e_b)
-      |> EvidenceEngine.add_node(ev_b)
+      |> EvidenceEngine.add_node(t_a.id, t_a)
+      |> EvidenceEngine.add_node(c_a.id, c_a)
+      |> EvidenceEngine.add_node(e_a.id, e_a)
+      |> EvidenceEngine.add_node(ev_a.id, ev_a)
+      |> EvidenceEngine.add_node(t_b.id, t_b)
+      |> EvidenceEngine.add_node(c_b.id, c_b)
+      |> EvidenceEngine.add_node(e_b.id, e_b)
+      |> EvidenceEngine.add_node(ev_b.id, ev_b)
       |> EvidenceEngine.add_relation(:theory_a, :predicts, :claim_a)
       |> EvidenceEngine.add_relation(:claim_a, :predicts, :exp_a)
       |> EvidenceEngine.add_relation(:exp_a, :generates, :ev_a)
@@ -246,7 +246,7 @@ defmodule TiannaraOS.StateJTMSTest do
   test "Stress Test 2: Event Storm Resistance (Scale propagation)", %{state: state} do
     # Add 1 theory, 20 claims, 50 hypotheses, 100 experiments, 200 evidence nodes
     theory = %EvidenceNode{id: :theory_scale, type: :theory, name: "Theory Scale", value: 0.9, validity: :valid}
-    state = EvidenceEngine.add_node(state, theory)
+    state = EvidenceEngine.add_node(state, theory.id, theory)
 
     # 1. Spawn claims
     state =
@@ -254,7 +254,7 @@ defmodule TiannaraOS.StateJTMSTest do
         claim_id = String.to_atom("claim_s_#{i}")
         claim = %EvidenceNode{id: claim_id, type: :claim, name: "Claim #{i}", value: 0.9, validity: :valid}
         acc
-        |> EvidenceEngine.add_node(claim)
+        |> EvidenceEngine.add_node(claim.id, claim)
         |> EvidenceEngine.add_relation(:theory_scale, :predicts, claim_id)
       end)
 
@@ -266,7 +266,7 @@ defmodule TiannaraOS.StateJTMSTest do
         claim_index = rem(i, 20) + 1
         claim_id = String.to_atom("claim_s_#{claim_index}")
         acc
-        |> EvidenceEngine.add_node(hyp)
+        |> EvidenceEngine.add_node(hyp.id, hyp)
         |> EvidenceEngine.add_relation(claim_id, :predicts, hyp_id)
       end)
 
@@ -278,7 +278,7 @@ defmodule TiannaraOS.StateJTMSTest do
         hyp_index = rem(i, 50) + 1
         hyp_id = String.to_atom("hyp_s_#{hyp_index}")
         acc
-        |> EvidenceEngine.add_node(exp)
+        |> EvidenceEngine.add_node(exp.id, exp)
         |> EvidenceEngine.add_relation(hyp_id, :tested_by, exp_id)
       end)
 
@@ -292,7 +292,7 @@ defmodule TiannaraOS.StateJTMSTest do
         claim_index = rem(i, 20) + 1
         claim_id = String.to_atom("claim_s_#{claim_index}")
         acc
-        |> EvidenceEngine.add_node(ev)
+        |> EvidenceEngine.add_node(ev.id, ev)
         |> EvidenceEngine.add_relation(exp_id, :generates, ev_id)
         |> EvidenceEngine.add_relation(ev_id, :supports, claim_id)
       end)
@@ -323,11 +323,11 @@ defmodule TiannaraOS.StateJTMSTest do
 
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim_a)
-      |> EvidenceEngine.add_node(claim_b)
-      |> EvidenceEngine.add_node(ev_a)
-      |> EvidenceEngine.add_node(ev_b)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim_a.id, claim_a)
+      |> EvidenceEngine.add_node(claim_b.id, claim_b)
+      |> EvidenceEngine.add_node(ev_a.id, ev_a)
+      |> EvidenceEngine.add_node(ev_b.id, ev_b)
       |> EvidenceEngine.add_relation(:theory_t, :predicts, :claim_a)
       |> EvidenceEngine.add_relation(:theory_t, :predicts, :claim_b)
       |> EvidenceEngine.add_relation(:ev_a, :supports, :claim_a)
@@ -355,9 +355,9 @@ defmodule TiannaraOS.StateJTMSTest do
 
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim)
-      |> EvidenceEngine.add_node(evidence)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim.id, claim)
+      |> EvidenceEngine.add_node(evidence.id, evidence)
       |> EvidenceEngine.add_relation(:theory_t, :predicts, :claim_c)
       |> EvidenceEngine.add_relation(:ev_e, :supports, :claim_c)
 

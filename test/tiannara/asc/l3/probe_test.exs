@@ -5,7 +5,10 @@ defmodule Tiannara.ASC.L3.ProbeTest do
   alias Tiannara.ASC.L3.Probe
 
   test "bounded cross-subsystem mission completes through real interfaces" do
-    start_supervised!(Supervisor)
+    case Process.whereis(Supervisor) do
+      nil -> {:ok, _pid} = start_supervised(Supervisor)
+      _running -> :ok
+    end
 
     assert {:ok, verdict} = Probe.run()
 

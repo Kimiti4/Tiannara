@@ -150,7 +150,7 @@ defmodule Tiannara.Research.Director.EvidenceDriven do
       id: :"opp-#{hash(event)}",
       type: event.type,
       payload: event.payload,
-      confidence: event.confidence,
+      confidence: event.confidence || 0.0,
       evidence: event.evidence || [],
       evidence_envelope: event.evidence_envelope || %{},
       intervention_id: event.intervention_id

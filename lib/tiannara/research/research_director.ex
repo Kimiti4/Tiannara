@@ -63,7 +63,7 @@ defmodule Tiannara.Research.ResearchDirector do
       integrator = KnowledgeIntegrator.status()
       running = ResearchQueue.running_count()
       pending = ResearchQueue.pending_count()
-      status = if running > 0 or pending >= 0, do: :operational, else: :degraded
+      status = if running > 0 or pending >= 0, do: :healthy, else: :degraded
       %{status: status, active_hypotheses: HypothesisRanker.active_count(), pending_experiments: pending, running_experiments: running,
         validated_knowledge: KnowledgeIntegrator.total_integrated(), evidence_scored: EvidenceScorer.total_scored(),
         components: %{queue: queue, ranker: ranker, planner: planner, scorer: scorer, integrator: integrator}}
@@ -161,6 +161,18 @@ defmodule Tiannara.Research.ResearchDirector.Pipeline do
 
   @impl true
   def handle_cast(:advance, state) do
+    state = drain_queue(state, 0)
+    {:noreply, %{state | cycles: state.cycles + 1, last_advance_at: DateTime.utc_now()}}
+  end
+
+  # One advance processes the queue to completion: a hypothesis becomes an
+  # experiment and that experiment is quarantined in the same cycle, so R0
+  # quarantine progress never depends on how many cycles happen in between.
+  @max_advance_steps 1_000
+
+  defp drain_queue(state, steps) when steps >= @max_advance_steps, do: state
+
+  defp drain_queue(state, steps) do
     case ResearchQueue.dequeue() do
       {:ok, :hypothesis, hypothesis} ->
         experiment = ExperimentPlanner.plan(hypothesis)
@@ -168,14 +180,14 @@ defmodule Tiannara.Research.ResearchDirector.Pipeline do
 
         :telemetry.execute([:tiannara, :research, :experiment_planned], %{count: 1}, %{hypothesis_id: hypothesis.id})
 
-        {:noreply, %{state | cycles: state.cycles + 1, last_advance_at: DateTime.utc_now(), total_experiments_planned: state.total_experiments_planned + 1}}
+        drain_queue(%{state | total_experiments_planned: state.total_experiments_planned + 1}, steps + 1)
 
       {:ok, :experiment, experiment} ->
         quarantine_experiment(experiment)
-        {:noreply, %{state | cycles: state.cycles + 1, last_advance_at: DateTime.utc_now(), total_quarantined: state.total_quarantined + 1}}
+        drain_queue(%{state | total_quarantined: state.total_quarantined + 1}, steps + 1)
 
       :empty ->
-        {:noreply, %{state | cycles: state.cycles + 1, last_advance_at: DateTime.utc_now()}}
+        state
     end
   end
 

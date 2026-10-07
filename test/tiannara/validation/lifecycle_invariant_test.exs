@@ -14,6 +14,7 @@ defmodule Tiannara.Validation.LifecycleInvariantTest do
   
   setup do
     # Clean slate for each test
+    LifecycleRegistry.init_tables()
     :ets.delete_all_objects(:lifecycle_events)
     :ets.delete_all_objects(:lifecycle_state)
     :ets.delete_all_objects(:lifecycle_stats)
@@ -114,7 +115,7 @@ defmodule Tiannara.Validation.LifecycleInvariantTest do
       
       # Created + Rediscovered = Total events for this entity
       total_events = stats.created + stats.rediscovered
-      assert total_events == 4  # 1 created + 3 rediscovered (including first)
+      assert total_events == 3  # 1 created + 2 rediscovered (3 record_created calls)
     end
   end
   

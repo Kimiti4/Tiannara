@@ -318,8 +318,8 @@ defmodule TiannaraOS.DiscoveryRegistry do
     with {:ok, discovery} <- fetch_discovery(state, discovery_id),
          {:ok, envelope} <- normalize_evidence(evidence_envelope),
          allowed when is_list(allowed) <- Map.get(%{simulated: [:reproduced], reproduced: [:operationally_validated], operationally_validated: []}, discovery.validation_status, []),
-         true <- new_status in allowed,
          :ok <- validate_transition_evidence(new_status, envelope),
+         true <- new_status in allowed,
          {:ok, lineage} <- write_validation_lineage(discovery, new_status, envelope, lineage_writer) do
       updated = %{discovery |
         validation_status: new_status,
@@ -481,6 +481,8 @@ defmodule TiannaraOS.DiscoveryRegistry do
       true -> :ok
     end
   end
+
+  defp validate_transition_evidence(_new_status, _envelope), do: {:error, :invalid_status_transition}
 
   defp merge_evidence(old, new), do: Map.merge(old || %{}, new)
 

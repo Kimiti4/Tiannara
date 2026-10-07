@@ -60,7 +60,7 @@ defmodule Tiannara.Executive.Cognitive.ExecutiveCognitiveRuntime do
     components = [HeartbeatEngine, ExecutiveCycle, ContextManager, AttentionScheduler, WorkingMemory, ReflectionEngine, ExecutiveBlackboard]
     if Enum.all?(components, &Process.whereis/1) do
       %{
-        status: :operational,
+        status: :healthy,
         uptime_seconds: HeartbeatEngine.uptime_seconds(),
         cycles_completed: ExecutiveCycle.cycles_completed(),
         last_reflection: ReflectionEngine.last_reflection(),

@@ -119,7 +119,8 @@ defmodule Tiannara.World.KnowledgeCoordinator do
           id: spec.id,
           type: spec.type,
           subtype: determine_initial_stage(spec.type),
-          attributes: Map.get(spec, :attributes, %{}),
+          attributes:
+            Map.put(Map.get(spec, :attributes, %{}), :evidence, Map.get(spec, :evidence, [])),
           confidence: spec.confidence,
           uncertainty: 1.0 - spec.confidence,
           provenance: spec.provenance,

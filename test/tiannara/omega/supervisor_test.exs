@@ -6,6 +6,15 @@ defmodule Tiannara.Omega.SupervisorTest do
 
   @moduletag :omega_supervisor
 
+  setup do
+    case Process.whereis(Supervisor) do
+      nil -> :ok
+      pid -> Supervisor.stop(pid)
+    end
+
+    :ok
+  end
+
   defp unique_opts do
     suffix = System.unique_integer([:positive])
 

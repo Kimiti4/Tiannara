@@ -42,7 +42,7 @@ defmodule Tiannara.OS.InstitutionalMemoryTest do
         world_id: :w1,
         cause_of_death: :resource_exhaustion,
         lifespan_ticks: 500 + i * 100,
-        genome: %{
+        strategy_genome: %{
           exploration_rate: 0.8 + :rand.uniform() * 0.1,  # High exploration
           validation_priority: 0.1 + :rand.uniform() * 0.1,  # Low validation
           cross_domain_synthesis: 0.5,
@@ -78,25 +78,25 @@ defmodule Tiannara.OS.InstitutionalMemoryTest do
     death_records = [
       # Short-lived (should not influence success patterns)
       %{world_id: :w1, cause_of_death: :resource_exhaustion, lifespan_ticks: 200,
-        genome: %{exploration_rate: 0.9, validation_priority: 0.1, cross_domain_synthesis: 0.2,
+        strategy_genome: %{exploration_rate: 0.9, validation_priority: 0.1, cross_domain_synthesis: 0.2,
                   anomaly_sensitivity: 0.3, risk_tolerance: 0.2},
         assets_at_death: []},
       %{world_id: :w1, cause_of_death: :stagnation, lifespan_ticks: 300,
-        genome: %{exploration_rate: 0.1, validation_priority: 0.9, cross_domain_synthesis: 0.1,
+        strategy_genome: %{exploration_rate: 0.1, validation_priority: 0.9, cross_domain_synthesis: 0.1,
                   anomaly_sensitivity: 0.2, risk_tolerance: 0.1},
         assets_at_death: []},
       
       # Long-lived (should influence success patterns)
       %{world_id: :w1, cause_of_death: :competitive_displacement, lifespan_ticks: 5000,
-        genome: %{exploration_rate: 0.5, validation_priority: 0.6, cross_domain_synthesis: 0.7,
+        strategy_genome: %{exploration_rate: 0.5, validation_priority: 0.6, cross_domain_synthesis: 0.7,
                   anomaly_sensitivity: 0.6, risk_tolerance: 0.6},
         assets_at_death: [:asset1, :asset2]},
       %{world_id: :w1, cause_of_death: :resource_exhaustion, lifespan_ticks: 6000,
-        genome: %{exploration_rate: 0.4, validation_priority: 0.7, cross_domain_synthesis: 0.6,
+        strategy_genome: %{exploration_rate: 0.4, validation_priority: 0.7, cross_domain_synthesis: 0.6,
                   anomaly_sensitivity: 0.5, risk_tolerance: 0.7},
         assets_at_death: [:asset3, :asset4, :asset5]},
       %{world_id: :w1, cause_of_death: :stagnation, lifespan_ticks: 4500,
-        genome: %{exploration_rate: 0.6, validation_priority: 0.5, cross_domain_synthesis: 0.8,
+        strategy_genome: %{exploration_rate: 0.6, validation_priority: 0.5, cross_domain_synthesis: 0.8,
                   anomaly_sensitivity: 0.7, risk_tolerance: 0.5},
         assets_at_death: [:asset6]}
     ]
@@ -277,10 +277,10 @@ defmodule Tiannara.OS.InstitutionalMemoryTest do
   
   test "analyze_domain_saturation identifies oversaturated domains" do
     discoveries = %{
-      disc_1: %{world_id: :w1, domain_vector: %{energy: 0.9, materials: 0.1}},
-      disc_2: %{world_id: :w1, domain_vector: %{energy: 0.8, materials: 0.2}},
-      disc_3: %{world_id: :w1, domain_vector: %{energy: 0.85, materials: 0.15}},
-      disc_4: %{world_id: :w1, domain_vector: %{materials: 0.9, energy: 0.1}}
+      disc_1: %{origin_world_id: :w1, metadata: %{domain_vector: %{energy: 0.9, materials: 0.1}}},
+      disc_2: %{origin_world_id: :w1, metadata: %{domain_vector: %{energy: 0.8, materials: 0.2}}},
+      disc_3: %{origin_world_id: :w1, metadata: %{domain_vector: %{energy: 0.85, materials: 0.15}}},
+      disc_4: %{origin_world_id: :w1, metadata: %{domain_vector: %{materials: 0.9, energy: 0.1}}}
     }
     
     state = %State{
@@ -314,7 +314,7 @@ defmodule Tiannara.OS.InstitutionalMemoryTest do
         world_id: :w1,
         cause_of_death: :resource_exhaustion,
         lifespan_ticks: 400,
-        genome: %{
+        strategy_genome: %{
           exploration_rate: 0.85,
           validation_priority: 0.15,
           cross_domain_synthesis: 0.3,

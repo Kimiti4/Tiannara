@@ -41,6 +41,26 @@ defmodule Tiannara.CEL.Executive do
     {:reply, score_from_state(state), state}
   end
 
+  # The executive holds no instruments for transparency, explainability,
+  # evidence quality, or human oversight, so those dimensions stay at the
+  # fail-closed zero until real measurements exist. The only constitutional
+  # signal its state can evidence is unresolved escalations: any outstanding
+  # escalation fails health closed.
+  defp score_from_state(state) do
+    unresolved = length(state.escalations)
+
+    %Tiannara.CEL.Kernel.ConstitutionalScore{
+      service_id: :executive,
+      health: if(unresolved == 0, do: 1.0, else: 0.0),
+      constitutional_alignment: 0.0,
+      transparency: 0.0,
+      explainability: 0.0,
+      evidence_quality: 0.0,
+      human_oversight: 0.0,
+      computed_at: DateTime.utc_now()
+    }
+  end
+
   @impl true
   def handle_cast({:escalation, event}, state) do
     Logger.error("Executive: Received escalation for unhandled event #{event.id}")

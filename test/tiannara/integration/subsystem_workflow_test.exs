@@ -45,7 +45,7 @@ defmodule Tiannara.Integration.SubsystemWorkflowTest do
         candidates_validated: 7,
         retention_rate: 0.9
       },
-      budget: %{credits: 1800, compute: 700, attention: 300},
+      budget: %{credits: 1800.0, compute: 700.0, attention: 300.0},
       active_experiments: ["exp_1"],
       capabilities: %{causal_modeling: true},
       life_stage: :juvenile,

@@ -15,6 +15,7 @@ defmodule Tiannara.CEL.Kernel.ServiceRegistry do
           requires: [atom()],
           health_check: {module(), atom(), list()},
           constitutional_score_check: {module(), atom(), list()},
+          resource_check: (() -> :sufficient | :insufficient),
           boot_timeout: non_neg_integer(),
           deprecated: boolean()
         }
@@ -31,7 +32,7 @@ defmodule Tiannara.CEL.Kernel.ServiceRegistry do
 
   @impl true
   def init(_opts) do
-    services = Map.new(canonical_services(), &{&1.id, &1})
+    services = Map.new(canonical_services(), &{&1.id, with_default_resource_check(&1)})
     Logger.info("ServiceRegistry: initialized with #{map_size(services)} services")
     {:ok, %{services: services}}
   end
@@ -53,6 +54,7 @@ defmodule Tiannara.CEL.Kernel.ServiceRegistry do
       {:reply, {:error, :already_registered}, state}
     else
       Logger.info("ServiceRegistry: registered #{spec.id} v#{spec.version}")
+      spec = with_default_resource_check(spec)
       {:reply, :ok, put_in(state, [:services, spec.id], spec)}
     end
   end
@@ -68,6 +70,8 @@ defmodule Tiannara.CEL.Kernel.ServiceRegistry do
 
   @impl true
   def handle_call({:replace, old_id, new_spec}, _from, state) do
+    new_spec = with_default_resource_check(new_spec)
+
     state = state
       |> put_in([:services, old_id, :deprecated], true)
       |> put_in([:services, new_spec.id], new_spec)
@@ -89,6 +93,27 @@ defmodule Tiannara.CEL.Kernel.ServiceRegistry do
   def handle_call(:discover, _from, state) do
     active = state.services |> Map.values() |> Enum.reject(& &1.deprecated)
     {:reply, active, state}
+  end
+
+  defp with_default_resource_check(spec) do
+    Map.put_new(spec, :resource_check, &default_resource_check/0)
+  end
+
+  # Boot-gate resource evidence: the persistent store path must be a
+  # writable directory. Services that do not declare their own
+  # resource_check fall back to this probe; the Kernel fails closed if
+  # the probe errors or reports :insufficient.
+  defp default_resource_check do
+    base = Application.get_env(:tiannara, :dets_base_path, "./data/dets")
+    probe = Path.join(base, ".resource_evidence_#{System.unique_integer([:positive])}")
+
+    with :ok <- File.mkdir_p(base),
+         :ok <- File.write(probe, "resource-evidence") do
+      _ = File.rm(probe)
+      :sufficient
+    else
+      _ -> :insufficient
+    end
   end
 
   defp canonical_services do

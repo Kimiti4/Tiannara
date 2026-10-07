@@ -3,6 +3,14 @@ defmodule Tiannara.Sentinel.PriorityEngineTest do
 
   alias Tiannara.Sentinel.PriorityEngine
 
+  setup do
+    # The engine runs under the live Sentinel runtime (ObservationScheduler
+    # repopulates it every cycle) and is shared with other tests in this
+    # module, so clear any residue before each test.
+    :ok = PriorityEngine.update([], [])
+    :ok
+  end
+
   describe "PriorityEngine" do
     test "priorities returns empty initially" do
       assert PriorityEngine.priorities() == []

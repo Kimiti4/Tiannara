@@ -32,11 +32,15 @@ defmodule Tiannara.Interface.ProactiveNotifierTest do
     test "rate limits after limit reached" do
       st = ProactiveNotifier.status()
       limit = st.rate_limit_per_hour
-      remaining = limit - st.window_count
-      for i <- 1..remaining do
+      remaining = max(limit - st.window_count, 0)
+
+      for i <- 1..remaining//1 do
         d = sample_discovery(type: :other, title: "rate_fill_#{i}", source: "rate_fill_#{i}", severity: :info, confidence: 0.5)
         assert {:ok, _} = ProactiveNotifier.notify(d)
       end
+
+      assert ProactiveNotifier.status().window_count >= limit
+
       extra = sample_discovery(type: :other, title: "rate_extra", source: :rate_extra, severity: :info, confidence: 0.5)
       assert {:error, :rate_limited} = ProactiveNotifier.notify(extra)
     end

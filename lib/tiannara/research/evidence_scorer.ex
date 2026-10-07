@@ -61,7 +61,7 @@ defmodule Tiannara.Research.EvidenceScorer do
   @impl true
   def handle_call({:score, experiment, results}, _from, state) do
     with :ok <- validate_result_contract(experiment, results),
-         evidence <- compute_evidence(experiment, results) do
+         {:ok, evidence} <- compute_evidence(experiment, results) do
 
     new_state = %{state | total_scored: state.total_scored + 1, last_score_at: DateTime.utc_now(), history: [evidence | Enum.take(state.history, 99)]}
 

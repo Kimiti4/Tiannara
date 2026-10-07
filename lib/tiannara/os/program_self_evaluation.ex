@@ -250,7 +250,7 @@ defmodule TiannaraOS.ProgramSelfEvaluation do
     end
     
     %{
-      total_resources: Float.round(total_budget, 2),
+      total_resources: Float.round(total_budget * 1.0, 2),
       credits_remaining: program.budget.credits,
       compute_remaining: program.budget.compute,
       attention_remaining: program.budget.attention,

@@ -4,7 +4,10 @@ defmodule Tiannara.ASC.Core.BootTest do
   alias Tiannara.ASC.Core.{Coordinator, Supervisor, Worker}
 
   test "ASC core boots through the production supervision tree" do
-    start_supervised!(Supervisor)
+    case Process.whereis(Supervisor) do
+      nil -> {:ok, _pid} = start_supervised(Supervisor)
+      _running -> :ok
+    end
 
     assert is_pid(Process.whereis(Tiannara.ASC.Core.Registry))
     assert is_pid(Process.whereis(Tiannara.ASC.Core.PubSub))
@@ -23,7 +26,10 @@ defmodule Tiannara.ASC.Core.BootTest do
   end
 
   test "event bus delivers across the PubSub registry" do
-    start_supervised!(Supervisor)
+    case Process.whereis(Supervisor) do
+      nil -> {:ok, _pid} = start_supervised(Supervisor)
+      _running -> :ok
+    end
 
     _test_pid = self()
     Tiannara.ASC.Core.EventBus.subscribe(:core_test_topic)

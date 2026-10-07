@@ -431,7 +431,8 @@ defmodule Tiannara.World.ConflictResolutionEngine do
   defp active_conflicts_list do
     :dets.traverse(@conflict_table, fn
       {_id, %{status: :unresolved} = conflict} -> {:continue, conflict}
-      _ -> {:continue}
+      _ -> {:continue, nil}
     end)
+    |> Enum.reject(&is_nil/1)
   end
 end

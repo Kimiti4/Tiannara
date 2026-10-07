@@ -19,7 +19,7 @@ defmodule Tiannara.Sentinel.DomainVerification do
          {:ok, inferred} <- DomainDependencyPlanner.infer(discovery),
          {:ok, plan} <- build_plan(discovery, related_domains, inferred),
          :ok <- require_verifier(verifier),
-         {:ok, results} <- verify_domains(plan, discovery, verifier, []) do
+         {:ok, results} <- verify_domains(plan.domains, discovery, verifier, %{}) do
       {:ok, %{
         discovery_id: Map.get(discovery, :id),
         primary_domain: Map.get(discovery, :domain),

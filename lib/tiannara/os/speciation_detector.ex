@@ -76,7 +76,7 @@ defmodule TiannaraOS.SpeciationDetector do
   end
   
   @spec classify_program(ResearchProgram.t(), map(), integer()) :: {atom(), map()}
-  defp classify_program(%ResearchProgram{} = program, species_registry, current_tick) do
+  def classify_program(%ResearchProgram{} = program, species_registry, current_tick) do
     genome = program.strategy_genome
     
     # Find closest existing species
@@ -141,7 +141,7 @@ defmodule TiannaraOS.SpeciationDetector do
   end
   
   @spec detect_extinctions(map(), integer()) :: map()
-  defp detect_extinctions(species_registry, current_tick) do
+  def detect_extinctions(species_registry, current_tick) do
     Enum.map(species_registry, fn {species_id, species} ->
       should_be_extinct = species.member_count == 0 or
                          (current_tick - species.last_new_member_tick) > @extinction_timeout_ticks
@@ -165,7 +165,7 @@ defmodule TiannaraOS.SpeciationDetector do
   end
   
   @spec calculate_diversity_metrics(map()) :: map()
-  defp calculate_diversity_metrics(species_registry) do
+  def calculate_diversity_metrics(species_registry) do
     total_species = map_size(species_registry)
     
     active_species = Enum.count(species_registry, fn {_id, species} ->
@@ -204,7 +204,7 @@ defmodule TiannaraOS.SpeciationDetector do
   end
   
   @spec calculate_shannon_index(map()) :: float()
-  defp calculate_shannon_index(species_registry) do
+  def calculate_shannon_index(species_registry) do
     total_members = species_registry
       |> Map.values()
       |> Enum.reduce(0, fn species, acc -> acc + species.member_count end)
@@ -240,7 +240,7 @@ defmodule TiannaraOS.SpeciationDetector do
   end
   
   @spec calculate_genome_distance(map(), map()) :: float()
-  defp calculate_genome_distance(genome1, genome2) do
+  def calculate_genome_distance(genome1, genome2) do
     traits = [:exploration_rate, :validation_priority, :cross_domain_synthesis, 
               :anomaly_sensitivity, :risk_tolerance]
     
@@ -254,7 +254,7 @@ defmodule TiannaraOS.SpeciationDetector do
   end
   
   @spec infer_primary_domain(map()) :: atom()
-  defp infer_primary_domain(genome) do
+  def infer_primary_domain(genome) do
     cond do
       genome.exploration_rate > 0.7 -> :explorer
       genome.validation_priority > 0.8 -> :validator

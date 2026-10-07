@@ -16,7 +16,8 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryExperimentTest do
         statement: "candidate theory",
         artifact: %{reasoning_steps: [:a]},
         evidence: %{},
-        status: :refuted
+        status: :refuted,
+        provenance: %{kind: :synthetic_fixture, source: "cross_world_theory_experiment_test"}
       })
 
     {:ok, transfer} =
@@ -40,7 +41,8 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryExperimentTest do
         statement: "candidate theory",
         artifact: %{reasoning_steps: [:a]},
         evidence: %{},
-        status: :refuted
+        status: :refuted,
+        provenance: %{kind: :synthetic_fixture, source: "cross_world_theory_experiment_test"}
       })
 
     {:ok, transfer} =
@@ -93,7 +95,8 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryExperimentTest do
         statement: "candidate theory",
         artifact: %{reasoning_steps: [:a]},
         evidence: %{},
-        status: :refuted
+        status: :refuted,
+        provenance: %{kind: :synthetic_fixture, source: "cross_world_theory_experiment_test"}
       })
 
     {:ok, transfer} =

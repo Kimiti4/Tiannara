@@ -36,7 +36,7 @@ defmodule Tiannara.Research.ExperimentRanker do
   dependencies apply a feasibility penalty.
   """
   def score(candidate) do
-    if not Map.get(candidate, :constitutional_ok, true) do
+    if Map.get(candidate, :constitutional_ok, true) == false do
       Map.put(candidate, :composite_score, 0.0)
     else
       dependency_factor =

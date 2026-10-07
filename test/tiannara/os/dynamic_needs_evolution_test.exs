@@ -27,9 +27,9 @@ defmodule Tiannara.OS.DynamicNeedsEvolutionTest do
     
     # Create discoveries that address energy need
     discoveries = [
-      %{domain_vector: %{energy: 0.9, materials: 0.1}},
-      %{domain_vector: %{energy: 0.85, materials: 0.15}},
-      %{domain_vector: %{energy: 0.8, materials: 0.2}}
+      {:disc_1, %{metadata: %{domain_vector: %{energy: 0.9, materials: 0.1}}}},
+      {:disc_2, %{metadata: %{domain_vector: %{energy: 0.85, materials: 0.15}}}},
+      {:disc_3, %{metadata: %{domain_vector: %{energy: 0.8, materials: 0.2}}}}
     ]
     
     evolved_needs = DynamicNeedsEvolution.evolve_needs(original_needs, discoveries, 1000)
@@ -48,8 +48,8 @@ defmodule Tiannara.OS.DynamicNeedsEvolutionTest do
     }
     
     # Many discoveries addressing energy
-    discoveries = Enum.map(1..20, fn _ ->
-      %{domain_vector: %{energy: 0.9}}
+    discoveries = Enum.map(1..20, fn i ->
+      {:"disc_#{i}", %{metadata: %{domain_vector: %{energy: 0.9}}}}
     end)
     
     evolved_needs = DynamicNeedsEvolution.evolve_needs(original_needs, discoveries, 1000)
@@ -69,8 +69,8 @@ defmodule Tiannara.OS.DynamicNeedsEvolutionTest do
     }
     
     # All discoveries in energy domain (oversaturated)
-    discoveries = Enum.map(1..10, fn _ ->
-      %{domain_vector: %{energy: 0.9}}
+    discoveries = Enum.map(1..10, fn i ->
+      {:"disc_#{i}", %{metadata: %{domain_vector: %{energy: 0.9}}}}
     end)
     
     emerging = DynamicNeedsEvolution.detect_emerging_needs(discoveries, current_needs)
@@ -83,9 +83,9 @@ defmodule Tiannara.OS.DynamicNeedsEvolutionTest do
   
   test "count_discoveries_by_domain correctly counts" do
     discoveries = [
-      %{domain_vector: %{energy: 0.9, materials: 0.1}},
-      %{domain_vector: %{energy: 0.8, materials: 0.2}},
-      %{domain_vector: %{materials: 0.9, energy: 0.1}}
+      {:disc_1, %{metadata: %{domain_vector: %{energy: 0.9, materials: 0.1}}}},
+      {:disc_2, %{metadata: %{domain_vector: %{energy: 0.8, materials: 0.2}}}},
+      {:disc_3, %{metadata: %{domain_vector: %{materials: 0.9, energy: 0.1}}}}
     ]
     
     counts = DynamicNeedsEvolution.count_discoveries_by_domain(discoveries)
@@ -230,12 +230,12 @@ defmodule Tiannara.OS.DynamicNeedsEvolutionTest do
     
     # Mix of discoveries across domains
     discoveries = [
-      %{domain_vector: %{energy: 0.9}},
-      %{domain_vector: %{energy: 0.85}},
-      %{domain_vector: %{energy: 0.8}},
-      %{domain_vector: %{materials: 0.9}},
-      %{domain_vector: %{medicine: 0.9}},
-      %{domain_vector: %{mathematics: 0.9}}
+      {:disc_1, %{metadata: %{domain_vector: %{energy: 0.9}}}},
+      {:disc_2, %{metadata: %{domain_vector: %{energy: 0.85}}}},
+      {:disc_3, %{metadata: %{domain_vector: %{energy: 0.8}}}},
+      {:disc_4, %{metadata: %{domain_vector: %{materials: 0.9}}}},
+      {:disc_5, %{metadata: %{domain_vector: %{medicine: 0.9}}}},
+      {:disc_6, %{metadata: %{domain_vector: %{mathematics: 0.9}}}}
     ]
     
     evolved = DynamicNeedsEvolution.evolve_needs(original_needs, discoveries, 1000)

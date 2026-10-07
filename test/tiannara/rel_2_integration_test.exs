@@ -12,6 +12,7 @@ defmodule Tiannara.REL.REL2IntegrationTest do
   alias Tiannara.REL.DiscoveryEngine
   alias Tiannara.REL.CivilizationFitness
   alias Tiannara.Core.WorldModel.Discovery
+  alias Tiannara.OAVL.DiscoveryVerifier
 
   # Application is already started by mix test
 
@@ -55,28 +56,45 @@ defmodule Tiannara.REL.REL2IntegrationTest do
     assert ent_a.attributes.epistemic_genome != ent_b.attributes.epistemic_genome
   end
 
-  test "Quantum Leap Test: Verify high novelty civs can skip prerequisites at huge cost" do
+  test "Quantum Leap Test: OAVL fails closed — quantum leap candidates are charged but never admitted without evidence" do
     assert {:ok, :shard_ql} = ShardManager.spawn_shard(:shard_ql)
     assert {:ok, civ_id} = CivilizationSpawner.spawn_civilization(:shard_ql, "QLCiv", [])
     OMCSEngine.register_civilization(civ_id)
     
-    # Inject massive compute/attention to afford Quantum Leap
-    EconomyEngine.inject(civ_id, %{compute: 500000, attention: 500000})
+    # Inject massive compute/attention so cost can never starve the attempts:
+    # any rejection below is the OAVL validation gate, not the budget.
+    assert :ok = EconomyEngine.inject(civ_id, %{compute: 500000, attention: 500000})
     
-    # Force their genome to extreme novelty
+    # Force their genome to extreme novelty (max quantum leap chance = 10% per attempt)
     {:ok, ent} = Tiannara.Core.WorldModel.EntityRegistry.get_entity(civ_id, :shard_ql)
     mutated = %{ent.attributes.epistemic_genome | abstraction_bias: 1.0, novelty_seeking: 1.0}
     Tiannara.Core.WorldModel.EntityRegistry.update_entity(civ_id, %{attributes: Map.put(ent.attributes, :epistemic_genome, mutated)}, :shard_ql)
 
-    # Attempt a lot of discoveries, one should be a Quantum Leap (10% chance per attempt)
+    budget_before = EconomyEngine.get_budget(civ_id)
+
+    # 100 attempts: quantum leaps (2000/1000) and normal discoveries (100/50).
+    # A fresh civilization owns no discoveries, so recombination never triggers.
     results = Enum.map(1..100, fn _ -> DiscoveryEngine.attempt_discovery(civ_id, :shard_ql) end)
     
-    ql_found = Enum.any?(results, fn 
-      {:ok, %Discovery{id: "disc_ql_" <> _}} -> true
-      _ -> false
-    end)
+    # Fail-closed boundary: no candidate reaches {:ok, _} without structural validation.
+    refute Enum.any?(results, &match?({:ok, _}, &1))
+    assert Enum.all?(results, &match?({:error, {:discovery_unvalidated, :missing_structural_evidence}}, &1))
 
-    assert ql_found, "Failed to trigger a Quantum Leap despite extreme genome values and funds"
+    # Costs are still charged — each attempt pays before validation is attempted.
+    budget_after = EconomyEngine.get_budget(civ_id)
+    assert budget_before.compute - budget_after.compute >= 10_000
+    assert budget_before.attention - budget_after.attention >= 5_000
+
+    # Nothing was admitted to the ledger: funds and novelty do not substitute for evidence.
+    known = DiscoveryLedger.get_known_discoveries(civ_id)
+    refute Enum.any?(known, &String.starts_with?(&1.id, "disc_"))
+
+    # Direct OAVL probe: an evidence-less candidate fails the evidence gate first;
+    # only an evidence-bearing candidate reaches the (unavailable) validation provider.
+    candidate = Discovery.new(%{id: "probe_ql", name: "QL probe", domain: :physics, originator_civ_id: civ_id})
+    assert {:error, :missing_structural_evidence} = DiscoveryVerifier.evaluate(candidate)
+    assert {:error, :oavl_validation_provider_unavailable} =
+             DiscoveryVerifier.evaluate(Map.put(candidate, :evidence, ["exp_1"]))
   end
 
   test "Fitness Test: Verify successful civilizations score higher than stagnant ones" do

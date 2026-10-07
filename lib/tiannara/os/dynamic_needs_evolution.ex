@@ -92,7 +92,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
   
   @doc false
   @spec detect_emerging_needs([map()], map()) :: map()
-  defp detect_emerging_needs(discoveries, current_needs) do
+  def detect_emerging_needs(discoveries, current_needs) do
     # Count discoveries per primary domain
     domain_counts = count_discoveries_by_domain(discoveries)
     
@@ -136,7 +136,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
   
   @doc false
   @spec count_discoveries_by_domain([map()]) :: map()
-  defp count_discoveries_by_domain(discoveries) do
+  def count_discoveries_by_domain(discoveries) do
     Enum.reduce(discoveries, %{}, fn {_disc_id, discovery}, acc ->
       domain_vector = Map.get(discovery.metadata || %{}, :domain_vector, %{})
       
@@ -151,7 +151,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
   
   @doc false
   @spec generate_cross_domain_needs([atom()], map()) :: map()
-  defp generate_cross_domain_needs(oversaturated_domains, current_needs) do
+  def generate_cross_domain_needs(oversaturated_domains, current_needs) do
     cross_domain_map = %{
       energy: [:materials, :efficiency, :storage],
       materials: [:energy, :synthesis, :recycling],
@@ -297,7 +297,7 @@ defmodule TiannaraOS.DynamicNeedsEvolution do
   
   @doc false
   @spec merge_and_normalize(map(), map()) :: map()
-  defp merge_and_normalize(current_needs, emerging_needs) do
+  def merge_and_normalize(current_needs, emerging_needs) do
     merged = Map.merge(current_needs, emerging_needs, fn _key, current_val, emerging_val ->
       # Take max, but allow some decay from current
       max(current_val * 0.95, emerging_val)

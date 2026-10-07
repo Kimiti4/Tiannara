@@ -17,7 +17,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorderTest do
   test "records discovery, every domain result, and ACL/OAVL evidence through archive" do
     discovery = %{
       id: "discovery-recorder-001",
-      domain: :statistics,
+      domain: :physics,
       assumptions: [:independent_observations]
     }
 
@@ -46,7 +46,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorderTest do
     assert {:ok, result} =
              DiscoveryVerificationRecorder.verify_and_record(
                discovery,
-               [:statistics],
+               [:engineering],
                verifier,
                opts
              )
@@ -55,7 +55,8 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationRecorderTest do
     assert result.validation.acl_status == :passed
     assert result.validation.oavl_status == :passed
     assert result.discovery.archive.persisted
-    assert result.oavl_node.graph.kind == :oavl_audit
+    assert result.oavl_node.kind == :oavl_audit
+    assert result.oavl_node.archive.kind == :oavl_audit
     assert :ok = DiscoveryVerificationGraph.verify_chain()
   end
 

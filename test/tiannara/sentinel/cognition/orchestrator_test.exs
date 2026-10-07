@@ -9,7 +9,11 @@ defmodule Tiannara.Sentinel.Cognition.OrchestratorTest do
   }
 
   setup do
-    start_supervised!(Tiannara.Sentinel.Cognition.Supervisor)
+    case Process.whereis(Tiannara.Sentinel.Cognition.Supervisor) do
+      nil -> start_supervised!(Tiannara.Sentinel.Cognition.Supervisor)
+      _running -> :ok
+    end
+
     :ok
   end
 

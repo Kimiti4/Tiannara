@@ -29,7 +29,7 @@ defmodule Tiannara.Autonomy.ConstitutionalAutonomy do
 
     if Enum.all?(components, &Process.whereis/1) do
       %{
-        status: :operational,
+        status: :healthy,
         active_proposals: ProposalGenerator.active_count(),
         running_simulations: SimulationManager.running_count(),
         active_deployments: DeploymentPipeline.active_count(),

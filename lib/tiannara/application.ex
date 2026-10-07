@@ -144,6 +144,11 @@ defmodule Tiannara.Application do
       Tiannara.Sentinel.D2.BreakthroughAnalyzer,
       Tiannara.Sentinel.D2.FailedMetaArchive,
 
+      # Discovery epistemic promotion lineage: registry + immutable
+      # verification graph/archive (required by validation transitions)
+      TiannaraOS.DiscoveryRegistry,
+      Tiannara.Sentinel.DiscoveryVerificationGraph,
+
       # The dedicated Task Supervisor for parallel multiverse queries
       {Task.Supervisor, name: Tiannara.ExtrusionTaskSupervisor},
 

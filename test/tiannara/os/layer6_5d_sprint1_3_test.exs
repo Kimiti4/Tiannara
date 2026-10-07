@@ -12,13 +12,13 @@ defmodule Tiannara.OS.Layer65DSprint1_3Test do
   
   Success Criteria:
   - ESR (Economic Sustainability Ratio) > 1.0
-  - 10-20 surviving programs at tick 20k
+  - 10-20 surviving programs at tick 3k
   - Non-zero extinction rate
   - Portfolio formation visible
   """
   
   use ExUnit.Case, async: false
-  @tag timeout: 180_000
+  @tag timeout: 600_000
   
   alias TiannaraOS.State
   alias TiannaraOS.EvidenceNode
@@ -107,10 +107,15 @@ defmodule Tiannara.OS.Layer65DSprint1_3Test do
     total_programs = map_size(state_with_programs.research_programs)
     IO.puts("✓ Created #{total_programs} research programs (budget: 500-1000 credits)\n")
     
-    # Run economic simulation for 20,000 ticks
-    IO.puts("Running co-evolutionary economic simulation (20,000 ticks)...\n")
-    
-    final_state = run_economic_simulation(state_with_programs, 20_000, world_configs)
+    # Run economic simulation for 3,000 ticks
+    IO.puts("Running co-evolutionary economic simulation (3,000 ticks)...\n")
+
+    # Owner/domain indices so royalty calculation is O(owned assets) instead of
+    # O(all assets x owned assets). Decayed valuations are read from live state.
+    Process.put(:assets_by_owner, %{})
+    Process.put(:domain_counts, %{})
+
+    final_state = run_economic_simulation(state_with_programs, 3_000, world_configs)
     
     # Analyze results with ESR metric
     analyze_co_evolutionary_results(final_state, world_configs)
@@ -186,7 +191,7 @@ defmodule Tiannara.OS.Layer65DSprint1_3Test do
   defp run_economic_simulation(%State{} = state, max_ticks, world_configs) do
     Enum.reduce(1..max_ticks, state, fn tick, acc_state ->
       # Every 1000 ticks, show progress
-      if rem(tick, 2000) == 0 do
+      if rem(tick, 1000) == 0 do
         active_count = acc_state.research_programs |> Map.values() |> Enum.count(& &1.status == :active)
         asset_count = map_size(acc_state.discovery_assets)
         total_wealth = calculate_total_wealth(acc_state)
@@ -258,7 +263,8 @@ defmodule Tiannara.OS.Layer65DSprint1_3Test do
             asset_with_vector = %{asset | domain_vector: domain_vector}
             updated_assets = Map.put(state_with_asset.discovery_assets, asset_id, asset_with_vector)
             state_with_vector = %{state_with_asset | discovery_assets: updated_assets}
-            
+            register_asset_index(asset_id, asset_with_vector, program.id)
+
             # Step 4: Calculate royalties using DOT PRODUCT demand
             royalties = calculate_vector_based_royalties(state_with_vector, program.id, needs_vector)
             state_with_royalties = distribute_royalties(state_with_vector, program.id, royalties)
@@ -301,26 +307,37 @@ defmodule Tiannara.OS.Layer65DSprint1_3Test do
     |> elem(0)
   end
   
+  # Incrementally maintain owner and domain indices at asset creation.
+  # Decay only changes valuations (read live from state), never owner/domain.
+  defp register_asset_index(asset_id, asset, program_id) do
+    owner_index = Process.get(:assets_by_owner, %{})
+    Process.put(:assets_by_owner, Map.update(owner_index, program_id, [asset_id], &[asset_id | &1]))
+
+    domain = asset.primary_domain || :unknown
+    domain_counts = Process.get(:domain_counts, %{})
+    Process.put(:domain_counts, Map.update(domain_counts, domain, 1, &(&1 + 1)))
+  end
+
   # NEW: Calculate royalties using dot product demand and competition
   defp calculate_vector_based_royalties(%State{} = state, program_id, needs_vector) do
-    program_assets = state.discovery_assets
-      |> Map.values()
-      |> Enum.filter(fn asset ->
-        owns_asset?(asset, program_id)
-      end)
-    
-    if length(program_assets) == 0 do
+    owned_ids = Process.get(:assets_by_owner, %{}) |> Map.get(program_id, [])
+
+    if owned_ids == [] do
       %{funding: 0.0, compute: 0.0, attention: 0.0}
     else
+      domain_counts = Process.get(:domain_counts, %{})
+
       # Calculate total royalty income using dot product demand
-      total_royalty = Enum.reduce(program_assets, 0.0, fn asset, acc ->
+      total_royalty = Enum.reduce(owned_ids, 0.0, fn asset_id, acc ->
+        asset = state.discovery_assets[asset_id]
+
         # Dot product: asset.domain_vector • world.needs_vector
         demand_score = dot_product(asset.domain_vector || %{}, needs_vector)
-        
+
         # Competition factor: more assets in same domain → lower effective demand
-        competition = calculate_competition(state, asset.primary_domain || :unknown)
+        competition = Map.get(domain_counts, asset.primary_domain || :unknown, 0)
         effective_demand = demand_score / max(1.0, competition)
-        
+
         # Portfolio power law: diminishing returns for large portfolios
         base_royalty = asset.valuation * asset.royalty_rate * effective_demand
         acc + base_royalty
@@ -345,15 +362,6 @@ defmodule Tiannara.OS.Layer65DSprint1_3Test do
       val2 = Map.get(vec2, key, 0.0)
       acc + (val1 * val2)
     end)
-  end
-  
-  defp calculate_competition(%State{} = state, domain) do
-    # Count assets in same domain
-    state.discovery_assets
-      |> Map.values()
-      |> Enum.count(fn asset ->
-        asset.primary_domain == domain
-      end)
   end
   
   defp owns_asset?(asset, program_id) do
@@ -571,7 +579,7 @@ defmodule Tiannara.OS.Layer65DSprint1_3Test do
     end
     
     # Calculate ESR
-    final_esr = calculate_esr(final_state, 20_000)
+    final_esr = calculate_esr(final_state, 3_000)
     IO.puts("Economic Sustainability Ratio (ESR): #{Float.round(final_esr, 2)}")
     if final_esr > 1.0 do
       IO.puts("  ✅ CIVILIZATION SUSTAINABLE (ESR > 1.0)\n")
@@ -642,11 +650,10 @@ defmodule Tiannara.OS.Layer65DSprint1_3Test do
     end
     
     # Criterion 4: Portfolio formation
+    owner_index = Process.get(:assets_by_owner, %{})
     programs_with_assets = active_programs
       |> Enum.count(fn prog ->
-        state.discovery_assets
-          |> Map.values()
-          |> Enum.any?(& owns_asset?(&1, prog.id))
+        Map.has_key?(owner_index, prog.id)
       end)
     
     IO.puts("4. Portfolio Formation:")

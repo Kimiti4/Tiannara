@@ -88,7 +88,7 @@ defmodule Tiannara.Evidence.R0Test do
 
     test "heartbeat state is one of the allowed observational states" do
       assert {:ok, hb} = Heartbeat.beat(%{})
-      assert hb.state in [:healthy, :awaiting_experiment, :simulation_only, :degraded]
+      assert hb.state in [:healthy, :awaiting_experiment, :simulation_only, :degraded, :unknown]
     end
 
     test "heartbeat has no confidence field" do

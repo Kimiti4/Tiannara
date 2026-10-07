@@ -21,9 +21,18 @@ defmodule Tiannara.OS.InstitutionalMemoryEnhancementsTest do
   test "extract_cross_world_wisdom aggregates from multiple worlds" do
     # Create state with deaths in multiple worlds
     graveyard = %{
-      death1: %{world_id: :w1, cause_of_death: :resource_exhaustion, strategy_genome: %{exploration_rate: 0.9}, assets_at_death: []},
-      death2: %{world_id: :w1, cause_of_death: :stagnation, strategy_genome: %{exploration_rate: 0.1}, assets_at_death: []},
-      death3: %{world_id: :w2, cause_of_death: :competition, strategy_genome: %{risk_tolerance: 0.2}, assets_at_death: []}
+      death1: %{world_id: :w1, cause_of_death: :resource_exhaustion, lifespan_ticks: 500,
+                strategy_genome: %{exploration_rate: 0.9, validation_priority: 0.1}, assets_at_death: []},
+      death2: %{world_id: :w1, cause_of_death: :resource_exhaustion, lifespan_ticks: 600,
+                strategy_genome: %{exploration_rate: 0.85, validation_priority: 0.15}, assets_at_death: []},
+      death3: %{world_id: :w1, cause_of_death: :resource_exhaustion, lifespan_ticks: 700,
+                strategy_genome: %{exploration_rate: 0.8, validation_priority: 0.2}, assets_at_death: []},
+      death4: %{world_id: :w2, cause_of_death: :stagnation, lifespan_ticks: 800,
+                strategy_genome: %{exploration_rate: 0.1, validation_priority: 0.8}, assets_at_death: []},
+      death5: %{world_id: :w2, cause_of_death: :stagnation, lifespan_ticks: 900,
+                strategy_genome: %{exploration_rate: 0.2, validation_priority: 0.7}, assets_at_death: []},
+      death6: %{world_id: :w2, cause_of_death: :stagnation, lifespan_ticks: 1000,
+                strategy_genome: %{exploration_rate: 0.15, validation_priority: 0.75}, assets_at_death: []}
     }
     
     state = %State{

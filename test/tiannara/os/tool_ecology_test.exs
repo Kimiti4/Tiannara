@@ -212,7 +212,7 @@ defmodule TiannaraOS.ToolEcologyTest do
     assert evidence_node.value == 1.0 # Vulnerability successfully found
 
     # 5. Link generated evidence node to Claim in the state graph
-    state_after_run = EvidenceEngine.add_node(state_after_run, evidence_node)
+    state_after_run = EvidenceEngine.add_node(state_after_run, evidence_node.id, evidence_node)
     state_after_run = EvidenceEngine.add_relation(state_after_run, evidence_node.id, :supports, :cyber_claim)
 
     # Clean up Repository Twin files

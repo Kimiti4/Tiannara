@@ -73,34 +73,47 @@ defmodule Tiannara.ACM.REL6IntegrationTest do
     assert {:cured, "dis_test"} = Tiannara.ACM.EpistemicDisease.progress_disease(known_disease, mutated_cure)
   end
 
-  test "Verification Test: Verify unstable discoveries pass through OAVL but receive low stability" do
+  test "Verification Test: OAVL rejects unvalidated discoveries instead of assigning fabricated stability" do
     assert {:ok, :shard_ver} = ShardManager.spawn_shard(:shard_ver)
     assert {:ok, civ_id} = CivilizationSpawner.spawn_civilization(:shard_ver, "VerCiv", [])
     OMCSEngine.register_civilization(civ_id)
     
-    # Quantum Leap gets low stability initially (0.1 - 0.5)
-    EconomyEngine.inject(civ_id, %{compute: 5000, attention: 5000})
+    # Massive funds so no attempt starves: every rejection below is the OAVL gate.
+    assert :ok = EconomyEngine.inject(civ_id, %{compute: 500000, attention: 500000})
     {:ok, ent} = EntityRegistry.get_entity(civ_id, :shard_ver)
     mutated = %{ent.attributes.epistemic_genome | abstraction_bias: 1.0, novelty_seeking: 1.0}
     EntityRegistry.update_entity(civ_id, %{attributes: Map.put(ent.attributes, :epistemic_genome, mutated)}, :shard_ver)
     
-    # Loop until Quantum Leap
     results = Enum.map(1..100, fn _ -> DiscoveryEngine.attempt_discovery(civ_id, :shard_ver) end)
-    ql = Enum.find(results, fn 
-      {:ok, %{id: "disc_ql_" <> _}} -> true
-      _ -> false
-    end)
-    
-    assert {:ok, ql_disc} = ql
-    assert ql_disc.stability < 0.8
+
+    # Fail-closed: verification never fabricates a result, so nothing is admitted
+    # and no stability value is produced by the verification path.
+    refute Enum.any?(results, &match?({:ok, _}, &1))
+    assert Enum.all?(results, &match?({:error, {:discovery_unvalidated, :missing_structural_evidence}}, &1))
+
+    # Direct OAVL probe: identity passes, then the evidence gate fails for an
+    # evidence-less candidate; with evidence the (unavailable) provider gate fails.
+    # Neither path can return a stability/confidence value it does not have.
+    candidate = Tiannara.Core.WorldModel.Discovery.new(%{id: "probe_ver", name: "Verification probe", domain: :physics, originator_civ_id: civ_id})
+    assert {:error, :missing_structural_evidence} = Tiannara.OAVL.DiscoveryVerifier.evaluate(candidate)
+    assert {:error, :oavl_validation_provider_unavailable} =
+             Tiannara.OAVL.DiscoveryVerifier.evaluate(Map.put(candidate, :evidence, ["exp_1"]))
+
+    # Nothing reached the ledger, so no discovery carries a verification-assigned stability.
+    known = DiscoveryLedger.get_known_discoveries(civ_id)
+    refute Enum.any?(known, &String.starts_with?(&1.id, "disc_"))
+
+    # The struct default is a fixed 1.0 — creating a discovery never randomizes stability.
+    probe = Tiannara.Core.WorldModel.Discovery.new(%{id: "probe_stab", name: "Stability probe", domain: :physics, originator_civ_id: civ_id})
+    assert probe.stability == 1.0
   end
 
-  test "Quarantine Test: Verify OED quarantines highly dangerous shards" do
+  test "Quarantine Test: OED never fabricates quarantine decisions without an evidence-backed risk provider" do
     assert {:ok, :shard_quar} = ShardManager.spawn_shard(:shard_quar)
     assert {:ok, civ_id} = CivilizationSpawner.spawn_civilization(:shard_quar, "QuarCiv", [])
     OMCSEngine.register_civilization(civ_id)
     
-    # Craft a dangerous discovery
+    # Craft a discovery whose name would trip any danger heuristic
     dangerous = Tiannara.Core.WorldModel.Discovery.new(%{
       id: "dang_1",
       name: "Infinite Recombination Paradox",
@@ -108,13 +121,16 @@ defmodule Tiannara.ACM.REL6IntegrationTest do
       originator_civ_id: civ_id
     })
     
-    # Keep evaluating until it hits the 10% quarantine chance
+    # 100 evaluations: without an evidence-backed adoption-risk provider there is
+    # no decision to return — neither :safe nor a random 10% :quarantine.
     results = Enum.map(1..100, fn _ -> Tiannara.OED.AdoptionEvaluator.evaluate(civ_id, :shard_quar, dangerous) end)
     
-    assert Enum.any?(results, fn res -> res == {:quarantine, "dang_1"} end)
+    assert results == List.duplicate({:error, :adoption_risk_provider_unavailable}, 100)
+    refute Enum.any?(results, &match?({:quarantine, _}, &1))
     
-    # Verify entity is quarantined
+    # The shard stays unquarantined: quarantine requires a provider decision,
+    # not a chance roll on the discovery's name.
     {:ok, ent} = EntityRegistry.get_entity(civ_id, :shard_quar)
-    assert ent.attributes.quarantined == true
+    refute Map.get(ent.attributes, :quarantined, false)
   end
 end

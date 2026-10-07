@@ -1,4 +1,4 @@
-ExUnit.start(trace: true, seed: 0, timeout: 30_000, max_cases: 4, assert_receive_timeout: 5_000)
+ExUnit.start(seed: 0, timeout: 60_000, max_cases: 4, assert_receive_timeout: 5_000)
 
 Application.put_env(:tiannara, :test_mode, true)
 

@@ -36,7 +36,7 @@ defmodule TiannaraOS.ResearchEngineTest do
     {:ok, state: state}
   end
 
-  test "Research program ticks through complete stage lifecycle", %{state: state} do
+  test "Research program stage machine fails closed until a real capability is connected", %{state: state} do
     program = %ResearchProgram{
       id: :program_crypto,
       world_id: :world_sec_twin,
@@ -53,45 +53,28 @@ defmodule TiannaraOS.ResearchEngineTest do
     # Put program into state
     state = %{state | research_programs: Map.put(state.research_programs, program.id, program)}
 
-    # Tick 1: Goal Generation -> Hypothesis Generation
-    assert {:ok, p1, state} = ResearchProgramEngine.tick_program(program, state)
-    assert p1.stage == :hypothesis_generation
-    assert p1.started_at != nil
-    assert p1.budget.attention == 98.0
-    assert "Identify insecure dependencies" in p1.goals
+    # No stage may advance while the downstream capability is unavailable:
+    # goals, hypotheses, experiments, evidence and discoveries are never
+    # fabricated (dfa47818: "explicitly unavailable until the corresponding
+    # executor/validator is connected").
+    for stage <- [:goal_generation, :hypothesis_generation, :experimentation, :evidence_synthesis, :discovery_candidate] do
+      p = %{program | stage: stage}
 
-    # Tick 2: Hypothesis Generation -> Experimentation
-    assert {:ok, p2, state} = ResearchProgramEngine.tick_program(p1, state)
-    assert p2.stage == :experimentation
-    assert length(p2.hypotheses) == 1
-    assert p2.budget.compute == 95.0
+      assert {:error, {:research_capability_unavailable, ^stage}} =
+               ResearchProgramEngine.tick_program(p, state)
+    end
 
-    # Tick 3: Experimentation -> Evidence Synthesis
-    assert {:ok, p3, state} = ResearchProgramEngine.tick_program(p2, state)
-    assert p3.stage == :evidence_synthesis
-    assert length(p3.active_experiments) == 1
-    assert p3.budget.compute == 90.0
-
-    # Tick 4: Evidence Synthesis -> Discovery Candidate
-    assert {:ok, p4, state} = ResearchProgramEngine.tick_program(p3, state)
-    assert p4.stage == :discovery_candidate
-    assert length(p4.evidence_ids) == 1
-    assert p4.budget.credits == 90.0
-
-    # Tick 5: Discovery Candidate -> Completed with proposed Discovery candidate
-    assert {:ok, p5, state} = ResearchProgramEngine.tick_program(p4, state)
-    assert p5.status == :completed
-    assert p5.outcome == :success
-    assert p5.completed_at != nil
-    assert length(p5.discoveries) == 1
-
-    discovery_id = List.first(p5.discoveries)
-    assert Map.has_key?(state.discoveries, discovery_id)
-    disc = Map.get(state.discoveries, discovery_id)
-    assert disc.origin_program_id == :program_crypto
-    assert disc.origin_world_id == :world_sec_twin
-    assert disc.validation_level == :l1
-    assert disc.status == :candidate
+    # Fail closed leaves every field untouched: no fabricated artifacts,
+    # no budget drain, no discovery registered.
+    assert program.goals == []
+    assert program.hypotheses == []
+    assert program.active_experiments == []
+    assert program.evidence_ids == []
+    assert program.discoveries == []
+    assert program.budget == %{credits: 100.0, compute: 100.0, attention: 100.0}
+    assert program.status == :active
+    assert state.discoveries == %{}
+    assert state.research_programs[:program_crypto].stage == :goal_generation
   end
 
   test "Research program engine suspends program on insufficient budget", %{state: state} do
@@ -118,22 +101,26 @@ defmodule TiannaraOS.ResearchEngineTest do
   end
 
   test "Discovery evaluation ladder promotes through levels L1 -> L5", %{state: state} do
-    # Add candidate discovery proposed by program
+    # Add candidate discovery proposed by program, backed by two evidence records
     state = DiscoveryExchange.propose_discovery(
       state,
       :disc_test,
       :prog_test,
       :inst_test,
       :world_test,
-      [:ev_test]
+      [:ev_test, :ev_test_two]
     )
 
-    # Initial state verification
+    # Initial state verification — a fresh proposal carries no evidence score
     disc = Map.get(state.discoveries, :disc_test)
     assert disc.validation_level == :l1
+    assert disc.evidence_score == 0.0
 
-    # Promote to L2 (requires evidence_score > 0.6)
-    # Propose puts evidence_score = 0.7 by default, so L1 -> L2 promotion triggers automatically
+    # Evidence evaluation records a score of 0.7 across the two evidence records
+    disc = %{disc | evidence_score: 0.7}
+    state = %{state | discoveries: Map.put(state.discoveries, :disc_test, disc)}
+
+    # Promote to L2 (requires evidence_score >= 0.6 and at least two evidence records)
     state = DiscoveryExchange.evaluate_validation_ladder(state, :disc_test)
     disc = Map.get(state.discoveries, :disc_test)
     assert disc.validation_level == :l2
@@ -168,20 +155,36 @@ defmodule TiannaraOS.ResearchEngineTest do
     assert Map.has_key?(state.discovery_assets, :disc_test)
     asset = Map.get(state.discovery_assets, :disc_test)
     assert asset.maturity == :validated
-    assert asset.valuation == 1000.0
+    assert asset.valuation == 70.0
   end
 
   test "Discovery asset marketplace operations", %{state: state} do
-    # Add a validated discovery asset
-    state = DiscoveryExchange.create_discovery_asset(state, :disc_asset_test)
+    # Assets can only be instantiated from a discovery that carries evidence
+    state = DiscoveryExchange.propose_discovery(
+      state,
+      :disc_asset_test,
+      :prog_test,
+      :inst_test,
+      :world_test,
+      [:ev_test, :ev_test_two]
+    )
+
+    disc = Map.get(state.discoveries, :disc_asset_test)
+    disc = %{disc | evidence_score: 0.7}
+    state = %{state | discoveries: Map.put(state.discoveries, :disc_asset_test, disc)}
+
+    assert {:ok, state} = DiscoveryExchange.create_discovery_asset(state, :disc_asset_test)
     assert Map.has_key?(state.discovery_assets, :disc_asset_test)
+
+    # Initial valuation follows confidence (1.0) * 100.0
+    assert Map.get(state.discovery_assets, :disc_asset_test).valuation == 100.0
 
     # Buy the asset license
     assert {:ok, state} = DiscoveryExchange.transact_discovery(state, :disc_asset_test, :buyer_tenant_xyz, 500.0)
     asset = Map.get(state.discovery_assets, :disc_asset_test)
     assert asset.maturity == :commercial
     assert :buyer_tenant_xyz in asset.buyers
-    assert asset.valuation == 1050.0
+    assert asset.valuation == 650.0
     assert length(asset.transaction_history) == 1
     assert List.first(asset.transaction_history).amount == 500.0
   end

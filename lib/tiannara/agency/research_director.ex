@@ -189,18 +189,45 @@ defmodule Tiannara.Agency.ResearchDirector do
   defp estimate_cost(:external), do: 100
 
   defp execute_experiment(%Experiment{} = experiment) do
-    raw_results = Tiannara.Agency.Sandbox.run_experiment(experiment)
+    case Tiannara.Agency.Sandbox.run_experiment(experiment) do
+      {:error, reason} ->
+        # The sandbox refuses to fabricate outcomes, so no experiment was run.
+        # Record the honest outcome of the attempt: zero evidential weight,
+        # inconclusive recommendation, and an explicit unavailability note.
+        %ExperimentResult{
+          id: UUID.uuid4(),
+          experiment_id: experiment.id,
+          timestamp: DateTime.utc_now(),
+          success: false,
+          metrics: %{},
+          evidence_items: [unavailable_execution_item(experiment, reason)],
+          confidence_delta: 0.0,
+          unexpected_findings: [],
+          recommendation: :inconclusive
+        }
 
-    %ExperimentResult{
-      id: UUID.uuid4(),
-      experiment_id: experiment.id,
-      timestamp: DateTime.utc_now(),
-      success: raw_results.success,
-      metrics: raw_results.metrics,
-      evidence_items: raw_results.evidence,
-      confidence_delta: raw_results.confidence_delta,
-      unexpected_findings: raw_results.unexpected,
-      recommendation: determine_recommendation(raw_results, experiment)
+      raw_results ->
+        %ExperimentResult{
+          id: UUID.uuid4(),
+          experiment_id: experiment.id,
+          timestamp: DateTime.utc_now(),
+          success: raw_results.success,
+          metrics: raw_results.metrics,
+          evidence_items: raw_results.evidence,
+          confidence_delta: raw_results.confidence_delta,
+          unexpected_findings: raw_results.unexpected,
+          recommendation: determine_recommendation(raw_results, experiment)
+        }
+    end
+  end
+
+  defp unavailable_execution_item(%Experiment{} = experiment, reason) do
+    %{
+      id: "unexecuted_#{experiment.id}",
+      source: :execution_boundary,
+      summary: "Experiment #{experiment.id} was not executed: #{inspect(reason)}",
+      quality: 0.0,
+      contradicts_hypothesis: false
     }
   end
 

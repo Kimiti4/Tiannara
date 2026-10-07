@@ -53,7 +53,7 @@ defmodule Tiannara.Forecasting.Uncertainty do
     if Enum.all?(keys, &(&1 in allowed)) and
          Enum.all?(Map.values(decomposition), &(is_number(&1) and &1 >= 0)) do
       {:ok, %{components: decomposition,
-              total: Enum.sum(Map.values(decomposition)),
+              total: Float.round(Enum.sum(Map.values(decomposition)), 15),
               interpretation: :risk_decomposition_not_probability,
               status: :diagnostic_only,
               certification_eligible: false}}

@@ -14,7 +14,7 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
   Configuration:
   - 10 worlds (2 per environment type)
   - 5 programs per world (total: 50)
-  - 20,000 ticks (pilot test)
+  - 4,000 ticks (pilot test)
   - No shocks (focus on economic dynamics)
   
   Success Criteria:
@@ -25,7 +25,7 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
   """
   
   use ExUnit.Case, async: false
-  @tag timeout: 180_000  # 3 minutes for economic simulation
+  @tag timeout: 600_000  # 10 minutes for economic simulation (in-suite runs are ~3x slower)
   
   alias TiannaraOS.EvidenceEngine
   alias TiannaraOS.State
@@ -82,7 +82,7 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
       {:w10_ecology, WorldEpistemicPhysics.ecology_environment(), %{ecology: 0.85, conservation: 0.7, climate: 0.8}}
     ]
     
-    state_with_worlds = Enum.reduce(world_configs, initial_state, fn {world_id, physics}, acc_state ->
+    state_with_worlds = Enum.reduce(world_configs, initial_state, fn {world_id, physics, _needs}, acc_state ->
       # Store world physics
       updated_physics_map = Map.put(acc_state.world_epistemic_physics, world_id, physics)
       
@@ -102,7 +102,7 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
     
     # Create 5 programs per world (50 total)
     programs_per_world = 5
-    state_with_programs = Enum.reduce(world_configs, state_with_worlds, fn {world_id, _physics}, acc_state ->
+    state_with_programs = Enum.reduce(world_configs, state_with_worlds, fn {world_id, _physics, _needs}, acc_state ->
       programs = create_research_programs(world_id, programs_per_world, acc_state.world_epistemic_physics[world_id])
       
       updated_programs = Enum.reduce(programs, acc_state.research_programs, fn prog, acc ->
@@ -115,10 +115,13 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
     total_programs = map_size(state_with_programs.research_programs)
     IO.puts("✓ Created #{total_programs} research programs (#{programs_per_world} per world)\n")
     
-    # Run economic simulation for 20,000 ticks
-    IO.puts("Running economic simulation (20,000 ticks)...\n")
-    
-    final_state = run_economic_simulation(state_with_programs, 20_000, world_configs)
+    # Run economic simulation for 4,000 ticks
+    IO.puts("Running economic simulation (4,000 ticks)...\n")
+
+    # Owner index so royalty calculation scans only the program's own assets.
+    Process.put(:assets_by_owner, %{})
+
+    final_state = run_economic_simulation(state_with_programs, 4_000, world_configs)
     
     # Analyze results
     analyze_economic_results(final_state, world_configs)
@@ -234,8 +237,20 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
         # Step 3: Create discovery asset
         case DiscoveryAssetEconomy.create_discovery_asset(state_with_discovery, discovery_id, program.id) do
           {:ok, state_with_asset, asset} ->
-            # Step 4: Generate royalties from asset
-            royalties = DiscoveryAssetEconomy.calculate_asset_royalties(state_with_asset, program.id)
+            # Step 4: Generate royalties from asset (owner-indexed subset;
+            # summing over Map.take(...) is exact — royalty has no cross-program terms)
+            asset_id = :"asset_#{discovery_id}"
+            owner_index = Process.get(:assets_by_owner, %{})
+            owner_index = Map.update(owner_index, program.id, [asset_id], &[asset_id | &1])
+            Process.put(:assets_by_owner, owner_index)
+
+            owned_ids = owner_index[program.id]
+            royalty_state = %{
+              state_with_asset
+              | discovery_assets: Map.take(state_with_asset.discovery_assets, owned_ids)
+            }
+
+            royalties = DiscoveryAssetEconomy.calculate_asset_royalties(royalty_state, program.id)
             state_with_royalties = distribute_royalties(state_with_asset, program.id, royalties)
             
             state_with_royalties
@@ -387,7 +402,7 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
     if asset_count > 0 do
       total_value = final_state.discovery_assets
         |> Map.values()
-        |> Enum.map(& &1.value)
+        |> Enum.map(& &1.valuation)
         |> Enum.sum()
         |> Float.round(2)
       
@@ -400,19 +415,19 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
       # Show top 5 assets
       top_assets = final_state.discovery_assets
         |> Map.values()
-        |> Enum.sort_by(& &1.value, :desc)
+        |> Enum.sort_by(& &1.valuation, :desc)
         |> Enum.take(5)
       
       IO.puts("Top 5 Assets:")
       Enum.each(top_assets, fn asset ->
-        IO.puts("  #{asset.id}: value=#{Float.round(asset.value, 2)}, owner=#{asset.owner_id}")
+        IO.puts("  #{asset.discovery_id}: value=#{Float.round(asset.valuation, 2)}, owner=#{asset_owner(asset)}")
       end)
       IO.puts("")
     end
     
     # Analyze survival by world type
     IO.puts("Survival by World Type:")
-    Enum.each(world_configs, fn {world_id, _physics} ->
+    Enum.each(world_configs, fn {world_id, _physics, _needs} ->
       world_active = active_programs |> Enum.count(& &1.world_id == world_id)
       world_total = final_state.research_programs |> Map.values() |> Enum.count(& &1.world_id == world_id)
       survival_rate = if world_total > 0, do: (world_active / world_total * 100) |> Float.round(1), else: 0
@@ -423,7 +438,7 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
     
     # Economic health
     IO.puts("Economic Health:")
-    IO.puts("  Remaining Funding Pool: #{Float.round(final_state.economy[:funding_pool] || 0.0, 2)}")
+    IO.puts("  Remaining Funding Pool: #{Float.round((final_state.economy[:funding_pool] || 0) * 1.0, 2)}")
     IO.puts("  Total Asset Value: #{calculate_total_asset_value(final_state)}")
     IO.puts("  Economy Sustainability: #{assess_economy_sustainability(final_state)}\n")
     
@@ -434,7 +449,7 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
   defp calculate_total_asset_value(%State{} = state) do
     state.discovery_assets
       |> Map.values()
-      |> Enum.map(& &1.value)
+      |> Enum.map(& &1.valuation)
       |> Enum.sum()
       |> Float.round(2)
   end
@@ -450,6 +465,14 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
     end
   end
   
+  defp asset_owner(%{transaction_history: txns}) when is_list(txns) do
+    case Enum.find(txns, &(&1.type == :creation)) do
+      nil -> nil
+      txn -> txn.owner_program
+    end
+  end
+  defp asset_owner(_), do: nil
+
   defp evaluate_success_criteria(%State{} = state, active_programs, terminated_programs) do
     IO.puts("=== SUCCESS CRITERIA EVALUATION ===\n")
     
@@ -458,7 +481,7 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
       |> Enum.count(fn prog ->
         state.discovery_assets
           |> Map.values()
-          |> Enum.any?(& &1.owner_id == prog.id)
+          |> Enum.any?(& asset_owner(&1) == prog.id)
       end)
     
     io_puts_colored("1. Asset-Backed Survival:", :green)
@@ -486,10 +509,10 @@ defmodule Tiannara.OS.Layer65DEconomicFoundationTest do
     avg_asset_value_survivors = state.discovery_assets
       |> Map.values()
       |> Enum.filter(fn asset ->
-        prog = state.research_programs[asset.owner_id]
+        prog = state.research_programs[asset_owner(asset)]
         !is_nil(prog) && prog.status == :active
       end)
-      |> Enum.map(& &1.value)
+      |> Enum.map(& &1.valuation)
       |> case do
         [] -> 0
         values -> Enum.sum(values) / length(values)

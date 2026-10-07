@@ -30,7 +30,15 @@ defmodule Tiannara.CIS do
   def check_domain_diversity(weights) when is_map(weights) do
     active = Enum.count(weights, fn {_domain, weight} -> is_number(weight) and weight > 0 end)
     total = Enum.reduce(weights, 0.0, fn {_d, w}, acc -> acc + if(is_number(w), do: max(w, 0), else: 0) end)
-    dominant = if total > 0, do: Enum.max_by(weights, fn {_d, w} -> if(is_number(w), do: w, else: 0) end) |> elem(1) / total, else: 1.0
+    dominant =
+      if total > 0 do
+        {_dominant_domain, dominant_weight} =
+          Enum.max_by(weights, fn {_d, w} -> if(is_number(w), do: w, else: 0) end)
+
+        dominant_weight / total
+      else
+        1.0
+      end
     cond do
       active < 2 -> {:error, :insufficient_domain_diversity}
       dominant > 0.8 -> {:error, :domain_monoculture_risk}

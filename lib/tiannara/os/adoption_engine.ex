@@ -128,11 +128,7 @@ defmodule TiannaraOS.AdoptionEngine do
       {:ok, state} = governance_review(kernel_pid, foreign_artifact, opts, state)
       
       # Phase 2: Validation
-      if Enum.all?(validation_result.checks, fn {_k, v} -> v == true end) do
-      {:ok, validation_result, state}
-    else
-      {:error, {:validation_failed, validation_result.checks}}
-    end = validate_artifact(kernel_pid, foreign_artifact, state)
+      {:ok, validation_result, state} = validate_artifact(kernel_pid, foreign_artifact, state)
       
       # Phase 3: Replication (if requested and validated)
       replication_result = if Map.get(opts, :auto_replicate, false) and validation_result.valid do
@@ -253,7 +249,7 @@ defmodule TiannaraOS.AdoptionEngine do
       end
 
     case governance_approval do
-      {:ok, approval} when is_map(approval) and approval[:approved] == true ->
+      {:ok, approval} when is_map(approval) and approval.approved == true ->
         approval
         |> Map.put(:reviewed_at_tick, get_current_tick(kernel_pid))
         |> Map.put_new(:reviewer, :local_governance)
@@ -272,11 +268,6 @@ defmodule TiannaraOS.AdoptionEngine do
       other ->
         {:error, {:invalid_governance_result, other}}
     end
-    
-    # Emit governance event
-    emit_governance_event(kernel_pid, foreign_artifact, governance_approval)
-    
-    {:ok, state}
   end
   
   # Phase 2: Validation
@@ -482,5 +473,8 @@ defmodule TiannaraOS.AdoptionEngine do
     decision_id = "adopt_#{artifact.hypothesis.id}"
     :ets.insert(:adoption_engine_decisions, {decision_id, decision})
   end
+  defp checksum_valid?(artifact) do
+    checksum = get_in(artifact, [:provenance, :checksum_sha256])
+    is_binary(checksum) and byte_size(checksum) == 64 and checksum =~ ~r/^[0-9a-fA-F]+$/
+  end
 end
-\n  defp checksum_valid?(artifact) do\n    checksum = get_in(artifact, [:provenance, :checksum_sha256])\n    is_binary(checksum) and byte_size(checksum) == 64 and checksum =~ ~r/^[0-9a-fA-F]+$/\n  end\n

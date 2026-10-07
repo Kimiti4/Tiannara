@@ -356,10 +356,11 @@ defmodule TiannaraOS.Governance.DeploymentOrchestrator do
     case RFCRegistry.get_rfc(rfc_id) do
       {:ok, rfc} ->
         # Apply RFC changes to GovernanceLedger
-        case apply_rfc_to_ledger(rfc) do
-          {:error, reason} -> throw({:apply_failed, reason})
-          {:ok, events_applied} -> events_applied
-        end
+        events_applied =
+          case apply_rfc_to_ledger(rfc) do
+            {:error, reason} -> throw({:apply_failed, reason})
+            {:ok, applied_events} -> applied_events
+          end
 
         %{
           phase: :apply_changes,
@@ -480,7 +481,7 @@ defmodule TiannaraOS.Governance.DeploymentOrchestrator do
     %{available: true, details: "Resources available"}
   end
 
-  defp apply_rfc_to_ledger(_rfc), do: {:error, :governance_ledger_backend_unavailable}d
+  defp apply_rfc_to_ledger(_rfc), do: {:error, :governance_ledger_backend_unavailable}
 
   defp run_post_deployment_verifications(rfc_id) do
     # Run validation campaigns after deployment

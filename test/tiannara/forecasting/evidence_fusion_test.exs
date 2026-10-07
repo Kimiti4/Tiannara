@@ -28,7 +28,9 @@ defmodule Tiannara.Forecasting.EvidenceFusionTest do
       EvidenceFusion.compare_models(%{probability: 0.95}, %{probability: 0.61})
 
     assert comparison.status == :not_decided
-  end  test "invalid observations fail closed" do
+  end
+
+  test "invalid observations fail closed" do
     assert {:error, :invalid_evidence_observation} =
       EvidenceFusion.analyze(0.9, [%{direction: :unknown, weight: 1.0}])
   end

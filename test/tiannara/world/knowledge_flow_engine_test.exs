@@ -1,11 +1,24 @@
 defmodule Tiannara.World.KnowledgeFlowEngineTest do
   use ExUnit.Case, async: false
 
-  alias Tiannara.World.{KnowledgeFlowEngine, KnowledgeCoordinator, UnifiedWorldModel}
+  alias Tiannara.World.{KnowledgeFlowEngine, KnowledgeCoordinator, UnifiedWorldModel,
+                        KnowledgeEvolutionEngine}
+
+  alias Tiannara.CEL.Services.EventStore
 
   setup do
-    {:ok, engine} = start_supervised(KnowledgeFlowEngine)
-    {:ok, %{engine: engine}}
+    ensure_running(KnowledgeFlowEngine)
+    ensure_running(KnowledgeCoordinator)
+    ensure_running(KnowledgeEvolutionEngine)
+    ensure_running(EventStore)
+    :ok
+  end
+
+  defp ensure_running(mod) do
+    case mod.start_link([]) do
+      {:ok, _pid} -> :ok
+      {:error, {:already_started, _pid}} -> :ok
+    end
   end
 
   describe "Force Propagation" do
@@ -51,7 +64,7 @@ defmodule Tiannara.World.KnowledgeFlowEngineTest do
 
   describe "Stats" do
     test "returns engine statistics" do
-      assert %{healthy: true} = elem(KnowledgeFlowEngine.stats(), 1)
+      assert %{healthy: true} = KnowledgeFlowEngine.stats()
     end
   end
 end

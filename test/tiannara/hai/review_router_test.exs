@@ -5,7 +5,14 @@ defmodule Tiannara.HAI.ReviewRouterTest do
   alias Tiannara.HAI.Domain.ReviewRequest
 
   setup do
-    start_supervised!(ReviewRouter)
+    case Process.whereis(ReviewRouter) do
+      nil ->
+        start_supervised!(ReviewRouter)
+
+      _pid ->
+        ReviewRouter.reset()
+    end
+
     :ok
   end
 

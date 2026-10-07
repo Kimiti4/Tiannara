@@ -180,8 +180,10 @@ defmodule Tiannara.Sentinel.ActivationEngineTest do
 
   describe "Engine process" do
     setup do
-      {:ok, _pid} = Engine.start_link([])
-      :ok
+      case Engine.start_link([]) do
+        {:ok, _pid} -> :ok
+        {:error, {:already_started, _pid}} -> :ok
+      end
     end
 
     test "processes observation through full pipeline" do

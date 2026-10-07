@@ -112,7 +112,9 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
 
   test "R4-05b: two invocations with an explicit sleep between them produce DIFFERENT provenance_hashes (proves produced_at is in the hash)" do
     h1 = elem(StrategicPlanner.evaluate_and_act(:intervention_quality, %{}), 1).provenance_hash
-    Process.sleep(2)
+    # The system clock advances in ~15ms ticks here; sleep long enough to
+    # guarantee the clock moved so produced_at (and therefore the hash) differs.
+    Process.sleep(50)
     h2 = elem(StrategicPlanner.evaluate_and_act(:intervention_quality, %{}), 1).provenance_hash
     assert h1 != h2
   end

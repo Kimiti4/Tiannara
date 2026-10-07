@@ -89,7 +89,7 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
       owns_asset?(asset, program_id)
     end)
     
-    if map_size(program_assets) == 0 do
+    if program_assets == [] do
       %{funding: 0.0, compute: 0.0, attention: 0.0}
     else
       # Sum royalties from all assets

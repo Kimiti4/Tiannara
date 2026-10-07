@@ -39,7 +39,7 @@ defmodule Tiannara.CEL.Services.MissionDirector do
 
     stuck = Map.get(stats.missions_by_status, :validating, 0)
     failed = Map.get(stats.missions_by_status, :failed, 0)
-    total = stats.total_missions || 1
+    total = max(stats.total_missions || 1, 1)
     health = 1.0 - ((stuck * 0.1 + failed * 0.2) / total)
 
     %ConstitutionalScore{

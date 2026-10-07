@@ -155,6 +155,8 @@ defmodule Tiannara.OS.SpeciationDetectorTest do
       total_deaths: 5,
       current_members: [],
       extinct: false,
+      extinct_at_tick: nil,
+      lifespan_ticks: 0,
       founded_at_tick: 100,
       last_new_member_tick: 1000
     }
@@ -177,6 +179,8 @@ defmodule Tiannara.OS.SpeciationDetectorTest do
       total_deaths: 8,
       current_members: [:prog_1, :prog_2],
       extinct: false,
+      extinct_at_tick: nil,
+      lifespan_ticks: 0,
       founded_at_tick: 100,
       last_new_member_tick: 1000  # Last new member 6000 ticks ago
     }
@@ -199,6 +203,8 @@ defmodule Tiannara.OS.SpeciationDetectorTest do
       total_deaths: 10,
       current_members: [:prog_1, :prog_2, :prog_3],
       extinct: false,
+      extinct_at_tick: nil,
+      lifespan_ticks: 0,
       founded_at_tick: 100,
       last_new_member_tick: 4500  # Recent activity
     }

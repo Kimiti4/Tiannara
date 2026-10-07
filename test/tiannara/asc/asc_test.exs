@@ -57,7 +57,7 @@ defmodule Tiannara.ASC.ASCTest do
       civs = Tiannara.ASC.CivilizationManager.list_civilizations(:test_civ_mgr)
       assert length(civs) == 9
       domains = Enum.map(civs, & &1.domain)
-      assert :mathematics in domains
+      assert :computation in domains
       assert :robotics in domains
       assert :governance in domains
     end

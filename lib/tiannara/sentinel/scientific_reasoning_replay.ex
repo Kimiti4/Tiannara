@@ -53,9 +53,11 @@ defmodule Tiannara.Sentinel.ScientificReasoningReplay do
         ])
 
       {:error, reason} ->
-        {:ok, Enum.reverse([
-          %{index: index, step: step, outcome: :diverged, observed: reason} | acc
-        ]) |> Kernel.++(remaining_unchecked(rest, index + 1))}
+        # Keep the accumulator convention (reverse order) so that replay/2's
+        # single Enum.reverse yields forward order for evaluated steps, the
+        # divergence and the unchecked remainder.
+        {:ok, Enum.reverse(remaining_unchecked(rest, index + 1)) ++
+          [%{index: index, step: step, outcome: :diverged, observed: reason} | acc]}
     end
   end
 

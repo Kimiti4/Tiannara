@@ -2,6 +2,11 @@ defmodule Tiannara.Sentinel.MathematicalEvidenceTest do
   use ExUnit.Case, async: true
   alias Tiannara.Sentinel.MathematicalEvidence
 
+  setup do
+    start_supervised!(MathematicalEvidence)
+    :ok
+  end
+
   test "retains refuted civilization reasoning" do
     assert {:ok, record} = MathematicalEvidence.store(%{
       kind: :scientific_reasoning,

@@ -112,15 +112,20 @@ defmodule TiannaraOS.ExecutiveDashboard do
   end
   
   defp count_critical_unknowns do
-    # Query UnknownRegistry for critical priority unknowns
-    case UnknownRegistry.get_by_priority(:critical) do
-      {:ok, unknowns} -> length(unknowns)
-      _ -> 0
-    end
+    count_open_unknowns_by_priority(:critical)
   end
   
   defp count_high_priority_unknowns do
-    count_by_priority(:high)
+    count_open_unknowns_by_priority(:high)
+  end
+  
+  defp count_open_unknowns_by_priority(priority) do
+    case UnknownRegistry.list_open() do
+      {:ok, unknowns} ->
+        Enum.count(unknowns, fn unknown -> Map.get(unknown, :priority) == priority end)
+      _ ->
+        0
+    end
   end
   
   defp estimate_debt_trend, do: :unavailable

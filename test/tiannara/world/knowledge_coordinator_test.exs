@@ -1,11 +1,24 @@
 defmodule Tiannara.World.KnowledgeCoordinatorTest do
   use ExUnit.Case, async: false
 
-  alias Tiannara.World.{KnowledgeCoordinator, UnifiedWorldModel}
+  alias Tiannara.World.{KnowledgeCoordinator, UnifiedWorldModel, EvidenceValidator,
+                        KnowledgeEvolutionEngine}
+
+  alias Tiannara.CEL.Services.EventStore
 
   setup do
-    {:ok, coordinator} = start_supervised(KnowledgeCoordinator)
-    {:ok, %{coordinator: coordinator}}
+    ensure_running(KnowledgeCoordinator)
+    ensure_running(EvidenceValidator)
+    ensure_running(KnowledgeEvolutionEngine)
+    ensure_running(EventStore)
+    :ok
+  end
+
+  defp ensure_running(mod) do
+    case mod.start_link([]) do
+      {:ok, _pid} -> :ok
+      {:error, {:already_started, _pid}} -> :ok
+    end
   end
 
   describe "Discovery Ingestion" do
@@ -201,7 +214,7 @@ defmodule Tiannara.World.KnowledgeCoordinatorTest do
       }
 
       KnowledgeCoordinator.ingest_discovery(spec)
-      assert %{total_knowledge_items: n} = elem(KnowledgeCoordinator.stats(), 1)
+      assert %{total_knowledge_items: n} = KnowledgeCoordinator.stats()
       assert n >= 1
     end
   end

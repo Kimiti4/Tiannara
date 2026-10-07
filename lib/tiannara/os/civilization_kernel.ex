@@ -74,8 +74,14 @@ defmodule TiannaraOS.CivilizationKernel do
   use GenServer
   require Logger
 
+  alias TiannaraOS.State
   alias TiannaraOS.CivilizationAdaptationResult
   alias TiannaraOS.CivilizationAdaptationPipeline
+
+  # Default L0 resource ceilings
+  @max_compute_ceiling 10_000.0
+  @max_memory_objects 50_000
+  @default_tenant_id "default_tenant"
 
   # ==================== State ====================
 
@@ -84,7 +90,9 @@ defmodule TiannaraOS.CivilizationKernel do
     institutions: [atom()],
     current_tick: integer(),
     adaptation_history: [map()],
-    os_state: map()
+    os_state: map(),
+    tenant_id: String.t(),
+    resource_limits: map()
   }
 
   # ==================== API ====================
@@ -117,7 +125,12 @@ defmodule TiannaraOS.CivilizationKernel do
       institutions: Map.get(init_state, :institutions, []),
       current_tick: 0,
       adaptation_history: [],
-      os_state: init_state
+      tenant_id: Map.get(init_state, :tenant_id, @default_tenant_id),
+      resource_limits: %{
+        compute_ceiling: Map.get(init_state, :compute_ceiling, @max_compute_ceiling),
+        memory_objects_ceiling: Map.get(init_state, :memory_objects_ceiling, @max_memory_objects)
+      },
+      os_state: normalize_os_state(Map.get(init_state, :os_state, init_state))
     }, name: __MODULE__)
   end
 
@@ -136,10 +149,46 @@ defmodule TiannaraOS.CivilizationKernel do
 
   @doc """
   Update the kernel's state via a transformation function.
+
+  The transformed state is verified against the kernel invariants
+  (compute ceiling, memory-object ceiling, tenant isolation) before it is
+  stored. Violations are recorded and returned as `{:error, reason}` while the
+  previous state is preserved.
   """
-  @spec update_state(fun()) :: {:ok, map()}
+  @spec update_state(fun()) :: {:ok, map()} | {:error, term()}
   def update_state(transform_fn) when is_function(transform_fn, 1) do
     GenServer.call(__MODULE__, {:update_state, transform_fn})
+  end
+
+  @doc """
+  Read the current OS state (the kernel's `os_state`).
+  """
+  @spec get_state() :: map()
+  def get_state do
+    GenServer.call(__MODULE__, :get_state)
+  end
+
+  @doc """
+  Apply an operator override that bypasses the invariant checks.
+
+  The override is recorded in the governance `overrides` and `audit_log`
+  channels so the bypass remains fully traceable.
+  """
+  @spec human_override(map()) :: {:ok, map()} | {:error, term()}
+  def human_override(new_state) when is_map(new_state) do
+    GenServer.call(__MODULE__, {:human_override, new_state})
+  end
+
+  @doc """
+  Restore a previously captured snapshot.
+
+  The snapshot's in-memory knowledge (memory, worlds, theories, tools,
+  discoveries) is preserved from the live state and the rollback is appended
+  to the snapshot's governance audit log.
+  """
+  @spec rollback(map()) :: {:ok, map()} | {:error, term()}
+  def rollback(snapshot) when is_map(snapshot) do
+    GenServer.call(__MODULE__, {:rollback, snapshot})
   end
 
   @doc """
@@ -286,7 +335,56 @@ defmodule TiannaraOS.CivilizationKernel do
   @impl true
   def handle_call({:update_state, transform_fn}, _from, state) do
     new_os_state = transform_fn.(state.os_state)
-    {:reply, {:ok, new_os_state}, %{state | os_state: new_os_state}}
+
+    case verify_invariants(state, new_os_state) do
+      :ok ->
+        {:reply, {:ok, new_os_state}, %{state | os_state: new_os_state}}
+
+      {:error, reason} ->
+        {:reply, {:error, reason}, record_violation(state, reason)}
+    end
+  end
+
+  @impl true
+  def handle_call(:get_state, _from, state) do
+    {:reply, state.os_state, state}
+  end
+
+  @impl true
+  def handle_call({:human_override, new_os_state}, _from, state) do
+    event = %{
+      type: :human_override,
+      timestamp: DateTime.utc_now(),
+      civilization_id: state.civilization_id,
+      actor: :human_operator
+    }
+
+    decorated = new_os_state |> put_governance(:overrides, event) |> put_governance(:audit_log, event)
+    {:reply, {:ok, decorated}, %{state | os_state: decorated}}
+  end
+
+  @impl true
+  def handle_call({:rollback, snapshot}, _from, state) do
+    event = %{
+      type: :rollback,
+      timestamp: DateTime.utc_now(),
+      civilization_id: state.civilization_id,
+      actor: :human_operator
+    }
+
+    restored =
+      snapshot
+      |> Map.put(:memory, Map.get(state.os_state, :memory, %{}))
+      |> put_governance(:audit_log, event)
+
+    {:reply, {:ok, restored}, %{state | os_state: restored}}
+  end
+
+  @impl true
+  def handle_call(:security_policy_mode, _from, state) do
+    security = Map.get(state.os_state, :security, %{})
+    mode = if is_map(security), do: Map.get(security, :policy_mode, :strict), else: :strict
+    {:reply, mode, state}
   end
 
   @impl true
@@ -303,6 +401,152 @@ defmodule TiannaraOS.CivilizationKernel do
     {:reply, {:ok, summary}, state}
   end
 
+  @doc """
+  Validates a tool's security profile against the kernel's L0 security policy.
+  """
   @spec validate_security_profile(term()) :: :ok | {:error, term()}
-  def validate_security_profile(_profile), do: :ok
+  def validate_security_profile(security_profile) when is_map(security_profile) do
+    if kernel_policy_mode() == :permissive do
+      :ok
+    else
+      cond do
+        not Map.get(security_profile, :read_sandbox, false) ->
+          {:error, {:security_violation, :untrusted_sandbox}}
+
+        Map.get(security_profile, :network_access, false) ->
+          {:error, {:security_violation, :unauthorized_network_access}}
+
+        true ->
+          :ok
+      end
+    end
+  end
+
+  def validate_security_profile(_security_profile), do: :ok
+
+  # ==================== Invariant Enforcement ====================
+
+  defp kernel_policy_mode do
+    case Process.whereis(__MODULE__) do
+      nil ->
+        :strict
+
+      _pid ->
+        try do
+          case GenServer.call(__MODULE__, :security_policy_mode) do
+            mode when is_atom(mode) -> mode
+            _ -> :strict
+          end
+        catch
+          _kind, _reason -> :strict
+        end
+    end
+  end
+
+  defp verify_invariants(kernel_state, new_os_state) do
+    with :ok <- check_memory_objects(kernel_state, new_os_state),
+         :ok <- check_compute_ceiling(kernel_state, new_os_state),
+         :ok <- check_tenant_isolation(kernel_state, new_os_state) do
+      :ok
+    end
+  end
+
+  defp check_memory_objects(kernel_state, os_state) do
+    counted = [:worlds, :theories, :institutions, :tools, :discoveries, :research_programs, :research_institutions]
+    total = Enum.reduce(counted, 0, fn key, acc -> acc + collection_size(Map.get(os_state, key, %{})) end)
+    ceiling = resource_limit(kernel_state, :memory_objects_ceiling, @max_memory_objects)
+
+    if total > ceiling do
+      {:error, :memory_objects_ceiling_exceeded}
+    else
+      :ok
+    end
+  end
+
+  defp check_compute_ceiling(kernel_state, os_state) do
+    total =
+      Map.get(os_state, :institutions, %{})
+      |> total_compute_share()
+
+    ceiling = resource_limit(kernel_state, :compute_ceiling, @max_compute_ceiling)
+
+    if total > ceiling do
+      {:error, :compute_ceiling_exceeded}
+    else
+      :ok
+    end
+  end
+
+  defp check_tenant_isolation(kernel_state, os_state) do
+    kernel_tenant = Map.get(kernel_state, :tenant_id, @default_tenant_id)
+    worlds = Map.get(os_state, :worlds, %{})
+
+    foreign_tenant? =
+      is_map(worlds) and
+        Enum.any?(worlds, fn {_world_id, world} ->
+          tenant = if is_map(world), do: Map.get(world, :tenant_id), else: nil
+          is_binary(tenant) and tenant != kernel_tenant
+        end)
+
+    if foreign_tenant? do
+      {:error, :tenant_isolation_violation}
+    else
+      :ok
+    end
+  end
+
+  defp collection_size(value) when is_map(value), do: map_size(value)
+  defp collection_size(value) when is_list(value), do: length(value)
+  defp collection_size(_value), do: 0
+
+  defp total_compute_share(institutions) when is_map(institutions) do
+    Enum.reduce(institutions, 0.0, fn {_id, institution}, acc ->
+      share =
+        if is_map(institution) do
+          case Map.get(institution, :compute_share) do
+            value when is_number(value) -> value * 1.0
+            _ -> 0.0
+          end
+        else
+          0.0
+        end
+
+      acc + share
+    end)
+  end
+
+  defp total_compute_share(_institutions), do: 0.0
+
+  defp resource_limit(kernel_state, key, default) do
+    case Map.get(kernel_state, :resource_limits, %{}) do
+      limits when is_map(limits) -> Map.get(limits, key, default)
+      _ -> default
+    end
+  end
+
+  defp record_violation(state, reason) do
+    Logger.error("[CivilizationKernel] Invariant violation rejected state update: #{inspect(reason)}")
+
+    violations = Map.get(state, :violations, [])
+    Map.put(state, :violations, [%{reason: reason, timestamp: DateTime.utc_now()} | violations])
+  end
+
+  defp put_governance(state, channel, event) do
+    governance =
+      case Map.get(state, :governance) do
+        value when is_map(value) -> value
+        _ -> %{}
+      end
+
+    entries =
+      case Map.get(governance, channel) do
+        value when is_list(value) -> value
+        _ -> []
+      end
+
+    Map.put(state, :governance, Map.put(governance, channel, [event | entries]))
+  end
+
+  defp normalize_os_state(%State{} = state), do: state
+  defp normalize_os_state(_init_state), do: %State{}
 end

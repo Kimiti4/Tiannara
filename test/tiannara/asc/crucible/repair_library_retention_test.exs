@@ -6,9 +6,6 @@ defmodule Tiannara.ASC.Crucible.RepairLibraryRetentionTest do
   @tables [:repair_library, :repair_library_seq, :repair_library_meta]
 
   setup do
-    stop_library()
-    drop_tables()
-
     archive =
       Path.join(
         System.tmp_dir!(),
@@ -28,21 +25,61 @@ defmodule Tiannara.ASC.Crucible.RepairLibraryRetentionTest do
       )
     )
 
-    {:ok, _pid} = RepairLibrary.start_link()
+    stop_supervised_library()
+    stop_library()
+    drop_tables()
 
     on_exit(fn ->
       stop_library()
       drop_tables()
       File.rm(archive)
       Application.put_env(:tiannara, :asc, asc_env)
+      restart_supervised_library()
     end)
+
+    {:ok, _pid} = RepairLibrary.start_link()
 
     %{archive: archive}
   end
 
+  defp stop_supervised_library do
+    case Process.whereis(Tiannara.ASC.Supervisor) do
+      nil ->
+        :ok
+
+      _pid ->
+        case Supervisor.terminate_child(Tiannara.ASC.Supervisor, RepairLibrary) do
+          :ok -> :ok
+          {:error, :not_found} -> :ok
+        end
+    end
+  end
+
+  defp restart_supervised_library do
+    case Process.whereis(Tiannara.ASC.Supervisor) do
+      nil ->
+        :ok
+
+      _pid ->
+        case Supervisor.restart_child(Tiannara.ASC.Supervisor, RepairLibrary) do
+          {:ok, _pid} -> :ok
+          {:error, :running} -> :ok
+          {:error, :not_found} -> :ok
+        end
+    end
+  end
+
   defp stop_library do
-    if Process.whereis(RepairLibrary) do
-      GenServer.stop(RepairLibrary, :normal)
+    case Process.whereis(RepairLibrary) do
+      nil ->
+        :ok
+
+      pid ->
+        try do
+          GenServer.stop(pid, :normal)
+        catch
+          :exit, {reason, _} when reason in [:noproc, :normal, :shutdown] -> :ok
+        end
     end
   end
 

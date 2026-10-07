@@ -19,8 +19,16 @@ defmodule TiannaraOS.DiscoveryRegistryEvidenceTest do
       domain_id: :test_domain,
       experiment_ids: ["exp-1"],
       evidence_ids: ["ev-1"],
-      theory_ids: [:test_theory]
+      theory_ids: [:test_theory],
+      evidence_envelope: %{
+        evidence_class: :simulated,
+        execution_mode: :simulation
+      }
     }
+  end
+
+  defp archive_writer(archived) do
+    {:ok, Map.put(archived, :persisted, true)}
   end
 
   test "simulated registration requires an explicit simulation envelope" do
@@ -54,10 +62,15 @@ defmodule TiannaraOS.DiscoveryRegistryEvidenceTest do
     {:ok, _} = DiscoveryRegistry.register(base(:missing_reproduction))
 
     assert {:error, :reproduction_evidence_required} =
-             DiscoveryRegistry.update_validation_status(:missing_reproduction, :reproduced, %{
-               evidence_class: :simulated,
-               execution_mode: :simulation
-             })
+             DiscoveryRegistry.update_validation_status_with_lineage(
+               :missing_reproduction,
+               :reproduced,
+               %{
+                 evidence_class: :simulated,
+                 execution_mode: :simulation
+               },
+               &archive_writer/1
+             )
   end
 
   test "simulated evidence cannot establish operational validation" do
@@ -73,10 +86,11 @@ defmodule TiannaraOS.DiscoveryRegistryEvidenceTest do
     }
 
     assert {:error, :real_evidence_required} =
-             DiscoveryRegistry.update_validation_status(
+             DiscoveryRegistry.update_validation_status_with_lineage(
                :simulation_cannot_be_real,
                :operationally_validated,
-               envelope
+               envelope,
+               &archive_writer/1
              )
   end
 
@@ -90,38 +104,58 @@ defmodule TiannaraOS.DiscoveryRegistryEvidenceTest do
     }
 
     assert {:ok, %{validation_status: :reproduced}} =
-             DiscoveryRegistry.update_validation_status(:real_gate, :reproduced, reproduced)
+             DiscoveryRegistry.update_validation_status_with_lineage(
+               :real_gate,
+               :reproduced,
+               reproduced,
+               &archive_writer/1
+             )
 
     assert {:error, :real_execution_required} =
-             DiscoveryRegistry.update_validation_status(:real_gate, :operationally_validated, %{
-               evidence_class: :real,
-               execution_mode: :simulation,
-               real_observation: true,
-               effect_verified: true,
-               acl_status: :pass,
-               oavl_status: :pass
-             })
+             DiscoveryRegistry.update_validation_status_with_lineage(
+               :real_gate,
+               :operationally_validated,
+               %{
+                 evidence_class: :real,
+                 execution_mode: :simulation,
+                 real_observation: true,
+                 effect_verified: true,
+                 acl_status: :pass,
+                 oavl_status: :pass
+               },
+               &archive_writer/1
+             )
   end
 
   test "fully evidenced operational transition is accepted" do
     {:ok, _} = DiscoveryRegistry.register(base(:valid_real_transition))
 
     assert {:ok, %{validation_status: :reproduced}} =
-             DiscoveryRegistry.update_validation_status(:valid_real_transition, :reproduced, %{
-               evidence_class: :real,
-               execution_mode: :real_execution,
-               reproduction_evidence: %{runs: 3, independent: true}
-             })
+             DiscoveryRegistry.update_validation_status_with_lineage(
+               :valid_real_transition,
+               :reproduced,
+               %{
+                 evidence_class: :real,
+                 execution_mode: :real_execution,
+                 reproduction_evidence: %{runs: 3, independent: true}
+               },
+               &archive_writer/1
+             )
 
     assert {:ok, discovery} =
-             DiscoveryRegistry.update_validation_status(:valid_real_transition, :operationally_validated, %{
-               evidence_class: :real,
-               execution_mode: :real_execution,
-               real_observation: true,
-               effect_verified: true,
-               acl_status: :pass,
-               oavl_status: :pass
-             })
+             DiscoveryRegistry.update_validation_status_with_lineage(
+               :valid_real_transition,
+               :operationally_validated,
+               %{
+                 evidence_class: :real,
+                 execution_mode: :real_execution,
+                 real_observation: true,
+                 effect_verified: true,
+                 acl_status: :pass,
+                 oavl_status: :pass
+               },
+               &archive_writer/1
+             )
 
     assert discovery.validation_status == :operationally_validated
     assert discovery.confidence == 0.0

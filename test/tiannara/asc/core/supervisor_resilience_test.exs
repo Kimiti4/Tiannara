@@ -2,7 +2,10 @@ defmodule Tiannara.ASC.Core.SupervisorResilienceTest do
   use ExUnit.Case, async: false
 
   test "restarts registry after crash and preserves registry survival" do
-    {:ok, _pid} = start_supervised(Tiannara.ASC.Core.Supervisor)
+    case Process.whereis(Tiannara.ASC.Core.Supervisor) do
+      nil -> {:ok, _pid} = start_supervised(Tiannara.ASC.Core.Supervisor)
+      _running -> :ok
+    end
 
     original = Process.whereis(Tiannara.ASC.Core.Registry)
     assert is_pid(original)

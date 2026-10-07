@@ -13,7 +13,7 @@ defmodule Tiannara.OS.Layer65DSprint2IntegrationTest do
   """
   
   use ExUnit.Case, async: false
-  @tag timeout: 300_000  # 5 minutes for full simulation
+  @tag timeout: 600_000  # 10 minutes for full simulation
   
   alias TiannaraOS.State
   alias TiannaraOS.ResearchProgram

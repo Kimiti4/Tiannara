@@ -17,6 +17,7 @@ defmodule Tiannara.OS.Layer65BTier4FullScaleTest do
   """
   
   use ExUnit.Case, async: false
+  @moduletag timeout: 600_000
   
   alias TiannaraOS.EvidenceEngine
   alias TiannaraOS.State
@@ -470,7 +471,9 @@ defmodule Tiannara.OS.Layer65BTier4FullScaleTest do
     
     if survival_rate > 0.7 and avg_conversion_rate > 0.2 do
       if length(recovery_data.recovery_times) >= 5 do
-        [{1, _, rt1}, {5, _, rt5}] = Enum.take(Enum.sort_by(recovery_data.recovery_times, fn {idx, _, _} -> idx end), 2)
+        sorted_recovery = Enum.sort_by(recovery_data.recovery_times, fn {idx, _, _} -> idx end)
+        [{1, _, rt1} | _] = sorted_recovery
+        {5, _, rt5} = List.last(sorted_recovery)
         
         if rt1 > rt5 and length(Enum.filter(recovery_data.post_shock_velocities, fn {idx, v, _} -> idx == 5 and v > (Enum.find(recovery_data.pre_shock_velocities, fn {i, _, _} -> i == 1 end) |> elem(1)) end)) > 0 do
           IO.puts("TIER 4 CLASSIFICATION: ANTIFRAGILITY ACHIEVED 🏆🏆🏆")

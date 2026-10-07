@@ -3,9 +3,20 @@ defmodule Tiannara.World.ConflictResolutionEngineTest do
 
   alias Tiannara.World.{ConflictResolutionEngine, KnowledgeCoordinator, UnifiedWorldModel}
 
+  alias Tiannara.CEL.Services.EventStore
+
   setup do
-    {:ok, engine} = start_supervised(ConflictResolutionEngine)
-    {:ok, %{engine: engine}}
+    ensure_running(ConflictResolutionEngine)
+    ensure_running(KnowledgeCoordinator)
+    ensure_running(EventStore)
+    :ok
+  end
+
+  defp ensure_running(mod) do
+    case mod.start_link([]) do
+      {:ok, _pid} -> :ok
+      {:error, {:already_started, _pid}} -> :ok
+    end
   end
 
   describe "Conflict Recording" do
@@ -104,13 +115,13 @@ defmodule Tiannara.World.ConflictResolutionEngineTest do
         evidence: [], requires_human_review: false
       })
 
-      assert length(elem(ConflictResolutionEngine.active_conflicts(), 1)) >= 1
+      assert length(ConflictResolutionEngine.active_conflicts()) >= 1
     end
   end
 
   describe "Stats" do
     test "returns engine statistics" do
-      assert %{healthy: true} = elem(ConflictResolutionEngine.stats(), 1)
+      assert %{healthy: true} = ConflictResolutionEngine.stats()
     end
   end
 

@@ -35,11 +35,19 @@ defmodule Tiannara.HAI.ReviewRouter do
     GenServer.call(__MODULE__, :stats)
   end
 
+  @doc "Reset all recorded reviews and counters to their initial values."
+  def reset do
+    GenServer.call(__MODULE__, :reset)
+  end
+
   @impl true
   def init(_opts) do
-    {:ok, %{reviews: %{}, total_submitted: 0, total_approved: 0, total_rejected: 0,
-      total_modified: 0, total_deferred: 0, total_expired: 0, mandatory_count: 0,
-      healthy: true, started_at: DateTime.utc_now()}}
+    {:ok, initial_state()}
+  end
+
+  @impl true
+  def handle_call(:reset, _from, _state) do
+    {:reply, :ok, initial_state()}
   end
 
   @impl true
@@ -114,6 +122,12 @@ defmodule Tiannara.HAI.ReviewRouter do
   defp determine_routing(impact_level) when impact_level in @mandatory_levels, do: :pending
   defp determine_routing(impact_level) when impact_level in @recommended_levels, do: :pending
   defp determine_routing(_impact_level), do: :approved
+
+  defp initial_state do
+    %{reviews: %{}, total_submitted: 0, total_approved: 0, total_rejected: 0,
+      total_modified: 0, total_deferred: 0, total_expired: 0, mandatory_count: 0,
+      healthy: true, started_at: DateTime.utc_now()}
+  end
 
   defp safe_div(_n, 0), do: 0.0
   defp safe_div(n, d), do: n / d

@@ -3,17 +3,28 @@ defmodule Tiannara.World.Phase3PipelineTest do
 
   alias Tiannara.World.{
     KnowledgeCoordinator, KnowledgeFlowEngine, ConflictResolutionEngine,
-    UnifiedWorldModel
+    UnifiedWorldModel, EvidenceValidator, KnowledgeEvolutionEngine
   }
+  alias Tiannara.CEL.Services.EventStore
   alias Tiannara.ValidationCampaigns
   alias Tiannara.Validation.Scenarios.Phase3
 
   setup do
-    start_supervised(KnowledgeCoordinator)
-    start_supervised(KnowledgeFlowEngine)
-    start_supervised(ConflictResolutionEngine)
+    ensure_running(KnowledgeCoordinator)
+    ensure_running(KnowledgeFlowEngine)
+    ensure_running(ConflictResolutionEngine)
+    ensure_running(EvidenceValidator)
+    ensure_running(KnowledgeEvolutionEngine)
+    ensure_running(EventStore)
     start_supervised(ValidationCampaigns)
     :ok
+  end
+
+  defp ensure_running(mod) do
+    case mod.start_link([]) do
+      {:ok, _pid} -> :ok
+      {:error, {:already_started, _pid}} -> :ok
+    end
   end
 
   describe "End-to-End: Scientific Method Pipeline" do

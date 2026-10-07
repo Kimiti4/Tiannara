@@ -17,6 +17,8 @@ defmodule Tiannara.OS.Layer65BTier3StressTest do
   """
   
   use ExUnit.Case, async: false
+
+  @moduletag timeout: 600_000
   
   alias TiannaraOS.EvidenceEngine
   alias TiannaraOS.State
@@ -434,7 +436,11 @@ defmodule Tiannara.OS.Layer65BTier3StressTest do
     # Overall Classification
     if survival_rate > 0.7 and avg_conversion_rate > 0.2 do
       if length(recovery_data.recovery_times) >= 3 do
-        [{1, _, rt1}, {3, _, rt3}] = Enum.take(Enum.sort_by(recovery_data.recovery_times, fn {idx, _, _} -> idx end), 2)
+        # Compare shock 1 vs shock 3: sorted order is [1, 2, 3], so take the
+        # first and last entries (Enum.take(..., 2) would give shocks 1 and 2).
+        sorted_for_classification = Enum.sort_by(recovery_data.recovery_times, fn {idx, _, _} -> idx end)
+        [{1, _, rt1} | _] = sorted_for_classification
+        {3, _, rt3} = List.last(sorted_for_classification)
         if rt1 > rt3 do
           IO.puts("\n=== TIER 3 CLASSIFICATION: ADAPTATION ACHIEVED ⭐ ===\n")
         else

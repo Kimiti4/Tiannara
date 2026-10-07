@@ -20,7 +20,9 @@ defmodule Tiannara.World.UnifiedWorldModel do
                   :capability_entity,
                   :knowledge_entity,
                   :event_entity,
-                  :constraint_entity
+                  :constraint_entity,
+                  :observation,
+                  :experimental_result
                 ] ++ @canonical_types
 
   @relationship_types [
@@ -265,7 +267,13 @@ defmodule Tiannara.World.UnifiedWorldModel do
                context
              ) do
           {:ok, mutation_id} ->
-            new_attrs = Map.merge(Map.get(current, :attributes, %{}) || %{}, updates)
+            {nested_attrs, flat_updates} = Map.pop(updates, :attributes, %{})
+
+            new_attrs =
+              (Map.get(current, :attributes, %{}) || %{})
+              |> Map.merge(flat_updates)
+              |> Map.merge(nested_attrs || %{})
+
             new_conf = Map.get(updates, :confidence, current.confidence)
 
             updated = %{
@@ -306,12 +314,11 @@ defmodule Tiannara.World.UnifiedWorldModel do
                context
              ) do
           {:ok, mutation_id} ->
-            refuted = %{
+            refuted =
               current
-              | status: :refuted,
-                refutation_reason: reason,
-                updated_at: DateTime.utc_now()
-            }
+              |> Map.put(:status, :refuted)
+              |> Map.put(:refutation_reason, reason)
+              |> Map.put(:updated_at, DateTime.utc_now())
 
             UnifiedRealityGraph.add_entity(refuted)
 

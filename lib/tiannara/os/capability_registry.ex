@@ -17,6 +17,13 @@ defmodule TiannaraOS.CapabilityRegistry do
   @selection_decay_rate 0.01
   @extinction_threshold 0.05
 
+  # World capability names are capability-centric while domain vectors are
+  # domain-centric. These aliases bridge the two naming conventions.
+  @domain_capability_aliases %{
+    energy: :energy_generation,
+    materials: :materials_science
+  }
+
   @doc """
   Get all capabilities available in a world.
   """
@@ -28,6 +35,9 @@ defmodule TiannaraOS.CapabilityRegistry do
 
   @doc """
   Register a discovery, mutating the program's capability graph.
+
+  Discoveries produced outside of a research program (world-level findings)
+  are recorded directly in the origin world's capability registry.
   """
   @spec register_discovery(State.t(), Discovery.t()) :: State.t()
   def register_discovery(%State{} = state, %Discovery{} = discovery) do
@@ -77,8 +87,9 @@ defmodule TiannaraOS.CapabilityRegistry do
           cond do
             Map.has_key?(world_caps, cap_id) -> 
               Map.update(m_acc, :rediscovery_direct, 1, &(&1 + 1))
-            Enum.any?(world_caps, fn {_, w_node} -> 
-              Map.keys(w_node.domain_vector) == Map.keys(node.domain_vector)
+            Enum.any?(world_caps, fn {_cap_id, w_node} ->
+              is_map(w_node) and
+                Map.keys(Map.get(w_node, :domain_vector) || %{}) == Map.keys(node.domain_vector)
             end) ->
               Map.update(m_acc, :rediscovery_convergent, 1, &(&1 + 1))
             true ->
@@ -98,12 +109,15 @@ defmodule TiannaraOS.CapabilityRegistry do
       
       %{state | research_programs: updated_programs, metadata: meta}
     else
-      state
+      extract_world_capabilities(state, discovery)
     end
   end
 
   @doc """
-  Check if a discovery's capability prerequisites are satisfied by the program.
+  Check if a discovery's capability prerequisites are satisfied.
+
+  Programs are checked against their own capability graph, while world-level
+  discoveries are checked against the origin world's capability registry.
   """
   @spec check_capability_prerequisites(State.t(), Discovery.t()) :: {:ok, map()} | {:blocked, [atom()]}
   def check_capability_prerequisites(%State{} = state, %Discovery{} = discovery) do
@@ -134,9 +148,119 @@ defmodule TiannaraOS.CapabilityRegistry do
         {:blocked, Enum.map(missing, fn {cap, _} -> cap end)}
       end
     else
-      {:blocked, [:no_program]}
+      check_world_capability_prerequisites(state, discovery)
     end
   end
+
+  @doc """
+  Computes how much harder a discovery is because of capability gaps.
+
+  Returns a multiplier where 1.0 means the origin world already holds every
+  required capability and larger values reflect larger missing levels.
+  """
+  @spec calculate_difficulty(State.t(), Discovery.t()) :: float()
+  def calculate_difficulty(%State{} = state, %Discovery{} = discovery) do
+    world_caps = get_world_capabilities(state, discovery.origin_world_id)
+
+    gap =
+      infer_required_capabilities(discovery)
+      |> Enum.reduce(0.0, fn {domain, required_level}, acc ->
+        acc + max(0.0, required_level - capability_value(Map.get(world_caps, capability_name(domain))))
+      end)
+
+    1.0 + gap
+  end
+
+  @doc """
+  Merges the capability registries of several worlds, keeping the best level
+  recorded for each capability.
+  """
+  @spec merge_world_capabilities(State.t(), [atom()]) :: map()
+  def merge_world_capabilities(%State{} = state, world_ids) when is_list(world_ids) do
+    world_ids
+    |> Enum.map(&get_world_capabilities(state, &1))
+    |> Enum.reduce(%{}, fn caps, acc ->
+      Map.merge(acc, caps, fn _name, level1, level2 -> best_capability(level1, level2) end)
+    end)
+  end
+
+  @doc """
+  Renders a capability registry as a readable summary block.
+  """
+  @spec summarize_capabilities(map()) :: String.t()
+  def summarize_capabilities(capabilities) when is_map(capabilities) do
+    lines =
+      capabilities
+      |> Enum.sort_by(fn {name, _level} -> to_string(name) end)
+      |> Enum.map(fn {name, level} -> "  #{name}: #{format_capability_level(level)}" end)
+
+    Enum.join(["=== Civilization Capabilities ===" | lines], "\n")
+  end
+
+  # --- WORLD-LEVEL CAPABILITY HELPERS ---
+
+  defp extract_world_capabilities(%State{} = state, %Discovery{} = discovery) do
+    world = Map.get(state.worlds || %{}, discovery.origin_world_id)
+
+    if world do
+      extracted =
+        Map.get(discovery.metadata || %{}, :domain_vector, %{})
+        |> Enum.filter(fn {_domain, weight} -> weight >= @capability_unlock_threshold end)
+
+      updated_caps =
+        Enum.reduce(extracted, world.capabilities || %{}, fn {domain, weight}, acc ->
+          Map.update(acc, capability_name(domain), weight, fn existing ->
+            case existing do
+              level when is_number(level) -> max(level * 1.0, weight)
+              %{efficiency: _} -> existing
+              _ -> weight
+            end
+          end)
+        end)
+
+      updated_world = Map.put(world, :capabilities, updated_caps)
+      %{state | worlds: Map.put(state.worlds, discovery.origin_world_id, updated_world)}
+    else
+      state
+    end
+  end
+
+  defp check_world_capability_prerequisites(%State{} = state, %Discovery{} = discovery) do
+    world_caps = get_world_capabilities(state, discovery.origin_world_id)
+
+    gaps =
+      infer_required_capabilities(discovery)
+      |> Enum.into(%{}, fn {domain, required_level} ->
+        name = capability_name(domain)
+        {name, max(0.0, required_level - capability_value(Map.get(world_caps, name)))}
+      end)
+
+    missing =
+      gaps
+      |> Enum.filter(fn {_name, gap} -> gap > 0.0 end)
+      |> Enum.map(fn {name, _gap} -> name end)
+
+    if Enum.empty?(missing) do
+      {:ok, gaps}
+    else
+      {:blocked, missing}
+    end
+  end
+
+  defp capability_name(domain) do
+    Map.get(@domain_capability_aliases, domain, domain)
+  end
+
+  defp capability_value(level) when is_number(level), do: level * 1.0
+  defp capability_value(%{efficiency: efficiency}) when is_number(efficiency), do: efficiency * 1.0
+  defp capability_value(_), do: 0.0
+
+  defp best_capability(level1, level2) do
+    if capability_value(level1) >= capability_value(level2), do: level1, else: level2
+  end
+
+  defp format_capability_level(level) when is_number(level), do: to_string(level)
+  defp format_capability_level(level), do: inspect(level)
 
   # ============================================================================
   # Internal Engine
@@ -396,10 +520,15 @@ defmodule TiannaraOS.CapabilityRegistry do
       |> Enum.into(%{})
   end
   
+  @doc """
+  Lists the capability names unlocked by a discovery's domain vector.
+  """
+  @spec get_unlocked_capabilities(Discovery.t()) :: [atom()]
   def get_unlocked_capabilities(%Discovery{} = discovery) do
-    # Fallback for old tests if needed
-    domain_vector = Map.get(discovery.metadata, :domain_vector, %{})
-    domain_vector |> Map.keys()
+    Map.get(discovery.metadata, :domain_vector, %{})
+    |> Enum.filter(fn {_domain, weight} -> weight >= @capability_unlock_threshold end)
+    |> Enum.map(fn {domain, _weight} -> capability_name(domain) end)
+    |> Enum.uniq()
   end
 
   @doc """

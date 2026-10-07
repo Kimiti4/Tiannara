@@ -31,10 +31,10 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryTransfer do
 
   @spec record_result(map(), map()) :: {:ok, map()} | {:error, term()}
   def record_result(transfer, result) when is_map(transfer) and is_map(result) do
-    with :ok <- require(transfer, :transfer_id),
-         :ok <- require(transfer, :source_evidence_id),
-         :ok <- require(result, :scenario_id),
-         :ok <- require(result, :outcome),
+    with :ok <- require_key(transfer, :transfer_id),
+         :ok <- require_key(transfer, :source_evidence_id),
+         :ok <- require_key(result, :scenario_id),
+         :ok <- require_key(result, :outcome),
          :ok <- validate_outcome(result.outcome) do
       {:ok, %{
         transfer_id: transfer.transfer_id,
@@ -65,7 +65,7 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryTransfer do
     if is_binary(Map.get(target, :world_id)), do: :ok, else: {:error, :target_world_required}
   end
 
-  defp require(map, key), do: if(Map.has_key?(map, key), do: :ok, else: {:error, {:missing_field, key}})
+  defp require_key(map, key), do: if(Map.has_key?(map, key), do: :ok, else: {:error, {:missing_field, key}})
   defp validate_outcome(value) when value in [:supported, :refuted, :inconclusive, :mixed], do: :ok
   defp validate_outcome(_), do: {:error, :invalid_transfer_outcome}
 end

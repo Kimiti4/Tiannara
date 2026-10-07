@@ -7,14 +7,16 @@ defmodule Tiannara.Forecasting.ForecastIntegrity do
   decision or research systems.
   """
 
-  alias Tiannara.Forecasting.Forecast
+  alias Tiannara.Forecasting.Contracts.Forecast
 
   def audit(%Forecast{} = forecast) do
     checks = %{
-      forecast_valid: match?({:ok, _}, Forecast.validate(forecast)),
+      forecast_valid: match?({:ok, _}, Tiannara.Forecasting.Forecast.validate(forecast)),
       probabilities_known_or_explicitly_unknown:
         forecast.probabilities in [:unknown, nil] or is_list(forecast.probabilities),
-      confidence_separate_from_probability: forecast.confidence != forecast.probability,
+      confidence_separate_from_probability:
+        is_nil(forecast.confidence) or is_nil(forecast.probability) or
+          forecast.confidence != forecast.probability,
       uncertainty_declared: not is_nil(forecast.uncertainty),
       assumptions_declared: is_list(forecast.assumptions),
       provenance_present: is_map(forecast.provenance) or is_nil(forecast.provenance),

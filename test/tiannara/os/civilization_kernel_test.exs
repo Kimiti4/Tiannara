@@ -69,12 +69,12 @@ defmodule TiannaraOS.CivilizationKernelTest do
     end
   end
 
-  test "Dynamic world spawning and verification for :robotics and :mathematics" do
+  test "Dynamic world spawning and verification for :robotics and :computation" do
     assert {:ok, %World{} = world_rob} = WorldManager.spawn_world(:robotics, tenant_id: "default_tenant")
     assert world_rob.template_id == :robotics
 
-    assert {:ok, %World{} = world_math} = WorldManager.spawn_world(:mathematics, tenant_id: "default_tenant")
-    assert world_math.template_id == :mathematics
+    assert {:ok, %World{} = world_math} = WorldManager.spawn_world(:computation, tenant_id: "default_tenant")
+    assert world_math.template_id == :computation
   end
 
   test "Tenant isolation violation is blocked" do

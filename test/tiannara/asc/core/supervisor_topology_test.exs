@@ -2,7 +2,10 @@ defmodule Tiannara.ASC.Core.SupervisorTopologyTest do
   use ExUnit.Case, async: true
 
   test "starts the registry, metrics, and telemetry children" do
-    {:ok, _pid} = start_supervised(Tiannara.ASC.Core.Supervisor)
+    case Process.whereis(Tiannara.ASC.Core.Supervisor) do
+      nil -> {:ok, _pid} = start_supervised(Tiannara.ASC.Core.Supervisor)
+      _running -> :ok
+    end
 
     children = Supervisor.which_children(Tiannara.ASC.Core.Supervisor)
     child_modules = Enum.map(children, &elem(&1, 0))

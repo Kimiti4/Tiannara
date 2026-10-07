@@ -608,10 +608,9 @@ defmodule TiannaraOS.InstitutionalMemory do
     decay_factor = :math.exp(-decay_rate * age)
     decayed_confidence = wisdom.confidence * decay_factor
     
-    %{wisdom |
-      confidence: Float.round(decayed_confidence, 3),
-      aged_ticks: age
-    }
+    wisdom
+    |> Map.put(:confidence, Float.round(decayed_confidence, 3))
+    |> Map.put(:aged_ticks, age)
   end
   
   @doc """
@@ -668,7 +667,7 @@ defmodule TiannaraOS.InstitutionalMemory do
       total_warnings_issued: total_warnings,
       accurate_warnings: accurate_warnings,
       warning_accuracy: accuracy,
-      last_calculated_tick: (List.last(outcome_data) || %{}).tick || 0
+      last_calculated_tick: Map.get(List.last(outcome_data) || %{}, :tick) || 0
     }
   end
   

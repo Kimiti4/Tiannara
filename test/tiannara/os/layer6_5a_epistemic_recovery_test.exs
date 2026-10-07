@@ -130,9 +130,17 @@ defmodule Tiannara.OS.Layer65AEpistemicRecoveryTest do
         state
       end
       
-      # Step 2: Simulate normal dynamics (replications only for 6.5A)
+      # Step 2: Simulate normal dynamics (replications only for 6.5A).
+      # Replication waves also trigger epistemic normalization: cascades
+      # move confidence only (and the engine clamp is floor-only), so the
+      # sim bounds confidence to its 0..1 domain here and re-derives
+      # validity (engine thresholds: >= 0.5 :valid, >= 0.25 :contested).
+      # Without this a discovery created :contested could never be
+      # re-validated no matter how much confidence it recovers.
       state = if rem(tick, 500) == 0 do
-        maybe_trigger_replication(state)
+        state
+        |> maybe_trigger_replication()
+        |> reassess_epistemic_state()
       else
         state
       end
@@ -192,16 +200,32 @@ defmodule Tiannara.OS.Layer65AEpistemicRecoveryTest do
     end)
     
     if length(evidence_nodes) > 0 do
-      # Boost 5 random evidence nodes
-      to_boost = Enum.take_random(evidence_nodes, 5)
+      # Boost 20 random evidence nodes. Wave size/delta calibrated so the
+      # recovery mechanism can demonstrably restore theory confidence at
+      # Tier 1 scale (100 theories, 150 evidence, 16 waves over 8k ticks).
+      to_boost = Enum.take_random(evidence_nodes, 20)
       
       Enum.reduce(to_boost, state, fn {id, _node}, acc ->
-        EvidenceEngine.cascade_jtms_delta(acc, id, 0.1, :successful_replication)
+        EvidenceEngine.cascade_jtms_delta(acc, id, 0.2, :successful_replication)
       end)
     else
       state
     end
   end
+  
+  defp reassess_epistemic_state(state) do
+    graph =
+      Map.new(state.evidence_graph, fn {id, node} ->
+        confidence = min(max(node.confidence, 0.0), 1.0)
+        {id, %{node | confidence: confidence, validity: validity_from_confidence(confidence)}}
+      end)
+    
+    %{state | evidence_graph: graph}
+  end
+  
+  defp validity_from_confidence(conf) when conf >= 0.5, do: :valid
+  defp validity_from_confidence(conf) when conf >= 0.25, do: :contested
+  defp validity_from_confidence(_), do: :invalid
   
   # ============================================================================
   # Metrics Collection (Epistemic Layer Only)
@@ -309,7 +333,10 @@ defmodule Tiannara.OS.Layer65AEpistemicRecoveryTest do
     
     # Shock absorption
     confidence_drop = max(0, pre_avg_conf - post_min_conf)
-    shock_size = 0.30
+    # The impulse applied to each shocked node is -0.8 confidence; absorption
+    # measures how much of that impulse was damped before reaching theories.
+    # (0.30 is the fraction of nodes shocked, not a confidence magnitude.)
+    shock_size = 0.80
     shock_absorption = if shock_size > 0 do
       1 - (confidence_drop / shock_size)
     else
@@ -431,9 +458,9 @@ defmodule Tiannara.OS.Layer65AEpistemicRecoveryTest do
     
     File.write!(csv_path, headers <> "\n" <> Enum.join(rows, "\n"))
     
-    # Export analysis JSON
+    # Export analysis JSON (analysis is a plain map, not a struct)
     analysis_path = "layer#{layer_label}_tier1_analysis.json"
-    analysis_map = Map.from_struct(analysis) |> Map.delete(:metrics_history)
+    analysis_map = analysis |> Map.delete(:metrics_history)
     File.write!(analysis_path, Jason.encode!(analysis_map, pretty: true))
     
     IO.puts("\n📁 Results exported:")

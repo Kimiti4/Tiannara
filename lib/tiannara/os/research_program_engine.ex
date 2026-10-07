@@ -49,8 +49,35 @@ defmodule TiannaraOS.ResearchProgramEngine do
   # Those values are now explicitly unavailable until the corresponding
   # executor/validator is connected.
 
-  defp advance_stage(stage, _program, _state, _now) do
-    {:error, {:research_capability_unavailable, stage}}
+  defp advance_stage(stage, program, _state, _now) do
+    # Budget is checked first: a program that cannot afford the stage attempt is
+    # suspended even while the downstream capability is still unavailable.
+    with :ok <- ensure_stage_budget(stage, program) do
+      {:error, {:research_capability_unavailable, stage}}
+    end
+  end
+
+  # Cost of attempting each stage (attention for planning, compute for running,
+  # credits for synthesis/packaging). Mirrors the stage transition costs.
+  @stage_costs %{
+    goal_generation: {:attention, 2.0},
+    hypothesis_generation: {:compute, 5.0},
+    experimentation: {:compute, 5.0},
+    evidence_synthesis: {:credits, 10.0},
+    discovery_candidate: {:credits, 0.0}
+  }
+
+  defp ensure_stage_budget(stage, program) do
+    case Map.get(@stage_costs, stage) do
+      nil ->
+        :ok
+
+      {key, amount} ->
+        case deduct_budget(program, key, amount) do
+          {:ok, _budgeted} -> :ok
+          {:error, reason} -> {:error, reason}
+        end
+    end
   end
 
   # --- BUDGET UTILITY ---

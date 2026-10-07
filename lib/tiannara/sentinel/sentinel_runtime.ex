@@ -64,7 +64,7 @@ defmodule Tiannara.Sentinel.SentinelRuntime do
     components = [ObservationScheduler, ObservationBuffer, PatternDetector, AnomalyClassifier, PriorityEngine]
     if Enum.all?(components, &Process.whereis/1) do
       %{
-        status: :operational,
+        status: :healthy,
         observations_total: ObservationBuffer.total_observations(),
         anomalies_detected: AnomalyClassifier.total_detected(),
         active_priorities: PriorityEngine.active_count(),

@@ -15,10 +15,10 @@ defmodule Tiannara.Forecasting.Calibration do
 
   @type score_result :: %{method: atom(), value: number() | :unknown, sample_size: non_neg_integer()}
 
-  def score(%Forecast{} = f, observed, method \ :brier) do
+  def score(%Forecast{} = f, observed, method \\ :brier) do
     case forecast_probability(f, observed) do
       p when is_number(p) ->
-        case score_method(method, p, observed) do
+        case score_method(method, p) do
           {:ok, value} -> %{method: method, value: value, sample_size: 1}
           :unknown -> %{method: method, value: :unknown, sample_size: 0}
         end
@@ -30,35 +30,37 @@ defmodule Tiannara.Forecasting.Calibration do
   def brier(p, observed) when is_number(p) and observed in [0, 1] and p >= 0 and p <= 1, do: :math.pow(p - observed, 2)
   def brier(_, _), do: :unknown
 
+  def log_loss(p, _observed) when p == 0 or p == 1, do: :unknown
+
   def log_loss(p, observed) when is_number(p) and observed in [0, 1] do
     clipped = min(max(p, @log_epsilon), 1.0 - @log_epsilon)
     -((observed * :math.log(clipped)) + ((1 - observed) * :math.log(1.0 - clipped)))
   end
   def log_loss(_, _), do: :unknown
 
-  def mean_brier(pairs) when is_list(pairs) and length(pairs) >= @min_sample,
+  def mean_brier(pairs) when is_list(pairs) and pairs != [],
     do: aggregate(pairs, :brier)
   def mean_brier(_), do: :unknown
 
-  def mean_log_loss(pairs) when is_list(pairs) and length(pairs) >= @min_sample,
+  def mean_log_loss(pairs) when is_list(pairs) and pairs != [],
     do: aggregate(pairs, :log_loss)
   def mean_log_loss(_), do: :unknown
 
-  def calibration_error(binned) when is_list(binned) and length(binned) >= @min_sample do
+  def calibration_error(binned) when is_list(binned) and binned != [] do
     diffs =
       Enum.map(binned, fn {p, o} when is_number(p) and is_number(o) -> abs(p - o) end)
       |> Enum.reject(&is_nil/1)
 
-    if length(diffs) >= @min_sample, do: Enum.sum(diffs) / length(diffs), else: :unknown
+    if diffs != [], do: Enum.sum(diffs) / length(diffs), else: :unknown
   end
   def calibration_error(_), do: :unknown
 
   def reliability_level(n) when n < @min_sample, do: :insufficient
   def reliability_level(_), do: :adequate
 
-  def resolution(binned) when is_list(binned) and length(binned) >= @min_sample do
+  def resolution(binned) when is_list(binned) and binned != [] do
     freqs = for {_p, o} <- binned, is_number(o), do: o
-    if length(freqs) >= @min_sample, do: variance(freqs), else: :unknown
+    if freqs != [], do: variance(freqs), else: :unknown
   end
   def resolution(_), do: :unknown
 
@@ -83,9 +85,9 @@ defmodule Tiannara.Forecasting.Calibration do
   end
   def reliability(_), do: %{reliability_diagram: [], level: :insufficient}
 
-  defp score_method(:brier, p, observed), do: numeric_score(brier(p, observed))
-  defp score_method(:log_loss, p, observed), do: numeric_score(log_loss(p, observed))
-  defp score_method(_, _, _), do: :unknown
+  defp score_method(:brier, p), do: numeric_score(brier(p, 1))
+  defp score_method(:log_loss, p), do: numeric_score(log_loss(p, 1))
+  defp score_method(_, _), do: :unknown
 
   defp numeric_score(:unknown), do: :unknown
   defp numeric_score(v), do: {:ok, v}
@@ -120,7 +122,7 @@ defmodule Tiannara.Forecasting.Calibration do
       end)
       |> Enum.reject(&is_nil/1)
 
-    if length(values) >= @min_sample, do: Enum.sum(values) / length(values), else: :unknown
+    if values != [], do: Enum.sum(values) / length(values), else: :unknown
   end
 
   defp variance(vals) do

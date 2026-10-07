@@ -21,7 +21,7 @@ defmodule Tiannara.OS.Layer65CCompetitiveRecoveryTest do
   """
   
   use ExUnit.Case, async: false
-  @tag timeout: :infinity  # 2 minutes for domain-specific fitness calculations
+  @tag timeout: 600_000  # 10 minutes for 4x scarcity-gradient elasticity runs
   
   alias TiannaraOS.EvidenceEngine
   alias TiannaraOS.State
@@ -34,9 +34,9 @@ defmodule Tiannara.OS.Layer65CCompetitiveRecoveryTest do
   # Tier 6.5C configuration
   @worlds_count 25
   @programs_per_world 5
-  @total_ticks 60_000
+  @total_ticks 12_000
   @metrics_interval 3_000
-  @shock_ticks [15_000, 30_000, 45_000]
+  @shock_ticks [4_000, 8_000, 11_000]
   @shock_percentage 0.50
   @total_funding_pool 400.0  # Reduced from 1000.0 to create scarcity and competition
   

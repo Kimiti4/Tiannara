@@ -33,7 +33,43 @@ defmodule TiannaraOS.DiscoveryDependencyGraph do
   
   # Minimum breakthrough probability even with missing prereqs
   @breakthrough_probability 0.1
-  
+
+  @doc """
+  Creates an empty dependency graph.
+
+  The graph maps each discovery id to the discovery ids that must exist first.
+
+  ## Examples
+
+      iex> DiscoveryDependencyGraph.new()
+      %{}
+  """
+  @spec new() :: %{optional(atom()) => [atom()]}
+  def new do
+    %{}
+  end
+
+  @doc """
+  Records that a discovery depends on a set of prerequisite discoveries.
+
+  ## Parameters
+
+  - `graph`: dependency graph returned by `new/0`
+  - `discovery`: discovery id that becomes available once its prerequisites exist
+  - `prerequisites`: discovery ids required before `discovery`
+
+  ## Returns
+
+  Updated dependency graph.
+  """
+  @spec add_dependency(map(), atom(), [atom()]) :: map()
+  def add_dependency(graph, discovery, prerequisites) when is_map(graph) and is_list(prerequisites) do
+    Map.update(graph, discovery, prerequisites, fn existing ->
+      Enum.uniq(prerequisites ++ existing)
+    end)
+  end
+
+
   @doc """
   Check if a discovery's prerequisites are satisfied.
   

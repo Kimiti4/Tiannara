@@ -154,7 +154,13 @@ defmodule Tiannara.ToolForge.ToolForgeTest do
         constraints: %{internal: true}
       })
 
-      {:ok, tool} = Tiannara.ToolForge.ToolForgeEngine.engineer_tool(need)
+      # ToolForge cannot deploy without human approval (3bf4a212): a
+      # generated tool is handed back as pending review, never as a
+      # silently-approved deployment.
+      {:pending_human_review, %{tool: tool, review: review}} =
+        Tiannara.ToolForge.ToolForgeEngine.engineer_tool(need)
+
+      assert review.status == :pending
       assert is_struct(tool, GeneratedTool)
       assert String.starts_with?(tool.name, "tool_")
     end

@@ -4,7 +4,11 @@ defmodule Tiannara.Research.DirectorTest do
   alias Tiannara.Research.Director
 
   setup do
-    start_supervised!(Tiannara.Research.Director)
+    case Process.whereis(Tiannara.Research.Director) do
+      nil -> start_supervised!(Tiannara.Research.Director)
+      _pid -> :ok
+    end
+
     start_supervised!(TiannaraOS.UnknownRegistry)
 
     TiannaraOS.UnknownRegistry.register(%{

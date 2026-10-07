@@ -39,6 +39,9 @@ defmodule TiannaraOS.ToolRuntime do
             Logger.error("🚨 [Tool Runtime] Trapped exit/throw: #{inspect({kind, reason})}")
             {:error, {:runtime_crash, reason}}
         end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

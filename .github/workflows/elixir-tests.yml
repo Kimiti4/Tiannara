@@ -1,0 +1,53 @@
+name: Elixir Tests
+
+# Dedicated Elixir test gate for the remediation line.
+#
+# Rationale: the legacy workflows either do not trigger on remediation/**
+# (test.yml / ci-cd.yml / phase_5f2_tests.yml branch filters), gate on
+# `mix compile --warnings-as-errors` that is red pre-existing on the release
+# branch (final-product.yml), or only compile (cross_platform_verify.yml).
+# This workflow gives the branch a green-able `mix test` signal.
+
+on:
+  push:
+    branches: [ "remediation/**" ]
+  workflow_dispatch:
+
+env:
+  ELIXIR_VERSION: "1.18"
+  OTP_VERSION: "27"
+
+jobs:
+  mix-test:
+    name: mix test (full suite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir ${{ env.ELIXIR_VERSION }} / OTP ${{ env.OTP_VERSION }}
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Restore Mix dependency cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles('mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-
+
+      - name: Install Mix dependencies
+        run: mix deps.get
+
+      - name: Compile project
+        run: mix compile
+
+      - name: Run test suite
+        run: mix test

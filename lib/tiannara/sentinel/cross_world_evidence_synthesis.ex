@@ -123,7 +123,6 @@ defmodule Tiannara.Sentinel.CrossWorldEvidenceSynthesis do
     |> Enum.reject(&(&1 == %{}))
     |> Enum.uniq()
   end
-end
 
   defp synthesis_outcome(:supported_under_tested_conditions), do: :supported
   defp synthesis_outcome(:refuted_under_tested_conditions), do: :refuted

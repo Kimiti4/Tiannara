@@ -1,4 +1,4 @@
-defmodule Tiannara.Forecasting.ForecastEngineTest do
+defmodule Tiannara.Forecasting.ForecastHardeningTest do
   use ExUnit.Case, async: true
   alias Tiannara.Forecasting.{Baseline, Backtest, ReferenceClass}
 

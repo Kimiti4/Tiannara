@@ -17,11 +17,24 @@ defmodule Tiannara.Forecasting.FeaturesTest do
   end
 
   test "model comparison measures against the same actual outcomes" do
-    model = [%{prediction: 10, actual: [11]}, %{prediction: 20, actual: [18]}]
-    baseline = [%{prediction: 8, actual: [11]}, %{prediction: 21, actual: [18]}]
+    model = [
+      %{prediction: 10, actual: [11]},
+      %{prediction: 20, actual: [18]},
+      %{prediction: 30, actual: [32]},
+      %{prediction: 40, actual: [38]},
+      %{prediction: 50, actual: [55]}
+    ]
+
+    baseline = [
+      %{prediction: 8, actual: [11]},
+      %{prediction: 21, actual: [18]},
+      %{prediction: 28, actual: [32]},
+      %{prediction: 42, actual: [38]},
+      %{prediction: 47, actual: [55]}
+    ]
 
     assert {:ok, report} = ModelComparison.compare(model, baseline)
-    assert report.pairs == 2
+    assert report.pairs == 5
     assert report.status == :comparison_only
     assert report.acceptance == :requires_independent_review
   end

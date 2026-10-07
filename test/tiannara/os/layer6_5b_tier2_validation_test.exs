@@ -17,6 +17,8 @@ defmodule Tiannara.OS.Layer65BTier2ValidationTest do
   """
   
   use ExUnit.Case, async: false
+
+  @moduletag timeout: 600_000
   
   alias TiannaraOS.EvidenceEngine
   alias TiannaraOS.State

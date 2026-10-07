@@ -146,7 +146,7 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryExperiment do
   end
 
   defp normalize_result(scenario, outcome) do
-    with :ok <- require(outcome, :outcome),
+    with :ok <- require_key(outcome, :outcome),
          :ok <- validate_outcome(outcome.outcome) do
       {:ok, %{
         scenario_id: scenario.scenario_id,
@@ -201,10 +201,10 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryExperiment do
   defp outcome_status(:mixed), do: :inconclusive
 
   defp validate_transfer(transfer) do
-    with :ok <- require(transfer, :transfer_id),
-         :ok <- require(transfer, :source_evidence_id),
-         :ok <- require(transfer, :target_world_id),
-         :ok <- require(transfer, :theory) do
+    with :ok <- require_key(transfer, :transfer_id),
+         :ok <- require_key(transfer, :source_evidence_id),
+         :ok <- require_key(transfer, :target_world_id),
+         :ok <- require_key(transfer, :theory) do
       if transfer[:certification_eligible] == false,
         do: :ok,
         else: {:error, :transfer_must_remain_non_certifying}
@@ -229,7 +229,7 @@ defmodule Tiannara.Sentinel.CrossWorldTheoryExperiment do
   defp require_executor(executor) when is_function(executor, 1), do: :ok
   defp require_executor(_), do: {:error, :cross_world_executor_unavailable}
 
-  defp require(map, key), do: if(Map.has_key?(map, key), do: :ok, else: {:error, {:missing_field, key}})
+  defp require_key(map, key), do: if(Map.has_key?(map, key), do: :ok, else: {:error, {:missing_field, key}})
   defp validate_outcome(value) when value in [:supported, :refuted, :inconclusive, :mixed], do: :ok
   defp validate_outcome(_), do: {:error, :invalid_transfer_outcome}
 end
