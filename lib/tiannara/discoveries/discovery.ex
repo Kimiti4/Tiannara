@@ -63,7 +63,7 @@ defmodule Tiannara.Discoveries.Discovery do
   @doc """
   Evaluates promotion thresholds based on evidence and confidence.
   """
-  def promote(%__MODULE__{}, _evidence \\ %{}) do
+  def promote(%__MODULE__{}) do
     {:error, :promotion_requires_lineage}
   end
 
