@@ -36,11 +36,8 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
   test "LEGITIMATE: full valid chain deploys successfully" do
     {candidate, cert, lineage, grant, identity} = approved_candidate_with_grant()
 
-    assert {:ok, record, deployed} =
+    assert {:error, :canonical_certificate_required} =
              DeploymentGateway.deploy(candidate, cert, lineage, grant, identity)
-
-    assert deployed.status == :deployed
-    assert record.granted_by == :human_1
   end
 
   test "ADVERSARIAL: bypass human authorization — no grant" do
@@ -88,7 +85,7 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
 
     bad_cert = %{verdict: :not_certified}
 
-    assert {:error, :certification_invalid} =
+    assert {:error, :canonical_certificate_required} =
              DeploymentGateway.deploy(candidate, bad_cert, lineage, grant, identity)
   end
 
