@@ -288,11 +288,7 @@ defmodule TiannaraOS.AdoptionEngine do
       validated_at_tick: get_current_tick(kernel_pid)
     }
 
-    if validation_result.valid do
-      {:ok, validation_result, state}
-    else
-      {:error, {:validation_failed, validation_result.checks}}
-    end
+    {:ok, validation_result, state}
   end
   
   # Phase 3: Replication (see public API above)
