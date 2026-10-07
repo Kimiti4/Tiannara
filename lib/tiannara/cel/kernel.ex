@@ -46,7 +46,7 @@ defmodule Tiannara.CEL.Kernel do
             fn spec -> start_service(spec, state.dyn_sup) end,
             fn spec -> check_health(spec) end,
             fn spec -> check_constitutional_score(spec) end,
-            fn _spec -> :sufficient end
+            fn spec -> check_resources(spec) end
           )
 
         new_state =
@@ -76,7 +76,22 @@ defmodule Tiannara.CEL.Kernel do
   @impl true
   def handle_call({:transition, new_state}, _from, state) do
     if RuntimeStates.valid_transition?(state.runtime_state, new_state) do
-      {:reply, :ok, transition_state(state, new_state)}
+      authorization =
+        Council.authorize(:architectural_change, %{
+          action: :kernel_state_transition,
+          from: state.runtime_state,
+          to: new_state
+        })
+
+      case authorization do
+        %Authorization{decision: d} when d in [:approved, :conditional] ->
+          next = transition_state(state, new_state)
+          log_to_council(:kernel_state_transition, %{from: state.runtime_state, to: new_state})
+          {:reply, :ok, next}
+
+        %Authorization{} = auth ->
+          {:reply, {:error, :council_denied, auth.explanation}, state}
+      end
     else
       {:reply, {:error, {:invalid_transition, state.runtime_state, new_state}}, state}
     end
@@ -133,12 +148,24 @@ defmodule Tiannara.CEL.Kernel do
     end
   end
 
+  defp check_resources(spec) do
+    try do
+      case Map.get(spec, :resource_check) do
+        fun when is_function(fun, 0) -> fun.()
+        nil -> :insufficient
+        _ -> :insufficient
+      end
+    catch
+      _, _ -> :insufficient
+    end
+  end
+
   defp check_constitutional_score(spec) do
     {mod, fun, args} = spec.constitutional_score_check
     try do
       apply(mod, fun, args)
     catch
-      _, _ -> ConstitutionalScore.default(spec.id)
+      kind, reason -> {:error, {:constitutional_score_unavailable, kind, reason}}
     end
   end
 

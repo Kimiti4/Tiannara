@@ -11,7 +11,8 @@ defmodule TiannaraRuntime.Omega.RuntimeHealthEngine do
     EventStoreAudit,
     ExecutiveMemory,
     FailureObservatory,
-    SentinelEventBus
+    SentinelEventBus,
+    Heartbeat
   }
 
   @default_interval 5_000
@@ -54,7 +55,10 @@ defmodule TiannaraRuntime.Omega.RuntimeHealthEngine do
       failure_observatory: alive?(FailureObservatory),
       dependency_isolation: alive?(DependencyIsolation),
       checkpoint_reliability: alive?(CheckpointReliability),
-      event_store_audit: alive?(EventStoreAudit)
+      event_store_audit: alive?(EventStoreAudit),
+      heartbeat: alive?(Heartbeat),
+      safety_cortex: alive?(TiannaraRuntime.Cortex.SafetyCortex),
+      immune_cortex: alive?(TiannaraRuntime.Cortex.ImmuneCortex)
     }
 
     degraded = processes |> Enum.any?(fn {_name, alive} -> not alive end)
@@ -72,7 +76,10 @@ defmodule TiannaraRuntime.Omega.RuntimeHealthEngine do
       checkpoint_reliability: safe_call(CheckpointReliability, :status, []),
       event_store_audit: safe_call(EventStoreAudit, :status, []),
       dependency_isolation: safe_call(DependencyIsolation, :status, []),
-      failure_observatory: safe_call(FailureObservatory, :report, [])
+      failure_observatory: safe_call(FailureObservatory, :report, []),
+      heartbeat: safe_call(Heartbeat, :status, []),
+      safety_cortex: component_status(TiannaraRuntime.Cortex.SafetyCortex),
+      immune_cortex: component_status(TiannaraRuntime.Cortex.ImmuneCortex)
     }
   end
 
@@ -81,6 +88,10 @@ defmodule TiannaraRuntime.Omega.RuntimeHealthEngine do
       nil -> false
       pid -> Process.alive?(pid)
     end
+  end
+
+  defp component_status(module) do
+    if alive?(module), do: %{status: :operational}, else: %{status: :unavailable}
   end
 
   defp safe_call(module, fun, args) do

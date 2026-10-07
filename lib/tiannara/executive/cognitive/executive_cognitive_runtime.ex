@@ -57,13 +57,18 @@ defmodule Tiannara.Executive.Cognitive.ExecutiveCognitiveRuntime do
   @doc "Returns runtime health for Sentinel integration."
   @spec health() :: map()
   def health do
-    %{
-      status: :healthy,
-      uptime_seconds: HeartbeatEngine.uptime_seconds(),
-      cycles_completed: ExecutiveCycle.cycles_completed(),
-      last_reflection: ReflectionEngine.last_reflection(),
-      active_attentions: AttentionScheduler.active_count()
-    }
+    components = [HeartbeatEngine, ExecutiveCycle, ContextManager, AttentionScheduler, WorkingMemory, ReflectionEngine, ExecutiveBlackboard]
+    if Enum.all?(components, &Process.whereis/1) do
+      %{
+        status: :operational,
+        uptime_seconds: HeartbeatEngine.uptime_seconds(),
+        cycles_completed: ExecutiveCycle.cycles_completed(),
+        last_reflection: ReflectionEngine.last_reflection(),
+        active_attentions: AttentionScheduler.active_count()
+      }
+    else
+      %{status: :unavailable, reason: :executive_component_not_running}
+    end
   end
 
   @impl true

@@ -150,19 +150,19 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
 
   @impl true
   def handle_cast({:world_metrics, world_id, metrics}, state) do
-    # Layer 1: Predict instability
-    risk = predict_instability(metrics)
+    case predict_instability(metrics) do
+      {:ok, risk} ->
+        new_state =
+          state
+          |> put_in([:risk_cache, world_id], risk)
+          |> update_world_state(world_id, metrics, risk)
 
-    # Update state
-    new_state =
-      state
-      |> put_in([:risk_cache, world_id], risk)
-      |> update_world_state(world_id, metrics, risk)
+        {:noreply, route_intervention(new_state, world_id, metrics, risk)}
 
-    # Layer 2-4: Route to appropriate intervention
-    routed_state = route_intervention(new_state, world_id, metrics, risk)
-
-    {:noreply, routed_state}
+      {:error, reason} ->
+        Logger.warning("SafetyCortex rejecting incomplete metrics for #{inspect(world_id)}: #{inspect(reason)}")
+        {:noreply, state}
+    end
   end
 
   @impl true
@@ -195,11 +195,10 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
   def handle_cast({:emergency_escalation, world_id, reason}, state) do
     Logger.error("🚨 Emergency escalation for #{world_id}: #{reason}")
 
-    # Immediate freeze without prediction
-    freeze_world(world_id, :emergency_escalation)
+    # Request freeze without claiming that execution has already occurred.
+    freeze_result = freeze_world(world_id, :emergency_escalation)
 
-    # Log intervention
-    new_log = [{DateTime.utc_now(), world_id, :emergency_freeze, reason} | state.intervention_log]
+    new_log = [{DateTime.utc_now(), world_id, :emergency_freeze, %{reason: reason, status: freeze_result}} | state.intervention_log]
 
     {:noreply, %{state | intervention_log: Enum.take(new_log, 100)}}
   end
@@ -213,8 +212,10 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
 
   @impl true
   def handle_call({:get_risk, world_id}, _from, state) do
-    risk = Map.get(state.risk_cache, world_id, 0.0)
-    {:reply, {:ok, risk}, state}
+    case Map.fetch(state.risk_cache, world_id) do
+      {:ok, risk} -> {:reply, {:ok, risk}, state}
+      :error -> {:reply, {:error, :risk_not_assessed}, state}
+    end
   end
 
   @impl true
@@ -228,25 +229,28 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
   # ============================================================================
 
   defp predict_instability(metrics) do
-    # Calculate entropy growth rate (derivative approximation)
-    entropy_growth = Map.get(metrics, :entropy_growth_rate, 0.0)
+    with {:ok, entropy_growth} <- required_metric(metrics, :entropy_growth_rate),
+         {:ok, causal_stability} <- required_metric(metrics, :causal_stability),
+         {:ok, evolution_velocity} <- required_metric(metrics, :evolutionary_velocity) do
+      causal_breakage = if causal_stability < 0.4, do: 1.0, else: 0.0
+      evolution_spike = min(evolution_velocity / 3.0, 1.0)
 
-    # Check for causal breakage
-    causal_stability = Map.get(metrics, :causal_stability, 1.0)
-    causal_breakage = if causal_stability < 0.4, do: 1.0, else: 0.0
+      risk =
+        @weight_entropy_growth * entropy_growth +
+        @weight_causal_breakage * causal_breakage +
+        @weight_evolution_spike * evolution_spike
 
-    # Detect evolution velocity spikes
-    evolution_velocity = Map.get(metrics, :evolutionary_velocity, 0.0)
-    evolution_spike = min(evolution_velocity / 3.0, 1.0)
+      {:ok, max(0.0, min(1.0, risk))}
+    else
+      {:error, reason} -> {:error, {:incomplete_safety_telemetry, reason}}
+    end
+  end
 
-    # Weighted risk calculation
-    risk =
-      @weight_entropy_growth * entropy_growth +
-      @weight_causal_breakage * causal_breakage +
-      @weight_evolution_spike * evolution_spike
-
-    # Clamp to [0.0, 1.0]
-    max(0.0, min(1.0, risk))
+  defp required_metric(metrics, key) do
+    case Map.get(metrics, key, Map.get(metrics, Atom.to_string(key))) do
+      value when is_number(value) -> {:ok, value / 1.0}
+      _ -> {:error, {:missing_numeric_metric, key}}
+    end
   end
 
   # ============================================================================
@@ -273,8 +277,8 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
   defp escalate(state, world_id, risk) do
     Logger.warning("⚠️  Safety Cortex escalation: #{world_id} (risk: #{Float.round(risk, 3)})")
 
-    # Freeze world execution
-    freeze_world(world_id, :cortex_escalation)
+    # Request world freeze; execution must report the resulting effect separately.
+    freeze_result = freeze_world(world_id, :cortex_escalation)
     emit_constraint_signal(%ConstraintSignal{
       source: :safety_cortex,
       target_layer: :ecology,
@@ -292,7 +296,7 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
     })
 
     # Log intervention
-    new_log = [{DateTime.utc_now(), world_id, :escalation_freeze, "risk=#{risk}"} | state.intervention_log]
+    new_log = [{DateTime.utc_now(), world_id, :escalation_freeze, %{risk: risk, status: freeze_result}} | state.intervention_log]
 
     %{state | intervention_log: Enum.take(new_log, 100)}
   end
@@ -307,8 +311,9 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
     # Determine regulation strength based on risk level
     regulation_strength = calculate_regulation_strength(risk)
 
-    # Apply entropy damping
-    apply_entropy_dampening(world_id, regulation_strength)
+    intervention_id = intervention_id(world_id, :entropy_dampening)
+    regulation_result = apply_entropy_dampening(world_id, regulation_strength, intervention_id)
+
     emit_constraint_signal(%ConstraintSignal{
       source: :safety_cortex,
       target_layer: :execution,
@@ -325,8 +330,20 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
       timestamp: DateTime.utc_now()
     })
 
-    # Log intervention
-    new_log = [{DateTime.utc_now(), world_id, :regulation, "strength=#{regulation_strength}"} | state.intervention_log]
+    status =
+      case regulation_result do
+        :requested -> :requested
+        {:error, reason} -> {:rejected, reason}
+      end
+
+    new_log = [
+      {DateTime.utc_now(), world_id, :regulation, %{
+        intervention_id: intervention_id,
+        strength: regulation_strength,
+        status: status,
+        execution_state: :not_observed
+      }} | state.intervention_log
+    ]
 
     %{state | intervention_log: Enum.take(new_log, 100)}
   end
@@ -337,15 +354,27 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
     0.3 + (normalized * 0.5)
   end
 
-  defp apply_entropy_dampening(world_id, strength) do
+  defp apply_entropy_dampening(world_id, strength, intervention_id) do
     # Send regulation command via NATS to world runtime
-    MetaEvolutionStreamManager.publish_regulation_command(%{
-      world_id: world_id,
-      action: :entropy_dampening,
-      strength: strength
-    })
-
-    Logger.debug("   Applied entropy dampening (strength: #{Float.round(strength, 2)})")
+    case MetaEvolutionStreamManager.publish_regulation_command(%{
+           world_id: world_id,
+           action: :entropy_dampening,
+           strength: strength,
+           intervention_id: intervention_id
+         }) do
+      :ok ->
+        Logger.debug("   Regulation command accepted for dispatch (strength: #{Float.round(strength, 2)})")
+        :requested
+      {:ok, _event} ->
+        Logger.debug("   Regulation command accepted for dispatch (strength: #{Float.round(strength, 2)})")
+        :requested
+      {:error, reason} ->
+        Logger.warning("   Regulation command rejected: #{inspect(reason)}")
+        {:error, reason}
+      other ->
+        Logger.warning("   Regulation command returned unexpected result: #{inspect(other)}")
+        {:error, {:unexpected_dispatch_result, other}}
+    end
   end
 
   defp emit_constraint_signal(%ConstraintSignal{} = signal) do
@@ -387,31 +416,37 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
   # ============================================================================
 
   defp freeze_world(world_id, reason) do
-    Logger.info("❄️  Freezing world #{world_id} (reason: #{reason})")
+    Logger.info("❄️  Requesting freeze for world #{world_id} (reason: #{reason})")
 
-    # Send freeze message to HardenedKillSwitch
-    send(TiannaraRuntime.MultiWorld.HardenedKillSwitch, {:freeze_request, world_id, reason})
+    kill_switch = Process.whereis(TiannaraRuntime.MultiWorld.HardenedKillSwitch)
+    world_supervisor = Process.whereis(TiannaraRuntime.MultiWorld.WorldSupervisor)
 
-    # Also notify WorldSupervisor if available
-    try do
-      send(TiannaraRuntime.MultiWorld.WorldSupervisor, {:freeze_world, world_id})
-    rescue
-      _ -> Logger.warning("WorldSupervisor not available for freeze notification")
+    cond do
+      is_pid(kill_switch) ->
+        send(kill_switch, {:freeze_request, world_id, reason})
+        :requested
+      is_pid(world_supervisor) ->
+        send(world_supervisor, {:freeze_world, world_id})
+        :requested
+      true ->
+        Logger.warning("No freeze executor is running for #{inspect(world_id)}")
+        {:error, :freeze_executor_unavailable}
     end
   end
 
   defp update_world_state(state, world_id, metrics, risk) do
-    # Create or update world safety state
+    # Persist only telemetry that was actually supplied. Missing optional fields remain unknown.
     safety_state = %{
       world_id: world_id,
-      entropy_pressure: Map.get(metrics, :entropy_pressure, 0.0),
-      causal_stability: Map.get(metrics, :causal_stability, 1.0),
-      evolutionary_velocity: Map.get(metrics, :evolutionary_velocity, 0.0),
+      entropy_pressure: Map.get(metrics, :entropy_pressure),
+      entropy_growth_rate: Map.get(metrics, :entropy_growth_rate),
+      causal_stability: Map.get(metrics, :causal_stability),
+      evolutionary_velocity: Map.get(metrics, :evolutionary_velocity),
       kill_risk: if(risk > 0.9, do: 1.0, else: 0.0),
       freeze_risk: if(risk > 0.7, do: risk, else: 0.0),
-      stability_credit: Map.get(metrics, :stability_credit, 100.0),
-      paradox_load: Map.get(metrics, :paradox_load, 0.0),
-      prediction_horizon_ms: Map.get(metrics, :prediction_horizon_ms, 5000)
+      stability_credit: Map.get(metrics, :stability_credit),
+      paradox_load: Map.get(metrics, :paradox_load),
+      prediction_horizon_ms: Map.get(metrics, :prediction_horizon_ms)
     }
 
     put_in(state.world_states[world_id], safety_state)
@@ -425,6 +460,11 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
 
     # Apply entropy dampening
     apply_entropy_dampening(world_id, regulation_strength)
+  end
+
+  defp intervention_id(world_id, action) do
+    :crypto.hash(:sha256, :erlang.term_to_binary({world_id, action, System.unique_integer([:positive])}))
+    |> Base.encode16(case: :lower)
   end
 
   defp log_intervention(state, world_id, action_type, details) do

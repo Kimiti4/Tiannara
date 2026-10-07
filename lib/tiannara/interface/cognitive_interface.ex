@@ -24,7 +24,12 @@ defmodule Tiannara.Interface.CognitiveInterface do
 
   @spec health() :: map()
   def health do
-    %{status: :healthy, active_conversations: ConversationManager.active_count(), pending_notifications: ProactiveNotifier.pending_count(), total_communications: ProactiveNotifier.total_sent(), active_collaborations: HumanCollaboration.active_count()}
+    components = [ConversationManager, DiscoveryPresenter, ScientificDialogue, HumanCollaboration, ProactiveNotifier]
+    if Enum.all?(components, &Process.whereis/1) do
+      %{status: :operational, active_conversations: ConversationManager.active_count(), pending_notifications: ProactiveNotifier.pending_count(), total_communications: ProactiveNotifier.total_sent(), active_collaborations: HumanCollaboration.active_count()}
+    else
+      %{status: :unavailable, reason: :cognitive_interface_component_not_running}
+    end
   end
 
   @spec surface_discovery(map()) :: {:ok, binary()} | {:error, term()}

@@ -65,7 +65,7 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
          {:ok, _pid} <- starter.(spec),
          {:ok, gates} <- run_gate(:health, gates, fn -> check_health(spec, health_checker) end),
          {:ok, gates} <- run_gate(:constitution, gates, fn -> check_constitution(spec, score_checker) end),
-         {:ok, gates} <- run_gate(:capability, gates, fn -> :pass end),
+         {:ok, gates} <- run_gate(:capability, gates, fn -> check_capability(spec) end),
          {:ok, gates} <- run_gate(:resource, gates, fn -> resource_checker.(spec) |> to_gate() end) do
       {:ok, gates}
     else
@@ -88,6 +88,7 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
       :healthy -> {:ok, Map.put(gates, gate_name, :pass)}
       :sufficient -> {:ok, Map.put(gates, gate_name, :pass)}
       {:fail, reason} -> {:gate_failed, gate_name, reason, Map.put(gates, gate_name, {:fail, reason})}
+      {:error, reason} -> {:gate_failed, gate_name, inspect(reason), Map.put(gates, gate_name, {:fail, inspect(reason)})}
       :unhealthy -> {:gate_failed, gate_name, "Health check failed", Map.put(gates, gate_name, :fail)}
       :insufficient -> {:gate_failed, gate_name, "Insufficient resources", Map.put(gates, gate_name, :fail)}
       other -> {:gate_failed, gate_name, inspect(other), Map.put(gates, gate_name, :fail)}
@@ -107,7 +108,17 @@ defmodule Tiannara.CEL.Kernel.BootSequencer do
       score = score_checker.(spec)
       if ConstitutionalScore.boot_ready?(score), do: :pass, else: {:fail, "Constitutional score below threshold"}
     catch
-      _, _ -> :pass
+      kind, reason -> {:fail, "constitutional score unavailable: #{kind}:#{inspect(reason)}"}
+    end
+  end
+
+  defp check_capability(spec) do
+    provides = Map.get(spec, :provides, [])
+    requires = Map.get(spec, :requires, [])
+    if provides == [] and requires == [] do
+      {:fail, "service declares no capability contract"}
+    else
+      :pass
     end
   end
 

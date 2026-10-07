@@ -49,18 +49,28 @@ defmodule TiannaraRuntime.WorldForkEngine do
     child_world_id = "W-#{UUID.uuid4()}"
     cloned_state = deep_clone_state(parent_world)
     mutated_config = apply_mutation(parent_world.config, mutation)
+    parent_genome = Map.get(parent_world, :genome) || Map.get(parent_world.config, :genome)
+    child_genome =
+      case parent_genome do
+        %Tiannara.Genetics.WorldGenome{} = genome ->
+          mutated = Tiannara.Genetics.WorldGenome.mutate(genome)
+          %{mutated | world_id: child_world_id, generation: genome.generation + 1, parent_ids: [parent_world.id], stability_trace: []}
+        _ ->
+          Tiannara.Genetics.WorldGenome.new(child_world_id, [parent_world.id])
+      end
+
     child_config = %{
       id: child_world_id,
       parent_world: parent_world.id,
-      generation: parent_world.generation + 1,
+      generation: child_genome.generation,
+      genome: child_genome,
       state: cloned_state,
       config: mutated_config,
       status: :active,
       fitness: 0.0
     }
-    case TiannaraRuntime.WorldRegistry.create_world(parent_world.id, child_config) do
+    case TiannaraRuntime.WorldRegistry.create_world_with_id(child_world_id, parent_world.id, child_config) do
       {:ok, ^child_world_id} ->
-        spawn_world_supervisor(child_config)
         TiannaraRuntime.WorldRegistry.add_child(parent_world.id, child_world_id)
         {:ok, child_world_id}
       {:error, reason} ->

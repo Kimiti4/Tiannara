@@ -65,6 +65,8 @@ from tiannara_api.routes.alert_rules import router as alert_rules_router  # Cust
 from tiannara_api.routes.collaboration import router as collaboration_router  # Team collaboration
 from tiannara_api.routes.api_keys import router as api_keys_router  # API key management
 from tiannara_api.routes.observatory import router as observatory_router  # Phase 4 Observatory backend integration
+from tiannara_api.routes.chat import router as chat_router  # Tiannara conversation + research gateway
+from tiannara_api.routes.worlds import router as worlds_router  # Live multi-world runtime state
 from tiannara_api.routes.meta_ecology import router as meta_ecology_router # Meta-Ecology & Tier 3 OPC
 from tiannara_core.autonomous.orchestrator import Orchestrator
 from tiannara_core.discovery.engine import DiscoveryEngine
@@ -252,6 +254,8 @@ app.include_router(alert_rules_router, prefix="/api/v1")  # Custom alert rules
 app.include_router(collaboration_router, prefix="/api/v1")  # Team collaboration
 app.include_router(api_keys_router, prefix="/api/v1")  # API key management
 app.include_router(observatory_router, prefix="/api/v1")  # Phase 4 Observatory (real-time cognitive state)
+app.include_router(chat_router, prefix="/api/v1")  # Conversational research interface
+app.include_router(worlds_router, prefix="/api/v1")  # Live multi-world state
 app.include_router(meta_ecology_router, prefix="/api/v1/meta-ecology") # Meta-Ecology and Tier 3
 
 @app.on_event("startup")

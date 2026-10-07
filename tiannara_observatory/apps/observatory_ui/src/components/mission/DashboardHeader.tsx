@@ -33,12 +33,12 @@ export function DashboardHeader({ identity, onNavigate, onOpenPalette }: Props) 
 
       <div className="hidden xl:flex items-center gap-6">
         {[
-          { label: 'MISSION STATUS', value: '● NOMINAL', cls: 'text-[var(--color-emerald-bright)]' },
-          { label: 'CONSTITUTIONAL HEALTH', value: '99.7%', cls: 'text-[var(--color-emerald-bright)]' },
-          { label: 'RUNTIME INTEGRITY', value: '99.99%', cls: 'text-[var(--color-emerald-bright)]' },
-          { label: 'SCIENTIFIC DISCOVERY', value: '▲ 24.7%', cls: 'text-[var(--color-emerald-bright)]' },
-          { label: 'PLANETARY HEALTH', value: '84.6%', cls: 'text-[var(--color-amber-bright)]' },
-          { label: 'CIVILIZATIONAL PROGRESS', value: '72.1%', cls: 'text-[var(--color-cyan-bright)]' },
+          { label: 'MISSION STATUS', value: 'LIVE TELEMETRY', cls: 'text-[var(--color-cyan-bright)]' },
+          { label: 'CONSTITUTION', value: 'MEASURED', cls: 'text-[var(--color-slate-text)]' },
+          { label: 'RUNTIME', value: 'MEASURED', cls: 'text-[var(--color-slate-text)]' },
+          { label: 'RESEARCH', value: 'EVIDENCE', cls: 'text-[var(--color-slate-text)]' },
+          { label: 'WORLD STATE', value: 'OBSERVED', cls: 'text-[var(--color-slate-text)]' },
+          { label: 'PROGRESS', value: 'NOT A SCORE', cls: 'text-[var(--color-amber-bright)]' },
         ].map((s) => (
           <div key={s.label} className="flex flex-col items-center gap-0.5">
             <span className="text-[9px] text-[var(--color-slate-muted)] tracking-widest">{s.label}</span>
@@ -50,7 +50,7 @@ export function DashboardHeader({ identity, onNavigate, onOpenPalette }: Props) 
       <div className="flex items-center gap-4">
         <div className="text-right">
           <div className="font-mono text-xs text-[var(--color-slate-text)]">{clock}</div>
-          <div className="text-[10px] text-[var(--color-slate-muted)]">T+ 128d 17h 42m</div>
+          <div className="text-[10px] text-[var(--color-slate-muted)]">runtime clock • measured by client</div>
         </div>
 
         <button onClick={onOpenPalette} className="glass rounded-md px-3 py-1.5 text-[11px] text-[var(--color-slate-muted)] hover:border-[var(--color-slate-border-hover)]">

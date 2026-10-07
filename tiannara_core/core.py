@@ -509,24 +509,26 @@ class TiannaraCore:
     
     def _execute_llm_plan(self, plan: Any, context: Dict[str, Any]) -> Dict[str, Any]:
         """Execute LLM-generated plan."""
-        # This would interface with the actual execution system
-        # For now, return a mock result
+        # A plan is not an execution. Until an authorized execution adapter is
+        # supplied, returning success here would fabricate an effect.
         return {
-            "success": True,
-            "result": "LLM plan executed successfully",
+            "success": False,
+            "result": "LLM plan generated but not executed",
             "plan_type": "llm",
-            "details": {"plan": str(plan)[:100]}
+            "execution_status": "not_executed",
+            "details": {"plan": str(plan)[:100]},
         }
     
     def _execute_fallback_plan(self, plan: Any, context: Dict[str, Any]) -> Dict[str, Any]:
         """Execute fallback plan."""
-        # This would execute the deterministic plan steps
-        # For now, return a mock result
+        # Deterministic planning currently produces a plan, not an authorized
+        # side-effect executor. Never represent the plan as executed.
         return {
-            "success": True,
-            "result": "Fallback plan executed successfully",
+            "success": False,
+            "result": "Deterministic plan generated but not executed",
             "plan_type": "fallback",
-            "details": {"steps": len(getattr(plan, 'steps', []))}
+            "execution_status": "not_executed",
+            "details": {"steps": len(getattr(plan, 'steps', []))},
         }
     
     def _handle_fallback(self, intent: str, execution_decision: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:

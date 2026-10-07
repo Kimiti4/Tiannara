@@ -42,111 +42,15 @@ defmodule TiannaraOS.ResearchProgramEngine do
   end
 
   # --- PRIVATE STAGE TRANSITIONS ---
+  #
+  # A ResearchProgram is only allowed to advance when a real downstream
+  # capability returns evidence. The former implementation fabricated goals,
+  # hypothesis IDs, experiment IDs, evidence scores and successful discoveries.
+  # Those values are now explicitly unavailable until the corresponding
+  # executor/validator is connected.
 
-  # 1. Goal Generation -> Hypothesis Generation
-  defp advance_stage(:goal_generation, program, state, _now) do
-    case deduct_budget(program, :attention, 2.0) do
-      {:ok, updated} ->
-        next_program = %{
-          updated |
-          stage: :hypothesis_generation,
-          goals: ["Identify insecure dependencies", "Mitigate dependency CVEs"]
-        }
-        broadcast_event({:hypothesis_created, next_program.id})
-        {:ok, next_program, state}
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  # 2. Hypothesis Generation -> Experimentation
-  defp advance_stage(:hypothesis_generation, program, state, _now) do
-    case deduct_budget(program, :compute, 5.0) do
-      {:ok, updated} ->
-        hyp_id = String.to_atom("hyp_#{program.id}")
-        next_program = %{
-          updated |
-          stage: :experimentation,
-          hypotheses: [hyp_id | updated.hypotheses]
-        }
-        broadcast_event({:experiment_started, next_program.id})
-        {:ok, next_program, state}
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  # 3. Experimentation -> Evidence Synthesis
-  defp advance_stage(:experimentation, program, state, _now) do
-    case deduct_budget(program, :compute, 5.0) do
-      {:ok, updated} ->
-        exp_id = String.to_atom("exp_#{program.id}")
-        next_program = %{
-          updated |
-          stage: :evidence_synthesis,
-          active_experiments: [exp_id | updated.active_experiments]
-        }
-        broadcast_event({:evidence_collected, next_program.id})
-        {:ok, next_program, state}
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  # 4. Evidence Synthesis -> Discovery Candidate
-  defp advance_stage(:evidence_synthesis, program, state, _now) do
-    case deduct_budget(program, :credits, 10.0) do
-      {:ok, updated} ->
-        ev_id = String.to_atom("ev_#{program.id}")
-        next_program = %{
-          updated |
-          stage: :discovery_candidate,
-          evidence_ids: [ev_id | updated.evidence_ids]
-        }
-        broadcast_event({:discovery_candidate, next_program.id})
-        {:ok, next_program, state}
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  # 5. Discovery Candidate -> Completed
-  defp advance_stage(:discovery_candidate, program, state, now) do
-    # Propose discovery candidate
-    discovery_id = String.to_atom("discovery_#{program.id}")
-    
-    # Instantiate the new Discovery struct
-    new_discovery = %Discovery{
-      id: discovery_id,
-      source_world: program.world_id,
-      evidence_ids: program.evidence_ids,
-      theory_ids: [],
-      origin_program_id: program.id,
-      origin_institution_id: program.institution_id,
-      origin_world_id: program.world_id,
-      validation_level: :l1,
-      status: :candidate,
-      evidence_score: 0.7, # Starts above threshold
-      validation_history: [%{level: :l1, timestamp: now, reason: "Proposed candidate by program #{program.id}"}]
-    }
-
-    # Register in state
-    updated_discoveries = Map.put(state.discoveries, discovery_id, new_discovery)
-    state_with_discovery = %{state | discoveries: updated_discoveries}
-
-    # Complete program
-    completed_program = %{
-      program |
-      status: :completed,
-      outcome: :success,
-      completed_at: now,
-      discoveries: [discovery_id | program.discoveries]
-    }
-
-    broadcast_event({:program_discovery_created, program.id, discovery_id})
-    broadcast_event({:program_completed, program.id})
-
-    {:ok, completed_program, state_with_discovery}
+  defp advance_stage(stage, _program, _state, _now) do
+    {:error, {:research_capability_unavailable, stage}}
   end
 
   # --- BUDGET UTILITY ---

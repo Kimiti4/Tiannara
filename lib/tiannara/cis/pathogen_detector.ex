@@ -15,15 +15,14 @@ defmodule Tiannara.CIS.PathogenDetector do
     end
     
     # Analyze Payload
-    Tiannara.Metrics.Aggregator.push_event([:tiannara, :cis, :immune_precision], 1.0)
-    
-    # Overreaction Monitor prevents autoimmune collapse
+    # Overreaction Monitor prevents autoimmune collapse. A deployment failure
+    # remains a failure; it is never converted into a successful metric.
     case OverreactionMonitor.veto_intervention?(pathogen_type, payload) do
       false ->
         ImmuneResponse.deploy(pathogen_type)
       true ->
-        Logger.info("🛡️ [CIS] OverreactionMonitor VETOED intervention. Preserving innovation.")
-        Tiannara.Metrics.Aggregator.push_event([:tiannara, :cis, :innovation_preservation_rate], 1.0)
+        Logger.info("🛡️ [CIS] OverreactionMonitor vetoed intervention. Preserving innovation.")
+        {:vetoed, :overreaction_risk}
     end
   end
 end

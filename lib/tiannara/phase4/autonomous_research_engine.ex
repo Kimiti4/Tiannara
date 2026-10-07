@@ -46,8 +46,8 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
     stats = GenServer.call(__MODULE__, :stats)
     evidence_quality =
       if stats.total_programs_initiated > 0,
-        do: stats.total_validations_completed / stats.total_programs_initiated,
-        else: 1.0
+        do: min(1.0, stats.total_validations_completed / stats.total_programs_initiated),
+        else: 0.0
 
     %ConstitutionalScore{
       service_id: id(),
@@ -174,8 +174,8 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
         priority: recommendation.priority,
         status: :hypothesis_generation
       },
-      confidence: 0.5,
-      uncertainty: 0.5,
+      confidence: 0.1,
+      uncertainty: 0.9,
       provenance: %{
         origin: :autonomous_research_engine,
         produced_by: :ARE,
