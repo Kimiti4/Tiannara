@@ -123,7 +123,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
     end)]
   end
 
-  defp hash_record(record), do: :crypto.hash(:sha256, :erlang.term_to_binary(record)) |> Base.encode16(case: :lower)
+  defp hash_record(record), do: :crypto.hash(:sha256, :erlang.term_to_binary(Map.drop(record, [:hash, :archive_hash]))) |> Base.encode16(case: :lower)
   defp unique_id, do: "dvg-" <> Integer.to_string(System.unique_integer([:positive, :monotonic]))
 
   defp default_archive(graph) do
