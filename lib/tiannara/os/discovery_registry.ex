@@ -24,8 +24,11 @@ defmodule TiannaraOS.DiscoveryRegistry do
   def find_by_theory(id), do: GenServer.call(__MODULE__, {:find_by_theory, id})
   def register(data), do: GenServer.call(__MODULE__, {:register, data})
   def add_application(id, application), do: GenServer.call(__MODULE__, {:add_application, id, application})
-  def update_validation_status(id, status, evidence_envelope \\ %{}),
-    do: GenServer.call(__MODULE__, {:update_validation_status, id, status, evidence_envelope})
+  def update_validation_status(_id, _status, _evidence_envelope \\ %{}),
+    do: {:error, :validation_transition_requires_lineage}
+
+  def update_validation_status_with_lineage(id, status, evidence_envelope, lineage_writer \\ &default_lineage_writer/1),
+    do: GenServer.call(__MODULE__, {:update_validation_status_with_lineage, id, status, evidence_envelope, lineage_writer})
   def link_to_law(id, law_id), do: GenServer.call(__MODULE__, {:link_to_law, id, law_id})
 
   @impl true
@@ -67,16 +70,26 @@ defmodule TiannaraOS.DiscoveryRegistry do
     end
   end
 
-  def handle_call({:update_validation_status, id, status, envelope}, _, state) do
+  def handle_call({:update_validation_status_with_lineage, id, status, envelope, writer}, _, state) do
     case Map.get(state.discoveries, id) do
       nil -> {:reply, {:error, :discovery_not_found}, state}
       discovery ->
         with :ok <- transition_allowed(discovery.validation_status, status),
-             :ok <- validate_promotion_evidence(status, envelope) do
+             :ok <- validate_promotion_evidence(status, envelope),
+             {:ok, lineage} <- write_validation_lineage(discovery, status, envelope, writer) do
           updated = %{discovery |
             validation_status: status,
-            evidence_envelope: envelope,
-            validated_at: if(status == :operationally_validated, do: DateTime.utc_now(), else: discovery.validated_at)
+            evidence_envelope: Map.merge(discovery.evidence_envelope || %{}, envelope),
+            verification_graph_ids: discovery.verification_graph_ids ++ [lineage.graph_id],
+            archive_ids: discovery.archive_ids ++ [lineage.archive_hash],
+            validated_at: if(status == :operationally_validated, do: DateTime.utc_now(), else: discovery.validated_at),
+            lifecycle_events: discovery.lifecycle_events ++ [%{
+              event: :validation_updated,
+              from: discovery.validation_status,
+              to: status,
+              evidence: envelope,
+              lineage: lineage
+            }]
           }
           {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
         end
@@ -121,7 +134,8 @@ defmodule TiannaraOS.DiscoveryRegistry do
         theory_ids: data.theory_ids, law_id: nil, applications: [],
         validation_status: :simulated, confidence: 0.0, uncertainty: 1.0,
         created_at: Map.get(data, :created_at, DateTime.utc_now()),
-        validated_at: nil, lifecycle_events: [], evidence_envelope: %{}
+        validated_at: nil, lifecycle_events: [], evidence_envelope: %{},
+        verification_graph_ids: [], archive_ids: []
       }}
     end
   end
@@ -150,6 +164,48 @@ defmodule TiannaraOS.DiscoveryRegistry do
     end
   end
   defp validate_promotion_evidence(_, _), do: {:error, :unsupported_promotion_status}
+
+  defp write_validation_lineage(discovery, status, envelope, writer) when is_function(writer, 1) do
+    ensure_lineage_services()
+    node = %{
+      kind: :discovery_validation_transition,
+      discovery_id: discovery.id,
+      parent_ids: List.last(discovery.verification_graph_ids, []) |> List.wrap(),
+      provenance: %{source: :discovery_registry, transition: {discovery.validation_status, status}},
+      status: status,
+      artifact: %{from: discovery.validation_status, to: status, evidence: envelope}
+    }
+    case Tiannara.Sentinel.DiscoveryVerificationGraph.append_with_archive(node) do
+      {:ok, %{graph: graph, archive: archive}} ->
+        case writer.(archive) do
+          {:ok, _} -> {:ok, %{graph_id: graph.node_id, archive_hash: archive.hash}}
+          {:error, reason} -> {:error, {:lineage_write_failed, reason}}
+          _ -> {:error, :lineage_writer_rejected}
+        end
+      {:error, reason} -> {:error, {:lineage_write_failed, reason}}
+    end
+  end
+
+  defp write_validation_lineage(_, _, _, _), do: {:error, :lineage_writer_unavailable}
+
+  defp default_lineage_writer(archive), do: {:ok, archive}
+
+  defp ensure_lineage_services do
+    unless Process.whereis(Tiannara.Sentinel.DiscoveryEvidenceArchive) do
+      case Tiannara.Sentinel.DiscoveryEvidenceArchive.start_link([]) do
+        {:ok, _} -> :ok
+        {:error, {:already_started, _}} -> :ok
+        {:error, reason} -> raise "discovery evidence archive unavailable: #{inspect(reason)}"
+      end
+    end
+    unless Process.whereis(Tiannara.Sentinel.DiscoveryVerificationGraph) do
+      case Tiannara.Sentinel.DiscoveryVerificationGraph.start_link([]) do
+        {:ok, _} -> :ok
+        {:error, {:already_started, _}} -> :ok
+        {:error, reason} -> raise "discovery verification graph unavailable: #{inspect(reason)}"
+      end
+    end
+  end
 
   defp index_domain(state, discovery) do
     ids = Map.get(state.domain_index, discovery.domain_id, [])
