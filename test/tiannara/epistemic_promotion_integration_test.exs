@@ -88,7 +88,7 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     assert {:error, :invalid_evidence_envelope} =
              DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, %{evidence_class: :forged})
 
-    assert {:error, {:lineage_write_failed, :missing_parent}} =
+    assert {:error, :missing_parent} =
              DiscoveryVerificationGraph.append_with_archive(%{
                kind: :discovery_validation_transition,
                discovery_id: id,
