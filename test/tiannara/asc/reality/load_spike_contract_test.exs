@@ -4,6 +4,11 @@ defmodule Tiannara.ASC.Reality.LoadSpikeContractTest do
   alias Tiannara.ASC.Reality.{Director, RiskAssessmentEngine}
 
   setup do
+    case Tiannara.CEL.Services.EventBus.start_link([]) do
+      {:ok, _} -> :ok
+      {:error, {:already_started, _}} -> :ok
+    end
+
     for mod <- [
           Director,
           RiskAssessmentEngine,
