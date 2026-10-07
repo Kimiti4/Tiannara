@@ -60,9 +60,27 @@ defmodule TiannaraRuntime.WorldModel.Pipeline.ModelValidation do
       }
     ]
 
-    ModelRegistry.transition_status(mid, ver, :validated)
+    evidence_class = Map.get(evidence_set, :evidence_class, :unknown)
+    execution_mode = Map.get(evidence_set, :execution_mode, :unknown)
 
-    {:ok, metrics}
+    with {:ok, %{graph: graph, archive: archive}} <-
+           Tiannara.Sentinel.DiscoveryVerificationGraph.append_with_archive(%{
+             kind: :world_model_validation,
+             discovery_id: mid,
+             model_id: mid,
+             model_version: ver,
+             provenance: %{source: __MODULE__, evidence_class: evidence_class, execution_mode: execution_mode},
+             status: :validated,
+             artifact: %{metrics: metrics}
+           }),
+         {:ok, _model} <-
+           ModelRegistry.transition_status(mid, ver, :validated, %{
+             evidence_class: evidence_class,
+             execution_mode: execution_mode,
+             lineage: %{graph_id: graph.node_id, archive_hash: archive.hash}
+           }) do
+      {:ok, metrics}
+    end
   end
 
   defp extract_observations(%Evidence{observations: obs}) when is_list(obs), do: obs
