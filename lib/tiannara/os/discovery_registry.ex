@@ -145,8 +145,15 @@ defmodule TiannaraOS.DiscoveryRegistry do
   defp transition_allowed(_, _), do: {:error, :invalid_status_transition}
 
   defp validate_promotion_evidence(:reproduced, envelope) do
-    if is_map(envelope) and Map.has_key?(envelope, :reproduction_evidence),
-      do: :ok, else: {:error, :reproduction_evidence_required}
+    cond do
+      not is_map(envelope) -> {:error, :reproduction_evidence_required}
+      Map.get(envelope, :evidence_class) not in [nil, :simulated, :real] ->
+        {:error, :invalid_evidence_envelope}
+      not Map.has_key?(envelope, :reproduction_evidence) ->
+        {:error, :reproduction_evidence_required}
+      true ->
+        :ok
+    end
   end
 
   defp validate_promotion_evidence(:operationally_validated, envelope) do
