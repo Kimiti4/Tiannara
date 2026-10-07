@@ -13,7 +13,7 @@ defmodule TiannaraOS.DiscoveryRegistry do
     :id, :name, :description, :domain_id, :program_id, :experiment_ids,
     :evidence_ids, :theory_ids, :law_id, :applications, :validation_status,
     :confidence, :uncertainty, :created_at, :validated_at, :lifecycle_events,
-    :evidence_envelope
+    :evidence_envelope, :verification_graph_ids, :archive_ids
   ]
 
   @type t :: %__MODULE__{}
