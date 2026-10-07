@@ -2,6 +2,7 @@ defmodule Tiannara.ASC.ASCTest do
   use ExUnit.Case, async: false
 
   setup do
+    unless Process.whereis(TiannaraOS.DiscoveryRegistry), do: start_supervised!(TiannaraOS.DiscoveryRegistry)
     start_supervised!({Tiannara.ASC.KnowledgeEconomy, name: :test_ke})
     start_supervised!({Tiannara.ASC.CivilizationManager, name: :test_civ_mgr})
     start_supervised!({Tiannara.ASC.CapabilityEvolution, name: :test_cap_ev})
@@ -16,7 +17,7 @@ defmodule Tiannara.ASC.ASCTest do
   describe "functional: knowledge compounds" do
     test "discovery becomes validated knowledge asset" do
       discovery = %{
-        id: "d1",
+        id: "d1_#{System.unique_integer([:positive])}",
         domain: :materials,
         content: "New alloy composition",
         confidence: 0.7
@@ -25,7 +26,22 @@ defmodule Tiannara.ASC.ASCTest do
       {:ok, asset} = Tiannara.ASC.KnowledgeEconomy.ingest_discovery(:test_ke, discovery)
       assert asset.validation_status == :pending_validation
 
-      evidence = [%{id: "e1", quality: 0.9, contradicts_asset: nil}]
+      assert {:ok, _} = TiannaraOS.DiscoveryRegistry.register(%{
+        id: discovery.id,
+        name: "ASC lineage source",
+        domain_id: discovery.domain,
+        experiment_ids: ["exp-#{discovery.id}"],
+        evidence_ids: ["ev-#{discovery.id}"],
+        theory_ids: [:asc]
+      })
+      assert {:ok, promoted} = TiannaraOS.DiscoveryRegistry.update_validation_status_with_lineage(
+        discovery.id, :reproduced, %{reproduction_evidence: %{replications: 2}}
+      )
+      [graph_id] = promoted.verification_graph_ids
+      [archive_hash] = promoted.archive_ids
+
+      evidence = %{evidence: [%{id: "e1", quality: 0.9, contradicts_asset: nil}],
+        lineage: %{graph_id: graph_id, archive_hash: archive_hash}}
 
       {:ok, validated} =
         Tiannara.ASC.KnowledgeEconomy.validate_asset(:test_ke, asset.id, evidence)
@@ -35,17 +51,32 @@ defmodule Tiannara.ASC.ASCTest do
     end
 
     test "validated assets are retrievable by domain" do
-      {:ok, asset} =
-        Tiannara.ASC.KnowledgeEconomy.ingest_discovery(:test_ke, %{
-          id: "d2",
-          domain: :physics,
-          content: "String theory refinement",
-          confidence: 0.8
-        })
+      discovery = %{
+        id: "d2_#{System.unique_integer([:positive])}",
+        domain: :physics,
+        content: "String theory refinement",
+        confidence: 0.8
+      }
+      {:ok, asset} = Tiannara.ASC.KnowledgeEconomy.ingest_discovery(:test_ke, discovery)
 
-      Tiannara.ASC.KnowledgeEconomy.validate_asset(:test_ke, asset.id, [
-        %{id: "e2", quality: 0.9, contradicts_asset: nil}
-      ])
+      assert {:ok, _} = TiannaraOS.DiscoveryRegistry.register(%{
+        id: discovery.id,
+        name: "ASC lineage source",
+        domain_id: discovery.domain,
+        experiment_ids: ["exp-#{discovery.id}"],
+        evidence_ids: ["ev-#{discovery.id}"],
+        theory_ids: [:asc]
+      })
+      assert {:ok, promoted} = TiannaraOS.DiscoveryRegistry.update_validation_status_with_lineage(
+        discovery.id, :reproduced, %{reproduction_evidence: %{replications: 2}}
+      )
+      [graph_id] = promoted.verification_graph_ids
+      [archive_hash] = promoted.archive_ids
+
+      Tiannara.ASC.KnowledgeEconomy.validate_asset(:test_ke, asset.id, %{
+        evidence: [%{id: "e2", quality: 0.9, contradicts_asset: nil}],
+        lineage: %{graph_id: graph_id, archive_hash: archive_hash}
+      })
 
       assets = Tiannara.ASC.KnowledgeEconomy.get_assets(:test_ke, :physics)
       assert length(assets) > 0
