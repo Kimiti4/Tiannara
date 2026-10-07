@@ -2,8 +2,8 @@ defmodule Tiannara.PhaseOmega.TelemetryCoverageAuditor do
   @moduledoc """
   Ω.9 — Telemetry Coverage Audit.
 
-  Verifies every known subsystem emits telemetry events. Cross-references
-  registered subsystems against installed Telemetry event handlers.
+  Verifies telemetry handler coverage only. Handler presence is not treated as proof
+  that a subsystem emitted an event or that delivery succeeded.
   """
 
   require Logger
@@ -37,6 +37,8 @@ defmodule Tiannara.PhaseOmega.TelemetryCoverageAuditor do
     %{
       total_required: length(@required_events),
       covered: length(covered),
+      status: if(missing == [], do: :unknown, else: :fail),
+      verification_scope: :handler_presence_only,
       missing_count: length(missing),
       missing_events: missing,
       handlers_found: length(registered),

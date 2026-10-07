@@ -38,7 +38,8 @@ defmodule Tiannara.CEL.Services.EventBus do
   def version, do: "2.0.0"
 
   @impl true
-  def capabilities, do: [:event_transport, :command_routing, :observation_broadcast, :durable_replay, :dead_letter_queue]
+  def capabilities, do: [:event_transport, :command_routing, :observation_broadcast, :durable_replay, :dead_letter_queue,
+    :durable_delivery, :replay, :dead_letter_handling]
 
   @impl true
   def dependencies, do: [:event_store]
@@ -162,7 +163,22 @@ defmodule Tiannara.CEL.Services.EventBus do
   end
 
   @impl true
-  def handle_call(:healthy, _from, state), do: {:reply, true, state}
+  def handle_call(:healthy, _from, state) do
+    dlq_ok =
+      case :dets.info(@dlq_table_name) do
+        info when is_list(info) -> true
+        _ -> false
+      end
+
+    store_ok =
+      try do
+        EventStore.healthy?()
+      rescue
+        _ -> false
+      end
+
+    {:reply, dlq_ok and store_ok, state}
+  end
 
   defp normalize(topic, payload, opts) do
     %CivilizationalEvent{
@@ -230,10 +246,8 @@ defmodule Tiannara.CEL.Services.EventBus do
     if retries >= @max_retries do
       :permanent_failure
     else
-      case EventStore.append(topic, civ_event) do
-        {:ok, _offset} ->
-          deliver(subs, civ_event, false)
-          :ok
+      case deliver(subs, civ_event, false) do
+        :ok -> :ok
         _ ->
           :retry
       end

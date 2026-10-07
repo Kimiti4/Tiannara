@@ -41,7 +41,7 @@ defmodule Tiannara.PhaseOmega.DependencyVerifier do
         isolated: isolated
       },
       issue_count: length(missing) + length(cycles) + length(unreachable) + length(isolated),
-      passed: length(missing) == 0 && length(cycles) == 0 && length(unreachable) == 0,
+      passed: length(missing) == 0 && length(cycles) == 0 && length(unreachable) == 0 && length(isolated) == 0,
       timestamp: DateTime.utc_now()
     }
   end

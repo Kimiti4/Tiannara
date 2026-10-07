@@ -27,7 +27,8 @@ defmodule Tiannara.Phase4.ExperimentOrchestrator do
       :experiment_cancellation, :human_in_the_loop_gating,
       :eig_estimation, :resource_aware_scheduling,
       :constitutional_gating, :execution_environment_selection,
-      :failure_recovery
+      :failure_recovery, :experimental_design_generation,
+      :resource_estimation
     ]
   end
 

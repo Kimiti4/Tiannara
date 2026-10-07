@@ -40,12 +40,12 @@ defmodule Tiannara.CEL.Kernel.ConstitutionalScore do
   def default(service_id) do
     %__MODULE__{
       service_id: service_id,
-      health: 1.0,
-      constitutional_alignment: 1.0,
-      transparency: 1.0,
-      explainability: 1.0,
-      evidence_quality: 1.0,
-      human_oversight: 1.0,
+      health: 0.0,
+      constitutional_alignment: 0.0,
+      transparency: 0.0,
+      explainability: 0.0,
+      evidence_quality: 0.0,
+      human_oversight: 0.0,
       computed_at: DateTime.utc_now()
     }
   end

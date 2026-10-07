@@ -43,7 +43,7 @@ defmodule Tiannara.World.SnapshotManager do
       constitutional_alignment: 1.0,
       transparency: 1.0,
       explainability: 1.0,
-      evidence_quality: 1.0,
+      evidence_quality: if(stats.snapshot_count > 0, do: 1.0, else: 0.0),
       human_oversight: 1.0,
       computed_at: DateTime.utc_now()
     }
@@ -86,23 +86,15 @@ defmodule Tiannara.World.SnapshotManager do
   def handle_call(:take_snapshot, _from, state) do
     Logger.info("SnapshotManager: Initiating world model snapshot")
 
-    world_stats = UnifiedWorldModel.stats()
-
-    snapshot_id = "snap_#{DateTime.utc_now() |> DateTime.to_unix()}"
-    snapshot_data = %{
-      id: snapshot_id,
-      timestamp: DateTime.utc_now(),
-      entity_count: world_stats.entity_count,
-      relationship_count: world_stats.relationship_count,
-      hash: compute_hash(snapshot_id <> to_string(world_stats.entity_count))
-    }
+    snapshot_data = build_snapshot(nil)
 
     ExecutiveMemory.record_decision(
-      snapshot_id,
+      snapshot_data.id,
       :world_snapshot_created,
       snapshot_data
     )
 
+    persist_snapshot(snapshot_data)
     new_snapshots = [snapshot_data | state.snapshots] |> Enum.take(@retention_count)
 
     EventBus.publish("world.snapshot.created", snapshot_data)
@@ -114,39 +106,22 @@ defmodule Tiannara.World.SnapshotManager do
       last_snapshot_status: :success
     }
 
-    {:reply, {:ok, snapshot_id}, new_state}
+    {:reply, {:ok, snapshot_data.id}, new_state}
   end
 
   @impl true
   def handle_call({:create_snapshot, metadata}, _from, state) do
     Logger.info("SnapshotManager: Creating snapshot with metadata")
 
-    world_stats = UnifiedWorldModel.stats()
-    {:ok, entity_ids} = UnifiedRealityGraph.query_entities(limit: 10_000)
-    entity_snapshots = Enum.map(entity_ids, fn id ->
-      case UnifiedWorldModel.get_entity(id) do
-        {:ok, e} -> e
-        _ -> nil
-      end
-    end) |> Enum.reject(&is_nil/1)
-
-    snapshot_id = "snap_#{DateTime.utc_now() |> DateTime.to_unix()}_#{:crypto.strong_rand_bytes(4) |> Base.encode16(case: :lower)}"
-    snapshot_data = %{
-      id: snapshot_id,
-      timestamp: DateTime.utc_now(),
-      metadata: metadata,
-      entity_count: world_stats.entity_count,
-      relationship_count: world_stats.relationship_count,
-      entity_snapshots: entity_snapshots,
-      hash: compute_hash(snapshot_id <> to_string(world_stats.entity_count))
-    }
+    snapshot_data = build_snapshot(metadata)
 
     ExecutiveMemory.record_decision(
-      snapshot_id,
+      snapshot_data.id,
       :world_snapshot_created,
       snapshot_data
     )
 
+    persist_snapshot(snapshot_data)
     new_snapshots = [snapshot_data | state.snapshots] |> Enum.take(@retention_count)
 
     EventBus.publish("world.snapshot.created", snapshot_data)
@@ -158,16 +133,17 @@ defmodule Tiannara.World.SnapshotManager do
       last_snapshot_status: :success
     }
 
-    {:reply, {:ok, snapshot_id}, new_state}
+    {:reply, {:ok, snapshot_data.id}, new_state}
   end
 
   @impl true
   def handle_call({:restore_from_snapshot, snapshot_id}, _from, state) do
-    snapshot = Enum.find(state.snapshots, &(&1.id == snapshot_id))
+    snapshot = Enum.find(state.snapshots, &(&1.id == snapshot_id)) || load_snapshot(snapshot_id)
     case snapshot do
       nil -> {:reply, {:error, :not_found}, state}
       _ ->
         Logger.info("SnapshotManager: Restoring from snapshot #{snapshot_id}")
+        :ok = verify_snapshot_hash(snapshot)
         entity_snapshots = Map.get(snapshot, :entity_snapshots, [])
         Enum.each(entity_snapshots, fn entity_data ->
           nested = Map.get(entity_data, :attributes, %{})
@@ -191,6 +167,8 @@ defmodule Tiannara.World.SnapshotManager do
             version: Map.get(entity_data, :version, 1)
           })
         end)
+        Enum.each(Map.get(snapshot, :relationships, []), &UnifiedRealityGraph.add_relationship/1)
+        UnifiedWorldModel.reconcile_from_graph()
         {:reply, :ok, state}
     end
   end
@@ -212,8 +190,76 @@ defmodule Tiannara.World.SnapshotManager do
     {:noreply, new_state}
   end
 
+  defp build_snapshot(metadata) do
+    world_stats = UnifiedWorldModel.stats()
+    {:ok, entity_ids} = UnifiedRealityGraph.query_entities(limit: 10_000)
+
+    entity_snapshots =
+      Enum.map(entity_ids, fn id ->
+        case UnifiedWorldModel.get_entity(id) do
+          {:ok, e} -> e
+          _ -> nil
+        end
+      end)
+      |> Enum.reject(&is_nil/1)
+
+    snapshot_id =
+      "snap_#{DateTime.utc_now() |> DateTime.to_unix()}_#{:crypto.strong_rand_bytes(4) |> Base.encode16(case: :lower)}"
+
+    snapshot_base = %{
+      id: snapshot_id,
+      timestamp: DateTime.utc_now(),
+      metadata: metadata,
+      entity_count: world_stats.entity_count,
+      relationship_count: world_stats.relationship_count,
+      relationships: snapshot_relationships(),
+      entity_snapshots: entity_snapshots
+    }
+
+    Map.put(snapshot_base, :hash, compute_snapshot_hash(snapshot_base))
+  end
+
   defp compute_hash(data) do
     :crypto.hash(:sha256, data) |> Base.encode16(case: :lower)
+  end
+
+  defp compute_snapshot_hash(snapshot) do
+    snapshot
+    |> Map.delete(:hash)
+    |> :erlang.term_to_binary()
+    |> compute_hash()
+  end
+
+  defp snapshot_relationships do
+    case UnifiedRealityGraph.query_entities(limit: 100_000) do
+      {:ok, ids} ->
+        ids
+        |> Enum.flat_map(fn id ->
+          case UnifiedRealityGraph.get_relationships(id, :out) do
+            {:ok, rels} -> rels |> Enum.map(fn r -> Map.take(r, [:from_id, :to_id, :type, :metadata]) end)
+            _ -> []
+          end
+        end)
+        |> Enum.uniq()
+
+      _ -> []
+    end
+  end
+
+  defp persist_snapshot(snapshot) do
+    ExecutiveMemory.record_decision(snapshot.id, :world_snapshot_data, snapshot)
+  end
+
+  defp load_snapshot(id) do
+    case ExecutiveMemory.get_decision(id) do
+      {:ok, snapshot} -> snapshot
+      _ -> nil
+    end
+  end
+
+  defp verify_snapshot_hash(snapshot) do
+    expected = compute_snapshot_hash(snapshot)
+    if snapshot.hash == expected, do: :ok, else: raise "snapshot integrity check failed"
   end
 
   defp schedule_snapshot do

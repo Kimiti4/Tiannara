@@ -54,7 +54,8 @@ defmodule Tiannara.CRAV.LaunchReadiness do
         civilization_readiness
       )
 
-      blocker_list = detect_blockers(activation_entries, observatory_readiness, discovery_readiness)
+      phase_omega = safe_phase_omega_scan()
+      blocker_list = detect_blockers(activation_entries, observatory_readiness, discovery_readiness, phase_omega)
       recommendation = compute_recommendation(overall, blocker_list)
 
       result = %{
@@ -67,7 +68,8 @@ defmodule Tiannara.CRAV.LaunchReadiness do
         civilization_readiness: Float.round(civilization_readiness, 1),
         overall_alpha_readiness: Float.round(overall, 1),
         recommendation: recommendation,
-        blockers: blocker_list
+        blockers: blocker_list,
+        verification: %{phase_omega: phase_omega}
       }
 
       measurements = %{overall_readiness: result.overall_alpha_readiness}
@@ -243,8 +245,11 @@ defmodule Tiannara.CRAV.LaunchReadiness do
     sum / 8
   end
 
-  defp detect_blockers(activation_entries, observatory_readiness, discovery_readiness) do
+  defp detect_blockers(activation_entries, observatory_readiness, discovery_readiness, phase_omega) do
     blockers = []
+
+    blockers =
+      if phase_omega in [:unknown, :fail], do: blockers ++ ["Phase Ω verification incomplete"], else: blockers
 
     blockers =
       if has_critical_supervisor?(activation_entries) do
@@ -297,13 +302,33 @@ defmodule Tiannara.CRAV.LaunchReadiness do
   defp compute_recommendation(overall, blockers) do
     has_critical =
       Enum.any?(blockers, fn b ->
-        b == "Critical supervisor failure"
+        b in ["Critical supervisor failure", "Phase Ω verification incomplete"]
       end)
 
     cond do
-      overall >= 90.0 and not has_critical -> :ready
+      overall >= 90.0 and blockers == [] and not has_critical -> :ready
       overall < 50.0 or has_critical -> :blocked
       true -> :conditional
+    end
+  end
+
+  defp safe_phase_omega_scan do
+    if Code.ensure_loaded?(Tiannara.PhaseOmega.Scanner) do
+      try do
+        report = Tiannara.PhaseOmega.Scanner.scan()
+        cond do
+          Map.get(report.overall, :failed, 0) > 0 -> :fail
+          Map.get(report.overall, :inconclusive, 0) > 0 -> :unknown
+          Map.get(report.overall, :healthy, false) -> :pass
+          true -> :unknown
+        end
+      rescue
+        _ -> :unknown
+      catch
+        _, _ -> :unknown
+      end
+    else
+      :unknown
     end
   end
 

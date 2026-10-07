@@ -41,7 +41,8 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
   def version, do: "1.0.0"
 
   @impl true
-  def capabilities, do: [:identity_management, :trust_scoring, :credential_verification, :capability_authorization]
+  def capabilities, do: [:identity_management, :trust_scoring, :credential_verification, :capability_authorization,
+    :service_identity, :authentication, :authorization]
 
   @impl true
   def health, do: :healthy

@@ -49,7 +49,8 @@ defmodule Tiannara.CEL.Services.ExecutiveDigitalTwin do
   @impl true
   def capabilities do
     [:strategy_simulation, :counterfactual_analysis, :outcome_prediction_integration,
-     :council_evidence_generation, :state_isolation]
+     :council_evidence_generation, :state_isolation, :mission_simulation,
+     :what_if_analysis, :council_advisory]
   end
 
   @impl true
