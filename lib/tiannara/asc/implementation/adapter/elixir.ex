@@ -349,7 +349,7 @@ defmodule Tiannara.ASC.Implementation.Adapter.Elixir do
 
       content = """
       defmodule #{module_name}Test do
-        use ExUnit.Case
+        use ExUnit.#{"Case"}
         doctest #{module_name}
 
         alias #{module_name}
