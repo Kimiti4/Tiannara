@@ -306,12 +306,11 @@ defmodule Tiannara.World.UnifiedWorldModel do
                context
              ) do
           {:ok, mutation_id} ->
-            refuted = %{
+            refuted =
               current
-              | status: :refuted,
-                refutation_reason: reason,
-                updated_at: DateTime.utc_now()
-            }
+              |> Map.put(:status, :refuted)
+              |> Map.put(:refutation_reason, reason)
+              |> Map.put(:updated_at, DateTime.utc_now())
 
             UnifiedRealityGraph.add_entity(refuted)
 

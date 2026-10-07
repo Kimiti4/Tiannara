@@ -117,10 +117,9 @@ defmodule Tiannara.LifecycleRegistry do
   Must be called once at system startup.
   """
   def init_tables do
-    # write_concurrency: true allows massive parallel updates from worker processes
-    :ets.new(:lifecycle_events, [:bag, :public, :named_table, write_concurrency: true])
-    :ets.new(:lifecycle_state, [:set, :public, :named_table, write_concurrency: true])
-    :ets.new(:lifecycle_stats, [:set, :public, :named_table])
+    ensure_table(:lifecycle_events, [:bag, :public, :named_table, write_concurrency: true])
+    ensure_table(:lifecycle_state, [:set, :public, :named_table, write_concurrency: true])
+    ensure_table(:lifecycle_stats, [:set, :public, :named_table])
     
     # Initialize stats counters for each entity type
     entity_types = [:capability, :theory, :ontology, :civilization, :observer, :policy, :hypothesis]
@@ -465,6 +464,19 @@ defmodule Tiannara.LifecycleRegistry do
   
   # ==================== GenServer Callbacks ====================
   
+  defp ensure_table(name, options) do
+    case :ets.whereis(name) do
+      :undefined ->
+        try do
+          :ets.new(name, options)
+        rescue
+          ArgumentError -> name
+        end
+      _tid ->
+        name
+    end
+  end
+
   @impl true
   def init(_opts) do
     {:ok, %{}}

@@ -4,7 +4,8 @@ defmodule Tiannara.World.KnowledgeCoordinatorTest do
   alias Tiannara.World.{KnowledgeCoordinator, UnifiedWorldModel}
 
   setup do
-    {:ok, coordinator} = start_supervised(KnowledgeCoordinator)
+    coordinator = Process.whereis(KnowledgeCoordinator)
+    assert is_pid(coordinator), "KnowledgeCoordinator must be started by the application"
     {:ok, %{coordinator: coordinator}}
   end
 
