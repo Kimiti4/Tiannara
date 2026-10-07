@@ -48,6 +48,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
          :ok <- validate_parents(node),
          {:ok, graph} <- build_graph_node(node, state),
          {:ok, archive} <- archive_fun.(graph),
+         graph = Map.put(graph, :archive_hash, archive.hash),
          :ok <- persist_graph(graph) do
       {:reply, {:ok, %{graph: graph, archive: archive}}, %{state | order: state.order ++ [graph.node_id], last_hash: graph.hash}}
     else
