@@ -125,8 +125,13 @@ defmodule Tiannara.CRAV.SoakTestTest do
       })
 
     on_exit(fn ->
-      if Process.whereis(Tiannara.CRAV.SoakTest) do
-        Tiannara.CRAV.SoakTest.stop_test()
+      # TOCTOU guard: whereis/stop_test can race with the engine's own exit.
+      try do
+        if Process.whereis(Tiannara.CRAV.SoakTest) do
+          Tiannara.CRAV.SoakTest.stop_test()
+        end
+      catch
+        :exit, {reason, _} when reason in [:noproc, :normal, :shutdown] -> :ok
       end
     end)
 

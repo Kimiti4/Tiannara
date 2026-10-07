@@ -4,20 +4,33 @@ defmodule Tiannara.World.KnowledgeCoordinatorTest do
   alias Tiannara.World.{KnowledgeCoordinator, UnifiedWorldModel, EvidenceValidator,
                         KnowledgeEvolutionEngine}
 
-  alias Tiannara.CEL.Services.EventStore
+  alias Tiannara.CEL.Services.{EventStore, EventBus}
 
   setup do
     ensure_running(KnowledgeCoordinator)
     ensure_running(EvidenceValidator)
     ensure_running(KnowledgeEvolutionEngine)
     ensure_running(EventStore)
+    ensure_running(EventBus)
     :ok
   end
 
-  defp ensure_running(mod) do
+  defp ensure_running(mod, retries \\ 20)
+
+  defp ensure_running(mod, 0) do
+    flunk("could not start #{inspect(mod)}: name still registered to a dead process")
+  end
+
+  defp ensure_running(mod, retries) do
     case mod.start_link([]) do
       {:ok, _pid} -> :ok
-      {:error, {:already_started, _pid}} -> :ok
+      {:error, {:already_started, pid}} ->
+        if Process.alive?(pid) do
+          :ok
+        else
+          Process.sleep(25)
+          ensure_running(mod, retries - 1)
+        end
     end
   end
 
