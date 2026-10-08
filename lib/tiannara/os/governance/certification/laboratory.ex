@@ -601,7 +601,7 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
          {:ok, declared} <- fetch_string_key(data, ["sha256", "content_hash", "artifact_hash"]),
          {:ok, canonical} <- canonical_evidence_payload(data),
          actual <- :crypto.hash(:sha256, canonical) |> Base.encode16(case: :lower),
-         true <- Plug.Crypto.secure_compare(String.downcase(declared), actual) do
+         true <- String.downcase(declared) == actual do
       {:ok, path}
     else
       {:error, reason} -> {:error, {path, reason}}
