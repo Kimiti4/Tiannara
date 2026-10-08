@@ -433,9 +433,11 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     Enum.reduce(events, %{}, fn event, acc ->
       case event.type do
         :institution_created ->
-          Map.put(acc, event.institution_id, event.data)
+          id = Map.get(event.data, :institution_id, Map.get(event.data, "institution_id"))
+          if id, do: Map.put(acc, id, event.data), else: acc
         :institution_modified ->
-          Map.update(acc, event.institution_id, event.data, fn existing ->
+          id = Map.get(event.data, :institution_id, Map.get(event.data, "institution_id"))
+          if id, do: Map.update(acc, id, event.data, fn existing ->
             Map.merge(existing, event.data)
           end)
         _ ->
@@ -555,8 +557,70 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   end
   
   defp execute_gc_007_evidence_verification(_opts) do
-    {:error, %{campaign: :gc_007_evidence_verification, reason: :content_hash_verifier_not_implemented,
-      certification_status: :not_certifiable}}
+    IO.puts("    Independently verifying evidence artifact hashes...")
+
+    evidence_dir = Path.join([File.cwd!(), "evidence", "artifacts"])
+
+    if not File.dir?(evidence_dir) do
+      {:error, %{campaign: :gc_007_evidence_verification, reason: :evidence_directory_not_found}}
+    else
+      files = Path.wildcard(Path.join(evidence_dir, "*.json")) |> Enum.sort()
+
+      if files == [] do
+        {:error, %{campaign: :gc_007_evidence_verification, reason: :no_evidence_artifacts}}
+      else
+        results = Enum.map(files, &verify_evidence_artifact/1)
+        failures = Enum.filter(results, &(elem(&1, 0) == :error))
+
+        if failures == [] do
+          {:ok, %{
+            campaign: :gc_007_evidence_verification,
+            total_artifacts: length(files),
+            verified_artifacts: length(files),
+            failed_artifacts: 0,
+            all_evidence_valid: true,
+            verification_method: :sha256_canonical_payload,
+            supporting_evidence: Enum.map(files, &Path.relative_to_cwd/1) |> Enum.take(10),
+            certificate: %{status: :passed, verified_at: @fixed_timestamp}
+          }}
+        else
+          {:error, %{
+            campaign: :gc_007_evidence_verification,
+            total_artifacts: length(files),
+            failed_artifacts: length(failures),
+            failures: failures
+          }}
+        end
+      end
+    end
+  end
+
+  defp verify_evidence_artifact(path) do
+    with {:ok, content} <- File.read(path),
+         {:ok, data} <- Jason.decode(content),
+         {:ok, declared} <- fetch_string_key(data, ["sha256", "content_hash", "artifact_hash"]),
+         {:ok, canonical} <- canonical_evidence_payload(data),
+         actual <- :crypto.hash(:sha256, canonical) |> Base.encode16(case: :lower),
+         true <- Plug.Crypto.secure_compare(String.downcase(declared), actual) do
+      {:ok, path}
+    else
+      {:error, reason} -> {:error, {path, reason}}
+      false -> {:error, {path, :hash_mismatch}}
+    end
+  end
+
+  defp canonical_evidence_payload(data) do
+    payload = Map.drop(data, ["sha256", "content_hash", "artifact_hash", "signature", "signed_at"])
+    {:ok, Jason.encode!(payload)}
+  end
+
+  defp fetch_string_key(map, keys) do
+    Enum.find_value(keys, fn key ->
+      case Map.get(map, key) do
+        value when is_binary(value) and byte_size(value) > 0 -> {:ok, value}
+        _ -> nil
+      end
+    end) || {:error, :missing_content_hash}
   end
 
   defp legacy_execute_gc_007_evidence_verification(_opts) do
