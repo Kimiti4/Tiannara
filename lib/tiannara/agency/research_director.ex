@@ -48,7 +48,8 @@ defmodule Tiannara.Agency.ResearchDirector do
       knowledge = integrate_knowledge(event, top_hypothesis, experiment_result, evaluation)
 
       updated_hypothesis = %{top_hypothesis |
-        status: if(evaluation.recommendation == :accept, do: :validated, else: :refuted),
+        status: if(evaluation.recommendation == :accept, do: :experiment_supported, else: :refuted),
+        epistemic_status: :candidate,
         confidence: evaluation.new_confidence,
         experiment_id: experiment.id
       }
@@ -265,6 +266,8 @@ defmodule Tiannara.Agency.ResearchDirector do
       confidence: evaluation.new_confidence,
       supporting_evidence: Enum.map(result.evidence_items, & &1.id),
       contradictions: evaluation.contradictions,
+      epistemic_status: :candidate,
+      evidence_class: :simulated,
       reuse_count: 0
     }
 
