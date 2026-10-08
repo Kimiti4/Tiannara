@@ -323,7 +323,7 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
   @doc """
   Sign off a discovery as a human expert.
   """
-  @spec sign_off_human(State.t(), atom(), atom(), String.t()) :: {:error, :human_signoff_requires_lineage}
+    @spec sign_off_human(State.t(), atom(), atom(), String.t()) :: {:error, :human_signoff_requires_lineage}
   def sign_off_human(%State{}, _discovery_id, _human_id, _reason) do
     {:error, :human_signoff_requires_lineage}
   end
@@ -331,27 +331,57 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
   @spec sign_off_human(State.t(), atom(), atom(), String.t(), map()) :: {:ok, State.t()} | {:error, term()}
   def sign_off_human(%State{} = state, discovery_id, human_id, reason, evidence) when is_map(evidence) do
     case Map.get(state.discoveries, discovery_id) do
-      nil -> {:ok, state}
+      nil -> {:error, :not_found}
       discovery ->
-        updated = %{discovery |
-          validation_level: :l5,
-          status: :validated,
-          validation_history: discovery.validation_history ++ [%{level: :l5, timestamp: :os.system_time(:millisecond), reviewer: human_id, reason: reason}]
-        }
-        state_with_discovery = %{state | discoveries: Map.put(state.discoveries, discovery_id, updated)}
-        # Auto-create discovery asset when hitting L5
-        asset = %DiscoveryAsset{
-          discovery_id: discovery_id,
-          valuation: 1000.0,
-          royalty_rate: 0.02,
-          license_type: :permissive,
-          maturity: :validated,
-          confidence: 0.9,
-          utility: 0.8,
-          created_at: :os.system_time(:millisecond),
-          updated_at: :os.system_time(:millisecond)
-        }
-        {:ok, %{state_with_discovery | discovery_assets: Map.put(state_with_discovery.discovery_assets, discovery_id, asset)}}
+        with {:ok, lineage} <- validate_human_signoff_lineage(discovery, evidence) do
+          updated = %{discovery |
+            validation_level: :l5,
+            status: :validated,
+            validation_history: discovery.validation_history ++ [%{
+              level: :l5,
+              timestamp: :os.system_time(:millisecond),
+              reviewer: human_id,
+              reason: reason,
+              lineage: lineage
+            }]
+          }
+
+          state_with_discovery = %{state | discoveries: Map.put(state.discoveries, discovery_id, updated)}
+
+          asset = %DiscoveryAsset{
+            discovery_id: discovery_id,
+            valuation: 1000.0,
+            royalty_rate: 0.02,
+            license_type: :permissive,
+            maturity: :validated,
+            confidence: 0.9,
+            utility: 0.8,
+            created_at: :os.system_time(:millisecond),
+            updated_at: :os.system_time(:millisecond)
+          }
+
+          {:ok, %{state_with_discovery |
+            discovery_assets: Map.put(state_with_discovery.discovery_assets, discovery_id, asset)
+          }}
+        end
+    end
+  end
+
+  defp validate_human_signoff_lineage(discovery, evidence) do
+    lineage = Map.get(evidence, :lineage, Map.get(evidence, "lineage", %{}))
+    graph_id = Map.get(lineage, :graph_id, Map.get(lineage, "graph_id"))
+    archive_hash = Map.get(lineage, :archive_hash, Map.get(lineage, "archive_hash"))
+
+    with true <- is_binary(graph_id),
+         true <- is_binary(archive_hash),
+         :ok <- Tiannara.Sentinel.DiscoveryVerificationGraph.verify_chain(),
+         :ok <- Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(archive_hash),
+         {:ok, node} <- Tiannara.Sentinel.DiscoveryVerificationGraph.get(graph_id),
+         true <- Map.get(node, :discovery_id) == discovery.id do
+      {:ok, %{graph_id: graph_id, archive_hash: archive_hash}}
+    else
+      false -> {:error, :human_signoff_lineage_mismatch}
+      _ -> {:error, :human_signoff_requires_verified_lineage}
     end
   end
 
