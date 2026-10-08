@@ -58,7 +58,7 @@ case TiannaraOS.Governance.Certification.Laboratory.execute_certification() do
     IO.puts("  📄 Saved: #{cert_path}")
     
     # Save individual campaign results
-    Enum.each(certificate.results, fn {campaign_name, result} ->
+    Enum.each(certificate.payload.results, fn {campaign_name, result} ->
       result_path = Path.join([base_dir, "campaign_results", "#{campaign_name}.json"])
       result_json = Jason.encode!(result, pretty: true)
       File.write!(result_path, result_json)
