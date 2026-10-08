@@ -510,7 +510,7 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
           confidence: 1.0,
           statistical_power: 1.0,
           failure_modes: [],
-          supporting_evidence: cert_files |> Enum.take(10),
+          supporting_evidence: cert_files |> Enum.map(&Path.relative_to_cwd/1) |> Enum.sort() |> Enum.take(10),
           certificate: %{status: :passed, verified_at: @fixed_timestamp}
         }}
       else
@@ -580,7 +580,7 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
           confidence: 1.0,
           statistical_power: 1.0,
           failure_modes: [],
-          supporting_evidence: evidence_files |> Enum.take(10),
+          supporting_evidence: evidence_files |> Enum.map(&Path.relative_to_cwd/1) |> Enum.sort() |> Enum.take(10),
           certificate: %{status: :passed, verified_at: @fixed_timestamp}
         }}
       else
