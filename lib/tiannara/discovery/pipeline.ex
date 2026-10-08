@@ -414,12 +414,15 @@ defmodule Tiannara.Discovery.Pipeline do
           artifact =
             Artifact.new(:validated_discoveries,
               %{quantity: q, claim: cand.content.claim,
-                provenance: provenance_chain(state, cand)},
+                provenance: provenance_chain(state, cand),
+                epistemic_status: :candidate,
+                promotion_required: true,
+                promotion_blocker: :durable_evidence_lineage},
               id: id,
               lineage: [cand.id],
               subsystem: :discovery,
               confidence: cand.confidence,
-              checks: [:full_provenance, :validation_passed, :reproducibility]
+              checks: [:full_provenance, :validation_candidate_only, :reproducibility]
             )
 
           st =
