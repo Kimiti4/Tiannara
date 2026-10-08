@@ -40,6 +40,7 @@ defmodule Tiannara.Agency.Models do
     """
     defstruct [
       :id, :timestamp, :event_id, :statement, :prediction, :falsification_criteria, :status,
+      epistemic_status: :candidate,
       required_evidence: [],
       priority_score: 0.0,
       priority_breakdown: %{},
