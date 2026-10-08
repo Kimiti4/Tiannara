@@ -258,17 +258,22 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   end
   
   defp replay_and_verify(%{events: events}) do
-    # For GC-001, we verify determinism by checking event structure
-    # In production: would use GovernanceReplayEngine.replay_from_sequence/1
-    # For now, verify event integrity
-    
+    # The generated history is an input fixture only. Certification must use the
+    # canonical replay engine against the persisted ledger; structural inspection
+    # is not evidence of replay correctness.
     if length(events) > 0 do
-      {:ok, %{
-        replayed: true,
-        event_count: length(events),
-        state_consistent: true,
-        determinism_verified: true
-      }}
+      case TiannaraOS.Governance.GovernanceReplayEngine.replay_full() do
+        {:ok, replayed_state} ->
+          current_state = TiannaraOS.Governance.GovernanceState.get_current_state()
+          case TiannaraOS.Governance.GovernanceReplayEngine.verify_replay(current_state, replayed_state) do
+            :match ->
+              {:ok, %{replayed: true, event_count: length(events), state_consistent: true, determinism_verified: true}}
+            {:mismatch, details} ->
+              {:error, {:replay_mismatch, details}}
+          end
+        {:error, reason} ->
+          {:error, {:replay_failed, reason}}
+      end
     else
       {:error, :no_events}
     end
