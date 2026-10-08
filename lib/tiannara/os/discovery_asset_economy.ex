@@ -307,7 +307,9 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
       nil -> state
       discovery ->
         new_level = cond do
-          discovery.validation_level == :l4 and discovery.replication_score > 0.5 -> :l5
+          # L5 is an authority/evidence-gated state; it cannot be reached
+          # automatically from a score. Human sign-off must provide durable lineage.
+          discovery.validation_level == :l4 and discovery.replication_score > 0.5 -> :l4
           discovery.validation_level == :l3 and discovery.transferability_score > 0.5 -> :l4
           discovery.validation_level == :l2 and discovery.replication_score > 0.5 -> :l3
           discovery.validation_level == :l1 and discovery.evidence_score > 0.6 -> :l2
@@ -321,8 +323,13 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
   @doc """
   Sign off a discovery as a human expert.
   """
-  @spec sign_off_human(State.t(), atom(), atom(), String.t()) :: {:ok, State.t()}
-  def sign_off_human(%State{} = state, discovery_id, human_id, reason) do
+  @spec sign_off_human(State.t(), atom(), atom(), String.t()) :: {:error, :human_signoff_requires_lineage}
+  def sign_off_human(%State{}, _discovery_id, _human_id, _reason) do
+    {:error, :human_signoff_requires_lineage}
+  end
+
+  @spec sign_off_human(State.t(), atom(), atom(), String.t(), map()) :: {:ok, State.t()} | {:error, term()}
+  def sign_off_human(%State{} = state, discovery_id, human_id, reason, evidence) when is_map(evidence) do
     case Map.get(state.discoveries, discovery_id) do
       nil -> {:ok, state}
       discovery ->
