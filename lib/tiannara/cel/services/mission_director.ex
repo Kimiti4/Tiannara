@@ -212,20 +212,26 @@ defmodule Tiannara.CEL.Services.MissionDirector do
         {:reply, {:error, :objective_not_found}, state}
 
       m ->
-        if length(evidence) < 1 do
-          {:reply, {:error, :insufficient_validation_evidence}, state}
-        else
-          updated_programs = update_objective_in_programs(m.programs, objective_id, fn obj ->
-            %{obj |
-              status: :validated,
-              validation_evidence: evidence ++ obj.validation_evidence
-            }
-          end)
+        case validate_objective_evidence(objective_id, evidence) do
+          :ok ->
+            updated_programs = update_objective_in_programs(m.programs, objective_id, fn obj ->
+              %{obj |
+                status: :validated,
+                validation_evidence: evidence ++ obj.validation_evidence
+              }
+            end)
 
-          updated_mission = %{m | programs: updated_programs}
-          persist_mission(updated_mission)
-          record_transition(m.id, :objective_validated, %{objective_id: objective_id})
-          {:reply, :ok, state}
+            updated_mission = %{m | programs: updated_programs}
+            persist_mission(updated_mission)
+            record_transition(m.id, :objective_validated, %{
+              objective_id: objective_id,
+              evidence_count: length(evidence),
+              evidence_lineage: evidence_lineage(evidence)
+            })
+            {:reply, :ok, state}
+
+          {:error, reason} ->
+            {:reply, {:error, reason}, state}
         end
     end
   end
@@ -293,6 +299,45 @@ defmodule Tiannara.CEL.Services.MissionDirector do
   @impl true
   def handle_call(:stats, _from, state) do
     {:reply, state, state}
+  end
+
+  defp validate_objective_evidence(_objective_id, evidence) when not is_list(evidence),
+    do: {:error, :validation_evidence_required}
+
+  defp validate_objective_evidence(_objective_id, []), do: {:error, :validation_evidence_required}
+
+  defp validate_objective_evidence(objective_id, evidence) do
+    lineage = Enum.find_value(evidence, fn item ->
+      if is_map(item), do: Map.get(item, :lineage) || Map.get(item, "lineage")
+    end)
+
+    with {:ok, lineage} <- normalize_lineage(lineage),
+         :ok <- Tiannara.Sentinel.DiscoveryVerificationGraph.verify_chain(),
+         :ok <- Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(lineage.archive_hash),
+         {:ok, node} <- Tiannara.Sentinel.DiscoveryVerificationGraph.get(lineage.graph_id),
+         true <- Map.get(node, :objective_id, objective_id) == objective_id do
+      :ok
+    else
+      false -> {:error, :validation_lineage_mismatch}
+      {:error, _} -> {:error, :validation_requires_verified_lineage}
+      _ -> {:error, :validation_requires_lineage}
+    end
+  end
+
+  defp normalize_lineage(%{graph_id: graph_id, archive_hash: archive_hash})
+       when is_binary(graph_id) and is_binary(archive_hash),
+       do: {:ok, %{graph_id: graph_id, archive_hash: archive_hash}}
+
+  defp normalize_lineage(%{"graph_id" => graph_id, "archive_hash" => archive_hash})
+       when is_binary(graph_id) and is_binary(archive_hash),
+       do: {:ok, %{graph_id: graph_id, archive_hash: archive_hash}}
+
+  defp normalize_lineage(_), do: {:error, :validation_requires_lineage}
+
+  defp evidence_lineage(evidence) do
+    Enum.find_value(evidence, %{}, fn item ->
+      if is_map(item), do: Map.get(item, :lineage) || Map.get(item, "lineage")
+    end)
   end
 
   defp persist_mission(mission) do
