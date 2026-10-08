@@ -42,7 +42,9 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
     path = Keyword.get(opts, :file, Application.get_env(:tiannara, :discovery_verification_graph_file, @default_file))
     File.mkdir_p!(Path.dirname(path))
     case :dets.open_file(@table, type: :set, file: String.to_charlist(path), repair: true) do
-      {:ok, _} -> {:ok, %{order: load_order(), last_hash: load_last_hash()}}
+      {:ok, _} ->
+        recover_orphan_archives()
+        {:ok, %{order: load_order(), last_hash: load_last_hash()}}
       {:error, reason} -> {:stop, {:graph_open_failed, reason}}
     end
   end
@@ -163,6 +165,32 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
         _ -> []
       end
     end)
+  end
+
+  # Archive and graph use separate DETS tables. If a crash occurs after the
+  # archive commit but before the graph commit, recover the graph from the
+  # immutable archive artifact on the next startup.
+  defp recover_orphan_archives do
+    case Process.whereis(Tiannara.Sentinel.DiscoveryEvidenceArchive) do
+      nil -> :ok
+      _pid ->
+        Tiannara.Sentinel.DiscoveryEvidenceArchive.all()
+        |> Enum.each(fn archive ->
+          artifact = Map.get(archive, :artifact, %{})
+          node_id = Map.get(artifact, :node_id)
+          archive_hash = Map.get(archive, :hash)
+
+          if archive_hash && node_id &&
+               Map.get(archive, :kind) == :discovery_verification &&
+               :dets.lookup(@table, node_id) == [] do
+            graph = Map.put(artifact, :archive_hash, archive_hash)
+
+            if Map.get(graph, :hash) == hash_record(graph) do
+              _ = :dets.insert(@table, {node_id, graph})
+            end
+          end
+        end)
+    end
   end
 
   defp load_order do
