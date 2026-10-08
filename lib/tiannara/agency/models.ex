@@ -88,6 +88,8 @@ defmodule Tiannara.Agency.Models do
     defstruct [
       :id, :timestamp, :source_event_id, :source_hypothesis_id,
       :source_experiment_id, :domain, :content, :knowledge_level,
+      epistemic_status: :candidate,
+      evidence_class: :simulated,
       confidence: 0.0,
       supporting_evidence: [],
       contradictions: [],
