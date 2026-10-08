@@ -283,7 +283,12 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   # GC-002: Authority Fuzzing
   # ============================================================================
   
-  defp execute_gc_002_authority_fuzzing(opts) do
+  defp execute_gc_002_authority_fuzzing(_opts) do
+    {:error, %{campaign: :gc_002_authority_fuzzing, reason: :canonical_authority_executor_not_implemented,
+      certification_status: :not_certifiable}}
+  end
+
+  defp legacy_execute_gc_002_authority_fuzzing(opts) do
     ctx = Keyword.get(opts, :context) || DeterministicContext.new(seed: Keyword.get(opts, :seed, 42))
     test_count = 5000
     
@@ -475,6 +480,11 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   end
   
   defp execute_gc_006_certificate_verification(_opts) do
+    {:error, %{campaign: :gc_006_certificate_verification, reason: :cryptographic_signature_verifier_not_implemented,
+      certification_status: :not_certifiable}}
+  end
+
+  defp legacy_execute_gc_006_certificate_verification(_opts) do
     IO.puts("    Verifying cryptographic certificates...")
     
     # Query certificate directory
@@ -545,6 +555,11 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   end
   
   defp execute_gc_007_evidence_verification(_opts) do
+    {:error, %{campaign: :gc_007_evidence_verification, reason: :content_hash_verifier_not_implemented,
+      certification_status: :not_certifiable}}
+  end
+
+  defp legacy_execute_gc_007_evidence_verification(_opts) do
     IO.puts("    Independently verifying evidence artifacts...")
     
     # Query evidence directory
@@ -772,7 +787,12 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     result
   end
   
-  defp execute_gc_012_long_horizon_evolution(opts) do
+  defp execute_gc_012_long_horizon_evolution(_opts) do
+    {:error, %{campaign: :gc_012_long_horizon_evolution, reason: :real_evolution_engine_not_executed,
+      certification_status: :not_certifiable}}
+  end
+
+  defp legacy_execute_gc_012_long_horizon_evolution(opts) do
     ctx = Keyword.get(opts, :context) || DeterministicContext.new(seed: Keyword.get(opts, :seed, 42))
     IO.puts("    Simulating long horizon evolution (100,000 decisions)...")
     
