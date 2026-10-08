@@ -23,9 +23,15 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
   - Ongoing royalty generation
   - Tradeability between institutions
   """
-  @spec create_discovery_asset(State.t(), atom(), atom()) :: {:ok, State.t(), DiscoveryAsset.t()} | {:error, any()}
-  def create_discovery_asset(%State{} = state, discovery_id, program_id) do
+  @spec create_discovery_asset(State.t(), atom(), atom()) :: {:error, :asset_creation_requires_verified_lineage}
+  def create_discovery_asset(%State{}, _discovery_id, _program_id) do
+    {:error, :asset_creation_requires_verified_lineage}
+  end
+
+  @spec create_discovery_asset(State.t(), atom(), atom(), map()) :: {:ok, State.t(), DiscoveryAsset.t()} | {:error, any()}
+  def create_discovery_asset(%State{} = state, discovery_id, program_id, evidence) when is_map(evidence) do
     with {:ok, discovery} <- get_discovery(state, discovery_id),
+         {:ok, _lineage} <- validate_asset_lineage(discovery, evidence),
          {:ok, program} <- get_program(state, program_id) do
       
       # Calculate initial asset value
@@ -411,9 +417,16 @@ defmodule TiannaraOS.DiscoveryAssetEconomy do
   @doc """
   Record a transaction on a discovery asset.
   """
-  @spec transact_discovery(State.t(), atom(), atom(), float()) :: {:ok, State.t()} | {:error, term()}
-  def transact_discovery(%State{} = state, discovery_id, buyer, amount) do
-    case Map.get(state.discovery_assets, discovery_id) do
+  @spec transact_discovery(State.t(), atom(), atom(), float()) :: {:error, :transaction_requires_verified_lineage}
+  def transact_discovery(%State{}, _discovery_id, _buyer, _amount) do
+    {:error, :transaction_requires_verified_lineage}
+  end
+
+  @spec transact_discovery(State.t(), atom(), atom(), float(), map()) :: {:ok, State.t()} | {:error, term()}
+  def transact_discovery(%State{} = state, discovery_id, buyer, amount, evidence) when is_map(evidence) do
+    with {:ok, discovery} <- get_discovery(state, discovery_id),
+         {:ok, _lineage} <- validate_asset_lineage(discovery, evidence),
+         asset when not is_nil(asset) <- Map.get(state.discovery_assets, discovery_id) do
       nil -> {:error, :not_found}
       asset ->
         updated = %{asset |
