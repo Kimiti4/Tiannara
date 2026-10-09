@@ -231,7 +231,11 @@ IO.puts("  Testing deterministic state reconstruction...")
 state1 = TiannaraOS.Governance.GovernanceState.capture_state()
 state2 = TiannaraOS.Governance.GovernanceState.capture_state()
 
-states_identical = state1 == state2
+# The embedded wall-clock timestamp legitimately differs between snapshots
+# on high-resolution clocks; determinism is about the reconstructed
+# governance state, not the capture instant.
+states_identical =
+  Map.drop(state1, [:timestamp]) == Map.drop(state2, [:timestamp])
 
 replay_report = %{
   replay_type: :deterministic_reconstruction,
