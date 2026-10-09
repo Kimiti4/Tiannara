@@ -10,7 +10,10 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 import json
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/autonomy", tags=["autonomous-testing"])
 
