@@ -12,6 +12,10 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  defaults:
+    run:
+      working-directory: ${{ github.workspace }}
+
   # ==================== Test Stage ====================
   test:
     name: Run Tests
@@ -52,6 +56,8 @@ jobs:
           pip install pytest pytest-cov hypothesis
 
       - name: Run tests with coverage
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           pytest tests/ -v --cov=tiannara_api --cov=tiannara_core --cov-report=xml --cov-report=term-missing
 
