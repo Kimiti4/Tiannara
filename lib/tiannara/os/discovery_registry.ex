@@ -138,6 +138,8 @@ defmodule TiannaraOS.DiscoveryRegistry do
             :ok -> {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
             {:error, reason} -> {:reply, {:error, {:discovery_persistence_failed, reason}}, state}
           end
+        else
+          {:error, reason} -> {:reply, {:error, reason}, state}
         end
     end
   end
@@ -199,10 +201,10 @@ defmodule TiannaraOS.DiscoveryRegistry do
     cond do
       not is_map(envelope) ->
         {:error, :reproduction_evidence_required}
+      Map.has_key?(envelope, :evidence_class) and Map.get(envelope, :evidence_class) not in [:real, :simulated] ->
+        {:error, :invalid_evidence_envelope}
       not is_map(reproduction) ->
         {:error, :reproduction_evidence_required}
-      Map.get(envelope, :evidence_class) not in [:real, :simulated] ->
-        {:error, :invalid_evidence_envelope}
       Map.get(envelope, :evidence_class) != :real ->
         {:error, :real_reproduction_evidence_required}
       Map.get(envelope, :execution_mode) != :real_execution ->

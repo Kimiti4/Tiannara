@@ -35,6 +35,36 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     }
   end
 
+  # DETS tables may be closed when on_exit runs (owner process already
+  # stopped). Reopen briefly so the restore always lands, whether the table
+  # is currently open or not.
+  defp restore_dets_record(table, env_key, default_path, key, record) do
+    path = Application.get_env(:tiannara, env_key, default_path)
+    {:ok, _} = :dets.open_file(table, type: :set, file: String.to_charlist(path), repair: true)
+    :ok = :dets.insert(table, {key, record})
+    :ok = :dets.close(table)
+  end
+
+  defp restore_archive_record(hash, record) do
+    restore_dets_record(
+      :tiannara_discovery_evidence_archive,
+      :discovery_evidence_archive_file,
+      "data/discovery_evidence_archive.dets",
+      hash,
+      record
+    )
+  end
+
+  defp restore_graph_record(node_id, record) do
+    restore_dets_record(
+      :tiannara_discovery_verification_graph,
+      :discovery_verification_graph_file,
+      "data/discovery_verification_graph.dets",
+      node_id,
+      record
+    )
+  end
+
   test "full discovery promotion persists and reconstructs lineage" do
     id = :"integration_#{System.unique_integer([:positive])}"
     assert {:ok, _} = register(id)
@@ -332,8 +362,158 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     [hash] = updated.archive_ids
     [{^hash, record}] = :dets.lookup(:tiannara_discovery_evidence_archive, hash)
     :dets.insert(:tiannara_discovery_evidence_archive, {hash, Map.put(record, :status, :tampered)})
+    on_exit(fn -> restore_archive_record(hash, record) end)
 
     assert {:error, :archive_hash_mismatch} = DiscoveryEvidenceArchive.verify(hash)
     assert {:error, {:archive_binding_invalid, _node_id}} = DiscoveryVerificationGraph.verify_chain()
+  end
+
+  test "missing archive record blocks chain verification and transition reuse" do
+    key = "missing-archive-#{System.unique_integer([:positive])}"
+    node = %{
+      kind: :discovery_validation_transition,
+      discovery_id: key,
+      transition_key: key,
+      transition_payload_hash: "payload",
+      provenance: %{source: :test},
+      status: :reproduced,
+      artifact: %{from: :candidate, to: :reproduced}
+    }
+
+    assert {:ok, %{graph: graph, archive: archive}} =
+             DiscoveryVerificationGraph.append_with_archive(node)
+
+    graph_id = graph.node_id
+    archive_hash = archive.hash
+
+    [{^archive_hash, original_archive}] = :dets.lookup(:tiannara_discovery_evidence_archive, archive_hash)
+    on_exit(fn -> restore_archive_record(archive_hash, original_archive) end)
+
+    assert :ok = :dets.delete(:tiannara_discovery_evidence_archive, archive_hash)
+
+    assert {:error, :archive_not_found} = DiscoveryEvidenceArchive.get(archive_hash)
+    assert {:error, :archive_not_found} = DiscoveryEvidenceArchive.verify(archive_hash)
+    assert {:error, {:archive_binding_invalid, ^graph_id}} = DiscoveryVerificationGraph.verify_chain()
+
+    # Reusing the same logical transition must fail, never silently succeed
+    # with a lost evidence archive.
+    assert {:error, :existing_transition_archive_missing} =
+             DiscoveryVerificationGraph.append_with_archive(node)
+
+    # Retrying with different evidence is still an identity conflict.
+    changed = Map.put(node, :transition_payload_hash, "payload-b")
+
+    assert {:error, :transition_identity_conflict} =
+             DiscoveryVerificationGraph.append_with_archive(changed)
+  end
+
+  test "corrupted graph node is detected during chain verification" do
+    id = :"graph_tamper_#{System.unique_integer([:positive])}"
+    assert {:ok, _} = register(id)
+
+    assert {:ok, promoted} =
+             DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, real_evidence())
+
+    [graph_id] = promoted.verification_graph_ids
+
+    [{^graph_id, original_node}] = :dets.lookup(:tiannara_discovery_verification_graph, graph_id)
+    on_exit(fn -> restore_graph_record(graph_id, original_node) end)
+
+    assert :ok =
+             :dets.insert(
+               :tiannara_discovery_verification_graph,
+               {graph_id, Map.put(original_node, :status, :tampered)}
+             )
+
+    assert {:error, {:hash_chain_invalid, ^graph_id}} = DiscoveryVerificationGraph.verify_chain()
+  end
+
+  test "graph node loss fails chain verification and is recovered from the archive after restart" do
+    key = "node-loss-#{System.unique_integer([:positive])}"
+    node = %{
+      kind: :discovery_validation_transition,
+      discovery_id: key,
+      transition_key: key,
+      transition_payload_hash: "payload",
+      provenance: %{source: :test},
+      status: :reproduced,
+      artifact: %{from: :candidate, to: :reproduced}
+    }
+
+    assert {:ok, %{graph: graph}} = DiscoveryVerificationGraph.append_with_archive(node)
+    graph_id = graph.node_id
+
+    [{^graph_id, original}] = :dets.lookup(:tiannara_discovery_verification_graph, graph_id)
+    on_exit(fn -> restore_graph_record(graph_id, original) end)
+
+    assert :ok = :dets.delete(:tiannara_discovery_verification_graph, graph_id)
+    assert {:error, {:graph_node_missing, ^graph_id}} = DiscoveryVerificationGraph.verify_chain()
+
+    graph_pid = Process.whereis(DiscoveryVerificationGraph)
+    Process.exit(graph_pid, :kill)
+    Process.sleep(50)
+    if Process.whereis(DiscoveryVerificationGraph) == nil, do: start_supervised!(DiscoveryVerificationGraph)
+
+    assert {:ok, recovered} = DiscoveryVerificationGraph.get(graph_id)
+    assert recovered.hash == graph.hash
+    assert recovered.archive_hash == graph.archive_hash
+    assert :ok = DiscoveryEvidenceArchive.verify(graph.archive_hash)
+    assert :ok = DiscoveryVerificationGraph.verify_chain()
+  end
+
+  test "registry restart cannot reconcile a missing lineage archive" do
+    id = :"dangling_archive_#{System.unique_integer([:positive])}"
+    assert {:ok, _} = register(id)
+
+    assert {:ok, promoted} =
+             DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, real_evidence())
+
+    [graph_id] = promoted.verification_graph_ids
+    [archive_hash] = promoted.archive_ids
+
+    [{^archive_hash, original_archive}] = :dets.lookup(:tiannara_discovery_evidence_archive, archive_hash)
+    on_exit(fn -> restore_archive_record(archive_hash, original_archive) end)
+
+    assert :ok = :dets.delete(:tiannara_discovery_evidence_archive, archive_hash)
+
+    # Restart the graph: orphan recovery must not fabricate the missing archive.
+    graph_pid = Process.whereis(DiscoveryVerificationGraph)
+    Process.exit(graph_pid, :kill)
+    Process.sleep(50)
+    if Process.whereis(DiscoveryVerificationGraph) == nil, do: start_supervised!(DiscoveryVerificationGraph)
+
+    assert {:ok, node} = DiscoveryVerificationGraph.get(graph_id)
+    assert node.archive_hash == archive_hash
+    assert {:error, :archive_not_found} = DiscoveryEvidenceArchive.get(archive_hash)
+    assert {:error, {:archive_binding_invalid, ^graph_id}} = DiscoveryVerificationGraph.verify_chain()
+
+    # Restart the registry: its own state restores, but the cross-store
+    # inconsistency remains and cannot be replayed away.
+    registry_pid = Process.whereis(DiscoveryRegistry)
+    monitor = Process.monitor(registry_pid)
+    GenServer.stop(registry_pid, :shutdown)
+    assert_receive {:DOWN, ^monitor, :process, ^registry_pid, :shutdown}, 5_000
+
+    new_pid =
+      Enum.reduce_while(1..50, nil, fn _, _ ->
+        case Process.whereis(DiscoveryRegistry) do
+          pid when is_pid(pid) and pid != registry_pid -> {:halt, pid}
+          _ ->
+            Process.sleep(20)
+            {:cont, nil}
+        end
+      end)
+
+    assert is_pid(new_pid)
+    assert {:ok, restored} = DiscoveryRegistry.get(id)
+    assert restored.validation_status == :reproduced
+    assert restored.verification_graph_ids == [graph_id]
+    assert restored.archive_ids == [archive_hash]
+
+    assert {:error, :archive_not_found} = DiscoveryEvidenceArchive.verify(archive_hash)
+    assert {:error, {:archive_binding_invalid, ^graph_id}} = DiscoveryVerificationGraph.verify_chain()
+
+    assert {:error, :invalid_status_transition} =
+             DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, real_evidence())
   end
 end
