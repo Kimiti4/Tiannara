@@ -84,6 +84,40 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     assert :ok = DiscoveryEvidenceArchive.verify(archive_hash)
   end
 
+  test "registry restart preserves promoted state and rejects replay" do
+    id = :"registry_restart_#{System.unique_integer([:positive])}"
+    assert {:ok, _} = register(id)
+
+    assert {:ok, reproduced} =
+             DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, real_evidence())
+
+    assert reproduced.validation_status == :reproduced
+    old_pid = Process.whereis(DiscoveryRegistry)
+    monitor = Process.monitor(old_pid)
+    GenServer.stop(old_pid, :shutdown)
+    assert_receive {:DOWN, ^monitor, :process, ^old_pid, :shutdown}, 5_000
+
+    new_pid =
+      Enum.reduce_while(1..50, nil, fn _, _ ->
+        case Process.whereis(DiscoveryRegistry) do
+          pid when is_pid(pid) and pid != old_pid -> {:halt, pid}
+          _ ->
+            Process.sleep(20)
+            {:cont, nil}
+        end
+      end)
+
+    assert is_pid(new_pid)
+    assert {:ok, restored} = DiscoveryRegistry.get(id)
+    assert restored.validation_status == :reproduced
+    assert length(restored.lifecycle_events) == 1
+    assert length(restored.verification_graph_ids) == 1
+    assert length(restored.archive_ids) == 1
+
+    assert {:error, :invalid_status_transition} =
+             DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, real_evidence())
+  end
+
   test "all promotion attack paths fail closed" do
     id = :"attack_#{System.unique_integer([:positive])}"
     assert {:ok, _} = register(id)
