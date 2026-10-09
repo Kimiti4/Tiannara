@@ -171,44 +171,15 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   # GC-001: Replay Certification
   # ============================================================================
   
-  defp execute_gc_001_replay_certification(ctx, sample_size) do
-    IO.puts("    Generating #{sample_size} random governance histories (seed=#{ctx.seed})...")
-    
-    results = Enum.map(1..sample_size, fn i ->
-      case generate_random_history(ctx) do
-        {:ok, history, _new_ctx} ->
-          case replay_and_verify(history) do
-            {:ok, verified} -> {:success, verified}
-            {:error, reason} -> {:failure, %{history_index: i, reason: reason}}
-          end
-      end
-    end)
-    
-    successes = Enum.count(results, fn {status, _} -> status == :success end)
-    failures = Enum.count(results, fn {status, _} -> status == :failure end)
-    
-    failure_details = Enum.filter(results, fn {status, _} -> status == :failure end)
-    |> Enum.map(fn {_, detail} -> detail end)
-    
-    if failures == 0 do
-      {:ok, %{
-        campaign: :gc_001_replay,
-        sample_size: sample_size,
-        successes: successes,
-        failures: failures,
-        success_rate: 1.0,
-        determinism_verified: true
-      }}
-    else
-      {:error, %{
-        campaign: :gc_001_replay,
-        sample_size: sample_size,
-        successes: successes,
-        failures: failures,
-        success_rate: successes / sample_size,
-        failure_details: Enum.take(failure_details, 10)  # First 10 failures
-      }}
-    end
+  defp execute_gc_001_replay_certification(_ctx, _sample_size) do
+    # Fail closed: the previous implementation generated random histories but
+    # replayed the global persisted ledger for each one. That did not verify
+    # the generated histories and could falsely certify replay correctness.
+    {:error, %{
+      campaign: :gc_001_replay,
+      reason: :isolated_history_replay_not_implemented,
+      certification_status: :not_certifiable
+    }}
   end
   
   defp generate_random_history(ctx) do
@@ -366,7 +337,7 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     # All capabilities should be assigned to institutions
     conservation_rate = if(total_caps > 0, do: assigned_count / total_caps, else: 1.0)
     
-    result = if(orphan_count == 0) do
+    result = if(total_caps > 0 and orphan_count == 0) do
       {:ok, %{
         campaign: :gc_003_capability_conservation,
         total_capabilities: total_caps,
@@ -757,7 +728,7 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     completeness_rate = if(total_artifacts > 0, do: complete_provenance / total_artifacts, else: 0)
     
     # For initial certification, accept 0% if no events exist (bootstrap scenario)
-    result = if(completeness_rate >= 0.95 or total_artifacts == 0) do
+    result = if(total_artifacts > 0 and completeness_rate >= 0.95) do
       {:ok, %{
         campaign: :gc_008_archaeology_certification,
         total_artifacts: total_artifacts,
@@ -784,11 +755,17 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   defp execute_gc_009_entropy_stability(_opts) do
     IO.puts("    Testing entropy stability across mutations...")
     
+    # Repeated snapshots without intervening mutations do not certify
+    # stability under mutation; do not present them as a mutation campaign.
+    _ = GovernanceEntropyTracker.measure_entropy()
+    {:error, %{campaign: :gc_009_entropy_stability,
+      reason: :mutation_driver_not_implemented, certification_status: :not_certifiable}}
+  end
+
+  defp legacy_execute_gc_009_entropy_stability(_opts) do
     sample_size = 1000
-    
+
     IO.puts("    Running #{sample_size} entropy measurements...")
-    
-    # Run multiple entropy measurements
     measurements = Enum.map(1..sample_size, fn _ ->
       entropy = GovernanceEntropyTracker.measure_entropy()
       entropy.total_entropy
@@ -829,11 +806,17 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   defp execute_gc_010_fitness_stability(_opts) do
     IO.puts("    Testing fitness stability across mutations...")
     
+    # Repeated evaluations without controlled mutations do not establish
+    # fitness stability across system changes.
+    _ = GovernanceFitnessEvaluator.evaluate_fitness()
+    {:error, %{campaign: :gc_010_fitness_stability,
+      reason: :mutation_driver_not_implemented, certification_status: :not_certifiable}}
+  end
+
+  defp legacy_execute_gc_010_fitness_stability(_opts) do
     sample_size = 1000
-    
+
     IO.puts("    Running #{sample_size} fitness evaluations...")
-    
-    # Run multiple fitness evaluations
     evaluations = Enum.map(1..sample_size, fn _ ->
       fitness = GovernanceFitnessEvaluator.evaluate_fitness()
       fitness.overall_fitness
