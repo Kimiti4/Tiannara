@@ -487,9 +487,65 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   end
   
   defp execute_gc_006_certificate_verification(_opts) do
-    {:error, %{campaign: :gc_006_certificate_verification, reason: :cryptographic_signature_verifier_not_implemented,
-      certification_status: :not_certifiable}}
+    key_path = System.get_env("TIANNARA_CERT_PUBLIC_KEY")
+    cert_dir = Path.join([File.cwd!(), "evidence", "certificates"])
+
+    cond do
+      not is_binary(key_path) or key_path == "" ->
+        {:error, %{campaign: :gc_006_certificate_verification, reason: :trusted_public_key_not_configured,
+          certification_status: :not_certifiable}}
+      not File.regular?(key_path) ->
+        {:error, %{campaign: :gc_006_certificate_verification, reason: :trusted_public_key_not_found,
+          certification_status: :not_certifiable}}
+      not File.dir?(cert_dir) ->
+        {:error, %{campaign: :gc_006_certificate_verification, reason: :certificate_directory_not_found}}
+      true ->
+        files = Path.wildcard(Path.join(cert_dir, "*.json")) |> Enum.sort()
+        results = Enum.map(files, &verify_certificate_file(&1, key_path))
+        failures = Enum.filter(results, &(elem(&1, 0) == :error))
+
+        if files != [] and failures == [] do
+          {:ok, %{campaign: :gc_006_certificate_verification, total_certificates: length(files),
+            valid_certificates: length(files), invalid_certificates: 0, all_certificates_valid: true,
+            verification_method: :rsa_sha256_trusted_pem_key,
+            supporting_evidence: Enum.map(files, &Path.relative_to_cwd/1) |> Enum.take(10),
+            certificate: %{status: :passed, verified_at: @fixed_timestamp}}}
+        else
+          {:error, %{campaign: :gc_006_certificate_verification, total_certificates: length(files),
+            invalid_certificates: length(failures), failures: Enum.take(failures, 10),
+            reason: if(files == [], do: :no_certificates, else: :signature_verification_failed)}}
+        end
+    end
   end
+
+  defp verify_certificate_file(path, key_path) do
+    with {:ok, content} <- File.read(path),
+         {:ok, cert} <- Jason.decode(content),
+         {:ok, signature} <- decode_signature(Map.get(cert, "signature")),
+         {:ok, key_pem} <- File.read(key_path),
+         [entry | _] <- :public_key.pem_decode(key_pem),
+         key <- :public_key.pem_entry_decode(entry),
+         payload <- cert |> Map.drop(["signature", "signed_at"]) |> Jason.encode!(),
+         true <- :public_key.verify(payload, :sha256, signature, key) do
+      {:ok, path}
+    else
+      {:error, reason} -> {:error, {path, reason}}
+      [] -> {:error, {path, :empty_public_key}}
+      false -> {:error, {path, :invalid_signature}}
+      _ -> {:error, {path, :malformed_certificate_or_key}}
+    end
+  rescue
+    error -> {:error, {path, {:verification_exception, Exception.message(error)}}}
+  end
+
+  defp decode_signature(signature) when is_binary(signature) do
+    case Base.decode64(signature) do
+      {:ok, decoded} when byte_size(decoded) > 0 -> {:ok, decoded}
+      _ -> {:error, :invalid_signature_encoding}
+    end
+  end
+
+  defp decode_signature(_), do: {:error, :missing_signature}
 
   defp legacy_execute_gc_006_certificate_verification(_opts) do
     IO.puts("    Verifying cryptographic certificates...")
