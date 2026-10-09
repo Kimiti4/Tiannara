@@ -94,6 +94,13 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     assert {:error, :invalid_evidence_envelope} =
              DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, %{evidence_class: :forged})
 
+    assert {:error, :three_replications_required} =
+             DiscoveryRegistry.update_validation_status_with_lineage(
+               id,
+               :reproduced,
+               Map.put(real_evidence(), :reproduction_evidence, %{replications: 2, independent_runs: true})
+             )
+
     assert {:error, :missing_parent} =
              DiscoveryVerificationGraph.append_with_archive(%{
                kind: :discovery_validation_transition,
