@@ -238,9 +238,12 @@ defmodule TiannaraOS.DiscoveryRegistry do
 
   defp write_validation_lineage(discovery, status, envelope, writer) when is_function(writer, 1) do
     ensure_lineage_services()
+    transition = {discovery.id, discovery.validation_status, status}
     node = %{
       kind: :discovery_validation_transition,
       discovery_id: discovery.id,
+      transition_key: transition_digest(transition),
+      transition_payload_hash: transition_digest(envelope),
       parent_ids: List.last(discovery.verification_graph_ids, []) |> List.wrap(),
       provenance: %{source: :discovery_registry, transition: {discovery.validation_status, status}},
       status: status,
@@ -258,6 +261,11 @@ defmodule TiannaraOS.DiscoveryRegistry do
   end
 
   defp write_validation_lineage(_, _, _, _), do: {:error, :lineage_writer_unavailable}
+
+  defp transition_digest(value) do
+    :crypto.hash(:sha256, :erlang.term_to_binary(value))
+    |> Base.encode16(case: :lower)
+  end
 
   defp default_lineage_writer(archive), do: {:ok, archive}
 
