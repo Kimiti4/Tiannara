@@ -8,6 +8,7 @@ from pydantic import BaseModel
 import time
 import psutil
 import os
+import logging
 from datetime import datetime
 from sqlalchemy.orm import Session
 
@@ -16,6 +17,8 @@ from tiannara_api.routes.auth import get_current_user, verify_admin_role
 from tiannara_api.database import get_db
 from tiannara_api.database.models import User
 from tiannara_core.core import TiannaraCore
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
