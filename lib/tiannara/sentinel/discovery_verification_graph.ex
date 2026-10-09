@@ -60,6 +60,9 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
         {:error, :transition_identity_conflict} ->
           {:reply, {:error, :transition_identity_conflict}, state}
 
+        {:error, reason} ->
+          {:reply, {:error, reason}, state}
+
         :not_found ->
           with {:ok, graph} <- build_graph_node(node, state),
                {:ok, archive} <- archive_fun.(graph),
