@@ -178,5 +178,6 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     :dets.insert(:tiannara_discovery_evidence_archive, {hash, Map.put(record, :status, :tampered)})
 
     assert {:error, :archive_hash_mismatch} = DiscoveryEvidenceArchive.verify(hash)
+    assert {:error, {:archive_binding_invalid, _node_id}} = DiscoveryVerificationGraph.verify_chain()
   end
 end
