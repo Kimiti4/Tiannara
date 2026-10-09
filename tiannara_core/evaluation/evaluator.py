@@ -58,10 +58,10 @@ class Evaluator:
         if timeout is None:
             timeout = self.timeout_seconds
         
-        start_time = time.time()
+        start_time = time.perf_counter()
         try:
             result = func(**inputs)
-            elapsed = time.time() - start_time
+            elapsed = time.perf_counter() - start_time
             
             # Check if execution exceeded timeout
             if elapsed > timeout:
@@ -116,14 +116,14 @@ class Evaluator:
                 - episode_id: Unique identifier for this evaluation
         """
         outputs = []
-        start = time.time()
+        start = time.perf_counter()
 
         # Execute function multiple times with timeout protection
         for _ in range(runs):
             result = self._execute_with_timeout(func, inputs)
             outputs.append(result)
 
-        end = time.time()
+        end = time.perf_counter()
 
         # Extract metrics
         correctness = sum(
