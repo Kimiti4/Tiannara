@@ -331,12 +331,17 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     assigned_capabilities = Map.get(state, :assigned_capabilities, %{})
     
     total_caps = map_size(all_capabilities)
-    assigned_count = map_size(assigned_capabilities)
-    orphan_count = total_caps - assigned_count
-    
-    # All capabilities should be assigned to institutions
-    conservation_rate = if(total_caps > 0, do: assigned_count / total_caps, else: 1.0)
-    
+    capability_ids = Map.keys(all_capabilities) |> MapSet.new()
+    assigned_ids = Map.keys(assigned_capabilities) |> MapSet.new()
+    unassigned_ids = MapSet.difference(capability_ids, assigned_ids)
+    unknown_assignments = MapSet.difference(assigned_ids, capability_ids)
+    orphan_count = MapSet.size(unassigned_ids) + MapSet.size(unknown_assignments)
+    assigned_count = total_caps - MapSet.size(unassigned_ids)
+
+    # Compare identities, not just counts: equal-sized but disjoint maps are
+    # not capability conservation.
+    conservation_rate = if(total_caps > 0, do: assigned_count / total_caps, else: 0.0)
+
     result = if(total_caps > 0 and orphan_count == 0) do
       {:ok, %{
         campaign: :gc_003_capability_conservation,
@@ -377,7 +382,9 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     current_count = map_size(current_institutions)
     
     # Verify they match
-    institutions_match = (reconstructed_count == current_count)
+    reconstructed_ids = Map.keys(reconstructed_institutions) |> MapSet.new()
+    current_ids = Map.keys(current_institutions) |> MapSet.new()
+    institutions_match = reconstructed_ids == current_ids
     
     result = if(institutions_match) do
       {:ok, %{
