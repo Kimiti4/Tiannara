@@ -47,8 +47,10 @@ try:
     import onnxruntime as ort
     from onnxruntime.quantization import quantize_dynamic, QuantType
     ORT_QUANT_AVAILABLE = True
+    ORT_AVAILABLE = True
 except ImportError:
     ORT_QUANT_AVAILABLE = False
+    ORT_AVAILABLE = False
     logger.warning(
         "ONNX Runtime quantization not available. "
         "Install with: pip install onnxruntime"
