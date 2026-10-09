@@ -18,6 +18,9 @@ defmodule TiannaraOS.DiscoveryRegistry do
 
   @type t :: %__MODULE__{}
 
+  @table :tiannara_discovery_registry
+  @default_file "data/discovery_registry.dets"
+
   def start_link(opts \\ []), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   def get(id), do: GenServer.call(__MODULE__, {:get, id})
   def list_by_domain(id), do: GenServer.call(__MODULE__, {:list_by_domain, id})
@@ -32,7 +35,38 @@ defmodule TiannaraOS.DiscoveryRegistry do
   def link_to_law(id, law_id), do: GenServer.call(__MODULE__, {:link_to_law, id, law_id})
 
   @impl true
-  def init(_), do: {:ok, %{discoveries: %{}, domain_index: %{}, theory_index: %{}}}
+  def init(opts) do
+    default_path =
+      if Application.get_env(:tiannara, :test_mode, false),
+        do: "test_data/discovery_registry.dets",
+        else: @default_file
+
+    path =
+      Keyword.get(
+        opts,
+        :file,
+        Application.get_env(:tiannara, :discovery_registry_file, default_path)
+      )
+
+    File.mkdir_p!(Path.dirname(path))
+
+    case :dets.open_file(@table, type: :set, file: String.to_charlist(path), repair: true) do
+      {:ok, _} ->
+        discoveries =
+          :dets.traverse(@table, fn {id, discovery} -> {:continue, {id, discovery}} end)
+          |> Map.new()
+
+        state =
+          Enum.reduce(Map.values(discoveries), %{discoveries: discoveries, domain_index: %{}, theory_index: %{}}, fn discovery, acc ->
+            acc |> index_domain(discovery) |> index_theories(discovery)
+          end)
+
+        {:ok, state}
+
+      {:error, reason} ->
+        {:stop, {:discovery_registry_open_failed, reason}}
+    end
+  end
 
   @impl true
   def handle_call({:get, id}, _, state), do: reply_get(state, id)
@@ -49,10 +83,16 @@ defmodule TiannaraOS.DiscoveryRegistry do
     with :ok <- required(data),
          {:ok, discovery} <- build_discovery(data),
          false <- Map.has_key?(state.discoveries, discovery.id) do
-      new_state = state |> put_in([:discoveries, discovery.id], discovery)
-                        |> index_domain(discovery)
-                        |> index_theories(discovery)
-      {:reply, {:ok, discovery}, new_state}
+      case :dets.insert(@table, {discovery.id, discovery}) do
+        :ok ->
+          new_state = state |> put_in([:discoveries, discovery.id], discovery)
+                            |> index_domain(discovery)
+                            |> index_theories(discovery)
+          {:reply, {:ok, discovery}, new_state}
+
+        {:error, reason} ->
+          {:reply, {:error, {:discovery_persistence_failed, reason}}, state}
+      end
     else
       true -> {:reply, {:error, :discovery_already_exists}, state}
       {:error, _} = e -> {:reply, e, state}
@@ -64,7 +104,10 @@ defmodule TiannaraOS.DiscoveryRegistry do
       nil -> {:reply, {:error, :discovery_not_found}, state}
       %{validation_status: :operationally_validated} = discovery ->
         updated = %{discovery | applications: discovery.applications ++ [application]}
-        {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+        case :dets.insert(@table, {id, updated}) do
+          :ok -> {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+          {:error, reason} -> {:reply, {:error, {:discovery_persistence_failed, reason}}, state}
+        end
       _ ->
         {:reply, {:error, :operational_validation_required_for_application}, state}
     end
@@ -91,7 +134,10 @@ defmodule TiannaraOS.DiscoveryRegistry do
               lineage: lineage
             }]
           }
-          {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+          case :dets.insert(@table, {id, updated}) do
+            :ok -> {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+            {:error, reason} -> {:reply, {:error, {:discovery_persistence_failed, reason}}, state}
+          end
         end
     end
   end
@@ -101,7 +147,10 @@ defmodule TiannaraOS.DiscoveryRegistry do
       nil -> {:reply, {:error, :discovery_not_found}, state}
       %{validation_status: :operationally_validated} = discovery ->
         updated = %{discovery | law_id: law_id}
-        {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+        case :dets.insert(@table, {id, updated}) do
+          :ok -> {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+          {:error, reason} -> {:reply, {:error, {:discovery_persistence_failed, reason}}, state}
+        end
       _ -> {:reply, {:error, :operational_validation_required_for_law_link}, state}
     end
   end
