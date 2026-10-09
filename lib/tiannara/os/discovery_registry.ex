@@ -150,6 +150,10 @@ defmodule TiannaraOS.DiscoveryRegistry do
     cond do
       not is_map(envelope) ->
         {:error, :reproduction_evidence_required}
+      not is_map(reproduction) ->
+        {:error, :reproduction_evidence_required}
+      Map.get(envelope, :evidence_class) not in [:real, :simulated] ->
+        {:error, :invalid_evidence_envelope}
       Map.get(envelope, :evidence_class) != :real ->
         {:error, :real_reproduction_evidence_required}
       Map.get(envelope, :execution_mode) != :real_execution ->
@@ -158,8 +162,6 @@ defmodule TiannaraOS.DiscoveryRegistry do
         {:error, :real_observation_required}
       Map.get(envelope, :effect_verified) != true ->
         {:error, :effect_verification_required}
-      not is_map(reproduction) ->
-        {:error, :reproduction_evidence_required}
       not is_integer(Map.get(reproduction, :replications)) or Map.get(reproduction, :replications) < 3 ->
         {:error, :three_replications_required}
       Map.get(reproduction, :independent_runs) != true ->
