@@ -171,26 +171,27 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
   # archive commit but before the graph commit, recover the graph from the
   # immutable archive artifact on the next startup.
   defp recover_orphan_archives do
-    case Process.whereis(Tiannara.Sentinel.DiscoveryEvidenceArchive) do
-      nil -> :ok
-      _pid ->
-        Tiannara.Sentinel.DiscoveryEvidenceArchive.all()
-        |> Enum.each(fn archive ->
-          artifact = Map.get(archive, :artifact, %{})
-          node_id = Map.get(artifact, :node_id)
-          archive_hash = Map.get(archive, :hash)
+    # all/0 ensures the archive is opened if the graph starts before the
+    # archive process. Recovery only trusts content-addressed records whose
+    # archive hash and embedded graph hash both verify.
+    Tiannara.Sentinel.DiscoveryEvidenceArchive.all()
+    |> Enum.each(fn archive ->
+      artifact = Map.get(archive, :artifact, %{})
+      node_id = Map.get(artifact, :node_id)
+      archive_hash = Map.get(archive, :hash)
 
-          if archive_hash && node_id &&
-               Map.get(archive, :kind) == :discovery_verification &&
-               :dets.lookup(@table, node_id) == [] do
-            graph = Map.put(artifact, :archive_hash, archive_hash)
+      if archive_hash && node_id &&
+           Map.get(archive, :id) == node_id &&
+           Map.get(archive, :kind) == :discovery_verification &&
+           :dets.lookup(@table, node_id) == [] &&
+           Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(archive_hash) == :ok do
+        graph = Map.put(artifact, :archive_hash, archive_hash)
 
-            if Map.get(graph, :hash) == hash_record(graph) do
-              _ = :dets.insert(@table, {node_id, graph})
-            end
-          end
-        end)
-    end
+        if Map.get(graph, :hash) == hash_record(graph) do
+          _ = :dets.insert(@table, {node_id, graph})
+        end
+      end
+    end)
   end
 
   defp load_order do
