@@ -108,18 +108,22 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
 
               true ->
                 case Tiannara.Sentinel.DiscoveryEvidenceArchive.get(archive_hash) do
-                  {:ok, archive} when Map.get(archive, :id) == node.node_id ->
-                    case Map.get(archive, :artifact) do
-                      artifact when is_map(artifact) ->
-                        if Map.get(artifact, :node_id) == node.node_id and
-                             Map.get(artifact, :hash) == node.hash do
-                          {:cont, node.hash}
-                        else
-                          {:halt, {:error, {:archive_artifact_mismatch, id}}}
-                        end
+                  {:ok, archive} ->
+                    if Map.get(archive, :id) != node.node_id do
+                      {:halt, {:error, {:archive_identity_mismatch, id}}}
+                    else
+                      case Map.get(archive, :artifact) do
+                        artifact when is_map(artifact) ->
+                          if Map.get(artifact, :node_id) == node.node_id and
+                               Map.get(artifact, :hash) == node.hash do
+                            {:cont, node.hash}
+                          else
+                            {:halt, {:error, {:archive_artifact_mismatch, id}}}
+                          end
 
-                      _ ->
-                        {:halt, {:error, {:archive_artifact_missing, id}}}
+                        _ ->
+                          {:halt, {:error, {:archive_artifact_missing, id}}}
+                      end
                     end
 
                   _ ->
