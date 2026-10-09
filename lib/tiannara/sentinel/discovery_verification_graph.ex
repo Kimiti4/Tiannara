@@ -162,6 +162,8 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
   # hash prevents retries with different evidence from being mistaken as the
   # same successful operation.
   defp existing_transition(%{transition_key: key} = candidate, state) when is_binary(key) do
+    candidate_payload_hash = Map.get(candidate, :transition_payload_hash)
+
     existing =
       Enum.find_value(state.order, fn id ->
         case :dets.lookup(@table, id) do
@@ -175,7 +177,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
         :not_found
 
       %{transition_payload_hash: payload_hash, archive_hash: archive_hash} = graph
-      when payload_hash == Map.get(candidate, :transition_payload_hash) ->
+      when payload_hash == candidate_payload_hash ->
         case Tiannara.Sentinel.DiscoveryEvidenceArchive.get(archive_hash) do
           {:ok, archive} ->
             if Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(archive_hash) == :ok and
