@@ -89,17 +89,55 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
   def handle_call(:verify_chain, _from, state) do
     result =
       Enum.reduce_while(state.order, @genesis, fn id, previous ->
-        [{^id, node}] = :dets.lookup(@table, id)
-        cond do
-          node.previous_hash != previous -> {:halt, {:error, {:hash_chain_invalid, id}}}
-          node.hash != hash_record(Map.delete(node, :hash)) -> {:halt, {:error, {:hash_chain_invalid, id}}}
-          true -> {:cont, node.hash}
+        case :dets.lookup(@table, id) do
+          [{^id, node}] ->
+            archive_hash = Map.get(node, :archive_hash)
+
+            cond do
+              node.previous_hash != previous ->
+                {:halt, {:error, {:hash_chain_invalid, id}}}
+
+              node.hash != hash_record(Map.delete(node, :hash)) ->
+                {:halt, {:error, {:hash_chain_invalid, id}}}
+
+              not is_binary(archive_hash) or archive_hash == "" ->
+                {:halt, {:error, {:archive_binding_missing, id}}}
+
+              Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(archive_hash) != :ok ->
+                {:halt, {:error, {:archive_binding_invalid, id}}}
+
+              true ->
+                case Tiannara.Sentinel.DiscoveryEvidenceArchive.get(archive_hash) do
+                  {:ok, archive} when Map.get(archive, :id) == node.node_id ->
+                    case Map.get(archive, :artifact) do
+                      artifact when is_map(artifact) ->
+                        if Map.get(artifact, :node_id) == node.node_id and
+                             Map.get(artifact, :hash) == node.hash do
+                          {:cont, node.hash}
+                        else
+                          {:halt, {:error, {:archive_artifact_mismatch, id}}}
+                        end
+
+                      _ ->
+                        {:halt, {:error, {:archive_artifact_missing, id}}}
+                    end
+
+                  _ ->
+                    {:halt, {:error, {:archive_identity_mismatch, id}}}
+                end
+            end
+
+          [] ->
+            {:halt, {:error, {:graph_node_missing, id}}}
         end
       end)
-    reply = case result do
-      {:error, _} = error -> error
-      _hash -> :ok
-    end
+
+    reply =
+      case result do
+        {:error, _} = error -> error
+        _hash -> :ok
+      end
+
     {:reply, reply, state}
   end
 
