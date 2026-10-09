@@ -508,7 +508,6 @@ import random
 MOCK_WORLDS = {}
 
 def get_or_create_mock_worlds():
-    global MOCK_WORLDS
     if MOCK_WORLDS:
         # Walk simulated parameters for dynamic feel
         for wid, world in MOCK_WORLDS.items():
