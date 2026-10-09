@@ -252,6 +252,28 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     assert :ok = DiscoveryVerificationGraph.verify_chain()
   end
 
+  test "verification graph retries are idempotent and reject changed evidence" do
+    key = "transition-#{System.unique_integer([:positive])}"
+    node = %{
+      kind: :discovery_validation_transition,
+      discovery_id: key,
+      transition_key: key,
+      transition_payload_hash: "payload-a",
+      provenance: %{source: :test, transition: {:candidate, :reproduced}},
+      status: :reproduced,
+      artifact: %{from: :candidate, to: :reproduced, evidence: %{evidence_class: :real}}
+    }
+
+    assert {:ok, first} = DiscoveryVerificationGraph.append_with_archive(node)
+    assert {:ok, retry} = DiscoveryVerificationGraph.append_with_archive(node)
+    assert retry.graph.node_id == first.graph.node_id
+    assert retry.archive.hash == first.archive.hash
+
+    changed_evidence = Map.put(node, :transition_payload_hash, "payload-b")
+    assert {:error, :transition_identity_conflict} =
+             DiscoveryVerificationGraph.append_with_archive(changed_evidence)
+  end
+
   test "archive tampering is detectable" do
     id = :"tamper_#{System.unique_integer([:positive])}"
     assert {:ok, _} = register(id)
