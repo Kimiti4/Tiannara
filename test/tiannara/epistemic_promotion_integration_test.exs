@@ -162,6 +162,62 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
              )
   end
 
+  test "orphaned archive is recovered when graph persistence is interrupted" do
+    # Model the crash window: the archive commit succeeds, but the graph DETS
+    # insert never happens. On restart the graph must recover only the exact,
+    # content-addressed graph artifact from the archive.
+    table = :tiannara_discovery_verification_graph
+    existing =
+      :dets.traverse(table, fn {_id, node} -> {:continue, node} end)
+      |> Enum.sort_by(&Map.get(&1, :sequence, 0))
+
+    previous = List.last(existing)
+    sequence = if previous, do: previous.sequence + 1, else: 1
+    previous_hash = if previous, do: previous.hash, else: "DISCOVERY_VERIFICATION_GRAPH_GENESIS"
+    node_id = "recovery-#{System.unique_integer([:positive])}"
+
+    graph =
+      %{
+        node_id: node_id,
+        sequence: sequence,
+        previous_hash: previous_hash,
+        kind: :discovery_validation_transition,
+        discovery_id: node_id,
+        parent_ids: [],
+        provenance: %{source: :crash_recovery_test},
+        status: :reproduced,
+        artifact: %{node_id: node_id}
+      }
+
+    graph_hash =
+      :crypto.hash(:sha256, :erlang.term_to_binary(graph))
+      |> Base.encode16(case: :lower)
+
+    graph = Map.put(graph, :hash, graph_hash)
+
+    assert {:ok, _archive} =
+             DiscoveryEvidenceArchive.append(%{
+               id: node_id,
+               kind: :discovery_verification,
+               status: graph.status,
+               artifact: graph,
+               provenance: graph.provenance
+             })
+
+    assert {:error, :node_not_found} = DiscoveryVerificationGraph.get(node_id)
+
+    graph_pid = Process.whereis(DiscoveryVerificationGraph)
+    Process.exit(graph_pid, :kill)
+    Process.sleep(50)
+    start_supervised!(DiscoveryVerificationGraph)
+
+    assert {:ok, recovered} = DiscoveryVerificationGraph.get(node_id)
+    assert recovered.hash == graph_hash
+    assert is_binary(recovered.archive_hash)
+    assert :ok = DiscoveryEvidenceArchive.verify(recovered.archive_hash)
+    assert :ok = DiscoveryVerificationGraph.verify_chain()
+  end
+
   test "archive tampering is detectable" do
     id = :"tamper_#{System.unique_integer([:positive])}"
     assert {:ok, _} = register(id)
