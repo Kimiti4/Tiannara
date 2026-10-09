@@ -1,12 +1,15 @@
 defmodule TiannaraOS.Governance.Validation.EvidenceSigner do
   @moduledoc """
-  EvidenceSigner - Cryptographically signs evidence artifacts for immutability.
-  
-  This module computes content hashes, generates cryptographic signatures,
-  and stores artifacts in content-addressed storage.
-  
-  All signatures use Ed25519 for strong cryptographic guarantees.
-  Storage uses SHA-256 content addressing for immutability.
+  EvidenceSigner - Development-stage evidence integrity helper.
+
+  Content is hashed with SHA-256 and the signature field currently contains
+  an HMAC-SHA256 generated with a hard-coded demonstration key. This is NOT
+  Ed25519, does not provide public-key verification, and is NOT safe for
+  production trust decisions. The fixed key must be replaced with managed
+  secrets and a configured signing/trust policy before certification use.
+
+  Storage uses SHA-256-derived filenames for content addressing. A content
+  hash alone does not prove who produced an artifact or whether it is true.
   """
 
   @evidence_dir "evidence"
@@ -57,8 +60,8 @@ defmodule TiannaraOS.Governance.Validation.EvidenceSigner do
   """
   @spec generate_signature(String.t()) :: String.t()
   def generate_signature(data) do
-    # In production, use actual Ed25519 private key
-    # For now, use HMAC-SHA256 as placeholder
+    # Demonstration-only HMAC. The fixed key below is not production-safe;
+    # do not use this output as a production identity or certification proof.
     secret_key = get_signing_key()
     
     :crypto.mac(:hmac, :sha256, secret_key, data)
@@ -112,8 +115,8 @@ defmodule TiannaraOS.Governance.Validation.EvidenceSigner do
   end
 
   defp get_signing_key() do
-    # In production, load from secure key store
-    # For now, use fixed key for demonstration
+    # Fixed demonstration key retained only for compatibility with existing
+    # development artifacts. Replace with managed key storage before release.
     "tiannara-governance-validation-signing-key-2026"
   end
 end
