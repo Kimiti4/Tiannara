@@ -52,13 +52,26 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
   @impl true
   def handle_call({:append_with_archive, node, archive_fun}, _from, state) do
     with :ok <- validate_node(node),
-         :ok <- validate_parents(node),
-         {:ok, graph} <- build_graph_node(node, state),
-         {:ok, archive} <- archive_fun.(graph),
-         :ok <- validate_archive_binding(graph, archive),
-         graph = Map.put(graph, :archive_hash, archive.hash),
-         :ok <- persist_graph(graph) do
-      {:reply, {:ok, %{graph: graph, archive: archive}}, %{state | order: state.order ++ [graph.node_id], last_hash: graph.hash}}
+         :ok <- validate_parents(node) do
+      case existing_transition(node, state) do
+        {:ok, %{graph: graph, archive: archive}} ->
+          {:reply, {:ok, %{graph: graph, archive: archive}}, state}
+
+        {:error, :transition_identity_conflict} ->
+          {:reply, {:error, :transition_identity_conflict}, state}
+
+        :not_found ->
+          with {:ok, graph} <- build_graph_node(node, state),
+               {:ok, archive} <- archive_fun.(graph),
+               :ok <- validate_archive_binding(graph, archive),
+               graph = Map.put(graph, :archive_hash, archive.hash),
+               :ok <- persist_graph(graph) do
+            {:reply, {:ok, %{graph: graph, archive: archive}},
+             %{state | order: state.order ++ [graph.node_id], last_hash: graph.hash}}
+          else
+            {:error, reason} -> {:reply, {:error, reason}, state}
+          end
+      end
     else
       {:error, reason} -> {:reply, {:error, reason}, state}
     end
@@ -144,6 +157,44 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
 
     {:reply, reply, state}
   end
+
+  # A transition key identifies the logical lifecycle edge; the payload
+  # hash prevents retries with different evidence from being mistaken as the
+  # same successful operation.
+  defp existing_transition(%{transition_key: key} = candidate, state) when is_binary(key) do
+    existing =
+      Enum.find_value(state.order, fn id ->
+        case :dets.lookup(@table, id) do
+          [{^id, %{transition_key: ^key} = graph}] -> graph
+          _ -> nil
+        end
+      end)
+
+    case existing do
+      nil ->
+        :not_found
+
+      %{transition_payload_hash: payload_hash, archive_hash: archive_hash} = graph
+      when payload_hash == Map.get(candidate, :transition_payload_hash) ->
+        case Tiannara.Sentinel.DiscoveryEvidenceArchive.get(archive_hash) do
+          {:ok, archive} ->
+            if Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(archive_hash) == :ok and
+                 Map.get(archive, :id) == graph.node_id do
+              {:ok, %{graph: graph, archive: archive}}
+            else
+              {:error, :existing_transition_archive_invalid}
+            end
+
+          _ ->
+            {:error, :existing_transition_archive_missing}
+        end
+
+      _different_payload ->
+        {:error, :transition_identity_conflict}
+    end
+  end
+
+  defp existing_transition(_candidate, _state), do: :not_found
 
   defp build_graph_node(node, state) do
     graph = Map.merge(node, %{
