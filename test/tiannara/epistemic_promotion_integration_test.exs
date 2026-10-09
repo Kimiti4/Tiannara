@@ -123,6 +123,32 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     assert length(reproduced.lifecycle_events) == 1
   end
 
+
+  test "verification graph rejects an archive bound to a different discovery identity" do
+    id = :"archive_mismatch_#{System.unique_integer([:positive])}"
+
+    assert {:error, :archive_discovery_identity_mismatch} =
+             DiscoveryVerificationGraph.append_with_archive(
+               %{
+                 kind: :discovery_validation_transition,
+                 discovery_id: id,
+                 parent_ids: [],
+                 provenance: %{source: :test},
+                 status: :reproduced,
+                 artifact: %{}
+               },
+               fn graph ->
+                 DiscoveryEvidenceArchive.append(%{
+                   id: "different-discovery",
+                   kind: :discovery_verification,
+                   status: graph.status,
+                   artifact: graph,
+                   provenance: graph.provenance
+                 })
+               end
+             )
+  end
+
   test "archive tampering is detectable" do
     id = :"tamper_#{System.unique_integer([:positive])}"
     assert {:ok, _} = register(id)
