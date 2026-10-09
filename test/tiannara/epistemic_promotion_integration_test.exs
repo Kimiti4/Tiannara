@@ -84,6 +84,50 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     assert :ok = DiscoveryEvidenceArchive.verify(archive_hash)
   end
 
+  test "interrupted registry persistence retries the same lineage and rejects changed evidence" do
+    id = :"interrupted_promotion_#{System.unique_integer([:positive])}"
+    assert {:ok, _} = register(id)
+
+    evidence = %{
+      evidence_class: :real,
+      execution_mode: :real_execution,
+      real_observation: true,
+      effect_verified: true,
+      reproduction_evidence: %{replications: 3, independent_runs: true}
+    }
+
+    failing_writer = fn _archive -> {:error, :simulated_persistence_interruption} end
+
+    assert {:error, {:lineage_write_failed, :simulated_persistence_interruption}} =
+      DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, evidence, failing_writer)
+
+    # The registry must remain unpromoted even though graph/archive work may have happened.
+    assert {:ok, unchanged} = DiscoveryRegistry.get(id)
+    assert unchanged.validation_status == :simulated
+    assert unchanged.verification_graph_ids == []
+    assert unchanged.archive_ids == []
+
+    conflicting_evidence = Map.put(evidence, :observation_source, "different-source")
+
+    assert {:error, {:lineage_write_failed, :transition_identity_conflict}} =
+      DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, conflicting_evidence)
+
+    # Retrying the exact original payload must reuse the existing graph/archive record.
+    assert {:ok, promoted} =
+      DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, evidence)
+
+    assert promoted.validation_status == :reproduced
+    assert length(promoted.verification_graph_ids) == 1
+    assert length(promoted.archive_ids) == 1
+
+    graph_id = hd(promoted.verification_graph_ids)
+    archive_hash = hd(promoted.archive_ids)
+    assert {:ok, graph_node} = DiscoveryVerificationGraph.get(graph_id)
+    assert graph_node.archive_hash == archive_hash
+    assert :ok = DiscoveryEvidenceArchive.verify(archive_hash)
+    assert :ok = DiscoveryVerificationGraph.verify_chain()
+  end
+
   test "registry restart preserves promoted state and rejects replay" do
     id = :"registry_restart_#{System.unique_integer([:positive])}"
     assert {:ok, _} = register(id)
