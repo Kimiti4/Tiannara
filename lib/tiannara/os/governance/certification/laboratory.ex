@@ -357,10 +357,25 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
         certificate: %{status: :passed, verified_at: @fixed_timestamp}
       }}
     else
+      reason =
+        cond do
+          total_caps == 0 ->
+            "No capabilities are present in the reconstructed governance state; conservation cannot be certified"
+
+          orphan_count > 0 ->
+            "Found #{orphan_count} capability identity/assignment inconsistencies"
+
+          true ->
+            "Capability conservation prerequisites were not satisfied"
+        end
+
       {:error, %{
         campaign: :gc_003_capability_conservation,
-        orphan_count: orphan_count,
-        reason: "Found #{orphan_count} orphan capabilities not assigned to any institution"
+        total_capabilities: total_caps,
+        assigned_capabilities: assigned_count,
+        orphan_capabilities: orphan_count,
+        conservation_rate: conservation_rate,
+        reason: reason
       }}
     end
     
