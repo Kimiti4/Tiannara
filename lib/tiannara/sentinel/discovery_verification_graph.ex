@@ -55,6 +55,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
          :ok <- validate_parents(node),
          {:ok, graph} <- build_graph_node(node, state),
          {:ok, archive} <- archive_fun.(graph),
+         :ok <- validate_archive_binding(graph, archive),
          graph = Map.put(graph, :archive_hash, archive.hash),
          :ok <- persist_graph(graph) do
       {:reply, {:ok, %{graph: graph, archive: archive}}, %{state | order: state.order ++ [graph.node_id], last_hash: graph.hash}}
@@ -110,6 +111,26 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
     })
     {:ok, Map.put(graph, :hash, hash_record(graph))}
   end
+
+  defp validate_archive_binding(graph, archive) when is_map(archive) do
+    archive_hash = Map.get(archive, :hash)
+    artifact = Map.get(archive, :artifact)
+
+    cond do
+      not is_binary(archive_hash) or archive_hash == "" ->
+        {:error, :archive_hash_missing}
+      Map.get(archive, :id) != graph.node_id ->
+        {:error, :archive_discovery_identity_mismatch}
+      not is_map(artifact) or Map.get(artifact, :node_id) != graph.node_id ->
+        {:error, :archive_artifact_identity_mismatch}
+      Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(archive_hash) != :ok ->
+        {:error, :archive_record_not_verified}
+      true ->
+        :ok
+    end
+  end
+
+  defp validate_archive_binding(_graph, _archive), do: {:error, :invalid_archive_record}
 
   defp persist_graph(graph) do
     case :dets.lookup(@table, graph.node_id) do
