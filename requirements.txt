@@ -1,5 +1,6 @@
 pytest
 fastapi
+prometheus-client>=0.17.0  # API and runtime metrics instrumentation
 uvicorn[standard]
 python-multipart
 numpy
