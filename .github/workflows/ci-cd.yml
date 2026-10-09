@@ -40,7 +40,15 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-production.txt
+          if [ -f requirements-production.txt ]; then
+            pip install -r requirements-production.txt
+          elif [ -f requirements.txt ]; then
+            echo "requirements-production.txt is absent in this checkout; using the repository requirements.txt fallback."
+            pip install -r requirements.txt
+          else
+            echo "No supported requirements file found." >&2
+            exit 1
+          fi
           pip install pytest pytest-cov hypothesis
 
       - name: Run tests with coverage
