@@ -39,6 +39,54 @@ defmodule TiannaraOS.Governance.CertificationLaboratoryFailClosedTest do
              Laboratory.execute_campaign(:gc_010_fitness_stability)
   end
 
+
+  test "GC-007 accepts a canonical SHA-256 evidence payload and rejects tampering" do
+    original_cwd = File.cwd!()
+    temp_root = Path.join(System.tmp_dir!(), "tiannara-gc007-#{System.unique_integer([:positive])}")
+    evidence_dir = Path.join([temp_root, "evidence", "artifacts"])
+    File.mkdir_p!(evidence_dir)
+
+    on_exit(fn ->
+      File.cd!(original_cwd)
+      File.rm_rf!(temp_root)
+    end)
+
+    File.cd!(temp_root)
+    payload = %{"artifact_id" => "gc007-fixture", "result" => "observed"}
+    canonical = Jason.encode!(payload)
+    hash = :crypto.hash(:sha256, canonical) |> Base.encode16(case: :lower)
+    artifact_path = Path.join(evidence_dir, "fixture.json")
+    File.write!(artifact_path, Jason.encode!(Map.put(payload, "sha256", hash)))
+
+    assert {:ok, %{all_evidence_valid: true, verified_artifacts: 1}} =
+             Laboratory.execute_campaign(:gc_007_evidence_verification)
+
+    File.write!(artifact_path, Jason.encode!(%{
+      "artifact_id" => "gc007-fixture",
+      "result" => "tampered",
+      "sha256" => hash
+    }))
+
+    assert {:error, %{failed_artifacts: 1}} =
+             Laboratory.execute_campaign(:gc_007_evidence_verification)
+  end
+
+  test "GC-007 refuses to certify an empty evidence directory" do
+    original_cwd = File.cwd!()
+    temp_root = Path.join(System.tmp_dir!(), "tiannara-gc007-empty-#{System.unique_integer([:positive])}")
+    File.mkdir_p!(Path.join([temp_root, "evidence", "artifacts"]))
+
+    on_exit(fn ->
+      File.cd!(original_cwd)
+      File.rm_rf!(temp_root)
+    end)
+
+    File.cd!(temp_root)
+
+    assert {:error, %{reason: :no_evidence_artifacts}} =
+             Laboratory.execute_campaign(:gc_007_evidence_verification)
+  end
+
   test "long horizon evolution cannot certify a simulation as an executed evolution run" do
     assert {:error, %{campaign: :gc_012_long_horizon_evolution,
                       reason: :real_evolution_engine_not_executed,
