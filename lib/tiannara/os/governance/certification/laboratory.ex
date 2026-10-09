@@ -866,29 +866,33 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     recomputed_total = Enum.sum(Enum.map(raw_logs, & &1.cost))
     recomputed_count = length(raw_logs)
     
-    # Verify against reported values
+    # A bounded log query cannot certify a full-ledger reconstruction if it
+    # silently truncates the ledger. Require complete count coverage as well
+    # as total agreement before emitting a passing result.
+    expected_count = Map.get(cost_summary, :total_operations)
+    complete_coverage = is_integer(expected_count) and expected_count == recomputed_count
     total_matches = abs(recomputed_total - cost_summary.total_cost_usd) < 0.01
-    
-    result = if(total_matches) do
+
+    result = if(complete_coverage and total_matches) do
       {:ok, %{
         campaign: :gc_011_cost_reconstruction,
         reported_total: cost_summary.total_cost_usd,
         recomputed_total: recomputed_total,
-        reported_count: recomputed_count,
+        reported_count: expected_count,
         recomputed_count: recomputed_count,
         reconstruction_valid: true,
-        confidence: 1.0,
-        statistical_power: 1.0,
-        failure_modes: [],
+        verification_scope: :complete_count_and_total_match,
         supporting_evidence: ["cost_ledger", "raw_logs"],
         certificate: %{status: :passed, verified_at: @fixed_timestamp}
       }}
     else
       {:error, %{
         campaign: :gc_011_cost_reconstruction,
-        total_mismatch: abs(recomputed_total - cost_summary.total_cost),
-        count_mismatch: abs(recomputed_count - cost_summary.total_operations),
-        reason: "Cost reconstruction mismatch"
+        total_mismatch: abs(recomputed_total - cost_summary.total_cost_usd),
+        expected_count: expected_count,
+        recomputed_count: recomputed_count,
+        complete_coverage: complete_coverage,
+        reason: "Cost reconstruction mismatch or raw log coverage incomplete"
       }}
     end
     
