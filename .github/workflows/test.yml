@@ -7,6 +7,10 @@ on:
     branches: [ main, master ]
 
 jobs:
+  defaults:
+    run:
+      working-directory: ${{ github.workspace }}
+
   test:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -38,6 +42,8 @@ jobs:
         pip install pytest pytest-cov coverage hypothesis
     
     - name: Run tests with coverage
+      env:
+        PYTHONPATH: ${{ github.workspace }}
       run: |
         pytest tests/ -v --cov=tiannara_core.evaluation --cov-report=xml --cov-report=term-missing
     
