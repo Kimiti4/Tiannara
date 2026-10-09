@@ -14,6 +14,9 @@ from fastapi import APIRouter, HTTPException
 from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/monitoring", tags=["Monitoring & Stabilization"])
 
