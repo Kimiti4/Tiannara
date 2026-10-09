@@ -108,10 +108,15 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
       end)
     end
     
-    if length(failed) == 0 do
+    if length(failed) == 0 and length(passed) == length(campaigns) do
       certificate = build_certification_certificate(results)
-      IO.puts("\n🎉 GOVERNANCE CONSTITUTIONAL CERTIFICATION COMPLETE")
-      {:ok, certificate}
+      case certificate.payload.certification_status do
+        :certified ->
+          IO.puts("\n🎉 GOVERNANCE CONSTITUTIONAL CERTIFICATION COMPLETE")
+          {:ok, certificate}
+        status ->
+          {:error, {:certification_not_complete, status}}
+      end
     else
       failed_ids = Enum.map(failed, fn {id, _} -> id end)
       {:error, failed_ids}
@@ -948,7 +953,7 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
       results: json_safe_results,
       governance_version: "14.0.999",
       runtime_version: "0.1.0",
-      certification_status: :certified
+      certification_status: if(Enum.all?(results, fn {_id, result} -> match?({:ok, _}, result) end) and map_size(json_safe_results) == 12, do: :certified, else: :not_certified)
     }, signature: nil}  # Signature computed by PureArtifactGenerator from JSON
   end
   
