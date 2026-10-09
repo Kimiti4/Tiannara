@@ -1,96 +1,102 @@
 defmodule TiannaraOS.Governance.Validation.EvidenceVerifier do
   @moduledoc """
-  EvidenceVerifier - Independently verifies evidence artifacts.
+  Independently verifies evidence artifact integrity.
 
-  This module uses a SEPARATE code path from EvidenceSigner to avoid shared bugs.
-  It recomputes hashes, verifies signatures, and can replay campaigns independently.
-
-  Responsibilities:
-  - Verify cryptographic signatures
-  - Verify content hashes match stored data
-  - Verify input/output fingerprints
-  - Optionally replay campaign for independent verification
+  Important: the current EvidenceSigner uses a fixed demonstration HMAC key.
+  This verifier checks the HMAC mathematically, but that key is not suitable
+  for production signer authentication. Do not treat :valid as a trusted
+  production certificate until key management is replaced with a configured
+  trust store and asymmetric signatures.
   """
 
   @type evidence_artifact :: map()
-  @type verification_result :: :valid | {:invalid, reason :: String.t()}
+  @type verification_result :: :valid | {:invalid, String.t()}
 
-  @doc """
-  Verify entire evidence artifact through all checks.
-  """
+  # Kept byte-for-byte compatible with EvidenceSigner while that module still
+  # uses its documented demonstration-only key.
+  @demo_signing_key "tiannara-governance-validation-signing-key-2026"
+
   @spec verify_artifact(evidence_artifact()) :: verification_result()
-  def verify_artifact(artifact) do
-    with :valid <- verify_signature(artifact),
-         :valid <- verify_hash(artifact),
+  def verify_artifact(artifact) when is_map(artifact) do
+    with :valid <- verify_hash(artifact),
+         :valid <- verify_signature(artifact),
          :match <- verify_fingerprint(artifact) do
       :valid
     else
       {:invalid, reason} -> {:invalid, reason}
+      :mismatch -> {:invalid, "missing input/output fingerprint"}
+      _ -> {:invalid, "malformed evidence artifact"}
     end
   end
 
-  @doc """
-  Verify cryptographic signature on artifact.
-  Uses separate verification logic from signing to avoid shared bugs.
-  """
+  def verify_artifact(_), do: {:invalid, "evidence artifact must be a map"}
+
   @spec verify_signature(evidence_artifact()) :: verification_result()
-  def verify_signature(%{signature: signature, content: _content} = _artifact) do
-    # In production: use Ed25519.verify/3 with public key
-    # For now: check signature exists and is non-empty
-    if signature != nil and byte_size(signature) > 0 do
+  def verify_signature(%{
+        signature: signature,
+        content_hash: content_hash,
+        campaign_id: campaign_id,
+        timestamp: timestamp
+      })
+      when is_binary(signature) and byte_size(signature) > 0 and is_binary(content_hash) do
+    signature_data = "#{campaign_id}:#{timestamp}:#{content_hash}"
+
+    expected =
+      :crypto.mac(:hmac, :sha256, @demo_signing_key, signature_data)
+      |> Base.encode16(case: :lower)
+
+    if secure_compare(signature, expected) do
       :valid
     else
-      {:invalid, "missing or empty signature"}
+      {:invalid, "signature mismatch"}
     end
+  rescue
+    _ -> {:invalid, "malformed signature fields"}
   end
 
-  @doc """
-  Verify content hash matches actual content.
-  Recomputes hash independently from signer.
-  """
+  def verify_signature(_), do: {:invalid, "missing signature or signed fields"}
+
   @spec verify_hash(evidence_artifact()) :: verification_result()
-  def verify_hash(%{content_hash: stored_hash, content: content}) do
-    computed_hash = compute_content_hash(content)
+  def verify_hash(%{content_hash: stored_hash, content: content})
+      when is_binary(stored_hash) and is_map(content) do
+    computed_hash =
+      :crypto.hash(:sha256, :erlang.term_to_binary(content))
+      |> Base.encode16(case: :lower)
 
-    if computed_hash == stored_hash do
+    if secure_compare(String.downcase(stored_hash), computed_hash) do
       :valid
     else
-      {:invalid, "hash mismatch: expected #{stored_hash}, got #{computed_hash}"}
+      {:invalid, "content hash mismatch"}
     end
   end
 
-  @doc """
-  Verify input/output fingerprints match expected values.
-  """
+  def verify_hash(_), do: {:invalid, "missing content or content hash"}
+
   @spec verify_fingerprint(evidence_artifact()) :: :match | :mismatch
   def verify_fingerprint(%{input_fingerprint: input_fp, output_fingerprint: output_fp}) do
-    # In production: recompute fingerprints from canonical inputs
-    # For now: check fingerprints exist
-    if input_fp != nil and output_fp != nil do
+    if is_binary(input_fp) and byte_size(input_fp) > 0 and
+         is_binary(output_fp) and byte_size(output_fp) > 0 do
       :match
     else
       :mismatch
     end
   end
 
+  def verify_fingerprint(_), do: :mismatch
+
   @doc """
-  Replay campaign execution and verify result matches stored evidence.
-  This is the strongest form of verification but most expensive.
+  Campaign replay is not implemented by this verifier. It must never return
+  :verified until the campaign is actually executed in an isolated context.
   """
   @spec replay_and_verify(map(), evidence_artifact()) :: :verified | :failed
-  def replay_and_verify(_campaign_spec, _evidence) do
-    # In production:
-    # 1. Re-execute campaign with same inputs
-    # 2. Compare output fingerprint with stored fingerprint
-    # 3. Return :verified if match, :failed otherwise
-    
-    # For now: assume deterministic replay succeeds
-    :verified
+  def replay_and_verify(_campaign_spec, _evidence), do: :failed
+
+  defp secure_compare(left, right)
+       when is_binary(left) and is_binary(right) and byte_size(left) == byte_size(right) do
+    :crypto.hash_equals(left, right)
+  rescue
+    _ -> false
   end
 
-  # Compute content hash (must match EvidenceSigner implementation exactly)
-  defp compute_content_hash(content) do
-    :crypto.hash(:sha256, :erlang.term_to_binary(content))
-    |> Base.encode16(case: :lower)
-  end
+  defp secure_compare(_, _), do: false
 end
