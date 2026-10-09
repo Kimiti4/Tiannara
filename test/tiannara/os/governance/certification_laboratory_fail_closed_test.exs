@@ -93,4 +93,42 @@ defmodule TiannaraOS.Governance.CertificationLaboratoryFailClosedTest do
                       certification_status: :not_certifiable}} =
              Laboratory.execute_campaign(:gc_012_long_horizon_evolution)
   end
+
+  test "GC-006 verifies RSA signatures over the canonical certificate payload and rejects tampering" do
+    original_cwd = File.cwd!()
+    previous_key = System.get_env("TIANNARA_CERT_PUBLIC_KEY")
+    temp_root = Path.join(System.tmp_dir!(), "tiannara-gc006-#{System.unique_integer([:positive])}")
+    cert_dir = Path.join([temp_root, "evidence", "certificates"])
+    File.mkdir_p!(cert_dir)
+
+    on_exit(fn ->
+      File.cd!(original_cwd)
+      File.rm_rf!(temp_root)
+      if is_binary(previous_key), do: System.put_env("TIANNARA_CERT_PUBLIC_KEY", previous_key),
+        else: System.delete_env("TIANNARA_CERT_PUBLIC_KEY")
+    end)
+
+    private_key = :public_key.generate_key({:rsa, 2048, 65_537})
+    public_key = {:RSAPublicKey, elem(private_key, 2), elem(private_key, 3)}
+    key_path = Path.join(temp_root, "trusted-public.pem")
+    File.write!(key_path, :public_key.pem_encode([:public_key.pem_entry_encode(:RSAPublicKey, public_key)]))
+    System.put_env("TIANNARA_CERT_PUBLIC_KEY", key_path)
+    File.cd!(temp_root)
+
+    payload = %{"certificate_id" => "gc006-fixture", "status" => "test"}
+    signature = :public_key.sign(Jason.encode!(payload), :sha256, private_key) |> Base.encode64()
+    certificate = payload |> Map.put("signed_at", "2026-10-09T00:00:00Z") |> Map.put("signature", signature)
+    certificate_path = Path.join(cert_dir, "fixture.json")
+    File.write!(certificate_path, Jason.encode!(certificate))
+
+    assert {:ok, %{valid_certificates: 1}} =
+             Laboratory.execute_campaign(:gc_006_certificate_verification)
+
+    tampered = Map.put(certificate, "status", "tampered")
+    File.write!(certificate_path, Jason.encode!(tampered))
+
+    assert {:error, %{reason: :signature_verification_failed, invalid_certificates: 1}} =
+             Laboratory.execute_campaign(:gc_006_certificate_verification)
+  end
+
 end
