@@ -189,16 +189,25 @@ IO.puts("  Testing deterministic state reconstruction...")
 state1 = TiannaraOS.Governance.GovernanceState.capture_state()
 state2 = TiannaraOS.Governance.GovernanceState.capture_state()
 
+states_identical = state1 == state2
+
 replay_report = %{
   replay_type: :deterministic_reconstruction,
   timestamp: DateTime.utc_now(),
   sample_size: 2,
   states_captured: 2,
-  states_identical: state1 == state2,
-  determinism_verified: true,
+  states_identical: states_identical,
+  # Two immediate snapshots establish only snapshot stability, not ledger replay.
+  determinism_verified: states_identical,
+  evidence_scope: :same_process_snapshot_comparison,
   replay_method: :capture_state_twice,
-  note: "For bootstrap scenario with no events, structural identity verified"
+  note: "Bootstrap snapshot identity only; this is not an independent ledger replay."
 }
+
+unless states_identical do
+  IO.puts("❌ Snapshot comparison failed; refusing to emit a successful replay report.")
+  System.halt(1)
+end
 
 replay_path = Path.join(base_dir, "replay_report.json")
 replay_json = Jason.encode!(replay_report, pretty: true)
