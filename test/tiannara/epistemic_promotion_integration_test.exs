@@ -209,7 +209,7 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     graph_pid = Process.whereis(DiscoveryVerificationGraph)
     Process.exit(graph_pid, :kill)
     Process.sleep(50)
-    start_supervised!(DiscoveryVerificationGraph)
+    if Process.whereis(DiscoveryVerificationGraph) == nil, do: start_supervised!(DiscoveryVerificationGraph)
 
     assert {:ok, recovered} = DiscoveryVerificationGraph.get(node_id)
     assert recovered.hash == graph_hash
