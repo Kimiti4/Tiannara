@@ -194,11 +194,14 @@ class LogicPuzzleEvolver:
         operation = task["inputs"]["operation"]
         
         def solve(**kwargs):
+            # Capture inputs once so both correct and mutation paths operate on
+            # the supplied variables, including tasks with fewer than two inputs.
+            values = list(inputs.values())
+            a = values[0] if values else False
+            b = values[1] if len(values) > 1 else False
+
             # For high quality, ALWAYS give correct answer
             if quality > 0.9 or self.rng.random() < quality:
-                # Get all boolean values
-                values = list(inputs.values())
-                
                 # Correct evaluation for multiple variables
                 if operation == "and":
                     result = all(values)
