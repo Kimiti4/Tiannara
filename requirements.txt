@@ -36,6 +36,7 @@ psycopg2-binary>=2.9.0  # PostgreSQL adapter
 psycopg[binary]>=3.1.0  # SQLAlchemy postgresql+psycopg driver
 python-jose[cryptography]>=3.3.0  # JWT
 passlib[bcrypt]>=1.7.4  # Password hashing
+pyotp>=2.9.0  # TOTP MFA used by the API MFA routes
 SQLAlchemy>=2.0.0  # ORM
 httpx>=0.25.0  # HTTP client for email API
 email-validator>=2.1.0  # Email validation
