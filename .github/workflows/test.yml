@@ -7,11 +7,9 @@ on:
     branches: [ main, master ]
 
 jobs:
-  defaults:
-    run:
-      working-directory: ${{ github.workspace }}
-
   test:
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
