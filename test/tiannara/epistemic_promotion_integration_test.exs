@@ -39,7 +39,13 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     id = :"integration_#{System.unique_integer([:positive])}"
     assert {:ok, _} = register(id)
 
-    reproduction = %{reproduction_evidence: %{replications: 3, independent_runs: true}}
+    reproduction = %{
+      evidence_class: :real,
+      execution_mode: :real_execution,
+      real_observation: true,
+      effect_verified: true,
+      reproduction_evidence: %{replications: 3, independent_runs: true}
+    }
 
     assert {:ok, reproduced} =
              DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, reproduction)
@@ -102,7 +108,7 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
              DiscoveryRegistry.update_validation_status_with_lineage(
                id,
                :reproduced,
-               %{reproduction_evidence: %{replications: 2}}
+               real_evidence()
              )
 
     assert {:error, :invalid_status_transition} =
@@ -157,7 +163,7 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
              DiscoveryRegistry.update_validation_status_with_lineage(
                id,
                :reproduced,
-               %{reproduction_evidence: %{replications: 2}}
+               real_evidence()
              )
 
     [hash] = updated.archive_ids
