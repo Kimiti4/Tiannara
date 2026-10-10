@@ -542,4 +542,39 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     assert :ok = :dets.insert(:tiannara_discovery_verification_graph, {graph_id, tampered})
     assert {:error, {:sequence_invalid, ^graph_id}} = DiscoveryVerificationGraph.verify_chain()
   end
+
+  test "archive verification validates parent ancestry and rejects missing parents" do
+    parent_record = %{
+      id: "parent-#{System.unique_integer([:positive])}",
+      kind: :test_evidence,
+      status: :verified,
+      artifact: %{source: :test},
+      provenance: %{source: :integration_test}
+    }
+
+    assert {:ok, parent} = DiscoveryEvidenceArchive.append(parent_record)
+
+    child_record = %{
+      id: "child-#{System.unique_integer([:positive])}",
+      kind: :test_evidence,
+      status: :verified,
+      artifact: %{source: :test},
+      provenance: %{source: :integration_test}
+    }
+
+    assert {:ok, child} = DiscoveryEvidenceArchive.append(child_record, [parent])
+    assert :ok = DiscoveryEvidenceArchive.verify(child.hash)
+
+    on_exit(fn -> restore_archive_record(parent.hash, parent) end)
+    assert :ok = :dets.delete(:tiannara_discovery_evidence_archive, parent.hash)
+
+    assert {:error, {:invalid_parent_archive, ^parent.hash, :archive_not_found}} =
+             DiscoveryEvidenceArchive.verify(child.hash)
+
+    assert {:error, {:invalid_parent_archive, ^parent.hash, :archive_not_found}} =
+             DiscoveryEvidenceArchive.append(
+               Map.put(child_record, :id, "child-referencing-missing-parent"),
+               [parent]
+             )
+  end
 end

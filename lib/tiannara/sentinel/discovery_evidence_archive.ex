@@ -71,14 +71,7 @@ defmodule Tiannara.Sentinel.DiscoveryEvidenceArchive do
   end
 
   def handle_call({:verify, hash}, _from, state) do
-    reply =
-      case :dets.lookup(@table, hash) do
-        [{^hash, record}] ->
-          if hash_record(record) == hash, do: :ok, else: {:error, :archive_hash_mismatch}
-        [] ->
-          {:error, :archive_not_found}
-      end
-    {:reply, reply, state}
+    {:reply, verify_archive_chain(hash, MapSet.new()), state}
   end
 
   defp build_record(record, parents) do
@@ -114,10 +107,52 @@ defmodule Tiannara.Sentinel.DiscoveryEvidenceArchive do
   end
 
   defp validate_parents(parents) do
-    if Enum.all?(parents, &(is_map(&1) and is_binary(Map.get(&1, :hash)))),
-      do: :ok,
-      else: {:error, :invalid_parent_evidence}
+    Enum.reduce_while(parents, :ok, fn parent, :ok ->
+      cond do
+        not is_map(parent) or not is_binary(Map.get(parent, :hash)) ->
+          {:halt, {:error, :invalid_parent_evidence}}
+
+        true ->
+          case verify_archive_chain(parent.hash, MapSet.new()) do
+            :ok -> {:cont, :ok}
+            {:error, reason} -> {:halt, {:error, {:invalid_parent_archive, parent.hash, reason}}}
+          end
+      end
+    end)
   end
+
+  # Verify the entire immutable ancestry, not merely the leaf's content hash.
+  # A leaf remains invalid if any referenced parent is missing, corrupt, or
+  # participates in a cycle.
+  defp verify_archive_chain(hash, seen) when is_binary(hash) do
+    cond do
+      MapSet.member?(seen, hash) ->
+        {:error, {:archive_parent_cycle, hash}}
+
+      true ->
+        case :dets.lookup(@table, hash) do
+          [{^hash, record}] ->
+            if hash_record(record) != hash do
+              {:error, :archive_hash_mismatch}
+            else
+              parents = Map.get(record, :parent_hashes, [])
+              next_seen = MapSet.put(seen, hash)
+
+              Enum.reduce_while(parents, :ok, fn parent_hash, :ok ->
+                case verify_archive_chain(parent_hash, next_seen) do
+                  :ok -> {:cont, :ok}
+                  {:error, reason} -> {:halt, {:error, {:invalid_parent_archive, parent_hash, reason}}}
+                end
+              end)
+            end
+
+          [] ->
+            {:error, :archive_not_found}
+        end
+    end
+  end
+
+  defp verify_archive_chain(_hash, _seen), do: {:error, :invalid_archive_hash}
 
   defp ensure_started do
     case Process.whereis(__MODULE__) do
