@@ -565,13 +565,14 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     assert {:ok, child} = DiscoveryEvidenceArchive.append(child_record, [parent])
     assert :ok = DiscoveryEvidenceArchive.verify(child.hash)
 
-    on_exit(fn -> restore_archive_record(parent.hash, parent) end)
-    assert :ok = :dets.delete(:tiannara_discovery_evidence_archive, parent.hash)
+    parent_hash = parent.hash
+    on_exit(fn -> restore_archive_record(parent_hash, parent) end)
+    assert :ok = :dets.delete(:tiannara_discovery_evidence_archive, parent_hash)
 
-    assert {:error, {:invalid_parent_archive, ^parent.hash, :archive_not_found}} =
+    assert {:error, {:invalid_parent_archive, ^parent_hash, :archive_not_found}} =
              DiscoveryEvidenceArchive.verify(child.hash)
 
-    assert {:error, {:invalid_parent_archive, ^parent.hash, :archive_not_found}} =
+    assert {:error, {:invalid_parent_archive, ^parent_hash, :archive_not_found}} =
              DiscoveryEvidenceArchive.append(
                Map.put(child_record, :id, "child-referencing-missing-parent"),
                [parent]
