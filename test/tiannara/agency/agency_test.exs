@@ -53,7 +53,8 @@ defmodule Tiannara.Agency.AgencyTest do
 
       assert length(result.hypotheses) >= 1
       assert result.selected != nil
-      assert result.selected.status in [:validated, :refuted]
+      assert result.selected.status in [:experiment_supported, :refuted]
+      assert result.selected.epistemic_status == :candidate
       assert result.experiment != nil
       assert result.knowledge != nil
     end
@@ -188,6 +189,8 @@ defmodule Tiannara.Agency.AgencyTest do
       assert result.knowledge.confidence >= 0.0
       assert result.knowledge.confidence <= 1.0
       assert length(result.knowledge.supporting_evidence) > 0
+      assert result.knowledge.epistemic_status == :candidate
+      assert result.knowledge.evidence_class == :simulated
     end
   end
 

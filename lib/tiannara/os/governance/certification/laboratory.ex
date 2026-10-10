@@ -108,10 +108,15 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
       end)
     end
     
-    if length(failed) == 0 do
+    if length(failed) == 0 and length(passed) == length(campaigns) do
       certificate = build_certification_certificate(results)
-      IO.puts("\n🎉 GOVERNANCE CONSTITUTIONAL CERTIFICATION COMPLETE")
-      {:ok, certificate}
+      case certificate.payload.certification_status do
+        :certified ->
+          IO.puts("\n🎉 GOVERNANCE CONSTITUTIONAL CERTIFICATION COMPLETE")
+          {:ok, certificate}
+        status ->
+          {:error, {:certification_not_complete, status}}
+      end
     else
       failed_ids = Enum.map(failed, fn {id, _} -> id end)
       {:error, failed_ids}
@@ -166,44 +171,15 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   # GC-001: Replay Certification
   # ============================================================================
   
-  defp execute_gc_001_replay_certification(ctx, sample_size) do
-    IO.puts("    Generating #{sample_size} random governance histories (seed=#{ctx.seed})...")
-    
-    results = Enum.map(1..sample_size, fn i ->
-      case generate_random_history(ctx) do
-        {:ok, history, _new_ctx} ->
-          case replay_and_verify(history) do
-            {:ok, verified} -> {:success, verified}
-            {:error, reason} -> {:failure, %{history_index: i, reason: reason}}
-          end
-      end
-    end)
-    
-    successes = Enum.count(results, fn {status, _} -> status == :success end)
-    failures = Enum.count(results, fn {status, _} -> status == :failure end)
-    
-    failure_details = Enum.filter(results, fn {status, _} -> status == :failure end)
-    |> Enum.map(fn {_, detail} -> detail end)
-    
-    if failures == 0 do
-      {:ok, %{
-        campaign: :gc_001_replay,
-        sample_size: sample_size,
-        successes: successes,
-        failures: failures,
-        success_rate: 1.0,
-        determinism_verified: true
-      }}
-    else
-      {:error, %{
-        campaign: :gc_001_replay,
-        sample_size: sample_size,
-        successes: successes,
-        failures: failures,
-        success_rate: successes / sample_size,
-        failure_details: Enum.take(failure_details, 10)  # First 10 failures
-      }}
-    end
+  defp execute_gc_001_replay_certification(_ctx, _sample_size) do
+    # Fail closed: the previous implementation generated random histories but
+    # replayed the global persisted ledger for each one. That did not verify
+    # the generated histories and could falsely certify replay correctness.
+    {:error, %{
+      campaign: :gc_001_replay,
+      reason: :isolated_history_replay_not_implemented,
+      certification_status: :not_certifiable
+    }}
   end
   
   defp generate_random_history(ctx) do
@@ -258,17 +234,22 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   end
   
   defp replay_and_verify(%{events: events}) do
-    # For GC-001, we verify determinism by checking event structure
-    # In production: would use GovernanceReplayEngine.replay_from_sequence/1
-    # For now, verify event integrity
-    
+    # The generated history is an input fixture only. Certification must use the
+    # canonical replay engine against the persisted ledger; structural inspection
+    # is not evidence of replay correctness.
     if length(events) > 0 do
-      {:ok, %{
-        replayed: true,
-        event_count: length(events),
-        state_consistent: true,
-        determinism_verified: true
-      }}
+      case TiannaraOS.Governance.GovernanceReplayEngine.replay_full() do
+        {:ok, replayed_state} ->
+          current_state = TiannaraOS.Governance.GovernanceState.get_current_state()
+          case TiannaraOS.Governance.GovernanceReplayEngine.verify_replay(current_state, replayed_state) do
+            :match ->
+              {:ok, %{replayed: true, event_count: length(events), state_consistent: true, determinism_verified: true}}
+            {:mismatch, details} ->
+              {:error, {:replay_mismatch, details}}
+          end
+        {:error, reason} ->
+          {:error, {:replay_failed, reason}}
+      end
     else
       {:error, :no_events}
     end
@@ -278,7 +259,12 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   # GC-002: Authority Fuzzing
   # ============================================================================
   
-  defp execute_gc_002_authority_fuzzing(opts) do
+  defp execute_gc_002_authority_fuzzing(_opts) do
+    {:error, %{campaign: :gc_002_authority_fuzzing, reason: :canonical_authority_executor_not_implemented,
+      certification_status: :not_certifiable}}
+  end
+
+  defp legacy_execute_gc_002_authority_fuzzing(opts) do
     ctx = Keyword.get(opts, :context) || DeterministicContext.new(seed: Keyword.get(opts, :seed, 42))
     test_count = 5000
     
@@ -345,13 +331,18 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     assigned_capabilities = Map.get(state, :assigned_capabilities, %{})
     
     total_caps = map_size(all_capabilities)
-    assigned_count = map_size(assigned_capabilities)
-    orphan_count = total_caps - assigned_count
-    
-    # All capabilities should be assigned to institutions
-    conservation_rate = if(total_caps > 0, do: assigned_count / total_caps, else: 1.0)
-    
-    result = if(orphan_count == 0) do
+    capability_ids = Map.keys(all_capabilities) |> MapSet.new()
+    assigned_ids = Map.keys(assigned_capabilities) |> MapSet.new()
+    unassigned_ids = MapSet.difference(capability_ids, assigned_ids)
+    unknown_assignments = MapSet.difference(assigned_ids, capability_ids)
+    orphan_count = MapSet.size(unassigned_ids) + MapSet.size(unknown_assignments)
+    assigned_count = total_caps - MapSet.size(unassigned_ids)
+
+    # Compare identities, not just counts: equal-sized but disjoint maps are
+    # not capability conservation.
+    conservation_rate = if(total_caps > 0, do: assigned_count / total_caps, else: 0.0)
+
+    result = if(total_caps > 0 and orphan_count == 0) do
       {:ok, %{
         campaign: :gc_003_capability_conservation,
         total_capabilities: total_caps,
@@ -366,10 +357,25 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
         certificate: %{status: :passed, verified_at: @fixed_timestamp}
       }}
     else
+      reason =
+        cond do
+          total_caps == 0 ->
+            "No capabilities are present in the reconstructed governance state; conservation cannot be certified"
+
+          orphan_count > 0 ->
+            "Found #{orphan_count} capability identity/assignment inconsistencies"
+
+          true ->
+            "Capability conservation prerequisites were not satisfied"
+        end
+
       {:error, %{
         campaign: :gc_003_capability_conservation,
-        orphan_count: orphan_count,
-        reason: "Found #{orphan_count} orphan capabilities not assigned to any institution"
+        total_capabilities: total_caps,
+        assigned_capabilities: assigned_count,
+        orphan_capabilities: orphan_count,
+        conservation_rate: conservation_rate,
+        reason: reason
       }}
     end
     
@@ -391,7 +397,9 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     current_count = map_size(current_institutions)
     
     # Verify they match
-    institutions_match = (reconstructed_count == current_count)
+    reconstructed_ids = Map.keys(reconstructed_institutions) |> MapSet.new()
+    current_ids = Map.keys(current_institutions) |> MapSet.new()
+    institutions_match = reconstructed_ids == current_ids
     
     result = if(institutions_match) do
       {:ok, %{
@@ -423,9 +431,11 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     Enum.reduce(events, %{}, fn event, acc ->
       case event.type do
         :institution_created ->
-          Map.put(acc, event.institution_id, event.data)
+          id = Map.get(event.data, :institution_id, Map.get(event.data, "institution_id"))
+          if id, do: Map.put(acc, id, event.data), else: acc
         :institution_modified ->
-          Map.update(acc, event.institution_id, event.data, fn existing ->
+          id = Map.get(event.data, :institution_id, Map.get(event.data, "institution_id"))
+          if id, do: Map.update(acc, id, event.data, fn existing ->
             Map.merge(existing, event.data)
           end)
         _ ->
@@ -470,6 +480,67 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   end
   
   defp execute_gc_006_certificate_verification(_opts) do
+    key_path = System.get_env("TIANNARA_CERT_PUBLIC_KEY")
+    cert_dir = Path.join([File.cwd!(), "evidence", "certificates"])
+
+    cond do
+      not is_binary(key_path) or key_path == "" ->
+        {:error, %{campaign: :gc_006_certificate_verification, reason: :trusted_public_key_not_configured,
+          certification_status: :not_certifiable}}
+      not File.regular?(key_path) ->
+        {:error, %{campaign: :gc_006_certificate_verification, reason: :trusted_public_key_not_found,
+          certification_status: :not_certifiable}}
+      not File.dir?(cert_dir) ->
+        {:error, %{campaign: :gc_006_certificate_verification, reason: :certificate_directory_not_found}}
+      true ->
+        files = Path.wildcard(Path.join(cert_dir, "*.json")) |> Enum.sort()
+        results = Enum.map(files, &verify_certificate_file(&1, key_path))
+        failures = Enum.filter(results, &(elem(&1, 0) == :error))
+
+        if files != [] and failures == [] do
+          {:ok, %{campaign: :gc_006_certificate_verification, total_certificates: length(files),
+            valid_certificates: length(files), invalid_certificates: 0, all_certificates_valid: true,
+            verification_method: :rsa_sha256_trusted_pem_key,
+            supporting_evidence: Enum.map(files, &Path.relative_to_cwd/1) |> Enum.take(10),
+            certificate: %{status: :passed, verified_at: @fixed_timestamp}}}
+        else
+          {:error, %{campaign: :gc_006_certificate_verification, total_certificates: length(files),
+            invalid_certificates: length(failures), failures: Enum.take(failures, 10),
+            reason: if(files == [], do: :no_certificates, else: :signature_verification_failed)}}
+        end
+    end
+  end
+
+  defp verify_certificate_file(path, key_path) do
+    with {:ok, content} <- File.read(path),
+         {:ok, cert} <- Jason.decode(content),
+         {:ok, signature} <- decode_signature(Map.get(cert, "signature")),
+         {:ok, key_pem} <- File.read(key_path),
+         [entry | _] <- :public_key.pem_decode(key_pem),
+         key <- :public_key.pem_entry_decode(entry),
+         payload <- cert |> Map.drop(["signature", "signed_at"]) |> Jason.encode!(),
+         true <- :public_key.verify(payload, :sha256, signature, key) do
+      {:ok, path}
+    else
+      {:error, reason} -> {:error, {path, reason}}
+      [] -> {:error, {path, :empty_public_key}}
+      false -> {:error, {path, :invalid_signature}}
+      _ -> {:error, {path, :malformed_certificate_or_key}}
+    end
+  rescue
+    error -> {:error, {path, {:verification_exception, Exception.message(error)}}}
+  end
+
+  defp decode_signature(signature) when is_binary(signature) do
+    case Base.decode64(signature) do
+      {:ok, decoded} when byte_size(decoded) > 0 -> {:ok, decoded}
+      _ -> {:error, :invalid_signature_encoding}
+    end
+  end
+
+  defp decode_signature(_), do: {:error, :missing_signature}
+
+  defp legacy_execute_gc_006_certificate_verification(_opts) do
     IO.puts("    Verifying cryptographic certificates...")
     
     # Query certificate directory
@@ -510,7 +581,7 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
           confidence: 1.0,
           statistical_power: 1.0,
           failure_modes: [],
-          supporting_evidence: cert_files |> Enum.take(10),
+          supporting_evidence: cert_files |> Enum.map(&Path.relative_to_cwd/1) |> Enum.sort() |> Enum.take(10),
           certificate: %{status: :passed, verified_at: @fixed_timestamp}
         }}
       else
@@ -540,6 +611,73 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   end
   
   defp execute_gc_007_evidence_verification(_opts) do
+    IO.puts("    Independently verifying evidence artifact hashes...")
+
+    evidence_dir = Path.join([File.cwd!(), "evidence", "artifacts"])
+
+    if not File.dir?(evidence_dir) do
+      {:error, %{campaign: :gc_007_evidence_verification, reason: :evidence_directory_not_found}}
+    else
+      files = Path.wildcard(Path.join(evidence_dir, "*.json")) |> Enum.sort()
+
+      if files == [] do
+        {:error, %{campaign: :gc_007_evidence_verification, reason: :no_evidence_artifacts}}
+      else
+        results = Enum.map(files, &verify_evidence_artifact/1)
+        failures = Enum.filter(results, &(elem(&1, 0) == :error))
+
+        if failures == [] do
+          {:ok, %{
+            campaign: :gc_007_evidence_verification,
+            total_artifacts: length(files),
+            verified_artifacts: length(files),
+            failed_artifacts: 0,
+            all_evidence_valid: true,
+            verification_method: :sha256_canonical_payload,
+            supporting_evidence: Enum.map(files, &Path.relative_to_cwd/1) |> Enum.take(10),
+            certificate: %{status: :passed, verified_at: @fixed_timestamp}
+          }}
+        else
+          {:error, %{
+            campaign: :gc_007_evidence_verification,
+            total_artifacts: length(files),
+            failed_artifacts: length(failures),
+            failures: failures
+          }}
+        end
+      end
+    end
+  end
+
+  defp verify_evidence_artifact(path) do
+    with {:ok, content} <- File.read(path),
+         {:ok, data} <- Jason.decode(content),
+         {:ok, declared} <- fetch_string_key(data, ["sha256", "content_hash", "artifact_hash"]),
+         {:ok, canonical} <- canonical_evidence_payload(data),
+         actual <- :crypto.hash(:sha256, canonical) |> Base.encode16(case: :lower),
+         true <- String.downcase(declared) == actual do
+      {:ok, path}
+    else
+      {:error, reason} -> {:error, {path, reason}}
+      false -> {:error, {path, :hash_mismatch}}
+    end
+  end
+
+  defp canonical_evidence_payload(data) do
+    payload = Map.drop(data, ["sha256", "content_hash", "artifact_hash", "signature", "signed_at"])
+    {:ok, Jason.encode!(payload)}
+  end
+
+  defp fetch_string_key(map, keys) do
+    Enum.find_value(keys, fn key ->
+      case Map.get(map, key) do
+        value when is_binary(value) and byte_size(value) > 0 -> {:ok, value}
+        _ -> nil
+      end
+    end) || {:error, :missing_content_hash}
+  end
+
+  defp legacy_execute_gc_007_evidence_verification(_opts) do
     IO.puts("    Independently verifying evidence artifacts...")
     
     # Query evidence directory
@@ -580,7 +718,7 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
           confidence: 1.0,
           statistical_power: 1.0,
           failure_modes: [],
-          supporting_evidence: evidence_files |> Enum.take(10),
+          supporting_evidence: evidence_files |> Enum.map(&Path.relative_to_cwd/1) |> Enum.sort() |> Enum.take(10),
           certificate: %{status: :passed, verified_at: @fixed_timestamp}
         }}
       else
@@ -612,7 +750,7 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     completeness_rate = if(total_artifacts > 0, do: complete_provenance / total_artifacts, else: 0)
     
     # For initial certification, accept 0% if no events exist (bootstrap scenario)
-    result = if(completeness_rate >= 0.95 or total_artifacts == 0) do
+    result = if(total_artifacts > 0 and completeness_rate >= 0.95) do
       {:ok, %{
         campaign: :gc_008_archaeology_certification,
         total_artifacts: total_artifacts,
@@ -639,11 +777,17 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   defp execute_gc_009_entropy_stability(_opts) do
     IO.puts("    Testing entropy stability across mutations...")
     
+    # Repeated snapshots without intervening mutations do not certify
+    # stability under mutation; do not present them as a mutation campaign.
+    _ = GovernanceEntropyTracker.measure_entropy()
+    {:error, %{campaign: :gc_009_entropy_stability,
+      reason: :mutation_driver_not_implemented, certification_status: :not_certifiable}}
+  end
+
+  defp legacy_execute_gc_009_entropy_stability(_opts) do
     sample_size = 1000
-    
+
     IO.puts("    Running #{sample_size} entropy measurements...")
-    
-    # Run multiple entropy measurements
     measurements = Enum.map(1..sample_size, fn _ ->
       entropy = GovernanceEntropyTracker.measure_entropy()
       entropy.total_entropy
@@ -684,11 +828,17 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
   defp execute_gc_010_fitness_stability(_opts) do
     IO.puts("    Testing fitness stability across mutations...")
     
+    # Repeated evaluations without controlled mutations do not establish
+    # fitness stability across system changes.
+    _ = GovernanceFitnessEvaluator.evaluate_fitness()
+    {:error, %{campaign: :gc_010_fitness_stability,
+      reason: :mutation_driver_not_implemented, certification_status: :not_certifiable}}
+  end
+
+  defp legacy_execute_gc_010_fitness_stability(_opts) do
     sample_size = 1000
-    
+
     IO.puts("    Running #{sample_size} fitness evaluations...")
-    
-    # Run multiple fitness evaluations
     evaluations = Enum.map(1..sample_size, fn _ ->
       fitness = GovernanceFitnessEvaluator.evaluate_fitness()
       fitness.overall_fitness
@@ -738,36 +888,45 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
     recomputed_total = Enum.sum(Enum.map(raw_logs, & &1.cost))
     recomputed_count = length(raw_logs)
     
-    # Verify against reported values
+    # A bounded log query cannot certify a full-ledger reconstruction if it
+    # silently truncates the ledger. Require complete count coverage as well
+    # as total agreement before emitting a passing result.
+    expected_count = Map.get(cost_summary, :total_operations)
+    complete_coverage = is_integer(expected_count) and expected_count == recomputed_count
     total_matches = abs(recomputed_total - cost_summary.total_cost_usd) < 0.01
-    
-    result = if(total_matches) do
+
+    result = if(complete_coverage and total_matches) do
       {:ok, %{
         campaign: :gc_011_cost_reconstruction,
         reported_total: cost_summary.total_cost_usd,
         recomputed_total: recomputed_total,
-        reported_count: recomputed_count,
+        reported_count: expected_count,
         recomputed_count: recomputed_count,
         reconstruction_valid: true,
-        confidence: 1.0,
-        statistical_power: 1.0,
-        failure_modes: [],
+        verification_scope: :complete_count_and_total_match,
         supporting_evidence: ["cost_ledger", "raw_logs"],
         certificate: %{status: :passed, verified_at: @fixed_timestamp}
       }}
     else
       {:error, %{
         campaign: :gc_011_cost_reconstruction,
-        total_mismatch: abs(recomputed_total - cost_summary.total_cost),
-        count_mismatch: abs(recomputed_count - cost_summary.total_operations),
-        reason: "Cost reconstruction mismatch"
+        total_mismatch: abs(recomputed_total - cost_summary.total_cost_usd),
+        expected_count: expected_count,
+        recomputed_count: recomputed_count,
+        complete_coverage: complete_coverage,
+        reason: "Cost reconstruction mismatch or raw log coverage incomplete"
       }}
     end
     
     result
   end
   
-  defp execute_gc_012_long_horizon_evolution(opts) do
+  defp execute_gc_012_long_horizon_evolution(_opts) do
+    {:error, %{campaign: :gc_012_long_horizon_evolution, reason: :real_evolution_engine_not_executed,
+      certification_status: :not_certifiable}}
+  end
+
+  defp legacy_execute_gc_012_long_horizon_evolution(opts) do
     ctx = Keyword.get(opts, :context) || DeterministicContext.new(seed: Keyword.get(opts, :seed, 42))
     IO.puts("    Simulating long horizon evolution (100,000 decisions)...")
     
@@ -859,7 +1018,7 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
       results: json_safe_results,
       governance_version: "14.0.999",
       runtime_version: "0.1.0",
-      certification_status: :certified
+      certification_status: if(Enum.all?(results, fn {_id, result} -> match?({:ok, _}, result) end) and map_size(json_safe_results) == 12, do: :certified, else: :not_certified)
     }, signature: nil}  # Signature computed by PureArtifactGenerator from JSON
   end
   

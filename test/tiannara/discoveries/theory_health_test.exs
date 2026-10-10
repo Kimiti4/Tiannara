@@ -22,10 +22,10 @@ defmodule Tiannara.Discoveries.TheoryHealthTest do
       status: :observation
     }
 
-    {:ok, promoted} = Discovery.promote(disc_ok)
-    assert promoted.status == :supported_law
+    assert Discovery.promote(disc_ok) == {:error, :promotion_requires_lineage}
 
-    # Fails supported law: worlds > 500 but aggregate confidence <= 0.75
+    # Even a discovery below the confidence threshold cannot bypass the
+    # mandatory evidence/lineage gate.
     disc_fail = %Discovery{
       id: "disc_fail",
       name: "Identity Shift Limit Fail",

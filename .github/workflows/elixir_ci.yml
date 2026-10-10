@@ -73,7 +73,7 @@ jobs:
       - run: mix deps.get
       - env:
           MIX_ENV: test
-        run: mix test test/tiannara/os/discovery_registry_lineage_test.exs --color
+        run: mix test test/tiannara/discoveries/promotion_gate_test.exs test/tiannara/os/discovery_registry_test.exs test/tiannara/os/discovery_registry_promotion_fail_closed_test.exs test/tiannara/epistemic_promotion_integration_test.exs --color
   suite:
     runs-on: ubuntu-latest
     needs: [compile, test-placement]

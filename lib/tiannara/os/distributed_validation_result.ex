@@ -349,9 +349,33 @@ defmodule TiannaraOS.DistributedValidationResult do
   
   DistributedValidationResult.t()
   """
-  def mark_validated(result) do
-    %{result | consensus_status: :validated, status: :validated}
+  def mark_validated(_result) do
+    {:error, :validation_requires_verified_lineage}
   end
+
+  def mark_validated(%__MODULE__{} = result, evidence) when is_map(evidence) do
+    lineage = Map.get(evidence, :lineage, Map.get(evidence, "lineage", %{}))
+    graph_id = Map.get(lineage, :graph_id, Map.get(lineage, "graph_id"))
+    archive_hash = Map.get(lineage, :archive_hash, Map.get(lineage, "archive_hash"))
+
+    with true <- is_binary(graph_id),
+         true <- is_binary(archive_hash),
+         :ok <- Tiannara.Sentinel.DiscoveryVerificationGraph.verify_chain(),
+         :ok <- Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(archive_hash),
+         {:ok, node} <- Tiannara.Sentinel.DiscoveryVerificationGraph.get(graph_id),
+         true <- Map.get(node, :validation_id, result.validation_id) == result.validation_id do
+      {:ok, %{result |
+        consensus_status: :validated,
+        status: :validated,
+        constitutional_validation: Map.put(result.constitutional_validation || %{}, :evidence_lineage, lineage)
+      }}
+    else
+      false -> {:error, :validation_lineage_mismatch}
+      _ -> {:error, :validation_requires_verified_lineage}
+    end
+  end
+
+  def mark_validated(_result, _evidence), do: {:error, :validation_requires_verified_lineage}
   
   @doc """
   Mark validation as contested (significant disagreement).

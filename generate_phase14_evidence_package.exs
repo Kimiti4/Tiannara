@@ -47,28 +47,66 @@ IO.puts("  ✅ GovernanceCostLedger started")
 # ============================================================================
 IO.puts("\n🔬 Executing all 12 certification campaigns...\n")
 
-case TiannaraOS.Governance.Certification.Laboratory.execute_certification() do
-  {:ok, certificate} ->
-    IO.puts("✅ All campaigns executed successfully\n")
-    
-    # Save main certificate
-    cert_path = Path.join(base_dir, "certificate.json")
-    cert_json = Jason.encode!(certificate, pretty: true)
-    File.write!(cert_path, cert_json)
-    IO.puts("  📄 Saved: #{cert_path}")
-    
-    # Save individual campaign results
-    Enum.each(certificate.results, fn {campaign_name, result} ->
-      result_path = Path.join([base_dir, "campaign_results", "#{campaign_name}.json"])
-      result_json = Jason.encode!(result, pretty: true)
-      File.write!(result_path, result_json)
-    end)
-    IO.puts("  📄 Saved: 12 campaign result files")
-    
-  {:error, reason} ->
-    IO.puts("❌ Certification failed: #{inspect(reason)}")
-    System.halt(1)
-end
+certification_status =
+  case TiannaraOS.Governance.Certification.Laboratory.execute_certification() do
+    {:ok, certificate} ->
+      IO.puts("✅ All campaigns executed successfully\n")
+
+      # Save main certificate
+      cert_path = Path.join(base_dir, "certificate.json")
+      cert_json = Jason.encode!(certificate, pretty: true)
+      File.write!(cert_path, cert_json)
+      IO.puts("  📄 Saved: #{cert_path}")
+
+      # Save individual campaign results
+      Enum.each(certificate.payload.results, fn {campaign_name, result} ->
+        result_path = Path.join([base_dir, "campaign_results", "#{campaign_name}.json"])
+        result_json = Jason.encode!(result, pretty: true)
+        File.write!(result_path, result_json)
+      end)
+      IO.puts("  📄 Saved: 12 campaign result files")
+
+      :certified
+
+    {:error, failed_campaigns} ->
+      # Fail-closed campaigns are intentional until their implementations
+      # land. Record the deterministic bootstrap outcome as the certificate
+      # so cross-platform verification can still compare package hashes.
+      failed_names =
+        failed_campaigns
+        |> Enum.map(fn
+          campaign when is_atom(campaign) -> Atom.to_string(campaign)
+          campaign when is_map(campaign) -> to_string(Map.get(campaign, :campaign, :unknown))
+          campaign -> inspect(campaign)
+        end)
+        |> Enum.sort()
+
+      IO.puts("⚠️  Certification not certifiable (fail-closed): #{length(failed_names)} campaign(s)")
+      Enum.each(failed_names, &IO.puts("   - #{&1}"))
+      IO.puts("  Emitting deterministic not-certifiable certificate\n")
+
+      failure_certificate = %{
+        status: :failed,
+        certification_status: :not_certifiable,
+        total_campaigns: 12,
+        failed_count: length(failed_names),
+        failed_campaigns: failed_names,
+        note: "Bootstrap scenario: fail-closed campaigns remain not certifiable until their implementations land."
+      }
+
+      cert_path = Path.join(base_dir, "certificate.json")
+      File.write!(cert_path, Jason.encode!(failure_certificate, pretty: true))
+      IO.puts("  📄 Saved: #{cert_path}")
+
+      Enum.each(failed_names, fn name ->
+        result_path = Path.join([base_dir, "campaign_results", "#{name}.json"])
+        result_json = Jason.encode!(%{campaign: name, status: :failed, certification_status: :not_certifiable}, pretty: true)
+        File.write!(result_path, result_json)
+      end)
+      IO.puts("  📄 Saved: #{length(failed_names)} campaign result files")
+
+      :not_certifiable
+  end
 
 # ============================================================================
 # Step 4: Run Independent Audit
@@ -146,8 +184,12 @@ validation_report = %{
   validations_performed: [
     %{
       test: :all_campaigns_passed,
-      status: :passed,
-      detail: "12/12 campaigns executed successfully"
+      status: if(certification_status == :certified, do: :passed, else: :failed),
+      detail:
+        if(certification_status == :certified,
+          do: "12/12 campaigns executed successfully",
+          else: "Certification campaigns are fail-closed in the bootstrap environment"
+        )
     },
     %{
       test: :independent_audit_passed,
@@ -170,7 +212,7 @@ validation_report = %{
       detail: "All evidence artifacts generated with SHA-256 hashes"
     }
   ],
-  overall_status: :validated,
+  overall_status: certification_status,
   validator_version: "14.0.999"
 }
 
@@ -189,16 +231,29 @@ IO.puts("  Testing deterministic state reconstruction...")
 state1 = TiannaraOS.Governance.GovernanceState.capture_state()
 state2 = TiannaraOS.Governance.GovernanceState.capture_state()
 
+# The embedded wall-clock timestamp legitimately differs between snapshots
+# on high-resolution clocks; determinism is about the reconstructed
+# governance state, not the capture instant.
+states_identical =
+  Map.drop(state1, [:timestamp]) == Map.drop(state2, [:timestamp])
+
 replay_report = %{
   replay_type: :deterministic_reconstruction,
   timestamp: DateTime.utc_now(),
   sample_size: 2,
   states_captured: 2,
-  states_identical: state1 == state2,
-  determinism_verified: true,
+  states_identical: states_identical,
+  # Two immediate snapshots establish only snapshot stability, not ledger replay.
+  determinism_verified: states_identical,
+  evidence_scope: :same_process_snapshot_comparison,
   replay_method: :capture_state_twice,
-  note: "For bootstrap scenario with no events, structural identity verified"
+  note: "Bootstrap snapshot identity only; this is not an independent ledger replay."
 }
+
+unless states_identical do
+  IO.puts("❌ Snapshot comparison failed; refusing to emit a successful replay report.")
+  System.halt(1)
+end
 
 replay_path = Path.join(base_dir, "replay_report.json")
 replay_json = Jason.encode!(replay_report, pretty: true)
@@ -280,6 +335,9 @@ end
 # ============================================================================
 IO.puts("\n📜 Generating master manifest...\n")
 
+campaign_result_count =
+  Path.wildcard(Path.join([base_dir, "campaign_results", "*.json"])) |> length()
+
 master_manifest = %{
   manifest_type: :phase_14_constitutional_evidence_package,
   version: "RC3",
@@ -298,7 +356,7 @@ master_manifest = %{
     runtime_freeze: "runtime_freeze.json",
     validation_report: "validation_report.json",
     replay_report: "replay_report.json",
-    campaign_results: "campaign_results/*.json (12 files)",
+    campaign_results: "campaign_results/*.json (#{campaign_result_count} files)",
     evidence: "evidence/",
     hashes: "hashes/*.sha256",
     manifests: "manifests/evidence_index.json"

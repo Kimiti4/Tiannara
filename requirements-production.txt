@@ -1,0 +1,3 @@
+# Production dependency manifest.
+# Keep production and CI installs aligned with the maintained root dependency set.
+-r requirements.txt

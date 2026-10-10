@@ -13,10 +13,13 @@ defmodule TiannaraOS.DiscoveryRegistry do
     :id, :name, :description, :domain_id, :program_id, :experiment_ids,
     :evidence_ids, :theory_ids, :law_id, :applications, :validation_status,
     :confidence, :uncertainty, :created_at, :validated_at, :lifecycle_events,
-    :evidence_envelope
+    :evidence_envelope, :verification_graph_ids, :archive_ids
   ]
 
   @type t :: %__MODULE__{}
+
+  @table :tiannara_discovery_registry
+  @default_file "data/discovery_registry.dets"
 
   def start_link(opts \\ []), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   def get(id), do: GenServer.call(__MODULE__, {:get, id})
@@ -24,12 +27,46 @@ defmodule TiannaraOS.DiscoveryRegistry do
   def find_by_theory(id), do: GenServer.call(__MODULE__, {:find_by_theory, id})
   def register(data), do: GenServer.call(__MODULE__, {:register, data})
   def add_application(id, application), do: GenServer.call(__MODULE__, {:add_application, id, application})
-  def update_validation_status(id, status, evidence_envelope \\ %{}),
-    do: GenServer.call(__MODULE__, {:update_validation_status, id, status, evidence_envelope})
+  def update_validation_status(_id, _status, _evidence_envelope \\ %{}),
+    do: {:error, :validation_transition_requires_lineage}
+
+  def update_validation_status_with_lineage(id, status, evidence_envelope, lineage_writer \\ &default_lineage_writer/1),
+    do: GenServer.call(__MODULE__, {:update_validation_status_with_lineage, id, status, evidence_envelope, lineage_writer})
   def link_to_law(id, law_id), do: GenServer.call(__MODULE__, {:link_to_law, id, law_id})
 
   @impl true
-  def init(_), do: {:ok, %{discoveries: %{}, domain_index: %{}, theory_index: %{}}}
+  def init(opts) do
+    default_path =
+      if Application.get_env(:tiannara, :test_mode, false),
+        do: "test_data/discovery_registry.dets",
+        else: @default_file
+
+    path =
+      Keyword.get(
+        opts,
+        :file,
+        Application.get_env(:tiannara, :discovery_registry_file, default_path)
+      )
+
+    File.mkdir_p!(Path.dirname(path))
+
+    case :dets.open_file(@table, type: :set, file: String.to_charlist(path), repair: true) do
+      {:ok, _} ->
+        discoveries =
+          :dets.traverse(@table, fn {id, discovery} -> {:continue, {id, discovery}} end)
+          |> Map.new()
+
+        state =
+          Enum.reduce(Map.values(discoveries), %{discoveries: discoveries, domain_index: %{}, theory_index: %{}}, fn discovery, acc ->
+            acc |> index_domain(discovery) |> index_theories(discovery)
+          end)
+
+        {:ok, state}
+
+      {:error, reason} ->
+        {:stop, {:discovery_registry_open_failed, reason}}
+    end
+  end
 
   @impl true
   def handle_call({:get, id}, _, state), do: reply_get(state, id)
@@ -46,10 +83,16 @@ defmodule TiannaraOS.DiscoveryRegistry do
     with :ok <- required(data),
          {:ok, discovery} <- build_discovery(data),
          false <- Map.has_key?(state.discoveries, discovery.id) do
-      new_state = state |> put_in([:discoveries, discovery.id], discovery)
-                        |> index_domain(discovery)
-                        |> index_theories(discovery)
-      {:reply, {:ok, discovery}, new_state}
+      case :dets.insert(@table, {discovery.id, discovery}) do
+        :ok ->
+          new_state = state |> put_in([:discoveries, discovery.id], discovery)
+                            |> index_domain(discovery)
+                            |> index_theories(discovery)
+          {:reply, {:ok, discovery}, new_state}
+
+        {:error, reason} ->
+          {:reply, {:error, {:discovery_persistence_failed, reason}}, state}
+      end
     else
       true -> {:reply, {:error, :discovery_already_exists}, state}
       {:error, _} = e -> {:reply, e, state}
@@ -61,24 +104,42 @@ defmodule TiannaraOS.DiscoveryRegistry do
       nil -> {:reply, {:error, :discovery_not_found}, state}
       %{validation_status: :operationally_validated} = discovery ->
         updated = %{discovery | applications: discovery.applications ++ [application]}
-        {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+        case :dets.insert(@table, {id, updated}) do
+          :ok -> {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+          {:error, reason} -> {:reply, {:error, {:discovery_persistence_failed, reason}}, state}
+        end
       _ ->
         {:reply, {:error, :operational_validation_required_for_application}, state}
     end
   end
 
-  def handle_call({:update_validation_status, id, status, envelope}, _, state) do
+  def handle_call({:update_validation_status_with_lineage, id, status, envelope, writer}, _, state) do
     case Map.get(state.discoveries, id) do
       nil -> {:reply, {:error, :discovery_not_found}, state}
       discovery ->
         with :ok <- transition_allowed(discovery.validation_status, status),
-             :ok <- validate_promotion_evidence(status, envelope) do
+             :ok <- validate_promotion_evidence(status, envelope),
+             {:ok, lineage} <- write_validation_lineage(discovery, status, envelope, writer) do
           updated = %{discovery |
             validation_status: status,
-            evidence_envelope: envelope,
-            validated_at: if(status == :operationally_validated, do: DateTime.utc_now(), else: discovery.validated_at)
+            evidence_envelope: Map.merge(discovery.evidence_envelope || %{}, envelope),
+            verification_graph_ids: discovery.verification_graph_ids ++ [lineage.graph_id],
+            archive_ids: discovery.archive_ids ++ [lineage.archive_hash],
+            validated_at: if(status == :operationally_validated, do: DateTime.utc_now(), else: discovery.validated_at),
+            lifecycle_events: discovery.lifecycle_events ++ [%{
+              event: :validation_updated,
+              from: discovery.validation_status,
+              to: status,
+              evidence: envelope,
+              lineage: lineage
+            }]
           }
-          {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+          case :dets.insert(@table, {id, updated}) do
+            :ok -> {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+            {:error, reason} -> {:reply, {:error, {:discovery_persistence_failed, reason}}, state}
+          end
+        else
+          {:error, reason} -> {:reply, {:error, reason}, state}
         end
     end
   end
@@ -88,7 +149,10 @@ defmodule TiannaraOS.DiscoveryRegistry do
       nil -> {:reply, {:error, :discovery_not_found}, state}
       %{validation_status: :operationally_validated} = discovery ->
         updated = %{discovery | law_id: law_id}
-        {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+        case :dets.insert(@table, {id, updated}) do
+          :ok -> {:reply, {:ok, updated}, put_in(state.discoveries[id], updated)}
+          {:error, reason} -> {:reply, {:error, {:discovery_persistence_failed, reason}}, state}
+        end
       _ -> {:reply, {:error, :operational_validation_required_for_law_link}, state}
     end
   end
@@ -121,7 +185,8 @@ defmodule TiannaraOS.DiscoveryRegistry do
         theory_ids: data.theory_ids, law_id: nil, applications: [],
         validation_status: :simulated, confidence: 0.0, uncertainty: 1.0,
         created_at: Map.get(data, :created_at, DateTime.utc_now()),
-        validated_at: nil, lifecycle_events: [], evidence_envelope: %{}
+        validated_at: nil, lifecycle_events: [], evidence_envelope: %{},
+        verification_graph_ids: [], archive_ids: []
       }}
     end
   end
@@ -131,8 +196,30 @@ defmodule TiannaraOS.DiscoveryRegistry do
   defp transition_allowed(_, _), do: {:error, :invalid_status_transition}
 
   defp validate_promotion_evidence(:reproduced, envelope) do
-    if is_map(envelope) and Map.has_key?(envelope, :reproduction_evidence),
-      do: :ok, else: {:error, :reproduction_evidence_required}
+    reproduction = if is_map(envelope), do: Map.get(envelope, :reproduction_evidence), else: nil
+
+    cond do
+      not is_map(envelope) ->
+        {:error, :reproduction_evidence_required}
+      Map.has_key?(envelope, :evidence_class) and Map.get(envelope, :evidence_class) not in [:real, :simulated] ->
+        {:error, :invalid_evidence_envelope}
+      not is_map(reproduction) ->
+        {:error, :reproduction_evidence_required}
+      Map.get(envelope, :evidence_class) != :real ->
+        {:error, :real_reproduction_evidence_required}
+      Map.get(envelope, :execution_mode) != :real_execution ->
+        {:error, :real_execution_required}
+      Map.get(envelope, :real_observation) != true ->
+        {:error, :real_observation_required}
+      Map.get(envelope, :effect_verified) != true ->
+        {:error, :effect_verification_required}
+      not is_integer(Map.get(reproduction, :replications)) or Map.get(reproduction, :replications) < 3 ->
+        {:error, :three_replications_required}
+      Map.get(reproduction, :independent_runs) != true ->
+        {:error, :independent_replications_required}
+      true ->
+        :ok
+    end
   end
 
   defp validate_promotion_evidence(:operationally_validated, envelope) do
@@ -146,10 +233,64 @@ defmodule TiannaraOS.DiscoveryRegistry do
       envelope.effect_verified != true -> {:error, :effect_verification_required}
       envelope.acl_status not in [:pass, :passed] -> {:error, :acl_required}
       envelope.oavl_status not in [:pass, :passed] -> {:error, :oavl_required}
-      true -> :ok
+      # These are caller-controlled status assertions, not independently
+      # verified ACL/OAVL artifacts. Until the registry resolves and verifies
+      # provenance-bound artifacts using a configured trust policy, operational
+      # promotion must remain fail-closed.
+      true -> {:error, :trusted_operational_evidence_verification_unavailable}
     end
   end
   defp validate_promotion_evidence(_, _), do: {:error, :unsupported_promotion_status}
+
+  defp write_validation_lineage(discovery, status, envelope, writer) when is_function(writer, 1) do
+    ensure_lineage_services()
+    transition = {discovery.id, discovery.validation_status, status}
+    node = %{
+      kind: :discovery_validation_transition,
+      discovery_id: discovery.id,
+      transition_key: transition_digest(transition),
+      transition_payload_hash: transition_digest(envelope),
+      parent_ids: List.last(discovery.verification_graph_ids, []) |> List.wrap(),
+      provenance: %{source: :discovery_registry, transition: {discovery.validation_status, status}},
+      status: status,
+      artifact: %{from: discovery.validation_status, to: status, evidence: envelope}
+    }
+    case Tiannara.Sentinel.DiscoveryVerificationGraph.append_with_archive(node) do
+      {:ok, %{graph: graph, archive: archive}} ->
+        case writer.(archive) do
+          {:ok, _} -> {:ok, %{graph_id: graph.node_id, archive_hash: archive.hash}}
+          {:error, reason} -> {:error, {:lineage_write_failed, reason}}
+          _ -> {:error, :lineage_writer_rejected}
+        end
+      {:error, reason} -> {:error, {:lineage_write_failed, reason}}
+    end
+  end
+
+  defp write_validation_lineage(_, _, _, _), do: {:error, :lineage_writer_unavailable}
+
+  defp transition_digest(value) do
+    :crypto.hash(:sha256, :erlang.term_to_binary(value))
+    |> Base.encode16(case: :lower)
+  end
+
+  defp default_lineage_writer(archive), do: {:ok, archive}
+
+  defp ensure_lineage_services do
+    unless Process.whereis(Tiannara.Sentinel.DiscoveryEvidenceArchive) do
+      case Tiannara.Sentinel.DiscoveryEvidenceArchive.start_link([]) do
+        {:ok, _} -> :ok
+        {:error, {:already_started, _}} -> :ok
+        {:error, reason} -> raise "discovery evidence archive unavailable: #{inspect(reason)}"
+      end
+    end
+    unless Process.whereis(Tiannara.Sentinel.DiscoveryVerificationGraph) do
+      case Tiannara.Sentinel.DiscoveryVerificationGraph.start_link([]) do
+        {:ok, _} -> :ok
+        {:error, {:already_started, _}} -> :ok
+        {:error, reason} -> raise "discovery verification graph unavailable: #{inspect(reason)}"
+      end
+    end
+  end
 
   defp index_domain(state, discovery) do
     ids = Map.get(state.domain_index, discovery.domain_id, [])

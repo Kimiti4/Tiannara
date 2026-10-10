@@ -134,6 +134,10 @@ defmodule Tiannara.Application do
       # Sentinel Unified Ecosystem
       Tiannara.Sentinel.Supervisor,
 
+      # Epistemic promotion lineage — durable graph and evidence archive
+      Tiannara.Sentinel.DiscoveryEvidenceArchive,
+      Tiannara.Sentinel.DiscoveryVerificationGraph,
+
       # Cognitive Immune System — F11 residency (AE-007)
       Tiannara.CIS.Supervisor,
 

@@ -15,6 +15,8 @@ defmodule Tiannara.Discoveries.Discovery do
     :operational_impact,
     :architectural_impact,
     :timestamp,
+    verification_graph_ids: [],
+    archive_ids: [],
     parents: [],
     children: [],
     influenced_by: [],
@@ -61,22 +63,58 @@ defmodule Tiannara.Discoveries.Discovery do
   @doc """
   Evaluates promotion thresholds based on evidence and confidence.
   """
-  def promote(%__MODULE__{} = disc) do
-    agg_conf = get_aggregate_confidence(disc)
-    cond do
-      disc.operational_runs_evidence > 50 ->
-        {:ok, %{disc | status: :validated}}
+  def promote(%__MODULE__{}) do
+    {:error, :promotion_requires_lineage}
+  end
 
-      disc.worlds_evidence > 500 and agg_conf > 0.75 ->
-        {:ok, %{disc | status: :supported_law}}
-
-      disc.worlds_evidence > 100 and agg_conf > 0.6 ->
-        {:ok, %{disc | status: :candidate_law}}
-
-      true ->
-        {:error, :threshold_not_met}
+  def promote(%__MODULE__{} = disc, evidence) when is_map(evidence) do
+    with {:ok, target} <- promotion_target(disc),
+         :ok <- validate_promotion_evidence(target, evidence),
+         {:ok, %{lineage: lineage}} <- verified_lineage(disc, evidence) do
+      {:ok, %{disc |
+        status: target,
+        verification_graph_ids: disc.verification_graph_ids ++ [lineage.graph_id],
+        archive_ids: disc.archive_ids ++ [lineage.archive_hash]
+      }}
     end
   end
+
+  defp promotion_target(disc) do
+    agg_conf = get_aggregate_confidence(disc)
+    cond do
+      disc.operational_runs_evidence > 50 -> {:ok, :validated}
+      disc.worlds_evidence > 500 and agg_conf > 0.75 -> {:ok, :supported_law}
+      disc.worlds_evidence > 100 and agg_conf > 0.6 -> {:ok, :candidate_law}
+      true -> {:error, :threshold_not_met}
+    end
+  end
+
+  defp validate_promotion_evidence(:validated, evidence) do
+    if Map.get(evidence, :evidence_class) == :real and
+         Map.get(evidence, :execution_mode) == :real_execution,
+      do: :ok,
+      else: {:error, :real_evidence_required}
+  end
+
+  defp validate_promotion_evidence(_target, evidence) do
+    if is_map(Map.get(evidence, :lineage)),
+      do: :ok,
+      else: {:error, :evidence_envelope_required}
+  end
+
+  defp verified_lineage(disc, %{lineage: %{graph_id: graph_id, archive_hash: archive_hash}}) do
+    with :ok <- Tiannara.Sentinel.DiscoveryVerificationGraph.verify_chain(),
+         :ok <- Tiannara.Sentinel.DiscoveryEvidenceArchive.verify(archive_hash),
+         {:ok, graph} <- Tiannara.Sentinel.DiscoveryVerificationGraph.get(graph_id),
+         true <- Map.get(graph, :discovery_id) == disc.id do
+      {:ok, %{lineage: %{graph_id: graph_id, archive_hash: archive_hash}}}
+    else
+      false -> {:error, :lineage_discovery_mismatch}
+      _ -> {:error, :invalid_promotion_lineage}
+    end
+  end
+
+  defp verified_lineage(_, _), do: {:error, :evidence_envelope_required}
 
   @doc """
   Loads all discoveries from persistence.

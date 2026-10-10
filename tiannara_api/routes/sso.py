@@ -14,6 +14,7 @@ Status: Week 27 Day 1 - SSO Integration
 from fastapi import APIRouter, HTTPException, status, Query, Request
 from pydantic import BaseModel
 from typing import Optional
+import logging
 
 from tiannara_api.auth.sso_provider import (
     oauth_registry,
@@ -22,6 +23,8 @@ from tiannara_api.auth.sso_provider import (
     generate_sso_tokens,
     initialize_oauth_providers,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth/sso", tags=["Authentication - SSO"])
 

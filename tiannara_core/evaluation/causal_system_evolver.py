@@ -652,7 +652,7 @@ class CausalSystemEvolver:
         
         return {target_var: float(predicted)}
     
-    def _residualize(self, target_vals: np.ndarray, observations: List[Dict], control_vars: List[str]) -> np.ndarray:
+    def _residualize(self, target_vals: Any, observations: List[Dict], control_vars: List[str]) -> Any:
         """Compute residuals of target after regressing out control variables."""
         import numpy as np
         

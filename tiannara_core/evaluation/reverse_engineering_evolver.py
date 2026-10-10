@@ -262,7 +262,7 @@ class ReverseEngineeringEvolver:
             skill_id, correctness, episode, "reverse_engineering"
         )
     
-    def _compute_skill_embedding(self, func_type: str, task: Dict[str, Any]) -> 'np.ndarray':
+    def _compute_skill_embedding(self, func_type: str, task: Dict[str, Any]) -> Any:
         """Compute skill embedding (simplified - would use real embeddings in production)."""
         import numpy as np
         # In production, use sentence transformers or similar

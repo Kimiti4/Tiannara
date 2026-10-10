@@ -23,14 +23,31 @@ defmodule TiannaraRuntime.WorldModel.Pipeline.ModelCertification do
          {:ok, c4} <- CertificationCheck.new(check_name: "replay_determinism", status: causal_checks.replay_status, description: causal_checks.replay_detail),
          {:ok, c5} <- CertificationCheck.new(check_name: "causal_acyclic", status: causal_checks.acyclic_status, description: causal_checks.acyclic_detail),
          {:ok, c6} <- CertificationCheck.new(check_name: "intervention_safety", status: causal_checks.intervention_status, description: causal_checks.intervention_detail),
+         checks = [c1, c2, c3, c4, c5, c6],
+         true <- Enum.all?(checks, &(&1.status == :pass)) || {:error, :certification_checks_not_passed},
          {:ok, certificate} <- ModelCertificate.new(
            model_id: mid,
            model_version: ver,
            certification_type: :operational,
-           checks: [c1, c2, c3, c4, c5, c6],
+           checks: checks,
            overall_status: :pass
-         ) do
-      ModelRegistry.transition_status(mid, ver, :operational)
+         ),
+         {:ok, %{graph: graph, archive: archive}} <-
+           Tiannara.Sentinel.DiscoveryVerificationGraph.append_with_archive(%{
+             kind: :world_model_operational_certification,
+             discovery_id: mid,
+             model_id: mid,
+             model_version: ver,
+             provenance: %{source: __MODULE__, evidence_roots: Map.get(model, :evidence_roots, [])},
+             status: :operational,
+             artifact: certificate
+           }),
+         {:ok, _model} <-
+           ModelRegistry.transition_status(mid, ver, :operational, %{
+             evidence_class: :real,
+             execution_mode: :real_execution,
+             lineage: %{graph_id: graph.node_id, archive_hash: archive.hash}
+           }) do
       {:ok, certificate}
     end
   end

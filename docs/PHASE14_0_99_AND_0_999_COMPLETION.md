@@ -23,14 +23,28 @@ Per Tiannara's constitutional requirements, Phase 14 is **NOT complete** until t
 - [ ] Independent verification results (auditor output)
 - [ ] Final PHASE14_GOVERNANCE_CERTIFICATE.json (with real signatures)
 
-**Current State**: All 12 certification campaigns are **implemented** but **not executed**.
-**Required Next Step**: Execute campaigns → Generate evidence → Run independent audit → Produce certificate.
+**Current State (source audit, 2026-10-09)**: Certification is **not established**. Several campaign implementations previously described below are placeholders or do not test the advertised property. The source-level fail-closed gate now marks these as not certifiable rather than treating synthetic or unrelated checks as proof.
+
+| Campaign | Current audit status | Reason |
+|---|---|---|
+| GC-001 replay | Not certifiable | Generated histories were not actually replayed in isolation; the prior path checked the global ledger instead. |
+| GC-002 authority fuzzing | Not certifiable | No canonical authority-operation executor; the former test helper always returned rejection. |
+| GC-003 capability conservation | Conditional | Requires a non-empty capability corpus and compares capability identities, not just counts. |
+| GC-004 institution conservation | Conditional | Reconstructs from ledger events; identity-set comparison is required and does not yet prove full field-level reconstruction. |
+| GC-006 certificate verification | Conditional | Requires a trusted public key and RSA-SHA256 signatures; producer compatibility is not yet verified. |
+| GC-007 evidence verification | Conditional | Requires non-empty JSON artifacts with independently recomputable canonical SHA-256 payload hashes. |
+| GC-008 archaeology | Not certifiable on empty corpus | Empty provenance cannot count as completeness. |
+| GC-009/GC-010 stability | Not certifiable | Repeated snapshots/evaluations without controlled mutations do not test mutation stability. |
+| GC-011 cost reconstruction | Conditional | Requires complete raw-log coverage and matching totals. |
+| GC-012 long-horizon evolution | Not certifiable | No real evolution engine execution is wired into this campaign. |
+
+**Required Next Step**: Implement canonical campaign drivers, verify producer/consumer artifact contracts, run tests and CI, then generate evidence and obtain an independent audit. No certification claim should be made before that sequence completes.
 
 ---
 
 ## Executive Summary
 
-Phases 14.0.99 and 14.0.999 have **implemented** all infrastructure needed for constitutional certification, including all 12 certification campaigns (GC-001 through GC-012) with real adapter integration. However, **constitutional certification requires execution evidence**, which has not yet been generated.
+Phases 14.0.99 and 14.0.999 contain governance and certification infrastructure, but a current source audit has found that some campaigns do not yet implement their advertised checks. **Neither implementation completeness nor constitutional certification is established by this document alone.** The campaign status table above supersedes older completion claims below until each campaign is repaired and independently verified.
 
 This represents the transition from **implementation** to **execution readiness** - the governance system has the machinery for proof, but proof itself must be generated through actual campaign execution.
 
@@ -121,7 +135,7 @@ The CampaignExecutor was already fully implemented and uses real adapters:
 
 ## Phase 14.0.999: Constitutional Certification Laboratory
 
-### ✅ GovernanceCertificationLaboratory (Fully Implemented)
+### ⚠️ GovernanceCertificationLaboratory (PARTIAL — certification blocked)
 **Owner**: Governance Council  
 **Depends On**: All governance modules + validation infrastructure  
 **Lines Added**: 468 lines of real campaign logic  
@@ -129,7 +143,7 @@ The CampaignExecutor was already fully implemented and uses real adapters:
 
 The laboratory orchestrates all 12 certification campaigns and produces the final constitutional certificate.
 
-### Certification Campaigns Implemented (12/12 Real)
+### Certification Campaigns (12 dispatched; several explicitly not certifiable)
 
 #### ✅ GC-001: Replay Certification (Fully Implemented)
 **Purpose**: Verify deterministic replay across 1000 random governance histories
@@ -173,7 +187,7 @@ end
 
 ---
 
-#### ✅ GC-002: Authority Fuzzing (Fully Implemented)
+#### ⚠️ GC-002: Authority Fuzzing (NOT CERTIFIABLE — canonical executor missing)
 **Purpose**: Test authority boundaries with 5000 illegal operations
 
 **Implementation**:

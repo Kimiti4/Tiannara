@@ -45,7 +45,8 @@ defmodule Tiannara.ASC.Models do
       :id, :discovery_id, :domain, :content,
       validation_status: :unvalidated, reuse_count: 0,
       capability_enabled: nil, confidence: 0.0,
-      contradictions: [], created_at: nil
+      contradictions: [], verification_graph_ids: [], archive_ids: [],
+      created_at: nil
     ]
   end
 

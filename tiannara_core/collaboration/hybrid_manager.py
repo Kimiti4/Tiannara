@@ -177,7 +177,7 @@ class CollaborationSession:
             "ai": self.ai_collaborator.to_dict() if self.ai_collaborator else None,
             "handoffs": len(self.handoff_history),
             "duration_seconds": (
-                (self.completion_time or datetime.now() - self.start_time or datetime.now()).total_seconds()
+                ((self.completion_time or datetime.now()) - self.start_time).total_seconds()
                 if self.start_time else 0
             )
         }

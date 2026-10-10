@@ -2,6 +2,11 @@ defmodule Tiannara.ASC.Reality.DeploymentTest do
   use ExUnit.Case, async: false
 
   setup do
+    case Tiannara.CEL.Services.EventBus.start_link([]) do
+      {:ok, _} -> :ok
+      {:error, {:already_started, _}} -> :ok
+    end
+
     for mod <- [
           Tiannara.ASC.Reality.DigitalDeploymentManager,
           Tiannara.ASC.Reality.Adapters.SimulatedAdapter,

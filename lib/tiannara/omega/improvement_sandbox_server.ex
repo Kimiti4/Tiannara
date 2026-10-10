@@ -31,13 +31,20 @@ defmodule Tiannara.Omega.ImprovementSandboxServer do
     # Delegate to the sandbox harness. The actual validation is performed by
     # the existing Improvement Sandbox; this server only orchestrates and
     # publishes the outcome.
-    outcome = %{proposal: event.payload, status: :validated_in_sandbox}
+    outcome = %{
+      proposal: event.payload,
+      status: :sandbox_candidate,
+      epistemic_status: :not_validated,
+      promotion_required: true,
+      evidence: [],
+      note: "Sandbox orchestration alone is not validation; durable evidence and verification lineage are required."
+    }
 
     EventBus.publish(state.bus, %EpistemicEvent{
       type: :experiment_completed,
       severity: :medium,
       payload: outcome,
-      confidence: 0.8,
+      confidence: 0.0,
       evidence: []
     })
 

@@ -2,6 +2,9 @@ defmodule Tiannara.Agency.Sandbox do
   @moduledoc """
   Execution Sandbox for safe experiment running.
   Provides isolation, rollback capability, and resource limits.
+
+  Sandbox output is explicitly simulated evidence. It may inform an experiment-local
+  recommendation, but it is never valid evidence for canonical epistemic promotion.
   """
   alias Tiannara.Agency.Models.Experiment
 
@@ -23,6 +26,8 @@ defmodule Tiannara.Agency.Sandbox do
     evidence = Enum.map(1..3, fn i ->
       %{
         id: "ev_#{experiment.id}_#{i}",
+        evidence_class: :simulated,
+        execution_mode: :simulation,
         quality: 0.6 + :rand.uniform() * 0.35,
         contradicts_hypothesis: not success and :rand.uniform() < 0.3
       }
@@ -36,6 +41,9 @@ defmodule Tiannara.Agency.Sandbox do
 
     %{
       success: success,
+      epistemic_status: :candidate,
+      evidence_class: :simulated,
+      execution_mode: :simulation,
       metrics: metrics,
       evidence: evidence,
       confidence_delta: if(success, do: 0.2 + :rand.uniform() * 0.15, else: -0.15),

@@ -69,7 +69,6 @@ defmodule Tiannara.Math.Optimization do
         end
       end
     end
-  end
 
   defp result(params, objective, iterations, converged, termination, gradient_norm) do
     %{params: params, objective: objective / 1.0, iterations: iterations,
@@ -78,22 +77,39 @@ defmodule Tiannara.Math.Optimization do
   end
 
   defp validate_vector(values) do
-    if values != [] and Enum.all?(values, &finite_number?/1), do: :ok, else: {:error, :invalid_vector}
+    if values != [] and Enum.all?(values, &finite_number?/1) do
+      :ok
+    else
+      {:error, :invalid_vector}
+    end
   end
 
   defp validate_scalar(value) do
-    if finite_number?(value), do: :ok, else: {:error, :non_finite_objective_or_gradient}
+    if finite_number?(value) do
+      :ok
+    else
+      {:error, :non_finite_objective_or_gradient}
+    end
   end
 
   defp positive_option(opts, key, default) do
     value = Keyword.get(opts, key, default)
-    if is_number(value) and finite_number?(value) and value > 0, do: {:ok, value / 1.0},
-      else: {:error, {:invalid_option, key}}
+
+    if is_number(value) and finite_number?(value) and value > 0 do
+      {:ok, value / 1.0}
+    else
+      {:error, {:invalid_option, key}}
+    end
   end
 
   defp integer_option(opts, key, default) do
     value = Keyword.get(opts, key, default)
-    if is_integer(value), do: {:ok, value}, else: {:error, {:invalid_option, key}}
+
+    if is_integer(value) do
+      {:ok, value}
+    else
+      {:error, {:invalid_option, key}}
+    end
   end
 
   defp validate_limit(value) when value > 0 and value <= @max_iterations, do: :ok

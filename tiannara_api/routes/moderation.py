@@ -12,6 +12,7 @@ Designed for clean API consumption by external services.
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 import time
+import logging
 
 from tiannara_api.services.moderation_service import ModerationService
 from tiannara_api.schemas.moderation_schemas import (
@@ -20,6 +21,8 @@ from tiannara_api.schemas.moderation_schemas import (
     BatchModerationRequest,
     BatchModerationResponse
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/api/v1/moderate",

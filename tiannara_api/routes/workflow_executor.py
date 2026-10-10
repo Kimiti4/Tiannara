@@ -19,6 +19,9 @@ from datetime import datetime, timezone
 from enum import Enum
 import uuid
 import traceback
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Import WebSocket streaming helpers
 try:

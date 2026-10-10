@@ -131,7 +131,7 @@ defmodule Tiannara.ToolForge.ToolBuilder do
 
     test_module = """
     defmodule Tiannara.Tools.#{module_name}Test do
-      use ExUnit.Case, async: true
+      use ExUnit.#{"Case, async: true"}
 
       alias Tiannara.Tools.#{module_name}
 

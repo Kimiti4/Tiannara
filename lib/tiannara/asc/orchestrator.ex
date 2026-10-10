@@ -13,58 +13,97 @@ defmodule Tiannara.ASC.Orchestrator do
   Returns a civilizational report for human review.
   """
   def process_discovery(discovery) do
-    {:ok, knowledge_asset} = Tiannara.ASC.KnowledgeEconomy.ingest_discovery(
-      :asc_knowledge_economy, discovery)
+    {:ok, knowledge_asset} =
+      Tiannara.ASC.KnowledgeEconomy.ingest_discovery(:asc_knowledge_economy, discovery)
 
     evidence = Tiannara.Sentinel.Activation.CRAVController.validate_discovery(discovery)
-    {:ok, validated_asset} = Tiannara.ASC.KnowledgeEconomy.validate_asset(
-      :asc_knowledge_economy, knowledge_asset.id, evidence)
 
-    {:ok, capability} = Tiannara.ASC.CapabilityEvolution.propose_capability(
-      :asc_capability_evolution, %{
-        name: "Capability derived from #{discovery.id}",
-        domain: discovery.domain,
-        innovation: 0.8, efficiency: 0.75, scalability: 0.7,
-        civilizational_value: 0.85, cost: 0.4
-      })
-
-    Tiannara.ASC.CivilizationMemory.preserve(:asc_civilization_memory, %{
-      type: :discovery, id: discovery.id, domain: discovery.domain,
-      content: discovery.content, capability_id: capability.id
-    })
-
-    institution = if capability.fitness > 0.7 do
-      {:ok, inst} = Tiannara.ASC.InstitutionEngine.propose_institution(
-        :asc_institution_engine, %{
-          name: "#{discovery.domain |> Atom.to_string() |> String.capitalize()} Institute",
+    case Tiannara.ASC.KnowledgeEconomy.validate_asset(
+           :asc_knowledge_economy,
+           knowledge_asset.id,
+           evidence
+         ) do
+      {:error, reason} ->
+        %{
+          discovery_id: discovery.id,
+          knowledge_asset: knowledge_asset,
+          validation_status: :pending_lineage,
+          validation_error: reason,
+          capability: nil,
+          institution: nil,
           civilization_id: get_civilization_id(discovery.domain),
-          purpose: "Steward #{discovery.domain} capabilities",
-          capabilities: [capability.id],
-          knowledge: [validated_asset.id],
-          founding_discovery_id: discovery.id
+          metrics: Tiannara.ASC.CivilizationMetrics.measure(:asc_civilization_metrics)
+        }
+
+      {:ok, validated_asset} ->
+        {:ok, capability} = Tiannara.ASC.CapabilityEvolution.propose_capability(
+          :asc_capability_evolution,
+          %{
+            name: "Capability derived from #{discovery.id}",
+            domain: discovery.domain,
+            innovation: 0.8,
+            efficiency: 0.75,
+            scalability: 0.7,
+            civilizational_value: 0.85,
+            cost: 0.4
+          }
+        )
+
+        Tiannara.ASC.CivilizationMemory.preserve(:asc_civilization_memory, %{
+          type: :discovery,
+          id: discovery.id,
+          domain: discovery.domain,
+          content: discovery.content,
+          capability_id: capability.id
         })
-      {:ok, evaluated} = Tiannara.ASC.InstitutionEngine.evaluate_institution(
-        :asc_institution_engine, inst.id)
-      evaluated
-    else
-      nil
+
+        institution =
+          if capability.fitness > 0.7 do
+            {:ok, inst} = Tiannara.ASC.InstitutionEngine.propose_institution(
+              :asc_institution_engine,
+              %{
+                name: "#{discovery.domain |> Atom.to_string() |> String.capitalize()} Institute",
+                civilization_id: get_civilization_id(discovery.domain),
+                purpose: "Steward #{discovery.domain} capabilities",
+                capabilities: [capability.id],
+                knowledge: [validated_asset.id],
+                founding_discovery_id: discovery.id
+              }
+            )
+
+            {:ok, evaluated} =
+              Tiannara.ASC.InstitutionEngine.evaluate_institution(
+                :asc_institution_engine,
+                inst.id
+              )
+
+            evaluated
+          else
+            nil
+          end
+
+        Tiannara.Sentinel.Activation.Dialogue.initiate(
+          %{
+            id: discovery.id,
+            category: :scientific,
+            observation: "Civilizational evolution: new capability #{capability.name}",
+            interpretation:
+              "Knowledge compounded into capability#{if institution, do: " and institution", else: ""}",
+            confidence: capability.fitness,
+            requires_human: true
+          },
+          []
+        )
+
+        %{
+          discovery_id: discovery.id,
+          knowledge_asset: validated_asset,
+          capability: capability,
+          institution: institution,
+          civilization_id: get_civilization_id(discovery.domain),
+          metrics: Tiannara.ASC.CivilizationMetrics.measure(:asc_civilization_metrics)
+        }
     end
-
-    Tiannara.Sentinel.Activation.Dialogue.initiate(%{
-      id: discovery.id, category: :scientific,
-      observation: "Civilizational evolution: new capability #{capability.name}",
-      interpretation: "Knowledge compounded into capability#{if institution, do: " and institution", else: ""}",
-      confidence: capability.fitness, requires_human: true
-    }, [])
-
-    %{
-      discovery_id: discovery.id,
-      knowledge_asset: validated_asset,
-      capability: capability,
-      institution: institution,
-      civilization_id: get_civilization_id(discovery.domain),
-      metrics: Tiannara.ASC.CivilizationMetrics.measure(:asc_civilization_metrics)
-    }
   end
 
   defp get_civilization_id(domain) do
