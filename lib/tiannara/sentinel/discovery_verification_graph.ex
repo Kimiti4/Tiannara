@@ -104,12 +104,17 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
 
   def handle_call(:verify_chain, _from, state) do
     result =
-      Enum.reduce_while(state.order, @genesis, fn id, previous ->
+      state.order
+      |> Enum.with_index(1)
+      |> Enum.reduce_while({@genesis, 1}, fn {id, expected_sequence}, {previous, _next_sequence} ->
         case :dets.lookup(@table, id) do
           [{^id, node}] ->
             archive_hash = Map.get(node, :archive_hash)
 
             cond do
+              Map.get(node, :sequence) != expected_sequence ->
+                {:halt, {:error, {:sequence_invalid, id}}}
+
               node.previous_hash != previous ->
                 {:halt, {:error, {:hash_chain_invalid, id}}}
 
@@ -132,7 +137,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
                         artifact when is_map(artifact) ->
                           if Map.get(artifact, :node_id) == node.node_id and
                                Map.get(artifact, :hash) == node.hash do
-                            {:cont, node.hash}
+                            {:cont, {node.hash, expected_sequence + 1}}
                           else
                             {:halt, {:error, {:archive_artifact_mismatch, id}}}
                           end
@@ -155,7 +160,7 @@ defmodule Tiannara.Sentinel.DiscoveryVerificationGraph do
     reply =
       case result do
         {:error, _} = error -> error
-        _hash -> :ok
+        {_hash, _next_sequence} -> :ok
       end
 
     {:reply, reply, state}

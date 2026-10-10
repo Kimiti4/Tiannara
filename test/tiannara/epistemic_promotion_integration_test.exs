@@ -516,4 +516,30 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     assert {:error, :invalid_status_transition} =
              DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, real_evidence())
   end
+
+  test "verification chain rejects sequence gaps even when the node hash is recomputed" do
+    id = :"sequence_tamper_#{System.unique_integer([:positive])}"
+    assert {:ok, _} = register(id)
+
+    assert {:ok, promoted} =
+             DiscoveryRegistry.update_validation_status_with_lineage(id, :reproduced, real_evidence())
+
+    [graph_id] = promoted.verification_graph_ids
+    [{^graph_id, original_node}] = :dets.lookup(:tiannara_discovery_verification_graph, graph_id)
+    on_exit(fn -> restore_graph_record(graph_id, original_node) end)
+
+    tampered =
+      original_node
+      |> Map.put(:sequence, original_node.sequence + 7)
+      |> then(fn node ->
+        hash =
+          :crypto.hash(:sha256, :erlang.term_to_binary(Map.drop(node, [:hash, :archive_hash])))
+          |> Base.encode16(case: :lower)
+
+        Map.put(node, :hash, hash)
+      end)
+
+    assert :ok = :dets.insert(:tiannara_discovery_verification_graph, {graph_id, tampered})
+    assert {:error, {:sequence_invalid, ^graph_id}} = DiscoveryVerificationGraph.verify_chain()
+  end
 end
