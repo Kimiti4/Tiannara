@@ -233,7 +233,11 @@ defmodule TiannaraOS.DiscoveryRegistry do
       envelope.effect_verified != true -> {:error, :effect_verification_required}
       envelope.acl_status not in [:pass, :passed] -> {:error, :acl_required}
       envelope.oavl_status not in [:pass, :passed] -> {:error, :oavl_required}
-      true -> :ok
+      # These are caller-controlled status assertions, not independently
+      # verified ACL/OAVL artifacts. Until the registry resolves and verifies
+      # provenance-bound artifacts using a configured trust policy, operational
+      # promotion must remain fail-closed.
+      true -> {:error, :trusted_operational_evidence_verification_unavailable}
     end
   end
   defp validate_promotion_evidence(_, _), do: {:error, :unsupported_promotion_status}
