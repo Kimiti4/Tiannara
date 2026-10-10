@@ -83,16 +83,20 @@ defmodule Tiannara.Epistemic.PromotionIntegrationTest do
     assert reproduced.validation_status == :reproduced
     assert length(reproduced.lifecycle_events) == 1
 
-    assert {:ok, operational} =
+    # Status flags supplied by the caller are not trusted ACL/OAVL artifacts.
+    # Until provenance-bound operational evidence can be independently verified,
+    # the registry must refuse this promotion and preserve the reproduced state.
+    assert {:error, :trusted_operational_evidence_verification_unavailable} =
              DiscoveryRegistry.update_validation_status_with_lineage(id, :operationally_validated, real_evidence())
 
-    assert operational.validation_status == :operationally_validated
-    assert length(operational.lifecycle_events) == 2
-    assert length(operational.verification_graph_ids) == 2
-    assert length(operational.archive_ids) == 2
+    assert {:ok, reproduced_after_refusal} = DiscoveryRegistry.get(id)
+    assert reproduced_after_refusal.validation_status == :reproduced
+    assert length(reproduced_after_refusal.lifecycle_events) == 1
+    assert length(reproduced_after_refusal.verification_graph_ids) == 1
+    assert length(reproduced_after_refusal.archive_ids) == 1
 
-    [graph_id | _] = operational.verification_graph_ids
-    [archive_hash | _] = operational.archive_ids
+    [graph_id] = reproduced_after_refusal.verification_graph_ids
+    [archive_hash] = reproduced_after_refusal.archive_ids
 
     assert {:ok, graph} = DiscoveryVerificationGraph.lineage(graph_id)
     assert Enum.any?(graph, &(&1.node_id == graph_id))
