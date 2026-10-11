@@ -48,6 +48,22 @@ defmodule Tiannara.AAL.CommandLoom do
 
     {primary_intent, required_domains} = LTF.map_intent_vectors(human_input)
 
+    if required_domains == [] do
+      failure = %{
+        status: :unroutable,
+        intent: primary_intent,
+        reason: :no_supported_domain_match,
+        artifacts_written: false
+      }
+
+      Logger.warning("Command has no supported domain match; no workspace artifacts written.")
+      {:reply, {:error, failure}, state}
+    else
+      process_supported_domains(human_input, primary_intent, required_domains, state)
+    end
+  end
+
+  defp process_supported_domains(_human_input, primary_intent, required_domains, state) do
     extraction_tasks =
       Enum.map(required_domains, fn domain ->
         task =
