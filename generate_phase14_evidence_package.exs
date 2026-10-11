@@ -198,6 +198,31 @@ validation_json = Jason.encode!(validation_report, pretty: true)
 File.write!(validation_path, validation_json)
 IO.puts("  📄 Saved: #{validation_path}")
 
+# A campaign result is not certification: the emitted wrapper must carry a
+# signature before any certification-level PASS can be asserted.
+written_certificate = Jason.decode!(File.read!(Path.join(base_dir, "certificate.json")))
+signed_certificate? =
+  case Map.get(written_certificate, "signature") do
+    signature when is_binary(signature) and byte_size(signature) > 0 -> true
+    _ -> false
+  end
+
+unless signed_certificate? do
+  bounded_validation_report =
+    validation_report
+    |> Map.put(:overall_status, :evidence_generated_not_certified)
+    |> Map.put(:certificate_signature_present, false)
+    |> Map.update!(:validations_performed, fn checks ->
+      Enum.map(checks, fn check ->
+        Map.put(check, :status, :unknown)
+        |> Map.put(:detail, "Not independently certified: certificate signature is absent")
+      end)
+    end)
+
+  File.write!(validation_path, Jason.encode!(bounded_validation_report, pretty: true))
+  IO.puts("⚠️ Evidence package generated without certification: certificate signature is absent.")
+end
+
 # ============================================================================
 # Step 7: Generate Replay Report
 # ============================================================================
