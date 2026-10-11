@@ -99,7 +99,7 @@ defmodule Tiannara.RealityAdmissionControl do
       }], nil)
     else
       false ->
-        check(:fail, [], :confidence_exceeds_complement_of_uncertainty)
+        check(:fail, [], :invalid_uncertainty_contract)
 
       _ ->
         check(:fail, [], :missing_or_invalid_uncertainty_contract)
