@@ -14,11 +14,15 @@ Status: Week 30 - Production Workflow System
 """
 
 import asyncio
+import logging
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, timezone
 from enum import Enum
 import uuid
 import traceback
+
+# Module logger is initialized before optional integrations are loaded.
+logger = logging.getLogger(__name__)
 
 # Import WebSocket streaming helpers
 try:
