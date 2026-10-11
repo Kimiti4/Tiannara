@@ -88,6 +88,7 @@ defmodule Tiannara.RealityAdmissionControl do
          uncertainty when is_number(uncertainty) and uncertainty >= 0 and uncertainty <= 1 <-
            Map.get(output, :uncertainty),
          evidence when is_list(evidence) and evidence != [] <- Map.get(output, :evidence),
+         true <- valid_evidence?(evidence),
          true <- confidence + uncertainty <= 1.0 do
       check(:pass, [%{
         check: :uncertainty_contract,
@@ -156,7 +157,11 @@ defmodule Tiannara.RealityAdmissionControl do
           try do
             case checker.check(challenge) do
               {:ok, %{status: :pass, evidence: evidence}} when is_list(evidence) and evidence != [] ->
-                check(:pass, evidence, nil)
+                if Enum.all?(evidence, &is_map/1) do
+                  check(:pass, evidence, nil)
+                else
+                  check(:unknown, [], :checker_evidence_must_be_structured)
+                end
 
               {:ok, %{status: :fail} = result} ->
                 check(:fail, Map.get(result, :evidence, []), Map.get(result, :reason, :check_failed))
@@ -194,6 +199,19 @@ defmodule Tiannara.RealityAdmissionControl do
     error -> {:error, {:world_model_adapter_exception, error.__struct__}}
   catch
     kind, _reason -> {:error, {:world_model_adapter_failure, kind}}
+  end
+
+  defp valid_evidence?(evidence) do
+    Enum.all?(evidence, fn
+      %{source: source} = item when is_binary(source) and byte_size(source) > 0 ->
+        Enum.any?([:observation, :statement, :content, :artifact_id], fn key ->
+          value = Map.get(item, key)
+          is_binary(value) and String.trim(value) != ""
+        end)
+
+      _ ->
+        false
+    end)
   end
 
   defp normalize_challenge(%{output: _output} = challenge), do: challenge
