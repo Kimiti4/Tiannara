@@ -45,16 +45,18 @@ defmodule Tiannara.Interface.ProactiveNotifierTest do
       st = ProactiveNotifier.status()
       remaining = st.rate_limit_per_hour - st.window_count
 
-      for i <- 1..max(remaining, 0) do
-        d = sample_discovery(
-          type: :other,
-          title: "confidence_fill_#{i}",
-          source: "confidence_fill_#{i}",
-          severity: :info,
-          confidence: 0.5
-        )
+      if remaining > 0 do
+        for i <- 1..remaining do
+          d = sample_discovery(
+            type: :other,
+            title: "confidence_fill_#{i}",
+            source: "confidence_fill_#{i}",
+            severity: :info,
+            confidence: 0.5
+          )
 
-        assert {:ok, _} = ProactiveNotifier.notify(d)
+          assert {:ok, _} = ProactiveNotifier.notify(d)
+        end
       end
 
       urgent = sample_discovery(
