@@ -5,6 +5,7 @@ Supports dependency chain inference, intervention prediction, and confounder det
 """
 
 import random
+import numpy as np
 from typing import Callable, Dict, Any, List, Tuple
 from tiannara_core.evaluation.ecm_forgetting_mechanism import SkillMemoryWithForgetting, TraceCompressor
 from tiannara_core.evaluation.information_pruner import InformationTheoreticPruner
