@@ -47,6 +47,10 @@ jobs:
           files=$(find lib -type f -name '*.ex')
           test -n "$files"
           for file in $files; do
+            # These files contain source templates that generate tests; they are not ExUnit modules themselves.
+            case "$file" in
+              lib/tiannara/tool_forge/tool_builder.ex|lib/tiannara/asc/implementation/adapter/elixir.ex) continue ;;
+            esac
             if grep -Eq '^[[:space:]]*use[[:space:]]+ExUnit\.(Case|AsyncCase|DataCase)' "$file"; then
               echo "::error::ExUnit test module found under lib/: $file"
               exit 1
