@@ -51,19 +51,38 @@ case TiannaraOS.Governance.Certification.Laboratory.execute_certification() do
   {:ok, certificate} ->
     IO.puts("✅ All campaigns executed successfully\n")
     
-    # Save main certificate
+    # The laboratory returns a wrapper %{payload: ..., signature: ...}; do not
+    # treat the payload's claimed status as a signed certificate.
+    certificate_payload = Map.get(certificate, :payload, certificate)
+    campaign_results = Map.get(certificate_payload, :results, %{})
+    certificate_signature = Map.get(certificate, :signature)
+
+    certificate_payload =
+      if is_nil(certificate_signature) do
+        Map.put(certificate_payload, :certification_status, :not_certified_unsigned)
+      else
+        certificate_payload
+      end
+
+    certificate_to_write =
+      certificate
+      |> Map.put(:payload, certificate_payload)
+
     cert_path = Path.join(base_dir, "certificate.json")
-    cert_json = Jason.encode!(certificate, pretty: true)
+    cert_json = Jason.encode!(certificate_to_write, pretty: true)
     File.write!(cert_path, cert_json)
     IO.puts("  📄 Saved: #{cert_path}")
-    
-    # Save individual campaign results
-    Enum.each(certificate.results, fn {campaign_name, result} ->
+
+    # Save individual campaign results from the canonical payload.
+    Enum.each(campaign_results, fn {campaign_name, result} ->
       result_path = Path.join([base_dir, "campaign_results", "#{campaign_name}.json"])
       result_json = Jason.encode!(result, pretty: true)
       File.write!(result_path, result_json)
     end)
-    IO.puts("  📄 Saved: 12 campaign result files")
+    IO.puts("  📄 Saved: #{map_size(campaign_results)} campaign result files")
+    if is_nil(certificate_signature) do
+      IO.puts("  ⚠️ Campaigns executed, but certificate is unsigned and NOT certified.")
+    end
     
   {:error, reason} ->
     IO.puts("❌ Certification failed: #{inspect(reason)}")
