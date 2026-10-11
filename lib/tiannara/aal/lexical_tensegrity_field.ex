@@ -30,8 +30,7 @@ defmodule Tiannara.AAL.LexicalTensegrityField do
       end)
       |> Enum.map(fn {domain, _vector} -> domain end)
 
-    # Fallback to :engineering if no domains cross the threshold (prevents empty extraction)
-    engaged_domains = if engaged_domains == [], do: [:engineering], else: engaged_domains
+    # No match remains explicit. Callers must not silently route unknown input to Engineering.
 
     primary_intent = determine_core_action(input_vector)
     {primary_intent, engaged_domains}
