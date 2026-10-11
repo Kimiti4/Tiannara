@@ -1,35 +1,111 @@
 defmodule Tiannara.BaseReality.Workspace do
-  @moduledoc "Bridges the simulation output directly into the human developer's IDE."
+  @moduledoc """
+  Writes validated synthesis artifacts into a configurable local workspace.
 
-  @workspace_path "c:/Users/user/Tiannara/Deployments/"
+  This module does not initialize repositories, stage files, or create Git
+  commits. Artifact generation and source-control approval are separate actions.
+  """
 
-  @spec commit_blueprints([map()], atom()) :: String.t()
-  def commit_blueprints(blueprints, intent) do
-    timestamp = System.system_time(:second)
-    deployment_dir = Path.join(@workspace_path, "synthesis_#{timestamp}")
-    File.mkdir_p!(deployment_dir)
+  @default_workspace_path Path.join(System.user_home!(), "Tiannara/Deployments")
 
-    # 1. Write the extracted schematics to actual files
-    Enum.each(blueprints, fn 
-      %{status: :failed} -> :skip
-      bp ->
-        file_path = Path.join(deployment_dir, "#{bp.domain}_schematic.v")
-        File.write!(file_path, bp.schematics)
-    end)
+  @spec write_blueprints([map()], atom() | String.t()) ::
+          {:ok, map()} | {:error, term()}
+  def write_blueprints(blueprints, intent)
+      when is_list(blueprints) and blueprints != [] do
+    with :ok <- validate_blueprints(blueprints),
+         {:ok, deployment_dir} <- create_deployment_dir(),
+         {:ok, files} <- write_files(deployment_dir, blueprints) do
+      manifest =
+        files
+        |> Enum.sort()
+        |> Enum.map(fn file ->
+          {:ok, content} = File.read(Path.join(deployment_dir, file))
+          {file, :crypto.hash(:sha256, content) |> Base.encode16(case: :lower)}
+        end)
 
-    # 2. Execute local Git commands to commit the code autonomously
-    System.cmd("git", ["init"], cd: deployment_dir, stderr_to_stdout: true)
-    System.cmd("git", ["add", "."], cd: deployment_dir)
-    System.cmd("git", ["commit", "-m", "Tiannara Auto-Synthesis: #{intent}"], cd: deployment_dir)
+      manifest_hash =
+        :crypto.hash(:sha256, :erlang.term_to_binary({intent, manifest}))
+        |> Base.encode16(case: :lower)
 
-    # 3. CRITICAL FIX: Extract the actual short hash safely 
-    # (git commit stdout includes the whole log line, not just the hash)
-    {hash_output, 0} = System.cmd("git", ["rev-parse", "--short", "HEAD"], cd: deployment_dir)
-    String.trim(hash_output)
+      {:ok,
+       %{
+         status: :artifacts_written,
+         directory: deployment_dir,
+         files: files,
+         manifest_sha256: manifest_hash,
+         source_control: :not_committed
+       }}
+    end
   rescue
-    e ->
-      require Logger
-      Logger.error("❌ Workspace commit failed: #{inspect(e)}")
-      "error-#{System.system_time(:second)}"
+    error -> {:error, {:workspace_write_failed, error.__struct__}}
+  end
+
+  def write_blueprints([], _intent), do: {:error, :no_validated_blueprints}
+  def write_blueprints(_blueprints, _intent), do: {:error, :invalid_blueprints}
+
+  # Compatibility shim for older callers. Despite the historical name, this
+  # function intentionally writes files only; it never creates a Git commit.
+  def commit_blueprints(blueprints, intent), do: write_blueprints(blueprints, intent)
+
+  defp validate_blueprints(blueprints) do
+    if Enum.all?(blueprints, fn
+         %{status: :success, domain: domain, schematics: schematics}
+         when is_atom(domain) or is_binary(domain) ->
+           is_binary(schematics) and String.trim(schematics) != ""
+
+         _ ->
+           false
+       end) do
+      :ok
+    else
+      {:error, :unvalidated_blueprint}
+    end
+  end
+
+  defp create_deployment_dir do
+    root =
+      Application.get_env(:tiannara, :workspace_path, @default_workspace_path)
+      |> Path.expand()
+
+    timestamp = System.system_time(:microsecond)
+    directory = Path.join(root, "synthesis_#{timestamp}")
+
+    case File.mkdir_p(directory) do
+      :ok -> {:ok, directory}
+      {:error, reason} -> {:error, {:workspace_directory_unavailable, reason}}
+    end
+  end
+
+  defp write_files(directory, blueprints) do
+    Enum.reduce_while(blueprints, {:ok, []}, fn blueprint, {:ok, written} ->
+      filename = safe_domain_name(blueprint.domain) <> "_schematic.v"
+      path = Path.join(directory, filename)
+
+      case File.write(path, blueprint.schematics, [:binary, :exclusive]) do
+        :ok -> {:cont, {:ok, [filename | written]}}
+        {:error, reason} -> {:halt, {:error, {:artifact_write_failed, filename, reason}}}
+      end
+    end)
+    |> case do
+      {:ok, files} ->
+        {:ok, Enum.reverse(files)}
+
+      {:error, _reason} = error ->
+        # A failed multi-file write must not leave a partial deployment behind.
+        File.rm_rf(directory)
+        error
+    end
+  end
+
+  defp safe_domain_name(domain) do
+    domain
+    |> to_string()
+    |> String.downcase()
+    |> String.replace(~r/[^a-z0-9_-]+/, "_")
+    |> String.trim("_")
+    |> case do
+      "" -> "unknown_domain"
+      name -> name
+    end
   end
 end

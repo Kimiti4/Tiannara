@@ -51,19 +51,38 @@ case TiannaraOS.Governance.Certification.Laboratory.execute_certification() do
   {:ok, certificate} ->
     IO.puts("✅ All campaigns executed successfully\n")
     
-    # Save main certificate
+    # The laboratory returns a wrapper %{payload: ..., signature: ...}; do not
+    # treat the payload's claimed status as a signed certificate.
+    certificate_payload = Map.get(certificate, :payload, certificate)
+    campaign_results = Map.get(certificate_payload, :results, %{})
+    certificate_signature = Map.get(certificate, :signature)
+
+    certificate_payload =
+      if is_nil(certificate_signature) do
+        Map.put(certificate_payload, :certification_status, :not_certified_unsigned)
+      else
+        certificate_payload
+      end
+
+    certificate_to_write =
+      certificate
+      |> Map.put(:payload, certificate_payload)
+
     cert_path = Path.join(base_dir, "certificate.json")
-    cert_json = Jason.encode!(certificate, pretty: true)
+    cert_json = Jason.encode!(certificate_to_write, pretty: true)
     File.write!(cert_path, cert_json)
     IO.puts("  📄 Saved: #{cert_path}")
-    
-    # Save individual campaign results
-    Enum.each(certificate.results, fn {campaign_name, result} ->
+
+    # Save individual campaign results from the canonical payload.
+    Enum.each(campaign_results, fn {campaign_name, result} ->
       result_path = Path.join([base_dir, "campaign_results", "#{campaign_name}.json"])
       result_json = Jason.encode!(result, pretty: true)
       File.write!(result_path, result_json)
     end)
-    IO.puts("  📄 Saved: 12 campaign result files")
+    IO.puts("  📄 Saved: #{map_size(campaign_results)} campaign result files")
+    if is_nil(certificate_signature) do
+      IO.puts("  ⚠️ Campaigns executed, but certificate is unsigned and NOT certified.")
+    end
     
   {:error, reason} ->
     IO.puts("❌ Certification failed: #{inspect(reason)}")
@@ -178,6 +197,31 @@ validation_path = Path.join(base_dir, "validation_report.json")
 validation_json = Jason.encode!(validation_report, pretty: true)
 File.write!(validation_path, validation_json)
 IO.puts("  📄 Saved: #{validation_path}")
+
+# A campaign result is not certification: the emitted wrapper must carry a
+# signature before any certification-level PASS can be asserted.
+written_certificate = Jason.decode!(File.read!(Path.join(base_dir, "certificate.json")))
+signed_certificate? =
+  case Map.get(written_certificate, "signature") do
+    signature when is_binary(signature) and byte_size(signature) > 0 -> true
+    _ -> false
+  end
+
+unless signed_certificate? do
+  bounded_validation_report =
+    validation_report
+    |> Map.put(:overall_status, :evidence_generated_not_certified)
+    |> Map.put(:certificate_signature_present, false)
+    |> Map.update!(:validations_performed, fn checks ->
+      Enum.map(checks, fn check ->
+        Map.put(check, :status, :unknown)
+        |> Map.put(:detail, "Not independently certified: certificate signature is absent")
+      end)
+    end)
+
+  File.write!(validation_path, Jason.encode!(bounded_validation_report, pretty: true))
+  IO.puts("⚠️ Evidence package generated without certification: certificate signature is absent.")
+end
 
 # ============================================================================
 # Step 7: Generate Replay Report

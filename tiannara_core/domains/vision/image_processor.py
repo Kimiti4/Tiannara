@@ -3,7 +3,7 @@ Image Processor - Image loading, preprocessing, and basic operations
 """
 
 import numpy as np
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, Optional
 from pathlib import Path
 import httpx
 

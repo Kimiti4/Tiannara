@@ -20,10 +20,10 @@ defmodule Tiannara.Math.ProofKernel do
   modelling assumptions describe reality.
   """
 
-  @type term :: {:atom, atom()} | {:const, term()} | {:var, atom()}
+  @type proof_term :: {:atom, atom()} | {:const, proof_term()} | {:var, atom()}
   @type proposition ::
           {:atom, atom()}
-          | {:eq, term(), term()}
+          | {:eq, proof_term(), proof_term()}
           | {:and, proposition(), proposition()}
           | {:imp, proposition(), proposition()}
 
@@ -32,11 +32,11 @@ defmodule Tiannara.Math.ProofKernel do
           required(:rule) => atom(),
           optional(:refs) => [pos_integer()],
           optional(:proposition) => proposition(),
-          optional(:term) => term()
+          optional(:term) => proof_term()
         }
 
   @spec check([proposition()], proposition(), [step()]) ::
-          {:ok, map()} | {:error, term()}
+          {:ok, map()} | {:error, any()}
   def check(assumptions, conclusion, steps)
       when is_list(assumptions) and is_list(steps) do
     with :ok <- validate_propositions(assumptions),

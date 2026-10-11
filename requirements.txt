@@ -31,7 +31,10 @@ gunicorn>=21.2.0
 redis>=5.0.0
 celery>=5.3.0
 psycopg2-binary>=2.9.0  # PostgreSQL adapter
+psycopg[binary]>=3.1.0  # psycopg v3 adapter used by metrics/evidence paths
 python-jose[cryptography]>=3.3.0  # JWT
+pyotp>=2.9.0  # TOTP MFA used by tiannara_api.routes.mfa
+qrcode[pil]>=7.4.2  # QR provisioning images used by tiannara_api.routes.mfa
 passlib[bcrypt]>=1.7.4  # Password hashing
 SQLAlchemy>=2.0.0  # ORM
 httpx>=0.25.0  # HTTP client for email API
@@ -52,3 +55,6 @@ langdetect>=1.0.9  # Language detection for OCR
 # Optional: ultralytics>=8.0.0  # For local YOLO detection
 # Optional: google-cloud-vision>=3.4.0  # Google Cloud Vision API
 # Optional: boto3>=1.28.0  # AWS Textract API
+
+prometheus-client>=0.17.0  # Prometheus metrics instrumentation and tests
+psutil>=5.9.0  # Host CPU and memory metrics

@@ -198,6 +198,8 @@ class LogicPuzzleEvolver:
             if quality > 0.9 or self.rng.random() < quality:
                 # Get all boolean values
                 values = list(inputs.values())
+                a = values[0] if values else False
+                b = values[1] if len(values) > 1 else False
                 
                 # Correct evaluation for multiple variables
                 if operation == "and":

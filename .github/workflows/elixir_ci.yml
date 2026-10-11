@@ -47,6 +47,10 @@ jobs:
           files=$(find lib -type f -name '*.ex')
           test -n "$files"
           for file in $files; do
+            # These files contain source templates that generate tests; they are not ExUnit modules themselves.
+            case "$file" in
+              lib/tiannara/tool_forge/tool_builder.ex|lib/tiannara/asc/implementation/adapter/elixir.ex) continue ;;
+            esac
             if grep -Eq '^[[:space:]]*use[[:space:]]+ExUnit\.(Case|AsyncCase|DataCase)' "$file"; then
               echo "::error::ExUnit test module found under lib/: $file"
               exit 1
@@ -73,12 +77,11 @@ jobs:
       - run: mix deps.get
       - env:
           MIX_ENV: test
-        run: mix test test/tiannara/os/discovery_registry_lineage_test.exs --color
+        run: mix test test/tiannara/discovery/discovery_lineage_test.exs --color
   suite:
     runs-on: ubuntu-latest
     needs: [compile, test-placement]
     timeout-minutes: 45
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
