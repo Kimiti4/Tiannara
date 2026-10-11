@@ -48,18 +48,31 @@ defmodule Tiannara.AAL.CommandLoom do
 
     {primary_intent, required_domains} = LTF.map_intent_vectors(human_input)
 
-    if required_domains == [] do
-      failure = %{
-        status: :unroutable,
-        intent: primary_intent,
-        reason: :no_supported_domain_match,
-        artifacts_written: false
-      }
+    cond do
+      primary_intent in [:unknown, :ambiguous] ->
+        failure = %{
+          status: :unroutable,
+          intent: primary_intent,
+          reason: if(primary_intent == :ambiguous, do: :ambiguous_intent, else: :unknown_intent),
+          artifacts_written: false
+        }
 
-      Logger.warning("Command has no supported domain match; no workspace artifacts written.")
-      {:reply, {:error, failure}, state}
-    else
-      process_supported_domains(human_input, primary_intent, required_domains, state)
+        Logger.warning("Command intent is #{primary_intent}; no workspace artifacts written.")
+        {:reply, {:error, failure}, state}
+
+      required_domains == [] ->
+        failure = %{
+          status: :unroutable,
+          intent: primary_intent,
+          reason: :no_supported_domain_match,
+          artifacts_written: false
+        }
+
+        Logger.warning("Command has no supported domain match; no workspace artifacts written.")
+        {:reply, {:error, failure}, state}
+
+      true ->
+        process_supported_domains(human_input, primary_intent, required_domains, state)
     end
   end
 
@@ -78,7 +91,6 @@ defmodule Tiannara.AAL.CommandLoom do
       extraction_tasks
       |> Enum.map(fn {domain, task} ->
         result = Task.yield(task, @task_timeout_ms)
-
         {domain, parse_task_result(task, result)}
       end)
 
