@@ -66,7 +66,6 @@ defmodule Tiannara.Math.Optimization do
           else
             {:error, :non_finite_parameters}
           end
-        end
       end
     end
   end
