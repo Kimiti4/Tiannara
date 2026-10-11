@@ -88,15 +88,18 @@ defmodule Tiannara.RealityAdmissionControl do
          uncertainty when is_number(uncertainty) and uncertainty >= 0 and uncertainty <= 1 <-
            Map.get(output, :uncertainty),
          evidence when is_list(evidence) and evidence != [] <- Map.get(output, :evidence),
-         true <- valid_evidence?(evidence),
-         true <- confidence + uncertainty <= 1.0 do
-      check(:pass, [%{
-        check: :uncertainty_contract,
-        statement_present: true,
-        confidence: confidence,
-        uncertainty: uncertainty,
-        evidence_count: length(evidence)
-      }], nil)
+         true <- valid_evidence?(evidence) do
+      if confidence + uncertainty <= 1.0 do
+        check(:pass, [%{
+          check: :uncertainty_contract,
+          statement_present: true,
+          confidence: confidence,
+          uncertainty: uncertainty,
+          evidence_count: length(evidence)
+        }], nil)
+      else
+        check(:fail, [], :confidence_exceeds_complement_of_uncertainty)
+      end
     else
       false ->
         check(:fail, [], :invalid_uncertainty_contract)
