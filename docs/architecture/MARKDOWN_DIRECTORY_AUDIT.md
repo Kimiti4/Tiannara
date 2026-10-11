@@ -131,3 +131,26 @@ The cross-platform hash report was also retrieved:
 The comparison must not be weakened to accept divergent hashes. The workflow's environment advertises `TIANNARA_DETERMINISTIC_TIMESTAMP`, but the evidence generator script does not itself read that environment variable; it also creates several wall-clock timestamps in secondary evidence artifacts. The compared `certificate.json` is canonicalized by removing only a small set of top-level timestamp keys. Nested timestamp fields or nondeterministic campaign outputs are plausible causes, not yet proven as the sole cause. Next diagnostic: preserve and compare both platform evidence artifacts at the JSON-path level, identify the first differing fields, then make the producer deterministic (or explicitly define and justify a canonical projection) and rerun the same comparison.
 
 A further CI integrity issue was identified: `.github/workflows/elixir_ci.yml` had `continue-on-error: true` on the full ExUnit suite. The run log showed the suite hit the max-failure cap with 25 failures, even though the workflow's headline was successful. That flag has been removed so a failing full suite cannot be represented as a successful workflow. The next run may therefore report Elixir CI as failed until those test failures are resolved; that is the intended truthful gate, not a regression in the verification standard.
+
+
+## Security and domain-validation claims cross-checked against source
+
+### Security audit
+
+The historical `markdown/SECURITY_AUDIT.md` is useful as a threat checklist, but its summary says all findings were fixed. Source checks show a mixed result:
+- `tiannara_api/gateway/auth.py` requires `JWT_SECRET_KEY` when `ENVIRONMENT=production` and generates a random secret in non-production mode; this is stronger than the historical hard-coded-secret example.
+- `tiannara_api/security/password.py` now exposes bcrypt password hashing and a legacy `sha256:` prefix path, so migration/legacy verification still deserves tests.
+- `setup_sample_users.py` still contains a salted SHA-256 password helper. Establish whether this is test/demo-only and ensure it cannot create production credentials or be reused by live authentication.
+- The `pyotp` import used by the MFA route was missing from `requirements.txt` and caused the observed test-collection failure. It has now been added as a declared dependency; the new CI run must verify it resolves the collection error.
+
+Disposition: do not repeat the historical report's “all fixed” conclusion as current fact. Maintain a live security matrix linking each finding to production call paths, configuration mode, test coverage and remediation evidence.
+
+### Domain validation audit
+
+`markdown/DOMAIN_VALIDATION_AUDIT.md` itself records material gaps that conflict with broad “domain mastery”/“100% operational” summaries elsewhere in the directory:
+- Its logic-domain table reports contradiction recovery failing, with 51% accuracy (49% failure) for the tested semantic contradictions.
+- It reports dynamic-programming integration at 0/150 until integration is complete.
+- It labels the causal-intelligence examples as a risk of spurious causal inference without intervention simulation.
+- It explicitly marks several domains as infrastructure-present but not integrated or not yet validated.
+
+Disposition: treat the document as a gap backlog, not as evidence that 14 domains are mastered. Re-run each domain's test suite against the current source, publish exact datasets/seeds/thresholds and classify each capability as implemented, integrated, verified, or unknown. Do not roll simulated or infrastructure-only status into an operational success rate.
