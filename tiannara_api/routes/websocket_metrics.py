@@ -84,7 +84,7 @@ async def stream_metrics_updates(
     try:
         while True:
             # Get current metrics
-            metrics = await get_current_metrics(user.get("user_id"))
+            metrics = await get_current_metrics(user_id)
             
             # Send to client
             try:
