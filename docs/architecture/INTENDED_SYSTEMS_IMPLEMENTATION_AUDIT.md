@@ -82,3 +82,21 @@ These labels apply only to the reviewed evidence, not to every similarly named i
 ## Audit limitations and next review
 
 This is an initial, prioritized audit of core systems and named design documents, not a line-by-line review of all 2,993 Markdown files. Phase-named reports will be grouped by canonical specification, implementation report, test/campaign evidence, and archived/generated output to avoid mistaking repeated report artifacts for independent proof. The next review should map each canonical requirement to source paths, tests, current workflow evidence, and any certification artifacts, then expand coverage across the Phase 13–16 runtime/governance contracts before considering long-horizon systems.
+
+
+## Markdown inventory scope
+
+The recursive tree inventory on the reviewed default branch grouped the 1,812 phase-matching Markdown paths as follows. These are path buckets for prioritizing review; a path may contain nested certification materials, and the counts do not indicate correctness.
+
+| Inventory bucket | Phase-matching Markdown paths | Review handling |
+|---|---:|---|
+| Certification directories | 1,477 | Group by canonical phase/spec, runtime freeze, replay contract, campaign output, and final certification. Treat a final-certification filename as a requirement/report until matching evidence artifacts and source are verified. |
+| Data / experiment outputs | 125 | Review representative schemas and campaign summaries, then check that claimed metrics trace to reproducible inputs/results; do not treat repeated trial reports as independent system implementations. |
+| Repository-root phase reports | 69 | Prioritize current roadmaps, pre-implementation audits, module matrices, and reports whose claims are referenced by other specs. |
+| `phase14/` | 44 | Cross-check governance/runtime RFCs against current adapters, campaign artifacts, and source behavior. |
+| `docs/` (including archive/evaluation subfolders) | 33 | Keep historical reports marked as historical; compare later claims to current code and tests. |
+| `tiannara_runtime/` top-level reports and nested certification paths outside the primary certification bucket | 31 | Cross-check runtime status reports against runnable tests and canonical runtime APIs. |
+| `markdown/` | 19 | Includes design notes such as `markdown/5j.md`; classify illustrative proposals separately from implementations. |
+| Explicit archive-named paths | 14 | Retain as historical context; do not use as current readiness evidence without revalidation. |
+
+The inventory is intentionally broad because filenames containing “phase” include both real phase deliverables and generated/archived material. The next audit pass should continue from canonical requirements into their implementation, tests, and current CI evidence—not attempt to certify all reports by title alone.
