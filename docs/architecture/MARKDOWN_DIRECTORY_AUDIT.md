@@ -72,3 +72,48 @@ This pass inspected representative architecture, AEO/Jarvis, phase/control-plane
 Next pass should enumerate all directory entries into a manifest, group exact/near-duplicate reports, extract each document's stated status/date/revision/test evidence, and cross-reference the highest-priority canonical requirements to source and tests. Large files such as `55.md` require section-level review rather than treating a truncated excerpt as a complete read.
 
 No architecture claim in this report is a certification result.
+
+
+## Phase-document reconciliation (second pass)
+
+The following phase documents were read beyond their filenames and headings. This is a design-conflict review, not a certification of the proposed physics/runtime systems.
+
+| Document | Document-level claim or design | Source-of-truth decision |
+|---|---|---|
+| `5.md` | Declares a required pre-5F stack: runtime/resource governance, CIS, Safety Cortex, KillSwitch, GCK, observer and collapse components. | Convert the list into a requirement matrix; do not assume that listed modules exist or are integrated. Single-owner authority and resource bounds are prerequisites, not phase-completion prose. |
+| `5E.md` | Says Phase 5E is “completed but still evolving,” then specifies additional CTN production architecture and a transition gate. | The completion label is internally ambiguous. Define a finite Phase 5E exit contract, source/test evidence and explicit transition conditions before declaring it complete. |
+| `5F.md` | Proposes GPU/VRAM-centric causal-knot computation, NATS feedback, Mnesia/Amnesia graph storage and at one point says the new design “replaces GCK completely.” | This is a proposal, not evidence of deployed capability. The claim to replace GCK conflicts with the separate phase docs' global consistency/authority role. Do not remove or bypass a governance/consistency gate based on a speculative subsystem proposal. Treat GPU, NATS and data-layer choices as implementation options requiring measured need, bounded fallback and tests—not constitutional requirements. |
+| `5F4.md` | Describes ExecutionController as the sole execution spine, CIS Supervisor as policy-only, and KillSwitch as an execution tool, while also discussing observer-relative/holographic memory. | The single authority spine is a candidate invariant to reconcile with the current canonical runtime. Separate grounded execution control from speculative observer-memory models; no parallel path may bypass authorization or the kill switch. |
+| `5F5.md` | Defines MSCL resource/contradiction budgets and says duplicate authority modules must be consolidated. | Resource budgets and one-owner rules are testable requirements. The ontology/thermodynamic framing is metaphor unless mapped to measurable resource counters, invariants, admission/rejection behavior and failure recovery. |
+| `5F6.md` and `5F7.md` | Propose observer-physics compilation, epsilon shims, decoy ontologies/honeypots and an observer revelation governor. | High complexity and significant adversarial semantics. Defer operational implementation until provenance, sandbox isolation, bounded compute, auditability and noninterference are specified. Any decoy or escape behavior must remain inside explicitly isolated research simulations and must not weaken Tiannara's real authorization boundaries. |
+| `5F8.md` and `5F9.md` | Propose inter-sandbox resonance/jailbreak dynamics and a recursive compiler defense that can shift compute load to observer manifolds. | Do not treat this as an operational roadmap. “Escape” and hidden transfer of computational work are threat-model scenarios to test safely, not desired runtime powers. Never offload work onto users/observers without explicit consent and resource accounting. Keep sandbox boundaries enforceable by external controls. |
+| `5G.md` | Proposes a singularity vent/latent archive to handle runaway complexity and preserve state. | The useful requirement is bounded overload handling with durable provenance and recoverability. Archive/restore must preserve integrity, ownership, access controls, quotas and tested restore semantics; “reality must never fully converge” is not an acceptance criterion. |
+| `5final5.md` | Combines multiple future subsystems and describes a complete Phase 5 stack, including OPC/DFG and many governance/phase schedulers. | This is a synthesis of proposals, not a stable normative specification. It combines multiple overlapping authorities and modules. Extract only measurable invariants and define one canonical owner for each responsibility before implementation. |
+| `55.md` | A very large document mixes OSS computation, APIs/callbacks/validation, placeholder symbolic analysis, WebGL/GPU proposals, and later Phase 5D/physics compiler material. | This document is too heterogeneous to serve as a single actionable specification. Split or index by subsystem; distinguish real code snippets from pseudocode, aspirational claims, and examples that depend on browser/GPU features not guaranteed by the backend runtime. Its 414 KB size makes section-level tracing essential. |
+| `5j.md` | Defines a Jarvis-style AAL with anticipation, cross-domain bridges, proactive events, task completion and dialogue style. It also contains sample outputs and an LLM bridge call. | Keep AAL as an interaction layer above governed cognition. Implement only evidence-grounded suggestions and completion reports. Do not add external LLM dependencies, invent confidence, or allow proactive actions to mutate state without authorization. |
+
+### Phase-document contradictions that block declaring a phase complete
+
+- **Completion vs ongoing requirements:** Phase 5E is described as completed and still evolving, with additional required architecture in the same document.
+- **Consistency authority replacement:** Phase 5F proposes replacing GCK, while other phase documents make global consistency a required barrier. No replacement can be accepted without a formal authority review, migration plan, and regression proof.
+- **One control plane vs proliferating components:** the docs repeatedly call for a single execution authority while proposing multiple governors, schedulers, hypervisors, councils, and feedback loops. Component count is not proof of a coherent control plane.
+- **Simulation semantics vs operational semantics:** observer-relative truths and ontological escape dynamics are research-simulation concepts. They must not be allowed to alter real system permissions, evidence provenance, or isolation boundaries.
+- **Phase numbering is not a dependency graph:** numbered documents overlap and sometimes reintroduce earlier architecture. Derive dependencies from explicit contracts and code ownership rather than filenames alone.
+
+## CI failure triage recorded for the latest observed head
+
+On commit `76fe16152584dc6992db610c52972307f86f0c4a`, GitHub Actions reported:
+- Elixir CI: success.
+- Python Tests: failures on Ubuntu and Windows across Python 3.10, 3.11 and 3.12; lint passed.
+- CI/CD Pipeline: test matrix failed, so image build and staging deploy were skipped.
+- Cross-Platform Verification: Ubuntu and macOS verification steps passed, but the final certificate/hash comparison failed.
+
+This is not a green PR. The current evidence establishes the failing job/step, but not the underlying failure messages. Do not guess a cause or edit tests to make the gate green without retrieving the relevant logs/annotations. Next step: inspect the failing test output and hash-comparison report, classify failures as regression/environment/flakiness/invariant mismatch, fix the root cause, and rerun on the exact new head. A successful compile and local platform checks do not override the failed aggregate gate.
+
+## Revised order of work
+
+1. Retrieve and diagnose the failed Python test logs and cross-platform hash comparison; fix causes, not thresholds or comparison semantics.
+2. Validate the new LTF and CommandLoom behavior with the exact branch source, including extractor return-shape compatibility and domain-vector behavior. Unknown/ambiguous intent must not create artifacts.
+3. Verify AEO runtime receipts and RAC evidence admission with real canonical adapters; missing/unknown evidence stays non-PASS.
+4. Create a canonical responsibility map for CIS, SafetyCortex, KillSwitch, GCK, ExecutionController, AEO, RAC and the runtime adapter. Resolve any authority duplication before further phase work.
+5. Continue full 248-entry inventory using metadata/content hashes and grouped document families. For each remaining document, record requirement-bearing sections, claimed status, linked source/test, contradictions and disposition. The current document remains a partial audit, not a claim of complete line-by-line review.
