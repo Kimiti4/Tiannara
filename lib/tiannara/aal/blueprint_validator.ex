@@ -1,40 +1,50 @@
 defmodule Tiannara.AAL.BlueprintValidator do
   @moduledoc """
-  Hard validation layer ensuring hallucinated or structurally invalid blueprints 
-  are rejected before hitting Base Reality.
+  Structural validation for extracted blueprints.
+
+  Passing this validator establishes only that a blueprint has the expected
+  shape and Verilog module delimiters. It does not certify semantic correctness,
+  synthesis, simulation, or hardware safety.
   """
+
   require Logger
 
-  @doc """
-  Filters a list of blueprints, returning only those that pass structural validation.
-  """
+  @minimum_confidence 0.85
+
+  @doc "Return only structurally valid successful blueprints."
   @spec validate([map()]) :: [map()]
-  def validate(blueprints) do
+  def validate(blueprints) when is_list(blueprints) do
     Enum.filter(blueprints, &valid_blueprint?/1)
   end
 
-  defp valid_blueprint?(%{status: :failed}) do
-    false
-  end
+  def validate(_), do: []
 
-  defp valid_blueprint?(%{schematics: schematics, confidence: confidence}) do
-    # Validate structural safety and logical thresholds
+  defp valid_blueprint?(%{
+         status: :success,
+         domain: domain,
+         schematics: schematics,
+         confidence: confidence
+       })
+       when (is_atom(domain) or is_binary(domain)) and is_binary(schematics) and
+              is_number(confidence) and confidence >= @minimum_confidence and confidence <= 1 do
     has_module_def = String.contains?(schematics, "module ")
     has_endmodule = String.contains?(schematics, "endmodule")
-    high_confidence = confidence > 0.85
 
-    if not has_module_def or not has_endmodule do
-      Logger.warning("❌ Blueprint rejected: Malformed Verilog structure.")
-      false
+    if has_module_def and has_endmodule do
+      true
     else
-      if not high_confidence do
-        Logger.warning("❌ Blueprint rejected: Confidence score below threshold (#{confidence}).")
-        false
-      else
-        true
-      end
+      Logger.warning("Blueprint rejected: malformed Verilog module structure.")
+      false
     end
   end
 
-  defp valid_blueprint?(_), do: false
+  defp valid_blueprint?(%{status: :failed, reason: reason}) do
+    Logger.warning("Blueprint extraction failed: #{inspect(reason)}")
+    false
+  end
+
+  defp valid_blueprint?(_blueprint) do
+    Logger.warning("Blueprint rejected: missing fields or invalid confidence/type.")
+    false
+  end
 end
