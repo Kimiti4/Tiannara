@@ -87,8 +87,13 @@ defmodule Tiannara.BaseReality.Workspace do
       end
     end)
     |> case do
-      {:ok, files} -> {:ok, Enum.reverse(files)}
-      error -> error
+      {:ok, files} ->
+        {:ok, Enum.reverse(files)}
+
+      {:error, _reason} = error ->
+        # A failed multi-file write must not leave a partial deployment behind.
+        File.rm_rf(directory)
+        error
     end
   end
 
