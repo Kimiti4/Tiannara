@@ -38,6 +38,19 @@ defmodule Tiannara.BaseReality.WorkspaceTest do
     assert byte_size(result.manifest_sha256) == 64
   end
 
+  test "removes partial artifacts after a file collision", %{root: root} do
+    blueprint = %{
+      domain: :engineering,
+      status: :success,
+      schematics: "module sample; endmodule"
+    }
+
+    assert {:error, {:artifact_write_failed, "engineering_schematic.v", :eexist}} =
+             Workspace.write_blueprints([blueprint, blueprint], :synthesis)
+
+    assert File.ls!(root) == []
+  end
+
   test "refuses empty or invalid blueprint sets" do
     assert {:error, :no_validated_blueprints} = Workspace.write_blueprints([], :synthesis)
     assert {:error, :unvalidated_blueprint} =
