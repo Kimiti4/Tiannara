@@ -55,3 +55,4 @@ langdetect>=1.0.9  # Language detection for OCR
 # Optional: boto3>=1.28.0  # AWS Textract API
 
 prometheus-client>=0.17.0  # Prometheus metrics instrumentation and tests
+psutil>=5.9.0  # Host CPU and memory metrics
