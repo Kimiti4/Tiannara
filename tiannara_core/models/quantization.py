@@ -45,9 +45,11 @@ except ImportError:
 
 try:
     import onnxruntime as ort
+    ORT_AVAILABLE = True
     from onnxruntime.quantization import quantize_dynamic, QuantType
     ORT_QUANT_AVAILABLE = True
 except ImportError:
+    ORT_AVAILABLE = False
     ORT_QUANT_AVAILABLE = False
     logger.warning(
         "ONNX Runtime quantization not available. "
