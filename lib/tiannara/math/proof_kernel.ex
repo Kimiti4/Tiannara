@@ -23,7 +23,7 @@ defmodule Tiannara.Math.ProofKernel do
   @type proof_term :: {:atom, atom()} | {:const, proof_term()} | {:var, atom()}
   @type proposition ::
           {:atom, atom()}
-          | {:eq, term(), term()}
+          | {:eq, proof_term(), proof_term()}
           | {:and, proposition(), proposition()}
           | {:imp, proposition(), proposition()}
 
