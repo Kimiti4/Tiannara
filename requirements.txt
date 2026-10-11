@@ -53,3 +53,5 @@ langdetect>=1.0.9  # Language detection for OCR
 # Optional: ultralytics>=8.0.0  # For local YOLO detection
 # Optional: google-cloud-vision>=3.4.0  # Google Cloud Vision API
 # Optional: boto3>=1.28.0  # AWS Textract API
+
+prometheus-client>=0.17.0  # Prometheus metrics instrumentation and tests
