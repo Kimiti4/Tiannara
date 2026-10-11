@@ -83,24 +83,39 @@ defmodule Tiannara.AEO do
   is an explicit failure, never a fabricated success.
   """
   def submit_to_runtime(%{id: id, nodes: nodes, status: :planned} = graph)
-      when is_binary(id) and is_list(nodes) do
-    case Application.get_env(:tiannara, @runtime_adapter_key) do
-      nil ->
-        {:error, :runtime_unavailable}
+      when is_binary(id) and byte_size(id) > 0 and is_list(nodes) and nodes != [] do
+    if valid_graph_nodes?(nodes) do
+      case Application.get_env(:tiannara, @runtime_adapter_key) do
+        nil ->
+          {:error, :runtime_unavailable}
 
-      adapter when is_atom(adapter) ->
-        if Code.ensure_loaded?(adapter) and function_exported?(adapter, :submit, 1) do
-          invoke_runtime(adapter, graph)
-        else
+        adapter when is_atom(adapter) ->
+          if Code.ensure_loaded?(adapter) and function_exported?(adapter, :submit, 1) do
+            invoke_runtime(adapter, graph)
+          else
+            {:error, :invalid_runtime_adapter}
+          end
+
+        _ ->
           {:error, :invalid_runtime_adapter}
-        end
-
-      _ ->
-        {:error, :invalid_runtime_adapter}
+      end
+    else
+      {:error, :invalid_execution_graph}
     end
   end
 
   def submit_to_runtime(_), do: {:error, :invalid_execution_graph}
+
+  defp valid_graph_nodes?(nodes) do
+    Enum.all?(nodes, fn
+      %{id: node_id, operation: :evaluate_goal, input: input, depends_on: []} ->
+        is_binary(node_id) and byte_size(node_id) > 0 and is_binary(input) and
+          String.trim(input) != ""
+
+      _ ->
+        false
+    end)
+  end
 
   defp build_graph(intent) do
     stable_intent = %{
