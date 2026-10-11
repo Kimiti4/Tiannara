@@ -1,0 +1,84 @@
+# Tiannara AI — Intended Systems Implementation Audit
+
+**Audit type:** Initial source/documentation cross-reference (not certification)  
+**Baseline reviewed:** `main` source tree and the current draft hardening branch  
+**Decision rule:** A name, specification, completion report, or module file is not by itself proof of end-to-end behavior. Status distinguishes code presence, behavior, integration, and evidence.
+
+## Executive findings
+
+The repository has a large specification and reporting history. The recursive Git tree currently contains 25,819 entries and 2,993 Markdown files; 1,812 Markdown paths match the broad substring `phase`. These are repository inventory counts, not counts of unique specifications or complete systems. Many entries are archived or generated experiment reports, so this audit prioritizes canonical source paths and their directly related tests.
+
+A number of foundational systems exist as code but are not yet connected into a trustworthy end-to-end cognitive path. Some source modules contain explicit placeholders, fixed fallbacks, or status-returning stubs that conflict with their documented responsibilities. The draft hardening PR improves AEO, RAC, AAL command execution, and blueprint/workspace handling, but remains unmerged and its CI must pass before those changes can be called verified.
+
+## Status vocabulary
+
+- **IMPLEMENTED-VERIFIED:** behavior demonstrated by relevant tests and/or reproducible runtime evidence at the reviewed revision.
+- **IMPLEMENTED-UNVERIFIED:** substantive code exists, but adequate test or runtime evidence has not been established.
+- **PARTIAL:** some behavior exists, while material contract elements or integrations remain absent.
+- **MISSING:** no implementation was located in the reviewed canonical source paths.
+- **STALE/CONFLICTING:** documentation claims exceed or conflict with source/evidence reviewed.
+- **DEFER:** intentionally outside the current foundation slice.
+
+These labels apply only to the reviewed evidence, not to every similarly named implementation across the entire repository.
+
+## Initial source-to-contract matrix
+
+| Intended system | Canonical source reviewed | Current finding | Status | Required next evidence/work |
+|---|---|---|---|---|
+| Adaptive Execution Orchestrator (AEO) | `lib/tiannara/aeo.ex` | On `main`, intent translation returns `:execution_graph_placeholder` and runtime submission returns `:submitted_to_runtime` without a runtime receipt. Draft PR #12 replaces these with structured graph validation and a configured adapter boundary; no live adapter is yet wired. | PARTIAL on main; IMPLEMENTED-UNVERIFIED on draft branch | CI green; contract tests; connect to canonical governed runtime; prove a real accepted/running receipt and trace ID. |
+| Reality Admission Control (RAC) | `lib/tiannara/reality_admission_control.ex` | On `main`, ACM/OAVL/UMSC return descriptive tuples rather than checks, and admission returns success unconditionally. Draft PR #12 requires configured evidence-bearing checkers and a world-model adapter, failing closed when absent. | STALE/CONFLICTING on main; IMPLEMENTED-UNVERIFIED on draft branch | CI green; adversarial tests; trusted evidence verification; canonical World Model adapter; prove rejected inputs cannot mutate the model. |
+| AAL command path | `lib/tiannara/aal/command_loom.ex` | On `main`, command processing is fire-and-forget, failed tasks are dropped, and the response claims files were committed even though the actual operation may not have completed. Draft PR #12 changes execution to an observed result and suppresses writes on incomplete/invalid extraction. | PARTIAL on main; IMPLEMENTED-UNVERIFIED on draft branch | Test timeout, partial failure, invalid input, write failure, and truthful response behavior end-to-end. |
+| Lexical Tensegrity Field (intent/domain mapping) | `lib/tiannara/aal/lexical_tensegrity_field.ex` | Only seven domains are present in the map despite the comment referring to twenty; the no-match path silently falls back to engineering; primary intent is always `:synthesis`. Hashing-trick vectors are lexical features, not contextual semantic understanding. | PARTIAL | Remove misleading fallback; represent unknown/ambiguous intent explicitly; broaden only with evaluated domain coverage; measure false-positive/negative routing. |
+| Semantic Encoder | `lib/tiannara/aal/semantic_encoder.ex` | Deterministic token hashing into 512 dimensions exists. It has no contextual composition, morphology, negation handling, or learned semantic geometry in this module. | IMPLEMENTED-UNVERIFIED for lexical hashing; PARTIAL for semantic intent | Unit/property tests and evaluation corpus; describe capability as feature hashing rather than semantic comprehension. |
+| ContextGraph / anticipatory context binding | Expected design described in `markdown/5j.md` | The cited design example names a ContextGraph engine, but no canonical source file matching ContextGraph was found in the repository tree scan. | MISSING (canonical implementation not located) | Define bounded context schema, provenance/expiry, user-visible rationale, and evaluation set before implementation. |
+| Cross-domain Ontological Bridge | Expected design described in `markdown/5j.md` | The design example is illustrative and explicitly invokes an LLM to produce bridge statements, which conflicts with the requirement that core Tiannara cognition not depend on external LLMs. No canonical Ontological Bridge source path was found in the tree scan. | MISSING; design requires revision | Implement retrieval of evidence-backed relations and deterministic synthesis templates/rules first; each bridge must preserve source evidence and uncertainty. No external LLM dependency. |
+| Proactive notification | `lib/tiannara/interface/proactive_notifier.ex`; `test/tiannara/interface/proactive_notifier_test.exs` | A GenServer with rate limiting, deduplication, pending/acknowledgement, and tests exists. Delivery is currently a log line and telemetry event, not a verified user-facing channel. Emergency/urgent priority bypasses the rate limit. State is in memory and is not durable across restarts. | PARTIAL | Separate decision from delivery; explicit safety policy for bypass; real channel adapter receipts; persistence/replay; test delivery failure and restart behavior. |
+| Completion evaluation | Search of canonical source paths and named implementation files | No single canonical completion evaluator was located in the initial tree scan. Existing completion reports are not sufficient evidence of a runtime completion contract. | MISSING (canonical path not located) | Define success criteria per task, independent postcondition checks, evidence bundle, timeout/cancellation, and truthful incomplete outcomes. |
+| World Model API | `lib/tiannara/core/world_model/api.ex`; `lib/tiannara/core/world_model/runtime_api.ex` | An API and many model modules exist. Some API functions explicitly return empty lists or `:not_available` while logging that backing functions are missing. The runtime API constructs beliefs such as “Runtime system operational” with confidence 1.0 from initialization labels, which is not equivalent to independently observed health. | PARTIAL | Wire query/update functions to canonical stores; distinguish declared, observed, and verified facts; test persistence, uncertainty, and contradictory evidence. |
+| Blueprint validation and workspace writes | `lib/tiannara/aal/blueprint_validator.ex`; `lib/tiannara/base_reality/workspace.ex` | The draft PR adds structural validation, explicit output location, a SHA-256 manifest, and removes automatic Git commits. Structural checks do not prove semantic correctness, successful synthesis, runtime behavior, or hardware safety. | IMPLEMENTED-UNVERIFIED on draft branch | CI green; integration tests; verify hashes and failure atomicity; keep simulation/synthesis/hardware claims separate. |
+| Replay / research runtime / archaeology | `REPLAY_IMPLEMENTATION_REPORT.md`; `tiannara_runtime/RUNTIME_IMPLEMENTATION_REPORT.md`; `ARCHAEOLOGY_IMPLEMENTATION_REPORT.md`; related Phase 16.1 sources | Reports describe implementation infrastructure but explicitly do not claim certification artifacts or validation campaigns. `PHASE16_PRE_IMPLEMENTATION_AUDIT.md` calls out absent certification-time outputs. | IMPLEMENTED-UNVERIFIED pending campaigns; certification NOT ESTABLISHED | Verify source contracts and tests, run deterministic replay campaigns, publish reproducible results, and issue certificates only after gates pass. |
+| Civilization ecology / recursive self-improvement | Numerous Phase 19–22 and Phase 5E documents | Large design/report footprint, but not required for the initial dependable interaction path. Reports and simulated worlds must not be treated as proof of general intelligence or real-world capability. | DEFER for foundation | Revisit only after the foundational interaction, evidence, continuity, completion, and governance gates pass. |
+
+## Priority implementation sequence
+
+### Gate 0 — Establish a trustworthy baseline
+1. Get PR #12 CI green on its exact head SHA; do not merge while checks are failing or pending.
+2. Fix all reproducible failures without weakening tests or changing UNKNOWN into PASS.
+3. Add a source/test/evidence reference to each status change.
+
+### Gate 1 — Reliable intent-to-result path
+1. Connect AEO to the canonical governed runtime using a real adapter and structured receipt.
+2. Connect RAC to substantive ACM/OAVL checkers and the canonical World Model admission interface.
+3. Make AAL return the observed result, including partial failure, timeout, validation failure, and output manifest.
+4. Remove the fixed `:synthesis` intent and silent engineering fallback; unknown intent must remain unknown.
+
+### Gate 2 — Continuity and completion awareness
+1. Define a bounded, provenance-bearing ContextGraph with timestamps/expiry and explicit uncertainty.
+2. Implement task contracts with acceptance criteria and independently checked postconditions.
+3. Persist observations and execution receipts; distinguish requested, started, completed, verified, and failed states.
+4. Ensure restart/replay does not duplicate side effects or invent completion.
+
+### Gate 3 — Safe anticipation and proactivity
+1. Generate suggestions only from observed context, evidence-backed dependencies, and explicit user goals.
+2. Attach rationale, evidence, uncertainty, and an easy dismissal/disable path to every suggestion.
+3. Use a separate delivery adapter; never label a log write as user-facing delivery.
+4. Apply rate limits and safety priority policy without an unconditional urgency bypass.
+
+### Gate 4 — Evidence-backed cross-domain synthesis
+1. Retrieve related facts across domains using explicit relation types and provenance.
+2. Emit bridge hypotheses as hypotheses, not facts; include counter-evidence and uncertainty.
+3. Validate on a held-out evaluation set before describing this as a cognitive capability.
+
+## Certification boundaries
+
+- A passing unit test proves only the tested behavior.
+- A successful graph/plan construction does not prove runtime execution.
+- A runtime acceptance receipt does not prove task completion.
+- A written file and hash manifest do not prove semantic correctness or deployability.
+- A replay implementation report does not prove replay campaigns passed.
+- Simulated world/civilization output does not certify real-world capability.
+- Missing adapter/evidence must produce UNKNOWN or a fail-closed error, not PASS.
+
+## Audit limitations and next review
+
+This is an initial, prioritized audit of core systems and named design documents, not a line-by-line review of all 2,993 Markdown files. Phase-named reports will be grouped by canonical specification, implementation report, test/campaign evidence, and archived/generated output to avoid mistaking repeated report artifacts for independent proof. The next review should map each canonical requirement to source paths, tests, current workflow evidence, and any certification artifacts, then expand coverage across the Phase 13–16 runtime/governance contracts before considering long-horizon systems.
