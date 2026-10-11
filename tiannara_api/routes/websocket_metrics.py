@@ -43,7 +43,7 @@ async def websocket_metrics(websocket: WebSocket):
     
     try:
         # Send initial metrics
-        initial_metrics = await get_current_metrics(user.get("user_id"))
+        initial_metrics = await get_current_metrics(user_id)
         await websocket.send_json(initial_metrics)
         
         # Start background task to stream updates
