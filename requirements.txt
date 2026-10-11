@@ -33,6 +33,7 @@ celery>=5.3.0
 psycopg2-binary>=2.9.0  # PostgreSQL adapter
 psycopg[binary]>=3.1.0  # psycopg v3 adapter used by metrics/evidence paths
 python-jose[cryptography]>=3.3.0  # JWT
+pyotp>=2.9.0  # TOTP MFA used by tiannara_api.routes.mfa
 passlib[bcrypt]>=1.7.4  # Password hashing
 SQLAlchemy>=2.0.0  # ORM
 httpx>=0.25.0  # HTTP client for email API
