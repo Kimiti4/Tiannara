@@ -117,3 +117,17 @@ This is not a green PR. The current evidence establishes the failing job/step, b
 3. Verify AEO runtime receipts and RAC evidence admission with real canonical adapters; missing/unknown evidence stays non-PASS.
 4. Create a canonical responsibility map for CIS, SafetyCortex, KillSwitch, GCK, ExecutionController, AEO, RAC and the runtime adapter. Resolve any authority duplication before further phase work.
 5. Continue full 248-entry inventory using metadata/content hashes and grouped document families. For each remaining document, record requirement-bearing sections, claimed status, linked source/test, contradictions and disposition. The current document remains a partial audit, not a claim of complete line-by-line review.
+
+
+## CI root-cause evidence update
+
+The failed Python collection log was retrieved. The matrix fails before executing the suite because `tests/test_prometheus_metrics.py` imports `tiannara_api.main`, which imports `tiannara_api.routes.mfa`, and that module imports `pyotp`. `pyotp` was absent from `requirements.txt`. Added the missing declared dependency `pyotp>=2.9.0` in the branch commit; the next workflow run must confirm whether collection and the full matrix now pass.
+
+The cross-platform hash report was also retrieved:
+- Linux canonical hash: `e38c759303ef53a7e9ce8bb71f00aa88e076215c61458f620d5a2c374dba9f00`
+- macOS canonical hash: `da89a433c5246b601803694324753aaaaceef938fdfce283dec0385224669bf6`
+- Result: mismatch; both platform verification jobs completed, but the comparison correctly failed.
+
+The comparison must not be weakened to accept divergent hashes. The workflow's environment advertises `TIANNARA_DETERMINISTIC_TIMESTAMP`, but the evidence generator script does not itself read that environment variable; it also creates several wall-clock timestamps in secondary evidence artifacts. The compared `certificate.json` is canonicalized by removing only a small set of top-level timestamp keys. Nested timestamp fields or nondeterministic campaign outputs are plausible causes, not yet proven as the sole cause. Next diagnostic: preserve and compare both platform evidence artifacts at the JSON-path level, identify the first differing fields, then make the producer deterministic (or explicitly define and justify a canonical projection) and rerun the same comparison.
+
+A further CI integrity issue was identified: `.github/workflows/elixir_ci.yml` had `continue-on-error: true` on the full ExUnit suite. The run log showed the suite hit the max-failure cap with 25 failures, even though the workflow's headline was successful. That flag has been removed so a failing full suite cannot be represented as a successful workflow. The next run may therefore report Elixir CI as failed until those test failures are resolved; that is the intended truthful gate, not a regression in the verification standard.
