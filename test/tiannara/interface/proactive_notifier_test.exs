@@ -41,6 +41,33 @@ defmodule Tiannara.Interface.ProactiveNotifierTest do
       assert {:error, :rate_limited} = ProactiveNotifier.notify(extra)
     end
 
+    test "high confidence does not bypass ordinary rate limit" do
+      st = ProactiveNotifier.status()
+      remaining = st.rate_limit_per_hour - st.window_count
+
+      for i <- 1..max(remaining, 0) do
+        d = sample_discovery(
+          type: :other,
+          title: "confidence_fill_#{i}",
+          source: "confidence_fill_#{i}",
+          severity: :info,
+          confidence: 0.5
+        )
+
+        assert {:ok, _} = ProactiveNotifier.notify(d)
+      end
+
+      urgent = sample_discovery(
+        type: :other,
+        title: "high_confidence_urgent",
+        source: :high_confidence_urgent,
+        severity: :info,
+        confidence: 0.99
+      )
+
+      assert {:error, :rate_limited} = ProactiveNotifier.notify(urgent)
+    end
+
     test "emergency severity bypasses rate limit" do
       st = ProactiveNotifier.status()
       limit = st.rate_limit_per_hour
