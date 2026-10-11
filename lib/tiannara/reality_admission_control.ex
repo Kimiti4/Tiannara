@@ -81,8 +81,8 @@ defmodule Tiannara.RealityAdmissionControl do
     output = Map.get(challenged_conclusion, :output, challenged_conclusion)
 
     with true <- is_map(output),
-         statement when is_binary(statement) and byte_size(String.trim(statement)) > 0 <-
-           Map.get(output, :statement),
+         statement when is_binary(statement) <- Map.get(output, :statement),
+         true <- String.trim(statement) != "",
          confidence when is_number(confidence) and confidence >= 0 and confidence <= 1 <-
            Map.get(output, :confidence),
          uncertainty when is_number(uncertainty) and uncertainty >= 0 and uncertainty <= 1 <-
@@ -139,9 +139,11 @@ defmodule Tiannara.RealityAdmissionControl do
   Compatibility entry point. The single-argument form uses the same fail-closed
   pipeline and does not trust pre-populated status fields.
   """
-  def admit_to_world_model(conclusion) do
+  def admit_to_world_model(conclusion) when is_map(conclusion) do
     admit_to_world_model(conclusion, Map.get(conclusion, :source, :unknown), [])
   end
+
+  def admit_to_world_model(_), do: {:error, :invalid_conclusion}
 
   def reject_from_world_model(failed_conclusion, reason) do
     {:error, :rejected, reason, failed_conclusion}
