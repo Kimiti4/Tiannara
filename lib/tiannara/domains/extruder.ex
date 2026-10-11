@@ -1,14 +1,18 @@
 defmodule Tiannara.Domains.Extruder do
   @moduledoc """
-  The semantic grounding interface. Translates domain knowledge from Tiannara 
-  worlds into deployable Base Reality blueprints.
+  Domain dispatcher for blueprint extraction.
+
+  Only explicitly implemented domain extractors are dispatched. Unsupported
+  domains return a failure record instead of silently using the engineering
+  extractor and mislabelling the resulting artifact.
   """
 
   @type blueprint :: %{
-          domain: atom(),
-          status: :success | :failed,
-          schematics: String.t(),
-          confidence: float()
+          required(:domain) => atom(),
+          required(:status) => :success | :failed,
+          optional(:schematics) => String.t(),
+          optional(:confidence) => float(),
+          optional(:reason) => term()
         }
 
   @callback extract_blueprint(
@@ -18,23 +22,24 @@ defmodule Tiannara.Domains.Extruder do
             ) :: blueprint()
 
   @doc """
-  Dispatcher for the CommandLoom. Routes the request to the specific domain 
-  extruder, fetching necessary world context.
+  Route to an implemented domain extractor. World context and discoveries are
+  explicit placeholders until their canonical providers are wired; callers
+  must not infer that those inputs contain live world state.
   """
   def extract_blueprint(domain, primary_intent) do
-    module = domain_module(domain)
-    
-    # In a full deployment, these would fetch from the active world state/ROS.
-    world_context = %{bias: 1.0}
-    discoveries = []
-    
-    module.extract_blueprint(primary_intent, world_context, discoveries)
+    case domain_module(domain) do
+      nil ->
+        %{domain: domain, status: :failed, reason: {:unsupported_domain, domain}}
+
+      module ->
+        world_context = %{source: :default_placeholder, bias: 1.0}
+        discoveries = []
+        module.extract_blueprint(primary_intent, world_context, discoveries)
+    end
   end
 
   defp domain_module(:engineering), do: Tiannara.Domains.Extruder.Engineering
   defp domain_module(:energy), do: Tiannara.Domains.Extruder.Energy
   defp domain_module(:computation), do: Tiannara.Domains.Extruder.Computation
-  
-  # Fallback to engineering for unsupported domains during phased rollout
-  defp domain_module(_), do: Tiannara.Domains.Extruder.Engineering
+  defp domain_module(_), do: nil
 end
