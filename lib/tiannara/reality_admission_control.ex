@@ -157,7 +157,7 @@ defmodule Tiannara.RealityAdmissionControl do
           try do
             case checker.check(challenge) do
               {:ok, %{status: :pass, evidence: evidence}} when is_list(evidence) and evidence != [] ->
-                if Enum.all?(evidence, &is_map/1) do
+                if valid_evidence?(evidence) do
                   check(:pass, evidence, nil)
                 else
                   check(:unknown, [], :checker_evidence_must_be_structured)
