@@ -7,7 +7,7 @@ from the upgrades.txt file.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 import hashlib
 import json
 from collections import defaultdict

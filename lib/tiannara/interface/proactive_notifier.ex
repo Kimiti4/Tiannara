@@ -55,7 +55,9 @@ defmodule Tiannara.Interface.ProactiveNotifier do
     priority = classify_priority(discovery)
     state = maybe_reset_window(state)
 
-    if priority in [:immediate, :urgent] or state.window_count < state.rate_limit_per_hour do
+    # Only explicitly classified emergency/critical events bypass ordinary rate limits.
+    # Confidence and warning labels alone cannot create an unlimited notification channel.
+    if priority == :immediate or state.window_count < state.rate_limit_per_hour do
       if deduplicated?(discovery, state) do
         {:reply, {:error, :deduplicated}, %{state | total_deduplicated: state.total_deduplicated + 1}}
       else

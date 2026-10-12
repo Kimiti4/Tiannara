@@ -14,6 +14,7 @@ from typing import List, Dict, Any, Optional, Callable, Union
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 from multiprocessing import get_context, Process
 from dataclasses import dataclass
+from tiannara_core.distributed.worker import run_worker
 import time
 import threading
 

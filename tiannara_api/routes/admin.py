@@ -2,6 +2,7 @@
 Tiannara Admin API Routes
 Provides system monitoring, engine management, and administrative controls
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Dict, List, Optional
 from pydantic import BaseModel
@@ -17,6 +18,7 @@ from tiannara_api.database import get_db
 from tiannara_api.database.models import User
 from tiannara_core.core import TiannaraCore
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 # Initialize core instance (singleton pattern)

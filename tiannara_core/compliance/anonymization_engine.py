@@ -31,6 +31,7 @@ References:
 """
 
 import numpy as np
+import pandas as pd
 import logging
 from typing import Dict, List, Optional, Tuple, Any, Union
 from dataclasses import dataclass, field

@@ -11,10 +11,12 @@ Based on tiannara_core/monitoring/ modules.
 """
 
 from fastapi import APIRouter, HTTPException
+import logging
 from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
 import time
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/monitoring", tags=["Monitoring & Stabilization"])
 
 # Initialize health monitor

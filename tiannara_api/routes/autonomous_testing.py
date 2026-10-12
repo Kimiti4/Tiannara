@@ -5,6 +5,7 @@ Endpoints for receiving and querying autonomous test results.
 Integrates with Core dashboard for real-time monitoring.
 """
 
+import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
@@ -12,6 +13,7 @@ from datetime import datetime
 import json
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/autonomy", tags=["autonomous-testing"])
 
 # In-memory storage (replace with database in production)

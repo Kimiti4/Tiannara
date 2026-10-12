@@ -5,6 +5,7 @@ Supports polynomial fitting, piecewise functions, and black-box recovery.
 """
 
 import random
+import numpy as np
 from typing import Callable, Dict, Any, List, Optional
 from tiannara_core.evaluation.ecm_forgetting_mechanism import SkillMemoryWithForgetting, TraceCompressor
 from tiannara_core.evaluation.information_pruner import InformationTheoreticPruner
