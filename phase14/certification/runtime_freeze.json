@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-07-02T20:06:58.939000Z",
-  "sha256": "3fe9bf3f5ab01bcc4174db9bc108dfdfefe6f4b40d3178dcd160b1d004cdde01",
+  "timestamp": "2026-10-13T20:54:49.204000Z",
+  "sha256": "b5b15d51e48495ccb24535be628ff735574a917ac114c7352bf4947c6162dd74",
   "freeze_type": "phase_14_constitutional_governance",
   "frozen_components": [
     "governance_state_schema",
@@ -16,13 +16,13 @@
     "confidence_engine_model"
   ],
   "schema_versions": {
+    "certification": "14.0.999",
     "governance_state": "14.0.999",
     "governance_ledger": "14.0.999",
     "governance_archaeology": "14.0.999",
     "governance_fitness": "14.0.999",
     "governance_entropy": "14.0.999",
-    "governance_cost": "14.0.999",
-    "certification": "14.0.999"
+    "governance_cost": "14.0.999"
   },
   "api_stability": "frozen",
   "backward_compatibility": "guaranteed"

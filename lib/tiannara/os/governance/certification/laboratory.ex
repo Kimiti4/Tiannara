@@ -510,7 +510,10 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
           confidence: 1.0,
           statistical_power: 1.0,
           failure_modes: [],
-          supporting_evidence: cert_files |> Enum.take(10),
+          # Repo-relative paths: absolute paths embed the runner's workspace
+          # root (e.g. /home/runner vs /Users/runner), which broke
+          # cross-platform hash comparison in CI.
+          supporting_evidence: cert_files |> Enum.take(10) |> Enum.map(&Path.relative_to_cwd/1),
           certificate: %{status: :passed, verified_at: @fixed_timestamp}
         }}
       else
@@ -580,7 +583,10 @@ defmodule TiannaraOS.Governance.Certification.Laboratory do
           confidence: 1.0,
           statistical_power: 1.0,
           failure_modes: [],
-          supporting_evidence: evidence_files |> Enum.take(10),
+          # Repo-relative paths: absolute paths embed the runner's workspace
+          # root (e.g. /home/runner vs /Users/runner), which broke
+          # cross-platform hash comparison in CI.
+          supporting_evidence: evidence_files |> Enum.take(10) |> Enum.map(&Path.relative_to_cwd/1),
           certificate: %{status: :passed, verified_at: @fixed_timestamp}
         }}
       else

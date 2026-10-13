@@ -1,182 +1,392 @@
 [
   {
-    "timestamp": "2026-07-02T20:06:58.978000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_001_replay.json",
-    "sha256": "8082aad46ddf07898a738f0b104fd6c196902b5ff2221f47686310d8cf4fdd63",
+    "sha256": "2d6ca3634ad85d402259a091f3b8922138cab31c3beb319e33552ee398a4ff23",
     "size_bytes": 171
   },
   {
-    "timestamp": "2026-07-02T20:06:58.979000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_002_authority_fuzzing.json",
-    "sha256": "f66b2e76db787a90413cafd5e61c996a4a1f31e21a6eac1cf1101f7eab45181a",
+    "sha256": "9a7348cab262bd9dcae616c82e0b4b1690521b4c252182cbb66934e32ee138e2",
     "size_bytes": 162
   },
   {
-    "timestamp": "2026-07-02T20:06:58.979000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_003_capability_conservation.json",
-    "sha256": "8ca490c3775814144a8186472014c08a28fb3f0d10a4d8a5967785b2688c28d1",
-    "size_bytes": 450
+    "sha256": "36e9fff777012d5ec8c56e489bf24d4ad91deedac8fa26d91d535a19e16f41cf",
+    "size_bytes": 443
   },
   {
-    "timestamp": "2026-07-02T20:06:58.979000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_004_institution_conservation.json",
-    "sha256": "64763e769c909982908cb86b57bd50fa5864ac63270c8d1a544a1c095395f82c",
-    "size_bytes": 438
+    "sha256": "87088eff813234739e6ca22d9a42a2760c7e0cb10cfa3eac4167c83ae1359c28",
+    "size_bytes": 431
   },
   {
-    "timestamp": "2026-07-02T20:06:58.980000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_005_drift_detection.json",
-    "sha256": "e16684246f59123bebc04929b17d2249070c3b260dccc9a2ec5d0b2daebb69a8",
-    "size_bytes": 710
+    "sha256": "75a6a7307196aa40d8653e2e648bad8349e4b1c4910bbe64d58139f28271e63c",
+    "size_bytes": 703
   },
   {
-    "timestamp": "2026-07-02T20:06:58.980000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_006_certificate_verification.json",
-    "sha256": "30a7824d32007c7ef5c7cd4716743d72a798f61602f5299c7721350d2b99f545",
-    "size_bytes": 731
+    "sha256": "216ceab767bb0bdc2dfaeac872424f1e9c574b31fcd329d7f6493db8329f7d90",
+    "size_bytes": 565
   },
   {
-    "timestamp": "2026-07-02T20:06:58.980000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_007_evidence_verification.json",
-    "sha256": "7159bd00f13b3fd63eeaa5a680e9a8030bcdb243842608bc97b9499ac4ed47f3",
-    "size_bytes": 1339
+    "sha256": "d030d0484239b15cc6d2e7c676a9d21bf2d70b6d09e893cd3d0daa8af81da7ab",
+    "size_bytes": 855
   },
   {
-    "timestamp": "2026-07-02T20:06:58.981000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_008_archaeology_certification.json",
-    "sha256": "47899fcdeac9cdd1d78e628a8704666aa2a22672ae93e95bf0d39e11a6996d79",
-    "size_bytes": 511
+    "sha256": "fdecb7bbbddca4060c069d99c77fd98b66fc6621c2b668a1aab63da74618cfce",
+    "size_bytes": 504
   },
   {
-    "timestamp": "2026-07-02T20:06:58.981000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_009_entropy_stability.json",
-    "sha256": "7451ce1ffc21605f9a85b6bb5433ebd7ce0e6aa0170c1dc5794ef39fab387cef",
-    "size_bytes": 498
+    "sha256": "f1df75e8a2a4b2c12116eb9f516e5546b11e6d76e88f2ea999ef758f1e30755a",
+    "size_bytes": 491
   },
   {
-    "timestamp": "2026-07-02T20:06:58.981000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_010_fitness_stability.json",
-    "sha256": "691c6a50b7972a9504411e0d773e4ab981d5ac5c99d1446dad7b3b08de30dba8",
-    "size_bytes": 498
+    "sha256": "744c9c82d17304ddf6c5b7dae9e7f73627e4dcdbb870ece3f2fb6aa59d0bb99d",
+    "size_bytes": 491
   },
   {
-    "timestamp": "2026-07-02T20:06:58.982000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_011_cost_reconstruction.json",
-    "sha256": "3da7e85fe91b3e2a2a4ba1bca96768a285f34cc2aac2e66aa8164c0e55d44fd0",
-    "size_bytes": 433
+    "sha256": "abb33b1fc288f213443fcb1e898da33e2bd2dc32e2a34f8d2451b7222700ea5d",
+    "size_bytes": 426
   },
   {
-    "timestamp": "2026-07-02T20:06:58.982000Z",
+    "timestamp": "2026-10-13T20:54:49.294000Z",
     "file": "phase14/certification/campaign_results/gc_012_long_horizon_evolution.json",
-    "sha256": "5461b9b52347d76653afc4f39190a39d98750295e44f1e10d035753ebe54a4b6",
-    "size_bytes": 464
+    "sha256": "5f4e52888e274ad7007e66aaaf3423c82f2350eb4665ff9871f59151fc99ba4e",
+    "size_bytes": 457
   },
   {
-    "timestamp": "2026-07-02T20:06:58.982000Z",
+    "timestamp": "2026-10-13T20:54:49.309000Z",
     "file": "phase14/certification/certificate.json",
-    "sha256": "c0af048ad8a51eb8c73fb54b04408bb11340439a16746dfe653075a3e84a045d",
-    "size_bytes": 8200
+    "sha256": "0b58bb7f91be92286b87cd7cc3f23439b8aa735589e9dc326aa354f7960434ba",
+    "size_bytes": 7976
   },
   {
-    "timestamp": "2026-07-02T20:06:58.983000Z",
+    "timestamp": "2026-10-13T20:54:49.309000Z",
+    "file": "phase14/certification/certification_certificate.json",
+    "sha256": "d8f50f6d2939e2259d53fd5ccd0385807d7224ff08f287fa6de4d9073fa804b2",
+    "size_bytes": 897
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.334000Z",
+    "file": "phase14/certification/cold_boot_results.json",
+    "sha256": "39f62a80a4cf07f5a6af2ec032a7079901b1162ac2fab7dba2452f1755bd2b11",
+    "size_bytes": 1095
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.336000Z",
     "file": "phase14/certification/evidence/artifacts/authority_test_results.json",
     "sha256": "1143718a0e3d82a760ea130fbfdcb04d85d33a47f64c9906277769a5de2264e8",
     "size_bytes": 52
   },
   {
-    "timestamp": "2026-07-02T20:06:58.983000Z",
+    "timestamp": "2026-10-13T20:54:49.337000Z",
     "file": "phase14/certification/evidence/artifacts/capability_state.json",
     "sha256": "728b633275ecd4cb9979ffaf8fa9725116600dbe50ee0d0fd8436500f25cc075",
     "size_bytes": 58
   },
   {
-    "timestamp": "2026-07-02T20:06:58.983000Z",
+    "timestamp": "2026-10-13T20:54:49.339000Z",
     "file": "phase14/certification/evidence/artifacts/cost_reconstruction.json",
     "sha256": "b56318ce1798a0cee575d642a3a4e383be84d5332721457ecb37ed53925cf33a",
     "size_bytes": 66
   },
   {
-    "timestamp": "2026-07-02T20:06:58.984000Z",
+    "timestamp": "2026-10-13T20:54:49.339000Z",
     "file": "phase14/certification/evidence/artifacts/drift_analysis.json",
     "sha256": "f511f6d511fd5f3992f811818886dbeb32693ba1e3bb74ed94f3c69f5abe0f19",
     "size_bytes": 50
   },
   {
-    "timestamp": "2026-07-02T20:06:58.984000Z",
+    "timestamp": "2026-10-13T20:54:49.339000Z",
     "file": "phase14/certification/evidence/artifacts/entropy_measurements.json",
     "sha256": "52ec5c9336db7ed00899c793155f6ac633297cdf1736003723bbef76cd5ca272",
     "size_bytes": 63
   },
   {
-    "timestamp": "2026-07-02T20:06:58.984000Z",
+    "timestamp": "2026-10-13T20:54:49.339000Z",
     "file": "phase14/certification/evidence/artifacts/evolution_simulation.json",
     "sha256": "3cf6410086e30a081882d33f5463b114f05d40fbb27cf73d46a41a8418911308",
     "size_bytes": 54
   },
   {
-    "timestamp": "2026-07-02T20:06:58.984000Z",
+    "timestamp": "2026-10-13T20:54:49.339000Z",
     "file": "phase14/certification/evidence/artifacts/fitness_evaluations.json",
     "sha256": "ab08c22bf34219042eb0fdbd8f1727deb7abb1c9a31c4b3967538ef79a77fdfe",
     "size_bytes": 63
   },
   {
-    "timestamp": "2026-07-02T20:06:58.985000Z",
+    "timestamp": "2026-10-13T20:54:49.339000Z",
     "file": "phase14/certification/evidence/artifacts/institution_reconstruction.json",
     "sha256": "053d23f51ad8cb97c17c45bead94ed939929c5d2b76f76b5843b147d23260ca8",
     "size_bytes": 64
   },
   {
-    "timestamp": "2026-07-02T20:06:58.986000Z",
+    "timestamp": "2026-10-13T20:54:49.339000Z",
     "file": "phase14/certification/evidence/artifacts/replay_results.json",
     "sha256": "c5d47794cae6a1ada2d0359675fe61d0375556e69aaa4bc093a30d11853472a9",
     "size_bytes": 55
   },
   {
-    "timestamp": "2026-07-02T20:06:58.986000Z",
+    "timestamp": "2026-10-13T20:54:49.355000Z",
     "file": "phase14/certification/evidence/certificates/cert-authority-002.json",
     "sha256": "c438612a6f909c1bf93bafbe5cadf3298ed5d78361747d34ceefd9097b3ca7cd",
     "size_bytes": 478
   },
   {
-    "timestamp": "2026-07-02T20:06:58.986000Z",
+    "timestamp": "2026-10-13T20:54:49.355000Z",
     "file": "phase14/certification/evidence/certificates/cert-entropy-003.json",
     "sha256": "cbb9d86bd7736fda031f5eba3348091ad13a0c2c22c5c941bbe9f28f44476389",
     "size_bytes": 476
   },
   {
-    "timestamp": "2026-07-02T20:06:58.987000Z",
+    "timestamp": "2026-10-13T20:54:49.355000Z",
     "file": "phase14/certification/evidence/certificates/cert-replay-001.json",
     "sha256": "dc51da2e0165ba88b49891abb834580e241ae0ffdfd161f677fc545f35dd6630",
     "size_bytes": 467
   },
   {
-    "timestamp": "2026-07-02T20:06:58.987000Z",
+    "timestamp": "2026-10-13T20:54:49.371000Z",
+    "file": "phase14/certification/final/RFC_CERTIFICATE.json",
+    "sha256": "77edba8c70e17195553d22cf2aef7b1f28b2db8632ed2cbf517d618fd374c39c",
+    "size_bytes": 838
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.393000Z",
+    "file": "phase14/certification/final/RFC_FINAL_PROOF.json",
+    "sha256": "d6499c28a7349c57b51182c7b89ad9dcb8211d5451d27bd4c8172c8232a826e4",
+    "size_bytes": 497
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.405000Z",
+    "file": "phase14/certification/hashes.json",
+    "sha256": "3aa335256fdacdc73f6f05233e227b48a2f14ca48ceb0fb45373578392dae111",
+    "size_bytes": 247
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.405000Z",
     "file": "phase14/certification/independent_audit.json",
-    "sha256": "1e7372c6709b53a3bffd9ca21a3da60d93ba6102076fff9f54c768e5a06af183",
+    "sha256": "20bf865882f7b66d9bea00ae6cb4ab8fdc7561aa94befa834b1f49406ec75e0d",
     "size_bytes": 2476
   },
   {
-    "timestamp": "2026-07-02T20:06:58.987000Z",
+    "timestamp": "2026-10-13T20:54:49.419000Z",
+    "file": "phase14/certification/independent_audit_report.json",
+    "sha256": "dbf27e75f6f9f0f24441250464da2d05b78b3267a546c2e20395f83b47d16edf",
+    "size_bytes": 920
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.434000Z",
+    "file": "phase14/certification/manifest.json",
+    "sha256": "ffb09a902619bb4997d60ada30bc12733a8b77dda5dd1c180e27b02a10771e5c",
+    "size_bytes": 449
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.450000Z",
     "file": "phase14/certification/manifests/evidence_index.json",
-    "sha256": "fdad98ac1558b75fdfabf10b18f16ce1cc0fcc300a82d14bb060f2919141d40d",
-    "size_bytes": 4292
+    "sha256": "da61fe1e88902b712c3a1d26bedc1bd7f103946025355a8c48394d3c1bc7741b",
+    "size_bytes": 7187
   },
   {
-    "timestamp": "2026-07-02T20:06:58.987000Z",
+    "timestamp": "2026-10-13T20:54:49.465000Z",
+    "file": "phase14/certification/manifests/master_manifest.json",
+    "sha256": "6b88b494b897b4f3d9a816c05cde7fe6a76b2bc9a08028617943e91aca1bcb0c",
+    "size_bytes": 1442
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.470000Z",
+    "file": "phase14/certification/meta_certification.json",
+    "sha256": "d8f50f6d2939e2259d53fd5ccd0385807d7224ff08f287fa6de4d9073fa804b2",
+    "size_bytes": 897
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.485000Z",
+    "file": "phase14/certification/multi_scale_results.json",
+    "sha256": "d0f627a931371815c4c40c5a22f5f8b6d97b23c61291701e99acc486e399526c",
+    "size_bytes": 908
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.486000Z",
+    "file": "phase14/certification/multi_seed_results.json",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size_bytes": 0
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.504000Z",
+    "file": "phase14/certification/ratifications/test_proposal_001/ratification_certificate.json",
+    "sha256": "db04f2a2561e939a126df98d7612bba29d4983c44cead8dbaff4e316fb7dab51",
+    "size_bytes": 2425
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.518000Z",
+    "file": "phase14/certification/replay/archaeological_reconstruction.json",
+    "sha256": "4dd44f3b2fc43338f7fa8f1dde1001fe14581943b164fa28285b5c30bae0c56a",
+    "size_bytes": 1402
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.531000Z",
+    "file": "phase14/certification/replay/cold_boot_reproducibility.json",
+    "sha256": "3f3cd3833a86b4bf614c9e805a6b0ab8191d1b8686580a12f94b46a9f4957e62",
+    "size_bytes": 1622
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.547000Z",
+    "file": "phase14/certification/replay/evidence_closure_verification.json",
+    "sha256": "75b7432c10061292f6b58e0147736256b23594fac629fd5f0cbf4f6f29915ccc",
+    "size_bytes": 694
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.637000Z",
+    "file": "phase14/certification/replay/long_horizon_replay_10k.json",
+    "sha256": "ad13568b02f319e0f89d8b4dc2cc252424faa7a3f02c6809cc623b5e00b8aa63",
+    "size_bytes": 678
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.709000Z",
+    "file": "phase14/certification/replay/long_horizon_replay_1m.json",
+    "sha256": "ed23628ecf40208727e8fd938a502ddb9b82edfb21adeffd313da12bae29dabc",
+    "size_bytes": 683
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.732000Z",
+    "file": "phase14/certification/replay/mutation_testing.json",
+    "sha256": "edd5cbeaa01c090a70064c2686af9a6432da57861601ad833e946761ddabbdee",
+    "size_bytes": 1973
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.734000Z",
     "file": "phase14/certification/replay_report.json",
-    "sha256": "6d1daae22483861517ab579b6301f836055576bc9ef8d3c207d5afd18d51e19e",
-    "size_bytes": 324
+    "sha256": "79a92a706560f65d7befe6f7d9c8c096a94a2cb1383f9771c6ac882af46b4f4c",
+    "size_bytes": 325
   },
   {
-    "timestamp": "2026-07-02T20:06:58.988000Z",
+    "timestamp": "2026-10-13T20:54:49.765000Z",
+    "file": "phase14/certification/review_ratification_proof.json",
+    "sha256": "f3e87955691776ee2729f1ae09ebe6db1ebdc18b9f5cefe7cedf2ba72b86fcff",
+    "size_bytes": 737
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.781000Z",
+    "file": "phase14/certification/reviews/test_proposal_001/review_certificate.json",
+    "sha256": "754cfc47fe7b758b2aa0afb637c1423e644519add85b25bf33be1209e22aac0c",
+    "size_bytes": 1632
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.781000Z",
     "file": "phase14/certification/runtime_freeze.json",
-    "sha256": "78b590ca80a283851c58762911256150e2d5690ab454e612412741720e0c2d05",
+    "sha256": "81b27b84c6d65f45dc85e51b6a25b15cddf16e6c2550c0b1f5b2ecfe7193ee21",
     "size_bytes": 930
   },
   {
-    "timestamp": "2026-07-02T20:06:58.988000Z",
+    "timestamp": "2026-10-13T20:54:49.804000Z",
+    "file": "phase14/certification/simulations/test_proposal_001/simulation_certificate.json",
+    "sha256": "a347421e1db8fddc798e57552439fc1da54f11fc2002c871c5e72ad96717774a",
+    "size_bytes": 4250
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.815000Z",
+    "file": "phase14/certification/validation/certification_evidence.json",
+    "sha256": "ef54c052913debfdaa5e540b3b47a76d8569792c82def1cd5b3632b50f78fe12",
+    "size_bytes": 206
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.862000Z",
+    "file": "phase14/certification/validation/genome_evidence.json",
+    "sha256": "cc36595bc34af81092c50e8c6fe7e8da99dae0170c666597e3c46eb0ff471f06",
+    "size_bytes": 99
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.878000Z",
+    "file": "phase14/certification/validation/ledger_evidence.json",
+    "sha256": "e89e22cd152abf2c6191668ee4b64d8d76ddd2590f81a6c1ecfc05f43f5362aa",
+    "size_bytes": 113
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.928000Z",
+    "file": "phase14/certification/validation/long_horizon_evidence.json",
+    "sha256": "ae9c8ae8e36043e6e13a5259c798196fe4d1cb7ebc2ce557071891d1cee3f67d",
+    "size_bytes": 114
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.953000Z",
+    "file": "phase14/certification/validation/migration_evidence.json",
+    "sha256": "ea3950defc732707fe17b3f24bfc4f9a86ebb1ca682429406cba7dc8e9be9515",
+    "size_bytes": 116
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.970000Z",
+    "file": "phase14/certification/validation/provenance_evidence.json",
+    "sha256": "fb09e418213251c710ab3ef0ab742148bbdea8d258d807b38f3f731778a2008c",
+    "size_bytes": 111
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.985000Z",
+    "file": "phase14/certification/validation/ratification_evidence.json",
+    "sha256": "f5b29e218fe0e2cb07a3d74f4b3043f76078571e5978d5523f323cb381cf8a14",
+    "size_bytes": 178
+  },
+  {
+    "timestamp": "2026-10-13T20:54:49.999000Z",
+    "file": "phase14/certification/validation/replay_evidence.json",
+    "sha256": "ae67e44cfb74f2cb2a24b1c4d2eb2b9a083d35a43046f71b260efd65ac2a817a",
+    "size_bytes": 266
+  },
+  {
+    "timestamp": "2026-10-13T20:54:50.019000Z",
+    "file": "phase14/certification/validation/review_evidence.json",
+    "sha256": "ec067139b09c5ac8e4e50cd8503bc39990503052ce8d314ff39014237d36a4cb",
+    "size_bytes": 118
+  },
+  {
+    "timestamp": "2026-10-13T20:54:50.036000Z",
+    "file": "phase14/certification/validation/simulation_evidence.json",
+    "sha256": "caad6ce8e15bab536fc72bab278652baf45bd23df300a12c1aeafe2b6d3f34b5",
+    "size_bytes": 118
+  },
+  {
+    "timestamp": "2026-10-13T20:54:50.052000Z",
+    "file": "phase14/certification/validation/stress_evidence.json",
+    "sha256": "6eea1f914912e907f682c6befd7413bd1540814b3ac93d000de4051ba1eace6f",
+    "size_bytes": 96
+  },
+  {
+    "timestamp": "2026-10-13T20:54:50.059000Z",
+    "file": "phase14/certification/validation/validation_report.json",
+    "sha256": "11309aeb3414b463bde0aeb30bf5a90625ad16a7a4140e25f82211617e6299ed",
+    "size_bytes": 2608
+  },
+  {
+    "timestamp": "2026-10-13T20:54:50.074000Z",
+    "file": "phase14/certification/validation/voting_evidence.json",
+    "sha256": "9c6822400e6e910b07e834d0be49daa86d307a5e34dfffd2ce02359d72ebb2f0",
+    "size_bytes": 87
+  },
+  {
+    "timestamp": "2026-10-13T20:54:50.074000Z",
     "file": "phase14/certification/validation_report.json",
-    "sha256": "2ec4fe9eebd0d076f556b156d161f000a82da4c427376f6c8a4224fe27a93b6b",
-    "size_bytes": 902
+    "sha256": "403e0bed538795ed4406bc7c37f66c1fa64f32ef0133fc1fc976c51c60e96369",
+    "size_bytes": 1045
+  },
+  {
+    "timestamp": "2026-10-13T20:54:50.106000Z",
+    "file": "phase14/certification/validation_self_proof.json",
+    "sha256": "e45b8d79d98b0a6c4c9ace08b5efc343e20dc58dca56b5fa5a2ed41d3ff1fbd6",
+    "size_bytes": 304
   }
 ]

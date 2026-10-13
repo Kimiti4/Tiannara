@@ -1,33 +1,34 @@
 {
-  "timestamp": "2026-07-02T20:06:58.955000Z",
+  "timestamp": "2026-10-13T20:54:49.216000Z",
+  "overall_status": "evidence_generated_not_certified",
   "validation_type": "phase_14_constitutional_validation",
   "validations_performed": [
     {
-      "status": "passed",
+      "status": "unknown",
       "test": "all_campaigns_passed",
-      "detail": "12/12 campaigns executed successfully"
+      "detail": "Not independently certified: certificate signature is absent"
     },
     {
-      "status": "passed",
+      "status": "unknown",
       "test": "independent_audit_passed",
-      "detail": "Audit confidence: 100%, discrepancies: 0"
+      "detail": "Not independently certified: certificate signature is absent"
     },
     {
-      "status": "passed",
+      "status": "unknown",
       "test": "schemas_frozen",
-      "detail": "All governance schemas versioned at 14.0.999"
+      "detail": "Not independently certified: certificate signature is absent"
     },
     {
-      "status": "passed",
+      "status": "unknown",
       "test": "apis_stable",
-      "detail": "All APIs frozen with backward compatibility guaranteed"
+      "detail": "Not independently certified: certificate signature is absent"
     },
     {
-      "status": "passed",
+      "status": "unknown",
       "test": "evidence_generated",
-      "detail": "All evidence artifacts generated with SHA-256 hashes"
+      "detail": "Not independently certified: certificate signature is absent"
     }
   ],
-  "overall_status": "validated",
-  "validator_version": "14.0.999"
+  "validator_version": "14.0.999",
+  "certificate_signature_present": false
 }
