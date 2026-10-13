@@ -23,6 +23,8 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
 
   alias Tiannara.Omega.EffectIdentity
   alias Tiannara.Omega.HumanDelivery.Explanation
+  alias Tiannara.Omega.HumanDelivery.AuthenticatedHumanIdentity
+  alias Tiannara.Omega.MintRegistry
 
   @enforce_keys [:authorization_id, :explanation_id]
   defstruct [
@@ -86,13 +88,15 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
   Mint an AuthorizationGrant. This is the ONLY way to produce a valid grant, and
   it REQUIRES a human_id. There is no autonomous path to authorization.
   """
-  def human_grant(%__MODULE__{status: :pending_authorization} = auth, human_id)
-      when not is_nil(human_id) do
-    human_grant(auth, human_id, [])
+  def human_grant(
+        %__MODULE__{status: :pending_authorization} = auth,
+        %AuthenticatedHumanIdentity{} = identity
+      ) do
+    human_grant(auth, identity, [])
   end
 
-  def human_grant(%__MODULE__{status: :pending_authorization}, nil),
-    do: {:error, :human_id_required}
+  def human_grant(%__MODULE__{status: :pending_authorization}, _identity),
+    do: {:error, :authenticated_identity_required}
 
   def human_grant(%__MODULE__{status: status}, _human_id),
     do: {:error, {:illegal_transition, from: status, to: :granted}}
@@ -102,37 +106,49 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
   The content hash binds the grant to the candidate's state at authorization
   time, preventing post-authorization mutation.
   """
-  def human_grant(%__MODULE__{status: :pending_authorization} = auth, human_id, opts)
-      when not is_nil(human_id) do
+  def human_grant(
+        %__MODULE__{status: :pending_authorization} = auth,
+        %AuthenticatedHumanIdentity{} = identity,
+        opts
+      ) do
+    if AuthenticatedHumanIdentity.authenticated?(identity) do
+      mint_grant(auth, identity, opts)
+    else
+      {:error, :identity_not_authenticated}
+    end
+  end
+
+  def human_grant(%__MODULE__{status: :pending_authorization}, _identity, _opts),
+    do: {:error, :authenticated_identity_required}
+
+  defp mint_grant(%__MODULE__{} = auth, %AuthenticatedHumanIdentity{} = identity, opts) do
     ttl = Keyword.get(opts, :ttl, @default_ttl)
     candidate_content_hash = Keyword.get(opts, :candidate_content_hash)
 
     {:ok,
-     %{auth
-      | status: :granted,
-        human_id: human_id,
-        decision: :granted,
-        granted_at: System.system_time(:second),
-        ttl: ttl,
-        candidate_content_hash: candidate_content_hash,
-        lineage: auth.lineage ++ [{:granted_by, human_id}]}}
+     %{
+       auth
+       | status: :granted,
+         human_id: identity.human_id,
+         decision: :granted,
+         granted_at: System.system_time(:second),
+         ttl: ttl,
+         candidate_content_hash: candidate_content_hash,
+         lineage: auth.lineage ++ [{:granted_by, identity.identity_id}]
+     }}
   end
-
-  def human_grant(%__MODULE__{status: :pending_authorization}, nil, _opts),
-    do: {:error, :human_id_required}
-
-  def human_grant(%__MODULE__{status: status}, _human_id, _opts),
-    do: {:error, {:illegal_transition, from: status, to: :granted}}
 
   @doc "Deny an authorization request. A reason is required for accountability."
   def human_deny(%__MODULE__{status: :pending_authorization} = auth, reason)
       when not is_nil(reason) do
     {:ok,
-     %{auth
-      | status: :denied,
-        decision: :denied,
-        reason: reason,
-        lineage: auth.lineage ++ [{:denied_for, reason}]}}
+     %{
+       auth
+       | status: :denied,
+         decision: :denied,
+         reason: reason,
+         lineage: auth.lineage ++ [{:denied_for, reason}]
+     }}
   end
 
   def human_deny(%__MODULE__{status: :pending_authorization}, nil),
@@ -160,9 +176,11 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
     case EffectIdentity.effect_id(descriptor) do
       {:ok, effect_id} ->
         {:ok,
-         %__MODULE__{auth
-                      | effect_id: effect_id,
-                        lineage: auth.lineage ++ [{:bound_to_effect, effect_id}]}}
+         %__MODULE__{
+           auth
+           | effect_id: effect_id,
+             lineage: auth.lineage ++ [{:bound_to_effect, effect_id}]
+         }}
 
       {:error, reason} ->
         {:error, {:invalid_effect_descriptor, reason}}
@@ -176,6 +194,24 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
 
   def bind_effect(%__MODULE__{}, _descriptor), do: {:error, :authorization_not_granted}
   def bind_effect(_auth, _descriptor), do: {:error, :authorization_required}
+
+  @doc """
+  Registers a granted human authorization in the mint registry (M7). This is
+  the authenticated minter path for human grants: the registry only accepts
+  calls whose stack origin is an allowlisted module (R-2), so direct calls to
+  `Tiannara.Omega.MintRegistry.record_mint/2` from arbitrary processes are
+  refused. Human grants carry no council decision, so no
+  `council_decision_ref` is anchored.
+  """
+  @spec record_mint(atom() | String.t()) :: :ok | {:error, term()}
+  def record_mint(authorization_id) do
+    result = MintRegistry.record_mint(authorization_id)
+
+    case result do
+      :ok -> :ok
+      {:error, _reason} = error -> error
+    end
+  end
 
   @doc """
   The effect-boundary check a governed sink MUST perform. A grant is valid for
@@ -220,5 +256,8 @@ defmodule Tiannara.Omega.HumanDelivery.Authorization do
   def expire(%__MODULE__{status: status}, _now),
     do: {:error, {:illegal_transition, from: status, to: :expired}}
 
-  defp make_id, do: :"auth-#{System.unique_integer([:monotonic])}"
+  # Cross-restart uniqueness: unique_integer alone resets per BEAM boot, which
+  # would collide with durable MintRegistry records from previous runs.
+  defp make_id,
+    do: :"auth-#{System.system_time(:microsecond)}_#{System.unique_integer([:monotonic])}"
 end

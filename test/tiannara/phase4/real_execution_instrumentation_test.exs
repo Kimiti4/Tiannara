@@ -9,7 +9,7 @@ defmodule Tiannara.Phase4.RealExecutionInstrumentationTest do
   # re-checked at this boundary using the real module's minted id.
 
   alias Tiannara.Phase4.RealExecution
-  alias Tiannara.Omega.HumanDelivery.Authorization
+  alias Tiannara.Omega.HumanDelivery.{Authorization, AuthenticatedHumanIdentity}
   alias Tiannara.SelfImprovement.Sandbox.{BenchmarkSpec, CodePatch, TestSpec}
   alias TiannaraOS.Provenance.{IdentityAuthority, RuntimeContract}
 
@@ -67,15 +67,22 @@ defmodule Tiannara.Phase4.RealExecutionInstrumentationTest do
   end
 
   defp minted_grant do
-    {:ok, auth} = Authorization.prepare(%{explanation_id: "mc003-m-explanation"})
+    {:ok, identity} = AuthenticatedHumanIdentity.authenticate("c14_ac", "credential", :password)
+
+    {:ok, auth} =
+      Authorization.prepare(%{
+        explanation_id: "mc003-m-explanation-#{System.unique_integer([:positive])}"
+      })
+
     {:ok, pending} = Authorization.request(auth)
-    {:ok, granted} = Authorization.human_grant(pending, "c14_ac")
+    {:ok, granted} = Authorization.human_grant(pending, identity)
+    :ok = Authorization.record_mint(granted.authorization_id)
     granted
   end
 
   defp success_spec do
     %{
-      id: "exp-instrumented",
+      id: "exp-instrumented-#{System.unique_integer([:positive])}",
       grant: minted_grant(),
       substrate: %{
         backend: FakeBackend,
@@ -118,13 +125,13 @@ defmodule Tiannara.Phase4.RealExecutionInstrumentationTest do
   defp completed(id, producer),
     do: %{"event_type" => "completed", "execution_id" => id, "producer" => producer}
 
-  test "a successful real execution is authority-minted before the sandbox and ledgered once", ctx do
+  test "a successful real execution is authority-minted before the sandbox and ledgered once",
+       ctx do
     assert {:ok, result} = RealExecution.execute(run_spec())
 
     producer = @producer
 
-    assert {:ok,
-            %{"producer" => ^producer, "id_format" => "forward_exec_v1", "source" => "mint"}} =
+    assert {:ok, %{"producer" => ^producer, "id_format" => "forward_exec_v1", "source" => "mint"}} =
              IdentityAuthority.resolve(result.execution_id)
 
     # science-facing shape is unchanged
@@ -147,7 +154,8 @@ defmodule Tiannara.Phase4.RealExecutionInstrumentationTest do
     assert {:ok, %{"producer" => ^producer}} = IdentityAuthority.resolve(r2.execution_id)
   end
 
-  test "a failed sandbox preserves the error shape, still mints a canonical attribution, and records no fake experiment outcome", ctx do
+  test "a failed sandbox preserves the error shape, still mints a canonical attribution, and records no fake experiment outcome",
+       ctx do
     assert {:error, :boom} = RealExecution.execute(run_spec("fail"))
 
     producer = @producer

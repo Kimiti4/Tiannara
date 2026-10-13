@@ -6,22 +6,28 @@ defmodule TiannaraOS.WorldTemplate do
 
   @derive Jason.Encoder
   defstruct [
-    :id,                # atom
-    :name,              # string
-    :labs,              # list of map (e.g. %{id: atom, name: string})
-    :goals,             # list of map (e.g. %{id: atom, description: string})
-    :evidence_types,    # list of atom
-    :allowed_tools      # list of atom
+    # atom
+    :id,
+    # string
+    :name,
+    # list of map (e.g. %{id: atom, name: string})
+    :labs,
+    # list of map (e.g. %{id: atom, description: string})
+    :goals,
+    # list of atom
+    :evidence_types,
+    # list of atom
+    :allowed_tools
   ]
 
   @type t :: %__MODULE__{
-    id: atom(),
-    name: String.t(),
-    labs: [map()],
-    goals: [map()],
-    evidence_types: [atom()],
-    allowed_tools: [atom()]
-  }
+          id: atom(),
+          name: String.t(),
+          labs: [map()],
+          goals: [map()],
+          evidence_types: [atom()],
+          allowed_tools: [atom()]
+        }
 
   @doc "Retrieves a template by its ID."
   @spec get_template(atom()) :: t() | nil
@@ -53,8 +59,15 @@ defmodule TiannaraOS.WorldTemplate do
         %{id: :validation_lab, name: "Validation Lab"}
       ],
       goals: [
-        %{id: :knowledge_growth, description: "Grow the civilization's knowledge base through repeated discovery cycles."},
-        %{id: :capability_depth, description: "Develop deep capability lineages through iterative mutation and synthesis."}
+        %{
+          id: :knowledge_growth,
+          description: "Grow the civilization's knowledge base through repeated discovery cycles."
+        },
+        %{
+          id: :capability_depth,
+          description:
+            "Develop deep capability lineages through iterative mutation and synthesis."
+        }
       ],
       evidence_types: [:experiment_result, :model_output, :peer_review, :synthesis_report],
       allowed_tools: [:analyzer, :simulator, :synthesizer, :validator]
@@ -73,7 +86,10 @@ defmodule TiannaraOS.WorldTemplate do
       ],
       goals: [
         %{id: :sandbox_isolation, description: "Validate container process isolation bounds."},
-        %{id: :vulnerability_detection, description: "Scan generated endpoints for OWASP Top 10 vulnerabilities."}
+        %{
+          id: :vulnerability_detection,
+          description: "Scan generated endpoints for OWASP Top 10 vulnerabilities."
+        }
       ],
       evidence_types: [:static_analysis, :dependency_scan, :fuzz_result, :containment_audit],
       allowed_tools: [:docker, :static_analyzer, :owasp_scanner, :fuzzer]
@@ -91,8 +107,14 @@ defmodule TiannaraOS.WorldTemplate do
         %{id: :safety_lab, name: "Physical Safety Loop Lab"}
       ],
       goals: [
-        %{id: :path_optimality, description: "Ensure path planning resolves under 5ms latency limits."},
-        %{id: :safety_override_validation, description: "Verify safety loop override prioritization invariants."}
+        %{
+          id: :path_optimality,
+          description: "Ensure path planning resolves under 5ms latency limits."
+        },
+        %{
+          id: :safety_override_validation,
+          description: "Verify safety loop override prioritization invariants."
+        }
       ],
       evidence_types: [:latency_telemetry, :simulation_run, :collision_audit],
       allowed_tools: [:simulator, :path_solver, :kinematics_validator]
@@ -101,7 +123,7 @@ defmodule TiannaraOS.WorldTemplate do
 
   defp mathematics_template do
     %__MODULE__{
-      id: :computation,
+      id: :mathematics,
       name: "Pure Mathematics Ecosystem",
       labs: [
         %{id: :number_theory_lab, name: "Algorithmic Number Theory Lab"},
@@ -110,8 +132,14 @@ defmodule TiannaraOS.WorldTemplate do
         %{id: :logic_lab, name: "Mathematical Logic & Proofs Lab"}
       ],
       goals: [
-        %{id: :conjecture_provability, description: "Verify provable bounds of algebraic manifolds."},
-        %{id: :lemma_synthesis, description: "Discover logical connections between disjoint topology structures."}
+        %{
+          id: :conjecture_provability,
+          description: "Verify provable bounds of algebraic manifolds."
+        },
+        %{
+          id: :lemma_synthesis,
+          description: "Discover logical connections between disjoint topology structures."
+        }
       ],
       evidence_types: [:symbolic_proof, :counterexample_run, :adjunction_mapping],
       allowed_tools: [:proof_assistant, :algebra_solver, :topology_mapper]

@@ -13,6 +13,7 @@ defmodule TiannaraOS.StateJTMSTest do
 
     # Verify if PubSub is running to subscribe
     pubsub_active = Process.whereis(Tiannara.PubSub) != nil
+
     if pubsub_active do
       Phoenix.PubSub.subscribe(Tiannara.PubSub, "tiannara_events")
     end
@@ -21,20 +22,52 @@ defmodule TiannaraOS.StateJTMSTest do
   end
 
   test "Graph Construction: adds nodes and sets bidirectional relation links", %{state: state} do
-    theory = %EvidenceNode{id: :theory_1, type: :theory, name: "Specialized Theory A", value: 1.0, validity: :valid}
-    claim = %EvidenceNode{id: :claim_1, type: :claim, name: "Specialized Claim A", value: 1.0, validity: :valid}
-    hypothesis = %EvidenceNode{id: :hyp_1, type: :hypothesis, name: "Specialized Hypothesis A", validity: :valid}
-    experiment = %EvidenceNode{id: :exp_1, type: :experiment, name: "Specialized Experiment A", value: 1.0, validity: :valid}
-    evidence = %EvidenceNode{id: :ev_1, type: :evidence, name: "Specialized Evidence A", validity: :valid}
+    theory = %EvidenceNode{
+      id: :theory_1,
+      type: :theory,
+      name: "Specialized Theory A",
+      value: 1.0,
+      validity: :valid
+    }
+
+    claim = %EvidenceNode{
+      id: :claim_1,
+      type: :claim,
+      name: "Specialized Claim A",
+      value: 1.0,
+      validity: :valid
+    }
+
+    hypothesis = %EvidenceNode{
+      id: :hyp_1,
+      type: :hypothesis,
+      name: "Specialized Hypothesis A",
+      validity: :valid
+    }
+
+    experiment = %EvidenceNode{
+      id: :exp_1,
+      type: :experiment,
+      name: "Specialized Experiment A",
+      value: 1.0,
+      validity: :valid
+    }
+
+    evidence = %EvidenceNode{
+      id: :ev_1,
+      type: :evidence,
+      name: "Specialized Evidence A",
+      validity: :valid
+    }
 
     # Add all nodes
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim)
-      |> EvidenceEngine.add_node(hypothesis)
-      |> EvidenceEngine.add_node(experiment)
-      |> EvidenceEngine.add_node(evidence)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim.id, claim)
+      |> EvidenceEngine.add_node(hypothesis.id, hypothesis)
+      |> EvidenceEngine.add_node(experiment.id, experiment)
+      |> EvidenceEngine.add_node(evidence.id, evidence)
 
     # Establish bidirectional relations
     state =
@@ -67,17 +100,33 @@ defmodule TiannaraOS.StateJTMSTest do
     assert :ev_1 in claim_node.justifications
   end
 
-  test "Belief degradation: partial evidence refutation degrades claim and theory confidence", %{state: state} do
+  test "Belief degradation: partial evidence refutation degrades claim and theory confidence", %{
+    state: state
+  } do
     # Set up theory with 1.0 confidence, claim with 0.8 confidence
-    theory = %EvidenceNode{id: :theory_1, type: :theory, name: "Theory 1", value: 1.0, validity: :valid}
-    claim = %EvidenceNode{id: :claim_1, type: :claim, name: "Claim 1", value: 0.8, validity: :valid}
+    theory = %EvidenceNode{
+      id: :theory_1,
+      type: :theory,
+      name: "Theory 1",
+      value: 1.0,
+      validity: :valid
+    }
+
+    claim = %EvidenceNode{
+      id: :claim_1,
+      type: :claim,
+      name: "Claim 1",
+      value: 0.8,
+      validity: :valid
+    }
+
     evidence = %EvidenceNode{id: :ev_1, type: :evidence, name: "Evidence 1", validity: :valid}
 
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim)
-      |> EvidenceEngine.add_node(evidence)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim.id, claim)
+      |> EvidenceEngine.add_node(evidence.id, evidence)
       |> EvidenceEngine.add_relation(:theory_1, :predicts, :claim_1)
       |> EvidenceEngine.add_relation(:ev_1, :supports, :claim_1)
 
@@ -87,7 +136,8 @@ defmodule TiannaraOS.StateJTMSTest do
     # Assert claim degrades confidence (0.8 * 0.7 = 0.56)
     claim_node = Map.get(state.evidence_graph, :claim_1)
     assert_in_delta claim_node.value, 0.56, 0.001
-    assert claim_node.validity == :valid # not invalid since >= 0.25
+    # not invalid since >= 0.25
+    assert claim_node.validity == :valid
 
     # Assert theory degrades confidence (average of active claims, which is 0.56)
     theory_node = Map.get(state.evidence_graph, :theory_1)
@@ -95,20 +145,43 @@ defmodule TiannaraOS.StateJTMSTest do
     assert theory_node.validity == :valid
   end
 
-  test "Cascade Invalidation: theory dropping below 0.25 is retired and invalidates predictions", %{state: state} do
-    theory = %EvidenceNode{id: :theory_1, type: :theory, name: "Theory 1", value: 0.3, validity: :valid}
-    claim = %EvidenceNode{id: :claim_1, type: :claim, name: "Claim 1", value: 0.3, validity: :valid}
+  test "Cascade Invalidation: theory dropping below 0.25 is retired and invalidates predictions",
+       %{state: state} do
+    theory = %EvidenceNode{
+      id: :theory_1,
+      type: :theory,
+      name: "Theory 1",
+      value: 0.3,
+      validity: :valid
+    }
+
+    claim = %EvidenceNode{
+      id: :claim_1,
+      type: :claim,
+      name: "Claim 1",
+      value: 0.3,
+      validity: :valid
+    }
+
     hyp = %EvidenceNode{id: :hyp_1, type: :hypothesis, name: "Hyp 1", validity: :valid}
-    exp = %EvidenceNode{id: :exp_1, type: :experiment, name: "Exp 1", value: 1.0, validity: :valid}
+
+    exp = %EvidenceNode{
+      id: :exp_1,
+      type: :experiment,
+      name: "Exp 1",
+      value: 1.0,
+      validity: :valid
+    }
+
     evidence = %EvidenceNode{id: :ev_1, type: :evidence, name: "Evidence 1", validity: :valid}
 
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim)
-      |> EvidenceEngine.add_node(hyp)
-      |> EvidenceEngine.add_node(exp)
-      |> EvidenceEngine.add_node(evidence)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim.id, claim)
+      |> EvidenceEngine.add_node(hyp.id, hyp)
+      |> EvidenceEngine.add_node(exp.id, exp)
+      |> EvidenceEngine.add_node(evidence.id, evidence)
       |> EvidenceEngine.add_relation(:theory_1, :predicts, :claim_1)
       |> EvidenceEngine.add_relation(:claim_1, :predicts, :hyp_1)
       |> EvidenceEngine.add_relation(:hyp_1, :tested_by, :exp_1)
@@ -134,19 +207,40 @@ defmodule TiannaraOS.StateJTMSTest do
 
     exp_node = Map.get(state.evidence_graph, :exp_1)
     assert exp_node.validity == :invalid
-    assert exp_node.value == 0.0 # priority deprecated
+    # priority deprecated
+    assert exp_node.value == 0.0
   end
 
   test "Replication threshold: 3 failed replications invalidates evidence", %{state: state} do
-    theory = %EvidenceNode{id: :theory_1, type: :theory, name: "Theory 1", value: 0.3, validity: :valid}
-    claim = %EvidenceNode{id: :claim_1, type: :claim, name: "Claim 1", value: 0.3, validity: :valid}
-    evidence = %EvidenceNode{id: :ev_1, type: :evidence, name: "Evidence 1", value: 1.0, validity: :valid}
+    theory = %EvidenceNode{
+      id: :theory_1,
+      type: :theory,
+      name: "Theory 1",
+      value: 0.3,
+      validity: :valid
+    }
+
+    claim = %EvidenceNode{
+      id: :claim_1,
+      type: :claim,
+      name: "Claim 1",
+      value: 0.3,
+      validity: :valid
+    }
+
+    evidence = %EvidenceNode{
+      id: :ev_1,
+      type: :evidence,
+      name: "Evidence 1",
+      value: 1.0,
+      validity: :valid
+    }
 
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim)
-      |> EvidenceEngine.add_node(evidence)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim.id, claim)
+      |> EvidenceEngine.add_node(evidence.id, evidence)
       |> EvidenceEngine.add_relation(:theory_1, :predicts, :claim_1)
       |> EvidenceEngine.add_relation(:ev_1, :supports, :claim_1)
 
@@ -159,7 +253,8 @@ defmodule TiannaraOS.StateJTMSTest do
     # 2. Second failed replication
     state = EvidenceEngine.register_failed_replication(state, :rep_2, :ev_1)
     ev_node = Map.get(state.evidence_graph, :ev_1)
-    assert_in_delta ev_node.value, 0.4, 0.001 # 0.8 * 0.5
+    # 0.8 * 0.5
+    assert_in_delta ev_node.value, 0.4, 0.001
     assert ev_node.validity == :contested
 
     # 3. Third failed replication triggers full refutation cascade (claim drops below 0.25)
@@ -174,19 +269,42 @@ defmodule TiannaraOS.StateJTMSTest do
     assert theory_node.validity == :invalid
   end
 
-  test "Event-driven updates: emits PubSub events during refutations and retirements", %{pubsub_active: pubsub_active, state: state} do
+  test "Event-driven updates: emits PubSub events during refutations and retirements", %{
+    pubsub_active: pubsub_active,
+    state: state
+  } do
     if pubsub_active do
-      theory = %EvidenceNode{id: :theory_1, type: :theory, name: "Theory 1", value: 0.3, validity: :valid}
-      claim = %EvidenceNode{id: :claim_1, type: :claim, name: "Claim 1", value: 0.3, validity: :valid}
+      theory = %EvidenceNode{
+        id: :theory_1,
+        type: :theory,
+        name: "Theory 1",
+        value: 0.3,
+        validity: :valid
+      }
+
+      claim = %EvidenceNode{
+        id: :claim_1,
+        type: :claim,
+        name: "Claim 1",
+        value: 0.3,
+        validity: :valid
+      }
+
       evidence = %EvidenceNode{id: :ev_1, type: :evidence, name: "Evidence 1", validity: :valid}
-      discovery = %EvidenceNode{id: :disc_1, type: :discovery, name: "Discovery 1", validity: :valid}
+
+      discovery = %EvidenceNode{
+        id: :disc_1,
+        type: :discovery,
+        name: "Discovery 1",
+        validity: :valid
+      }
 
       state =
         state
-        |> EvidenceEngine.add_node(theory)
-        |> EvidenceEngine.add_node(claim)
-        |> EvidenceEngine.add_node(evidence)
-        |> EvidenceEngine.add_node(discovery)
+        |> EvidenceEngine.add_node(theory.id, theory)
+        |> EvidenceEngine.add_node(claim.id, claim)
+        |> EvidenceEngine.add_node(evidence.id, evidence)
+        |> EvidenceEngine.add_node(discovery.id, discovery)
         |> EvidenceEngine.add_relation(:theory_1, :predicts, :claim_1)
         |> EvidenceEngine.add_relation(:ev_1, :supports, :claim_1)
         # discovery depends on theory_1
@@ -207,26 +325,40 @@ defmodule TiannaraOS.StateJTMSTest do
 
   test "Stress Test 1: Circular Dependency Survival", %{state: state} do
     # Theory A -> Claim A -> Exp A -> Ev A -> Theory B -> Claim B -> Exp B -> Ev B -> Theory A
-    t_a = %EvidenceNode{id: :theory_a, type: :theory, name: "Theory A", value: 0.8, validity: :valid}
+    t_a = %EvidenceNode{
+      id: :theory_a,
+      type: :theory,
+      name: "Theory A",
+      value: 0.8,
+      validity: :valid
+    }
+
     c_a = %EvidenceNode{id: :claim_a, type: :claim, name: "Claim A", value: 0.8, validity: :valid}
     e_a = %EvidenceNode{id: :exp_a, type: :experiment, name: "Exp A", validity: :valid}
     ev_a = %EvidenceNode{id: :ev_a, type: :evidence, name: "Ev A", validity: :valid}
 
-    t_b = %EvidenceNode{id: :theory_b, type: :theory, name: "Theory B", value: 0.8, validity: :valid}
+    t_b = %EvidenceNode{
+      id: :theory_b,
+      type: :theory,
+      name: "Theory B",
+      value: 0.8,
+      validity: :valid
+    }
+
     c_b = %EvidenceNode{id: :claim_b, type: :claim, name: "Claim B", value: 0.8, validity: :valid}
     e_b = %EvidenceNode{id: :exp_b, type: :experiment, name: "Exp B", validity: :valid}
     ev_b = %EvidenceNode{id: :ev_b, type: :evidence, name: "Ev B", validity: :valid}
 
     state =
       state
-      |> EvidenceEngine.add_node(t_a)
-      |> EvidenceEngine.add_node(c_a)
-      |> EvidenceEngine.add_node(e_a)
-      |> EvidenceEngine.add_node(ev_a)
-      |> EvidenceEngine.add_node(t_b)
-      |> EvidenceEngine.add_node(c_b)
-      |> EvidenceEngine.add_node(e_b)
-      |> EvidenceEngine.add_node(ev_b)
+      |> EvidenceEngine.add_node(t_a.id, t_a)
+      |> EvidenceEngine.add_node(c_a.id, c_a)
+      |> EvidenceEngine.add_node(e_a.id, e_a)
+      |> EvidenceEngine.add_node(ev_a.id, ev_a)
+      |> EvidenceEngine.add_node(t_b.id, t_b)
+      |> EvidenceEngine.add_node(c_b.id, c_b)
+      |> EvidenceEngine.add_node(e_b.id, e_b)
+      |> EvidenceEngine.add_node(ev_b.id, ev_b)
       |> EvidenceEngine.add_relation(:theory_a, :predicts, :claim_a)
       |> EvidenceEngine.add_relation(:claim_a, :predicts, :exp_a)
       |> EvidenceEngine.add_relation(:exp_a, :generates, :ev_a)
@@ -245,16 +377,31 @@ defmodule TiannaraOS.StateJTMSTest do
 
   test "Stress Test 2: Event Storm Resistance (Scale propagation)", %{state: state} do
     # Add 1 theory, 20 claims, 50 hypotheses, 100 experiments, 200 evidence nodes
-    theory = %EvidenceNode{id: :theory_scale, type: :theory, name: "Theory Scale", value: 0.9, validity: :valid}
-    state = EvidenceEngine.add_node(state, theory)
+    theory = %EvidenceNode{
+      id: :theory_scale,
+      type: :theory,
+      name: "Theory Scale",
+      value: 0.9,
+      validity: :valid
+    }
+
+    state = EvidenceEngine.add_node(state, theory.id, theory)
 
     # 1. Spawn claims
     state =
       Enum.reduce(1..20, state, fn i, acc ->
         claim_id = String.to_atom("claim_s_#{i}")
-        claim = %EvidenceNode{id: claim_id, type: :claim, name: "Claim #{i}", value: 0.9, validity: :valid}
+
+        claim = %EvidenceNode{
+          id: claim_id,
+          type: :claim,
+          name: "Claim #{i}",
+          value: 0.9,
+          validity: :valid
+        }
+
         acc
-        |> EvidenceEngine.add_node(claim)
+        |> EvidenceEngine.add_node(claim.id, claim)
         |> EvidenceEngine.add_relation(:theory_scale, :predicts, claim_id)
       end)
 
@@ -265,8 +412,9 @@ defmodule TiannaraOS.StateJTMSTest do
         hyp = %EvidenceNode{id: hyp_id, type: :hypothesis, name: "Hyp #{i}", validity: :valid}
         claim_index = rem(i, 20) + 1
         claim_id = String.to_atom("claim_s_#{claim_index}")
+
         acc
-        |> EvidenceEngine.add_node(hyp)
+        |> EvidenceEngine.add_node(hyp.id, hyp)
         |> EvidenceEngine.add_relation(claim_id, :predicts, hyp_id)
       end)
 
@@ -274,11 +422,20 @@ defmodule TiannaraOS.StateJTMSTest do
     state =
       Enum.reduce(1..100, state, fn i, acc ->
         exp_id = String.to_atom("exp_s_#{i}")
-        exp = %EvidenceNode{id: exp_id, type: :experiment, name: "Exp #{i}", value: 1.0, validity: :valid}
+
+        exp = %EvidenceNode{
+          id: exp_id,
+          type: :experiment,
+          name: "Exp #{i}",
+          value: 1.0,
+          validity: :valid
+        }
+
         hyp_index = rem(i, 50) + 1
         hyp_id = String.to_atom("hyp_s_#{hyp_index}")
+
         acc
-        |> EvidenceEngine.add_node(exp)
+        |> EvidenceEngine.add_node(exp.id, exp)
         |> EvidenceEngine.add_relation(hyp_id, :tested_by, exp_id)
       end)
 
@@ -291,8 +448,9 @@ defmodule TiannaraOS.StateJTMSTest do
         exp_id = String.to_atom("exp_s_#{exp_index}")
         claim_index = rem(i, 20) + 1
         claim_id = String.to_atom("claim_s_#{claim_index}")
+
         acc
-        |> EvidenceEngine.add_node(ev)
+        |> EvidenceEngine.add_node(ev.id, ev)
         |> EvidenceEngine.add_relation(exp_id, :generates, ev_id)
         |> EvidenceEngine.add_relation(ev_id, :supports, claim_id)
       end)
@@ -308,26 +466,48 @@ defmodule TiannaraOS.StateJTMSTest do
     # Invalidation should have happened to target claim/experiments recursively
     refuted_node = Map.get(updated_state.evidence_graph, :ev_s_1)
     assert refuted_node.validity == :invalid
-    assert duration < 200 # Must complete very quickly
+    # Must complete very quickly
+    assert duration < 200
   end
 
   test "Stress Test 3: Contradictory Evidence balance", %{state: state} do
     # Theory has 2 claims.
     # Claim A is supported by Ev A (valid).
     # Claim B is refuted by Ev B (invalidated).
-    theory = %EvidenceNode{id: :theory_t, type: :theory, name: "Theory T", value: 1.0, validity: :valid}
-    claim_a = %EvidenceNode{id: :claim_a, type: :claim, name: "Claim A", value: 0.9, validity: :valid}
-    claim_b = %EvidenceNode{id: :claim_b, type: :claim, name: "Claim B", value: 0.9, validity: :valid}
+    theory = %EvidenceNode{
+      id: :theory_t,
+      type: :theory,
+      name: "Theory T",
+      value: 1.0,
+      validity: :valid
+    }
+
+    claim_a = %EvidenceNode{
+      id: :claim_a,
+      type: :claim,
+      name: "Claim A",
+      value: 0.9,
+      validity: :valid
+    }
+
+    claim_b = %EvidenceNode{
+      id: :claim_b,
+      type: :claim,
+      name: "Claim B",
+      value: 0.9,
+      validity: :valid
+    }
+
     ev_a = %EvidenceNode{id: :ev_a, type: :evidence, name: "Ev A", validity: :valid}
     ev_b = %EvidenceNode{id: :ev_b, type: :evidence, name: "Ev B", validity: :valid}
 
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim_a)
-      |> EvidenceEngine.add_node(claim_b)
-      |> EvidenceEngine.add_node(ev_a)
-      |> EvidenceEngine.add_node(ev_b)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim_a.id, claim_a)
+      |> EvidenceEngine.add_node(claim_b.id, claim_b)
+      |> EvidenceEngine.add_node(ev_a.id, ev_a)
+      |> EvidenceEngine.add_node(ev_b.id, ev_b)
       |> EvidenceEngine.add_relation(:theory_t, :predicts, :claim_a)
       |> EvidenceEngine.add_relation(:theory_t, :predicts, :claim_b)
       |> EvidenceEngine.add_relation(:ev_a, :supports, :claim_a)
@@ -345,19 +525,36 @@ defmodule TiannaraOS.StateJTMSTest do
     # Verify Theory T average confidence is (0.9 + 0.63)/2 = 0.765
     theory_node = Map.get(state.evidence_graph, :theory_t)
     assert_in_delta theory_node.value, 0.765, 0.001
-    assert theory_node.validity == :valid # Since 0.765 >= 0.25, not retired!
+    # Since 0.765 >= 0.25, not retired!
+    assert theory_node.validity == :valid
   end
 
-  test "Metadata updates: records provenance, confidence history, and last_updated_at", %{state: state} do
-    theory = %EvidenceNode{id: :theory_t, type: :theory, name: "Theory T", value: 1.0, validity: :valid}
-    claim = %EvidenceNode{id: :claim_c, type: :claim, name: "Claim C", value: 1.0, validity: :valid}
+  test "Metadata updates: records provenance, confidence history, and last_updated_at", %{
+    state: state
+  } do
+    theory = %EvidenceNode{
+      id: :theory_t,
+      type: :theory,
+      name: "Theory T",
+      value: 1.0,
+      validity: :valid
+    }
+
+    claim = %EvidenceNode{
+      id: :claim_c,
+      type: :claim,
+      name: "Claim C",
+      value: 1.0,
+      validity: :valid
+    }
+
     evidence = %EvidenceNode{id: :ev_e, type: :evidence, name: "Ev E", validity: :valid}
 
     state =
       state
-      |> EvidenceEngine.add_node(theory)
-      |> EvidenceEngine.add_node(claim)
-      |> EvidenceEngine.add_node(evidence)
+      |> EvidenceEngine.add_node(theory.id, theory)
+      |> EvidenceEngine.add_node(claim.id, claim)
+      |> EvidenceEngine.add_node(evidence.id, evidence)
       |> EvidenceEngine.add_relation(:theory_t, :predicts, :claim_c)
       |> EvidenceEngine.add_relation(:ev_e, :supports, :claim_c)
 
@@ -371,14 +568,24 @@ defmodule TiannaraOS.StateJTMSTest do
 
     # Verify claim metadata
     claim_node = Map.get(state.evidence_graph, :claim_c)
-    assert Enum.any?(claim_node.metadata.provenance, &String.contains?(&1, "degraded_by_evidence:ev_e"))
+
+    assert Enum.any?(
+             claim_node.metadata.provenance,
+             &String.contains?(&1, "degraded_by_evidence:ev_e")
+           )
+
     assert length(claim_node.metadata.confidence_history) > 0
     [first_history_entry | _] = claim_node.metadata.confidence_history
     assert_in_delta first_history_entry.value, 0.7, 0.001
 
     # Verify theory metadata
     theory_node = Map.get(state.evidence_graph, :theory_t)
-    assert Enum.any?(theory_node.metadata.provenance, &String.contains?(&1, "recalculated_from_claim:claim_c"))
+
+    assert Enum.any?(
+             theory_node.metadata.provenance,
+             &String.contains?(&1, "recalculated_from_claim:claim_c")
+           )
+
     assert length(theory_node.metadata.confidence_history) > 0
     [theory_history_entry | _] = theory_node.metadata.confidence_history
     assert_in_delta theory_history_entry.value, 0.7, 0.001

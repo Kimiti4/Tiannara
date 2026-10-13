@@ -2,10 +2,17 @@ defmodule Tiannara.Test.Phase3Helpers do
   import ExUnit.Assertions
 
   alias Tiannara.World.{
-    UnifiedWorldModel, UnifiedRealityGraph, WorldMutationEngine,
-    ProvenanceEngine, VersionManager, ConflictResolutionEngine,
-    KnowledgeCoordinator, CanonicalWorldState, BeliefState,
-    SnapshotManager, OntologyManager
+    UnifiedWorldModel,
+    UnifiedRealityGraph,
+    WorldMutationEngine,
+    ProvenanceEngine,
+    VersionManager,
+    ConflictResolutionEngine,
+    KnowledgeCoordinator,
+    CanonicalWorldState,
+    BeliefState,
+    SnapshotManager,
+    OntologyManager
   }
 
   def unique_id(prefix \\ "test") do
@@ -48,10 +55,48 @@ defmodule Tiannara.Test.Phase3Helpers do
     end
   end
 
+  @doc """
+  Mints, registers and one-shot binds a machine-class authorization for a
+  governed `UnifiedWorldModel.delete_entity/2` call: obtains a real council
+  decision, wraps it (M2), registry-records the mint (M7) and binds it to the
+  entity's canonical effect descriptor (M3). Fails loudly (MatchError) if any
+  step is refused — tests must never fall back to an ungated delete.
+  """
+  def mint_delete_authorization(entity_id) do
+    decision =
+      Tiannara.Council.authorize(
+        :world_mutation,
+        %{
+          mutation_type: :delete_entity,
+          mutation_spec: %{id: entity_id},
+          context: nil,
+          evidence: [%{source: :world_model_test}],
+          actor: :phase3_test,
+          coherent_with_mission: true,
+          degradation_handled: true
+        },
+        nil
+      )
+
+    {:ok, authorization} =
+      Tiannara.Council.MachineAuthorization.mint(decision, decision_type: :delete_entity)
+
+    {:ok, bound} =
+      Tiannara.Council.MachineAuthorization.bind_effect(
+        authorization,
+        UnifiedWorldModel.effect_descriptor(entity_id)
+      )
+
+    bound
+  end
+
   def refute_entity_exists(entity_id) do
     case UnifiedWorldModel.get_entity(entity_id) do
-      {:error, _} -> :ok
-      {:ok, entity} -> flunk("Expected entity #{entity_id} to not exist, found: #{inspect(entity)}")
+      {:error, _} ->
+        :ok
+
+      {:ok, entity} ->
+        flunk("Expected entity #{entity_id} to not exist, found: #{inspect(entity)}")
     end
   end
 

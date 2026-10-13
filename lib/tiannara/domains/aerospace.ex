@@ -10,7 +10,9 @@ defmodule Tiannara.Domains.Aerospace do
   def evaluate(%{prior: p, likelihood: l, evidence: e}), do: Probability.bayes_update(p, l, e)
 
   @impl true
-  def simulate(hypothesis, context), do: {:ok, %{hypothesis: hypothesis, simulation_result: :flight_worthy, context: context}}
+  # D-A3 quarantine (2026-09-23): constant verdict with no computation - fabricated domain evidence.
+  # Fails closed until a real simulator exists.
+  def simulate(_hypothesis, _context), do: {:error, :simulation_unavailable}
 
   @impl true
   def generate_hypotheses(_context), do: {:ok, []}
@@ -28,6 +30,14 @@ defmodule Tiannara.Domains.Aerospace do
 
   @impl true
   def metrics do
-    %{active_hypotheses: 52, open_experiments: 16, discoveries_this_cycle: 2, knowledge_growth_rate: 0.06, evidence_quality_score: 0.87, hypotheses_generated: 52, experiments_completed: 16}
+    %{
+      active_hypotheses: 52,
+      open_experiments: 16,
+      discoveries_this_cycle: 2,
+      knowledge_growth_rate: 0.06,
+      evidence_quality_score: 0.87,
+      hypotheses_generated: 52,
+      experiments_completed: 16
+    }
   end
 end

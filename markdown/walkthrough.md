@@ -1,5 +1,16 @@
 # Phase 13 Walkthrough: The Capability Ecology
 
+> **⚠️ MOCKED-INFERENCE DISCLAIMER (added 2026-10-13, doc-vs-reality audit)**
+> The "real LLM inference", "unprompted invention", and "agentic coder" claims below
+> are driven by a **mocked LLMGateway**. `lib/tiannara/asc/cognition/llm_gateway.ex:44-67`
+> returns two **hardcoded JSON strings** keyed on a prompt substring
+> ("MOCKED FOR WALKTHROUGH: In reality, this is `Req.post(...)`"); the schema argument
+> to `parse_and_validate/2` is ignored. `CapabilityInventor` and `AgenticCoder` both
+> consume only this canned output. The Phase 9 `HeuristicLLM` simulator
+> (`lib/tiannara/asc/civilization/heuristic_llm.ex`) is still the only `LLMProvider`
+> implementation; no real-API provider exists. Treat transcripts below as fixture
+> demonstrations of the pipeline wiring, not evidence of cognitive inference.
+
 Tiannara has dismantled the static pipeline. In its place, it has cultivated a living Capability Ecology.
 
 By reaching this phase, Tiannara crossed the ultimate threshold for an autonomous system: **Unprompted Capability Creation**.

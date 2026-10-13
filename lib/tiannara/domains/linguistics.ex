@@ -11,7 +11,9 @@ defmodule Tiannara.Domains.Linguistics do
   end
 
   @impl true
-  def simulate(hypothesis, context), do: {:ok, %{hypothesis: hypothesis, simulation_result: :coherent_language, context: context}}
+  # D-A3 quarantine (2026-09-23): constant verdict with no computation - fabricated domain evidence.
+  # Fails closed until a real simulator exists.
+  def simulate(_hypothesis, _context), do: {:error, :simulation_unavailable}
 
   @impl true
   def generate_hypotheses(_context), do: {:ok, []}
@@ -20,13 +22,23 @@ defmodule Tiannara.Domains.Linguistics do
   def design_experiments(_hypothesis), do: {:ok, []}
 
   @impl true
-  def validate(_experiment), do: {:ok, %{valid: true}}
+  # D-A3 quarantine (2026-09-23): unconditional validity with no verification - fabricated domain evidence.
+  # Fails closed until real verification exists.
+  def validate(_experiment), do: {:error, :validation_unavailable}
 
   @impl true
   def translate(_hypothesis), do: {:ok, %{engineering_applications: [:nlp_model]}}
 
   @impl true
   def metrics do
-    %{active_hypotheses: 37, open_experiments: 9, discoveries_this_cycle: 2, knowledge_growth_rate: 0.08, evidence_quality_score: 0.81, hypotheses_generated: 37, experiments_completed: 9}
+    %{
+      active_hypotheses: 37,
+      open_experiments: 9,
+      discoveries_this_cycle: 2,
+      knowledge_growth_rate: 0.08,
+      evidence_quality_score: 0.81,
+      hypotheses_generated: 37,
+      experiments_completed: 9
+    }
   end
 end

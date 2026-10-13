@@ -40,9 +40,11 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
   @impl true
   def constitutional_score do
     stats = if Process.whereis(__MODULE__), do: GenServer.call(__MODULE__, :stats), else: %{}
+
     %Tiannara.CEL.Kernel.ConstitutionalScore{
       service_id: id(),
-      health: if(stats[:snapshots_generated] && stats[:snapshots_generated] > 0, do: 1.0, else: 0.5),
+      health:
+        if(stats[:snapshots_generated] && stats[:snapshots_generated] > 0, do: 1.0, else: 0.5),
       constitutional_alignment: 1.0,
       transparency: 1.0,
       explainability: 1.0,
@@ -67,15 +69,20 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
   @impl true
   def init(_opts) do
     schedule_snapshot()
-    {:ok, %{
-      current_snapshot: ExecutiveState.new(),
-      snapshots_generated: 0,
-      last_snapshot_at: nil,
-      healthy: true
-    }}
+
+    {:ok,
+     %{
+       current_snapshot: ExecutiveState.new(),
+       snapshots_generated: 0,
+       last_snapshot_at: nil,
+       healthy: true
+     }}
   end
 
   # ── handle_call ───────────────────────────────────────────────────
+
+  @impl true
+  def handle_call(:state, _from, state), do: {:reply, state.current_snapshot, state}
 
   @impl true
   def handle_call(:current_state, _from, state) do
@@ -85,20 +92,24 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
   @impl true
   def handle_call(:force_snapshot, _from, state) do
     new_snapshot = build_snapshot(state.current_snapshot)
-    {:reply, :ok, %{state |
-      current_snapshot: new_snapshot,
-      snapshots_generated: state.snapshots_generated + 1,
-      last_snapshot_at: DateTime.utc_now()
-    }}
+
+    {:reply, :ok,
+     %{
+       state
+       | current_snapshot: new_snapshot,
+         snapshots_generated: state.snapshots_generated + 1,
+         last_snapshot_at: DateTime.utc_now()
+     }}
   end
 
   @impl true
   def handle_call(:stats, _from, state) do
-    {:reply, %{
-      healthy: state.healthy,
-      snapshots_generated: state.snapshots_generated,
-      last_snapshot_at: state.last_snapshot_at
-    }, state}
+    {:reply,
+     %{
+       healthy: state.healthy,
+       snapshots_generated: state.snapshots_generated,
+       last_snapshot_at: state.last_snapshot_at
+     }, state}
   end
 
   # ── handle_info ───────────────────────────────────────────────────
@@ -123,37 +134,41 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
 
     schedule_snapshot()
 
-    {:noreply, %{state |
-      current_snapshot: new_snapshot,
-      snapshots_generated: state.snapshots_generated + 1,
-      last_snapshot_at: DateTime.utc_now()
-    }}
+    {:noreply,
+     %{
+       state
+       | current_snapshot: new_snapshot,
+         snapshots_generated: state.snapshots_generated + 1,
+         last_snapshot_at: DateTime.utc_now()
+     }}
   end
 
   # ── Private: State Aggregation ────────────────────────────────────
 
   defp build_snapshot(previous) do
-    base = %{previous |
-      snapshot_id: "snap_#{:crypto.strong_rand_bytes(8) |> Base.encode16(case: :lower)}",
-      generated_at: DateTime.utc_now()
+    base = %{
+      previous
+      | snapshot_id: "snap_#{:crypto.strong_rand_bytes(8) |> Base.encode16(case: :lower)}",
+        generated_at: DateTime.utc_now()
     }
 
-    base = %{base |
-      constitution_version: get_constitution_version(),
-      kernel_state: get_kernel_state(),
-      constitutional_status: get_constitutional_status(),
-      active_human_reviews: get_human_review_count(),
-      policy_version: "1.0.0",
-      service_health: get_service_health(),
-      resource_allocation: get_resource_allocation(),
-      scheduling_state: get_scheduling_state(),
-      active_missions: get_mission_state(),
-      active_workflows: get_workflow_state(),
-      workflow_bottlenecks: get_workflow_bottlenecks(),
-      capability_snapshot: get_capability_snapshot(),
-      knowledge_ingestion_rate: get_knowledge_ingestion_rate(),
-      anomalies_detected: detect_anomalies(base),
-      confidence: calculate_snapshot_confidence(base)
+    base = %{
+      base
+      | constitution_version: get_constitution_version(),
+        kernel_state: get_kernel_state(),
+        constitutional_status: get_constitutional_status(),
+        active_human_reviews: get_human_review_count(),
+        policy_version: "1.0.0",
+        service_health: get_service_health(),
+        resource_allocation: get_resource_allocation(),
+        scheduling_state: get_scheduling_state(),
+        active_missions: get_mission_state(),
+        active_workflows: get_workflow_state(),
+        workflow_bottlenecks: get_workflow_bottlenecks(),
+        capability_snapshot: get_capability_snapshot(),
+        knowledge_ingestion_rate: get_knowledge_ingestion_rate(),
+        anomalies_detected: detect_anomalies(base),
+        confidence: calculate_snapshot_confidence(base)
     }
 
     base
@@ -192,11 +207,13 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
 
   defp get_service_health do
     scores = Tiannara.CEL.Services.ConstitutionalScorePipeline.all_scores()
+
     Map.new(scores, fn {service_id, score} ->
-      {service_id, %{
-        status: score.health > 0.8 and score.evidence_quality > 0.5,
-        constitutional_score: score_to_aggregate(score)
-      }}
+      {service_id,
+       %{
+         status: score.health > 0.8 and score.evidence_quality > 0.5,
+         constitutional_score: score_to_aggregate(score)
+       }}
     end)
   rescue
     _ -> %{}
@@ -209,7 +226,13 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
     |> Map.new(fn {resource, details} ->
       capacity = details.total || 100.0
       allocated = details.used || 0.0
-      {resource, %{capacity: capacity, allocated: allocated, bottleneck_flag: allocated / max(1, capacity) > 0.8}}
+
+      {resource,
+       %{
+         capacity: capacity,
+         allocated: allocated,
+         bottleneck_flag: allocated / max(1, capacity) > 0.8
+       }}
     end)
   rescue
     _ -> %{}
@@ -217,6 +240,7 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
 
   defp get_scheduling_state do
     stats = Tiannara.CEL.Services.ExecutiveScheduler.stats()
+
     %{
       queue_depth: stats.queue_length || 0,
       active_jobs: stats.running_count || 0,
@@ -228,9 +252,11 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
 
   defp get_mission_state do
     missions = Tiannara.CEL.Services.MissionDirector.active_missions()
+
     %{
       count: length(missions),
-      status_summary: missions |> Enum.group_by(& &1.status) |> Map.new(fn {k, v} -> {k, length(v)} end)
+      status_summary:
+        missions |> Enum.group_by(& &1.status) |> Map.new(fn {k, v} -> {k, length(v)} end)
     }
   rescue
     _ -> %{count: 0, status_summary: %{}}
@@ -238,9 +264,11 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
 
   defp get_workflow_state do
     workflows = Tiannara.CEL.Services.WorkflowEngine.active_workflows()
+
     %{
       count: length(workflows),
-      status_summary: workflows |> Enum.group_by(& &1.status) |> Map.new(fn {k, v} -> {k, length(v)} end)
+      status_summary:
+        workflows |> Enum.group_by(& &1.status) |> Map.new(fn {k, v} -> {k, length(v)} end)
     }
   rescue
     _ -> %{count: 0, status_summary: %{}}
@@ -255,6 +283,7 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
 
   defp get_capability_snapshot do
     stats = CapabilityGraph.stats()
+
     %{
       total: stats.capability_count || 0,
       spof: stats.single_points_of_failure || 0,
@@ -268,30 +297,54 @@ defmodule Tiannara.CEL.Services.ExecutiveStateManager do
 
   defp detect_anomalies(state) do
     []
-    |> maybe_add_anomaly(state.scheduling_state.starvation_warnings > 0,
-      fn -> %{type: :scheduling_starvation, severity: :high, details: state.scheduling_state.starvation_warnings} end)
-    |> maybe_add_anomaly(state.capability_snapshot.spof > 5,
-      fn -> %{type: :high_spof_count, severity: :medium, details: state.capability_snapshot.spof} end)
+    |> maybe_add_anomaly(
+      state.scheduling_state.starvation_warnings > 0,
+      fn ->
+        %{
+          type: :scheduling_starvation,
+          severity: :high,
+          details: state.scheduling_state.starvation_warnings
+        }
+      end
+    )
+    |> maybe_add_anomaly(
+      state.capability_snapshot.spof > 5,
+      fn ->
+        %{type: :high_spof_count, severity: :medium, details: state.capability_snapshot.spof}
+      end
+    )
     |> maybe_add_anomaly(
       state.resource_allocation |> Map.values() |> Enum.any?(& &1.bottleneck_flag),
-      fn -> %{type: :resource_bottleneck, severity: :high, details: "One or more resources > 80% utilized"} end)
+      fn ->
+        %{
+          type: :resource_bottleneck,
+          severity: :high,
+          details: "One or more resources > 80% utilized"
+        }
+      end
+    )
   end
 
   defp maybe_add_anomaly(list, true, anomaly_fn), do: [anomaly_fn.() | list]
   defp maybe_add_anomaly(list, false, _), do: list
 
   defp calculate_snapshot_confidence(state) do
-    missing = [:resource_manager, :capability_graph, :workflow_engine]
-               |> Enum.count(fn svc -> not Map.has_key?(state.service_health, svc) end)
-    max(0.0, 1.0 - (missing * 0.2))
+    missing =
+      [:resource_manager, :capability_graph, :workflow_engine]
+      |> Enum.count(fn svc -> not Map.has_key?(state.service_health, svc) end)
+
+    max(0.0, 1.0 - missing * 0.2)
   end
 
   defp score_to_aggregate(%{health: h, constitutional_alignment: ca, evidence_quality: eq}) do
     h * 0.4 + ca * 0.3 + eq * 0.3
   end
+
   defp score_to_aggregate(_), do: 0.5
 
   defp schedule_snapshot do
-    Process.send_after(self(), :generate_snapshot, @snapshot_interval)
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :generate_snapshot, @snapshot_interval)
+    end
   end
 end

@@ -8,22 +8,44 @@ defmodule Tiannara.Omega.DeploymentGateway.DeploymentRegistry do
   "Support reproducibility."
   """
 
-  def record_deployment(authorization_id, deployment_id, path) do
+  def record_deployment(authorization_id, effect_identity, deployment_id, path) do
     File.mkdir_p!(Path.dirname(path))
-    entry = {authorization_id, deployment_id, System.system_time(:millisecond)}
+    entry = {authorization_id, effect_identity, deployment_id, System.system_time(:millisecond)}
     serialized = :erlang.term_to_binary(entry)
     File.write(path, [<<byte_size(serialized)::32>>, serialized], [:append])
   end
 
-  def already_deployed?(authorization_id, path) do
+  def deployment_status(authorization_id, effect_identity, path) do
     case File.read(path) do
       {:ok, content} ->
         content
         |> decode_records()
-        |> Enum.any?(fn {aid, _did, _ts} -> aid == authorization_id end)
+        |> status_for(authorization_id, effect_identity)
 
       _ ->
-        false
+        :not_deployed
+    end
+  end
+
+  defp status_for(records, authorization_id, effect_identity) do
+    case Enum.find(records, fn
+           {^authorization_id, ^effect_identity, _deployment_id, _timestamp} -> true
+           {^authorization_id, _legacy_deployment_id, _legacy_timestamp} -> true
+           _ -> false
+         end) do
+      {^authorization_id, ^effect_identity, _deployment_id, _timestamp} ->
+        :same_effect
+
+      {^authorization_id, _legacy_deployment_id, _legacy_timestamp} ->
+        :different_effect
+
+      nil ->
+        if Enum.any?(records, fn
+             {^authorization_id, _other_effect, _deployment_id, _timestamp} -> true
+             _ -> false
+           end),
+           do: :different_effect,
+           else: :not_deployed
     end
   end
 

@@ -8,7 +8,8 @@ defmodule Tiannara.Interface.ProactiveNotifierTest do
       type: opts[:type] || :anomaly,
       source: opts[:source] || :sentinel,
       severity: opts[:severity] || :warning,
-      domain: :memory, signal: "leak",
+      domain: :memory,
+      signal: "leak",
       title: opts[:title] || "Memory leak detected",
       confidence: opts[:confidence] || 0.85,
       rationale: "Memory growth detected",
@@ -33,11 +34,29 @@ defmodule Tiannara.Interface.ProactiveNotifierTest do
       st = ProactiveNotifier.status()
       limit = st.rate_limit_per_hour
       remaining = limit - st.window_count
+
       for i <- 1..remaining do
-        d = sample_discovery(type: :other, title: "rate_fill_#{i}", source: "rate_fill_#{i}", severity: :info, confidence: 0.5)
+        d =
+          sample_discovery(
+            type: :other,
+            title: "rate_fill_#{i}",
+            source: "rate_fill_#{i}",
+            severity: :info,
+            confidence: 0.5
+          )
+
         assert {:ok, _} = ProactiveNotifier.notify(d)
       end
-      extra = sample_discovery(type: :other, title: "rate_extra", source: :rate_extra, severity: :info, confidence: 0.5)
+
+      extra =
+        sample_discovery(
+          type: :other,
+          title: "rate_extra",
+          source: :rate_extra,
+          severity: :info,
+          confidence: 0.5
+        )
+
       assert {:error, :rate_limited} = ProactiveNotifier.notify(extra)
     end
 
@@ -47,25 +66,27 @@ defmodule Tiannara.Interface.ProactiveNotifierTest do
 
       if remaining > 0 do
         for i <- 1..remaining do
-          d = sample_discovery(
-            type: :other,
-            title: "confidence_fill_#{i}",
-            source: "confidence_fill_#{i}",
-            severity: :info,
-            confidence: 0.5
-          )
+          d =
+            sample_discovery(
+              type: :other,
+              title: "confidence_fill_#{i}",
+              source: "confidence_fill_#{i}",
+              severity: :info,
+              confidence: 0.5
+            )
 
           assert {:ok, _} = ProactiveNotifier.notify(d)
         end
       end
 
-      urgent = sample_discovery(
-        type: :other,
-        title: "high_confidence_urgent",
-        source: :high_confidence_urgent,
-        severity: :info,
-        confidence: 0.99
-      )
+      urgent =
+        sample_discovery(
+          type: :other,
+          title: "high_confidence_urgent",
+          source: :high_confidence_urgent,
+          severity: :info,
+          confidence: 0.99
+        )
 
       assert {:error, :rate_limited} = ProactiveNotifier.notify(urgent)
     end
@@ -74,25 +95,49 @@ defmodule Tiannara.Interface.ProactiveNotifierTest do
       st = ProactiveNotifier.status()
       limit = st.rate_limit_per_hour
       remaining = limit - st.window_count
+
       for i <- 1..max(remaining, 1) do
-        d = sample_discovery(type: :other, title: "emerg_fill_#{i}", source: "emerg_fill_#{i}", severity: :info, confidence: 0.5)
+        d =
+          sample_discovery(
+            type: :other,
+            title: "emerg_fill_#{i}",
+            source: "emerg_fill_#{i}",
+            severity: :info,
+            confidence: 0.5
+          )
+
         ProactiveNotifier.notify(d)
       end
-      assert {:ok, _} = ProactiveNotifier.notify(sample_discovery(severity: :emergency, source: :emergency_bypass))
+
+      assert {:ok, _} =
+               ProactiveNotifier.notify(
+                 sample_discovery(severity: :emergency, source: :emergency_bypass)
+               )
     end
   end
 
   describe "pending" do
     test "returns unacknowledged notifications sorted" do
       before = length(ProactiveNotifier.pending())
-      assert {:ok, _id} = ProactiveNotifier.notify(sample_discovery(title: "pending_first", source: :pending_a))
+
+      assert {:ok, _id} =
+               ProactiveNotifier.notify(
+                 sample_discovery(
+                   title: "pending_first",
+                   source: :pending_a,
+                   severity: :emergency
+                 )
+               )
+
       assert length(ProactiveNotifier.pending()) == before + 1
     end
   end
 
   describe "acknowledge" do
     test "marks notification as acknowledged" do
-      assert {:ok, id} = ProactiveNotifier.notify(sample_discovery(source: :ack_test))
+      assert {:ok, id} =
+               ProactiveNotifier.notify(sample_discovery(source: :ack_test, severity: :emergency))
+
       assert :ok = ProactiveNotifier.acknowledge(id)
       assert Enum.find(ProactiveNotifier.pending(), fn n -> n.id == id end) == nil
     end
@@ -105,13 +150,23 @@ defmodule Tiannara.Interface.ProactiveNotifierTest do
   describe "metrics" do
     test "pending_count returns correct count" do
       before = ProactiveNotifier.pending_count()
-      ProactiveNotifier.notify(sample_discovery(source: :metric_m1))
+
+      assert {:ok, _} =
+               ProactiveNotifier.notify(
+                 sample_discovery(source: :metric_m1, severity: :emergency)
+               )
+
       assert ProactiveNotifier.pending_count() == before + 1
     end
 
     test "total_sent returns correct count" do
       before = ProactiveNotifier.total_sent()
-      ProactiveNotifier.notify(sample_discovery(source: :metric_ts1))
+
+      assert {:ok, _} =
+               ProactiveNotifier.notify(
+                 sample_discovery(source: :metric_ts1, severity: :emergency)
+               )
+
       assert ProactiveNotifier.total_sent() == before + 1
     end
   end

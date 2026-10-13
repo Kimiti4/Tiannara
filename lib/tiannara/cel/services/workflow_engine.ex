@@ -620,8 +620,14 @@ defmodule Tiannara.CEL.Services.WorkflowEngine do
 
       updated = %{
         workflow
-        | context: Map.put(workflow.context || %{}, :retry_counts, Map.put(retry_counts, step.id, retry_count + 1))
+        | context:
+            Map.put(
+              workflow.context || %{},
+              :retry_counts,
+              Map.put(retry_counts, step.id, retry_count + 1)
+            )
       }
+
       persist_workflow(updated)
       emit_event(:step_retrying, workflow.id, %{step_id: step.id, attempt: retry_count + 1})
 
@@ -791,8 +797,9 @@ defmodule Tiannara.CEL.Services.WorkflowEngine do
   defp recover_interrupted_workflows do
     :dets.traverse(@dets_table, fn
       {_id, %{status: :running} = wf} -> {:continue, wf}
-      _ -> {:continue}
+      _ -> {:continue, nil}
     end)
+    |> Enum.reject(&is_nil/1)
     |> Enum.map(fn wf ->
       recovered = %{
         wf

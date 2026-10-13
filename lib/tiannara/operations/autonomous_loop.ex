@@ -15,14 +15,15 @@ defmodule Tiannara.Operations.AutonomousLoop do
     Logger.info("AutonomousLoop: Starting Tiannara autonomous operations")
     schedule_loop()
 
-    {:ok, %{
-      cycles_completed: 0,
-      last_cycle_at: nil,
-      anomalies_detected: 0,
-      recoveries_performed: 0,
-      discoveries_triggered: 0,
-      started_at: DateTime.utc_now()
-    }}
+    {:ok,
+     %{
+       cycles_completed: 0,
+       last_cycle_at: nil,
+       anomalies_detected: 0,
+       recoveries_performed: 0,
+       discoveries_triggered: 0,
+       started_at: DateTime.utc_now()
+     }}
   end
 
   @impl true
@@ -65,12 +66,13 @@ defmodule Tiannara.Operations.AutonomousLoop do
       Logger.warning("AutonomousLoop: Cycle took #{cycle_duration}ms (> 5s)")
     end
 
-    %{state |
-      cycles_completed: state.cycles_completed + 1,
-      last_cycle_at: DateTime.utc_now(),
-      anomalies_detected: state.anomalies_detected + length(anomalies),
-      recoveries_performed: state.recoveries_performed + length(recoveries),
-      discoveries_triggered: state.discoveries_triggered + discoveries
+    %{
+      state
+      | cycles_completed: state.cycles_completed + 1,
+        last_cycle_at: DateTime.utc_now(),
+        anomalies_detected: state.anomalies_detected + length(anomalies),
+        recoveries_performed: state.recoveries_performed + length(recoveries),
+        discoveries_triggered: state.discoveries_triggered + discoveries
     }
   end
 
@@ -128,5 +130,9 @@ defmodule Tiannara.Operations.AutonomousLoop do
     end
   end
 
-  defp schedule_loop, do: Process.send_after(self(), :run_loop, @loop_interval)
+  defp schedule_loop do
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :run_loop, @loop_interval)
+    end
+  end
 end

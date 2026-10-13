@@ -20,7 +20,11 @@ defmodule Tiannara.ASC.Core.ResilienceTest do
   alias Tiannara.ASC.Core.{Coordinator, Supervisor, Worker}
 
   setup do
-    start_supervised!(Supervisor)
+    case Process.whereis(Supervisor) do
+      nil -> start_supervised!(Supervisor)
+      _pid -> :ok
+    end
+
     :ok
   end
 

@@ -1,5 +1,15 @@
 # Layer 6 Complete Report: Truth Maintenance → Production → Selection
 
+> **⚠️ SIMULATION-ONLY DISCLAIMER (added 2026-10-13, doc-vs-reality audit)**
+> The "38.4M validated discoveries" and "54.8% conversion rate — PROVEN" claims below
+> come from **test-fixture simulations**, not production execution.
+> `simulate_validation` in `test/tiannara/os/layer6_5b_tier4_fullscale_test.exs:244`
+> is a coin flip (`:rand.uniform() < probability`) producing no Discovery/evidence
+> artifacts. The Layer 6.5 stack (DiscoveryAssetEconomy, DiscoveryExchange,
+> WorldTemplate) is **not wired into the runtime** — `application.ex` starts only
+> `TiannaraOS.CivilizationKernel` from the OS layer. Treat all scale numbers as
+> simulated fixture output.
+
 **Date**: June 13, 2026  
 **Status**: ✅ **COMPLETE** (with 3 tuning issues identified)  
 **Scope**: Layers 6.5A, 6.5B, 6.5C - The Evolutionary Triad

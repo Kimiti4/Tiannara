@@ -1,16 +1,31 @@
 defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
-  alias Tiannara.Omega.{DeploymentGateway, ExperimentGenerator, PatchGenerator}
+  alias Tiannara.Council.AuditLog
+  alias Tiannara.Omega.{DeploymentGateway, ExperimentGenerator, MintRegistry, PatchGenerator}
   alias Tiannara.Omega.PatchGenerator.Candidate
   alias Tiannara.Omega.HumanDelivery.{Authorization, AuthenticatedHumanIdentity}
 
   @moduletag :deployment_gateway_adversarial
 
+  setup do
+    unless Process.whereis(MintRegistry), do: start_supervised!(MintRegistry)
+    unless Process.whereis(AuditLog), do: start_supervised!(AuditLog)
+    :ok
+  end
+
   defp approved_candidate_with_grant do
     # Build a full approved candidate + grant
-    proposal = %{id: :prop_1, hypothesis_id: :hyp_1, statement: "test", type: :memory,
-                 falsifier: "f", rank: 1, status: :proposed}
+    proposal = %{
+      id: :prop_1,
+      hypothesis_id: :hyp_1,
+      statement: "test",
+      type: :memory,
+      falsifier: "f",
+      rank: 1,
+      status: :proposed
+    }
+
     {:ok, spec} = ExperimentGenerator.design(proposal)
     {:ok, candidate} = PatchGenerator.generate(spec)
 
@@ -22,15 +37,28 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
     {:ok, approved} = Candidate.transition(c4, :approved)
 
     # Authenticate a human and grant authorization
-    {:ok, identity} = AuthenticatedHumanIdentity.authenticate(:human_1, "secret_credential", :password)
+    {:ok, identity} =
+      AuthenticatedHumanIdentity.authenticate(:human_1, "secret_credential", :password)
+
     {:ok, auth} = Authorization.prepare(%{explanation_id: :prop_1})
     {:ok, pending} = Authorization.request(auth)
 
     content_hash = DeploymentGateway.content_hash(approved)
-    {:ok, grant} = Authorization.human_grant(pending, :human_1,
-      ttl: 3600, candidate_content_hash: content_hash)
 
-    {approved, %{verdict: :certified}, [:obs_1, :hyp_1, :prop_1], grant, identity}
+    {:ok, grant} =
+      Authorization.human_grant(pending, identity,
+        ttl: 3600,
+        candidate_content_hash: content_hash
+      )
+
+    # Durable mint + one-shot effect binding (M4/M7): the gateway refuses
+    # grants without a registered mint record and a binding to this effect.
+    # Minting goes through the allowlisted Authorization module (R-2 minter gate).
+    :ok = Authorization.record_mint(grant.authorization_id)
+    {:ok, bound} = Authorization.bind_effect(grant, DeploymentGateway.effect_descriptor(approved))
+    :ok = MintRegistry.record_bind(bound.authorization_id, bound.effect_id)
+
+    {approved, %{verdict: :certified}, [:obs_1, :hyp_1, :prop_1], bound, identity}
   end
 
   test "LEGITIMATE: full valid chain deploys successfully" do
@@ -54,8 +82,16 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
     {candidate, cert, lineage, grant, identity} = approved_candidate_with_grant()
 
     # Build a DIFFERENT candidate
-    proposal = %{id: :prop_OTHER, hypothesis_id: :hyp_2, statement: "other", type: :memory,
-                 falsifier: "f", rank: 1, status: :proposed}
+    proposal = %{
+      id: :prop_OTHER,
+      hypothesis_id: :hyp_2,
+      statement: "other",
+      type: :memory,
+      falsifier: "f",
+      rank: 1,
+      status: :proposed
+    }
+
     {:ok, spec} = ExperimentGenerator.design(proposal)
     {:ok, other_candidate} = PatchGenerator.generate(spec)
     {:ok, oc1} = Candidate.transition(other_candidate, :sandboxed)
@@ -75,7 +111,8 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
     forged_identity = %AuthenticatedHumanIdentity{
       identity_id: :forged,
       human_id: :human_1,
-      authenticated_at: nil,   # NOT authenticated
+      # NOT authenticated
+      authenticated_at: nil,
       method: :forged
     }
 
@@ -97,13 +134,22 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
 
     # Create an already-expired grant
     content_hash = DeploymentGateway.content_hash(candidate)
+    {:ok, identity} = AuthenticatedHumanIdentity.authenticate(:human_1, "cred", :password)
     {:ok, auth} = Authorization.prepare(%{explanation_id: :prop_1})
     {:ok, pending} = Authorization.request(auth)
-    {:ok, grant} = Authorization.human_grant(pending, :human_1,
-      ttl: 1, candidate_content_hash: content_hash)
+
+    {:ok, grant} =
+      Authorization.human_grant(pending, identity, ttl: 1, candidate_content_hash: content_hash)
+
+    :ok = Authorization.record_mint(grant.authorization_id)
+
+    {:ok, bound} =
+      Authorization.bind_effect(grant, DeploymentGateway.effect_descriptor(candidate))
+
+    :ok = MintRegistry.record_bind(bound.authorization_id, bound.effect_id)
 
     # Simulate time passing beyond TTL
-    expired_grant = %{grant | granted_at: System.system_time(:second) - 100}
+    expired_grant = %{bound | granted_at: System.system_time(:second) - 100}
 
     assert {:error, :grant_expired} =
              DeploymentGateway.deploy(candidate, cert, lineage, expired_grant, identity)
@@ -116,14 +162,25 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
     content_hash = DeploymentGateway.content_hash(candidate)
     {:ok, auth} = Authorization.prepare(%{explanation_id: :prop_1})
     {:ok, pending} = Authorization.request(auth)
-    {:ok, grant} = Authorization.human_grant(pending, :human_1,
-      ttl: 3600, candidate_content_hash: content_hash)
+
+    {:ok, grant} =
+      Authorization.human_grant(pending, identity,
+        ttl: 3600,
+        candidate_content_hash: content_hash
+      )
+
+    :ok = Authorization.record_mint(grant.authorization_id)
+
+    {:ok, bound} =
+      Authorization.bind_effect(grant, DeploymentGateway.effect_descriptor(candidate))
+
+    :ok = MintRegistry.record_bind(bound.authorization_id, bound.effect_id)
 
     # Mutate the candidate AFTER authorization
     mutated_candidate = %{candidate | content: %{candidate.content | target: :malicious}}
 
     assert {:error, :candidate_mutated_after_authorization} =
-             DeploymentGateway.deploy(mutated_candidate, cert, lineage, grant, identity)
+             DeploymentGateway.deploy(mutated_candidate, cert, lineage, bound, identity)
   end
 
   test "ADVERSARIAL: deploy with empty/missing lineage" do
@@ -135,8 +192,16 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
 
   test "ADVERSARIAL: deploy a candidate that is not approved" do
     # Build a candidate only up to :certified, not :approved
-    proposal = %{id: :prop_1, hypothesis_id: :hyp_1, statement: "test", type: :memory,
-                 falsifier: "f", rank: 1, status: :proposed}
+    proposal = %{
+      id: :prop_1,
+      hypothesis_id: :hyp_1,
+      statement: "test",
+      type: :memory,
+      falsifier: "f",
+      rank: 1,
+      status: :proposed
+    }
+
     {:ok, spec} = ExperimentGenerator.design(proposal)
     {:ok, candidate} = PatchGenerator.generate(spec)
     {:ok, c1} = Candidate.transition(candidate, :sandboxed)
@@ -148,18 +213,28 @@ defmodule Tiannara.Omega.DeploymentGatewayAdversarialTest do
     content_hash = DeploymentGateway.content_hash(certified_only)
     {:ok, auth} = Authorization.prepare(%{explanation_id: :prop_1})
     {:ok, pending} = Authorization.request(auth)
-    {:ok, grant} = Authorization.human_grant(pending, :human_1,
-      ttl: 3600, candidate_content_hash: content_hash)
+
+    {:ok, grant} =
+      Authorization.human_grant(pending, identity,
+        ttl: 3600,
+        candidate_content_hash: content_hash
+      )
 
     assert {:error, {:candidate_not_approved, :certified}} =
-             DeploymentGateway.deploy(certified_only, %{verdict: :certified},
-               [:obs_1], grant, identity)
+             DeploymentGateway.deploy(
+               certified_only,
+               %{verdict: :certified},
+               [:obs_1],
+               grant,
+               identity
+             )
   end
 
   test "ADVERSARIAL: authorization expiry transitions correctly" do
+    {:ok, identity} = AuthenticatedHumanIdentity.authenticate(:human_1, "cred", :password)
     {:ok, auth} = Authorization.prepare(%{explanation_id: :expl_1})
     {:ok, pending} = Authorization.request(auth)
-    {:ok, grant} = Authorization.human_grant(pending, :human_1, ttl: 1)
+    {:ok, grant} = Authorization.human_grant(pending, identity, ttl: 1)
 
     # Not yet expired
     refute Authorization.expired?(grant)

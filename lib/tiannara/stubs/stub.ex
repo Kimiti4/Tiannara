@@ -30,6 +30,8 @@ defmodule Tiannara.Stub do
 
       require Logger
 
+      def __tiannara_stub__, do: true
+
       defp stub_result(function, args, default \\ nil) do
         if Process.whereis(Tiannara.StubRegistry) do
           Tiannara.StubRegistry.record_call(__MODULE__, function, length(args),
@@ -42,9 +44,14 @@ defmodule Tiannara.Stub do
         Logger.debug("[Stub] #{inspect(__MODULE__)}.#{function}/#{length(args)} called")
 
         case default do
-          {:stub, _} = result -> result
-          nil -> {:stub, %{module: __MODULE__, function: function, args: args, phase: @stub_phase}}
-          value -> value
+          {:stub, _} = result ->
+            result
+
+          nil ->
+            {:stub, %{module: __MODULE__, function: function, args: args, phase: @stub_phase}}
+
+          value ->
+            value
         end
       end
     end

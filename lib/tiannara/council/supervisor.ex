@@ -7,6 +7,7 @@ defmodule Tiannara.Council.Supervisor do
   def init(_init_arg) do
     children = [
       Tiannara.Council.AuditLog,
+      Tiannara.Omega.MintRegistry,
       Tiannara.Council.ConstitutionRepository,
       Tiannara.Council.PolicyRegistry,
       Tiannara.Council.HumanApprovalQueue,

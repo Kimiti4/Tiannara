@@ -1,4 +1,5 @@
 {
+    "_disclaimer": "PLACEHOLDER CERTIFICATE (2026-10-13 audit): all schema_hash/serialization_hash/freeze_hash values below are human-readable placeholders, NOT real Blake3 digests. The 16 frozen schemas have no backing defmodules — the Tiannara.Discovery.* stack (ObservationRegistry, HypothesisEngine, ExperimentPlatform, MerkleTree, etc.) has zero implementations in this repository. This certifies a design, not an implementation.",
     "certificate_id": "b3_freeze_cert_15_0_0",
     "certificate_type": "FREEZE_CERTIFICATE",
     "schema_version": "15.0.0",

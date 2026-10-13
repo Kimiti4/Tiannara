@@ -109,8 +109,34 @@ defmodule TiannaraRuntime.WorldModel.AutonomousResearch.TheoryEvolutionRecord do
   defp validate(%__MODULE__{action: nil}),
     do: {:error, "TheoryEvolutionRecord: action is required"}
 
-  defp validate(%__MODULE__{action: v}) when v not in [:strengthened, :weakened, :rejected, :unaffected],
-    do: {:error, "TheoryEvolutionRecord: action must be one of :strengthened, :weakened, :rejected, :unaffected"}
+  defp validate(%__MODULE__{action: v})
+       when v not in [:strengthened, :weakened, :rejected, :unaffected],
+       do:
+         {:error,
+          "TheoryEvolutionRecord: action must be one of :strengthened, :weakened, :rejected, :unaffected"}
+
+  defp validate(%__MODULE__{action: :rejected, rejection_reason: nil}),
+    do: {:error, "TheoryEvolutionRecord: rejection_reason is required when action is :rejected"}
+
+  defp validate(%__MODULE__{action: :rejected, rejection_reason: v})
+       when not is_binary(v) or v == "",
+       do:
+         {:error,
+          "TheoryEvolutionRecord: rejection_reason must be a non-empty string when action is :rejected"}
+
+  defp validate(%__MODULE__{
+         action: :rejected,
+         rejection_reason: reason,
+         contradiction_detected: false
+       })
+       when is_binary(reason) do
+    if String.contains?(String.downcase(reason), "contradict") do
+      {:error,
+       "TheoryEvolutionRecord: contradiction_detected must be true when the rejection reason indicates contradiction"}
+    else
+      :ok
+    end
+  end
 
   defp validate(%__MODULE__{evidence_support: nil}),
     do: {:error, "TheoryEvolutionRecord: evidence_support is required"}

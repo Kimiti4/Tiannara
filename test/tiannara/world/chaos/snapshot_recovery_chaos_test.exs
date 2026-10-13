@@ -11,13 +11,19 @@ defmodule Tiannara.World.Chaos.SnapshotRecoveryTest do
     test "can take snapshot mid-stream, crash, and recover with data intact" do
       entities =
         Enum.map(1..5, fn i ->
-          spec = build_entity_spec(:knowledge, :fact, :data, %{chaos_value: i},
-            id: unique_id("chaos_entity"), confidence: 0.5 + i * 0.1)
+          spec =
+            build_entity_spec(:knowledge, :fact, :data, %{chaos_value: i},
+              id: unique_id("chaos_entity"),
+              confidence: 0.5 + i * 0.1
+            )
+
           {:ok, id} = UnifiedWorldModel.create_entity(spec)
           id
         end)
 
-      assert {:ok, snapshot_id} = SnapshotManager.create_snapshot(:world_model, %{reason: :chaos_test})
+      assert {:ok, snapshot_id} =
+               SnapshotManager.create_snapshot(:world_model, %{reason: :chaos_test})
+
       assert is_binary(snapshot_id)
 
       for eid <- entities do
@@ -25,7 +31,7 @@ defmodule Tiannara.World.Chaos.SnapshotRecoveryTest do
       end
 
       for eid <- entities do
-        UnifiedWorldModel.delete_entity(eid)
+        UnifiedWorldModel.delete_entity(eid, mint_delete_authorization(eid))
       end
 
       for eid <- entities do
@@ -45,19 +51,29 @@ defmodule Tiannara.World.Chaos.SnapshotRecoveryTest do
       s1_id = unique_id("snap_a")
       s2_id = unique_id("snap_b")
 
-      e1 = build_entity_spec(:physics, :fact, :constant, %{value: "snap_a_val"}, id: unique_id("e1_snap"), confidence: 0.9)
+      e1 =
+        build_entity_spec(:physics, :fact, :constant, %{value: "snap_a_val"},
+          id: unique_id("e1_snap"),
+          confidence: 0.9
+        )
+
       {:ok, e1_id} = UnifiedWorldModel.create_entity(e1)
 
       assert {:ok, snap1} = SnapshotManager.create_snapshot(:world_model, %{label: s1_id})
       assert snap1 != nil
 
-      e2 = build_entity_spec(:physics, :fact, :constant, %{value: "snap_b_val"}, id: unique_id("e2_snap"), confidence: 0.8)
+      e2 =
+        build_entity_spec(:physics, :fact, :constant, %{value: "snap_b_val"},
+          id: unique_id("e2_snap"),
+          confidence: 0.8
+        )
+
       {:ok, e2_id} = UnifiedWorldModel.create_entity(e2)
 
       assert {:ok, snap2} = SnapshotManager.create_snapshot(:world_model, %{label: s2_id})
 
-      UnifiedWorldModel.delete_entity(e1_id)
-      UnifiedWorldModel.delete_entity(e2_id)
+      UnifiedWorldModel.delete_entity(e1_id, mint_delete_authorization(e1_id))
+      UnifiedWorldModel.delete_entity(e2_id, mint_delete_authorization(e2_id))
 
       assert :ok = SnapshotManager.restore_from_snapshot(snap1)
       assert_entity_exists(e1_id)

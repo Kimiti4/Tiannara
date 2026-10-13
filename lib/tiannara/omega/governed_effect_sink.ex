@@ -31,27 +31,43 @@ defmodule Tiannara.Omega.GovernedEffectSink do
   4. result effect identity            — `result.sink.effect_id`
   5. audit/provenance effect identity  — `AuditLog` entry payload
 
-  ## Fail-closed contract (N1–N7)
+  ## Fail-closed contract (N1-N9)
 
   Gate order (all pre-sink except N6/N7):
 
-      N1 missing authorization        → {:error, :authorization_required}
-      N4 invalid authorization        → {:error, :authorization_not_granted}
-                                        {:error, :authorization_expired}
-                                        {:error, :identity_required}
-                                        {:error, :identity_not_authenticated}
-                                        {:error, :identity_human_mismatch}
-      N5 missing effect identity      → {:error, :effect_binding_required}
-      malformed descriptor            → {:error, {:invalid_effect_descriptor, reason}}
-      N2/N3 wrong or altered effect   → {:error, :effect_id_mismatch}
-      sink invocation                 → {:error, {:sink_failed, reason}}
-      N6 result identity mismatch     → {:error, :result_identity_mismatch}
-      N7 audit/provenance failure     → {:error, {:audit_not_recorded, reason, detail}}
-      full chain                      → {:ok, result}
+      N1 missing authorization        -> {:error, :authorization_required}
+      N4 not granted                  -> {:error, :authorization_not_granted}
+      N8 registry verification        -> {:error, :authorization_not_registered}
+                                         {:error, :already_consumed}
+                                         {:error, :authorization_registry_unavailable}
+      N4 expired                      -> {:error, :authorization_expired}
+      N4 identity                     -> {:error, :identity_required}
+                                         {:error, :identity_not_authenticated}
+                                         {:error, :identity_human_mismatch}
+      N5 missing effect identity      -> {:error, :effect_binding_required}
+                                         malformed descriptor
+                                         -> {:error, {:invalid_effect_descriptor, reason}}
+      N2/N3 wrong or altered effect   -> {:error, :effect_id_mismatch}
+      N8 registry binding mismatch    -> {:error, :registry_binding_mismatch}
+      N9 one-shot consumption (CAS)   -> {:error, :already_consumed}
+      sink invocation                 -> {:error, {:sink_failed, reason}}
+      N6 result identity mismatch     -> {:error, :result_identity_mismatch}
+      N7 audit/provenance failure     -> {:error, {:audit_not_recorded, reason, detail}}
+      full chain                      -> {:ok, result}
+
+  N8 verifies the grant against the durable `Tiannara.Omega.MintRegistry`
+  (model M7): a structurally valid authorization that was never minted through
+  the registry, or was already consumed, is refused before any other stateful
+  check; the registry-recorded one-shot binding must also equal the grant's
+  `effect_id`, so rewriting that field on a plain struct cannot re-point an
+  authorization at a different effect. N9 is an atomic granted -> consumed
+  compare-and-set immediately before the sink invocation: of N concurrent
+  presentations of one grant, exactly one reaches the sink. Registry
+  unavailability is fail-closed, never permissive.
 
   N6/N7 occur AFTER the sink event is written: the contract fails closed on
   the *governed-success claim* (the written event stays observable but is not
-  claimed as a governed effect). N1–N5 never reach the sink.
+  claimed as a governed effect). N1-N5, N8 and N9 never reach the sink.
 
   ## Bounded claims (explicit non-claims)
 
@@ -67,6 +83,7 @@ defmodule Tiannara.Omega.GovernedEffectSink do
   alias Tiannara.Omega.EffectIdentity
   alias Tiannara.Omega.HumanDelivery.Authorization
   alias Tiannara.Omega.HumanDelivery.AuthenticatedHumanIdentity
+  alias Tiannara.Omega.MintRegistry
 
   @topic "governed.effect"
   @authority_scope "omega:governed_effect_sink"
@@ -79,7 +96,12 @@ defmodule Tiannara.Omega.GovernedEffectSink do
           effect_id: String.t(),
           actor: term(),
           effect_descriptor: map(),
-          sink: %{topic: String.t(), offset: non_neg_integer(), effect_id: term(), authorization_id: term()},
+          sink: %{
+            topic: String.t(),
+            offset: non_neg_integer(),
+            effect_id: term(),
+            authorization_id: term()
+          },
           audit: %{seq: non_neg_integer(), hash: String.t(), action: atom()},
           governed: true
         }
@@ -117,11 +139,14 @@ defmodule Tiannara.Omega.GovernedEffectSink do
   def execute(%Authorization{} = grant, descriptor, opts) when is_map(descriptor) do
     with :ok <- check_authorization_present(grant),
          :ok <- check_granted(grant),
+         :ok <- check_registered(grant),
          :ok <- check_not_expired(grant),
          :ok <- check_identity(grant, Keyword.get(opts, :identity)),
          :ok <- check_bound(grant),
          {:ok, normalized} <- normalize_descriptor(descriptor),
          :ok <- check_effect_match(grant, descriptor),
+         :ok <- check_registry_binding(grant),
+         :ok <- consume_once(grant),
          {:ok, sink_result} <- invoke_sink(grant, normalized, opts),
          :ok <- check_result_identity(grant, sink_result),
          {:ok, audit_entry} <- record_audit(grant, normalized, sink_result, opts) do
@@ -150,6 +175,15 @@ defmodule Tiannara.Omega.GovernedEffectSink do
 
   defp check_granted(%Authorization{status: :granted}), do: :ok
   defp check_granted(%Authorization{}), do: {:error, :authorization_not_granted}
+
+  defp check_registered(grant) do
+    case MintRegistry.status(grant.authorization_id) do
+      :granted -> :ok
+      :consumed -> {:error, :already_consumed}
+      :not_registered -> {:error, :authorization_not_registered}
+      :registry_unavailable -> {:error, :authorization_registry_unavailable}
+    end
+  end
 
   defp check_not_expired(grant) do
     if Authorization.expired?(grant), do: {:error, :authorization_expired}, else: :ok
@@ -187,6 +221,35 @@ defmodule Tiannara.Omega.GovernedEffectSink do
       :ok
     else
       {:error, :effect_id_mismatch}
+    end
+  end
+
+  defp check_registry_binding(grant) do
+    case MintRegistry.binding(grant.authorization_id) do
+      {:ok, registry_effect_id} ->
+        if registry_effect_id == grant.effect_id do
+          :ok
+        else
+          {:error, :registry_binding_mismatch}
+        end
+
+      :not_bound ->
+        {:error, :registry_binding_mismatch}
+
+      :not_registered ->
+        {:error, :authorization_not_registered}
+
+      :registry_unavailable ->
+        {:error, :authorization_registry_unavailable}
+    end
+  end
+
+  defp consume_once(grant) do
+    case MintRegistry.consume(grant.authorization_id, grant.effect_id) do
+      :ok -> :ok
+      {:error, :already_consumed} -> {:error, :already_consumed}
+      {:error, :not_registered} -> {:error, :authorization_not_registered}
+      :registry_unavailable -> {:error, :authorization_registry_unavailable}
     end
   end
 
@@ -278,9 +341,15 @@ defmodule Tiannara.Omega.GovernedEffectSink do
 
     try do
       case audit_fun.(payload) do
-        {:ok, %{} = entry} -> {:ok, entry}
-        {:error, reason} -> {:error, {:audit_not_recorded, reason, audit_detail(sink_result)}}
-        other -> {:error, {:audit_not_recorded, {:unexpected_audit_result, other}, audit_detail(sink_result)}}
+        {:ok, %{} = entry} ->
+          {:ok, entry}
+
+        {:error, reason} ->
+          {:error, {:audit_not_recorded, reason, audit_detail(sink_result)}}
+
+        other ->
+          {:error,
+           {:audit_not_recorded, {:unexpected_audit_result, other}, audit_detail(sink_result)}}
       end
     catch
       kind, reason ->

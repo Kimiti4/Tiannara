@@ -1,5 +1,14 @@
 # Discovery Runtime Freeze
 
+> **⚠️ PLACEHOLDER DISCLAIMER (added 2026-10-13, doc-vs-reality audit)**
+> The Blake3 hashes below (e.g. `b3_obs_v15`) are **human-readable placeholders**, not
+> real 64-hex Blake3 digests (see `DISCOVERY_FREEZE_CERTIFICATE.json`). The 16 frozen
+> schemas have **no backing modules** — the entire `Tiannara.Discovery.*` stack
+> (ObservationRegistry, HypothesisEngine, ExperimentPlatform, MerkleTree, etc.)
+> described in `OBSERVATION_REGISTRY.md`/`HYPOTHESIS_ENGINE.md`/`EXPERIMENT_PLATFORM.md`/
+> `THEORY_ENGINE.md` has **zero `defmodule` matches** anywhere in the repository.
+> This freeze certifies a design, not an implementation.
+
 ## Overview
 
 This document constitutes the **Constitutional Freeze** for Phase 15 Scientific Discovery. All schemas, APIs, behaviours, and runtime interfaces are frozen at version 15.0.0. No changes are permitted after this freeze without a constitutional amendment.

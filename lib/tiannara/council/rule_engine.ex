@@ -42,8 +42,13 @@ defmodule Tiannara.Council.RuleEngine do
 
     evidence =
       Enum.map(all_results, fn r ->
-        %{principle: r.principle_id, verdict: r.verdict, reasoning: r.reasoning,
-          weight: r.weight, evidence: r.evidence}
+        %{
+          principle: r.principle_id,
+          verdict: r.verdict,
+          reasoning: r.reasoning,
+          weight: r.weight,
+          evidence: r.evidence
+        }
       end)
 
     %Authorization{
@@ -57,6 +62,7 @@ defmodule Tiannara.Council.RuleEngine do
       context: context,
       decided_at: DateTime.utc_now(),
       policy_applied: :rule_engine,
+      conditions: build_conditions(decision, all_results),
       metadata: %{
         assessments_count: length(all_results),
         violations_count: length(violated),
@@ -66,6 +72,14 @@ defmodule Tiannara.Council.RuleEngine do
       }
     }
   end
+
+  defp build_conditions(:conditional, results) do
+    Enum.map(results, fn r ->
+      %{concern: r.principle_id, evidence_check: r.principle_id}
+    end)
+  end
+
+  defp build_conditions(_decision, _results), do: []
 
   defp safe_plugin_evaluate(decision_type, payload, context) do
     case Process.whereis(PrincipleRegistry) do
@@ -84,7 +98,12 @@ defmodule Tiannara.Council.RuleEngine do
 
   defp assess_principles(decision_type, payload) do
     [
-      score_plugin_principle(:human_final_authority, "Human Final Authority", decision_type, payload),
+      score_plugin_principle(
+        :human_final_authority,
+        "Human Final Authority",
+        decision_type,
+        payload
+      ),
       score_plugin_principle(:transparency, "Transparency", decision_type, payload),
       score_plugin_principle(:explainability, "Explainability", decision_type, payload),
       score_plugin_principle(:evidence_based, "Evidence Based", decision_type, payload),
@@ -92,7 +111,12 @@ defmodule Tiannara.Council.RuleEngine do
       score_plugin_principle(:accountability, "Accountability", decision_type, payload),
       score_plugin_principle(:safety, "Safety", decision_type, payload),
       score_plugin_principle(:sustainability, "Sustainability", decision_type, payload),
-      score_plugin_principle(:continuous_improvement, "Continuous Improvement", decision_type, payload),
+      score_plugin_principle(
+        :continuous_improvement,
+        "Continuous Improvement",
+        decision_type,
+        payload
+      ),
       score_plugin_principle(:coherence, "Coherence", decision_type, payload),
       score_plugin_principle(:resilience, "Resilience", decision_type, payload)
     ]
@@ -100,6 +124,7 @@ defmodule Tiannara.Council.RuleEngine do
 
   defp score_plugin_principle(id, name, decision_type, payload) do
     score = score_principle(id, decision_type, payload)
+
     %{
       principle_id: id,
       principle_name: name,
@@ -117,28 +142,51 @@ defmodule Tiannara.Council.RuleEngine do
 
   defp score_principle(:transparency, _type, payload) do
     case Map.get(payload, :transparency_level) do
-      :full -> 1.0; :partial -> 0.6; :none -> 0.0; nil -> 0.8
+      :full -> 1.0
+      :partial -> 0.6
+      :none -> 0.0
+      nil -> 0.8
     end
   end
 
   defp score_principle(:explainability, _type, payload) do
     case Map.get(payload, :explanation_provided) do
-      :detailed -> 1.0; :summary -> 0.6; :none -> 0.0; nil -> 0.7
+      :detailed -> 1.0
+      :summary -> 0.6
+      :none -> 0.0
+      nil -> 0.7
     end
   end
 
   defp score_principle(:evidence_based, _type, payload) do
     ev = Map.get(payload, :evidence, [])
-    cond do length(ev) >= 3 -> 1.0; length(ev) >= 1 -> 0.6; true -> 0.2 end
+
+    cond do
+      length(ev) >= 3 -> 1.0
+      length(ev) >= 1 -> 0.6
+      true -> 0.2
+    end
   end
 
-  defp score_principle(:fairness, _type, payload), do: if(Map.get(payload, :fairness_assessed, false), do: 1.0, else: 0.5)
-  defp score_principle(:accountability, _type, payload), do: if(Map.get(payload, :actor) != nil, do: 1.0, else: 0.3)
+  defp score_principle(:fairness, _type, payload),
+    do: if(Map.get(payload, :fairness_assessed, false), do: 1.0, else: 0.5)
+
+  defp score_principle(:accountability, _type, payload),
+    do: if(Map.get(payload, :actor) != nil, do: 1.0, else: 0.3)
+
   defp score_principle(:safety, _type, payload), do: 1.0 - Map.get(payload, :risk_assessment, 0.0)
-  defp score_principle(:sustainability, _type, payload), do: max(0.0, 1.0 - Map.get(payload, :resource_cost, 0.0) / 100_000)
-  defp score_principle(:continuous_improvement, _type, payload), do: if(Map.get(payload, :includes_feedback_loop, false), do: 1.0, else: 0.5)
-  defp score_principle(:coherence, _type, payload), do: if(Map.get(payload, :coherent_with_mission, true), do: 1.0, else: 0.3)
-  defp score_principle(:resilience, _type, payload), do: if(Map.get(payload, :degradation_handled, true), do: 1.0, else: 0.4)
+
+  defp score_principle(:sustainability, _type, payload),
+    do: max(0.0, 1.0 - Map.get(payload, :resource_cost, 0.0) / 100_000)
+
+  defp score_principle(:continuous_improvement, _type, payload),
+    do: if(Map.get(payload, :includes_feedback_loop, false), do: 1.0, else: 0.5)
+
+  defp score_principle(:coherence, _type, payload),
+    do: if(Map.get(payload, :coherent_with_mission, true), do: 1.0, else: 0.3)
+
+  defp score_principle(:resilience, _type, payload),
+    do: if(Map.get(payload, :degradation_handled, true), do: 1.0, else: 0.4)
 
   defp principle_weight(:human_final_authority), do: 0.20
   defp principle_weight(:transparency), do: 0.10
@@ -153,12 +201,20 @@ defmodule Tiannara.Council.RuleEngine do
   defp principle_weight(:resilience), do: 0.02
 
   defp build_evidence_simple(:human_final_authority, _type, payload) do
-    [if(Map.get(payload, :preserves_human_authority, true), do: "Human authority preserved", else: "WARNING: Human authority bypassed")]
+    [
+      if(Map.get(payload, :preserves_human_authority, true),
+        do: "Human authority preserved",
+        else: "WARNING: Human authority bypassed"
+      )
+    ]
   end
 
   defp build_evidence_simple(:transparency, _type, payload) do
     case Map.get(payload, :transparency_level) do
-      :full -> ["Full transparency"]; :partial -> ["Partial transparency"]; :none -> ["No transparency"]; nil -> ["Transparency not specified"]
+      :full -> ["Full transparency"]
+      :partial -> ["Partial transparency"]
+      :none -> ["No transparency"]
+      nil -> ["Transparency not specified"]
     end
   end
 
@@ -183,21 +239,32 @@ defmodule Tiannara.Council.RuleEngine do
     end)
   end
 
-  defp invariant_violated?(:human_final_authority, _type, payload), do: Map.get(payload, :bypasses_human_authority, false)
-  defp invariant_violated?(:no_self_amendment, type, _payload), do: type == :constitutional_amendment
-  defp invariant_violated?(:audit_log_immutability, _type, payload), do: Map.get(payload, :modifies_audit_log, false)
+  defp invariant_violated?(:human_final_authority, _type, payload),
+    do: Map.get(payload, :bypasses_human_authority, false)
+
+  defp invariant_violated?(:no_self_amendment, type, _payload),
+    do: type == :constitutional_amendment
+
+  defp invariant_violated?(:audit_log_immutability, _type, payload),
+    do: Map.get(payload, :modifies_audit_log, false)
 
   defp has_hard_violation?(violations), do: length(violations) > 0
 
   defp compute_compliance_score(results) do
     total_w = Enum.reduce(results, 0.0, &(&1.weight + &2))
+
     weighted =
       Enum.reduce(results, 0.0, fn r, acc ->
-        score = case r.verdict do
-          :strengthened -> 1.0; :neutral -> 0.7; :violated -> 0.0
-        end
+        score =
+          case r.verdict do
+            :strengthened -> 1.0
+            :neutral -> 0.7
+            :violated -> 0.0
+          end
+
         acc + score * r.weight
       end)
+
     if total_w > 0, do: weighted / total_w, else: 1.0
   end
 
@@ -212,7 +279,9 @@ defmodule Tiannara.Council.RuleEngine do
   end
 
   defp determine_decision(violated, results, confidence, compliance) do
-    has_hard = Enum.any?(results, fn r -> r.principle_id in @hard_invariants and r.verdict == :violated end)
+    has_hard =
+      Enum.any?(results, fn r -> r.principle_id in @hard_invariants and r.verdict == :violated end)
+
     cond do
       has_hard -> :rejected
       compliance >= 0.8 and confidence >= 0.7 -> :approved

@@ -1,5 +1,15 @@
 # Stage 6 — Recursive Civilization Evolution: COMPLETE ✅
 
+> **⚠️ SIMULATION-ONLY DISCLAIMER (added 2026-10-13, doc-vs-reality audit)**
+> The "100 generations" and "no synthetic metrics" claims below are **not accurate for the
+> current codebase**. `lib/tiannara/os/recursive_civilization_runner.ex` **simulates**
+> Stages 3–5 (see the `# Simulate Stage 3/4/5` comments and `Enum.random` calls);
+> `GenerationHistory.calculate_cai/1` is a **stub returning `0.0`**
+> (`lib/tiannara/stubs/generation_history.ex`); the CSV writer is a no-op stub.
+> The real Stage 3/4/5 engines exist (`stage3_method_evolution.ex` etc.) but are **not
+> called by the runner**. Treat all numeric results in this document as fixture output,
+> not measured production behavior.
+
 **Status**: ✅ **COMPLETE**  
 **Date**: June 30, 2026  
 **Purpose**: Demonstrate that constitutional recursive adaptation produces measurable long-term scientific improvement

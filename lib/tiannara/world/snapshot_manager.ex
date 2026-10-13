@@ -8,7 +8,7 @@ defmodule Tiannara.World.SnapshotManager do
   use Tiannara.ExecutiveService.Base
   require Logger
 
-  alias Tiannara.World.{UnifiedWorldModel, UnifiedRealityGraph}
+  alias Tiannara.World.{UnifiedWorldModel, UnifiedRealityGraph, WorldMutationEngine}
   alias Tiannara.CEL.Services.{EventBus, ExecutiveMemory}
   alias Tiannara.CEL.Kernel.ConstitutionalScore
 
@@ -37,6 +37,7 @@ defmodule Tiannara.World.SnapshotManager do
   @impl Tiannara.ExecutiveService
   def constitutional_score do
     stats = GenServer.call(__MODULE__, :stats)
+
     %ConstitutionalScore{
       service_id: id(),
       health: if(stats.last_snapshot_status == :success, do: 1.0, else: 0.5),
@@ -72,14 +73,16 @@ defmodule Tiannara.World.SnapshotManager do
   @impl true
   def init(_opts) do
     schedule_snapshot()
-    {:ok, %{
-      snapshots: [],
-      snapshot_count: 0,
-      last_snapshot_at: nil,
-      last_snapshot_status: :pending,
-      healthy: true,
-      started_at: DateTime.utc_now()
-    }}
+
+    {:ok,
+     %{
+       snapshots: [],
+       snapshot_count: 0,
+       last_snapshot_at: nil,
+       last_snapshot_status: :pending,
+       healthy: true,
+       started_at: DateTime.utc_now()
+     }}
   end
 
   @impl true
@@ -89,6 +92,7 @@ defmodule Tiannara.World.SnapshotManager do
     world_stats = UnifiedWorldModel.stats()
 
     snapshot_id = "snap_#{DateTime.utc_now() |> DateTime.to_unix()}"
+
     snapshot_data = %{
       id: snapshot_id,
       timestamp: DateTime.utc_now(),
@@ -107,11 +111,12 @@ defmodule Tiannara.World.SnapshotManager do
 
     EventBus.publish("world.snapshot.created", snapshot_data)
 
-    new_state = %{state |
-      snapshots: new_snapshots,
-      snapshot_count: state.snapshot_count + 1,
-      last_snapshot_at: snapshot_data.timestamp,
-      last_snapshot_status: :success
+    new_state = %{
+      state
+      | snapshots: new_snapshots,
+        snapshot_count: state.snapshot_count + 1,
+        last_snapshot_at: snapshot_data.timestamp,
+        last_snapshot_status: :success
     }
 
     {:reply, {:ok, snapshot_id}, new_state}
@@ -123,14 +128,19 @@ defmodule Tiannara.World.SnapshotManager do
 
     world_stats = UnifiedWorldModel.stats()
     {:ok, entity_ids} = UnifiedRealityGraph.query_entities(limit: 10_000)
-    entity_snapshots = Enum.map(entity_ids, fn id ->
-      case UnifiedWorldModel.get_entity(id) do
-        {:ok, e} -> e
-        _ -> nil
-      end
-    end) |> Enum.reject(&is_nil/1)
 
-    snapshot_id = "snap_#{DateTime.utc_now() |> DateTime.to_unix()}_#{:crypto.strong_rand_bytes(4) |> Base.encode16(case: :lower)}"
+    entity_snapshots =
+      Enum.map(entity_ids, fn id ->
+        case UnifiedWorldModel.get_entity(id) do
+          {:ok, e} -> e
+          _ -> nil
+        end
+      end)
+      |> Enum.reject(&is_nil/1)
+
+    snapshot_id =
+      "snap_#{DateTime.utc_now() |> DateTime.to_unix()}_#{:crypto.strong_rand_bytes(4) |> Base.encode16(case: :lower)}"
+
     snapshot_data = %{
       id: snapshot_id,
       timestamp: DateTime.utc_now(),
@@ -151,11 +161,12 @@ defmodule Tiannara.World.SnapshotManager do
 
     EventBus.publish("world.snapshot.created", snapshot_data)
 
-    new_state = %{state |
-      snapshots: new_snapshots,
-      snapshot_count: state.snapshot_count + 1,
-      last_snapshot_at: snapshot_data.timestamp,
-      last_snapshot_status: :success
+    new_state = %{
+      state
+      | snapshots: new_snapshots,
+        snapshot_count: state.snapshot_count + 1,
+        last_snapshot_at: snapshot_data.timestamp,
+        last_snapshot_status: :success
     }
 
     {:reply, {:ok, snapshot_id}, new_state}
@@ -164,34 +175,83 @@ defmodule Tiannara.World.SnapshotManager do
   @impl true
   def handle_call({:restore_from_snapshot, snapshot_id}, _from, state) do
     snapshot = Enum.find(state.snapshots, &(&1.id == snapshot_id))
+
     case snapshot do
-      nil -> {:reply, {:error, :not_found}, state}
+      nil ->
+        {:reply, {:error, :not_found}, state}
+
       _ ->
-        Logger.info("SnapshotManager: Restoring from snapshot #{snapshot_id}")
         entity_snapshots = Map.get(snapshot, :entity_snapshots, [])
-        Enum.each(entity_snapshots, fn entity_data ->
-          nested = Map.get(entity_data, :attributes, %{})
-          inner_attrs = if is_map(nested) and Map.has_key?(nested, :attributes) do
-            Map.get(nested, :attributes, %{})
-          else
-            nested
-          end
-          sys_keys = [:id, :status, :type, :subtype, :version, :created_at, :updated_at, :confidence, :uncertainty, :mutation_id, :provenance, :owner_subsystem, :ingested_at]
-          clean_attrs = Map.drop(inner_attrs, sys_keys) |> Map.reject(fn {_k, v} -> is_nil(v) end)
-          UnifiedRealityGraph.add_entity(%{
-            id: entity_data.id,
-            type: Map.get(entity_data, :type, :knowledge_entity),
-            subtype: Map.get(entity_data, :subtype),
-            domain: Map.get(entity_data, :domain),
-            attributes: clean_attrs,
-            confidence: Map.get(entity_data, :confidence, 0.5),
-            uncertainty: 1.0 - Map.get(entity_data, :confidence, 0.5),
-            status: :active,
-            provenance: Map.get(entity_data, :provenance, %{}),
-            version: Map.get(entity_data, :version, 1)
+
+        # M5 order: the council-gated mutation authorizes the restore scope
+        # (snapshot id as target) BEFORE any bulk graph write. On refusal the
+        # reply carries the named reason and nothing is written.
+        authorize =
+          WorldMutationEngine.mutate(:snapshot_restore, %{
+            id: snapshot_id,
+            entity_count: length(entity_snapshots)
           })
-        end)
-        {:reply, :ok, state}
+
+        case authorize do
+          {:ok, mutation_id} ->
+            Logger.info("SnapshotManager: Restoring from snapshot #{snapshot_id}")
+
+            Enum.each(entity_snapshots, fn entity_data ->
+              nested = Map.get(entity_data, :attributes, %{})
+
+              inner_attrs =
+                if is_map(nested) and Map.has_key?(nested, :attributes) do
+                  Map.get(nested, :attributes, %{})
+                else
+                  nested
+                end
+
+              sys_keys = [
+                :id,
+                :status,
+                :type,
+                :subtype,
+                :version,
+                :created_at,
+                :updated_at,
+                :confidence,
+                :uncertainty,
+                :mutation_id,
+                :provenance,
+                :owner_subsystem,
+                :ingested_at
+              ]
+
+              clean_attrs =
+                Map.drop(inner_attrs, sys_keys) |> Map.reject(fn {_k, v} -> is_nil(v) end)
+
+              UnifiedRealityGraph.add_entity(%{
+                id: entity_data.id,
+                type: Map.get(entity_data, :type, :knowledge_entity),
+                subtype: Map.get(entity_data, :subtype),
+                domain: Map.get(entity_data, :domain),
+                attributes: clean_attrs,
+                confidence: Map.get(entity_data, :confidence, 0.5),
+                uncertainty: 1.0 - Map.get(entity_data, :confidence, 0.5),
+                status: :active,
+                provenance: Map.get(entity_data, :provenance, %{}),
+                version: Map.get(entity_data, :version, 1)
+              })
+            end)
+
+            Logger.info(
+              "SnapshotManager: restore of #{snapshot_id} authorized (#{length(entity_snapshots)} entities, mutation #{mutation_id})"
+            )
+
+            {:reply, :ok, state}
+
+          {:error, reason} ->
+            Logger.warning(
+              "SnapshotManager: restore of #{snapshot_id} refused (no writes): #{inspect(reason)}"
+            )
+
+            {:reply, {:error, {:restore_not_authorized, reason}}, state}
+        end
     end
   end
 

@@ -7,10 +7,12 @@ defmodule Tiannara.Omega.GovernedEffectSinkTest do
   alias Tiannara.Omega.GovernedEffectSink
   alias Tiannara.Omega.HumanDelivery.Authorization
   alias Tiannara.Omega.HumanDelivery.AuthenticatedHumanIdentity
+  alias Tiannara.Omega.MintRegistry
 
   setup do
     unless Process.whereis(EventStore), do: start_supervised!(EventStore)
     unless Process.whereis(AuditLog), do: start_supervised!(AuditLog)
+    unless Process.whereis(MintRegistry), do: start_supervised!(MintRegistry)
 
     {:ok, identity} =
       AuthenticatedHumanIdentity.authenticate(:human_wave3, "wave3-credential", :password)
@@ -34,13 +36,25 @@ defmodule Tiannara.Omega.GovernedEffectSinkTest do
 
     {:ok, pending} = Authorization.request(auth)
 
-    case Authorization.human_grant(pending, identity, opts) do
-      {:ok, grant} when is_struct(grant.human_id) ->
-        {:ok, %{grant | human_id: identity.human_id}}
+    result =
+      case Authorization.human_grant(pending, identity, opts) do
+        {:ok, grant} when is_struct(grant.human_id) ->
+          {:ok, %{grant | human_id: identity.human_id}}
 
-      other ->
-        other
+        other ->
+          other
+      end
+
+    with {:ok, grant} <- result do
+      :ok = Authorization.record_mint(grant.authorization_id)
+      {:ok, grant}
     end
+  end
+
+  defp bind_and_record(grant, descriptor) do
+    {:ok, bound} = Authorization.bind_effect(grant, descriptor)
+    :ok = MintRegistry.record_bind(bound.authorization_id, bound.effect_id)
+    {:ok, bound}
   end
 
   defp sink_events_for(authorization_id) do
@@ -60,7 +74,7 @@ defmodule Tiannara.Omega.GovernedEffectSinkTest do
   test "positive: authorization -> effect -> sink -> observed result -> audit, one identity",
        %{identity: identity, descriptor: descriptor} do
     {:ok, grant} = mint_grant(identity)
-    {:ok, bound} = Authorization.bind_effect(grant, descriptor)
+    {:ok, bound} = bind_and_record(grant, descriptor)
 
     {:ok, bound_effect_id} = EffectIdentity.effect_id(descriptor)
     assert bound.effect_id == bound_effect_id
@@ -128,7 +142,7 @@ defmodule Tiannara.Omega.GovernedEffectSinkTest do
       )
 
     {:ok, grant} = mint_grant(identity)
-    {:ok, bound} = Authorization.bind_effect(grant, descriptor)
+    {:ok, bound} = bind_and_record(grant, descriptor)
 
     assert {:error, :effect_id_mismatch} =
              GovernedEffectSink.execute(bound, descriptor_b, identity: identity)
@@ -141,7 +155,7 @@ defmodule Tiannara.Omega.GovernedEffectSinkTest do
   test "N3 descriptor altered after binding fails closed",
        %{identity: identity, descriptor: descriptor} do
     {:ok, grant} = mint_grant(identity)
-    {:ok, bound} = Authorization.bind_effect(grant, descriptor)
+    {:ok, bound} = bind_and_record(grant, descriptor)
 
     altered = %{descriptor | parameters: Map.put(descriptor.parameters, "nonce", "tampered")}
     {:ok, altered_effect_id} = EffectIdentity.effect_id(altered)
@@ -177,7 +191,8 @@ defmodule Tiannara.Omega.GovernedEffectSinkTest do
 
     # bound grant, but the presenting identity is a different human
     {:ok, grant} = mint_grant(identity)
-    {:ok, bound} = Authorization.bind_effect(grant, descriptor)
+    {:ok, bound} = bind_and_record(grant, descriptor)
+
     {:ok, other_identity} =
       AuthenticatedHumanIdentity.authenticate(:human_other, "other-credential", :password)
 
@@ -211,8 +226,9 @@ defmodule Tiannara.Omega.GovernedEffectSinkTest do
     assert {:error, :effect_binding_required} =
              GovernedEffectSink.execute(grant, descriptor, identity: identity)
 
-    {:ok, bound} = Authorization.bind_effect(grant, descriptor)
+    {:ok, bound} = bind_and_record(grant, descriptor)
     assert {:error, {:already_bound, _}} = Authorization.bind_effect(bound, descriptor)
+
     assert {:error, :authorization_not_granted} =
              Authorization.bind_effect(%{grant | status: :pending_authorization}, descriptor)
 
@@ -222,32 +238,48 @@ defmodule Tiannara.Omega.GovernedEffectSinkTest do
 
   test "N6 result identity mismatch cannot produce governed success",
        %{identity: identity, descriptor: descriptor} do
-    {:ok, grant} = mint_grant(identity)
-    {:ok, bound} = Authorization.bind_effect(grant, descriptor)
+    # N9 consumes the authorization before the sink runs (one-shot), so each
+    # rejected attempt uses a freshly minted grant; the N6 assertions are
+    # unchanged, one grant per attack attempt.
+    {:ok, grant_a} = mint_grant(identity)
+    {:ok, bound_a} = bind_and_record(grant_a, descriptor)
 
     wrong_id = "effect-v1-" <> String.duplicate("0", 64)
 
     wrong_sink = fn _effect_id, _event ->
-      {:ok, %{topic: "governed.effect", offset: 1, effect_id: wrong_id, authorization_id: bound.authorization_id}}
+      {:ok,
+       %{
+         topic: "governed.effect",
+         offset: 1,
+         effect_id: wrong_id,
+         authorization_id: bound_a.authorization_id
+       }}
     end
 
     assert {:error, :result_identity_mismatch} =
-             GovernedEffectSink.execute(bound, descriptor, identity: identity, sink: wrong_sink)
+             GovernedEffectSink.execute(bound_a, descriptor, identity: identity, sink: wrong_sink)
 
     # a result that cannot be associated with the authorized effect at all
+    {:ok, grant_b} = mint_grant(identity)
+    {:ok, bound_b} = bind_and_record(grant_b, descriptor)
+
     unlinkable_sink = fn _effect_id, _event -> {:ok, %{topic: "governed.effect", offset: 2}} end
 
     assert {:error, :result_identity_mismatch} =
-             GovernedEffectSink.execute(bound, descriptor, identity: identity, sink: unlinkable_sink)
+             GovernedEffectSink.execute(bound_b, descriptor,
+               identity: identity,
+               sink: unlinkable_sink
+             )
 
     # no audit record was written for either rejected result
-    assert audit_entries_for(bound.effect_id) == []
+    assert audit_entries_for(bound_a.effect_id) == []
+    assert audit_entries_for(bound_b.effect_id) == []
   end
 
   test "N7 audit/provenance failure does not produce governed success",
        %{identity: identity, descriptor: descriptor} do
     {:ok, grant} = mint_grant(identity)
-    {:ok, bound} = Authorization.bind_effect(grant, descriptor)
+    {:ok, bound} = bind_and_record(grant, descriptor)
 
     failing_audit = fn _payload -> {:error, :storage_degraded} end
 

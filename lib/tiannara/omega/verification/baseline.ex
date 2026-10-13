@@ -6,12 +6,28 @@ defmodule Tiannara.Omega.Verification.Baseline do
   Constitutional basis: Verification First, "Maintain audit trails."
   """
 
-  alias Tiannara.Omega.{ExperimentGenerator, PatchGenerator, DeploymentGateway, HumanDelivery}
+  alias Tiannara.Omega.{
+    ExperimentGenerator,
+    PatchGenerator,
+    DeploymentGateway,
+    HumanDelivery,
+    MintRegistry
+  }
+
   alias Tiannara.Omega.PatchGenerator.Candidate
   alias Tiannara.Omega.HumanDelivery.{Authorization, AuthenticatedHumanIdentity}
 
-  defstruct [:candidate, :certification, :lineage, :explanation, :authorization,
-             :identity, :world, :content_hash, :proposal]
+  defstruct [
+    :candidate,
+    :certification,
+    :lineage,
+    :explanation,
+    :authorization,
+    :identity,
+    :world,
+    :content_hash,
+    :proposal
+  ]
 
   def establish(world) do
     proposal = sample_proposal()
@@ -28,15 +44,23 @@ defmodule Tiannara.Omega.Verification.Baseline do
     content_hash = DeploymentGateway.content_hash(candidate)
 
     {:ok, grant} =
-      Authorization.human_grant(auth, :human_1,
-        ttl: 3600, candidate_content_hash: content_hash)
+      Authorization.human_grant(auth, identity, ttl: 3600, candidate_content_hash: content_hash)
+
+    # Durable mint + one-shot effect binding (M4/M7): the gateway refuses
+    # grants without a registered mint record and a binding to this effect.
+    :ok = MintRegistry.record_mint(grant.authorization_id)
+
+    {:ok, bound} =
+      Authorization.bind_effect(grant, DeploymentGateway.effect_descriptor(candidate))
+
+    :ok = MintRegistry.record_bind(bound.authorization_id, bound.effect_id)
 
     %__MODULE__{
       candidate: candidate,
       certification: certification,
       lineage: lineage,
       explanation: explanation,
-      authorization: grant,
+      authorization: bound,
       identity: identity,
       world: world,
       content_hash: content_hash,
@@ -45,8 +69,15 @@ defmodule Tiannara.Omega.Verification.Baseline do
   end
 
   defp sample_proposal do
-    %{id: :prop_1, hypothesis_id: :hyp_1, statement: "verification baseline",
-      type: :memory, falsifier: "f", rank: 1, status: :proposed}
+    %{
+      id: :prop_1,
+      hypothesis_id: :hyp_1,
+      statement: "verification baseline",
+      type: :memory,
+      falsifier: "f",
+      rank: 1,
+      status: :proposed
+    }
   end
 
   defp walk_to_approved(candidate) do

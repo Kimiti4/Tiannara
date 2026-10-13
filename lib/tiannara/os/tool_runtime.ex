@@ -39,6 +39,9 @@ defmodule TiannaraOS.ToolRuntime do
             Logger.error("🚨 [Tool Runtime] Trapped exit/throw: #{inspect({kind, reason})}")
             {:error, {:runtime_crash, reason}}
         end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -48,7 +51,8 @@ defmodule TiannaraOS.ToolRuntime do
   2. Generates an EvidenceNode containing execution metadata (source: :tool_execution).
   3. Updates Tool Genome fitness in the State.
   """
-  @spec run_grounding_loop(ToolGenome.t(), String.t(), map(), atom()) :: {:ok, EvidenceNode.t(), TiannaraOS.State.t()} | {:error, any(), EvidenceNode.t()}
+  @spec run_grounding_loop(ToolGenome.t(), String.t(), map(), atom()) ::
+          {:ok, EvidenceNode.t(), TiannaraOS.State.t()} | {:error, any(), EvidenceNode.t()}
   def run_grounding_loop(%ToolGenome{} = genome, twin_path, inputs, world_id) do
     case execute_tool(genome, twin_path, inputs) do
       {:ok, %{vulnerabilities: vulns}} ->
@@ -76,19 +80,22 @@ defmodule TiannaraOS.ToolRuntime do
 
         # Boost fitness
         updated_fitness = min(1.0, (genome.fitness || 0.5) + 0.1)
-        {:ok, state} = apply(TiannaraOS.CivilizationKernel, :update_state, [
-          fn current_state ->
-            updated_genome = %{genome | fitness: updated_fitness}
-            updated_tools = Map.put(current_state.tools, genome.id, updated_genome)
-            %{current_state | tools: updated_tools}
-          end
-        ])
+
+        {:ok, state} =
+          apply(TiannaraOS.CivilizationKernel, :update_state, [
+            fn current_state ->
+              updated_genome = %{genome | fitness: updated_fitness}
+              updated_tools = Map.put(current_state.tools, genome.id, updated_genome)
+              %{current_state | tools: updated_tools}
+            end
+          ])
 
         {:ok, evidence_node, state}
 
       {:error, reason} ->
         # Trapped crash or validation failure. Generate failure evidence node.
-        evidence_id = String.to_atom("ev_tool_fail_#{genome.id}_#{System.unique_integer([:positive])}")
+        evidence_id =
+          String.to_atom("ev_tool_fail_#{genome.id}_#{System.unique_integer([:positive])}")
 
         failure_evidence = %EvidenceNode{
           id: evidence_id,
@@ -110,13 +117,15 @@ defmodule TiannaraOS.ToolRuntime do
 
         # Penalize fitness by 50%
         penalized_fitness = max(0.0, (genome.fitness || 0.5) * 0.5)
-        {:ok, _state} = apply(TiannaraOS.CivilizationKernel, :update_state, [
-          fn current_state ->
-            updated_genome = %{genome | fitness: penalized_fitness}
-            updated_tools = Map.put(current_state.tools, genome.id, updated_genome)
-            %{current_state | tools: updated_tools}
-          end
-        ])
+
+        {:ok, _state} =
+          apply(TiannaraOS.CivilizationKernel, :update_state, [
+            fn current_state ->
+              updated_genome = %{genome | fitness: penalized_fitness}
+              updated_tools = Map.put(current_state.tools, genome.id, updated_genome)
+              %{current_state | tools: updated_tools}
+            end
+          ])
 
         {:error, reason, failure_evidence}
     end
@@ -126,6 +135,7 @@ defmodule TiannaraOS.ToolRuntime do
 
   defp interpret(genome, twin_path, _inputs) do
     mix_exs_path = Path.join(twin_path, "mix.exs")
+
     unless File.exists?(mix_exs_path) do
       raise "mix.exs not found at #{twin_path}"
     end
@@ -140,10 +150,14 @@ defmodule TiannaraOS.ToolRuntime do
 
         # Search for dependency: e.g. {:plug, "1.13.0"}
         pattern = ~r/{\s*:#{pkg}\s*,\s*["']([^"']+)["']/
+
         case Regex.run(pattern, content) do
           [_, version] ->
             if version_less_than?(version, vuln_before) do
-              [%{package: pkg, version: version, status: "vulnerable", advisory: "CVE-2022-XXXX"} | acc]
+              [
+                %{package: pkg, version: version, status: "vulnerable", advisory: "CVE-2022-XXXX"}
+                | acc
+              ]
             else
               acc
             end

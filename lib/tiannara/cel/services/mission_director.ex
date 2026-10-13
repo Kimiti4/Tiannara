@@ -18,8 +18,13 @@ defmodule Tiannara.CEL.Services.MissionDirector do
 
   @impl true
   def capabilities do
-    [:scientific_lifecycle_orchestration, :validation_gating, :impact_assessment,
-     :workflow_delegation, :knowledge_asset_tracking]
+    [
+      :scientific_lifecycle_orchestration,
+      :validation_gating,
+      :impact_assessment,
+      :workflow_delegation,
+      :knowledge_asset_tracking
+    ]
   end
 
   @impl true
@@ -32,26 +37,34 @@ defmodule Tiannara.CEL.Services.MissionDirector do
 
   @impl true
   def constitutional_score do
-    stats =
-      if Process.whereis(__MODULE__),
-        do: GenServer.call(__MODULE__, :stats),
-        else: %{missions_by_status: %{}, total_missions: 1}
+    case Process.whereis(__MODULE__) do
+      nil ->
+        # Process absent: no measurable state — fail closed rather than
+        # fabricate stats (the former fallback invented total_missions: 1).
+        ConstitutionalScore.unavailable(id())
 
-    stuck = Map.get(stats.missions_by_status, :validating, 0)
-    failed = Map.get(stats.missions_by_status, :failed, 0)
-    total = stats.total_missions || 1
-    health = 1.0 - ((stuck * 0.1 + failed * 0.2) / total)
+      _pid ->
+        stats = GenServer.call(__MODULE__, :stats)
 
-    %ConstitutionalScore{
-      service_id: id(),
-      health: max(0.0, health),
-      constitutional_alignment: 1.0,
-      transparency: 1.0,
-      explainability: 1.0,
-      evidence_quality: 1.0,
-      human_oversight: 1.0,
-      computed_at: DateTime.utc_now()
-    }
+        stuck = Map.get(stats.missions_by_status, :validating, 0)
+        failed = Map.get(stats.missions_by_status, :failed, 0)
+        # Zero missions must not divide by zero: `0 || 1` kept 0 (0 is truthy),
+        # raising :badarith at every fresh boot — which the kernel's catch
+        # previously certified as a perfect 1.0 score (capability ledger D-A10).
+        total = max(stats.total_missions || 0, 1)
+        health = 1.0 - (stuck * 0.1 + failed * 0.2) / total
+
+        %ConstitutionalScore{
+          service_id: id(),
+          health: max(0.0, health),
+          constitutional_alignment: 1.0,
+          transparency: 1.0,
+          explainability: 1.0,
+          evidence_quality: 1.0,
+          human_oversight: 1.0,
+          computed_at: DateTime.utc_now()
+        }
+    end
   end
 
   def start_link(_opts), do: GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -165,10 +178,11 @@ defmodule Tiannara.CEL.Services.MissionDirector do
           validation_evidence: []
         }
 
-        updated_programs = Enum.map(m.programs, fn
-          %{id: ^program_id} = p -> %{p | objectives: [objective | p.objectives]}
-          p -> p
-        end)
+        updated_programs =
+          Enum.map(m.programs, fn
+            %{id: ^program_id} = p -> %{p | objectives: [objective | p.objectives]}
+            p -> p
+          end)
 
         updated_mission = %{m | programs: updated_programs, status: :active}
         persist_mission(updated_mission)
@@ -188,13 +202,23 @@ defmodule Tiannara.CEL.Services.MissionDirector do
       m ->
         case WorkflowEngine.start_workflow(workflow_spec) do
           {:ok, workflow_id} ->
-            updated_programs = update_objective_in_programs(m.programs, objective_id, fn obj ->
-              %{obj | status: :in_progress, active_workflows: [workflow_id | obj.active_workflows]}
-            end)
+            updated_programs =
+              update_objective_in_programs(m.programs, objective_id, fn obj ->
+                %{
+                  obj
+                  | status: :in_progress,
+                    active_workflows: [workflow_id | obj.active_workflows]
+                }
+              end)
 
             updated_mission = %{m | programs: updated_programs}
             persist_mission(updated_mission)
-            record_transition(m.id, :workflow_launched, %{objective_id: objective_id, workflow_id: workflow_id})
+
+            record_transition(m.id, :workflow_launched, %{
+              objective_id: objective_id,
+              workflow_id: workflow_id
+            })
+
             {:reply, {:ok, workflow_id}, state}
 
           {:error, reason} ->
@@ -215,12 +239,14 @@ defmodule Tiannara.CEL.Services.MissionDirector do
         if length(evidence) < 1 do
           {:reply, {:error, :insufficient_validation_evidence}, state}
         else
-          updated_programs = update_objective_in_programs(m.programs, objective_id, fn obj ->
-            %{obj |
-              status: :validated,
-              validation_evidence: evidence ++ obj.validation_evidence
-            }
-          end)
+          updated_programs =
+            update_objective_in_programs(m.programs, objective_id, fn obj ->
+              %{
+                obj
+                | status: :validated,
+                  validation_evidence: evidence ++ obj.validation_evidence
+              }
+            end)
 
           updated_mission = %{m | programs: updated_programs}
           persist_mission(updated_mission)
@@ -244,8 +270,10 @@ defmodule Tiannara.CEL.Services.MissionDirector do
         else
           assessment = %ImpactAssessment{
             mission_id: mission_id,
-            research_acceleration_delta: Map.get(assessment_data, :research_acceleration_delta, 0.0),
-            engineering_productivity_delta: Map.get(assessment_data, :engineering_productivity_delta, 0.0),
+            research_acceleration_delta:
+              Map.get(assessment_data, :research_acceleration_delta, 0.0),
+            engineering_productivity_delta:
+              Map.get(assessment_data, :engineering_productivity_delta, 0.0),
             knowledge_retained: Map.get(assessment_data, :knowledge_retained, 0.0),
             novel_discoveries_count: Map.get(assessment_data, :novel_discoveries_count, 0),
             human_collaboration_value: Map.get(assessment_data, :human_collaboration_value, 0.0),
@@ -253,10 +281,11 @@ defmodule Tiannara.CEL.Services.MissionDirector do
             assessor: assessor
           }
 
-          completed = %{mission |
-            status: :completed,
-            completed_at: DateTime.utc_now(),
-            impact_assessment: assessment
+          completed = %{
+            mission
+            | status: :completed,
+              completed_at: DateTime.utc_now(),
+              impact_assessment: assessment
           }
 
           persist_mission(completed)
@@ -285,8 +314,11 @@ defmodule Tiannara.CEL.Services.MissionDirector do
       :dets.traverse(@mission_table, fn
         {_id, %{status: status} = m} when status in [:planning, :active, :validating] ->
           {:continue, m}
-        _ -> {:continue}
+
+        _ ->
+          {:continue}
       end)
+
     {:reply, active, state}
   end
 
@@ -310,7 +342,9 @@ defmodule Tiannara.CEL.Services.MissionDirector do
     :dets.traverse(@mission_table, fn
       {_id, %{programs: programs} = m} ->
         if Enum.any?(programs, &(&1.id == program_id)), do: {:continue, m}, else: {:continue}
-      _ -> {:continue}
+
+      _ ->
+        {:continue}
     end)
     |> List.first()
   end
@@ -320,25 +354,35 @@ defmodule Tiannara.CEL.Services.MissionDirector do
       {_id, %{programs: programs} = m} ->
         has = Enum.any?(programs, fn p -> Enum.any?(p.objectives, &(&1.id == objective_id)) end)
         if has, do: {:continue, m}, else: {:continue}
-      _ -> {:continue}
+
+      _ ->
+        {:continue}
     end)
     |> List.first()
   end
 
   defp update_objective_in_programs(programs, objective_id, update_fn) do
     Enum.map(programs, fn p ->
-      updated = Enum.map(p.objectives, fn
-        %{id: ^objective_id} = obj -> update_fn.(obj)
-        obj -> obj
-      end)
+      updated =
+        Enum.map(p.objectives, fn
+          %{id: ^objective_id} = obj -> update_fn.(obj)
+          obj -> obj
+        end)
+
       %{p | objectives: updated}
     end)
   end
 
   defp record_transition(mission_id, action, metadata) do
-    ExecutiveMemory.record_event(:mission_state_transition, %{
-      mission_id: mission_id, action: action, metadata: metadata
-    }, %{correlation_id: "mission_#{mission_id}_#{action}"})
+    ExecutiveMemory.record_event(
+      :mission_state_transition,
+      %{
+        mission_id: mission_id,
+        action: action,
+        metadata: metadata
+      },
+      %{correlation_id: "mission_#{mission_id}_#{action}"}
+    )
   rescue
     _ -> :ok
   end

@@ -4,7 +4,7 @@ defmodule Tiannara.Physics.MC004PPilotExecutionTest do
   alias Tiannara.Phase4.{PhysicsPilotExecution, RealExecution}
   alias Tiannara.Domains.Physics
   alias Tiannara.Foundations.Mathematics.Calculus
-  alias Tiannara.Omega.HumanDelivery.Authorization
+  alias Tiannara.Omega.HumanDelivery.{Authorization, AuthenticatedHumanIdentity}
 
   @executions_log "priv/tiannara/real_execution/executions.jsonl"
 
@@ -19,17 +19,35 @@ defmodule Tiannara.Physics.MC004PPilotExecutionTest do
   end
 
   defp minted_grant do
-    {:ok, auth} = Authorization.prepare(%{explanation_id: "mc004-p-pilot"})
+    {:ok, identity} = AuthenticatedHumanIdentity.authenticate("c14_ac", "credential", :password)
+
+    {:ok, auth} =
+      Authorization.prepare(%{
+        explanation_id: "mc004-p-pilot-#{System.unique_integer([:positive])}"
+      })
+
     {:ok, pending} = Authorization.request(auth)
-    {:ok, granted} = Authorization.human_grant(pending, "c14_ac")
+    {:ok, granted} = Authorization.human_grant(pending, identity)
+    :ok = Authorization.record_mint(granted.authorization_id)
     granted
+  end
+
+  # A pilot whose context carries a unique run_id marker, so the canonical
+  # effect_id (fingerprinted from hypothesis/context) is a fresh identity each
+  # call — avoiding M6 single-use dedup collisions across tests. The marker is
+  # merged into the valid pilot context (boundary_conditions/time_span intact).
+  defp unique_pilot do
+    pilot = Physics.pilot_experiment()
+    put_in(pilot, [:context, :run_id], "mc004-p-#{System.unique_integer([:positive])}")
   end
 
   describe "MC-004-P pilot execution" do
     test "produces real execution evidence via PhysicsPilotExecution" do
       Application.put_env(:tiannara, :real_execution_enabled, true)
 
-      assert {:ok, result} = PhysicsPilotExecution.execute(%{grant: minted_grant()})
+      assert {:ok, result} =
+               PhysicsPilotExecution.execute(%{grant: minted_grant(), pilot: unique_pilot()})
+
       assert is_binary(result.execution_id)
       assert String.starts_with?(result.execution_id, "pilot_")
       assert result.provenance.kind == :real_execution
@@ -42,7 +60,7 @@ defmodule Tiannara.Physics.MC004PPilotExecutionTest do
     test "MC-004-P bridges through Physics.execute_experiment with grant" do
       Application.put_env(:tiannara, :real_execution_enabled, true)
 
-      pilot = Physics.pilot_experiment()
+      pilot = unique_pilot()
       spec = %{grant: minted_grant(), pilot: pilot}
 
       assert {:ok, result} = Physics.execute_experiment(spec)
@@ -58,7 +76,8 @@ defmodule Tiannara.Physics.MC004PPilotExecutionTest do
           do: File.read!(@executions_log),
           else: ""
 
-      assert {:ok, _result} = PhysicsPilotExecution.execute(%{grant: minted_grant()})
+      assert {:ok, _result} =
+               PhysicsPilotExecution.execute(%{grant: minted_grant(), pilot: unique_pilot()})
 
       after_content = File.read!(@executions_log)
       new_entries = String.replace(after_content, before_content, "")

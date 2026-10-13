@@ -9,8 +9,6 @@ defmodule Tiannara.World.ReplayEngine do
   use Tiannara.ExecutiveService.Base
   require Logger
 
-  alias Tiannara.World.WorldMutationEngine
-  alias Tiannara.CEL.Services.ExecutiveMemory
   alias Tiannara.CEL.Kernel.ConstitutionalScore
 
   # ---------- ExecutiveService Behaviour ----------
@@ -60,47 +58,25 @@ defmodule Tiannara.World.ReplayEngine do
 
   @impl true
   def init(_opts) do
-    {:ok, %{
-      replay_sessions: 0,
-      healthy: true,
-      started_at: DateTime.utc_now()
-    }}
+    {:ok,
+     %{
+       replay_sessions: 0,
+       healthy: true,
+       started_at: DateTime.utc_now()
+     }}
   end
 
   @impl true
-  def handle_call({:replay, start_ref, end_ref, opts}, _from, state) do
-    session_id = "replay_#{:crypto.strong_rand_bytes(8) |> Base.encode16(case: :lower)}"
-    Logger.info("ReplayEngine: Starting replay session #{session_id} from #{inspect(start_ref)} to #{inspect(end_ref)}")
-
-    mutations = fetch_mutations(start_ref, end_ref)
-    replay_results = execute_sandboxed_mutations(mutations)
-
-    ExecutiveMemory.record_decision(
-      session_id,
-      :replay_session_completed,
-      %{
-        start_ref: start_ref,
-        end_ref: end_ref,
-        mutation_count: length(mutations),
-        success_count: length(Enum.filter(replay_results, &(&1 == :ok))),
-        opts: opts
-      }
+  def handle_call({:replay, _start_ref, _end_ref, _opts}, _from, state) do
+    Logger.warning(
+      "ReplayEngine: replay unavailable because no executable mutation source is configured"
     )
 
-    {:reply, {:ok, %{session_id: session_id, results: replay_results}}, %{state | replay_sessions: state.replay_sessions + 1}}
+    {:reply, {:error, :replay_source_unavailable}, state}
   end
 
   @impl true
   def handle_call(:stats, _from, state) do
     {:reply, state, state}
-  end
-
-  defp fetch_mutations(_start_ref, _end_ref) do
-    [%{id: "mut_1", type: :create_entity, spec: %{id: "test_1"}},
-     %{id: "mut_2", type: :update_entity, spec: %{id: "test_1", updates: %{confidence: 0.9}}}]
-  end
-
-  defp execute_sandboxed_mutations(mutations) do
-    Enum.map(mutations, fn _m -> :ok end)
   end
 end

@@ -13,8 +13,21 @@ defmodule Tiannara.Council.Authorization do
     :context,
     :decided_at,
     :policy_applied,
-    metadata: %{}
+    metadata: %{},
+    conditions: []
   ]
+
+  @typedoc """
+  A per-concern mitigation requirement attached to a decision (G-9).
+
+  `concern` names the constitutional concern the condition exists for;
+  `evidence_check` names the evidence entry that satisfies it. A condition is
+  satisfied when the decision's evidence carries an entry whose `:principle`
+  or `:check` equals the condition value and that entry is not explicitly
+  `passed: false`. Any unsatisfied condition fails the conditions check
+  fail-closed.
+  """
+  @type condition :: %{concern: atom(), evidence_check: atom()}
 
   @type decision :: :approved | :rejected | :deferred | :requires_human | :conditional
   @type t :: %__MODULE__{
@@ -31,7 +44,8 @@ defmodule Tiannara.Council.Authorization do
           context: Tiannara.Council.ExecutionContext.t() | nil,
           decided_at: DateTime.t(),
           policy_applied: atom() | nil,
-          metadata: map()
+          metadata: map(),
+          conditions: [condition()]
         }
 
   def approved(opts) do
@@ -41,7 +55,8 @@ defmodule Tiannara.Council.Authorization do
       constitutional_score: Keyword.get(opts, :constitutional_score, 1.0),
       violated_principles: [],
       required_human_review: false,
-      explanation: Keyword.get(opts, :explanation, "Action complies with all constitutional principles."),
+      explanation:
+        Keyword.get(opts, :explanation, "Action complies with all constitutional principles."),
       evidence: Keyword.get(opts, :evidence, []),
       risks: Keyword.get(opts, :risks, []),
       simulation_results: Keyword.get(opts, :simulation_results, []),
@@ -49,7 +64,8 @@ defmodule Tiannara.Council.Authorization do
       context: Keyword.get(opts, :context),
       decided_at: DateTime.utc_now(),
       policy_applied: Keyword.get(opts, :policy_applied),
-      metadata: Keyword.get(opts, :metadata, %{})
+      metadata: Keyword.get(opts, :metadata, %{}),
+      conditions: Keyword.get(opts, :conditions, [])
     }
   end
 
@@ -68,7 +84,8 @@ defmodule Tiannara.Council.Authorization do
       context: Keyword.get(opts, :context),
       decided_at: DateTime.utc_now(),
       policy_applied: Keyword.get(opts, :policy_applied),
-      metadata: Keyword.get(opts, :metadata, %{})
+      metadata: Keyword.get(opts, :metadata, %{}),
+      conditions: Keyword.get(opts, :conditions, [])
     }
   end
 
@@ -87,7 +104,8 @@ defmodule Tiannara.Council.Authorization do
       context: Keyword.get(opts, :context),
       decided_at: DateTime.utc_now(),
       policy_applied: Keyword.get(opts, :policy_applied),
-      metadata: Keyword.get(opts, :metadata, %{})
+      metadata: Keyword.get(opts, :metadata, %{}),
+      conditions: Keyword.get(opts, :conditions, [])
     }
   end
 

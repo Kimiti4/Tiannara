@@ -19,7 +19,15 @@ defmodule Tiannara.Math.Optimization do
          {:ok, tolerance} <- positive_option(opts, :tolerance, @default_tolerance),
          {:ok, max_iterations} <- integer_option(opts, :max_iterations, 10_000),
          :ok <- validate_limit(max_iterations) do
-      iterate(objective_fn, grad_fn, floats(initial_params), learning_rate, tolerance, max_iterations, 0)
+      iterate(
+        objective_fn,
+        grad_fn,
+        floats(initial_params),
+        learning_rate,
+        tolerance,
+        max_iterations,
+        0
+      )
     end
   rescue
     ArithmeticError -> {:error, :non_finite_objective_or_gradient}
@@ -61,7 +69,15 @@ defmodule Tiannara.Math.Optimization do
                 iterate(objective, gradient, next, lr, tolerance, max_iterations, iteration + 1)
 
               true ->
-                iterate(objective, gradient, params, lr / 2.0, tolerance, max_iterations, iteration + 1)
+                iterate(
+                  objective,
+                  gradient,
+                  params,
+                  lr / 2.0,
+                  tolerance,
+                  max_iterations,
+                  iteration + 1
+                )
             end
           else
             {:error, :non_finite_parameters}
@@ -71,14 +87,25 @@ defmodule Tiannara.Math.Optimization do
   end
 
   defp result(params, objective, iterations, converged, termination, gradient_norm) do
-    %{params: params, objective: objective / 1.0, iterations: iterations,
-      converged: converged, termination: termination, gradient_norm: gradient_norm,
-      optimality: :local_stationary_candidate, certification_eligible: false}
+    %{
+      params: params,
+      objective: objective / 1.0,
+      iterations: iterations,
+      converged: converged,
+      termination: termination,
+      gradient_norm: gradient_norm,
+      optimality: :local_stationary_candidate,
+      certification_eligible: false
+    }
   end
 
-  defp validate_vector(values) do
-    if values != [] and Enum.all?(values, &finite_number?/1), do: :ok, else: {:error, :invalid_vector}
+  defp validate_vector(values) when is_list(values) do
+    if values != [] and Enum.all?(values, &finite_number?/1),
+      do: :ok,
+      else: {:error, :invalid_vector}
   end
+
+  defp validate_vector(_), do: {:error, :invalid_vector}
 
   defp validate_scalar(value) do
     if finite_number?(value), do: :ok, else: {:error, :non_finite_objective_or_gradient}
@@ -86,7 +113,9 @@ defmodule Tiannara.Math.Optimization do
 
   defp positive_option(opts, key, default) do
     value = Keyword.get(opts, key, default)
-    if is_number(value) and finite_number?(value) and value > 0, do: {:ok, value / 1.0},
+
+    if is_number(value) and finite_number?(value) and value > 0,
+      do: {:ok, value / 1.0},
       else: {:error, {:invalid_option, key}}
   end
 
@@ -98,6 +127,10 @@ defmodule Tiannara.Math.Optimization do
   defp validate_limit(value) when value > 0 and value <= @max_iterations, do: :ok
   defp validate_limit(_), do: {:error, :iteration_limit_exceeded}
   defp floats(values), do: Enum.map(values, &(&1 / 1.0))
-  defp euclidean_norm(values), do: :math.sqrt(Enum.reduce(values, 0.0, fn x, acc -> acc + x * x end))
-  defp finite_number?(x), do: is_number(x) and x == x and x > -1.7976931348623157e308 and x < 1.7976931348623157e308
+
+  defp euclidean_norm(values),
+    do: :math.sqrt(Enum.reduce(values, 0.0, fn x, acc -> acc + x * x end))
+
+  defp finite_number?(x),
+    do: is_number(x) and x == x and x > -1.7976931348623157e308 and x < 1.7976931348623157e308
 end

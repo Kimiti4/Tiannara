@@ -10,39 +10,52 @@ defmodule TiannaraWeb.Endpoint do
     signing_salt: "signing_salt_tiannara"
   ]
 
-  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  socket("/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]])
+
+  # Binary telemetry/report streams (registered 2026-10-13 audit — these
+  # channels existed but were unreachable: no socket lines, zero references).
+  # Phoenix requires socket *modules*; the thin wrappers route telemetry:*
+  # and report:* to the existing channels. TelemetryChannel safely degrades
+  # when PressureMonitor is not running (whereis-guarded); ReportChannel
+  # spawns its own ProgressiveAggregator.
+  socket("/telemetry", TiannaraWeb.TelemetrySocket, websocket: true)
+  socket("/report", TiannaraWeb.ReportSocket, websocket: true)
 
   # Serve static files
-  plug Plug.Static,
+  plug(Plug.Static,
     at: "/",
     from: :tiannara,
     gzip: false,
     only: ~w(assets fonts images favicon.ico robots.txt data)
+  )
 
-  plug Plug.Static,
+  plug(Plug.Static,
     at: "/coa",
     from: Path.expand("../../../tiannara_observatory/apps/observatory_ui/public/coa", __DIR__),
     gzip: false
+  )
 
   if code_reloading? do
-    plug Phoenix.CodeReloader
+    plug(Phoenix.CodeReloader)
   end
 
-  plug Plug.RequestId
-  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+  plug(Plug.RequestId)
+  plug(Plug.Telemetry, event_prefix: [:phoenix, :endpoint])
 
-  plug Plug.Parsers,
+  plug(Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Phoenix.json_library()
+  )
 
-  plug CORSPlug,
+  plug(CORSPlug,
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     headers: ["Content-Type", "Authorization", "X-Request-Id"]
+  )
 
-  plug Plug.MethodOverride
-  plug Plug.Head
-  plug Plug.Session, @session_options
-  plug TiannaraWeb.Router
+  plug(Plug.MethodOverride)
+  plug(Plug.Head)
+  plug(Plug.Session, @session_options)
+  plug(TiannaraWeb.Router)
 end

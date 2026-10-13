@@ -596,13 +596,16 @@ defmodule Tiannara.Executive.ExecutiveMemory do
         Logger.info(
           "[ExecutiveMemory] Maintenance: integrity OK (#{deep_check.valid}/#{deep_check.total})"
         )
+
+        # Refresh the verified recovery backup from healthy state only
+        # (corrupt sources are refused by Recovery.create_backup/1).
+        _ = Recovery.create_backup(state.dets_file)
       else
         Logger.error(
           "[ExecutiveMemory] Maintenance: corruption detected (#{deep_check.corrupt}/#{deep_check.total})"
         )
 
         state = State.record_corruption(state)
-        Recovery.create_backup(state.dets_file)
 
         Tiannara.Executive.Telemetry.emit([:tiannara, :executive], :needs_repair, %{
           file: state.dets_file,

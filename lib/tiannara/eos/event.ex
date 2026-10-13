@@ -22,11 +22,27 @@ defmodule Tiannara.EOS.Event do
       type: type,
       source: source,
       payload: payload,
-      correlation_id: opts[:correlation_id] || Ecto.UUID.generate(),
+      correlation_id: opts[:correlation_id] || generate_uuid_v4(),
       occurred_at: opts[:occurred_at] || DateTime.utc_now(),
       schema_version: opts[:schema_version] || 1
     }
   end
+
+  # RFC 4122 v4 UUID via :crypto — replaces Ecto.UUID.generate/0, which was an
+  # UndefinedFunctionError waiting to happen (ecto is not a dependency).
+  defp generate_uuid_v4 do
+    <<a::48, _::4, b::12, _::2, c::62>> = :crypto.strong_rand_bytes(16)
+
+    <<a::48, 4::4, b::12, 2::2, c::62>>
+    |> Base.encode16(case: :lower)
+    |> binary_insert_dashes()
+  end
+
+  defp binary_insert_dashes(
+         <<a::binary-size(8), b::binary-size(4), c::binary-size(4), d::binary-size(4),
+           e::binary-size(12)>>
+       ),
+       do: "#{a}-#{b}-#{c}-#{d}-#{e}"
 
   def validate(%__MODULE__{} = event) do
     cond do

@@ -6,6 +6,8 @@ defmodule Tiannara.World.UnifiedWorldModel do
   alias Tiannara.World.{UnifiedRealityGraph, ProvenanceEngine, WorldMutationEngine}
   alias Tiannara.CEL.Services.EventBus
   alias Tiannara.CEL.Kernel.ConstitutionalScore
+  alias Tiannara.Council.{AuditLog, Authorization, MachineAuthorization}
+  alias Tiannara.Omega.{EffectIdentity, MintRegistry}
 
   @canonical_types Tiannara.World.CanonicalWorldState.domain_entity_types()
                    |> Map.values()
@@ -115,7 +117,35 @@ defmodule Tiannara.World.UnifiedWorldModel do
   def update_entity(entity_id, updates, context \\ nil),
     do: GenServer.call(__MODULE__, {:update_entity, entity_id, updates, context})
 
-  def delete_entity(entity_id), do: GenServer.call(__MODULE__, {:delete_entity, entity_id})
+  @doc """
+  Deletes an entity under the governed sink contract (model M5, gates G1-G7).
+  The machine-class authorization must be minted (M7), bound one-shot to this
+  entity's canonical descriptor (M3), and is consumed atomically with the write
+  (M4). Returns `{:ok, %{entity_id:, effect_id:, authorization_id:}}` on
+  governed success; every refusal fails closed with no graph write.
+  """
+  def delete_entity(entity_id, authorization),
+    do: GenServer.call(__MODULE__, {:delete_entity, entity_id, authorization})
+
+  @doc """
+  The canonical semantic descriptor for a delete-entity effect (model M1).
+  All values are canonically representable; effect identity is derived from
+  this descriptor only.
+  """
+  @spec effect_descriptor(term()) :: map()
+  def effect_descriptor(entity_id) do
+    %{
+      principal: "tiannara.world.unified_world_model",
+      authority_scope: "omega:world_mutation",
+      operation: "delete_entity",
+      target: %{entity_id: to_string(entity_id)},
+      parameters: %{},
+      environment: %{},
+      intent: %{kind: "entity_deletion"},
+      semantic_version: "1",
+      identity_version: EffectIdentity.identity_version()
+    }
+  end
 
   def transition_stage(entity_id, target_stage),
     do: GenServer.call(__MODULE__, {:transition_stage, entity_id, target_stage})
@@ -156,6 +186,7 @@ defmodule Tiannara.World.UnifiedWorldModel do
        total_entities: 0,
        total_relationships: 0,
        entities_with_provenance: 0,
+       executed_effects: MapSet.new(),
        healthy: true,
        started_at: DateTime.utc_now()
      }}
@@ -238,24 +269,51 @@ defmodule Tiannara.World.UnifiedWorldModel do
   end
 
   @impl true
-  def handle_call({:delete_entity, entity_id}, _from, state) do
-    case UnifiedRealityGraph.get_entity(entity_id) do
-      {:ok, entity} ->
-        UnifiedRealityGraph.remove_entity(entity_id)
-        UnifiedRealityGraph.remove_relationships_for_entity(entity_id)
-        EventBus.publish("world.entity.deleted", %{entity_id: entity_id})
-        ent_type = Map.get(entity, :type, :unknown)
+  def handle_call({:delete_entity, entity_id, authorization}, _from, state) do
+    with :ok <- check_present(authorization),
+         :ok <- check_status(authorization),
+         :ok <- check_not_expired(authorization),
+         :ok <- check_authority(authorization),
+         :ok <- check_binding(authorization, entity_id),
+         false <- MapSet.member?(state.executed_effects, authorization.effect_id),
+         {:ok, entity} <- UnifiedRealityGraph.get_entity(entity_id),
+         :ok <- consume(authorization) do
+      UnifiedRealityGraph.remove_entity(entity_id)
+      UnifiedRealityGraph.remove_relationships_for_entity(entity_id)
 
-        ns = %{
-          state
-          | total_entities: max(0, state.total_entities - 1),
-            type_counts: Map.update!(state.type_counts, ent_type, &max(0, &1 - 1))
-        }
+      result = %{
+        entity_id: entity_id,
+        effect_id: authorization.effect_id,
+        authorization_id: authorization.authorization_id
+      }
 
-        {:reply, :ok, ns}
+      ent_type = Map.get(entity, :type, :unknown)
 
-      err ->
-        {:reply, err, state}
+      EventBus.publish(
+        "world.entity.deleted",
+        Map.merge(result, %{entity_type: ent_type})
+      )
+
+      ns = %{
+        state
+        | total_entities: max(0, state.total_entities - 1),
+          type_counts: Map.update!(state.type_counts, ent_type, &max(0, &1 - 1)),
+          executed_effects: MapSet.put(state.executed_effects, result.effect_id)
+      }
+
+      case record_and_verify_audit(result) do
+        :ok ->
+          {:reply, {:ok, result}, ns}
+
+        {:error, reason} ->
+          {:reply, {:error, reason}, ns}
+      end
+    else
+      true ->
+        {:reply, {:error, :effect_already_executed}, state}
+
+      {:error, _reason} = error ->
+        {:reply, error, state}
     end
   end
 
@@ -481,4 +539,149 @@ defmodule Tiannara.World.UnifiedWorldModel do
 
   defp gen_id(type, subtype),
     do: "#{type}_#{subtype}_#{:crypto.strong_rand_bytes(8) |> Base.encode16(case: :lower)}"
+
+  # ------------------------------------------------------ governed delete gates (M5) --
+
+  defp check_present(%MachineAuthorization{}), do: :ok
+  defp check_present(nil), do: {:error, :authorization_required}
+  defp check_present(_authorization), do: {:error, :invalid_authorization}
+
+  defp check_status(%MachineAuthorization{authorization_id: id, status: status}) do
+    case MintRegistry.status(id) do
+      :granted ->
+        case status do
+          :granted -> :ok
+          :consumed -> {:error, :already_consumed}
+          :expired -> {:error, :authorization_expired}
+          :revoked -> {:error, :authorization_revoked}
+          _other -> {:error, :authorization_not_granted}
+        end
+
+      :consumed ->
+        {:error, :already_consumed}
+
+      :not_registered ->
+        {:error, :authorization_not_registered}
+
+      :registry_unavailable ->
+        {:error, :authorization_registry_unavailable}
+
+      other ->
+        {:error, {:authorization_registry_error, other}}
+    end
+  end
+
+  defp check_status(_authorization), do: {:error, :invalid_authorization}
+
+  defp check_not_expired(%MachineAuthorization{} = authorization) do
+    if MachineAuthorization.expired?(authorization),
+      do: {:error, :authorization_expired},
+      else: :ok
+  end
+
+  defp check_authority(%MachineAuthorization{} = authorization) do
+    decision = authorization.decision
+
+    cond do
+      authorization.authority_class != :machine ->
+        {:error, :decision_invalid}
+
+      authorization.decision_type != :delete_entity ->
+        {:error, :decision_type_mismatch}
+
+      not is_struct(decision, Authorization) ->
+        {:error, :decision_invalid}
+
+      not Authorization.permitted?(decision) ->
+        {:error, :decision_invalid}
+
+      is_nil(decision.policy_applied) ->
+        {:error, :decision_invalid}
+
+      is_nil(decision.decided_at) ->
+        {:error, :decision_invalid}
+
+      MachineAuthorization.content_hash(authorization) != authorization.content_hash ->
+        {:error, :decision_tampered}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp check_authority(_authorization), do: {:error, :decision_invalid}
+
+  defp check_binding(%MachineAuthorization{effect_id: effect_id} = authorization, entity_id)
+       when is_binary(effect_id) do
+    with {:ok, expected} <- EffectIdentity.effect_id(effect_descriptor(entity_id)),
+         :ok <- if(expected == effect_id, do: :ok, else: {:error, :effect_id_mismatch}) do
+      case MintRegistry.binding(authorization.authorization_id) do
+        {:ok, ^effect_id} -> :ok
+        {:ok, _registry_effect} -> {:error, :registry_binding_mismatch}
+        :not_bound -> {:error, :registry_binding_mismatch}
+        :not_registered -> {:error, :authorization_not_registered}
+        :registry_unavailable -> {:error, :authorization_registry_unavailable}
+      end
+    end
+  end
+
+  defp check_binding(_authorization, _entity_id), do: {:error, :effect_binding_required}
+
+  defp consume(%MachineAuthorization{authorization_id: id, effect_id: effect_id}) do
+    case MintRegistry.consume(id, effect_id) do
+      :ok -> :ok
+      :registry_unavailable -> {:error, :authorization_registry_unavailable}
+      {:error, :already_consumed} -> {:error, :already_consumed}
+      {:error, :not_registered} -> {:error, :authorization_not_registered}
+      {:error, :registry_binding_mismatch} -> {:error, :registry_binding_mismatch}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp record_and_verify_audit(result) do
+    payload = %{
+      effect_id: result.effect_id,
+      authorization_id: result.authorization_id,
+      sink: :unified_world_model,
+      operation: "delete_entity",
+      entity_id: to_string(result.entity_id),
+      deleted_at: DateTime.utc_now()
+    }
+
+    outcome =
+      try do
+        case AuditLog.append(:world_entity_deleted, :machine, payload) do
+          {:ok, %{} = entry} -> {:ok, entry}
+          {:error, reason} -> {:error, reason}
+          other -> {:error, {:unexpected_audit_result, other}}
+        end
+      catch
+        kind, reason -> {:error, {kind, reason}}
+      end
+
+    case outcome do
+      {:ok, stored} ->
+        stored_payload = Map.get(stored, :payload, %{})
+
+        if Map.get(stored, :action) == :world_entity_deleted and
+             Map.get(stored_payload, :effect_id) == result.effect_id and
+             Map.get(stored_payload, :authorization_id) == result.authorization_id do
+          :ok
+        else
+          {:error, :result_identity_mismatch}
+        end
+
+      {:error, reason} ->
+        {:error, {:audit_not_recorded, reason, audit_detail(result)}}
+    end
+  end
+
+  defp audit_detail(result) do
+    %{
+      deleted: true,
+      entity_id: to_string(result.entity_id),
+      authorization_id: result.authorization_id,
+      effect_id: result.effect_id
+    }
+  end
 end

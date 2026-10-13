@@ -1,5 +1,13 @@
 # Tiannara Layer 6.5D Final Validation Report
 
+> **⚠️ SIMULATION-ONLY DISCLAIMER (added 2026-10-13, doc-vs-reality audit)**
+> The ESR (1.2) and AFG (+0.05) values cited in this report are **the literal placeholder
+> constants** returned by `lib/tiannara/os/civilization_scheduler.ex:2000-2012`
+> (`calculate_esr(_state)` → `1.2`, `calculate_afg(_state)` → `0.05`, both commented
+> "Placeholder"). They are **not measured** from the 100k-tick experiment. The
+> experiment itself is a fixture simulation. Treat all PASS verdicts based on
+> ESR/AFG thresholds as unvalidated.
+
 ## 100,000 Tick Civilization Evolution Experiment
 
 **Project:** Tiannara Autonomous Civilization Architecture

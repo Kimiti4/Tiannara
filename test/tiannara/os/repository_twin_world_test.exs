@@ -39,9 +39,10 @@ defmodule TiannaraOS.RepositoryTwinWorldTest do
 
   test "PR and Merge Validation: branch isolation, PR merges, and disk persistence" do
     # 1. Spawn twin with vulnerable plug package
-    {:ok, twin} = RepositoryTwin.create_twin(:test_repo, "vulnerable_proj", %{
-      dependencies: %{"plug" => "1.13.0"}
-    })
+    {:ok, twin} =
+      RepositoryTwin.create_twin(:test_repo, "vulnerable_proj", %{
+        dependencies: %{"plug" => "1.13.0"}
+      })
 
     # 2. Add branch and switch
     twin =
@@ -60,10 +61,11 @@ defmodule TiannaraOS.RepositoryTwinWorldTest do
       end
     end
     """
-    
-    twin = RepositoryTwin.commit_changes(twin, "auditor", "upgrade plug to 1.14.0", %{
-      "mix.exs" => fixed_mix_content
-    })
+
+    twin =
+      RepositoryTwin.commit_changes(twin, "auditor", "upgrade plug to 1.14.0", %{
+        "mix.exs" => fixed_mix_content
+      })
 
     # Assert branch has the update
     content_fix_branch = File.read!(Path.join(twin.path, "mix.exs"))
@@ -96,45 +98,66 @@ defmodule TiannaraOS.RepositoryTwinWorldTest do
 
   test "CI runs generate EvidenceNodes and revise JTMS belief confidence" do
     # 1. Register Theory and Claim
-    theory = %EvidenceNode{id: :ci_theory, type: :theory, name: "CI Security Theory", value: 1.0, validity: :valid}
-    claim = %EvidenceNode{id: :ci_claim, type: :claim, name: "CI Passes claim", value: 1.0, validity: :valid}
+    theory = %EvidenceNode{
+      id: :ci_theory,
+      type: :theory,
+      name: "CI Security Theory",
+      value: 1.0,
+      validity: :valid
+    }
+
+    claim = %EvidenceNode{
+      id: :ci_claim,
+      type: :claim,
+      name: "CI Passes claim",
+      value: 1.0,
+      validity: :valid
+    }
 
     # Set up initial JTMS state
-    {:ok, _state} = CivilizationKernel.update_state(fn current_state ->
-      initial_graph =
-        current_state.evidence_graph
-        |> Map.put(:ci_theory, theory)
-        |> Map.put(:ci_claim, claim)
+    {:ok, _state} =
+      CivilizationKernel.update_state(fn current_state ->
+        initial_graph =
+          current_state.evidence_graph
+          |> Map.put(:ci_theory, theory)
+          |> Map.put(:ci_claim, claim)
 
-      %{current_state | evidence_graph: initial_graph}
-    end)
+        %{current_state | evidence_graph: initial_graph}
+      end)
 
     # Link Theory -> Claim
-    {:ok, _state} = CivilizationKernel.update_state(fn current_state ->
-      EvidenceEngine.add_relation(current_state, :ci_theory, :predicts, :ci_claim)
-    end)
+    {:ok, _state} =
+      CivilizationKernel.update_state(fn current_state ->
+        EvidenceEngine.add_relation(current_state, :ci_theory, :predicts, :ci_claim)
+      end)
 
     # 2. Spawn twin with vulnerable dependency
-    {:ok, twin} = RepositoryTwin.create_twin(:ci_repo, "ci_proj", %{
-      dependencies: %{"plug" => "1.13.0"}
-    })
+    {:ok, twin} =
+      RepositoryTwin.create_twin(:ci_repo, "ci_proj", %{
+        dependencies: %{"plug" => "1.13.0"}
+      })
 
-    # Register twin in a World conforming wrapper
+    # Register twin in a World conforming wrapper. Every world written through
+    # update_state must carry the active tenant (fail-closed isolation rule).
     world = %World{
       id: :repo_world_instance,
       name: "Stateful Repository World",
       template_id: :cybersecurity,
+      tenant_id: "default_tenant",
       twin: twin
     }
 
-    {:ok, state} = CivilizationKernel.update_state(fn current_state ->
-      %{current_state | worlds: Map.put(current_state.worlds, :repo_world_instance, world)}
-    end)
+    {:ok, state} =
+      CivilizationKernel.update_state(fn current_state ->
+        %{current_state | worlds: Map.put(current_state.worlds, :repo_world_instance, world)}
+      end)
 
     # 3. Run CI - should fail since plug is vulnerable (1.13.0)
-    {:ok, twin_after_run, evidence_node} = RepositoryTwin.run_ci_pipeline(twin, :repo_world_instance)
+    {:ok, twin_after_run, evidence_node} =
+      RepositoryTwin.run_ci_pipeline(twin, :repo_world_instance)
 
-    assert evidence_node.value == 0.0 # CI Failed
+    # CI Failed
+    assert evidence_node.value == 0.0
     assert evidence_node.metadata.source == :ci_pipeline
     assert evidence_node.metadata.ci_outcome == :failure
 
@@ -163,15 +186,21 @@ defmodule TiannaraOS.RepositoryTwinWorldTest do
       end
     end
     """
-    twin_after_run = RepositoryTwin.commit_changes(twin_after_run, "auditor", "upgrade plug", %{
-      "mix.exs" => fixed_mix_content
-    })
 
-    {:ok, twin_fixed, success_evidence} = RepositoryTwin.run_ci_pipeline(twin_after_run, :repo_world_instance)
-    assert success_evidence.value == 1.0 # CI Successful!
+    twin_after_run =
+      RepositoryTwin.commit_changes(twin_after_run, "auditor", "upgrade plug", %{
+        "mix.exs" => fixed_mix_content
+      })
+
+    {:ok, twin_fixed, success_evidence} =
+      RepositoryTwin.run_ci_pipeline(twin_after_run, :repo_world_instance)
+
+    # CI Successful!
+    assert success_evidence.value == 1.0
 
     # Verify CI success rate metric
-    assert twin_fixed.metrics.ci_success_rate == 0.5 # 1 fail, 1 success
+    # 1 fail, 1 success
+    assert twin_fixed.metrics.ci_success_rate == 0.5
 
     # Cleanup twin disk
     RepositoryTwin.cleanup_twin(twin_fixed)
@@ -201,9 +230,13 @@ defmodule TiannaraOS.RepositoryTwinWorldTest do
     assert discovery.transferability_score == 0.7
 
     # Add to OS state vector
-    {:ok, state} = CivilizationKernel.update_state(fn current_state ->
-      %{current_state | discoveries: Map.put(current_state.discoveries, :vuln_leak_discovery, discovery)}
-    end)
+    {:ok, state} =
+      CivilizationKernel.update_state(fn current_state ->
+        %{
+          current_state
+          | discoveries: Map.put(current_state.discoveries, :vuln_leak_discovery, discovery)
+        }
+      end)
 
     # Verify registry retrieves candidate correctly
     retrieved = Map.get(state.discoveries, :vuln_leak_discovery)

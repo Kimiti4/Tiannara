@@ -78,12 +78,27 @@ defmodule Tiannara.Application do
       # Tier 1: Service Registry — used by Kernel during boot
       Tiannara.CEL.Kernel.ServiceRegistry,
 
+      # Lifecycle event ledger — owns the :lifecycle_* ETS tables for the
+      # lifetime of the node (record_created/removed callers assume they exist)
+      Tiannara.LifecycleRegistry,
+
+      # CTL causal branch evidence store — BranchValidator fails closed
+      # (:registry_unavailable) when this is not running
+      Tiannara.CTL.CausalRegistry,
+
       # Tier 2: Executive Kernel — Runtime Orchestrator
       Tiannara.CEL.Kernel,
 
       # Storage lifecycle — DETS size-bound rotation + retention (stores
       # register with it at boot; must start before CEL services)
       Tiannara.Storage.DetsLifecycle,
+
+      # Soak checkpoint persistence — root-supervisor owned so a crash
+      # restarts it (topology gate: previously started only from
+      # BootSequencer's call context, outside any supervision tree, and
+      # stayed dead after a kill). BootSequencer adopts it via the
+      # already_started branch like every other registered subsystem.
+      Tiannara.CRAV.SoakCheckpointer,
 
       # Telemetry and monitoring
       Tiannara.Telemetry,
@@ -99,6 +114,7 @@ defmodule Tiannara.Application do
       # Observatory Validation Campaign Infrastructure
       {Registry, keys: :unique, name: Tiannara.Observatory.ValidationRegistry},
       Tiannara.Observatory.ValidationSupervisor,
+      Tiannara.Observatory.LiveProjection,
       Tiannara.ValidationCampaigns,
 
       # Civilization Kernel (Top-level State Substrate)

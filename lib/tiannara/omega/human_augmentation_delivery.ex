@@ -51,6 +51,7 @@ defmodule Tiannara.Omega.HumanAugmentationDelivery do
   require Logger
 
   alias Tiannara.Omega.HumanAugmentationDelivery.{Explanation, Authorization}
+  alias Tiannara.Omega.HumanDelivery.AuthenticatedHumanIdentity
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: Keyword.get(opts, :name, __MODULE__))
@@ -103,18 +104,21 @@ defmodule Tiannara.Omega.HumanAugmentationDelivery do
          status: "Pending human authorization"
        }}
 
-    Logger.info("Decision package delivered successfully with authorization ID: #{auth.authorization_id}")
+    Logger.info(
+      "Decision package delivered successfully with authorization ID: #{auth.authorization_id}"
+    )
+
     {:reply, response, state}
   end
 
   @impl true
-  def handle_call({:authorize, authorization_id, human_id}, _from, state) do
+  def handle_call({:authorize, authorization_id, identity}, _from, state) do
     case Map.get(state.pending, authorization_id) do
       nil ->
         {:reply, {:error, :unknown_authorization}, state}
 
       {explanation, auth} ->
-        case Authorization.human_grant(auth, human_id) do
+        case Authorization.human_grant(auth, identity) do
           {:ok, granted} ->
             state = %{
               state
@@ -172,7 +176,7 @@ defmodule Tiannara.Omega.HumanAugmentationDelivery do
       end)
       |> Enum.into(%{})
 
-    one_week_ago = DateTime.utc_now() |> DateTime.add(-604800)
+    one_week_ago = DateTime.utc_now() |> DateTime.add(-604_800)
 
     cleaned_granted =
       Enum.filter(state.granted, fn {_id, {_explanation, granted}} ->
@@ -215,10 +219,13 @@ defmodule Tiannara.Omega.HumanAugmentationDelivery do
   @doc """
   Process a human authorization grant for a specific authorization request.
   """
-  def authorize(server \\ __MODULE__, authorization_id, human_id) do
+  def authorize(server \\ __MODULE__, authorization_id, %AuthenticatedHumanIdentity{} = identity) do
     Logger.info("Processing authorization grant for ID: #{authorization_id}")
-    GenServer.call(server, {:authorize, authorization_id, human_id})
+    GenServer.call(server, {:authorize, authorization_id, identity})
   end
+
+  def authorize(_server, _authorization_id, _identity),
+    do: {:error, :authenticated_identity_required}
 
   @doc """
   Process a human authorization denial for a specific authorization request.

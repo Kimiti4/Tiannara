@@ -9,7 +9,9 @@ defmodule Tiannara.Domains.Architecture do
   def evaluate(_hypothesis), do: {:ok, %{structural_soundness: 0.93}}
 
   @impl true
-  def simulate(hypothesis, context), do: {:ok, %{hypothesis: hypothesis, simulation_result: :structurally_sound, context: context}}
+  # D-A3 quarantine (2026-09-23): constant verdict with no computation - fabricated domain evidence.
+  # Fails closed until a real simulator exists.
+  def simulate(_hypothesis, _context), do: {:error, :simulation_unavailable}
 
   @impl true
   def generate_hypotheses(_context), do: {:ok, []}
@@ -27,6 +29,14 @@ defmodule Tiannara.Domains.Architecture do
 
   @impl true
   def metrics do
-    %{active_hypotheses: 44, open_experiments: 12, discoveries_this_cycle: 2, knowledge_growth_rate: 0.05, evidence_quality_score: 0.84, hypotheses_generated: 44, experiments_completed: 12}
+    %{
+      active_hypotheses: 44,
+      open_experiments: 12,
+      discoveries_this_cycle: 2,
+      knowledge_growth_rate: 0.05,
+      evidence_quality_score: 0.84,
+      hypotheses_generated: 44,
+      experiments_completed: 12
+    }
   end
 end

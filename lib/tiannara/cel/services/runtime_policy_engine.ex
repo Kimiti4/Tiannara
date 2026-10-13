@@ -15,8 +15,13 @@ defmodule Tiannara.CEL.Services.RuntimePolicyEngine do
 
   @impl true
   def capabilities do
-    [:dynamic_policy_management, :operational_constraint_evaluation,
-     :rate_limiting, :feature_flagging, :policy_auditability]
+    [
+      :dynamic_policy_management,
+      :operational_constraint_evaluation,
+      :rate_limiting,
+      :feature_flagging,
+      :policy_auditability
+    ]
   end
 
   @impl true
@@ -68,22 +73,38 @@ defmodule Tiannara.CEL.Services.RuntimePolicyEngine do
 
   @impl true
   def init(_opts) do
-    Process.send_after(self(), :cleanup_expired, :timer.minutes(5))
-    {:ok, %{
-      policies: %{},
-      evaluation_count: 0,
-      healthy: true,
-      started_at: DateTime.utc_now()
-    }}
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :cleanup_expired, :timer.minutes(5))
+    end
+
+    {:ok,
+     %{
+       policies: %{},
+       evaluation_count: 0,
+       healthy: true,
+       started_at: DateTime.utc_now()
+     }}
   end
 
   @impl true
   def handle_call({:put_policy, policy}, _from, state) do
-    record_decision("policy_#{policy.id}_v#{policy.version}", :runtime_policy_updated, %{
-      policy_id: policy.id, version: policy.version, enabled: policy.enabled, actions: policy.actions
-    }, %{actor: policy.created_by, source: :runtime_policy_engine})
+    record_decision(
+      "policy_#{policy.id}_v#{policy.version}",
+      :runtime_policy_updated,
+      %{
+        policy_id: policy.id,
+        version: policy.version,
+        enabled: policy.enabled,
+        actions: policy.actions
+      },
+      %{actor: policy.created_by, source: :runtime_policy_engine}
+    )
 
-    emit_constitutional_event(:policy_updated, %{policy_id: policy.id, version: policy.version}, %{})
+    emit_constitutional_event(
+      :policy_updated,
+      %{policy_id: policy.id, version: policy.version},
+      %{}
+    )
 
     new_policies = Map.put(state.policies, policy.id, policy)
     {:reply, :ok, %{state | policies: new_policies}}
@@ -96,9 +117,14 @@ defmodule Tiannara.CEL.Services.RuntimePolicyEngine do
         disabled = %{policy | enabled: false}
         new_policies = Map.put(state.policies, policy_id, disabled)
 
-        record_decision("policy_#{policy_id}_disabled", :runtime_policy_disabled, %{
-          policy_id: policy_id
-        }, %{actor: actor, source: :runtime_policy_engine})
+        record_decision(
+          "policy_#{policy_id}_disabled",
+          :runtime_policy_disabled,
+          %{
+            policy_id: policy_id
+          },
+          %{actor: actor, source: :runtime_policy_engine}
+        )
 
         {:reply, :ok, %{state | policies: new_policies}}
 
@@ -140,12 +166,14 @@ defmodule Tiannara.CEL.Services.RuntimePolicyEngine do
   @impl true
   def handle_call(:stats, _from, state) do
     active_count = state.policies |> Map.values() |> Enum.count(& &1.enabled)
-    {:reply, %{
-      healthy: state.healthy,
-      total_policies: map_size(state.policies),
-      active_policy_count: active_count,
-      evaluation_count: state.evaluation_count
-    }, state}
+
+    {:reply,
+     %{
+       healthy: state.healthy,
+       total_policies: map_size(state.policies),
+       active_policy_count: active_count,
+       evaluation_count: state.evaluation_count
+     }, state}
   end
 
   @impl true
@@ -161,12 +189,21 @@ defmodule Tiannara.CEL.Services.RuntimePolicyEngine do
 
     if expired_count > 0 do
       Logger.info("RuntimePolicyEngine: Cleaned up #{expired_count} expired policies")
-      record_decision("policy_cleanup_#{DateTime.to_unix(now)}", :runtime_policies_expired, %{
-        count: expired_count
-      }, %{source: :runtime_policy_engine})
+
+      record_decision(
+        "policy_cleanup_#{DateTime.to_unix(now)}",
+        :runtime_policies_expired,
+        %{
+          count: expired_count
+        },
+        %{source: :runtime_policy_engine}
+      )
     end
 
-    Process.send_after(self(), :cleanup_expired, :timer.minutes(5))
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :cleanup_expired, :timer.minutes(5))
+    end
+
     {:noreply, %{state | policies: new_policies}}
   end
 
@@ -208,7 +245,11 @@ defmodule Tiannara.CEL.Services.RuntimePolicyEngine do
   end
 
   defp record_decision(correlation_id, event_type, payload, metadata) do
-    ExecutiveMemory.record_event(event_type, payload, Map.put(metadata, :correlation_id, correlation_id))
+    ExecutiveMemory.record_event(
+      event_type,
+      payload,
+      Map.put(metadata, :correlation_id, correlation_id)
+    )
   rescue
     _ -> :ok
   end

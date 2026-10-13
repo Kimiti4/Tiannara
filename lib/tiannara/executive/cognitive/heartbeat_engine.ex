@@ -58,7 +58,13 @@ defmodule Tiannara.Executive.Cognitive.HeartbeatEngine do
 
   @impl true
   def handle_call(:status, _from, state) do
-    {:reply, %{interval_ms: state.interval_ms, beat_count: state.beat_count, last_beat_at: state.last_beat_at, started_at: state.started_at}, state}
+    {:reply,
+     %{
+       interval_ms: state.interval_ms,
+       beat_count: state.beat_count,
+       last_beat_at: state.last_beat_at,
+       started_at: state.started_at
+     }, state}
   end
 
   @impl true
@@ -74,6 +80,8 @@ defmodule Tiannara.Executive.Cognitive.HeartbeatEngine do
   end
 
   defp schedule_heartbeat(interval) do
-    Process.send_after(self(), :heartbeat, interval)
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :heartbeat, interval)
+    end
   end
 end

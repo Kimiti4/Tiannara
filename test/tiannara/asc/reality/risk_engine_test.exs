@@ -3,16 +3,21 @@ defmodule Tiannara.ASC.Reality.RiskEngineTest do
 
   setup do
     for mod <- [
-      Tiannara.ASC.Reality.RiskAssessmentEngine,
-      Tiannara.ASC.Reality.SafetyVerificationEngine,
-      Tiannara.ASC.Reality.ComplianceEngine,
-      Tiannara.ASC.Reality.IncidentResponseEngine
-    ] do
+          Tiannara.ASC.Reality.RiskAssessmentEngine,
+          Tiannara.ASC.Reality.SafetyVerificationEngine,
+          Tiannara.ASC.Reality.ComplianceEngine,
+          Tiannara.ASC.Reality.IncidentResponseEngine
+        ] do
       case mod.start_link([]) do
         {:ok, _} -> :ok
         {:error, {:already_started, _}} -> :ok
       end
     end
+
+    # Engines are global singletons shared across test files; clear state so
+    # counts are deterministic regardless of which file ran before this one.
+    Tiannara.ASC.Reality.IncidentResponseEngine.reset()
+
     %{}
   end
 
@@ -24,11 +29,16 @@ defmodule Tiannara.ASC.Reality.RiskEngineTest do
       assert profile.artifact == artifact
       assert profile.overall_risk_score > 0
       assert length(profile.risks) > 0
-      assert profile.is_acceptable == (profile.overall_risk_score < 0.7)
+      assert profile.is_acceptable == profile.overall_risk_score < 0.7
     end
 
     test "assess returns critical risks for real-world interaction artifacts" do
-      artifact = %{name: "physical_artifact", uncertainty_level: :low, real_world_interaction: true}
+      artifact = %{
+        name: "physical_artifact",
+        uncertainty_level: :low,
+        real_world_interaction: true
+      }
+
       {:ok, profile} = Tiannara.ASC.Reality.RiskAssessmentEngine.assess(artifact, %{})
 
       risk_ids = Enum.map(profile.risks, fn r -> r.id end)
@@ -88,7 +98,9 @@ defmodule Tiannara.ASC.Reality.RiskEngineTest do
     test "reject changes status to rejected" do
       artifact = %{name: "reject_test"}
       {:ok, report} = Tiannara.ASC.Reality.ComplianceEngine.check(artifact, :digital, %{})
-      {:ok, rejected} = Tiannara.ASC.Reality.ComplianceEngine.reject(report.id, :test_reviewer, :non_compliant)
+
+      {:ok, rejected} =
+        Tiannara.ASC.Reality.ComplianceEngine.reject(report.id, :test_reviewer, :non_compliant)
 
       assert rejected.overall_status == :rejected
       assert rejected.rejected_by == :test_reviewer

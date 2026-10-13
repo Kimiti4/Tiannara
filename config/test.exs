@@ -1,13 +1,8 @@
 import Config
 
-# Configure your database
-config :tiannara, Tiannara.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "tiannara_test#{System.get_env("TEST_PARTITION")}",
-  hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 10
+# NOTE: the former `config :tiannara, Tiannara.Repo` block (incl. the Ecto
+# SQL.Sandbox pool) was removed (2026-10-13 audit) — no Tiannara.Repo module
+# exists and ecto is not a dependency of this app; the config was dead.
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
@@ -21,12 +16,39 @@ config :logger, level: :warning
 # Phase 3.5: Enable synchronous CEL boot so World services are available
 config :tiannara, :test_mode, true
 
-# Phase 3.5: Each test run gets its own DETS directory to isolate state
-config :tiannara, :dets_base_path, "./test_data/dets/#{System.unique_integer([:positive])}"
+# LLMGateway: fixture responses in tests (no network). See llm_gateway.ex.
+config :tiannara, :llm_mock, true
+
+# Phase 3.5: Each test run gets its own DETS directory to isolate state.
+# D-A5: System.unique_integer([:positive]) is process-local and repeats across
+# fresh BEAM VMs — never use it alone as a cross-run isolation key. Combine
+# OS-independent wall time, OS pid, and monotonic unique integer so sequential
+# and concurrent fresh VMs cannot share a persistence root. TEST_PARTITION
+# (same env var as the DB name) optionally pins an explicit partition.
+test_run_id =
+  case System.get_env("TEST_PARTITION") do
+    nil ->
+      "#{System.system_time(:nanosecond)}_pid#{:os.getpid()}_#{:erlang.unique_integer([:positive, :monotonic])}"
+
+    "" ->
+      "#{System.system_time(:nanosecond)}_pid#{:os.getpid()}_#{:erlang.unique_integer([:positive, :monotonic])}"
+
+    partition when is_binary(partition) ->
+      partition
+  end
+
+config :tiannara, :dets_base_path, "./test_data/dets/#{test_run_id}"
+config :tiannara, :test_run_id, test_run_id
 
 # Storage context: every artifact resolved through Tiannara.Storage.Paths
 # lands under data/test/ during tests — never under the production or soak trees.
 config :tiannara, :storage_context, "test"
+
+# D-A5: non-DETS artifacts (checkpoints, reports, logs) also need a per-run root.
+# Keeping storage_base under test_data means a concurrent/sequential run cannot
+# mutate another run's mutable test tree; paths_test still pins the :test context
+# segment via Paths.context().
+config :tiannara, :storage_base, "./test_data/storage/#{test_run_id}"
 
 # Phase 3.5: Disable telemetry handlers that slow down tests
 config :tiannara, :telemetry_disabled, true

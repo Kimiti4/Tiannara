@@ -120,8 +120,7 @@ defmodule Tiannara.Discovery.DiscoveryScheduler do
   # finishes, route the accumulated evidence back into DiscoveryEngine and
   # publish `discovery.completed` so the world model integrates the result.
   def handle_info(
-        {:event,
-         %CivilizationalEvent{routing_destination: topic, raw_payload: payload}},
+        {:event, %CivilizationalEvent{routing_destination: topic, raw_payload: payload}},
         state
       )
       when topic in ["workflow.completed", "workflow.failed"] do
@@ -132,14 +131,17 @@ defmodule Tiannara.Discovery.DiscoveryScheduler do
         {:noreply, state}
 
       {tracking, remaining} ->
-        {:noreply,
-         finalize_discovery(%{state | active_workflows: remaining}, tracking, payload)}
+        {:noreply, finalize_discovery(%{state | active_workflows: remaining}, tracking, payload)}
     end
   end
 
   def handle_info({:event, _event}, state), do: {:noreply, state}
 
-  defp schedule_next(interval), do: Process.send_after(self(), :run_cycle, interval)
+  defp schedule_next(interval) do
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :run_cycle, interval)
+    end
+  end
 
   # A discovery is a first-class object in DiscoveryEngine too; register it there
   # (when up) so `route_evidence/2` finds it after experiments complete. Falls
@@ -163,7 +165,11 @@ defmodule Tiannara.Discovery.DiscoveryScheduler do
 
   defp finalize_discovery(
          state,
-         %{discovery_id: discovery_id, experiment_id: experiment_id, hypothesis_id: hypothesis_id},
+         %{
+           discovery_id: discovery_id,
+           experiment_id: experiment_id,
+           hypothesis_id: hypothesis_id
+         },
          payload
        ) do
     outcome = if Map.get(payload, :outcome) == :success, do: :supported, else: :inconclusive
@@ -200,14 +206,14 @@ defmodule Tiannara.Discovery.DiscoveryScheduler do
   defp confidence_delta(:supported, evidence) do
     case evidence_confidences(evidence) do
       [] -> 0.1
-      confs -> round3((Enum.sum(confs) / length(confs)) * 0.2)
+      confs -> round3(Enum.sum(confs) / length(confs) * 0.2)
     end
   end
 
   defp confidence_delta(_outcome, evidence) do
     case evidence_confidences(evidence) do
       [] -> 0.0
-      confs -> round3((Enum.sum(confs) / length(confs)) * -0.05)
+      confs -> round3(Enum.sum(confs) / length(confs) * -0.05)
     end
   end
 
@@ -418,12 +424,13 @@ defmodule Tiannara.Discovery.DiscoveryScheduler do
                 workflow_id: workflow_id
               })
 
-              {workflow_id, %{
-                discovery_id: disc.id,
-                experiment_id: exp.id,
-                hypothesis_id: exp.hypothesis_id,
-                dispatched_at: DateTime.utc_now()
-              }}
+              {workflow_id,
+               %{
+                 discovery_id: disc.id,
+                 experiment_id: exp.id,
+                 hypothesis_id: exp.hypothesis_id,
+                 dispatched_at: DateTime.utc_now()
+               }}
 
             {:error, reason} ->
               Logger.warning(
@@ -440,6 +447,7 @@ defmodule Tiannara.Discovery.DiscoveryScheduler do
       Enum.reduce(dispatched, state.active_workflows, fn {wf_id, tracking}, acc ->
         Map.put(acc, wf_id, tracking)
       end)
+
     total_hypotheses = Enum.reduce(discoveries, 0, fn d, acc -> acc + length(d.hypotheses) end)
     total_predictions = Enum.reduce(discoveries, 0, fn d, acc -> acc + length(d.predictions) end)
     total_experiments = Enum.reduce(discoveries, 0, fn d, acc -> acc + length(d.experiments) end)

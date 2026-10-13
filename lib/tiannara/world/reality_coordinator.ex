@@ -23,8 +23,13 @@ defmodule Tiannara.World.RealityCoordinator do
 
   @impl Tiannara.ExecutiveService
   def dependencies do
-    [:persistent_memory, :event_transport, :unified_reality_graph,
-     :world_mutation_engine, :conflict_resolver]
+    [
+      :persistent_memory,
+      :event_transport,
+      :unified_reality_graph,
+      :world_mutation_engine,
+      :conflict_resolver
+    ]
   end
 
   @impl Tiannara.ExecutiveService
@@ -33,6 +38,7 @@ defmodule Tiannara.World.RealityCoordinator do
   @impl Tiannara.ExecutiveService
   def constitutional_score do
     stats = GenServer.call(__MODULE__, :stats)
+
     evidence_quality =
       if stats.total_migrations > 0,
         do: stats.successful_migrations / stats.total_migrations,
@@ -79,15 +85,17 @@ defmodule Tiannara.World.RealityCoordinator do
   @impl true
   def init(_opts) do
     schedule_sync()
-    {:ok, %{
-      adapters: %{},
-      migration_results: [],
-      sync_count: 0,
-      total_migrations: 0,
-      successful_migrations: 0,
-      healthy: true,
-      started_at: DateTime.utc_now()
-    }}
+
+    {:ok,
+     %{
+       adapters: %{},
+       migration_results: [],
+       sync_count: 0,
+       total_migrations: 0,
+       successful_migrations: 0,
+       healthy: true,
+       started_at: DateTime.utc_now()
+     }}
   end
 
   @impl true
@@ -107,7 +115,9 @@ defmodule Tiannara.World.RealityCoordinator do
         conflict_policy: Map.get(opts, :conflict_policy, :merge)
       }
 
-      Logger.info("RealityCoordinator: registered adapter #{adapter_id} (#{inspect(adapter_module)})")
+      Logger.info(
+        "RealityCoordinator: registered adapter #{adapter_id} (#{inspect(adapter_module)})"
+      )
 
       ExecutiveMemory.record_decision(
         "adapter_registered_#{adapter_id}",
@@ -138,31 +148,41 @@ defmodule Tiannara.World.RealityCoordinator do
         case migrate_single(adapter, acc_adapters) do
           {:ok, updated, result} ->
             {Map.put(acc_adapters, adapter.id, updated), [result | acc_results]}
+
           {:error, updated, reason} ->
-            {Map.put(acc_adapters, adapter.id, updated), [{:error, adapter.id, reason} | acc_results]}
+            {Map.put(acc_adapters, adapter.id, updated),
+             [{:error, adapter.id, reason} | acc_results]}
         end
       end)
 
-    new_state = %{state |
-      adapters: new_adapters,
-      migration_results: [%{
-        id: generate_migration_id(),
-        type: :full_migration,
-        results: results,
-        executed_at: DateTime.utc_now()
-      } | state.migration_results] |> Enum.take(100)
+    new_state = %{
+      state
+      | adapters: new_adapters,
+        migration_results:
+          [
+            %{
+              id: generate_migration_id(),
+              type: :full_migration,
+              results: results,
+              executed_at: DateTime.utc_now()
+            }
+            | state.migration_results
+          ]
+          |> Enum.take(100)
     }
 
     EventBus.publish("reality.coordinator.migration.completed", %{
       type: :full,
-      migrated: Enum.count(results, fn
-        {:ok, _, _} -> true
-        _ -> false
-      end),
-      failed: Enum.count(results, fn
-        {:error, _, _} -> true
-        _ -> false
-      end)
+      migrated:
+        Enum.count(results, fn
+          {:ok, _, _} -> true
+          _ -> false
+        end),
+      failed:
+        Enum.count(results, fn
+          {:error, _, _} -> true
+          _ -> false
+        end)
     })
 
     {:reply, {:ok, results}, new_state}
@@ -176,10 +196,12 @@ defmodule Tiannara.World.RealityCoordinator do
           {:ok, updated, result} ->
             new_adapters = Map.put(state.adapters, adapter_id, updated)
             {:reply, {:ok, result}, %{state | adapters: new_adapters}}
+
           {:error, updated, reason} ->
             new_adapters = Map.put(state.adapters, adapter_id, updated)
             {:reply, {:error, reason}, %{state | adapters: new_adapters}}
         end
+
       :error ->
         {:reply, {:error, :adapter_not_found}, state}
     end
@@ -201,10 +223,7 @@ defmodule Tiannara.World.RealityCoordinator do
         end
       end)
 
-    new_state = %{state |
-      adapters: new_adapters,
-      sync_count: state.sync_count + 1
-    }
+    new_state = %{state | adapters: new_adapters, sync_count: state.sync_count + 1}
 
     EventBus.publish("reality.coordinator.sync.completed", %{
       synced_adapters: map_size(new_adapters)
@@ -221,10 +240,12 @@ defmodule Tiannara.World.RealityCoordinator do
           {:ok, updated, result} ->
             new_adapters = Map.put(state.adapters, adapter_id, updated)
             {:reply, {:ok, result}, %{state | adapters: new_adapters}}
+
           {:error, updated, reason} ->
             new_adapters = Map.put(state.adapters, adapter_id, updated)
             {:reply, {:error, reason}, %{state | adapters: new_adapters}}
         end
+
       :error ->
         {:reply, {:error, :adapter_not_found}, state}
     end
@@ -251,14 +272,15 @@ defmodule Tiannara.World.RealityCoordinator do
 
   @impl true
   def handle_call(:stats, _from, state) do
-    {:reply, %{
-      healthy: state.healthy,
-      total_adapters: map_size(state.adapters),
-      total_migrations: state.total_migrations,
-      successful_migrations: state.successful_migrations,
-      sync_count: state.sync_count,
-      started_at: state.started_at
-    }, state}
+    {:reply,
+     %{
+       healthy: state.healthy,
+       total_adapters: map_size(state.adapters),
+       total_migrations: state.total_migrations,
+       successful_migrations: state.successful_migrations,
+       sync_count: state.sync_count,
+       started_at: state.started_at
+     }, state}
   end
 
   @impl true
@@ -277,12 +299,13 @@ defmodule Tiannara.World.RealityCoordinator do
       {:ok, %{entities: entities, offset: new_offset}} ->
         mutation_ids = ingest_entities(entities, adapter)
 
-        updated = %{adapter |
-          status: :synced,
-          last_offset: new_offset,
-          last_synced_at: DateTime.utc_now(),
-          entity_count: length(entities),
-          error_count: 0
+        updated = %{
+          adapter
+          | status: :synced,
+            last_offset: new_offset,
+            last_synced_at: DateTime.utc_now(),
+            entity_count: length(entities),
+            error_count: 0
         }
 
         result = %{
@@ -296,12 +319,12 @@ defmodule Tiannara.World.RealityCoordinator do
         {:ok, updated, result}
 
       {:error, reason} ->
-        updated = %{adapter |
-          status: :failed,
-          error_count: adapter.error_count + 1
-        }
+        updated = %{adapter | status: :failed, error_count: adapter.error_count + 1}
 
-        Logger.warning("RealityCoordinator: migration failed for #{adapter.id}: #{inspect(reason)}")
+        Logger.warning(
+          "RealityCoordinator: migration failed for #{adapter.id}: #{inspect(reason)}"
+        )
+
         {:error, updated, reason}
     end
   end
@@ -315,12 +338,13 @@ defmodule Tiannara.World.RealityCoordinator do
       {:ok, %{entities: entities, offset: new_offset}} ->
         mutation_ids = ingest_entities(entities, adapter)
 
-        updated = %{adapter |
-          status: :synced,
-          last_offset: new_offset,
-          last_synced_at: DateTime.utc_now(),
-          entity_count: adapter.entity_count + length(entities),
-          error_count: 0
+        updated = %{
+          adapter
+          | status: :synced,
+            last_offset: new_offset,
+            last_synced_at: DateTime.utc_now(),
+            entity_count: adapter.entity_count + length(entities),
+            error_count: 0
         }
 
         result = %{
@@ -334,10 +358,7 @@ defmodule Tiannara.World.RealityCoordinator do
         {:ok, updated, result}
 
       {:error, reason} ->
-        updated = %{adapter |
-          status: :failed,
-          error_count: adapter.error_count + 1
-        }
+        updated = %{adapter | status: :failed, error_count: adapter.error_count + 1}
 
         Logger.warning("RealityCoordinator: sync failed for #{adapter.id}: #{inspect(reason)}")
         {:error, updated, reason}
@@ -358,13 +379,33 @@ defmodule Tiannara.World.RealityCoordinator do
           end
 
         {:error, :not_found} ->
-          case UnifiedRealityGraph.add_entity(entity) do
-            {:ok, _eid} ->
-              {:ok, mutation_id} = WorldMutationEngine.mutate(:graph_migration, %{
-                entity_id: entity.id, source: adapter.id
-              })
-              [mutation_id]
-            _ -> []
+          # M5 order: the council-gated mutation (authorization + wrap + audit)
+          # MUST pass before the graph write. On refusal nothing is written;
+          # on a refused or failed write the authorized record stands alone
+          # (authorization-without-write is the conservative direction).
+          case WorldMutationEngine.mutate(:graph_migration, %{
+                 entity_id: entity.id,
+                 source: adapter.id
+               }) do
+            {:ok, mutation_id} ->
+              case UnifiedRealityGraph.add_entity(entity) do
+                {:ok, _eid} ->
+                  [mutation_id]
+
+                other ->
+                  Logger.warning(
+                    "RealityCoordinator: authorized graph write failed for #{entity.id}: #{inspect(other)}"
+                  )
+
+                  []
+              end
+
+            {:error, reason} ->
+              Logger.warning(
+                "RealityCoordinator: mutation refused for #{entity.id} (no graph write): #{inspect(reason)}"
+              )
+
+              []
           end
 
         _ ->
@@ -378,28 +419,52 @@ defmodule Tiannara.World.RealityCoordinator do
     new_attrs = Map.get(new_entity, :attributes, %{}) || %{}
 
     existing_attrs != new_attrs or
-    (existing.confidence || 0.5) != (new_entity.confidence || 0.5)
+      (existing.confidence || 0.5) != (new_entity.confidence || 0.5)
   end
 
   defp resolve_conflict(existing, new_entity, adapter) do
     case adapter.conflict_policy do
       :source_wins ->
-        UnifiedRealityGraph.add_entity(new_entity)
-        {:ok, mutation_id} = WorldMutationEngine.mutate(:resolve_conflict_source_wins, %{
-          entity_id: existing.id, source: adapter.id
-        })
-        {:resolved, mutation_id}
+        # M5 order (write-before-auth is illegal): authorize first, write second.
+        case WorldMutationEngine.mutate(:resolve_conflict_source_wins, %{
+               entity_id: existing.id,
+               source: adapter.id
+             }) do
+          {:ok, mutation_id} ->
+            case UnifiedRealityGraph.add_entity(new_entity) do
+              {:ok, _eid} ->
+                {:resolved, mutation_id}
+
+              other ->
+                Logger.warning(
+                  "RealityCoordinator: authorized source_wins write failed for #{existing.id}: #{inspect(other)}"
+                )
+
+                {:deferred}
+            end
+
+          {:error, reason} ->
+            Logger.warning(
+              "RealityCoordinator: source_wins mutation refused for #{existing.id} (no graph write): #{inspect(reason)}"
+            )
+
+            {:deferred}
+        end
 
       :world_wins ->
-        {:ok, mutation_id} = WorldMutationEngine.mutate(:resolve_conflict_world_wins, %{
-          entity_id: existing.id, source: adapter.id
-        })
+        {:ok, mutation_id} =
+          WorldMutationEngine.mutate(:resolve_conflict_world_wins, %{
+            entity_id: existing.id,
+            source: adapter.id
+          })
+
         {:resolved, mutation_id}
 
       :merge ->
         case ConflictResolver.attempt_merge(existing, new_entity) do
           {:ok, _merged_attrs, mutation_id} ->
             {:resolved, mutation_id}
+
           {:error, _reason} ->
             Logger.info("RealityCoordinator: conflict deferred for #{existing.id}")
             {:deferred}
@@ -411,6 +476,7 @@ defmodule Tiannara.World.RealityCoordinator do
           :graph_conflict_escalated,
           %{entity_id: existing.id, adapter_id: adapter.id}
         )
+
         {:deferred}
     end
   end

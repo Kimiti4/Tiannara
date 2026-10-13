@@ -51,18 +51,18 @@ defmodule Tiannara.CRAV.RuntimeCensus do
             "  Total: #{total}  |  Alive: #{alive}  |  Dormant: #{dormant}  |  Failed: #{failed}",
             "───────────────────────────────────────────────────────"
           ] ++
-          Enum.map(entries, fn e ->
-            health_str =
-              case e.health do
-                h when is_float(h) -> Float.round(h, 2) |> to_string()
-                _ -> "n/a"
-              end
+            Enum.map(entries, fn e ->
+              health_str =
+                case e.health do
+                  h when is_float(h) -> Float.round(h, 2) |> to_string()
+                  _ -> "n/a"
+                end
 
-            "  #{pad_atom(e.name, 40)} #{pad_status(e.status, 12)} health=#{health_str} mem=#{e.memory_bytes}B mq=#{e.message_queue_len}"
-          end) ++
-          [
-            "═══════════════════════════════════════════════════════"
-          ]
+              "  #{pad_atom(e.name, 40)} #{pad_status(e.status, 12)} health=#{health_str} mem=#{e.memory_bytes}B mq=#{e.message_queue_len}"
+            end) ++
+            [
+              "═══════════════════════════════════════════════════════"
+            ]
 
         {:ok, Enum.join(lines, "\n")}
 
@@ -95,6 +95,45 @@ defmodule Tiannara.CRAV.RuntimeCensus do
     end
   end
 
+  @doc "Reports declared source modules versus loaded Tiannara modules."
+  @spec activation_metrics() :: {:ok, map()} | {:error, term()}
+  def activation_metrics do
+    try do
+      declared_modules = declared_module_count()
+
+      loaded_modules =
+        :code.all_loaded()
+        |> Enum.count(fn {module, _path} ->
+          module
+          |> Atom.to_string()
+          |> String.starts_with?("Elixir.Tiannara.")
+        end)
+
+      if declared_modules == 0 do
+        {:error, :no_declared_modules}
+      else
+        ratio = loaded_modules / declared_modules
+
+        :telemetry.execute(
+          [:tiannara, :crav, :census, :activation_ratio],
+          %{declared: declared_modules, loaded: loaded_modules},
+          %{activation_ratio: ratio, timestamp: DateTime.utc_now()}
+        )
+
+        {:ok,
+         %{
+           declared_modules: declared_modules,
+           loaded_modules: loaded_modules,
+           activation_ratio: Float.round(ratio, 4),
+           activation_percentage: Float.round(ratio * 100, 2),
+           status: if(ratio == 1.0, do: :fully_active, else: :partially_active)
+         }}
+      end
+    rescue
+      error -> {:error, {:activation_metrics_failed, error}}
+    end
+  end
+
   defp discover_all do
     registry_entries = safe_registry_all()
     supervisor_entries = discover_from_supervision_trees()
@@ -102,11 +141,26 @@ defmodule Tiannara.CRAV.RuntimeCensus do
     ets_entries = discover_ets()
     app_entries = discover_applications()
 
-    all = registry_entries ++ supervisor_entries ++ named_process_entries ++ ets_entries ++ app_entries
+    all =
+      registry_entries ++
+        supervisor_entries ++ named_process_entries ++ ets_entries ++ app_entries
 
     all
     |> Enum.group_by(&discovery_name/1)
     |> Enum.map(fn {name, group} -> merge_discoveries(name, group) end)
+  end
+
+  defp declared_module_count do
+    Path.wildcard(Path.join([File.cwd!(), "lib", "**", "*.ex"]))
+    |> Enum.reduce(0, fn path, count ->
+      case File.read(path) do
+        {:ok, source} ->
+          count + length(Regex.scan(~r/^\s*defmodule\s+Tiannara(?:\.|\s)/m, source))
+
+        {:error, _} ->
+          count
+      end
+    end)
   end
 
   defp discovery_name(entry), do: Map.get(entry, :name, :unknown)
@@ -182,14 +236,16 @@ defmodule Tiannara.CRAV.RuntimeCensus do
   end
 
   defp find_supervisor_roots do
-    registered = Process.registered()
-    |> Enum.map(&Process.whereis/1)
-    |> Enum.filter(&is_pid/1)
-    |> Enum.filter(&supervisor_pid?/1)
+    registered =
+      Process.registered()
+      |> Enum.map(&Process.whereis/1)
+      |> Enum.filter(&is_pid/1)
+      |> Enum.filter(&supervisor_pid?/1)
 
-    known = [Tiannara.Application, TiannaraRuntime.StartupSupervisor]
-    |> Enum.map(&Process.whereis/1)
-    |> Enum.filter(&is_pid/1)
+    known =
+      [Tiannara.Application, TiannaraRuntime.StartupSupervisor]
+      |> Enum.map(&Process.whereis/1)
+      |> Enum.filter(&is_pid/1)
 
     Enum.uniq(registered ++ known)
   end
@@ -202,7 +258,9 @@ defmodule Tiannara.CRAV.RuntimeCensus do
             {:"$initial_call", {:supervisor, _, _}} -> true
             _ -> false
           end)
-        _ -> false
+
+        _ ->
+          false
       end
     rescue
       _ -> false
@@ -247,10 +305,11 @@ defmodule Tiannara.CRAV.RuntimeCensus do
         size = :ets.info(tid, :size)
         memory = :ets.info(tid, :memory)
 
-        owner_name = case Process.info(owner, :registered_name) do
-          {:registered_name, n} when is_atom(n) -> n
-          _ -> name
-        end
+        owner_name =
+          case Process.info(owner, :registered_name) do
+            {:registered_name, n} when is_atom(n) -> n
+            _ -> name
+          end
 
         %{
           name: :"ets:#{owner_name}",
@@ -299,26 +358,30 @@ defmodule Tiannara.CRAV.RuntimeCensus do
     deps = Map.get(discovery, :dependencies, [])
     last_activity = Map.get(discovery, :last_activity)
 
-    state = if Map.has_key?(discovery, :state) do
-      Map.get(discovery, :state)
-    else
-      infer_state(info)
-    end
+    state =
+      if Map.has_key?(discovery, :state) do
+        Map.get(discovery, :state)
+      else
+        infer_state(info)
+      end
 
-    memory = if Map.has_key?(discovery, :memory_bytes) do
-      Map.get(discovery, :memory_bytes)
-    else
-      Keyword.get(info, :memory, 0)
-    end
+    memory =
+      if Map.has_key?(discovery, :memory_bytes) do
+        Map.get(discovery, :memory_bytes)
+      else
+        Keyword.get(info, :memory, 0)
+      end
 
-    mq_len = if Map.has_key?(discovery, :message_queue_len) do
-      Map.get(discovery, :message_queue_len)
-    else
-      Keyword.get(info, :message_queue_len, 0)
-    end
+    mq_len =
+      if Map.has_key?(discovery, :message_queue_len) do
+        Map.get(discovery, :message_queue_len)
+      else
+        Keyword.get(info, :message_queue_len, 0)
+      end
 
-    restart_count = Keyword.get(info, :reductions, 0)
-    |> then(fn r -> max(0, div(r, 1000)) end)
+    restart_count =
+      Keyword.get(info, :reductions, 0)
+      |> then(fn r -> max(0, div(r, 1000)) end)
 
     health = compute_health(state, mq_len, memory)
     status = compute_status(state, pid)
@@ -355,16 +418,18 @@ defmodule Tiannara.CRAV.RuntimeCensus do
       _ -> :unknown
     end
   end
+
   defp infer_state(_), do: :unknown
 
   defp compute_health(state, mq_len, memory) do
-    base = case state do
-      :running -> 1.0
-      :sleeping -> 0.8
-      :blocked -> 0.4
-      :error -> 0.0
-      :unknown -> 0.5
-    end
+    base =
+      case state do
+        :running -> 1.0
+        :sleeping -> 0.8
+        :blocked -> 0.4
+        :error -> 0.0
+        :unknown -> 0.5
+      end
 
     mq_penalty = min(mq_len / 1000, 0.3)
     mem_penalty = min(memory / 100_000_000, 0.2)
@@ -374,20 +439,38 @@ defmodule Tiannara.CRAV.RuntimeCensus do
 
   defp compute_status(state, pid) do
     cond do
-      pid != nil and is_pid(pid) and Process.alive?(pid) and state in [:running, :sleeping] -> :alive
-      pid != nil and is_pid(pid) and Process.alive?(pid) and state == :error -> :failed
-      pid == nil or (is_pid(pid) and not Process.alive?(pid)) -> :dormant
-      state == :blocked -> :dormant
-      true -> :dormant
+      pid != nil and is_pid(pid) and Process.alive?(pid) and state in [:running, :sleeping] ->
+        :alive
+
+      pid != nil and is_pid(pid) and Process.alive?(pid) and state == :error ->
+        :failed
+
+      pid == nil or (is_pid(pid) and not Process.alive?(pid)) ->
+        :dormant
+
+      state == :blocked ->
+        :dormant
+
+      true ->
+        :dormant
     end
   end
 
   defp safe_process_info(nil), do: []
+
   defp safe_process_info(pid) when is_pid(pid) do
     try do
       if Process.alive?(pid) do
-        Process.info(pid, [:registered_name, :status, :memory, :message_queue_len,
-                           :initial_call, :dictionary, :reductions, :current_function])
+        Process.info(pid, [
+          :registered_name,
+          :status,
+          :memory,
+          :message_queue_len,
+          :initial_call,
+          :dictionary,
+          :reductions,
+          :current_function
+        ])
         |> case do
           nil -> []
           info -> info
@@ -403,9 +486,12 @@ defmodule Tiannara.CRAV.RuntimeCensus do
   defp safe_process_info(_), do: []
 
   defp resolve_name(id, _pid) when is_atom(id), do: id
+
   defp resolve_name(_id, pid) when is_pid(pid) do
     case Process.info(pid, :registered_name) do
-      {:registered_name, name} when is_atom(name) -> name
+      {:registered_name, name} when is_atom(name) ->
+        name
+
       _ ->
         case Process.info(pid, :initial_call) do
           {:initial_call, {mod, _, _}} -> mod
@@ -413,20 +499,25 @@ defmodule Tiannara.CRAV.RuntimeCensus do
         end
     end
   end
+
   defp resolve_name(id, _pid), do: id
 
   defp resolve_module_and_app(nil), do: {nil, :unknown}
+
   defp resolve_module_and_app(pid) when is_pid(pid) do
     info = safe_process_info(pid)
 
-    mod = case Keyword.get(info, :initial_call) do
-      {m, _, _} when is_atom(m) -> m
-      _ ->
-        case Keyword.get(info, :registered_name) do
-          n when is_atom(n) -> n
-          _ -> nil
-        end
-    end
+    mod =
+      case Keyword.get(info, :initial_call) do
+        {m, _, _} when is_atom(m) ->
+          m
+
+        _ ->
+          case Keyword.get(info, :registered_name) do
+            n when is_atom(n) -> n
+            _ -> nil
+          end
+      end
 
     app = find_app_for_pid(pid)
     {mod, app}
@@ -435,6 +526,7 @@ defmodule Tiannara.CRAV.RuntimeCensus do
   defp resolve_module_and_app(_), do: {nil, :unknown}
 
   defp find_app_for_pid(nil), do: :unknown
+
   defp find_app_for_pid(pid) when is_pid(pid) do
     case Process.info(pid, :initial_call) do
       {:initial_call, {mod, _, _}} when is_atom(mod) ->
@@ -442,7 +534,9 @@ defmodule Tiannara.CRAV.RuntimeCensus do
           {:ok, app} -> app
           :undefined -> :unknown
         end
-      _ -> :unknown
+
+      _ ->
+        :unknown
     end
   end
 
@@ -469,6 +563,7 @@ defmodule Tiannara.CRAV.RuntimeCensus do
     str = Atom.to_string(atom)
     String.pad_trailing(str, width)
   end
+
   defp pad_atom(other, width) do
     str = to_string(other)
     String.pad_trailing(str, width)

@@ -8,7 +8,10 @@ defmodule Tiannara.Executive.DetsStore do
 
   @doc "Opens a DETS file, creating it if necessary."
   def open(file_path) do
-    case :dets.open_file(String.to_atom(file_path), [{:file, String.to_charlist(file_path)}, {:auto_save, 0}]) do
+    case :dets.open_file(String.to_atom(file_path), [
+           {:file, String.to_charlist(file_path)},
+           {:auto_save, 0}
+         ]) do
       {:ok, ref} -> {:ok, ref}
       {:error, reason} -> {:error, reason}
     end
@@ -64,9 +67,29 @@ defmodule Tiannara.Executive.DetsStore do
     {:dets.info(ref), :dets.info(ref, :size)}
   end
 
-  @doc "Repairs a DETS file."
+  @doc """
+  Repairs a DETS file.
+
+  Fail-closed contract (B15/D-A12): never raises `UndefinedFunctionError`.
+  On OTP releases that do not export `:dets.repair_file/1` (measured false
+  on OTP 28), returns `{:error, :dets_repair_unavailable}` so callers can
+  take the documented backup/fresh fallback. Repair unavailable is never
+  reported as successful recovery.
+  """
   def repair(file_path) do
-    :dets.repair_file(String.to_charlist(file_path))
+    Code.ensure_loaded?(:dets)
+
+    if function_exported?(:dets, :repair_file, 1) do
+      try do
+        apply(:dets, :repair_file, [String.to_charlist(file_path)])
+      rescue
+        e -> {:error, {:repair_raised, Exception.message(e)}}
+      catch
+        kind, reason -> {:error, {:repair_failed, {kind, reason}}}
+      end
+    else
+      {:error, :dets_repair_unavailable}
+    end
   end
 
   @doc "Verifies DETS table integrity."

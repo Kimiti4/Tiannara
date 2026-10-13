@@ -111,6 +111,8 @@ defmodule Tiannara.Operations.CampaignScheduler do
   end
 
   defp schedule_next do
-    Process.send_after(self(), :scheduled_run, @scheduling_interval)
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :scheduled_run, @scheduling_interval)
+    end
   end
 end

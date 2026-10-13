@@ -15,9 +15,11 @@ defmodule Tiannara.Council.AuditLog do
 
   Storage: DETS (bootstrap). Migration path: Postgres WAL + Merkle tree.
 
-  Resilience:
+  Resilience (D-A6/B5 fail-closed):
+    - Single-writer lock file (exclusive create) blocks cross-process DETS open.
     - Opens DETS in strict mode first (repair: false) to detect corruption.
-    - On corruption: archives the damaged file, attempts repair, or starts fresh.
+    - On corruption: archives (must succeed), attempts repair, verifies chain.
+    - Never removes the authoritative file; unrecoverable cases stay degraded.
     - Operates in degraded mode if storage is unavailable (never crashes the app).
     - All corruption events are logged and recorded for forensic analysis.
 
@@ -35,7 +37,6 @@ defmodule Tiannara.Council.AuditLog do
   require Logger
 
   @table :council_audit_log
-  @file_path ~c"./council_audit_log.dets"
   @merkle_interval :timer.minutes(5)
 
   # ---------- Client API ----------
@@ -72,29 +73,79 @@ defmodule Tiannara.Council.AuditLog do
   @doc "Returns the current storage status for observability dashboards."
   def storage_status, do: GenServer.call(__MODULE__, :storage_status)
 
+  @doc "Returns the context-resolved DETS path used by the audit log."
+  def dets_path, do: Tiannara.Storage.Paths.dets("council_audit_log")
+
   # ---------- Server Callbacks ----------
 
   @impl true
   def init(_opts) do
     case open_dets_safely() do
-      {:ok, _table} ->
+      {:ok, _table, lock_path} ->
         tip = load_chain_tip()
         schedule_merkle()
         Logger.info("AuditLog: opened successfully. Chain tip seq=#{tip.seq}")
 
-        {:ok, %{
-          tip: tip, merkle_root: nil, degraded: false,
-          degradation_reason: nil, storage_available: true
-        }}
+        {:ok,
+         %{
+           tip: tip,
+           merkle_root: nil,
+           degraded: false,
+           degradation_reason: nil,
+           storage_available: true,
+           lock_path: lock_path
+         }}
+
+      {:error, reason, lock_path} ->
+        Logger.error(
+          "AuditLog: storage unavailable (#{inspect(reason)}). Starting in degraded mode."
+        )
+
+        {:ok,
+         %{
+           tip: genesis_tip(),
+           merkle_root: nil,
+           degraded: true,
+           degradation_reason: reason,
+           storage_available: false,
+           lock_path: lock_path
+         }}
 
       {:error, reason} ->
-        Logger.error("AuditLog: storage unavailable (#{inspect(reason)}). Starting in degraded mode.")
+        Logger.error(
+          "AuditLog: storage unavailable (#{inspect(reason)}). Starting in degraded mode."
+        )
 
-        {:ok, %{
-          tip: genesis_tip(), merkle_root: nil, degraded: true,
-          degradation_reason: reason, storage_available: false
-        }}
+        {:ok,
+         %{
+           tip: genesis_tip(),
+           merkle_root: nil,
+           degraded: true,
+           degradation_reason: reason,
+           storage_available: false,
+           lock_path: nil
+         }}
     end
+  end
+
+  @impl true
+  def terminate(_reason, state) do
+    case :dets.info(@table) do
+      :undefined ->
+        :ok
+
+      _info ->
+        :dets.sync(@table)
+        :dets.close(@table)
+    end
+
+    if lock_path = state[:lock_path] do
+      _ = File.rm(lock_path)
+    end
+
+    :ok
+  rescue
+    _ -> :ok
   end
 
   @impl true
@@ -106,8 +157,13 @@ defmodule Tiannara.Council.AuditLog do
     new_seq = state.tip.seq + 1
 
     entry = %{
-      seq: new_seq, prev_hash: state.tip.hash, action: action, actor: actor,
-      payload: payload, timestamp: DateTime.utc_now(), hash: nil
+      seq: new_seq,
+      prev_hash: state.tip.hash,
+      action: action,
+      actor: actor,
+      payload: payload,
+      timestamp: DateTime.utc_now(),
+      hash: nil
     }
 
     hash = compute_hash(entry)
@@ -115,9 +171,13 @@ defmodule Tiannara.Council.AuditLog do
 
     case :dets.insert(@table, {new_seq, entry}) do
       :ok ->
+        _ = :dets.sync(@table)
+
         :telemetry.execute([:tiannara, :council, :audit, :appended], %{seq: new_seq}, %{
-          action: action, actor: actor
+          action: action,
+          actor: actor
         })
+
         {:reply, {:ok, entry}, %{state | tip: entry}}
 
       {:error, reason} ->
@@ -151,11 +211,14 @@ defmodule Tiannara.Council.AuditLog do
 
   @impl true
   def handle_call(:storage_status, _from, state) do
-    {:reply, %{
-      degraded: state.degraded, degradation_reason: state.degradation_reason,
-      storage_available: state.storage_available,
-      chain_tip_seq: state.tip.seq, merkle_root: state.merkle_root
-    }, state}
+    {:reply,
+     %{
+       degraded: state.degraded,
+       degradation_reason: state.degradation_reason,
+       storage_available: state.storage_available,
+       chain_tip_seq: state.tip.seq,
+       merkle_root: state.merkle_root
+     }, state}
   end
 
   @impl true
@@ -168,6 +231,222 @@ defmodule Tiannara.Council.AuditLog do
       :dets.traverse(@table, fn {_seq, e} -> {:continue, e} end)
       |> Enum.sort_by(& &1.seq)
 
+    {:reply, verify_chain_entries(entries), state}
+  end
+
+  @impl true
+  def handle_info(:compute_merkle, %{degraded: true} = state) do
+    schedule_merkle()
+    {:noreply, state}
+  end
+
+  def handle_info(:compute_merkle, state) do
+    hashes =
+      :dets.traverse(@table, fn {_seq, e} -> {:continue, e.hash} end)
+      |> Enum.sort()
+
+    root = compute_merkle_root(hashes)
+
+    :telemetry.execute([:tiannara, :council, :audit, :merkle_computed], %{}, %{
+      root: Base.encode16(root, case: :lower),
+      entry_count: length(hashes)
+    })
+
+    schedule_merkle()
+    {:noreply, %{state | merkle_root: root}}
+  end
+
+  # ---------- Private: Resilient DETS Startup (D-A6/B5) ----------
+
+  defp open_dets_safely do
+    path = dets_path()
+    File.mkdir_p!(Path.dirname(path))
+
+    case acquire_writer_lock(path) do
+      {:error, reason} ->
+        {:error, {:writer_locked, reason}}
+
+      {:ok, lock_path} ->
+        case open_recovering(path) do
+          {:ok, table} -> {:ok, table, lock_path}
+          {:error, reason} -> {:error, reason, lock_path}
+        end
+    end
+  end
+
+  defp open_recovering(path) do
+    case :dets.open_file(@table, type: :set, file: String.to_charlist(path), repair: false) do
+      {:ok, table} ->
+        case verify_table_chain(table) do
+          :ok ->
+            {:ok, table}
+
+          {:error, seq} ->
+            :dets.close(table)
+            Logger.error("AuditLog: clean open but chain broken at seq=#{seq}. Recovering.")
+            recover_after_detect(path, {:chain_broken, seq})
+        end
+
+      {:error, {:needs_repair, _}} ->
+        Logger.warning("AuditLog: DETS file requires repair. Archiving corrupted file.")
+        recover_after_detect(path, :needs_repair)
+
+      {:error, :no_such_file} ->
+        :dets.open_file(@table, type: :set, file: String.to_charlist(path), repair: true)
+
+      {:error, reason} ->
+        recover_after_detect(path, {:open_failed, reason})
+    end
+  end
+
+  # Archive must succeed before any mutation. Never File.rm the original.
+  # After repair, chain must verify or we fail closed to degraded.
+  defp recover_after_detect(path, cause) do
+    case archive_corrupted_file(path) do
+      {:ok, archive_path} ->
+        case :dets.open_file(@table, type: :set, file: String.to_charlist(path), repair: true) do
+          {:ok, table} ->
+            case verify_table_chain(table) do
+              :ok ->
+                Logger.info("AuditLog: repaired and chain-verified. Archive=#{archive_path}")
+                record_corruption_event({:repaired, cause, archive_path})
+                {:ok, table}
+
+              {:error, seq} ->
+                _ = :dets.close(table)
+                record_corruption_event({:repair_integrity_failed, cause, archive_path, seq})
+                {:error, {:repair_integrity_failed, cause, seq, archive_path}}
+            end
+
+          {:error, repair_reason} ->
+            record_corruption_event(
+              {:repair_failed_preserved, cause, archive_path, repair_reason}
+            )
+
+            {:error, {:repair_failed, cause, repair_reason, archive_path}}
+        end
+
+      {:error, archive_error} ->
+        record_corruption_event({:archive_failed, cause, archive_error})
+        {:error, {:archive_failed, cause, archive_error}}
+    end
+  end
+
+  defp writer_lock_path(path), do: path <> ".lock"
+
+  defp acquire_writer_lock(path, attempts \\ 0)
+
+  defp acquire_writer_lock(_path, attempts) when attempts > 3 do
+    {:error, :lock_steal_exhausted}
+  end
+
+  defp acquire_writer_lock(path, attempts) do
+    lock_path = writer_lock_path(path)
+
+    payload =
+      "#{:os.getpid()} #{node()} #{:erlang.pid_to_list(self())} #{System.system_time(:second)}"
+
+    case File.open(lock_path, [:write, :exclusive]) do
+      {:ok, io} ->
+        IO.binwrite(io, payload)
+        File.close(io)
+        {:ok, lock_path}
+
+      {:error, :eexist} ->
+        case stale_writer_lock?(lock_path) do
+          true ->
+            _ = File.rm(lock_path)
+            acquire_writer_lock(path, attempts + 1)
+
+          false ->
+            {:error, {:held, File.read(lock_path) |> elem(1)}}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  # Stale only when the OS pid is dead (holder BEAM gone) or the holder
+  # pid was written by THIS node and that process is dead (same-VM restart
+  # after a brutal kill). A live foreign-node lock is never stolen.
+  defp stale_writer_lock?(lock_path) do
+    case File.read(lock_path) do
+      {:ok, data} ->
+        case String.split(String.trim(data), " ") do
+          [os_pid, owner_node, epid_str | _] ->
+            cond do
+              os_pid_dead?(os_pid) ->
+                true
+
+              owner_node == Atom.to_string(node()) and local_epid_dead?(epid_str) ->
+                true
+
+              true ->
+                false
+            end
+
+          _ ->
+            true
+        end
+
+      _ ->
+        true
+    end
+  end
+
+  defp os_pid_dead?(pid_str) when is_binary(pid_str) and pid_str != "" do
+    case :os.type() do
+      {:win32, _} ->
+        {out, _} =
+          System.cmd("tasklist", ["/FI", "PID eq #{pid_str}", "/NH"], stderr_to_stdout: true)
+
+        not (String.contains?(out, pid_str) and not String.contains?(out, "No tasks"))
+
+      _ ->
+        case System.cmd("kill", ["-0", pid_str], stderr_to_stdout: true) do
+          {_out, 0} -> false
+          _ -> true
+        end
+    end
+  rescue
+    _ -> false
+  end
+
+  defp os_pid_dead?(_), do: true
+
+  defp local_epid_dead?(epid_str) when is_binary(epid_str) and epid_str != "" do
+    formatted =
+      case String.trim(epid_str) do
+        <<"<", _::binary>> = s -> s
+        s -> "<" <> s <> ">"
+      end
+
+    pid =
+      try do
+        :erlang.list_to_pid(String.to_charlist(formatted))
+      rescue
+        _ -> nil
+      end
+
+    cond do
+      is_nil(pid) -> false
+      :erlang.node(pid) != node() -> false
+      true -> not Process.alive?(pid)
+    end
+  end
+
+  defp local_epid_dead?(_), do: false
+
+  defp verify_table_chain(table) do
+    entries =
+      :dets.traverse(table, fn {_seq, e} -> {:continue, e} end)
+      |> Enum.sort_by(& &1.seq)
+
+    verify_chain_entries(entries)
+  end
+
+  defp verify_chain_entries(entries) do
     result =
       Enum.reduce_while(entries, %{genesis: true, prev_hash: nil}, fn entry, acc ->
         chain_ok =
@@ -187,98 +466,41 @@ defmodule Tiannara.Council.AuditLog do
         end
       end)
 
-    reply = case result do
+    case result do
       {:error, _} = e -> e
       _ -> :ok
     end
-
-    {:reply, reply, state}
   end
 
-  @impl true
-  def handle_info(:compute_merkle, %{degraded: true} = state) do
-    schedule_merkle()
-    {:noreply, state}
-  end
-
-  def handle_info(:compute_merkle, state) do
-    hashes =
-      :dets.traverse(@table, fn {_seq, e} -> {:continue, e.hash} end)
-      |> Enum.sort()
-
-    root = compute_merkle_root(hashes)
-
-    :telemetry.execute([:tiannara, :council, :audit, :merkle_computed], %{}, %{
-      root: Base.encode16(root, case: :lower), entry_count: length(hashes)
-    })
-
-    schedule_merkle()
-    {:noreply, %{state | merkle_root: root}}
-  end
-
-  # ---------- Private: Resilient DETS Startup ----------
-
-  defp open_dets_safely do
-    case :dets.open_file(@table, type: :set, file: @file_path, repair: false) do
-      {:ok, table} ->
-        {:ok, table}
-
-      {:error, {:needs_repair, _}} ->
-        Logger.warning("AuditLog: DETS file requires repair. Archiving corrupted file.")
-        archive_corrupted_file()
-
-        case :dets.open_file(@table, type: :set, file: @file_path, repair: true) do
-          {:ok, table} ->
-            Logger.info("AuditLog: repaired successfully. Previous file archived for forensics.")
-            record_corruption_event(:repaired)
-            {:ok, table}
-
-          {:error, repair_reason} ->
-            Logger.error("AuditLog: repair failed (#{inspect(repair_reason)}). Removing and starting fresh.")
-            File.rm(@file_path)
-            record_corruption_event(:repair_failed_and_removed)
-
-            case :dets.open_file(@table, type: :set, file: @file_path, repair: true) do
-              {:ok, table} -> {:ok, table}
-              {:error, fresh_reason} -> {:error, fresh_reason}
-            end
-        end
-
-      {:error, :no_such_file} ->
-        :dets.open_file(@table, type: :set, file: @file_path, repair: true)
-
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  defp archive_corrupted_file do
+  defp archive_corrupted_file(path) do
     timestamp =
       DateTime.utc_now()
       |> DateTime.to_iso8601()
       |> String.replace(":", "-")
       |> String.replace(".", "-")
 
-    archive_path = "#{@file_path}.corrupted.#{timestamp}"
+    archive_path = "#{path}.corrupted.#{timestamp}"
 
-    case File.cp(to_string(@file_path), archive_path) do
+    case File.cp(path, archive_path) do
       :ok ->
         Logger.info("AuditLog: corrupted file archived to #{archive_path}")
+        {:ok, archive_path}
 
       {:error, reason} ->
         Logger.error("AuditLog: failed to archive corrupted file: #{inspect(reason)}")
+        {:error, reason}
     end
   end
 
   defp record_corruption_event(outcome) do
-    Logger.info("AuditLog: corruption event outcome=#{outcome} path=#{@file_path}")
+    Logger.info("AuditLog: corruption event outcome=#{inspect(outcome)} path=#{dets_path()}")
 
     spawn(fn ->
       try do
         Tiannara.CEL.Services.ExecutiveMemory.record_decision(
           "audit_log_corruption_#{DateTime.utc_now() |> DateTime.to_unix()}",
           :audit_log_corruption_detected,
-          %{original_path: to_string(@file_path), outcome: outcome, detected_at: DateTime.utc_now()}
+          %{original_path: dets_path(), outcome: outcome, detected_at: DateTime.utc_now()}
         )
       rescue
         _ -> :ok
@@ -288,15 +510,22 @@ defmodule Tiannara.Council.AuditLog do
     end)
 
     :telemetry.execute([:tiannara, :council, :audit, :corruption_detected], %{}, %{
-      outcome: outcome, path: to_string(@file_path)
+      outcome: outcome,
+      path: dets_path()
     })
   end
 
   # ---------- Private: Chain & Merkle ----------
 
   defp genesis_tip do
-    %{seq: 0, hash: <<0::256>>, action: :genesis, actor: :system, payload: %{},
-      timestamp: ~U[2026-07-24 00:00:00Z]}
+    %{
+      seq: 0,
+      hash: <<0::256>>,
+      action: :genesis,
+      actor: :system,
+      payload: %{},
+      timestamp: ~U[2026-07-24 00:00:00Z]
+    }
   end
 
   defp load_chain_tip do
@@ -307,7 +536,10 @@ defmodule Tiannara.Council.AuditLog do
   end
 
   defp compute_hash(%{hash: nil} = e) do
-    :crypto.hash(:sha256, :erlang.term_to_binary({e.seq, e.prev_hash, e.action, e.actor, e.timestamp, e.payload}))
+    :crypto.hash(
+      :sha256,
+      :erlang.term_to_binary({e.seq, e.prev_hash, e.action, e.actor, e.timestamp, e.payload})
+    )
   end
 
   defp compute_merkle_root([]), do: <<0::256>>

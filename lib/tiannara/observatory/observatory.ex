@@ -22,7 +22,11 @@ defmodule Tiannara.Observatory do
   """
   def push_proposal(proposal) do
     Logger.info("[Observatory] Sentinel Proposal: #{proposal.action}")
-    Logger.debug("[Observatory] Proposal risk: #{proposal.risk_score}, benefit: #{proposal.expected_benefit}")
+
+    Logger.debug(
+      "[Observatory] Proposal risk: #{proposal.risk_score}, benefit: #{proposal.expected_benefit}"
+    )
+
     :ok
   end
 
@@ -32,6 +36,18 @@ defmodule Tiannara.Observatory do
   def push_investigation(report) do
     Logger.info("[Observatory] Sentinel Investigation Report")
     Logger.debug("[Observatory] Report:\n#{report}")
+    :ok
+  end
+
+  @doc "Reports a discovery-pipeline bottleneck (B11/D-A2 ADE wiring)."
+  def report_bottleneck(type, info) do
+    Logger.warning("[Observatory] Bottleneck #{inspect(type)}: #{inspect(info)}")
+    :ok
+  end
+
+  @doc "Reports a discovery-cycle failure (B11/D-A2 ADE wiring)."
+  def report_failure(context, error) do
+    Logger.error("[Observatory] Failure in #{inspect(context)}: #{inspect(error)}")
     :ok
   end
 end

@@ -3,8 +3,14 @@ defmodule Tiannara.Omega.HumanAugmentationDeliveryTest do
 
   alias Tiannara.Omega.HumanAugmentationDelivery
   alias Tiannara.Omega.HumanAugmentationDelivery.{Explanation, Authorization}
+  alias Tiannara.Omega.HumanDelivery.AuthenticatedHumanIdentity
 
   @moduletag :omega_human_augmentation_delivery
+
+  defp identity do
+    {:ok, id} = AuthenticatedHumanIdentity.authenticate(:human_1, "credential", :password)
+    id
+  end
 
   defp sample_package do
     %{
@@ -54,7 +60,7 @@ defmodule Tiannara.Omega.HumanAugmentationDeliveryTest do
     explanation = HumanAugmentationDelivery.explain(sample_package())
     {:ok, auth} = HumanAugmentationDelivery.request_authorization(explanation)
 
-    assert {:error, :human_id_required} = Authorization.human_grant(auth, nil)
+    assert {:error, :authenticated_identity_required} = Authorization.human_grant(auth, nil)
   end
 
   test "authorization cannot be granted unless pending" do
@@ -68,7 +74,7 @@ defmodule Tiannara.Omega.HumanAugmentationDeliveryTest do
   test "a human can grant authorization, producing a valid grant" do
     explanation = HumanAugmentationDelivery.explain(sample_package())
     {:ok, auth} = HumanAugmentationDelivery.request_authorization(explanation)
-    {:ok, granted} = Authorization.human_grant(auth, :human_1)
+    {:ok, granted} = Authorization.human_grant(auth, identity())
 
     assert granted.status == :granted
     assert granted.human_id == :human_1
@@ -86,10 +92,12 @@ defmodule Tiannara.Omega.HumanAugmentationDeliveryTest do
 
   test "a grant is only valid for its own explanation" do
     e1 = HumanAugmentationDelivery.explain(sample_package())
-    e2 = HumanAugmentationDelivery.explain(Map.put(sample_package(), :detected, "different issue"))
+
+    e2 =
+      HumanAugmentationDelivery.explain(Map.put(sample_package(), :detected, "different issue"))
 
     {:ok, auth1} = HumanAugmentationDelivery.request_authorization(e1)
-    {:ok, granted} = Authorization.human_grant(auth1, :human_1)
+    {:ok, granted} = Authorization.human_grant(auth1, identity())
 
     assert Authorization.valid_for?(granted, e1.explanation_id)
     refute Authorization.valid_for?(granted, e2.explanation_id)
@@ -105,7 +113,9 @@ defmodule Tiannara.Omega.HumanAugmentationDeliveryTest do
     assert [auth_id] = HumanAugmentationDelivery.pending(server)
     assert auth_id == auth.authorization_id
 
-    {:ok, granted} = HumanAugmentationDelivery.authorize(server, auth.authorization_id, :human_1)
+    {:ok, granted} =
+      HumanAugmentationDelivery.authorize(server, auth.authorization_id, identity())
+
     assert granted.status == :granted
     assert HumanAugmentationDelivery.pending(server) == []
 
@@ -123,19 +133,26 @@ defmodule Tiannara.Omega.HumanAugmentationDeliveryTest do
     assert {:error, _} = Authorization.human_grant(prepared, :human_1)
 
     # Cannot grant from :pending without human_id.
-    assert {:error, :human_id_required} = Authorization.human_grant(auth, nil)
+    assert {:error, :authenticated_identity_required} = Authorization.human_grant(auth, nil)
 
     # Only a real human_id at :pending produces a grant.
-    assert {:ok, %{status: :granted}} = Authorization.human_grant(auth, :human_1)
+    assert {:ok, %{status: :granted}} = Authorization.human_grant(auth, identity())
   end
 end
+
 defmodule Tiannara.Omega.HumanDeliveryTest do
   use ExUnit.Case, async: false
 
   alias Tiannara.Omega.HumanDelivery
   alias Tiannara.Omega.HumanDelivery.{Explanation, Authorization}
+  alias Tiannara.Omega.HumanDelivery.AuthenticatedHumanIdentity
 
   @moduletag :omega_human_delivery
+
+  defp identity do
+    {:ok, id} = AuthenticatedHumanIdentity.authenticate(:human_1, "credential", :password)
+    id
+  end
 
   defp sample_package do
     %{
@@ -185,7 +202,7 @@ defmodule Tiannara.Omega.HumanDeliveryTest do
     explanation = HumanDelivery.explain(sample_package())
     {:ok, auth} = HumanDelivery.request_authorization(explanation)
 
-    assert {:error, :human_id_required} = Authorization.human_grant(auth, nil)
+    assert {:error, :authenticated_identity_required} = Authorization.human_grant(auth, nil)
   end
 
   test "authorization cannot be granted unless pending" do
@@ -199,7 +216,7 @@ defmodule Tiannara.Omega.HumanDeliveryTest do
   test "a human can grant authorization, producing a valid grant" do
     explanation = HumanDelivery.explain(sample_package())
     {:ok, auth} = HumanDelivery.request_authorization(explanation)
-    {:ok, granted} = Authorization.human_grant(auth, :human_1)
+    {:ok, granted} = Authorization.human_grant(auth, identity())
 
     assert granted.status == :granted
     assert granted.human_id == :human_1
@@ -220,7 +237,7 @@ defmodule Tiannara.Omega.HumanDeliveryTest do
     e2 = HumanDelivery.explain(Map.put(sample_package(), :detected, "different issue"))
 
     {:ok, auth1} = HumanDelivery.request_authorization(e1)
-    {:ok, granted} = Authorization.human_grant(auth1, :human_1)
+    {:ok, granted} = Authorization.human_grant(auth1, identity())
 
     assert Authorization.valid_for?(granted, e1.explanation_id)
     refute Authorization.valid_for?(granted, e2.explanation_id)
@@ -236,7 +253,7 @@ defmodule Tiannara.Omega.HumanDeliveryTest do
     assert [auth_id] = HumanDelivery.pending(server)
     assert auth_id == auth.authorization_id
 
-    {:ok, granted} = HumanDelivery.authorize(server, auth.authorization_id, :human_1)
+    {:ok, granted} = HumanDelivery.authorize(server, auth.authorization_id, identity())
     assert granted.status == :granted
     assert HumanDelivery.pending(server) == []
 
@@ -254,9 +271,9 @@ defmodule Tiannara.Omega.HumanDeliveryTest do
     assert {:error, _} = Authorization.human_grant(prepared, :human_1)
 
     # Cannot grant from :pending without human_id.
-    assert {:error, :human_id_required} = Authorization.human_grant(auth, nil)
+    assert {:error, :authenticated_identity_required} = Authorization.human_grant(auth, nil)
 
     # Only a real human_id at :pending produces a grant.
-    assert {:ok, %{status: :granted}} = Authorization.human_grant(auth, :human_1)
+    assert {:ok, %{status: :granted}} = Authorization.human_grant(auth, identity())
   end
 end

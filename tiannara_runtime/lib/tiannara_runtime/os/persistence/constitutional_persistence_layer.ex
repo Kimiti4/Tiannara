@@ -244,7 +244,7 @@ defmodule TiannaraRuntime.OS.Persistence.ConstitutionalPersistenceLayer do
 
     hash = :crypto.hash(:sha256, :erlang.term_to_binary(content)) |> Base.encode16(case: :lower)
 
-    %{content | hash: hash}
+    Map.put(content, :hash, hash)
   end
 
   defp create_checkpoint_record(layer, state_data, state) do

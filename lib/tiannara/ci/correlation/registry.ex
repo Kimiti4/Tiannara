@@ -2,8 +2,15 @@ defmodule Tiannara.CI.Correlation.Record do
   @moduledoc "A single correlation record mapping correlation_id ↔ proposal ↔ lineage."
 
   @enforce_keys [:correlation_id, :proposal_id]
-  defstruct [:correlation_id, :proposal_id, :lineage_id, :status,
-             :dispatched_at, :recorded_at, :result]
+  defstruct [
+    :correlation_id,
+    :proposal_id,
+    :lineage_id,
+    :status,
+    :dispatched_at,
+    :recorded_at,
+    :result
+  ]
 
   @type t :: %__MODULE__{}
 end
@@ -59,10 +66,14 @@ defmodule Tiannara.CI.Correlation.Registry do
   def lookup(correlation_id, path) do
     case load_all(path) do
       {:ok, records} ->
+        # The file is append-only, so the last matching record in file
+        # order is the most recent one. Sorting by recorded_at (ms
+        # resolution) is not safe: register and complete can land in the
+        # same millisecond, and the stable sort would then return the
+        # stale :dispatched record.
         records
         |> Enum.filter(&(&1.correlation_id == correlation_id))
-        |> Enum.sort_by(& &1.recorded_at, :desc)
-        |> List.first()
+        |> List.last()
         |> case do
           nil -> :not_found
           record -> {:ok, record}

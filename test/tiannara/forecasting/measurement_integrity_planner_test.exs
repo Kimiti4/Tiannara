@@ -37,17 +37,27 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
   # ---- 1. Normal planner invocation returns the documented tuple ----
 
   test "R4-01: normal invocation returns {:ok, %{scenario, kind: :simulation, provenance_hash}}" do
-    assert {:ok, record} = StrategicPlanner.evaluate_and_act(:intervention_quality, %{any: :payload})
+    assert {:ok, record} =
+             StrategicPlanner.evaluate_and_act(:intervention_quality, %{any: :payload})
+
     assert record.scenario == :intervention_quality
     assert record.kind == :simulation
     assert is_binary(record.provenance_hash)
-    assert byte_size(record.provenance_hash) == 64  # SHA-256 hex
+    # SHA-256 hex
+    assert byte_size(record.provenance_hash) == 64
   end
 
   test "R4-02: every previously-handled scenario returns the same shape" do
     # nil IS an atom in Elixir, so the `when is_atom(scenario)` guard accepts it.
     # The function returns the documented tuple for any atom (including nil and :unknown).
-    for scenario <- [:intervention_quality, :goodhart_resistance, :intervention_overreach, :unknown_scenario, nil, :__not_an_atom_at_all__] do
+    for scenario <- [
+          :intervention_quality,
+          :goodhart_resistance,
+          :intervention_overreach,
+          :unknown_scenario,
+          nil,
+          :__not_an_atom_at_all__
+        ] do
       assert {:ok, record} = StrategicPlanner.evaluate_and_act(scenario, %{})
       assert record.scenario == scenario
       assert record.kind == :simulation
@@ -59,7 +69,15 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
     # The guard `when is_atom(scenario)` rejects non-atom inputs.
     # This proves the function cannot be called with a "hardcoded outcome"
     # masquerading as a scenario.
-    for non_atom <- ["not_an_atom", 42, 3.14, %{key: :val}, [:list], {:tuple}, :erlang.term_to_binary(:x)] do
+    for non_atom <- [
+          "not_an_atom",
+          42,
+          3.14,
+          %{key: :val},
+          [:list],
+          {:tuple},
+          :erlang.term_to_binary(:x)
+        ] do
       assert_raise FunctionClauseError, fn ->
         StrategicPlanner.evaluate_and_act(non_atom, %{})
       end
@@ -69,8 +87,19 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
   # ---- 2. Contradictory payload does not produce a different "decision" ----
 
   test "R4-03: contradictory payloads produce the same kind/structure (no measured record exists)" do
-    r1 = StrategicPlanner.evaluate_and_act(:intervention_quality, %{claim: :excellent, success_rate: 0.999})
-    r2 = StrategicPlanner.evaluate_and_act(:intervention_quality, %{claim: :catastrophic, success_rate: 0.0, error: :total_data_loss})
+    r1 =
+      StrategicPlanner.evaluate_and_act(:intervention_quality, %{
+        claim: :excellent,
+        success_rate: 0.999
+      })
+
+    r2 =
+      StrategicPlanner.evaluate_and_act(:intervention_quality, %{
+        claim: :catastrophic,
+        success_rate: 0.0,
+        error: :total_data_loss
+      })
+
     r3 = StrategicPlanner.evaluate_and_act(:intervention_quality, %{claim: :never_run})
 
     assert r1 == r2
@@ -81,7 +110,11 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
   test "R4-04: impossible / malformed payloads are still handled by the same clause" do
     r1 = StrategicPlanner.evaluate_and_act(:intervention_quality, :not_a_map)
     r2 = StrategicPlanner.evaluate_and_act(:intervention_quality, nil)
-    r3 = StrategicPlanner.evaluate_and_act(:intervention_quality, %{deeply: %{nested: %{value: [1, 2, 3]}}})
+
+    r3 =
+      StrategicPlanner.evaluate_and_act(:intervention_quality, %{
+        deeply: %{nested: %{value: [1, 2, 3]}}
+      })
 
     # The hash includes `produced_at`, so the records differ. But the shape
     # and kind must be identical regardless of payload type.
@@ -107,18 +140,26 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
     # What we DO assert: the hash is a well-formed 64-char hex SHA-256.
     assert is_binary(h1) and byte_size(h1) == 64
     assert is_binary(h2) and byte_size(h2) == 64
-    assert h1 == h2 or h1 != h2  # tautology; the real check is below
+    # tautology; the real check is below
+    assert h1 == h2 or h1 != h2
   end
 
   test "R4-05b: two invocations with an explicit sleep between them produce DIFFERENT provenance_hashes (proves produced_at is in the hash)" do
     h1 = elem(StrategicPlanner.evaluate_and_act(:intervention_quality, %{}), 1).provenance_hash
-    Process.sleep(2)
+    # Sleep past the Windows wall-clock granularity (~15.6ms) so produced_at
+    # is guaranteed to differ between the two invocations on every platform.
+    Process.sleep(50)
     h2 = elem(StrategicPlanner.evaluate_and_act(:intervention_quality, %{}), 1).provenance_hash
     assert h1 != h2
   end
 
   test "R4-06: different scenarios all return kind: :simulation" do
-    for s <- [:intervention_quality, :goodhart_resistance, :intervention_overreach, :some_other_scenario] do
+    for s <- [
+          :intervention_quality,
+          :goodhart_resistance,
+          :intervention_overreach,
+          :some_other_scenario
+        ] do
       {:ok, r} = StrategicPlanner.evaluate_and_act(s, %{})
       assert r.kind == :simulation
     end
@@ -169,12 +210,24 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
     {:ok, %{provenance_hash: h}} = StrategicPlanner.evaluate_and_act(:intervention_quality, %{})
 
     # Re-build the same provenance (kind: :simulation, fixed source, fixed audit_trail)
-    {:ok, prov} = Provenance.build(kind: :simulation, source: "StrategicPlanner.scenario_handler", audit_trail: ["non_measurement: scenario handler response"])
+    {:ok, prov} =
+      Provenance.build(
+        kind: :simulation,
+        source: "StrategicPlanner.scenario_handler",
+        audit_trail: ["non_measurement: scenario handler response"]
+      )
+
     assert h == Provenance.hash(prov)
   end
 
   test "R4-11: the underlying provenance record is acceptable_as_evidence? false (it is :simulation)" do
-    {:ok, prov} = Provenance.build(kind: :simulation, source: "StrategicPlanner.scenario_handler", audit_trail: ["non_measurement: scenario handler response"])
+    {:ok, prov} =
+      Provenance.build(
+        kind: :simulation,
+        source: "StrategicPlanner.scenario_handler",
+        audit_trail: ["non_measurement: scenario handler response"]
+      )
+
     refute Provenance.acceptable_as_evidence?(prov)
   end
 
@@ -194,7 +247,8 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
     log =
       capture_log([level: :debug], fn ->
         # Run several invocations.
-        for s <- [:intervention_quality, :goodhart_resistance, :intervention_overreach], do: StrategicPlanner.evaluate_and_act(s, %{})
+        for s <- [:intervention_quality, :goodhart_resistance, :intervention_overreach],
+            do: StrategicPlanner.evaluate_and_act(s, %{})
       end)
 
     refute log =~ "Persisting strategic decision record"
@@ -208,7 +262,9 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
     # *structural* contract is what matters and is captured here: the moduledoc
     # and @doc declare the non-measurement nature of the response, and the
     # function's @spec restricts the return shape to a metadata envelope.
-    {:docs_v1, _, _, _, %{"en" => moduledoc}, _, _} = Code.fetch_docs(Tiannara.Forecasting.StrategicPlanner)
+    {:docs_v1, _, _, _, %{"en" => moduledoc}, _, _} =
+      Code.fetch_docs(Tiannara.Forecasting.StrategicPlanner)
+
     # Case-insensitive match: the moduledoc says "Scenario-handler narration" (capital S).
     assert moduledoc =~ ~r/scenario.?handler narration/i
     refute moduledoc =~ "Chose strategy"
@@ -238,7 +294,8 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
       end)
 
     for hardcoded <- @hardcoded_strings do
-      refute log =~ hardcoded, "hardcoded string #{inspect(hardcoded)} must not appear in any log line"
+      refute log =~ hardcoded,
+             "hardcoded string #{inspect(hardcoded)} must not appear in any log line"
     end
   end
 
@@ -259,19 +316,34 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
   end
 
   test "R4-17: the provenance record attached to the scenario response is rejected by acceptable_as_evidence?" do
-    {:ok, prov} = Provenance.build(kind: :simulation, source: "StrategicPlanner.scenario_handler", audit_trail: ["non_measurement: scenario handler response"])
+    {:ok, prov} =
+      Provenance.build(
+        kind: :simulation,
+        source: "StrategicPlanner.scenario_handler",
+        audit_trail: ["non_measurement: scenario handler response"]
+      )
+
     refute Provenance.acceptable_as_evidence?(prov)
 
     # And the inverse: a record with kind: :real_execution + execution_id would
     # be acceptable. Proving the gate works in both directions.
-    {:ok, real} = Provenance.build(kind: :real_execution, source: "StrategicPlanner.scenario_handler", execution_id: "exec-123", audit_trail: ["ok"])
+    {:ok, real} =
+      Provenance.build(
+        kind: :real_execution,
+        source: "StrategicPlanner.scenario_handler",
+        execution_id: "exec-123",
+        audit_trail: ["ok"]
+      )
+
     assert Provenance.acceptable_as_evidence?(real)
   end
 
   # ---- 12. D3/D4/D5 cannot be misled (in-process: there is no reader; the moduledoc + invariants make the contract clear) ----
 
   test "R4-18: the module's moduledoc and function @doc explicitly declare the response is a non-measurement scenario handler" do
-    {:docs_v1, _, _, _, %{"en" => moduledoc}, _, _} = Code.fetch_docs(Tiannara.Forecasting.StrategicPlanner)
+    {:docs_v1, _, _, _, %{"en" => moduledoc}, _, _} =
+      Code.fetch_docs(Tiannara.Forecasting.StrategicPlanner)
+
     assert moduledoc =~ "scenario handler"
     assert moduledoc =~ "non-measurement"
     assert moduledoc =~ "fabrication has been removed"
@@ -292,7 +364,13 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
   # ---- 20. Provenance audit trail explicitly names the non-measurement contract ----
 
   test "R4-20: the attached provenance record's audit_trail marks the response as non_measurement" do
-    {:ok, prov} = Provenance.build(kind: :simulation, source: "StrategicPlanner.scenario_handler", audit_trail: ["non_measurement: scenario handler response"])
+    {:ok, prov} =
+      Provenance.build(
+        kind: :simulation,
+        source: "StrategicPlanner.scenario_handler",
+        audit_trail: ["non_measurement: scenario handler response"]
+      )
+
     assert "non_measurement: scenario handler response" in prov.audit_trail
   end
 end

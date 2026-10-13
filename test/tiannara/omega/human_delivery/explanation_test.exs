@@ -30,6 +30,6 @@ defmodule Tiannara.Omega.HumanDelivery.ExplanationTest do
     assert String.contains?(narrative, "Certification confidence is 0.93")
     assert String.contains?(narrative, "Uncertainty")
     assert String.contains?(narrative, "Lineage trace")
-    assert String.contains?(narrative, "deployment requires human authorization")
+    assert String.contains?(narrative, "Deployment requires human authorization")
   end
 end

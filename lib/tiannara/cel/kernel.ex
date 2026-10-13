@@ -18,7 +18,8 @@ defmodule Tiannara.CEL.Kernel do
 
   @impl true
   def init(_opts) do
-    {:ok, dyn_sup} = DynamicSupervisor.start_link(strategy: :one_for_one, name: Tiannara.CEL.ServiceSupervisor)
+    {:ok, dyn_sup} =
+      DynamicSupervisor.start_link(strategy: :one_for_one, name: Tiannara.CEL.ServiceSupervisor)
 
     state = %{
       runtime_state: :booting,
@@ -87,8 +88,10 @@ defmodule Tiannara.CEL.Kernel do
     case Council.authorize(:architectural_change, %{action: :restart, service: id}, nil) do
       %Authorization{decision: :approved} ->
         do_restart(id, state)
+
       %Authorization{decision: :conditional} ->
         do_restart(id, state)
+
       auth ->
         {:reply, {:error, :council_denied, auth.explanation}, state}
     end
@@ -101,6 +104,7 @@ defmodule Tiannara.CEL.Kernel do
         Enum.each(state.service_pids, fn {_id, pid} ->
           DynamicSupervisor.terminate_child(state.dyn_sup, pid)
         end)
+
         log_to_council(:eos_halted, %{actor: actor, reason: reason})
         {:reply, :ok, transition_state(%{state | service_pids: %{}}, :shutdown)}
 
@@ -111,6 +115,7 @@ defmodule Tiannara.CEL.Kernel do
 
   defp start_service(spec, dyn_sup) do
     child = %{id: spec.id, start: {spec.module, :start_link, [[]]}, restart: :temporary}
+
     case DynamicSupervisor.start_child(dyn_sup, child) do
       {:ok, pid} -> {:ok, pid}
       {:error, {:already_started, pid}} -> {:ok, pid}
@@ -120,6 +125,7 @@ defmodule Tiannara.CEL.Kernel do
 
   defp check_health(spec) do
     {mod, fun, args} = spec.health_check
+
     try do
       case apply(mod, fun, args) do
         :healthy -> :healthy
@@ -133,13 +139,18 @@ defmodule Tiannara.CEL.Kernel do
     end
   end
 
+  # Fail-closed scoring: a raised, failed, or foreign score becomes
+  # ConstitutionalScore.unavailable/1 (all zeros → the constitution gate
+  # rejects it). The former all-1.0 default certified failures as perfect.
   defp check_constitutional_score(spec) do
     {mod, fun, args} = spec.constitutional_score_check
-    try do
-      apply(mod, fun, args)
-    catch
-      _, _ -> ConstitutionalScore.default(spec.id)
+
+    case apply(mod, fun, args) do
+      %ConstitutionalScore{} = score -> score
+      _not_a_score -> ConstitutionalScore.unavailable(spec.id)
     end
+  catch
+    _, _ -> ConstitutionalScore.unavailable(spec.id)
   end
 
   defp record_pids(state, report) do
@@ -152,17 +163,23 @@ defmodule Tiannara.CEL.Kernel do
                 nil -> acc
                 pid -> Map.put(acc, id, pid)
               end
-            _ -> acc
+
+            _ ->
+              acc
           end
-        _, acc -> acc
+
+        _, acc ->
+          acc
       end)
+
     %{state | service_pids: new_pids}
   end
 
   defp transition_state(state, new_rs) do
-    %{state |
-      runtime_state: new_rs,
-      transition_history: [{new_rs, DateTime.utc_now()} | state.transition_history]
+    %{
+      state
+      | runtime_state: new_rs,
+        transition_history: [{new_rs, DateTime.utc_now()} | state.transition_history]
     }
   end
 

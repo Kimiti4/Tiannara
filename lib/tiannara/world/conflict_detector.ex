@@ -3,7 +3,13 @@ defmodule Tiannara.World.ConflictDetector do
   use Tiannara.ExecutiveService.Base
   require Logger
 
-  alias Tiannara.World.{UnifiedWorldModel, WorldQueryEngine, ConflictResolutionEngine, BeliefState}
+  alias Tiannara.World.{
+    UnifiedWorldModel,
+    WorldQueryEngine,
+    ConflictResolutionEngine,
+    BeliefState
+  }
+
   alias Tiannara.CEL.Services.{EventBus, ExecutiveMemory}
   alias Tiannara.CEL.Kernel.ConstitutionalScore
 
@@ -18,8 +24,10 @@ defmodule Tiannara.World.ConflictDetector do
   @impl Tiannara.ExecutiveService
   def capabilities do
     [
-      :logical_contradiction_detection, :duplicate_detection,
-      :ontology_violation_detection, :confidence_anomaly_detection
+      :logical_contradiction_detection,
+      :duplicate_detection,
+      :ontology_violation_detection,
+      :confidence_anomaly_detection
     ]
   end
 
@@ -37,10 +45,14 @@ defmodule Tiannara.World.ConflictDetector do
     health = if stats.unresolved_conflicts > 10, do: 0.6, else: 1.0
 
     %ConstitutionalScore{
-      service_id: id(), health: health,
-      constitutional_alignment: 1.0, transparency: 1.0,
-      explainability: 1.0, evidence_quality: 1.0,
-      human_oversight: 1.0, computed_at: DateTime.utc_now()
+      service_id: id(),
+      health: health,
+      constitutional_alignment: 1.0,
+      transparency: 1.0,
+      explainability: 1.0,
+      evidence_quality: 1.0,
+      human_oversight: 1.0,
+      computed_at: DateTime.utc_now()
     }
   end
 
@@ -56,25 +68,39 @@ defmodule Tiannara.World.ConflictDetector do
     EventBus.subscribe("world.entity.updated", self())
     schedule_detection()
 
-    {:ok, %{
-      total_conflicts_detected: 0, unresolved_conflicts: 0,
-      detection_count: 0, last_detection_at: nil,
-      healthy: true, started_at: DateTime.utc_now()
-    }}
+    {:ok,
+     %{
+       total_conflicts_detected: 0,
+       unresolved_conflicts: 0,
+       detection_count: 0,
+       last_detection_at: nil,
+       healthy: true,
+       started_at: DateTime.utc_now()
+     }}
   end
 
   @impl true
   def handle_call(:detect_all, _from, state) do
     conflicts = run_all_detections()
+
     Enum.each(conflicts, fn conflict ->
-      ConflictResolutionEngine.record_conflict(conflict)
+      try do
+        ConflictResolutionEngine.record_conflict(conflict)
+      catch
+        # A slow/unavailable resolution engine must not kill the detector
+        # (it is restart: :temporary under the CEL supervisor — death is
+        # permanent). Detection keeps running; the conflict is counted.
+        :exit, reason ->
+          Logger.warning("[ConflictDetector] record_conflict failed: #{inspect(reason)}")
+      end
     end)
 
-    new_state = %{state |
-      total_conflicts_detected: state.total_conflicts_detected + length(conflicts),
-      unresolved_conflicts: state.unresolved_conflicts + length(conflicts),
-      detection_count: state.detection_count + 1,
-      last_detection_at: DateTime.utc_now()
+    new_state = %{
+      state
+      | total_conflicts_detected: state.total_conflicts_detected + length(conflicts),
+        unresolved_conflicts: state.unresolved_conflicts + length(conflicts),
+        detection_count: state.detection_count + 1,
+        last_detection_at: DateTime.utc_now()
     }
 
     schedule_detection()
@@ -85,31 +111,45 @@ defmodule Tiannara.World.ConflictDetector do
   def handle_call(:stats, _from, state), do: {:reply, state, state}
 
   @impl true
-  def handle_info({:executive_bus_message, %{type: "world.entity.created", payload: payload}}, state) do
+  def handle_info(
+        {:executive_bus_message, %{type: "world.entity.created", payload: payload}},
+        state
+      ) do
     entity_id = payload.entity_id
     conflicts = detect_conflicts_for_entity(entity_id)
     Enum.each(conflicts, fn c -> ConflictResolutionEngine.record_conflict(c) end)
-    {:noreply, %{state |
-      total_conflicts_detected: state.total_conflicts_detected + length(conflicts),
-      unresolved_conflicts: state.unresolved_conflicts + length(conflicts)
-    }}
+
+    {:noreply,
+     %{
+       state
+       | total_conflicts_detected: state.total_conflicts_detected + length(conflicts),
+         unresolved_conflicts: state.unresolved_conflicts + length(conflicts)
+     }}
   end
 
   @impl true
-  def handle_info({:executive_bus_message, %{type: "world.entity.updated", payload: payload}}, state) do
+  def handle_info(
+        {:executive_bus_message, %{type: "world.entity.updated", payload: payload}},
+        state
+      ) do
     entity_id = payload.entity_id
     conflicts = detect_conflicts_for_entity(entity_id)
     Enum.each(conflicts, fn c -> ConflictResolutionEngine.record_conflict(c) end)
-    {:noreply, %{state |
-      total_conflicts_detected: state.total_conflicts_detected + length(conflicts),
-      unresolved_conflicts: state.unresolved_conflicts + length(conflicts)
-    }}
+
+    {:noreply,
+     %{
+       state
+       | total_conflicts_detected: state.total_conflicts_detected + length(conflicts),
+         unresolved_conflicts: state.unresolved_conflicts + length(conflicts)
+     }}
   end
 
   @impl true
   def handle_info(:run_detection, state) do
-    {:reply, _, new_state} = handle_call(:detect_all, nil, state)
-    schedule_detection()
+    # handle_call(:detect_all) already calls schedule_detection/0; scheduling
+    # again here doubled the timer every cycle (exponential detection storm
+    # in long-running processes).
+    {:reply, _ok, new_state} = handle_call(:detect_all, nil, state)
     {:noreply, new_state}
   end
 
@@ -138,14 +178,17 @@ defmodule Tiannara.World.ConflictDetector do
           {:ok, relationships} ->
             Enum.map(relationships, fn rel ->
               %{
-                entity_ids: [entity.id, rel.to_id], domain: :knowledge,
+                entity_ids: [entity.id, rel.to_id],
+                domain: :knowledge,
                 description: "Logical contradiction: #{entity.id} refutes #{rel.to_id}",
                 severity: :high,
                 evidence: [%{type: :refutes_relationship, relationship_id: rel.id}],
                 requires_human_review: false
               }
             end)
-          _ -> []
+
+          _ ->
+            []
         end
       end)
 
@@ -155,22 +198,33 @@ defmodule Tiannara.World.ConflictDetector do
   defp detect_duplicates(conflicts) do
     {:ok, result} = WorldQueryEngine.find(status: :active, limit: 10_000)
 
-    grouped = Enum.group_by(result.results, fn entity ->
-      {entity.type, Map.get(entity.attributes, :statement) || Map.get(entity.attributes, :content)}
-    end)
+    grouped =
+      result.results
+      |> Enum.group_by(fn entity ->
+        {entity.type,
+         Map.get(entity.attributes, :statement) || Map.get(entity.attributes, :content)}
+      end)
+      # Entities lacking both statement and content all collide on {type, nil}
+      # and would be reported as duplicates of each other — only compare
+      # entities that actually carry a comparable payload.
+      |> Enum.reject(fn {{_type, key}, _entities} -> is_nil(key) end)
 
     duplicates =
       grouped
       |> Enum.filter(fn {_key, entities} -> length(entities) > 1 end)
       |> Enum.flat_map(fn {_key, entities} ->
         entity_ids = Enum.map(entities, & &1.id)
-        [%{
-          entity_ids: entity_ids, domain: :knowledge,
-          description: "Duplicate entities: #{length(entities)} with identical attributes",
-          severity: :medium,
-          evidence: [%{type: :duplicate_detection, entity_ids: entity_ids}],
-          requires_human_review: false
-        }]
+
+        [
+          %{
+            entity_ids: entity_ids,
+            domain: :knowledge,
+            description: "Duplicate entities: #{length(entities)} with identical attributes",
+            severity: :medium,
+            evidence: [%{type: :duplicate_detection, entity_ids: entity_ids}],
+            requires_human_review: false
+          }
+        ]
       end)
 
     conflicts ++ duplicates
@@ -183,12 +237,13 @@ defmodule Tiannara.World.ConflictDetector do
       result.results
       |> Enum.filter(fn entity ->
         not Map.has_key?(entity, :provenance) or
-        not Map.has_key?(entity, :confidence) or
-        not Map.has_key?(entity, :uncertainty)
+          not Map.has_key?(entity, :confidence) or
+          not Map.has_key?(entity, :uncertainty)
       end)
       |> Enum.map(fn entity ->
         %{
-          entity_ids: [entity.id], domain: :ontology,
+          entity_ids: [entity.id],
+          domain: :ontology,
           description: "Violation: #{entity.id} missing required fields",
           severity: :high,
           evidence: [%{type: :ontology_violation, entity_id: entity.id}],
@@ -211,7 +266,8 @@ defmodule Tiannara.World.ConflictDetector do
       end)
       |> Enum.map(fn entity ->
         %{
-          entity_ids: [entity.id], domain: :knowledge,
+          entity_ids: [entity.id],
+          domain: :knowledge,
           description: "Confidence anomaly: #{entity.id} has confidence + uncertainty != 1.0",
           severity: :medium,
           evidence: [%{type: :confidence_anomaly, entity_id: entity.id}],

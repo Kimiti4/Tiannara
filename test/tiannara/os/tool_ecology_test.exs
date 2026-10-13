@@ -16,6 +16,7 @@ defmodule TiannaraOS.ToolEcologyTest do
     case Process.whereis(CivilizationKernel) do
       nil ->
         {:ok, _pid} = CivilizationKernel.start_link()
+
       _pid ->
         :ok
     end
@@ -43,15 +44,16 @@ defmodule TiannaraOS.ToolEcologyTest do
 
   test "Tool Genome Evolution: verifies mutation, parent lineage, and provenance tracking" do
     initial_spec = %{rules: [%{package: "plug", vulnerable_before: "1.14.0"}]}
-    
-    genome = ToolGenomeEngine.generate_genome(
-      :dep_scanner,
-      :find_insecure_dependency,
-      :repository_analysis,
-      :interpreter,
-      initial_spec,
-      provenance: ["initial_seed"]
-    )
+
+    genome =
+      ToolGenomeEngine.generate_genome(
+        :dep_scanner,
+        :find_insecure_dependency,
+        :repository_analysis,
+        :interpreter,
+        initial_spec,
+        provenance: ["initial_seed"]
+      )
 
     assert genome.id == :dep_scanner
     assert genome.version == "0.1.0"
@@ -59,11 +61,12 @@ defmodule TiannaraOS.ToolEcologyTest do
     assert genome.provenance == ["initial_seed"]
 
     # Mutate genome spec
-    mutated = ToolGenomeEngine.mutate_spec(
-      genome,
-      %{rules: [%{package: "plug", vulnerable_before: "1.15.0"}]},
-      "expanded_audit_rules"
-    )
+    mutated =
+      ToolGenomeEngine.mutate_spec(
+        genome,
+        %{rules: [%{package: "plug", vulnerable_before: "1.15.0"}]},
+        "expanded_audit_rules"
+      )
 
     assert mutated.id != :dep_scanner
     assert mutated.version == "0.2.0"
@@ -82,17 +85,20 @@ defmodule TiannaraOS.ToolEcologyTest do
       end
     end
     """
+
     {:ok, twin_path} = RepositoryTwin.create_twin("mix_audit", %{"mix.exs" => mix_content})
 
     # 2. Define genome spec
     spec = %{rules: [%{package: "plug", vulnerable_before: "1.14.0"}]}
-    genome = ToolGenomeEngine.generate_genome(
-      :dep_scanner,
-      :find_insecure_dependency,
-      :repository_analysis,
-      :interpreter,
-      spec
-    )
+
+    genome =
+      ToolGenomeEngine.generate_genome(
+        :dep_scanner,
+        :find_insecure_dependency,
+        :repository_analysis,
+        :interpreter,
+        spec
+      )
 
     # 3. Execute interpreter
     assert {:ok, %{vulnerabilities: [vuln]}} = ToolRuntime.execute_tool(genome, twin_path, %{})
@@ -106,23 +112,25 @@ defmodule TiannaraOS.ToolEcologyTest do
 
   test "Capability Failure Test: traps runtime crashes gracefully, records failure evidence, and penalizes fitness" do
     # Register genome in State
-    genome = ToolGenomeEngine.generate_genome(
-      :broken_scanner,
-      :find_insecure_dependency,
-      :repository_analysis,
-      :interpreter,
-      %{rules: []}
-    )
+    genome =
+      ToolGenomeEngine.generate_genome(
+        :broken_scanner,
+        :find_insecure_dependency,
+        :repository_analysis,
+        :interpreter,
+        %{rules: []}
+      )
 
-    {:ok, _state} = CivilizationKernel.update_state(fn current_state ->
-      %{current_state | tools: Map.put(current_state.tools, :broken_scanner, genome)}
-    end)
+    {:ok, _state} =
+      CivilizationKernel.update_state(fn current_state ->
+        %{current_state | tools: Map.put(current_state.tools, :broken_scanner, genome)}
+      end)
 
     # Run loop on a non-existent path to trigger a file read crash
     non_existent_path = "scratch/non_existent_directory_xyz"
 
-    assert {:error, {:runtime_crash, _}, failure_evidence} = 
-      ToolRuntime.run_grounding_loop(genome, non_existent_path, %{}, :cybersecurity)
+    assert {:error, {:runtime_crash, _}, failure_evidence} =
+             ToolRuntime.run_grounding_loop(genome, non_existent_path, %{}, :cybersecurity)
 
     # Verify failure evidence
     assert failure_evidence.validity == :invalid
@@ -138,46 +146,64 @@ defmodule TiannaraOS.ToolEcologyTest do
 
   test "Security Profile Hook: blocks unauthorized profiles against strict kernel policy" do
     # Policy mode defaults to :strict in setup
-    genome = ToolGenomeEngine.generate_genome(
-      :insecure_tool,
-      :find_insecure_dependency,
-      :repository_analysis,
-      :interpreter,
-      %{},
-      security_profile: %{read_sandbox: false} # Sandbox required under strict mode
-    )
+    genome =
+      ToolGenomeEngine.generate_genome(
+        :insecure_tool,
+        :find_insecure_dependency,
+        :repository_analysis,
+        :interpreter,
+        %{},
+        # Sandbox required under strict mode
+        security_profile: %{read_sandbox: false}
+      )
 
-    assert {:error, {:security_violation, :untrusted_sandbox}} = 
-      ToolRuntime.execute_tool(genome, "scratch/dummy", %{})
+    assert {:error, {:security_violation, :untrusted_sandbox}} =
+             ToolRuntime.execute_tool(genome, "scratch/dummy", %{})
 
     # Test unauthorized network access
-    genome_network = ToolGenomeEngine.generate_genome(
-      :network_tool,
-      :find_insecure_dependency,
-      :repository_analysis,
-      :interpreter,
-      %{},
-      security_profile: %{read_sandbox: true, network_access: true} # Network access forbidden
-    )
+    genome_network =
+      ToolGenomeEngine.generate_genome(
+        :network_tool,
+        :find_insecure_dependency,
+        :repository_analysis,
+        :interpreter,
+        %{},
+        # Network access forbidden
+        security_profile: %{read_sandbox: true, network_access: true}
+      )
 
-    assert {:error, {:security_violation, :unauthorized_network_access}} = 
-      ToolRuntime.execute_tool(genome_network, "scratch/dummy", %{})
+    assert {:error, {:security_violation, :unauthorized_network_access}} =
+             ToolRuntime.execute_tool(genome_network, "scratch/dummy", %{})
   end
 
   test "End-to-End Grounding Loop: runs tool, records empirical evidence, and revises JTMS belief confidence" do
     # 1. Setup World structures
-    theory = %EvidenceNode{id: :cyber_theory, type: :theory, name: "Cybersecurity Theory", value: 1.0, validity: :valid}
-    claim = %EvidenceNode{id: :cyber_claim, type: :claim, name: "Claims plug is vulnerable", value: 1.0, validity: :valid}
+    theory = %EvidenceNode{
+      id: :cyber_theory,
+      type: :theory,
+      name: "Cybersecurity Theory",
+      value: 1.0,
+      validity: :valid
+    }
+
+    claim = %EvidenceNode{
+      id: :cyber_claim,
+      type: :claim,
+      name: "Claims plug is vulnerable",
+      value: 1.0,
+      validity: :valid
+    }
 
     # Set up initial JTMS state
-    {:ok, _state} = CivilizationKernel.update_state(fn current_state ->
-      initial_graph =
-        current_state.evidence_graph
-        |> Map.put(:cyber_theory, theory)
-        |> Map.put(:cyber_claim, claim)
+    {:ok, _state} =
+      CivilizationKernel.update_state(fn current_state ->
+        initial_graph =
+          current_state.evidence_graph
+          |> Map.put(:cyber_theory, theory)
+          |> Map.put(:cyber_claim, claim)
 
-      %{current_state | evidence_graph: initial_graph}
-    end)
+        %{current_state | evidence_graph: initial_graph}
+      end)
 
     # Link Theory -> Claim
     CivilizationKernel.update_state(fn current_state ->
@@ -193,27 +219,33 @@ defmodule TiannaraOS.ToolEcologyTest do
       end
     end
     """
+
     {:ok, twin_path} = RepositoryTwin.create_twin("grounding_loop", %{"mix.exs" => mix_content})
 
     # 3. Create tool genome
     spec = %{rules: [%{package: "plug", vulnerable_before: "1.14.0"}]}
-    genome = ToolGenomeEngine.generate_genome(
-      :e2e_scanner,
-      :find_insecure_dependency,
-      :repository_analysis,
-      :interpreter,
-      spec
-    )
+
+    genome =
+      ToolGenomeEngine.generate_genome(
+        :e2e_scanner,
+        :find_insecure_dependency,
+        :repository_analysis,
+        :interpreter,
+        spec
+      )
 
     # 4. Run Grounding Loop
-    assert {:ok, evidence_node, state_after_run} = 
-      ToolRuntime.run_grounding_loop(genome, twin_path, %{}, :cybersecurity)
+    assert {:ok, evidence_node, state_after_run} =
+             ToolRuntime.run_grounding_loop(genome, twin_path, %{}, :cybersecurity)
 
-    assert evidence_node.value == 1.0 # Vulnerability successfully found
+    # Vulnerability successfully found
+    assert evidence_node.value == 1.0
 
     # 5. Link generated evidence node to Claim in the state graph
-    state_after_run = EvidenceEngine.add_node(state_after_run, evidence_node)
-    state_after_run = EvidenceEngine.add_relation(state_after_run, evidence_node.id, :supports, :cyber_claim)
+    state_after_run = EvidenceEngine.add_node(state_after_run, evidence_node.id, evidence_node)
+
+    state_after_run =
+      EvidenceEngine.add_relation(state_after_run, evidence_node.id, :supports, :cyber_claim)
 
     # Clean up Repository Twin files
     assert :ok = RepositoryTwin.cleanup_twin(twin_path)

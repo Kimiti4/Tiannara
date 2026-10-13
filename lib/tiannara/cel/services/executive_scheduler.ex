@@ -60,12 +60,19 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
 
   @impl true
   def capabilities do
-    [:mission_scheduling, :fairness_enforcement, :preemption,
-     :admission_control, :concurrency_management, :bottleneck_detection]
+    [
+      :mission_scheduling,
+      :fairness_enforcement,
+      :preemption,
+      :admission_control,
+      :concurrency_management,
+      :bottleneck_detection
+    ]
   end
 
   @impl true
-  def dependencies, do: [:priority_engine, :resource_manager, :capability_graph, :executive_memory]
+  def dependencies,
+    do: [:priority_engine, :resource_manager, :capability_graph, :executive_memory]
 
   @impl true
   def constitutional_score do
@@ -91,6 +98,7 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
   @impl true
   def init(_opts) do
     schedule_aging_cycle()
+
     state = %{
       queue: :queue.new(),
       running: %{},
@@ -100,6 +108,7 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
       healthy: true,
       started_at: DateTime.utc_now()
     }
+
     Logger.info("ExecutiveScheduler: Initialized (max_concurrency: #{@max_concurrency})")
     {:ok, state}
   end
@@ -129,12 +138,18 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
         new_queue = :queue.in(job, state.queue)
         new_state = %{state | queue: new_queue, submission_count: state.submission_count + 1}
 
-        emit_constitutional_event(:work_submitted, %{priority: base_priority}, %{job_id: job_id, mission_id: mission_id})
+        emit_constitutional_event(:work_submitted, %{priority: base_priority}, %{
+          job_id: job_id,
+          mission_id: mission_id
+        })
+
         {:reply, {:ok, job_id}, new_state}
 
       {:error, reason} ->
         Logger.warning("Scheduler: Admission denied for #{mission_id}: #{inspect(reason)}")
-        {:reply, {:error, :admission_denied}, %{state | rejection_count: state.rejection_count + 1}}
+
+        {:reply, {:error, :admission_denied},
+         %{state | rejection_count: state.rejection_count + 1}}
     end
   end
 
@@ -145,10 +160,14 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
     else
       case :queue.out(state.queue) do
         {{:value, job}, new_queue} ->
-          running = Map.put(state.running, job.id, {job.mission_id, worker_id, DateTime.utc_now()})
+          running =
+            Map.put(state.running, job.id, {job.mission_id, worker_id, DateTime.utc_now()})
 
           safely_record(:job_scheduled, %{
-            job_id: job.id, mission_id: job.mission_id, worker: worker_id, priority: job.effective_priority
+            job_id: job.id,
+            mission_id: job.mission_id,
+            worker: worker_id,
+            priority: job.effective_priority
           })
 
           {:reply, {:ok, job}, %{state | queue: new_queue, running: running}}
@@ -177,22 +196,32 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
   @impl true
   def handle_call(:bottlenecks, _from, state) do
     queue_len = :queue.len(state.queue)
+
     bottlenecks =
-      (if queue_len > @max_concurrency * 2, do: [%{type: :queue_backlog, severity: :high, value: queue_len}], else: [])
-      |> Kernel.++(if state.starved_missions > 0, do: [%{type: :mission_starvation, severity: :critical, value: state.starved_missions}], else: [])
+      if(queue_len > @max_concurrency * 2,
+        do: [%{type: :queue_backlog, severity: :high, value: queue_len}],
+        else: []
+      )
+      |> Kernel.++(
+        if state.starved_missions > 0,
+          do: [%{type: :mission_starvation, severity: :critical, value: state.starved_missions}],
+          else: []
+      )
+
     {:reply, bottlenecks, state}
   end
 
   @impl true
   def handle_call(:stats, _from, state) do
-    {:reply, %{
-      healthy: state.healthy,
-      queue_length: :queue.len(state.queue),
-      running_count: map_size(state.running),
-      submission_count: state.submission_count,
-      rejection_count: state.rejection_count,
-      starved_missions: state.starved_missions
-    }, state}
+    {:reply,
+     %{
+       healthy: state.healthy,
+       queue_length: :queue.len(state.queue),
+       running_count: map_size(state.running),
+       submission_count: state.submission_count,
+       rejection_count: state.rejection_count,
+       starved_missions: state.starved_missions
+     }, state}
   end
 
   @impl true
@@ -208,6 +237,7 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
       {{_mission_id, _worker_id, _started_at}, new_running} ->
         emit_constitutional_event(:work_completed, %{outcome: outcome}, %{job_id: job_id})
         {:noreply, %{state | running: new_running}}
+
       {nil, _} ->
         {:noreply, state}
     end
@@ -223,8 +253,13 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
       :queue.to_list(state.queue)
       |> Enum.map_reduce(0, fn job, acc ->
         wait_ms = DateTime.diff(now, job.submitted_at, :millisecond)
+
         if wait_ms > @starvation_threshold_ms do
-          updated = %{job | effective_priority: min(1.0, job.effective_priority + @aging_increment)}
+          updated = %{
+            job
+            | effective_priority: min(1.0, job.effective_priority + @aging_increment)
+          }
+
           {updated, acc + 1}
         else
           {job, acc}
@@ -239,7 +274,9 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
     end
 
     schedule_aging_cycle()
-    {:noreply, %{state | queue: rebuilt_queue, starved_missions: state.starved_missions + starved_count}}
+
+    {:noreply,
+     %{state | queue: rebuilt_queue, starved_missions: state.starved_missions + starved_count}}
   end
 
   # ── Private ─────────────────────────────────────────────────────
@@ -261,7 +298,9 @@ defmodule Tiannara.CEL.Services.ExecutiveScheduler do
   end
 
   defp schedule_aging_cycle do
-    Process.send_after(self(), :aging_cycle, :timer.seconds(30))
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :aging_cycle, :timer.seconds(30))
+    end
   end
 
   defp generate_job_id do

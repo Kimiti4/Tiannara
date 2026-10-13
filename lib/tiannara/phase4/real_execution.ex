@@ -24,7 +24,9 @@ defmodule Tiannara.Phase4.RealExecution do
   """
 
   alias Tiannara.Evidence.Provenance
+  alias Tiannara.Phase4.ExecutionGovernance
   alias Tiannara.SelfImprovement.Sandbox.RealHarness
+  alias Tiannara.Omega.EffectIdentity
   alias Tiannara.Omega.HumanDelivery.Authorization
   alias Tiannara.Omega.DeploymentGateway
   alias Tiannara.Omega.PatchGenerator.Candidate
@@ -34,6 +36,10 @@ defmodule Tiannara.Phase4.RealExecution do
   require Logger
 
   @producer "Tiannara.Phase4.RealExecution"
+
+  @authority_scope "phase4:real_execution"
+  @operation "real_execution"
+  @audit_action :real_execution_committed
 
   @executions_log "priv/tiannara/real_execution/executions.jsonl"
 
@@ -64,33 +70,68 @@ defmodule Tiannara.Phase4.RealExecution do
     }
   """
   @spec execute(map()) ::
-          {:ok, map()} | {:error, :real_execution_not_enabled | :authorization_grant_required | term()}
+          {:ok, map()}
+          | {:error, :real_execution_not_enabled | :authorization_grant_required | term()}
   def execute(spec) when is_map(spec) do
     with :ok <- guard_enabled(),
          :ok <- guard_grant(spec),
          {:ok, substrate} <- substrate(spec),
-         {:ok, execution_id, _record, lifecycle} <- open_execution(spec, substrate) do
-      case run_sandbox(substrate) do
-        {:ok, sandbox_result} ->
-          verification = build_verification(substrate, sandbox_result)
-          close_execution(execution_id, lifecycle, :completed, spec, substrate, verification, nil)
+         {:ok, admission} <-
+           ExecutionGovernance.begin(
+             Map.fetch!(spec, :grant),
+             execution_descriptor(spec, substrate)
+           ) do
+      case open_execution(spec, substrate) do
+        {:ok, execution_id, _record, lifecycle} ->
+          case run_sandbox(substrate) do
+            {:ok, sandbox_result} ->
+              verification = build_verification(substrate, sandbox_result)
 
-          provenance = build_provenance(execution_id, spec)
-          record_execution(execution_id, spec, verification)
-          maybe_deploy(spec, execution_id, verification)
+              close_execution(
+                execution_id,
+                lifecycle,
+                :completed,
+                spec,
+                substrate,
+                verification,
+                nil
+              )
 
-          {:ok,
-           %{
-             experiment_id: Map.get(spec, :id, "exp_#{execution_id}"),
-             execution_id: execution_id,
-             verification: verification,
-             provenance: provenance,
-             sandbox: sandbox_result
-           }}
+              provenance = build_provenance(execution_id, spec)
+              record_execution(execution_id, spec, verification)
 
-        {:error, _reason} = sandbox_error ->
-          close_execution(execution_id, lifecycle, :failed, spec, substrate, nil, inspect(elem(sandbox_error, 1)))
-          sandbox_error
+              with :ok <- audit_execution(admission, execution_id, spec) do
+                maybe_deploy(spec, execution_id, verification)
+
+                {:ok,
+                 %{
+                   experiment_id: Map.get(spec, :id, "exp_#{execution_id}"),
+                   execution_id: execution_id,
+                   verification: verification,
+                   provenance: provenance,
+                   sandbox: sandbox_result
+                 }}
+              end
+
+            {:error, _reason} = sandbox_error ->
+              ExecutionGovernance.release(admission.effect_id)
+
+              close_execution(
+                execution_id,
+                lifecycle,
+                :failed,
+                spec,
+                substrate,
+                nil,
+                inspect(elem(sandbox_error, 1))
+              )
+
+              sandbox_error
+          end
+
+        {:error, _reason} = open_error ->
+          ExecutionGovernance.release(admission.effect_id)
+          open_error
       end
     end
   end
@@ -103,6 +144,47 @@ defmodule Tiannara.Phase4.RealExecution do
 
   defp guard_grant(%{grant: %Authorization{}}), do: :ok
   defp guard_grant(_), do: {:error, :authorization_grant_required}
+
+  # The canonical semantic descriptor (M1) for this execution. Identity is
+  # derived from it alone: experiment scope, substrate baseline, patch
+  # fingerprint and backend environment. The grant is bound to it (M3) before
+  # the sandbox runs.
+  defp execution_descriptor(spec, substrate) do
+    grant = Map.fetch!(spec, :grant)
+
+    %{
+      principal: to_string(Map.get(grant, :human_id) || "unknown"),
+      authority_scope: @authority_scope,
+      operation: @operation,
+      target: %{
+        experiment_id: to_string(Map.get(spec, :id) || "unnamed"),
+        baseline: to_string(substrate.baseline)
+      },
+      parameters: %{patch_hash: content_fingerprint(substrate.patch)},
+      environment: %{backend: to_string(substrate.backend)},
+      intent: %{kind: "real_execution"},
+      semantic_version: "1",
+      identity_version: EffectIdentity.identity_version()
+    }
+  end
+
+  defp content_fingerprint(term) do
+    :erlang.term_to_binary(term)
+    |> then(&:crypto.hash(:sha256, &1))
+    |> Base.encode16(case: :lower)
+  end
+
+  defp audit_execution(admission, execution_id, spec) do
+    ExecutionGovernance.record_audit(@audit_action, admission.grant.human_id, %{
+      effect_id: admission.effect_id,
+      authorization_id: admission.grant.authorization_id,
+      explanation_id: admission.grant.explanation_id,
+      execution_id: execution_id,
+      experiment_id: Map.get(spec, :id),
+      subsystem: "real_execution",
+      executed_at: DateTime.utc_now() |> DateTime.to_iso8601()
+    })
+  end
 
   defp substrate(spec) do
     case Map.get(spec, :substrate) do
@@ -164,12 +246,21 @@ defmodule Tiannara.Phase4.RealExecution do
         proposal_id = Map.get(spec, :id, "exp_#{execution_id}")
 
         with {:ok, candidate} <- build_approved_candidate(execution_id, proposal_id) do
-          case DeploymentGateway.deploy(candidate, certification, lineage, grant, identity, registry_path) do
+          case DeploymentGateway.deploy(
+                 candidate,
+                 certification,
+                 lineage,
+                 grant,
+                 identity,
+                 registry_path
+               ) do
             {:ok, _record, _deployed} ->
               Logger.info("[RealExecution] Deployment committed for #{execution_id}")
 
             {:error, reason} ->
-              Logger.info("[RealExecution] Deployment denied for #{execution_id}: #{inspect(reason)}")
+              Logger.info(
+                "[RealExecution] Deployment denied for #{execution_id}: #{inspect(reason)}"
+              )
           end
         end
 
@@ -178,14 +269,20 @@ defmodule Tiannara.Phase4.RealExecution do
     end
   rescue
     e ->
-      Logger.warning("[RealExecution] Deployment decision failed for #{execution_id}: #{inspect(e)}")
+      Logger.warning(
+        "[RealExecution] Deployment decision failed for #{execution_id}: #{inspect(e)}"
+      )
   end
 
   # The candidate must advance through the full lifecycle state machine to
   # :approved before the DeploymentGateway can act — sandbox-first, verified,
   # certified, then human-approved.
   defp build_approved_candidate(execution_id, proposal_id) do
-    with {:ok, c1} <- Candidate.transition(Candidate.new(:code_patch, proposal_id, %{execution_id: execution_id}), :sandboxed),
+    with {:ok, c1} <-
+           Candidate.transition(
+             Candidate.new(:code_patch, proposal_id, %{execution_id: execution_id}),
+             :sandboxed
+           ),
          {:ok, c2} <- Candidate.transition(c1, :tested),
          {:ok, c3} <- Candidate.transition(c2, :benchmarked),
          {:ok, c4} <- Candidate.transition(c3, :certified),
@@ -216,11 +313,12 @@ defmodule Tiannara.Phase4.RealExecution do
     File.write!(executions_log(), line <> "\n", [:append])
 
     # Best-effort append to the Executive event store when it is running.
-    event = Event.new("experiment.real_execution.completed", %{
-      execution_id: execution_id,
-      experiment_id: Map.get(spec, :id),
-      verification: verification
-    })
+    event =
+      Event.new("experiment.real_execution.completed", %{
+        execution_id: execution_id,
+        experiment_id: Map.get(spec, :id),
+        verification: verification
+      })
 
     case Process.whereis(Tiannara.Executive.EventStore) do
       pid when is_pid(pid) -> Tiannara.Executive.EventStore.append(event)
@@ -259,7 +357,10 @@ defmodule Tiannara.Phase4.RealExecution do
         :ok
 
       {:error, reason, culprit} ->
-        Logger.warning("[RealExecution] lifecycle #{status} rejected for #{id}: #{inspect(reason)}")
+        Logger.warning(
+          "[RealExecution] lifecycle #{status} rejected for #{id}: #{inspect(reason)}"
+        )
+
         Logger.warning("[RealExecution] lifecycle culprit: #{inspect(culprit)}")
     end
   end

@@ -6,6 +6,7 @@ defmodule Tiannara.ASC.Crucible.RepairLibraryRetentionTest do
   @tables [:repair_library, :repair_library_seq, :repair_library_meta]
 
   setup do
+    terminate_supervised_child()
     stop_library()
     drop_tables()
 
@@ -35,14 +36,54 @@ defmodule Tiannara.ASC.Crucible.RepairLibraryRetentionTest do
       drop_tables()
       File.rm(archive)
       Application.put_env(:tiannara, :asc, asc_env)
+      restart_supervised_child()
     end)
 
     %{archive: archive}
   end
 
+  # RepairLibrary is a permanent child of the app-started Tiannara.ASC.Supervisor.
+  # Terminate the supervised child (without restart) so tests own a fresh,
+  # test-configured instance, then restore it afterwards.
+  defp terminate_supervised_child do
+    case Process.whereis(Tiannara.ASC.Supervisor) do
+      nil ->
+        :ok
+
+      sup ->
+        case Supervisor.terminate_child(sup, RepairLibrary) do
+          :ok -> :ok
+          {:error, :not_found} -> :ok
+        end
+    end
+  end
+
+  defp restart_supervised_child do
+    case Process.whereis(Tiannara.ASC.Supervisor) do
+      nil ->
+        :ok
+
+      sup ->
+        case Supervisor.restart_child(sup, RepairLibrary) do
+          {:ok, _} -> :ok
+          {:ok, _, _} -> :ok
+          {:error, :running} -> :ok
+          {:error, :not_found} -> :ok
+        end
+    end
+  end
+
   defp stop_library do
-    if Process.whereis(RepairLibrary) do
-      GenServer.stop(RepairLibrary, :normal)
+    case Process.whereis(RepairLibrary) do
+      nil ->
+        :ok
+
+      pid ->
+        try do
+          GenServer.stop(pid, :normal)
+        catch
+          :exit, _ -> :ok
+        end
     end
   end
 

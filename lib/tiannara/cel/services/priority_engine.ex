@@ -51,8 +51,13 @@ defmodule Tiannara.CEL.Services.PriorityEngine do
 
   @impl true
   def capabilities do
-    [:adaptive_prioritization, :evidence_driven_learning, :calibration,
-     :drift_detection, :explainable_priority]
+    [
+      :adaptive_prioritization,
+      :evidence_driven_learning,
+      :calibration,
+      :drift_detection,
+      :explainable_priority
+    ]
   end
 
   @impl true
@@ -85,20 +90,23 @@ defmodule Tiannara.CEL.Services.PriorityEngine do
 
   @impl true
   def init(_opts) do
-    send(self(), :subscribe_to_events)
-    send(self(), :schedule_update)
-    Process.send_after(self(), :update_model, @update_interval_ms)
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      send(self(), :subscribe_to_events)
+      send(self(), :schedule_update)
+      Process.send_after(self(), :update_model, @update_interval_ms)
+    end
 
-    {:ok, %{
-      weights: LearningModel.init_weights(),
-      signal_buffer: [],
-      calibration_buffer: [],
-      total_signals: 0,
-      drift_detected: false,
-      last_update: DateTime.utc_now(),
-      last_report: nil,
-      healthy: true
-    }}
+    {:ok,
+     %{
+       weights: LearningModel.init_weights(),
+       signal_buffer: [],
+       calibration_buffer: [],
+       total_signals: 0,
+       drift_detected: false,
+       last_update: DateTime.utc_now(),
+       last_report: nil,
+       healthy: true
+     }}
   end
 
   @impl true
@@ -186,7 +194,9 @@ defmodule Tiannara.CEL.Services.PriorityEngine do
 
   defp do_learn(state) do
     case state.signal_buffer do
-      [] -> state
+      [] ->
+        state
+
       signals ->
         weights =
           Enum.reduce(signals, state.weights, fn signal, w ->
@@ -205,18 +215,22 @@ defmodule Tiannara.CEL.Services.PriorityEngine do
 
         if drift and not state.drift_detected do
           Logger.warning("PriorityEngine: Drift detected! Calibration below #{@drift_threshold}")
-          emit_constitutional_event(:priority_engine_drift,
-            %{calibration: LearningModel.calibration_score(weights, calib)})
+
+          emit_constitutional_event(
+            :priority_engine_drift,
+            %{calibration: LearningModel.calibration_score(weights, calib)}
+          )
         end
 
         record_learning_event(weights, length(signals))
 
-        %{state |
-          weights: weights,
-          signal_buffer: [],
-          calibration_buffer: calib,
-          drift_detected: drift,
-          last_update: DateTime.utc_now()
+        %{
+          state
+          | weights: weights,
+            signal_buffer: [],
+            calibration_buffer: calib,
+            drift_detected: drift,
+            last_update: DateTime.utc_now()
         }
     end
   end
@@ -247,13 +261,15 @@ defmodule Tiannara.CEL.Services.PriorityEngine do
     alignment = mission_alignment(event.mission_id)
     risk_penalty = Map.get(event, :risk, 0.0) * 0.5
     cost_penalty = Map.get(event, :resource_cost, 0.0) * 0.001
-    raw = (impact * evidence * confidence * urgency * alignment) - risk_penalty - cost_penalty
+    raw = impact * evidence * confidence * urgency * alignment - risk_penalty - cost_penalty
     max(0.0, min(1.0, raw))
   end
 
   defp build_report(state) do
     cal = LearningModel.calibration_score(state.weights, state.calibration_buffer)
-    {prio, lo, hi} = LearningModel.predict_with_uncertainty(state.weights, [0.5, 0.5, 0.5, 0.5, 0.5])
+
+    {prio, lo, hi} =
+      LearningModel.predict_with_uncertainty(state.weights, [0.5, 0.5, 0.5, 0.5, 0.5])
 
     %PriorityReport{
       service_id: :priority_engine,
@@ -279,7 +295,8 @@ defmodule Tiannara.CEL.Services.PriorityEngine do
   defp record_learning_event(weights, batch_size) do
     try do
       ExecutiveMemory.record_event(:priority_engine, :model_update, %{
-        n: weights.n, batch_size: batch_size,
+        n: weights.n,
+        batch_size: batch_size,
         mean_weights: weights.mean
       })
     rescue

@@ -21,13 +21,23 @@ defmodule Tiannara.Domains.Chemistry do
   def design_experiments(_hypothesis), do: {:ok, []}
 
   @impl true
-  def validate(_experiment), do: {:ok, %{valid: true}}
+  # D-A3 quarantine (2026-09-23): unconditional validity with no verification - fabricated domain evidence.
+  # Fails closed until real verification exists.
+  def validate(_experiment), do: {:error, :validation_unavailable}
 
   @impl true
   def translate(_hypothesis), do: {:ok, %{engineering_applications: []}}
 
   @impl true
   def metrics do
-    %{active_hypotheses: 88, open_experiments: 22, discoveries_this_cycle: 2, knowledge_growth_rate: 0.09, evidence_quality_score: 0.91, hypotheses_generated: 88, experiments_completed: 22}
+    %{
+      active_hypotheses: 88,
+      open_experiments: 22,
+      discoveries_this_cycle: 2,
+      knowledge_growth_rate: 0.09,
+      evidence_quality_score: 0.91,
+      hypotheses_generated: 88,
+      experiments_completed: 22
+    }
   end
 end

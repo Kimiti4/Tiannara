@@ -114,7 +114,7 @@ defmodule Tiannara.CRAV.SoakTestTest do
     Process.sleep(100)
 
     # Restart with the SAME run_id → must resume from checkpoint.
-    {:ok, _pid2} =
+    {:ok, pid2} =
       Tiannara.CRAV.SoakTest.start_link(%{
         run_id: run_id,
         duration_hours: 72,
@@ -124,9 +124,24 @@ defmodule Tiannara.CRAV.SoakTestTest do
         report_interval_ms: 200
       })
 
+    # start_link links the engine to this test process; the test process
+    # exits as soon as the body ends (before on_exit runs), which kills the
+    # linked engine and makes the whereis-guard race below fail flakily.
+    Process.unlink(pid2)
+
     on_exit(fn ->
-      if Process.whereis(Tiannara.CRAV.SoakTest) do
-        Tiannara.CRAV.SoakTest.stop_test()
+      case Process.whereis(Tiannara.CRAV.SoakTest) do
+        nil ->
+          :ok
+
+        pid ->
+          if Process.alive?(pid) do
+            try do
+              Tiannara.CRAV.SoakTest.stop_test()
+            catch
+              :exit, _ -> :ok
+            end
+          end
       end
     end)
 

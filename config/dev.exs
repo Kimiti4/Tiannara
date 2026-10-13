@@ -1,13 +1,8 @@
 import Config
 
-# Configure your database
-config :tiannara, Tiannara.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "tiannara_dev",
-  hostname: "localhost",
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+# NOTE: the former `config :tiannara, Tiannara.Repo` block was removed
+# (2026-10-13 audit) — no Tiannara.Repo module exists and ecto is not a
+# dependency of this app; the config was dead.
 
 # For development, we don't enforce a production password and allow
 # " insecure access from any hostname".

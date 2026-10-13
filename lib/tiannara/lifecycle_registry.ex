@@ -1,12 +1,12 @@
 defmodule Tiannara.LifecycleRegistry do
   @moduledoc """
   Canonical event-sourced evolutionary ledger for Tiannara.
-  
+
   **Infrastructure Layer** — Records immutable lifecycle events across all evolutionary layers.
   Does NOT compute analytics. Analytics (Ecology, Telemetry, OED) subscribe to this event stream.
-  
+
   ## Architecture
-  
+
   ```
                CapabilityRegistry
                      │
@@ -23,14 +23,14 @@ defmodule Tiannara.LifecycleRegistry do
         ▼            ▼             ▼
    Ecology      Telemetry      OED Audits
   ```
-  
+
   Uses lock-free ETS tables for high-throughput event logging:
   - `:lifecycle_events` — Immutable event log (event_id → {entity_type, entity_id, event, tick, reason, metadata})
   - `:lifecycle_state` — Derived mutable state (entity_type + entity_id → {status, created_tick, removed_tick, ...})
   - `:lifecycle_stats` — Aggregated counters per entity type
-  
+
   ## Usage
-  
+
       # Record lifecycle events (generic API)
       Tiannara.LifecycleRegistry.record_created(:capability, cap_id, tick, metadata)
       Tiannara.LifecycleRegistry.record_removed(:capability, cap_id, tick, :selection, metadata)
@@ -43,48 +43,59 @@ defmodule Tiannara.LifecycleRegistry do
       # Invariant checking (raises on failure)
       Tiannara.LifecycleRegistry.verify!(:capability, fn -> graph_size end)
   """
-  
+
   use GenServer
   require Logger
-  
+
   # ==================== Entity Types ====================
-  
+
   @type entity_type ::
           :capability
-        | :theory
-        | :ontology
-        | :civilization
-        | :observer
-        | :policy
-        | :hypothesis
-  
+          | :theory
+          | :ontology
+          | :civilization
+          | :observer
+          | :policy
+          | :hypothesis
+
   # ==================== Event Types ====================
-  
+
   @type event_type ::
           :created
-        | :mutated
-        | :promoted
-        | :merged
-        | :selected
-        | :removed
-        | :quarantined
-        | :rolled_back
-  
+          | :mutated
+          | :promoted
+          | :merged
+          | :selected
+          | :removed
+          | :quarantined
+          | :rolled_back
+
   # ==================== Removal Reasons ====================
-  
+
+  # Failed fitness/selection criteria
   @type removal_reason ::
-          :selection              # Failed fitness/selection criteria
-        | :replacement            # Superseded by newer version
-        | :merge                  # Merged into another entity
-        | :promotion              # Promoted to higher layer
-        | :overwrite              # Overwritten by update
-        | :compaction             # Removed during graph compaction
-        | :rollback               # Reverted due to contradiction/failure
-        | :quarantine             # Isolated by OAVL/ACM
-        | :resource_exhaustion    # System resource limits
-        | :contradiction          # Logical/physical contradiction detected
-        | :invalidated            # Invalidated by OAVL/epistemic check
-  
+          :selection
+          # Superseded by newer version
+          | :replacement
+          # Merged into another entity
+          | :merge
+          # Promoted to higher layer
+          | :promotion
+          # Overwritten by update
+          | :overwrite
+          # Removed during graph compaction
+          | :compaction
+          # Reverted due to contradiction/failure
+          | :rollback
+          # Isolated by OAVL/ACM
+          | :quarantine
+          # System resource limits
+          | :resource_exhaustion
+          # Logical/physical contradiction detected
+          | :contradiction
+          # Invalidated by OAVL/epistemic check
+          | :invalidated
+
   @removal_reasons [
     :selection,
     :replacement,
@@ -98,9 +109,9 @@ defmodule Tiannara.LifecycleRegistry do
     :contradiction,
     :invalidated
   ]
-  
+
   # ==================== Exception Definitions ====================
-  
+
   defmodule LifecycleInvariantError do
     @moduledoc "Raised when lifecycle accounting invariant is violated"
     defexception [
@@ -112,13 +123,13 @@ defmodule Tiannara.LifecycleRegistry do
       :missing_from_lifecycle
     ]
   end
-  
+
   # ==================== Public API ====================
-  
+
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
-  
+
   @doc """
   Initialize ETS tables for lifecycle tracking.
   Must be called once at system startup.
@@ -127,9 +138,18 @@ defmodule Tiannara.LifecycleRegistry do
     ensure_table(:lifecycle_events, [:bag, :public, :named_table, write_concurrency: true])
     ensure_table(:lifecycle_state, [:set, :public, :named_table, write_concurrency: true])
     ensure_table(:lifecycle_stats, [:set, :public, :named_table])
-    
+
     # Initialize stats counters for each entity type
-    entity_types = [:capability, :theory, :ontology, :civilization, :observer, :policy, :hypothesis]
+    entity_types = [
+      :capability,
+      :theory,
+      :ontology,
+      :civilization,
+      :observer,
+      :policy,
+      :hypothesis
+    ]
+
     Enum.each(entity_types, fn etype ->
       :ets.insert(:lifecycle_stats, [
         {"#{etype}_created", 0},
@@ -141,10 +161,10 @@ defmodule Tiannara.LifecycleRegistry do
         {"#{etype}_quarantined", 0}
       ])
     end)
-    
+
     Logger.info("🧬 [LifecycleRegistry] Event-sourced evolutionary ledger initialized")
   end
-  
+
   @doc """
   Record a creation event for an entity.
     
@@ -155,20 +175,23 @@ defmodule Tiannara.LifecycleRegistry do
   - `metadata`: Optional metadata (lineage_id, parent_ids, domain_vector, etc.)
   """
   @spec record_created(
-    entity_type :: atom(),
-    entity_id :: term(),
-    tick :: non_neg_integer(),
-    metadata :: map()
-  ) :: :ok | {:error, :already_exists}
+          entity_type :: atom(),
+          entity_id :: term(),
+          tick :: non_neg_integer(),
+          metadata :: map()
+        ) :: :ok | {:error, :already_exists}
   def record_created(entity_type, entity_id, tick, metadata \\ %{}) do
     # Check if entity already exists (rediscovery detection)
     case :ets.lookup(:lifecycle_state, {entity_type, entity_id}) do
       [{_key, existing_state}] ->
         # Entity already exists - this is a rediscovery, not a new creation
-        Logger.debug("🔍 [LifecycleRegistry] Rediscovery detected: #{inspect({entity_type, entity_id})} (existing since tick #{existing_state.created_tick})")
-        
+        Logger.debug(
+          "🔍 [LifecycleRegistry] Rediscovery detected: #{inspect({entity_type, entity_id})} (existing since tick #{existing_state.created_tick})"
+        )
+
         # Record as rediscovery event instead of creation
         event_id = generate_event_id()
+
         :ets.insert(:lifecycle_events, {
           entity_type,
           entity_id,
@@ -178,24 +201,30 @@ defmodule Tiannara.LifecycleRegistry do
           nil,
           Map.put(metadata, :original_creation_tick, existing_state.created_tick)
         })
-        
+
         # Update version but don't increment created counter
         updated_state = %{existing_state | version: existing_state.version + 1}
         updated_state = Map.put(updated_state, :last_rediscovered_tick, tick)
-        
+
         :ets.insert(:lifecycle_state, {
           {entity_type, entity_id},
           updated_state
         })
-        
+
         # Increment rediscovered counter
-        :ets.update_counter(:lifecycle_stats, "#{entity_type}_rediscovered", {2, 1}, {"#{entity_type}_rediscovered", 0})
-        
+        :ets.update_counter(
+          :lifecycle_stats,
+          "#{entity_type}_rediscovered",
+          {2, 1},
+          {"#{entity_type}_rediscovered", 0}
+        )
+
         {:error, :already_exists}
+
       [] ->
         # New entity - proceed with normal creation
         event_id = generate_event_id()
-          
+
         # Record immutable event
         :ets.insert(:lifecycle_events, {
           entity_type,
@@ -203,27 +232,33 @@ defmodule Tiannara.LifecycleRegistry do
           event_id,
           :created,
           tick,
-          nil,  # No reason for creation
+          # No reason for creation
+          nil,
           metadata
         })
-          
+
         # Update derived state
         # Key must be {entity_type, entity_id} to avoid overwriting entries with same entity_type
         :ets.insert(:lifecycle_state, {
           {entity_type, entity_id},
           %{status: :active, created_tick: tick, removed_tick: nil, version: 1}
         })
-          
+
         # Update stats
-        :ets.update_counter(:lifecycle_stats, "#{entity_type}_created", {2, 1}, {"#{entity_type}_created", 0})
-          
+        :ets.update_counter(
+          :lifecycle_stats,
+          "#{entity_type}_created",
+          {2, 1},
+          {"#{entity_type}_created", 0}
+        )
+
         :ok
     end
   end
-  
+
   @doc """
   Record a removal event for an entity.
-  
+
   ## Parameters
   - `entity_type`: Type of entity being removed
   - `entity_id`: Unique identifier for the entity
@@ -232,19 +267,19 @@ defmodule Tiannara.LifecycleRegistry do
   - `metadata`: Optional metadata (replacement_id, failure_reason, etc.)
   """
   @spec record_removed(
-    entity_type :: atom(),
-    entity_id :: term(),
-    tick :: non_neg_integer(),
-    reason :: atom(),
-    metadata :: map()
-  ) :: :ok
+          entity_type :: atom(),
+          entity_id :: term(),
+          tick :: non_neg_integer(),
+          reason :: atom(),
+          metadata :: map()
+        ) :: :ok
   def record_removed(entity_type, entity_id, tick, reason, metadata \\ %{}) do
     unless reason in @removal_reasons do
       Logger.warning("⚠️  [LifecycleRegistry] Unknown removal reason: #{inspect(reason)}")
     end
-    
+
     event_id = generate_event_id()
-    
+
     # Record immutable event
     :ets.insert(:lifecycle_events, {
       entity_type,
@@ -255,7 +290,7 @@ defmodule Tiannara.LifecycleRegistry do
       reason,
       metadata
     })
-    
+
     # Update derived state
     case :ets.lookup(:lifecycle_state, {entity_type, entity_id}) do
       [{_key, state}] ->
@@ -269,28 +304,32 @@ defmodule Tiannara.LifecycleRegistry do
           {entity_type, entity_id},
           updated_state
         })
+
       [] ->
-        Logger.warning("⚠️  [LifecycleRegistry] Removal of unknown entity: #{inspect({entity_type, entity_id})}")
+        Logger.warning(
+          "⚠️  [LifecycleRegistry] Removal of unknown entity: #{inspect({entity_type, entity_id})}"
+        )
     end
-    
+
     # Update stats based on reason
     # Each removal type maps to its own counter so that the invariant
     # `created - removed - promoted - merged == active` stays exact.
-    stat_key = case reason do
-      :selection -> "#{entity_type}_removed"
-      :promotion -> "#{entity_type}_promoted"
-      :merge -> "#{entity_type}_merged"
-      :rollback -> "#{entity_type}_rolled_back"
-      :quarantine -> "#{entity_type}_quarantined"
-      _ -> "#{entity_type}_removed"
-    end
+    stat_key =
+      case reason do
+        :selection -> "#{entity_type}_removed"
+        :promotion -> "#{entity_type}_promoted"
+        :merge -> "#{entity_type}_merged"
+        :rollback -> "#{entity_type}_rolled_back"
+        :quarantine -> "#{entity_type}_quarantined"
+        _ -> "#{entity_type}_removed"
+      end
 
     :ets.update_counter(:lifecycle_stats, stat_key, {2, 1}, {stat_key, 0})
 
     :ok
   end
-  
-@doc """
+
+  @doc """
   Record a promotion event (entity moved to higher layer).
 
   This is both a removal from the source AND a creation in the target.
@@ -314,12 +353,12 @@ defmodule Tiannara.LifecycleRegistry do
   Removes `old_id` and creates `new_id` within the same `entity_type`.
   """
   @spec record_promoted(
-    entity_type :: atom(),
-    old_entity_id :: term(),
-    arg3 :: term(),
-    arg4 :: term(),
-    metadata :: map()
-  ) :: :ok
+          entity_type :: atom(),
+          old_entity_id :: term(),
+          arg3 :: term(),
+          arg4 :: term(),
+          metadata :: map()
+        ) :: :ok
   def record_promoted(entity_type, old_entity_id, arg3, arg4, metadata \\ %{}) do
     if is_atom(arg4) do
       # Cross-type contract: (entity_type, old_id, tick, target_type, metadata)
@@ -342,7 +381,12 @@ defmodule Tiannara.LifecycleRegistry do
         "#{old_entity_id}_promoted"
 
     # Record creation in target type
-    record_created(target_type, new_entity_id, tick, Map.put(metadata, :promoted_from, old_entity_id))
+    record_created(
+      target_type,
+      new_entity_id,
+      tick,
+      Map.put(metadata, :promoted_from, old_entity_id)
+    )
 
     :ok
   end
@@ -352,7 +396,12 @@ defmodule Tiannara.LifecycleRegistry do
     record_removed(entity_type, old_entity_id, tick, :promotion, %{promoted_to: new_entity_id})
 
     # Record creation in target (same type, different ID)
-record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_from, old_entity_id))
+    record_created(
+      entity_type,
+      new_entity_id,
+      tick,
+      Map.put(metadata, :promoted_from, old_entity_id)
+    )
 
     :ok
   end
@@ -364,12 +413,12 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
   entries used for archaeology/traceability.
   """
   @spec record_mutated(
-    entity_type :: atom(),
-    entity_id :: term(),
-    tick :: non_neg_integer(),
-    mutation_type :: atom(),
-    metadata :: map()
-  ) :: :ok
+          entity_type :: atom(),
+          entity_id :: term(),
+          tick :: non_neg_integer(),
+          mutation_type :: atom(),
+          metadata :: map()
+        ) :: :ok
   def record_mutated(entity_type, entity_id, tick, mutation_type, metadata \\ %{}) do
     event_id = generate_event_id()
 
@@ -392,9 +441,11 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
   Returns a list of `{event_type, tick, metadata}` tuples in chronological
   order. For removal events the metadata always carries the `:removal_reason`.
   """
-  @spec get_history(entity_type :: atom(), entity_id :: term()) :: [{atom(), non_neg_integer(), map()}]
+  @spec get_history(entity_type :: atom(), entity_id :: term()) :: [
+          {atom(), non_neg_integer(), map()}
+        ]
   def get_history(entity_type, entity_id) do
-    :ets.match(:lifecycle_events, {entity_type, entity_id, :'$1', :'$2', :'$3', :'$4', :'$5'})
+    :ets.match(:lifecycle_events, {entity_type, entity_id, :"$1", :"$2", :"$3", :"$4", :"$5"})
     |> Enum.map(fn [_event_id, event_type, tick, reason, metadata] ->
       enriched_metadata =
         if reason in [nil, :unknown] do
@@ -407,7 +458,7 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
     end)
     |> Enum.sort_by(fn {_, tick, _} -> tick end)
   end
-  
+
   @doc """
   Calculate survival curve for an entity type.
 
@@ -415,10 +466,12 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
   alive at that tick. Keys span `1..max_tick`, where `max_tick` is the
   largest observed creation/removal tick (or `current_tick`).
   """
-  @spec get_survival_curve(entity_type :: atom(), current_tick :: non_neg_integer()) :: %{non_neg_integer() => non_neg_integer()}
+  @spec get_survival_curve(entity_type :: atom(), current_tick :: non_neg_integer()) :: %{
+          non_neg_integer() => non_neg_integer()
+        }
   def get_survival_curve(entity_type, current_tick) do
     # Collect birth and removal ticks from the derived state table
-    states = :ets.match(:lifecycle_state, {{entity_type, :'_'}, :'$1'}) |> List.flatten()
+    states = :ets.match(:lifecycle_state, {{entity_type, :_}, :"$1"}) |> List.flatten()
 
     birth_ticks = Enum.map(states, & &1[:created_tick])
     removal_ticks = Enum.map(states, fn s -> s[:removed_tick] || s[:created_tick] end)
@@ -443,9 +496,10 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
   """
   @spec get_lineage(entity_type :: atom(), entity_id :: term()) :: [term()]
   def get_lineage(entity_type, entity_id) do
-    case :ets.match(:lifecycle_events, {entity_type, entity_id, :_, :created, :'$1', :_, :'$2'}) do
+    case :ets.match(:lifecycle_events, {entity_type, entity_id, :_, :created, :"$1", :_, :"$2"}) do
       [] ->
         []
+
       rows ->
         rows
         |> Enum.sort_by(fn [tick, _metadata] -> tick end)
@@ -469,21 +523,21 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
     total = created + rediscovered
     if total == 0, do: 0.0, else: created / total
   end
-  
+
   @doc """
   Verify lifecycle invariant for an entity type.
-  
+
   Checks: Created - Removed = Active = Graph Size
-  
+
   Raises LifecycleInvariantError if violated.
   This makes instrumentation failures impossible to ignore.
-  
+
   ## Parameters
   - `entity_type`: Type of entity to verify
   - `graph_size_fn`: Function that returns current graph size for this entity type
-  
+
   ## Example
-  
+
       Tiannara.LifecycleRegistry.verify!(:capability, fn ->
         map_size(state.capabilities)
       end)
@@ -496,32 +550,37 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
     removed = get_stat("#{entity_type}_removed")
     promoted = get_stat("#{entity_type}_promoted")
     merged = get_stat("#{entity_type}_merged")
-    
+
     total_removed = removed + promoted + merged
     expected_active = created - total_removed
-    
-    Logger.info("🔍 [LifecycleRegistry] Stats: created=#{created}, rediscovered=#{rediscovered}, removed=#{removed}, promoted=#{promoted}, merged=#{merged}")
-    
+
+    Logger.info(
+      "🔍 [LifecycleRegistry] Stats: created=#{created}, rediscovered=#{rediscovered}, removed=#{removed}, promoted=#{promoted}, merged=#{merged}"
+    )
+
     # Get all active entity IDs from lifecycle state
     # Key structure: {{entity_type, entity_id}, state_map}
     # Match spec: extract entity_id (second element of key tuple) where first
     # element matches entity_type. Only rows whose state is NOT :removed count
     # as active — removed entities remain in the table for lineage/history.
     match_spec = [
-      {{{entity_type, :'$1'}, %{status: :'$2'}}, [{:not, {:==, :'$2', :removed}}], [:'$1']}
+      {{{entity_type, :"$1"}, %{status: :"$2"}}, [{:not, {:==, :"$2", :removed}}], [:"$1"]}
     ]
-    
-    lifecycle_active_ids = 
+
+    lifecycle_active_ids =
       :ets.select(:lifecycle_state, match_spec)
       |> MapSet.new()
-    
-    Logger.info("🔍 [LifecycleRegistry] Collected #{MapSet.size(lifecycle_active_ids)} lifecycle active IDs")
-    
+
+    Logger.info(
+      "🔍 [LifecycleRegistry] Collected #{MapSet.size(lifecycle_active_ids)} lifecycle active IDs"
+    )
+
     actual_active = MapSet.size(lifecycle_active_ids)
-    graph_result = graph_size_fn.()  # Should return MapSet of graph IDs
-    
+    # Should return MapSet of graph IDs
+    graph_result = graph_size_fn.()
+
     Logger.info("🔍 [LifecycleRegistry] graph_result is MapSet: #{is_map(graph_result)}")
-    
+
     # Defensive: accept either an integer graph size or a MapSet of graph IDs
     graph_size =
       case graph_result do
@@ -529,11 +588,16 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
         size when is_integer(size) -> size
         _ -> 0
       end
-    
-    Logger.info("🔍 [LifecycleRegistry] Graph size: #{graph_size}, Expected active: #{expected_active}, Actual active: #{actual_active}")
-    
+
+    Logger.info(
+      "🔍 [LifecycleRegistry] Graph size: #{graph_size}, Expected active: #{expected_active}, Actual active: #{actual_active}"
+    )
+
     if expected_active == actual_active and actual_active == graph_size do
-      Logger.debug("✅ [LifecycleRegistry] Invariant holds for #{entity_type}: #{expected_active} active")
+      Logger.debug(
+        "✅ [LifecycleRegistry] Invariant holds for #{entity_type}: #{expected_active} active"
+      )
+
       :ok
     else
       # RECONCILIATION REPORT: Identify exact discrepancies
@@ -562,18 +626,18 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
         Lifecycle has #{actual_active} active entities
         Graph reports #{MapSet.size(graph_ids_set)} entities
         Difference: #{abs(actual_active - MapSet.size(graph_ids_set))} entities
-      
+
       Reconciliation Report:
         In Graph but NOT in Lifecycle: #{MapSet.size(in_graph_not_lifecycle)} entities
           Sample IDs: #{inspect(graph_only_sample)}
         
         In Lifecycle but NOT in Graph: #{MapSet.size(in_lifecycle_not_graph)} entities
           Sample IDs: #{inspect(lifecycle_only_sample)}
-      
+
       This indicates capabilities are escaping lifecycle tracking.
       Check mutation/replacement paths that bypass record_created/record_removed.
       """
-      
+
       Logger.error(error_msg)
 
       missing_from_lifecycle =
@@ -591,7 +655,7 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
         missing_from_lifecycle: missing_from_lifecycle
     end
   end
-  
+
   @doc """
   Get aggregated statistics for all entity types.
   """
@@ -619,9 +683,9 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
       quarantined: get_stat("#{entity_type}_quarantined")
     }
   end
-  
+
   # ==================== GenServer Callbacks ====================
-  
+
   defp ensure_table(name, options) do
     case :ets.whereis(name) do
       :undefined ->
@@ -630,6 +694,7 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
         rescue
           ArgumentError -> name
         end
+
       _tid ->
         name
     end
@@ -637,16 +702,21 @@ record_created(entity_type, new_entity_id, tick, Map.put(metadata, :promoted_fro
 
   @impl true
   def init(_opts) do
+    # This GenServer must own the ETS tables: a named public table is
+    # destroyed when its owner process dies. If a short-lived process
+    # (test process, CEL boot Task) created them, the tables vanish
+    # mid-suite and every later lookup raises ArgumentError.
+    init_tables()
     {:ok, %{}}
   end
-  
+
   # ==================== Private Helpers ====================
-  
+
   defp generate_event_id do
     # Use monotonic time + random for unique IDs
-    "#{System.monotonic_time(:microsecond)}_#{:rand.uniform(1000000)}"
+    "#{System.monotonic_time(:microsecond)}_#{:rand.uniform(1_000_000)}"
   end
-  
+
   defp get_stat(key) do
     case :ets.lookup(:lifecycle_stats, key) do
       [{_, value}] -> value

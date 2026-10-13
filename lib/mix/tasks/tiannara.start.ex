@@ -14,22 +14,26 @@ defmodule Mix.Tasks.Tiannara.Start do
 
   @default_profile "dev"
 
-  @cpl_module TiannaraRuntime.OS.Persistence.ConstitutionalPersistenceLayer
-  @cpl_max_wait_ms 10_000
-  @cpl_poll_ms 200
-
   @required_services [
     %{name: "PostgreSQL", port: 5432},
     %{name: "Redis", port: 6379},
     %{name: "NATS", port: 4222}
   ]
 
-  @runtime_subsystems [:telemetry, :tiannara, :tiannara_runtime]
+  @runtime_subsystems [:telemetry, :tiannara]
+
+  @doc "Returns the applications owned by the main Tiannara release."
+  def runtime_subsystems, do: @runtime_subsystems
 
   def run(args) do
     {opts, _, _} =
       OptionParser.parse(args,
-        switches: [profile: :string, skip_infra: :boolean, skip_frontend: :boolean, safe: :boolean],
+        switches: [
+          profile: :string,
+          skip_infra: :boolean,
+          skip_frontend: :boolean,
+          safe: :boolean
+        ],
         aliases: [p: :profile, s: :safe]
       )
 
@@ -122,11 +126,11 @@ defmodule Mix.Tasks.Tiannara.Start do
         end
       end)
 
-    cpl_status = wait_for_cpl(@cpl_max_wait_ms)
+    runtime_status = if runtime_alive?(), do: :alive, else: :not_started
     failed = Enum.filter(results, fn {_, s} -> s != :started end)
-    status = if(failed == [] and cpl_status == :alive, do: :pass, else: :warn)
+    status = if(failed == [] and runtime_status == :alive, do: :pass, else: :warn)
 
-    %{status: status, apps: results, cpl: cpl_status}
+    %{status: status, apps: results, runtime: runtime_status}
   end
 
   defp phase_api do
@@ -157,7 +161,7 @@ defmodule Mix.Tasks.Tiannara.Start do
     crav_result = run_crav()
 
     health_checks = [
-      {"CPL", safe_process_alive?(@cpl_module)},
+      {"Tiannara Runtime", runtime_alive?()},
       {"BEAM", true},
       {"Telemetry", safe_module_alive?(Tiannara.Telemetry)},
       {"SubsystemRegistry", safe_module_alive?(Tiannara.PhaseOmega.SubsystemRegistry)},
@@ -193,10 +197,12 @@ defmodule Mix.Tasks.Tiannara.Start do
   defp print_phase_result(:env, result) do
     shell = Mix.shell()
     shell.info("Phase 0: Environment Validation")
+
     Enum.each(result.checks, fn {name, status} ->
       icon = if status == :ok, do: "  ✓", else: "  ✗"
       shell.info("#{icon} #{name}")
     end)
+
     shell.info("")
   end
 
@@ -208,46 +214,54 @@ defmodule Mix.Tasks.Tiannara.Start do
   defp print_phase_result(:infra, result) do
     shell = Mix.shell()
     shell.info("Phase 1: Infrastructure")
+
     Enum.each(result.services, fn {name, status} ->
       icon = if status == :running, do: "  ✓", else: "  ✗"
       shell.info("#{icon} #{name}")
     end)
+
     shell.info("")
   end
 
   defp print_phase_result(:runtime, result) do
     shell = Mix.shell()
     shell.info("Phase 2: Runtime")
+
     Enum.each(result.apps, fn {app, status} ->
       icon = if status == :started, do: "  ✓", else: "  ✗"
       shell.info("#{icon} #{app}")
     end)
-    cpl_icon = if result.cpl == :alive, do: "  ✓", else: "  ✗"
-    shell.info("#{cpl_icon} CPL (Constitutional Persistence Layer)")
+
+    runtime_icon = if result.runtime == :alive, do: "  ✓", else: "  ✗"
+    shell.info("#{runtime_icon} Tiannara Runtime (CEL)")
     shell.info("")
   end
 
   defp print_phase_result(:api, result) do
     shell = Mix.shell()
     shell.info("Phase 3: API")
+
     if result.status == :pass do
       shell.info("  ✓ Phoenix")
       if result[:endpoint], do: shell.info("  ✓ Endpoint")
     else
       shell.info("  ✗ Phoenix (#{inspect(result[:error])})")
     end
+
     shell.info("")
   end
 
   defp print_phase_result(:frontend, result) do
     shell = Mix.shell()
     shell.info("Phase 4: Frontend")
+
     if result.status == :pass do
       shell.info("  ✓ Observatory UI")
       if result[:coa_available], do: shell.info("  ✓ COA Dashboard")
     else
       shell.info("  ~ #{result[:message]}")
     end
+
     shell.info("")
   end
 
@@ -263,6 +277,7 @@ defmodule Mix.Tasks.Tiannara.Start do
         icon = if alive, do: "  ✓", else: "  ✗"
         shell.info("#{icon} #{name}")
       end)
+
       shell.info("")
       shell.info("  #{result.passed}/#{result.total} checks passed")
 
@@ -271,7 +286,10 @@ defmodule Mix.Tasks.Tiannara.Start do
           readiness = Map.get(report, :launch_readiness, %{})
           overall = Map.get(readiness, :overall_alpha_readiness, 0.0)
           verdict = Map.get(report, :verdict, :unknown)
-          shell.info("  CRAV Readiness: #{overall}% (#{verdict |> to_string() |> String.upcase()})")
+
+          shell.info(
+            "  CRAV Readiness: #{overall}% (#{verdict |> to_string() |> String.upcase()})"
+          )
 
         _ ->
           shell.info("  CRAV: unavailable")
@@ -286,11 +304,12 @@ defmodule Mix.Tasks.Tiannara.Start do
     all_pass = Enum.all?(results, fn {_, %{status: s}} -> s in [:pass, :skipped] end)
     any_fail = Enum.any?(results, fn {_, %{status: s}} -> s == :fail end)
 
-    verdict = cond do
-      all_pass -> "READY"
-      any_fail -> "DEGRADED"
-      true -> "OPERATIONAL"
-    end
+    verdict =
+      cond do
+        all_pass -> "READY"
+        any_fail -> "DEGRADED"
+        true -> "OPERATIONAL"
+      end
 
     shell.info("═══════════════════════════════════════════════════════")
     shell.info("  Status: #{verdict}")
@@ -300,7 +319,7 @@ defmodule Mix.Tasks.Tiannara.Start do
       shell.info("")
       shell.info("  Dashboard: http://localhost:4000/coa/index.html")
       shell.info("  Boot:      http://localhost:4000/coa/boot.html")
-      shell.info("  API:       http://localhost:4000/api/observatory/status")
+      shell.info("  API:       http://localhost:4000/api/v1/status")
     end
 
     shell.info("═══════════════════════════════════════════════════════")
@@ -323,7 +342,9 @@ defmodule Mix.Tasks.Tiannara.Start do
           [_, _] -> :ok
           _ -> :missing
         end
-      _ -> :missing
+
+      _ ->
+        :missing
     end
   rescue
     _ -> :missing
@@ -342,8 +363,12 @@ defmodule Mix.Tasks.Tiannara.Start do
 
   defp check_port(port) do
     case :gen_tcp.connect(~c"localhost", port, [], 1000) do
-      {:ok, socket} -> :gen_tcp.close(socket); :ok
-      {:error, _} -> :missing
+      {:ok, socket} ->
+        :gen_tcp.close(socket)
+        :ok
+
+      {:error, _} ->
+        :missing
     end
   rescue
     _ -> :missing
@@ -365,7 +390,8 @@ defmodule Mix.Tasks.Tiannara.Start do
           _ -> nil
         end
 
-      true -> nil
+      true ->
+        nil
     end
   rescue
     _ -> nil
@@ -389,21 +415,8 @@ defmodule Mix.Tasks.Tiannara.Start do
     _ -> false
   end
 
-  defp wait_for_cpl(time_remaining) when time_remaining <= 0 do
-    if cpl_alive?(), do: :alive, else: :not_started
-  end
-
-  defp wait_for_cpl(time_remaining) do
-    if cpl_alive?() do
-      :alive
-    else
-      Process.sleep(@cpl_poll_ms)
-      wait_for_cpl(time_remaining - @cpl_poll_ms)
-    end
-  end
-
-  defp cpl_alive? do
-    case Process.whereis(@cpl_module) do
+  defp runtime_alive? do
+    case Process.whereis(Tiannara.CEL.Kernel) do
       nil -> false
       pid -> Process.alive?(pid)
     end

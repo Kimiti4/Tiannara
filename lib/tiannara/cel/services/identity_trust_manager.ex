@@ -41,7 +41,13 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
   def version, do: "1.0.0"
 
   @impl true
-  def capabilities, do: [:identity_management, :trust_scoring, :credential_verification, :capability_authorization]
+  def capabilities,
+    do: [
+      :identity_management,
+      :trust_scoring,
+      :credential_verification,
+      :capability_authorization
+    ]
 
   @impl true
   def health, do: :healthy
@@ -63,12 +69,46 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
   @impl true
   def init(_opts) do
     schedule_decay()
+
     initial = %{
-      kernel: %{id: :kernel, credential: hash("kernel_secret"), trust: 1.0, capabilities: [:admin, :orchestrate], violations: 0, successes: 0, metadata: %{}},
-      service_registry: %{id: :service_registry, credential: hash("registry_secret"), trust: 0.95, capabilities: [:register, :discover], violations: 0, successes: 0, metadata: %{}},
-      executive_memory: %{id: :executive_memory, credential: hash("memory_secret"), trust: 0.95, capabilities: [:persist, :retrieve], violations: 0, successes: 0, metadata: %{}},
-      executive_service_bus: %{id: :executive_service_bus, credential: hash("bus_secret"), trust: 0.95, capabilities: [:publish, :subscribe], violations: 0, successes: 0, metadata: %{}}
+      kernel: %{
+        id: :kernel,
+        credential: hash("kernel_secret"),
+        trust: 1.0,
+        capabilities: [:admin, :orchestrate],
+        violations: 0,
+        successes: 0,
+        metadata: %{}
+      },
+      service_registry: %{
+        id: :service_registry,
+        credential: hash("registry_secret"),
+        trust: 0.95,
+        capabilities: [:register, :discover],
+        violations: 0,
+        successes: 0,
+        metadata: %{}
+      },
+      executive_memory: %{
+        id: :executive_memory,
+        credential: hash("memory_secret"),
+        trust: 0.95,
+        capabilities: [:persist, :retrieve],
+        violations: 0,
+        successes: 0,
+        metadata: %{}
+      },
+      executive_service_bus: %{
+        id: :executive_service_bus,
+        credential: hash("bus_secret"),
+        trust: 0.95,
+        capabilities: [:publish, :subscribe],
+        violations: 0,
+        successes: 0,
+        metadata: %{}
+      }
     }
+
     Logger.info("IdentityTrustManager: Initialized with #{map_size(initial)} identities")
     {:ok, %{identities: initial}}
   end
@@ -78,7 +118,9 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
     if Map.has_key?(state.identities, service_id) do
       {:reply, {:error, :already_registered}, state}
     else
-      credential = hash("cred_#{service_id}_#{:crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)}")
+      credential =
+        hash("cred_#{service_id}_#{:crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)}")
+
       identity = %{
         id: service_id,
         credential: credential,
@@ -88,6 +130,7 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
         successes: 0,
         metadata: metadata
       }
+
       Logger.info("IdentityTrustManager: Registered #{service_id}")
       {:reply, {:ok, credential}, put_in(state, [:identities, service_id], identity)}
     end
@@ -99,6 +142,7 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
       {:ok, %{credential: stored}} ->
         valid = stored == credential
         {:reply, valid, state}
+
       :error ->
         {:reply, false, state}
     end
@@ -118,8 +162,10 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
       {:ok, %{capabilities: caps, trust: trust}} ->
         authorized = capability in caps and trust >= 0.3
         {:reply, %{authorized: authorized, trust: trust, required: capability}, state}
+
       :error ->
-        {:reply, %{authorized: false, trust: 0.0, required: capability, error: :unknown_identity}, state}
+        {:reply, %{authorized: false, trust: 0.0, required: capability, error: :unknown_identity},
+         state}
     end
   end
 
@@ -133,12 +179,19 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
     case Map.fetch(state.identities, service_id) do
       {:ok, identity} ->
         penalty = severity * 0.1
-        updated = %{identity |
-          trust: max(0.0, identity.trust - penalty),
-          violations: identity.violations + 1
+
+        updated = %{
+          identity
+          | trust: max(0.0, identity.trust - penalty),
+            violations: identity.violations + 1
         }
-        Logger.warning("IdentityTrustManager: #{service_id} violated (severity: #{severity}). Trust: #{Float.round(updated.trust, 4)}")
+
+        Logger.warning(
+          "IdentityTrustManager: #{service_id} violated (severity: #{severity}). Trust: #{Float.round(updated.trust, 4)}"
+        )
+
         {:noreply, put_in(state, [:identities, service_id], updated)}
+
       :error ->
         {:noreply, state}
     end
@@ -148,11 +201,14 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
   def handle_cast({:success, service_id}, state) do
     case Map.fetch(state.identities, service_id) do
       {:ok, identity} ->
-        updated = %{identity |
-          trust: min(1.0, identity.trust + 0.02),
-          successes: identity.successes + 1
+        updated = %{
+          identity
+          | trust: min(1.0, identity.trust + 0.02),
+            successes: identity.successes + 1
         }
+
         {:noreply, put_in(state, [:identities, service_id], updated)}
+
       :error ->
         {:noreply, state}
     end
@@ -165,12 +221,15 @@ defmodule Tiannara.CEL.Services.IdentityTrustManager do
         decayed = %{identity | trust: max(0.0, identity.trust - @trust_decay)}
         {id, decayed}
       end)
+
     schedule_decay()
     {:noreply, %{state | identities: new_identities}}
   end
 
   defp schedule_decay do
-    Process.send_after(self(), :apply_trust_decay, @decay_interval)
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :apply_trust_decay, @decay_interval)
+    end
   end
 
   defp hash(value) when is_binary(value) do

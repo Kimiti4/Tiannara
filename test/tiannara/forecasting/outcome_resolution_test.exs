@@ -4,18 +4,29 @@ defmodule Tiannara.Forecasting.OutcomeResolutionTest do
   alias Tiannara.Forecasting.Contracts.Forecast
 
   defp forecast do
-    %Forecast{id: "f-1", question: "Will event occur?", outcomes: ["yes", "no"],
-      probabilities: [0.7, 0.3], forecast_version: "v1",
-      created_at: ~U[2026-09-01 00:00:00Z]}
+    %Forecast{
+      id: "f-1",
+      question: "Will event occur?",
+      outcomes: ["yes", "no"],
+      probabilities: [0.7, 0.3],
+      forecast_version: "v1",
+      created_at: ~U[2026-09-01 00:00:00Z]
+    }
   end
 
   test "resolves with explicit simulation evidence without certifying" do
     f = forecast()
     o = Outcome.new(f.id, "yes", observed_at: ~U[2026-09-02 00:00:00Z])
-    assert {:ok, r} = OutcomeResolution.resolve(f, o, %{evidence_class: :simulated, execution_mode: :simulation})
+
+    assert {:ok, r} =
+             OutcomeResolution.resolve(f, o, %{
+               evidence_class: :simulated,
+               execution_mode: :simulation
+             })
+
     assert r.status == :resolved_not_certified
     assert r.evidence_status == :simulated_observation
-    assert r.scores.brier == 0.09
+    assert_in_delta r.scores.brier, 0.09, 1.0e-12
   end
 
   test "rejects forecast id mismatch" do
@@ -33,7 +44,8 @@ defmodule Tiannara.Forecasting.OutcomeResolutionTest do
   test "real evidence requires real execution" do
     f = forecast()
     o = Outcome.new(f.id, "yes", observed_at: ~U[2026-09-02 00:00:00Z])
+
     assert {:error, :real_evidence_requires_real_execution} =
-      OutcomeResolution.resolve(f, o, %{evidence_class: :real, execution_mode: :simulation})
+             OutcomeResolution.resolve(f, o, %{evidence_class: :real, execution_mode: :simulation})
   end
 end

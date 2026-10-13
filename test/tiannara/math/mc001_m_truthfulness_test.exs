@@ -10,16 +10,24 @@ defmodule Tiannara.Math.MC001MTruthfulnessTest do
   describe "M3 theatrical capability decommissioning" do
     test "formal verification is explicitly unavailable, not verified" do
       assert {:error, :formal_verification_unavailable} =
-               FormalVerification.verify_invariants(%{}, [:conservation_of_energy, :thermodynamics])
+               FormalVerification.verify_invariants(%{}, [
+                 :conservation_of_energy,
+                 :thermodynamics
+               ])
     end
 
     test "ODE solver is explicitly unavailable" do
       assert {:error, :ode_solver_unavailable} = Calculus.solve_ode(%{}, %{}, 1.0)
     end
 
-    test "gradient descent is explicitly unavailable" do
-      assert {:error, :gradient_descent_unavailable} =
-               Optimization.gradient_descent(fn _ -> 0.0 end, fn _ -> 0.0 end, [0.0])
+    test "gradient descent performs bounded real computation without certifying global optimality" do
+      assert {:ok, result} =
+               Optimization.gradient_descent(fn [x] -> x * x end, fn [x] -> [2.0 * x] end, [1.0],
+                 max_iterations: 500
+               )
+
+      assert result.certification_eligible == false
+      assert result.optimality == :local_stationary_candidate
     end
 
     test "nash equilibrium is explicitly unavailable" do
@@ -58,7 +66,8 @@ defmodule Tiannara.Math.MC001MTruthfulnessTest do
     end
 
     test "mathematics dashboard is explicitly unavailable, not hardcoded" do
-      assert {:error, :mathematics_dashboard_unavailable} = MathematicsMetrics.get_dashboard_data()
+      assert {:error, :mathematics_dashboard_unavailable} =
+               MathematicsMetrics.get_dashboard_data()
     end
   end
 end

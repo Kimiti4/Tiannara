@@ -25,6 +25,7 @@ defmodule Tiannara.CRAV.SoakCheckpointer do
       state: scrub_for_persistence(state)
     }
 
+    File.mkdir_p!(checkpoint_dir())
     File.write!(checkpoint_file(), Jason.encode!(checkpoint, pretty: true))
     {:reply, :ok, %{current | last_checkpoint: checkpoint, saves: current.saves + 1}}
   end

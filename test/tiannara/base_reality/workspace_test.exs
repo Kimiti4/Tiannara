@@ -4,7 +4,12 @@ defmodule Tiannara.BaseReality.WorkspaceTest do
   alias Tiannara.BaseReality.Workspace
 
   setup do
-    root = Path.join(System.tmp_dir!(), "tiannara-workspace-test-#{System.unique_integer([:positive])}")
+    root =
+      Path.join(
+        System.tmp_dir!(),
+        "tiannara-workspace-test-#{System.unique_integer([:positive])}"
+      )
+
     previous = Application.get_env(:tiannara, :workspace_path)
     Application.put_env(:tiannara, :workspace_path, root)
 
@@ -31,9 +36,14 @@ defmodule Tiannara.BaseReality.WorkspaceTest do
     assert {:ok, result} = Workspace.write_blueprints([blueprint], :synthesis)
     assert result.status == :artifacts_written
     assert result.source_control == :not_committed
-    assert String.starts_with?(result.directory, root)
+
+    normalize = fn p -> p |> String.replace("\\", "/") |> String.downcase() end
+    assert String.starts_with?(normalize.(result.directory), normalize.(root))
     assert result.files == ["engineering_schematic.v"]
-    assert File.read!(Path.join(result.directory, "engineering_schematic.v")) == blueprint.schematics
+
+    assert File.read!(Path.join(result.directory, "engineering_schematic.v")) ==
+             blueprint.schematics
+
     assert is_binary(result.manifest_sha256)
     assert byte_size(result.manifest_sha256) == 64
   end
@@ -53,6 +63,7 @@ defmodule Tiannara.BaseReality.WorkspaceTest do
 
   test "refuses empty or invalid blueprint sets" do
     assert {:error, :no_validated_blueprints} = Workspace.write_blueprints([], :synthesis)
+
     assert {:error, :unvalidated_blueprint} =
              Workspace.write_blueprints([%{status: :failed, reason: :timeout}], :synthesis)
   end

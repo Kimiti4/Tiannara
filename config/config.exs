@@ -1,8 +1,7 @@
 import Config
 
 # Configure the Elixir runtime system
-config :tiannara, Tiannara,
-  namespace: Tiannara
+config :tiannara, Tiannara, namespace: Tiannara
 
 # Phase 3.5: Lazy DETS initialization
 # Tables open on first access, not at supervisor startup
@@ -27,7 +26,6 @@ config :tiannara, TiannaraWeb.Endpoint,
     layout: false
   ],
   live_view: [signing_salt: "GLgWBAqY04D6QQfC"]
-
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -157,7 +155,8 @@ config :tiannara, :efdi_quality_weights,
 # Keep false during REA simulation runs to isolate fault domains.
 # ============================================================
 config :tiannara, :asc,
-  enabled: true,  # Enabled for Phase 5C.6 validation
+  # Enabled for Phase 5C.6 validation
+  enabled: true,
   # Persistent project storage root (Q2 answer: Option C)
   project_data_dir: "data/asc_projects",
   # Deployment posture (Q3 answer: artifact generation only)
@@ -207,6 +206,10 @@ config :tiannara,
 # soak targets.
 config :tiannara, :dets_retention_max_archives, 2
 config :tiannara, :dets_archive_ttl_minutes, 30
+
+# CTL BranchValidator: combined causal-stress threshold for merges;
+# validation fails closed when this key is absent (no built-in default)
+config :tiannara, :ctl_causal_stress_threshold, 0.7
 
 # Import environment specific config
 import_config "#{config_env()}.exs"

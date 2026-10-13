@@ -17,7 +17,7 @@ defmodule Tiannara.Omega.HumanDelivery do
 
   require Logger
 
-  alias Tiannara.Omega.HumanDelivery.{Explanation, Authorization}
+  alias Tiannara.Omega.HumanDelivery.{Explanation, Authorization, AuthenticatedHumanIdentity}
 
   @callback explain(package :: map()) :: Explanation.t()
   @callback request_authorization(explanation :: Explanation.t()) ::
@@ -65,31 +65,36 @@ defmodule Tiannara.Omega.HumanDelivery do
   @impl true
   def handle_call({:deliver, package}, _from, state) do
     Logger.info("Delivering decision package for human authorization")
-    
+
     explanation = explain(package)
     {:ok, auth} = request_authorization(explanation)
 
     state = %{state | pending: Map.put(state.pending, auth.authorization_id, {explanation, auth})}
-    
-    response = {:ok, %{
-      explanation: explanation,
-      authorization: auth,
-      narrative: render(explanation),
-      status: "Pending human authorization"
-    }}
 
-    Logger.info("Decision package delivered successfully with authorization ID: #{auth.authorization_id}")
+    response =
+      {:ok,
+       %{
+         explanation: explanation,
+         authorization: auth,
+         narrative: render(explanation),
+         status: "Pending human authorization"
+       }}
+
+    Logger.info(
+      "Decision package delivered successfully with authorization ID: #{auth.authorization_id}"
+    )
+
     {:reply, response, state}
   end
 
   @impl true
-  def handle_call({:authorize, authorization_id, human_id}, _from, state) do
+  def handle_call({:authorize, authorization_id, identity}, _from, state) do
     case Map.get(state.pending, authorization_id) do
       nil ->
         {:reply, {:error, :unknown_authorization}, state}
 
       {explanation, auth} ->
-        case Authorization.human_grant(auth, human_id) do
+        case Authorization.human_grant(auth, identity) do
           {:ok, granted} ->
             state = %{
               state
@@ -138,34 +143,42 @@ defmodule Tiannara.Omega.HumanDelivery do
   @impl true
   def handle_info(:cleanup_expired, state) do
     Logger.info("Cleaning up expired authorizations")
-    
+
     # Clean up pending authorizations older than 24 hours
     twenty_four_hours_ago = DateTime.utc_now() |> DateTime.add(-86400)
-    cleaned_pending = Enum.filter(state.pending, fn {_id, {_explanation, auth}} ->
-      DateTime.compare(auth.requested_at, twenty_four_hours_ago) == :gt
-    end) |> Enum.into(%{})
-    
+
+    cleaned_pending =
+      Enum.filter(state.pending, fn {_id, {_explanation, auth}} ->
+        DateTime.compare(auth.requested_at, twenty_four_hours_ago) == :gt
+      end)
+      |> Enum.into(%{})
+
     # Clean up granted authorizations older than 7 days
-    one_week_ago = DateTime.utc_now() |> DateTime.add(-604800)
-    cleaned_granted = Enum.filter(state.granted, fn {_id, {_explanation, granted}} ->
-      DateTime.compare(granted.granted_at, one_week_ago) == :gt
-    end) |> Enum.into(%{})
-    
+    one_week_ago = DateTime.utc_now() |> DateTime.add(-604_800)
+
+    cleaned_granted =
+      Enum.filter(state.granted, fn {_id, {_explanation, granted}} ->
+        DateTime.compare(granted.granted_at, one_week_ago) == :gt
+      end)
+      |> Enum.into(%{})
+
     # Clean up denied authorizations older than 7 days
-    cleaned_denied = Enum.filter(state.denied, fn {_id, {_explanation, denied}} ->
-      DateTime.compare(denied.denied_at, one_week_ago) == :gt
-    end) |> Enum.into(%{})
-    
+    cleaned_denied =
+      Enum.filter(state.denied, fn {_id, {_explanation, denied}} ->
+        DateTime.compare(denied.denied_at, one_week_ago) == :gt
+      end)
+      |> Enum.into(%{})
+
     new_state = %{
-      state 
+      state
       | pending: cleaned_pending,
         granted: cleaned_granted,
         denied: cleaned_denied
     }
-    
+
     # Schedule next cleanup in 24 hours
     Process.send_after(self(), :cleanup_expired, 24 * 60 * 60 * 1000)
-    
+
     {:noreply, new_state}
   end
 
@@ -173,7 +186,7 @@ defmodule Tiannara.Omega.HumanDelivery do
 
   @doc """
   Deliver a decision package to the human for review and authorization.
-  
+
   Returns a map containing:
   - explanation: The transparent explanation of the decision
   - authorization: The pending authorization object
@@ -186,20 +199,23 @@ defmodule Tiannara.Omega.HumanDelivery do
 
   @doc """
   Process a human authorization grant for a specific authorization request.
-  
+
   Returns:
   - {:ok, granted_authorization} if successful
   - {:error, :unknown_authorization} if the authorization ID doesn't exist
   - {:error, reason} if there was a problem processing the authorization
   """
-  def authorize(server \\ __MODULE__, authorization_id, human_id) do
+  def authorize(server \\ __MODULE__, authorization_id, %AuthenticatedHumanIdentity{} = identity) do
     Logger.info("Processing authorization grant for ID: #{authorization_id}")
-    GenServer.call(server, {:authorize, authorization_id, human_id})
+    GenServer.call(server, {:authorize, authorization_id, identity})
   end
+
+  def authorize(_server, _authorization_id, _identity),
+    do: {:error, :authenticated_identity_required}
 
   @doc """
   Process a human authorization denial for a specific authorization request.
-  
+
   Returns:
   - {:ok, denied_authorization} if successful
   - {:error, :unknown_authorization} if the authorization ID doesn't exist
@@ -212,7 +228,7 @@ defmodule Tiannara.Omega.HumanDelivery do
 
   @doc """
   Get a list of all pending authorizations.
-  
+
   Returns a list of authorization IDs that are currently waiting for human decision.
   """
   def pending(server \\ __MODULE__) do

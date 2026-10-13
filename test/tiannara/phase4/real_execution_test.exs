@@ -2,7 +2,7 @@ defmodule Tiannara.Phase4.RealExecutionTest do
   use ExUnit.Case, async: false
 
   alias Tiannara.Phase4.{RealExecution, ExperimentOrchestrator}
-  alias Tiannara.Omega.HumanDelivery.Authorization
+  alias Tiannara.Omega.HumanDelivery.{Authorization, AuthenticatedHumanIdentity}
 
   setup do
     Application.delete_env(:tiannara, :real_execution_enabled)
@@ -15,21 +15,32 @@ defmodule Tiannara.Phase4.RealExecutionTest do
   end
 
   defp minted_grant do
-    {:ok, auth} = Authorization.prepare(%{explanation_id: "mc003-m-explanation"})
+    {:ok, identity} = AuthenticatedHumanIdentity.authenticate("c14_ac", "credential", :password)
+
+    {:ok, auth} =
+      Authorization.prepare(%{
+        explanation_id: "mc003-m-explanation-#{System.unique_integer([:positive])}"
+      })
+
     {:ok, pending} = Authorization.request(auth)
-    {:ok, granted} = Authorization.human_grant(pending, "c14_ac")
+    {:ok, granted} = Authorization.human_grant(pending, identity)
+    :ok = Authorization.record_mint(granted.authorization_id)
     granted
   end
 
   describe "gate (MC-003-M M2)" do
     test "execute/1 is refused when real execution is disabled" do
       Application.put_env(:tiannara, :real_execution_enabled, false)
-      assert {:error, :real_execution_not_enabled} = RealExecution.execute(%{id: "e1", grant: minted_grant()})
+
+      assert {:error, :real_execution_not_enabled} =
+               RealExecution.execute(%{id: "e1", grant: minted_grant()})
     end
 
     test "submit_experiment/1 is refused when real execution is disabled" do
       Application.put_env(:tiannara, :real_execution_enabled, false)
-      assert {:error, :real_execution_not_enabled} = ExperimentOrchestrator.submit_experiment(%{id: "e1"})
+
+      assert {:error, :real_execution_not_enabled} =
+               ExperimentOrchestrator.submit_experiment(%{id: "e1"})
     end
 
     test "execute/1 requires an authorization grant" do

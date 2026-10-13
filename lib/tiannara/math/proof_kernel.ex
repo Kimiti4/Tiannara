@@ -44,22 +44,25 @@ defmodule Tiannara.Math.ProofKernel do
          :ok <- validate_steps(steps),
          {:ok, context} <- replay(steps, assumptions),
          :ok <- require_conclusion(context, conclusion) do
-      {:ok, %{
-        status: :proven_under_assumptions,
-        assumptions: assumptions,
-        conclusion: conclusion,
-        checked_steps: length(steps),
-        kernel: "Tiannara.Math.ProofKernel.v1",
-        certification_eligible: false,
-        external_reality_claim: :not_established
-      }}
+      {:ok,
+       %{
+         status: :proven_under_assumptions,
+         assumptions: assumptions,
+         conclusion: conclusion,
+         checked_steps: length(steps),
+         kernel: "Tiannara.Math.ProofKernel.v1",
+         certification_eligible: false,
+         external_reality_claim: :not_established
+       }}
     end
   end
 
   def check(_, _, _), do: {:error, :invalid_proof_input}
 
   defp replay(steps, assumptions) do
-    Enum.reduce_while(steps, {:ok, %{assumptions: MapSet.new(assumptions), steps: %{}}}, fn step, {:ok, ctx} ->
+    Enum.reduce_while(steps, {:ok, %{assumptions: MapSet.new(assumptions), steps: %{}}}, fn step,
+                                                                                            {:ok,
+                                                                                             ctx} ->
       case check_step(step, ctx) do
         {:ok, proposition} ->
           {:cont, {:ok, %{ctx | steps: Map.put(ctx.steps, step.id, proposition)}}}
@@ -71,7 +74,8 @@ defmodule Tiannara.Math.ProofKernel do
   end
 
   defp check_step(%{rule: :assumption, proposition: proposition}, ctx) do
-    if MapSet.member?(ctx.assumptions, proposition), do: {:ok, proposition},
+    if MapSet.member?(ctx.assumptions, proposition),
+      do: {:ok, proposition},
       else: {:error, :assumption_not_supplied}
   end
 
@@ -82,14 +86,14 @@ defmodule Tiannara.Math.ProofKernel do
   defp check_step(%{rule: :and_intro, refs: [a, b], proposition: proposition}, ctx) do
     with {:ok, left} <- ref(ctx, a),
          {:ok, right} <- ref(ctx, b),
-         {:ok, ^proposition} <- exact({:and, left, right}, proposition) do
+         :ok <- exact({:and, left, right}, proposition) do
       {:ok, proposition}
     end
   end
 
   defp check_step(%{rule: :and_elim_left, refs: [ref_id], proposition: proposition}, ctx) do
     with {:ok, {:and, left, _right}} <- ref(ctx, ref_id),
-         {:ok, ^proposition} <- exact(left, proposition) do
+         :ok <- exact(left, proposition) do
       {:ok, proposition}
     else
       _ -> {:error, :left_conjunction_elimination_failed}
@@ -98,7 +102,7 @@ defmodule Tiannara.Math.ProofKernel do
 
   defp check_step(%{rule: :and_elim_right, refs: [ref_id], proposition: proposition}, ctx) do
     with {:ok, {:and, _left, right}} <- ref(ctx, ref_id),
-         {:ok, ^proposition} <- exact(right, proposition) do
+         :ok <- exact(right, proposition) do
       {:ok, proposition}
     else
       _ -> {:error, :right_conjunction_elimination_failed}
@@ -136,6 +140,7 @@ defmodule Tiannara.Math.ProofKernel do
 
   defp validate_steps(steps) do
     ids = Enum.map(steps, &Map.get(&1, :id))
+
     cond do
       Enum.any?(ids, &(not is_integer(&1) or &1 <= 0)) -> {:error, :invalid_step_ids}
       length(ids) != MapSet.size(MapSet.new(ids)) -> {:error, :duplicate_step_id}

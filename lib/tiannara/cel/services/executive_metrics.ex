@@ -37,8 +37,13 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
 
   @impl true
   def capabilities do
-    [:organizational_kpis, :performance_tracking, :kpi_alerting,
-     :trend_analysis, :constitutional_metrics]
+    [
+      :organizational_kpis,
+      :performance_tracking,
+      :kpi_alerting,
+      :trend_analysis,
+      :constitutional_metrics
+    ]
   end
 
   @impl true
@@ -75,12 +80,14 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
   @impl true
   def init(_opts) do
     send(self(), :collect)
-    {:ok, %{
-      kpis: %{},
-      history: [],
-      alerts: [],
-      collected_at: nil
-    }}
+
+    {:ok,
+     %{
+       kpis: %{},
+       history: [],
+       alerts: [],
+       collected_at: nil
+     }}
   end
 
   @impl true
@@ -104,7 +111,8 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
 
     try do
       ExecutiveMemory.record_event(:executive_metrics, :mission_completed, %{
-        mission_id: mission_id, kpis: mission_kpis
+        mission_id: mission_id,
+        kpis: mission_kpis
       })
     rescue
       _ -> :ok
@@ -120,7 +128,10 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
     history = [kpis | state.history] |> Enum.take(@max_history)
 
     Enum.each(alerts, fn alert ->
-      Logger.warning("ExecutiveMetrics KPI Alert: #{alert.label} = #{alert.value} (#{alert.reason})")
+      Logger.warning(
+        "ExecutiveMetrics KPI Alert: #{alert.label} = #{alert.value} (#{alert.reason})"
+      )
+
       try do
         ExecutiveMemory.record_event(:executive_metrics, :kpi_alert, Map.from_struct(alert))
       rescue
@@ -134,17 +145,25 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
       _ -> :ok
     end
 
-    emit_constitutional_event(:metrics_collected, %{kpi_count: map_size(kpis), alerts: length(alerts)})
+    emit_constitutional_event(:metrics_collected, %{
+      kpi_count: map_size(kpis),
+      alerts: length(alerts)
+    })
+
     safe_publish("metrics.collected", kpis)
 
-    Process.send_after(self(), :collect, @collection_interval_ms)
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :collect, @collection_interval_ms)
+    end
 
-    {:noreply, %{state |
-      kpis: kpis,
-      history: history,
-      alerts: alerts ++ state.alerts |> Enum.take(@max_history),
-      collected_at: DateTime.utc_now()
-    }}
+    {:noreply,
+     %{
+       state
+       | kpis: kpis,
+         history: history,
+         alerts: (alerts ++ state.alerts) |> Enum.take(@max_history),
+         collected_at: DateTime.utc_now()
+     }}
   end
 
   defp collect_kpis do
@@ -180,7 +199,9 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
 
   defp get_workflow_stats do
     case Process.whereis(Tiannara.CEL.Services.WorkflowEngine) do
-      nil -> %{}
+      nil ->
+        %{}
+
       pid ->
         try do
           GenServer.call(pid, :stats, 2_000)
@@ -192,7 +213,9 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
 
   defp get_scheduler_state do
     case Process.whereis(Tiannara.CEL.Services.ExecutiveScheduler) do
-      nil -> %{}
+      nil ->
+        %{}
+
       pid ->
         try do
           GenServer.call(pid, :state, 2_000)
@@ -202,9 +225,25 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
     end
   end
 
+  defp get_executive_state do
+    case Process.whereis(Tiannara.CEL.Services.ExecutiveStateManager) do
+      nil ->
+        %{}
+
+      pid ->
+        try do
+          GenServer.call(pid, :current_state, 2_000)
+        rescue
+          _ -> %{}
+        end
+    end
+  end
+
   defp get_priority_report do
     case Process.whereis(Tiannara.CEL.Services.PriorityEngine) do
-      nil -> nil
+      nil ->
+        nil
+
       pid ->
         try do
           GenServer.call(pid, :get_report, 2_000)
@@ -214,21 +253,10 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
     end
   end
 
-  defp get_executive_state do
-    case Process.whereis(Tiannara.CEL.Services.ExecutiveStateManager) do
-      nil -> %{}
-      pid ->
-        try do
-          GenServer.call(pid, :state, 2_000)
-        rescue
-          _ -> %{}
-        end
-    end
-  end
-
   defp calc_throughput(%{total_completed: c, total_started: s})
        when is_integer(c) and is_integer(s) and s > 0 and c >= 0,
        do: ratio(c, max(s, 1))
+
   defp calc_throughput(_), do: 0.0
 
   defp calc_rate(nil, _), do: 1.0
@@ -238,13 +266,18 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
 
   defp ratio(_numerator, denominator) when not is_number(denominator), do: 0.0
   defp ratio(_numerator, 0), do: 0.0
-  defp ratio(numerator, denominator) when is_number(numerator) and is_number(denominator) and denominator != 0 and denominator != 0.0 do
+
+  defp ratio(numerator, denominator)
+       when is_number(numerator) and is_number(denominator) and denominator != 0 and
+              denominator != 0.0 do
     numerator / denominator
   end
+
   defp ratio(_, _), do: 0.0
 
   defp resource_efficiency(%{resource_allocation: ra}) when is_map(ra) do
     vs = Map.values(ra)
+
     if vs == [] do
       1.0
     else
@@ -255,9 +288,11 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
         end)
         |> Enum.sum()
         |> Kernel./(length(vs))
+
       max(0.0, min(1.0, avg))
     end
   end
+
   defp resource_efficiency(_), do: 0.5
 
   defp pe_report_confidence(nil), do: 0.5
@@ -271,11 +306,13 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
       nil ->
         Logger.debug("ExecutiveMetrics: EventBus unavailable, skipping publish to #{topic}")
         :ok
+
       _pid ->
         try do
           EventBus.publish(topic, payload, [])
         rescue
-          e -> Logger.debug("ExecutiveMetrics: publish failed (#{inspect(e)}), skipping")
+          e ->
+            Logger.debug("ExecutiveMetrics: publish failed (#{inspect(e)}), skipping")
             :ok
         end
     end
@@ -283,26 +320,87 @@ defmodule Tiannara.CEL.Services.ExecutiveMetrics do
 
   defp detect_anomalies(kpis, prev_kpis) do
     alerts = []
-    alerts = if kpis[:success_rate] < 0.5 do
-      [%{label: "success_rate", value: kpis[:success_rate], severity: :critical,
-        reason: "Workflow success rate below 50%", timestamp: DateTime.utc_now()} | alerts]
-    else alerts end
-    alerts = if kpis[:calibration_score] < 0.4 do
-      [%{label: "calibration_score", value: kpis[:calibration_score], severity: :high,
-        reason: "PriorityEngine calibration degraded", timestamp: DateTime.utc_now()} | alerts]
-    else alerts end
-    alerts = if kpis[:bottleneck_count] > 3 do
-      [%{label: "bottleneck_count", value: kpis[:bottleneck_count], severity: :medium,
-        reason: "#{kpis[:bottleneck_count]} workflow bottlenecks detected", timestamp: DateTime.utc_now()} | alerts]
-    else alerts end
-    alerts = if kpis[:scheduler_starvation] > (prev_kpis[:scheduler_starvation] || 0) + 5 do
-      [%{label: "scheduler_starvation", value: kpis[:scheduler_starvation], severity: :high,
-        reason: "Scheduling starvation spike", timestamp: DateTime.utc_now()} | alerts]
-    else alerts end
-    alerts = if kpis[:recovery_rate] < 0.3 do
-      [%{label: "recovery_rate", value: kpis[:recovery_rate], severity: :critical,
-        reason: "Saga recovery rate below 30%", timestamp: DateTime.utc_now()} | alerts]
-    else alerts end
+
+    alerts =
+      if kpis[:success_rate] < 0.5 do
+        [
+          %{
+            label: "success_rate",
+            value: kpis[:success_rate],
+            severity: :critical,
+            reason: "Workflow success rate below 50%",
+            timestamp: DateTime.utc_now()
+          }
+          | alerts
+        ]
+      else
+        alerts
+      end
+
+    alerts =
+      if kpis[:calibration_score] < 0.4 do
+        [
+          %{
+            label: "calibration_score",
+            value: kpis[:calibration_score],
+            severity: :high,
+            reason: "PriorityEngine calibration degraded",
+            timestamp: DateTime.utc_now()
+          }
+          | alerts
+        ]
+      else
+        alerts
+      end
+
+    alerts =
+      if kpis[:bottleneck_count] > 3 do
+        [
+          %{
+            label: "bottleneck_count",
+            value: kpis[:bottleneck_count],
+            severity: :medium,
+            reason: "#{kpis[:bottleneck_count]} workflow bottlenecks detected",
+            timestamp: DateTime.utc_now()
+          }
+          | alerts
+        ]
+      else
+        alerts
+      end
+
+    alerts =
+      if kpis[:scheduler_starvation] > (prev_kpis[:scheduler_starvation] || 0) + 5 do
+        [
+          %{
+            label: "scheduler_starvation",
+            value: kpis[:scheduler_starvation],
+            severity: :high,
+            reason: "Scheduling starvation spike",
+            timestamp: DateTime.utc_now()
+          }
+          | alerts
+        ]
+      else
+        alerts
+      end
+
+    alerts =
+      if kpis[:recovery_rate] < 0.3 do
+        [
+          %{
+            label: "recovery_rate",
+            value: kpis[:recovery_rate],
+            severity: :critical,
+            reason: "Saga recovery rate below 30%",
+            timestamp: DateTime.utc_now()
+          }
+          | alerts
+        ]
+      else
+        alerts
+      end
+
     alerts
   end
 end

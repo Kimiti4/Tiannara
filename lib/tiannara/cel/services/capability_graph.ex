@@ -58,23 +58,38 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
   # ── Graph Construction ──────────────────────────────────────────
 
   def declare_provides(subsystem_id, capability_id) do
-    GenServer.call(__MODULE__, {:add_edge, :provides, {:subsystem, subsystem_id}, {:capability, capability_id}})
+    GenServer.call(
+      __MODULE__,
+      {:add_edge, :provides, {:subsystem, subsystem_id}, {:capability, capability_id}}
+    )
   end
 
   def declare_requires(subsystem_id, capability_id) do
-    GenServer.call(__MODULE__, {:add_edge, :requires, {:subsystem, subsystem_id}, {:capability, capability_id}})
+    GenServer.call(
+      __MODULE__,
+      {:add_edge, :requires, {:subsystem, subsystem_id}, {:capability, capability_id}}
+    )
   end
 
   def declare_dependency(cap_a, cap_b) do
-    GenServer.call(__MODULE__, {:add_edge, :depends_on, {:capability, cap_a}, {:capability, cap_b}})
+    GenServer.call(
+      __MODULE__,
+      {:add_edge, :depends_on, {:capability, cap_a}, {:capability, cap_b}}
+    )
   end
 
   def declare_conflict(cap_a, cap_b) do
-    GenServer.call(__MODULE__, {:add_edge, :conflicts_with, {:capability, cap_a}, {:capability, cap_b}})
+    GenServer.call(
+      __MODULE__,
+      {:add_edge, :conflicts_with, {:capability, cap_a}, {:capability, cap_b}}
+    )
   end
 
   def declare_consumes(mission_id, capability_id) do
-    GenServer.call(__MODULE__, {:add_edge, :consumes, {:mission, mission_id}, {:capability, capability_id}})
+    GenServer.call(
+      __MODULE__,
+      {:add_edge, :consumes, {:mission, mission_id}, {:capability, capability_id}}
+    )
   end
 
   # ── Graph Reasoning ─────────────────────────────────────────────
@@ -109,8 +124,15 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
 
   @impl true
   def capabilities do
-    [:capability_registration, :dependency_reasoning, :blast_radius_analysis,
-     :optimal_delegation, :cycle_detection, :redundancy_analysis, :capability_versioning]
+    [
+      :capability_registration,
+      :dependency_reasoning,
+      :blast_radius_analysis,
+      :optimal_delegation,
+      :cycle_detection,
+      :redundancy_analysis,
+      :capability_versioning
+    ]
   end
 
   @impl true
@@ -121,6 +143,7 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
     case GenServer.call(__MODULE__, :stats) do
       %{healthy: false} ->
         ConstitutionalScore.default(:capability_graph)
+
       stats ->
         evidence_quality =
           cond do
@@ -181,7 +204,10 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
       started_at: DateTime.utc_now()
     }
 
-    Logger.info("CapabilityGraph: Initialized with #{map_size(state.capability_metadata)} capabilities")
+    Logger.info(
+      "CapabilityGraph: Initialized with #{map_size(state.capability_metadata)} capabilities"
+    )
+
     {:ok, state}
   end
 
@@ -194,12 +220,25 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
     case :digraph.vertex(state.graph, vertex) do
       false ->
         :digraph.add_vertex(state.graph, vertex, metadata)
-        new_meta = Map.put(state.capability_metadata, cap_id, Map.merge(%{
-          registered_at: DateTime.utc_now(), version: "1.0.0", deprecated: false
-        }, metadata))
+
+        new_meta =
+          Map.put(
+            state.capability_metadata,
+            cap_id,
+            Map.merge(
+              %{
+                registered_at: DateTime.utc_now(),
+                version: "1.0.0",
+                deprecated: false
+              },
+              metadata
+            )
+          )
 
         record_mutation(:capability_registered, %{capability_id: cap_id}, state)
-        {:reply, {:ok, cap_id}, %{state | capability_metadata: new_meta, mutation_count: state.mutation_count + 1}}
+
+        {:reply, {:ok, cap_id},
+         %{state | capability_metadata: new_meta, mutation_count: state.mutation_count + 1}}
 
       _ ->
         {:reply, {:error, :already_registered}, state}
@@ -214,7 +253,9 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
       :digraph.add_vertex(state.graph, vertex, %{deprecated: true, reason: reason})
       new_deprecated = MapSet.put(state.deprecated, cap_id)
       record_mutation(:capability_deprecated, %{capability_id: cap_id, reason: reason}, state)
-      {:reply, :ok, %{state | deprecated: new_deprecated, mutation_count: state.mutation_count + 1}}
+
+      {:reply, :ok,
+       %{state | deprecated: new_deprecated, mutation_count: state.mutation_count + 1}}
     else
       {:reply, {:error, :not_found}, state}
     end
@@ -224,9 +265,12 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
   def handle_call({:version_capability, cap_id, new_cap_id, metadata}, _from, state) do
     case register_capability_internal(state, new_cap_id, Map.put(metadata, :version_of, cap_id)) do
       {:ok, state2} ->
-        {_, state3} = add_edge_internal(state2, :version_of, {:capability, new_cap_id}, {:capability, cap_id})
+        {_, state3} =
+          add_edge_internal(state2, :version_of, {:capability, new_cap_id}, {:capability, cap_id})
+
         record_mutation(:capability_versioned, %{from: cap_id, to: new_cap_id}, state3)
         {:reply, {:ok, new_cap_id}, state3}
+
       error ->
         {:reply, error, state}
     end
@@ -234,7 +278,8 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
 
   @impl true
   def handle_call({:merge_capabilities, cap_a, cap_b, merged_id}, _from, state) do
-    with {:ok, state2} <- register_capability_internal(state, merged_id, %{merged_from: [cap_a, cap_b]}),
+    with {:ok, state2} <-
+           register_capability_internal(state, merged_id, %{merged_from: [cap_a, cap_b]}),
          {:ok, state3} <- redirect_edges(state2, cap_a, merged_id),
          {:ok, state4} <- redirect_edges(state3, cap_b, merged_id),
          :ok <- deprecate_internal(state4, cap_a, "merged into #{merged_id}"),
@@ -250,8 +295,10 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
   def handle_call({:split_capability, cap_id, new_a, new_b}, _from, state) do
     with {:ok, state2} <- register_capability_internal(state, new_a, %{split_from: cap_id}),
          {:ok, state3} <- register_capability_internal(state2, new_b, %{split_from: cap_id}),
-         {_, state4} <- add_edge_internal(state3, :depends_on, {:capability, new_a}, {:capability, cap_id}),
-         {_, state5} <- add_edge_internal(state4, :depends_on, {:capability, new_b}, {:capability, cap_id}) do
+         {_, state4} <-
+           add_edge_internal(state3, :depends_on, {:capability, new_a}, {:capability, cap_id}),
+         {_, state5} <-
+           add_edge_internal(state4, :depends_on, {:capability, new_b}, {:capability, cap_id}) do
       record_mutation(:capability_split, %{from: cap_id, to: [new_a, new_b]}, state5)
       {:reply, {:ok, [new_a, new_b]}, state5}
     else
@@ -268,12 +315,16 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
     new_state =
       if edge_type == :depends_on do
         case :digraph.get_short_cycle(new_state.graph, from_vertex) do
-          false -> new_state
+          false ->
+            new_state
+
           cycle ->
             Logger.warning("CapabilityGraph: cycle detected: #{inspect(cycle)}")
+
             emit_constitutional_event(:cycle_detected, %{cycle_length: length(cycle)}, %{
               involved: Enum.map(cycle, &elem(&1, 1))
             })
+
             %{new_state | cycles_detected: new_state.cycles_detected + 1}
         end
       else
@@ -318,6 +369,7 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
   @impl true
   def handle_call({:dependency_chain, cap_id}, _from, state) do
     vertex = {:capability, cap_id}
+
     if :digraph.vertex(state.graph, vertex) do
       chain = traverse_edges(state.graph, vertex, :depends_on, :out)
       {:reply, {:ok, chain}, state}
@@ -351,13 +403,15 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
           end
         end)
 
-      {:reply, {:ok, %{
-        capability: cap_id,
-        dependent_capabilities: dependents,
-        affected_subsystems: affected_subsystems,
-        affected_missions: affected_missions,
-        severity: classify_severity(dependents, affected_missions)
-      }}, state}
+      {:reply,
+       {:ok,
+        %{
+          capability: cap_id,
+          dependent_capabilities: dependents,
+          affected_subsystems: affected_subsystems,
+          affected_missions: affected_missions,
+          severity: classify_severity(dependents, affected_missions)
+        }}, state}
     else
       {:reply, {:error, :not_found}, state}
     end
@@ -392,6 +446,7 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
               _ -> false
             end
           end)
+
         providers == 1
       end)
       |> Enum.map(&elem(&1, 1))
@@ -402,6 +457,7 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
   @impl true
   def handle_call({:providers_of, cap_id}, _from, state) do
     vertex = {:capability, cap_id}
+
     providers =
       :digraph.in_edges(state.graph, vertex)
       |> Enum.flat_map(fn edge ->
@@ -410,12 +466,14 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
           _ -> []
         end
       end)
+
     {:reply, providers, state}
   end
 
   @impl true
   def handle_call({:capabilities_of, sub_id}, _from, state) do
     vertex = {:subsystem, sub_id}
+
     caps =
       :digraph.out_edges(state.graph, vertex)
       |> Enum.flat_map(fn edge ->
@@ -424,6 +482,7 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
           _ -> []
         end
       end)
+
     {:reply, caps, state}
   end
 
@@ -433,18 +492,19 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
     subs = count_vertices(state.graph, :subsystem)
     missions = count_vertices(state.graph, :mission)
 
-    {:reply, %{
-      healthy: state.healthy,
-      vertex_count: :digraph.no_vertices(state.graph),
-      edge_count: :digraph.no_edges(state.graph),
-      capability_count: caps,
-      subsystem_count: subs,
-      mission_count: missions,
-      deprecated_count: MapSet.size(state.deprecated),
-      cycles_detected: state.cycles_detected,
-      single_points_of_failure: state.spof_count,
-      mutation_count: state.mutation_count
-    }, state}
+    {:reply,
+     %{
+       healthy: state.healthy,
+       vertex_count: :digraph.no_vertices(state.graph),
+       edge_count: :digraph.no_edges(state.graph),
+       capability_count: caps,
+       subsystem_count: subs,
+       mission_count: missions,
+       deprecated_count: MapSet.size(state.deprecated),
+       cycles_detected: state.cycles_detected,
+       single_points_of_failure: state.spof_count,
+       mutation_count: state.mutation_count
+     }, state}
   end
 
   @impl true
@@ -484,6 +544,7 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
               _ -> false
             end
           end)
+
         count == 1
       end)
 
@@ -502,6 +563,7 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
   defp seed_subsystem(graph, sub_id, caps) do
     sub_vertex = {:subsystem, sub_id}
     :digraph.add_vertex(graph, sub_vertex, %{})
+
     Enum.each(caps, fn cap_id ->
       cap_vertex = {:capability, cap_id}
       :digraph.add_vertex(graph, cap_vertex, %{})
@@ -518,28 +580,62 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
   end
 
   defp default_metadata do
-    caps = [:detect, :classify, :monitor, :alert, :investigate, :generate_hypothesis,
-            :validate, :forecast, :governance_cycle, :risk_assess, :create_capability,
-            :improve_institution, :govern, :research, :discover, :validate_discovery,
-            :simulate, :model, :predict]
-    Map.new(caps, fn c -> {c, %{version: "1.0.0", deprecated: false, registered_at: DateTime.utc_now()}} end)
+    caps = [
+      :detect,
+      :classify,
+      :monitor,
+      :alert,
+      :investigate,
+      :generate_hypothesis,
+      :validate,
+      :forecast,
+      :governance_cycle,
+      :risk_assess,
+      :create_capability,
+      :improve_institution,
+      :govern,
+      :research,
+      :discover,
+      :validate_discovery,
+      :simulate,
+      :model,
+      :predict
+    ]
+
+    Map.new(caps, fn c ->
+      {c, %{version: "1.0.0", deprecated: false, registered_at: DateTime.utc_now()}}
+    end)
   end
 
   defp register_capability_internal(state, cap_id, metadata) do
     vertex = {:capability, cap_id}
+
     if :digraph.vertex(state.graph, vertex) do
       {:error, :already_registered}
     else
       :digraph.add_vertex(state.graph, vertex, metadata)
-      new_meta = Map.put(state.capability_metadata, cap_id, Map.merge(%{
-        registered_at: DateTime.utc_now(), version: "1.0.0", deprecated: false
-      }, metadata))
+
+      new_meta =
+        Map.put(
+          state.capability_metadata,
+          cap_id,
+          Map.merge(
+            %{
+              registered_at: DateTime.utc_now(),
+              version: "1.0.0",
+              deprecated: false
+            },
+            metadata
+          )
+        )
+
       {:ok, %{state | capability_metadata: new_meta}}
     end
   end
 
   defp deprecate_internal(state, cap_id, reason) do
     vertex = {:capability, cap_id}
+
     if :digraph.vertex(state.graph, vertex) do
       :digraph.add_vertex(state.graph, vertex, %{deprecated: true, reason: reason})
       :ok
@@ -572,16 +668,22 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
     :digraph.in_edges(state.graph, old_vertex)
     |> Enum.each(fn edge ->
       case :digraph.edge(state.graph, edge) do
-        {_, from, ^old_vertex, :provides} -> :digraph.add_edge(state.graph, from, new_vertex, :provides)
-        _ -> :ok
+        {_, from, ^old_vertex, :provides} ->
+          :digraph.add_edge(state.graph, from, new_vertex, :provides)
+
+        _ ->
+          :ok
       end
     end)
 
     :digraph.out_edges(state.graph, old_vertex)
     |> Enum.each(fn edge ->
       case :digraph.edge(state.graph, edge) do
-        {_, ^old_vertex, to, :depends_on} -> :digraph.add_edge(state.graph, new_vertex, to, :depends_on)
-        _ -> :ok
+        {_, ^old_vertex, to, :depends_on} ->
+          :digraph.add_edge(state.graph, new_vertex, to, :depends_on)
+
+        _ ->
+          :ok
       end
     end)
 
@@ -610,6 +712,7 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
                 _ -> []
               end
             end)
+
           :in ->
             :digraph.in_edges(graph, current)
             |> Enum.flat_map(fn edge ->
@@ -664,6 +767,8 @@ defmodule Tiannara.CEL.Services.CapabilityGraph do
   end
 
   defp schedule_redundancy_check do
-    Process.send_after(self(), :redundancy_check, @redundancy_check_interval)
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :redundancy_check, @redundancy_check_interval)
+    end
   end
 end

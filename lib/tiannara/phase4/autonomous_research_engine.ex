@@ -4,9 +4,14 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
   require Logger
 
   alias Tiannara.World.{
-    UnifiedWorldModel, OntologyManager, KnowledgeCoordinator,
-    EpistemicIntegrityService, WorldMutationEngine, WorldQueryEngine
+    UnifiedWorldModel,
+    OntologyManager,
+    KnowledgeCoordinator,
+    EpistemicIntegrityService,
+    WorldMutationEngine,
+    WorldQueryEngine
   }
+
   alias Tiannara.CEL.Workflow.{Workflow, Step}
   alias Tiannara.CEL.Services.{WorkflowEngine, ExecutiveMemory, EventBus}
   alias Tiannara.CEL.Kernel.ConstitutionalScore
@@ -33,9 +38,15 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
 
   @impl Tiannara.ExecutiveService
   def dependencies do
-    [:persistent_memory, :event_transport, :unified_world_model,
-     :epistemic_integrity_service, :ontology_manager, :workflow_engine,
-     :knowledge_coordinator]
+    [
+      :persistent_memory,
+      :event_transport,
+      :unified_world_model,
+      :epistemic_integrity_service,
+      :ontology_manager,
+      :workflow_engine,
+      :knowledge_coordinator
+    ]
   end
 
   @impl Tiannara.ExecutiveService
@@ -44,6 +55,7 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
   @impl Tiannara.ExecutiveService
   def constitutional_score do
     stats = GenServer.call(__MODULE__, :stats)
+
     evidence_quality =
       if stats.total_programs_initiated > 0,
         do: stats.total_validations_completed / stats.total_programs_initiated,
@@ -79,14 +91,15 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
     EventBus.subscribe("workflow.failed", self())
     schedule_research_cycle()
 
-    {:ok, %{
-      active_programs: %{},
-      total_programs_initiated: 0,
-      total_hypotheses_generated: 0,
-      total_validations_completed: 0,
-      healthy: true,
-      started_at: DateTime.utc_now()
-    }}
+    {:ok,
+     %{
+       active_programs: %{},
+       total_programs_initiated: 0,
+       total_hypotheses_generated: 0,
+       total_validations_completed: 0,
+       healthy: true,
+       started_at: DateTime.utc_now()
+     }}
   end
 
   @impl true
@@ -110,13 +123,14 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
 
   @impl true
   def handle_call(:stats, _from, state) do
-    {:reply, %{
-      healthy: state.healthy,
-      active_programs: map_size(state.active_programs),
-      total_programs_initiated: state.total_programs_initiated,
-      total_hypotheses_generated: state.total_hypotheses_generated,
-      total_validations_completed: state.total_validations_completed
-    }, state}
+    {:reply,
+     %{
+       healthy: state.healthy,
+       active_programs: map_size(state.active_programs),
+       total_programs_initiated: state.total_programs_initiated,
+       total_hypotheses_generated: state.total_hypotheses_generated,
+       total_validations_completed: state.total_validations_completed
+     }, state}
   end
 
   @impl true
@@ -127,7 +141,10 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
   end
 
   @impl true
-  def handle_info({:executive_bus_message, %{type: "workflow.completed", payload: payload}}, state) do
+  def handle_info(
+        {:executive_bus_message, %{type: "workflow.completed", payload: payload}},
+        state
+      ) do
     new_state = handle_workflow_completion(payload, state)
     {:noreply, new_state}
   end
@@ -138,22 +155,43 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
     {:noreply, new_state}
   end
 
+  @impl true
+  def handle_info({:event, %{routing_destination: "workflow.completed"} = event}, state) do
+    new_state = handle_workflow_completion(event_payload(event), state)
+    {:noreply, new_state}
+  end
+
+  @impl true
+  def handle_info({:event, %{routing_destination: "workflow.failed"} = event}, state) do
+    new_state = handle_workflow_failure(event_payload(event), state)
+    {:noreply, new_state}
+  end
+
+  @impl true
+  def handle_info({:event, _event}, state), do: {:noreply, state}
+
   defp run_research_cycle(state) do
     if map_size(state.active_programs) >= @max_concurrent_programs do
-      Logger.info("ARE: Max concurrent programs (#{@max_concurrent_programs}) reached. Skipping cycle.")
+      Logger.info(
+        "ARE: Max concurrent programs (#{@max_concurrent_programs}) reached. Skipping cycle."
+      )
+
       state
     else
       case EpistemicIntegrityService.integrity_report() do
-        %{experiment_recommendations: recommendations} when is_list(recommendations) and length(recommendations) > 0 ->
+        %{experiment_recommendations: recommendations}
+        when is_list(recommendations) and length(recommendations) > 0 ->
           Logger.info("ARE: Found #{length(recommendations)} experiment recommendations.")
           slots_available = @max_concurrent_programs - map_size(state.active_programs)
           to_process = Enum.take(recommendations, slots_available)
+
           Enum.reduce(to_process, state, fn rec, acc_state ->
             case initiate_research_program(rec, acc_state) do
               {:ok, _program_id, updated_state} -> updated_state
               {:error, _reason} -> acc_state
             end
           end)
+
         _ ->
           state
       end
@@ -206,10 +244,11 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
           initiated_at: DateTime.utc_now()
         }
 
-        new_state = %{state |
-          active_programs: Map.put(state.active_programs, program_id, program_record),
-          total_programs_initiated: state.total_programs_initiated + 1,
-          total_hypotheses_generated: state.total_hypotheses_generated + length(hypotheses)
+        new_state = %{
+          state
+          | active_programs: Map.put(state.active_programs, program_id, program_record),
+            total_programs_initiated: state.total_programs_initiated + 1,
+            total_hypotheses_generated: state.total_hypotheses_generated + length(hypotheses)
         }
 
         ExecutiveMemory.record_decision(
@@ -237,51 +276,69 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
 
     case recommendation.type do
       :resolve_contradictions ->
-        [%{base |
-          type: :contradiction_resolution,
-          statement: "Targeted experiment to resolve: #{recommendation.reason}"
-        }]
+        [
+          %{
+            base
+            | type: :contradiction_resolution,
+              statement: "Targeted experiment to resolve: #{recommendation.reason}"
+          }
+        ]
 
       :strengthen_evidence ->
-        [%{base |
-          type: :evidence_strengthening,
-          statement: "Replication experiment to strengthen weak evidence chains"
-        }]
+        [
+          %{
+            base
+            | type: :evidence_strengthening,
+              statement: "Replication experiment to strengthen weak evidence chains"
+          }
+        ]
 
       :refresh_stale_theories ->
-        [%{base |
-          type: :theory_refresh,
-          statement: "New observational test for stale theories"
-        }]
+        [%{base | type: :theory_refresh, statement: "New observational test for stale theories"}]
 
       _ ->
-        [%{base |
-          type: :general_inquiry,
-          statement: "General inquiry based on epistemic gap"
-        }]
+        [%{base | type: :general_inquiry, statement: "General inquiry based on epistemic gap"}]
     end
   end
 
   defp dispatch_validation_workflow(hypothesis, program_id) do
     steps = [
-      %Step{id: "step_obs", module: Tiannara.CEL.Workflow.Steps.Observation,
-            input: %{target: hypothesis.target_domain, observation_type: :automated_inquiry}},
-      %Step{id: "step_exp", module: Tiannara.CEL.Workflow.Steps.Experiment,
-            input: %{hypothesis: hypothesis, experiment_design: :automated_replication}},
-      %Step{id: "step_val", module: Tiannara.CEL.Workflow.Steps.Validation,
-            input: %{expected_results: :statistical_significance}}
+      %Step{
+        id: "step_obs",
+        module: Tiannara.CEL.Workflow.Steps.Observation,
+        input: %{target: hypothesis.target_domain, observation_type: :automated_inquiry}
+      },
+      %Step{
+        id: "step_exp",
+        module: Tiannara.CEL.Workflow.Steps.Experiment,
+        input: %{hypothesis: hypothesis, experiment_design: :automated_replication}
+      },
+      %Step{
+        id: "step_val",
+        module: Tiannara.CEL.Workflow.Steps.Validation,
+        input: %{expected_results: :statistical_significance}
+      }
     ]
 
-    workflow = Workflow.new(
-      "ARE Validation: #{hypothesis.type} for #{program_id}",
-      steps,
-      context: %{source: :autonomous_research_engine, program_id: program_id, hypothesis: hypothesis}
-    )
+    workflow =
+      Workflow.new(
+        "ARE Validation: #{hypothesis.type} for #{program_id}",
+        steps,
+        context: %{
+          source: :autonomous_research_engine,
+          program_id: program_id,
+          hypothesis: hypothesis
+        }
+      )
 
     case WorkflowEngine.start_workflow(workflow) do
       {:ok, workflow_id} ->
-        Logger.info("ARE: Dispatched validation workflow #{workflow_id} for hypothesis #{hypothesis.type}")
+        Logger.info(
+          "ARE: Dispatched validation workflow #{workflow_id} for hypothesis #{hypothesis.type}"
+        )
+
         workflow_id
+
       {:error, reason} ->
         Logger.warning("ARE: Failed to dispatch workflow: #{inspect(reason)}")
         nil
@@ -290,12 +347,17 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
 
   defp handle_workflow_completion(payload, state) do
     workflow_id = payload.workflow_id
-    {program_id, program} = Enum.find(state.active_programs, fn {_pid, prog} ->
-      workflow_id in prog.workflow_ids
-    end) || {nil, nil}
+
+    {program_id, program} =
+      Enum.find(state.active_programs, fn {_pid, prog} ->
+        workflow_id in prog.workflow_ids
+      end) || {nil, nil}
 
     if program do
-      Logger.info("ARE: Workflow #{workflow_id} completed for program #{program_id}. Fusing results.")
+      Logger.info(
+        "ARE: Workflow #{workflow_id} completed for program #{program_id}. Fusing results."
+      )
+
       evidence = Map.get(payload, :outcome_evidence, [])
       confidence = Map.get(payload, :final_confidence, 0.5)
 
@@ -321,9 +383,10 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
       updated_program = Map.put(program, :status, :validation_completed)
       new_active = Map.put(state.active_programs, program_id, updated_program)
 
-      %{state |
-        active_programs: new_active,
-        total_validations_completed: state.total_validations_completed + 1
+      %{
+        state
+        | active_programs: new_active,
+          total_validations_completed: state.total_validations_completed + 1
       }
     else
       state
@@ -332,9 +395,11 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
 
   defp handle_workflow_failure(payload, state) do
     workflow_id = payload.workflow_id
-    {program_id, program} = Enum.find(state.active_programs, fn {_pid, prog} ->
-      workflow_id in prog.workflow_ids
-    end) || {nil, nil}
+
+    {program_id, program} =
+      Enum.find(state.active_programs, fn {_pid, prog} ->
+        workflow_id in prog.workflow_ids
+      end) || {nil, nil}
 
     if program do
       Logger.warning("ARE: Workflow #{workflow_id} failed for program #{program_id}.")
@@ -374,4 +439,6 @@ defmodule Tiannara.Phase4.AutonomousResearchEngine do
   defp schedule_research_cycle do
     Process.send_after(self(), :run_research_cycle, @research_cycle_interval)
   end
+
+  defp event_payload(event), do: Map.get(event, :origin) || Map.get(event, :raw_payload) || %{}
 end

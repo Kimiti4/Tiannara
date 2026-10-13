@@ -43,7 +43,14 @@ defmodule Tiannara.Sentinel.ObservationScheduler do
 
     Logger.info("[ObservationScheduler] Started. Interval: #{interval}ms")
 
-    {:ok, %{interval_ms: interval, started_at: started_at, cycles: 0, last_cycle_at: nil, last_cycle_duration_us: 0}}
+    {:ok,
+     %{
+       interval_ms: interval,
+       started_at: started_at,
+       cycles: 0,
+       last_cycle_at: nil,
+       last_cycle_duration_us: 0
+     }}
   end
 
   @impl true
@@ -71,12 +78,25 @@ defmodule Tiannara.Sentinel.ObservationScheduler do
 
     schedule_observation(state.interval_ms)
 
-    {:noreply, %{state | cycles: state.cycles + 1, last_cycle_at: DateTime.utc_now(), last_cycle_duration_us: duration_us}}
+    {:noreply,
+     %{
+       state
+       | cycles: state.cycles + 1,
+         last_cycle_at: DateTime.utc_now(),
+         last_cycle_duration_us: duration_us
+     }}
   end
 
   @impl true
   def handle_call(:status, _from, state) do
-    {:reply, %{interval_ms: state.interval_ms, cycles: state.cycles, last_cycle_at: state.last_cycle_at, last_cycle_duration_us: state.last_cycle_duration_us, started_at: state.started_at}, state}
+    {:reply,
+     %{
+       interval_ms: state.interval_ms,
+       cycles: state.cycles,
+       last_cycle_at: state.last_cycle_at,
+       last_cycle_duration_us: state.last_cycle_duration_us,
+       started_at: state.started_at
+     }, state}
   end
 
   @impl true
@@ -100,12 +120,19 @@ defmodule Tiannara.Sentinel.ObservationScheduler do
 
   defp observe_vm_health(timestamp) do
     %{
-      id: Tiannara.Executive.Types.new_id(), type: :vm_health, source: :beam_vm, timestamp: timestamp,
+      id: Tiannara.Executive.Types.new_id(),
+      type: :vm_health,
+      source: :beam_vm,
+      timestamp: timestamp,
       value: %{
-        total_memory: :erlang.memory(:total), processes_memory: :erlang.memory(:processes),
-        ets_memory: :erlang.memory(:ets), atom_count: :erlang.system_info(:atom_count),
-        atom_limit: :erlang.system_info(:atom_limit), process_count: :erlang.system_info(:process_count),
-        process_limit: :erlang.system_info(:process_limit), run_queue: :erlang.statistics(:run_queue),
+        total_memory: :erlang.memory(:total),
+        processes_memory: :erlang.memory(:processes),
+        ets_memory: :erlang.memory(:ets),
+        atom_count: :erlang.system_info(:atom_count),
+        atom_limit: :erlang.system_info(:atom_limit),
+        process_count: :erlang.system_info(:process_count),
+        process_limit: :erlang.system_info(:process_limit),
+        run_queue: :erlang.statistics(:run_queue),
         uptime_seconds: :erlang.statistics(:wall_clock) |> elem(0) |> div(1000)
       }
     }
@@ -113,8 +140,15 @@ defmodule Tiannara.Sentinel.ObservationScheduler do
 
   defp observe_process_health(timestamp) do
     %{
-      id: Tiannara.Executive.Types.new_id(), type: :process_health, source: :process_monitor, timestamp: timestamp,
-      value: %{total_processes: :erlang.system_info(:process_count), registered: length(Process.registered()), reductions: :erlang.statistics(:reductions) |> elem(0)}
+      id: Tiannara.Executive.Types.new_id(),
+      type: :process_health,
+      source: :process_monitor,
+      timestamp: timestamp,
+      value: %{
+        total_processes: :erlang.system_info(:process_count),
+        registered: length(Process.registered()),
+        reductions: :erlang.statistics(:reductions) |> elem(0)
+      }
     }
   end
 
@@ -124,18 +158,36 @@ defmodule Tiannara.Sentinel.ObservationScheduler do
     ratio = if total > 0, do: processes / total, else: 0.0
 
     %{
-      id: Tiannara.Executive.Types.new_id(), type: :memory_pressure, source: :memory_monitor, timestamp: timestamp,
-      value: %{total_bytes: total, process_bytes: processes, ets_bytes: :erlang.memory(:ets), binary_bytes: :erlang.memory(:binary), process_ratio: Float.round(ratio, 4)}
+      id: Tiannara.Executive.Types.new_id(),
+      type: :memory_pressure,
+      source: :memory_monitor,
+      timestamp: timestamp,
+      value: %{
+        total_bytes: total,
+        process_bytes: processes,
+        ets_bytes: :erlang.memory(:ets),
+        binary_bytes: :erlang.memory(:binary),
+        process_ratio: Float.round(ratio, 4)
+      }
     }
   end
 
   defp observe_executive_health(timestamp) do
     case Process.whereis(Tiannara.Executive.ExecutiveMemory) do
-      nil -> nil
+      nil ->
+        nil
+
       _pid ->
         try do
           health = Tiannara.Executive.ExecutiveMemory.health()
-          %{id: Tiannara.Executive.Types.new_id(), type: :executive_memory_health, source: :executive_memory, timestamp: timestamp, value: health}
+
+          %{
+            id: Tiannara.Executive.Types.new_id(),
+            type: :executive_memory_health,
+            source: :executive_memory,
+            timestamp: timestamp,
+            value: health
+          }
         catch
           _, _ -> nil
         end
@@ -144,11 +196,20 @@ defmodule Tiannara.Sentinel.ObservationScheduler do
 
   defp observe_ecr_health(timestamp) do
     case Process.whereis(Tiannara.Executive.Cognitive.ExecutiveCognitiveRuntime) do
-      nil -> nil
+      nil ->
+        nil
+
       _pid ->
         try do
           health = Tiannara.Executive.Cognitive.ExecutiveCognitiveRuntime.health()
-          %{id: Tiannara.Executive.Types.new_id(), type: :ecr_health, source: :executive_cognitive_runtime, timestamp: timestamp, value: health}
+
+          %{
+            id: Tiannara.Executive.Types.new_id(),
+            type: :ecr_health,
+            source: :executive_cognitive_runtime,
+            timestamp: timestamp,
+            value: health
+          }
         catch
           _, _ -> nil
         end
@@ -156,6 +217,8 @@ defmodule Tiannara.Sentinel.ObservationScheduler do
   end
 
   defp schedule_observation(interval) do
-    Process.send_after(self(), :observe, interval)
+    unless Application.get_env(:tiannara, :test_mode, false) do
+      Process.send_after(self(), :observe, interval)
+    end
   end
 end
