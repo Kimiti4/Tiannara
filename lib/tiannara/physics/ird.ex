@@ -106,8 +106,11 @@ defmodule Tiannara.Physics.IRD do
       safety_validation_enabled: true,
       auto_dampening_enabled: true,
       event_retention_period: 864_00000,  # 24 hours
-      nats_enabled: true,
-      jetstream_enabled: true
+      # NATS/JetStream transport is NOT implemented (placeholder functions
+      # below return {:error, :not_implemented}). Default disabled so the
+      # system never pretends events left the node (doc-vs-reality audit).
+      nats_enabled: false,
+      jetstream_enabled: false
     }
 
     # Initialize coordination state
@@ -697,24 +700,17 @@ defmodule Tiannara.Physics.IRD do
   end
 
   defp start_nats_connection(_config) do
-    # Initialize NATS/JetStream connection
-    # This is a placeholder - in production would use actual NATS client
-    Logger.info("Starting NATS/JetStream connection")
-    
-    # Start connection process
-    # {:ok, pid} = NATS.connect([...])
-    # {:ok, jetstream_pid} = NATS.JetStream.stream(pid, [...])
-    
-    :ok
+    # NATS/JetStream transport is not implemented. Previously this logged
+    # "Starting NATS/JetStream connection" and returned a fake :ok — the
+    # events never left the node (doc-vs-reality audit finding). Fail honest.
+    Logger.warning("[IRD] NATS/JetStream transport is not implemented; " <>
+                     "coordination events remain local to this node")
+    {:error, :not_implemented}
   end
 
   defp publish_to_nats(event_data) do
-    # Publish event to NATS/JetStream
-    # This is a placeholder - in production would use actual NATS client
-    Logger.info("Publishing event to NATS: #{event_data.type}")
-    
-    # NATS.publish(jetstream_pid, "coordination.events", event_data)
-    
-    :ok
+    Logger.warning("[IRD] NATS publish skipped (transport not implemented): " <>
+                     "#{inspect(event_data.type)}")
+    {:error, :not_implemented}
   end
 end

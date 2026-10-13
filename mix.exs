@@ -88,7 +88,6 @@ defmodule Tiannara.MixProject do
       
       # Data structures
       {:ets, "~> 0.9"},
-      {:redix, "~> 1.1"},
       
       # Testing and development
       {:excoveralls, "~> 0.18", only: :test},
