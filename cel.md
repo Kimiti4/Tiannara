@@ -1,3 +1,4 @@
+﻿> **HONESTY DISCLAIMER (doc-vs-reality audit):** This document is a **design transcript** — a proposed architecture discussed in dialogue. It is **not** an implementation report. The subsystems, modules, and pipelines it describes (forecasting substrate, CEL executive integration, EFDI audit campaign, EOS specification) are **largely not implemented** in this repository. Any concrete module paths named below are proposals unless independently confirmed present in `lib/`. Do not treat this file as evidence that the described system exists.
 I think this is an excellent analysis, and more importantly, I think the proposed sequencing is almost correct. There is one architectural change I would make before writing thousands of lines of CEL code.
 
 ## My assessment

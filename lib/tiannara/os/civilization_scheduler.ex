@@ -158,7 +158,7 @@ defmodule TiannaraOS.CivilizationScheduler do
       Enum.reduce(1..max_ticks, initial_state, fn tick, acc_state ->
         # Run 16: Increment ecology tick counter (every tick)
         Tiannara.Ecology.tick()
-        
+
         t0 = System.monotonic_time(:microsecond)
 
         # PERFORMANCE: Queued Maturation
@@ -1676,12 +1676,16 @@ defmodule TiannaraOS.CivilizationScheduler do
     IO.puts("     Promotion Queue:      #{promotion_queue_size}")
     IO.puts("     Promotion Candidates: #{promotion_candidates}")
     IO.puts("")
-    
+
     discovery_count = map_size(state.discoveries || %{})
     disc_cap_pct = Float.round(discovery_count / @max_discoveries_map_size * 100, 1)
     disc_cap_status = if discovery_count >= @max_discoveries_map_size, do: "⚠️  AT CAP", else: "✅"
     IO.puts("  📚 Discovery Map:")
-    IO.puts("     Entries: #{discovery_count} / #{@max_discoveries_map_size} (#{disc_cap_pct}%)  #{disc_cap_status}")
+
+    IO.puts(
+      "     Entries: #{discovery_count} / #{@max_discoveries_map_size} (#{disc_cap_pct}%)  #{disc_cap_status}"
+    )
+
     IO.puts("")
 
     # ── TECHNOLOGICAL LINEAGE DEPTH ───────────────────────────────────────────
@@ -1697,23 +1701,25 @@ defmodule TiannaraOS.CivilizationScheduler do
       avg_lineage = Float.round(Enum.sum(lineage_depths) / node_count, 2)
 
       # Depth histogram — shows distribution of technological maturity
-      hist = Enum.reduce(lineage_depths, %{shallow: 0, mid: 0, deep: 0, frontier: 0}, fn d, acc ->
-        cond do
-          d <= 5  -> Map.update!(acc, :shallow,  &(&1 + 1))
-          d <= 10 -> Map.update!(acc, :mid,      &(&1 + 1))
-          d <= 20 -> Map.update!(acc, :deep,     &(&1 + 1))
-          true    -> Map.update!(acc, :frontier, &(&1 + 1))
-        end
-      end)
+      hist =
+        Enum.reduce(lineage_depths, %{shallow: 0, mid: 0, deep: 0, frontier: 0}, fn d, acc ->
+          cond do
+            d <= 5 -> Map.update!(acc, :shallow, &(&1 + 1))
+            d <= 10 -> Map.update!(acc, :mid, &(&1 + 1))
+            d <= 20 -> Map.update!(acc, :deep, &(&1 + 1))
+            true -> Map.update!(acc, :frontier, &(&1 + 1))
+          end
+        end)
 
       # Build an ancestry example: find the deepest node and walk its parent chain
       # to show the actual technological progression path.
       # O(max_depth) — safe even at 1.67M nodes.
       all_caps_map =
-        (Map.to_list(civ_caps_map) ++ Map.to_list(world_caps_map) ++
-          Enum.flat_map(Map.values(state.research_programs || %{}), fn p ->
-            Map.to_list(p.capabilities || %{})
-          end))
+        (Map.to_list(civ_caps_map) ++
+           Map.to_list(world_caps_map) ++
+           Enum.flat_map(Map.values(state.research_programs || %{}), fn p ->
+             Map.to_list(p.capabilities || %{})
+           end))
         |> Map.new()
 
       deepest_node = Enum.max_by(all_cap_nodes, fn n -> n.depth || 1 end)
@@ -1723,10 +1729,13 @@ defmodule TiannaraOS.CivilizationScheduler do
           parent_id = List.first(node.parent_nodes || [])
           if parent_id, do: Map.get(all_caps_map, parent_id), else: nil
         end)
-        |> Stream.take_while(& &1 != nil)
+        |> Stream.take_while(&(&1 != nil))
         |> Enum.map(fn n ->
           id_str = to_string(n.id)
-          short = if String.length(id_str) > 12, do: String.slice(id_str, 0, 12) <> "…", else: id_str
+
+          short =
+            if String.length(id_str) > 12, do: String.slice(id_str, 0, 12) <> "…", else: id_str
+
           "#{short}(d=#{n.depth || 1})"
         end)
         |> Enum.reverse()
@@ -1996,20 +2005,87 @@ defmodule TiannaraOS.CivilizationScheduler do
     end
   end
 
+  # ESR (Economic Sustainability Ratio): total discovery value produced
+  # (confidence x relevance of discoveries owned by active programs) divided
+  # by total budget consumed (credits + compute + attention) across those
+  # programs. Previously a hardcoded 1.2 placeholder (doc-vs-reality audit
+  # finding) — this is a real computation from program/discovery state.
+  # Neutral 1.0 when no active programs (no economy to measure).
   @spec calculate_esr(State.t()) :: float()
-  defp calculate_esr(_state) do
-    # Simplified ESR calculation
-    # In production, would track total royalty income vs resource consumption
-    # Placeholder
-    1.2
+  defp calculate_esr(%State{} = state) do
+    programs =
+      (state.research_programs || %{}) |> Map.values() |> Enum.filter(&(&1.status == :active))
+
+    discoveries = state.discoveries || %{}
+
+    consumed =
+      Enum.reduce(programs, 0.0, fn p, acc ->
+        b = p.budget || %{}
+        acc + (b[:credits] || 0.0) + (b[:compute] || 0.0) + (b[:attention] || 0.0)
+      end)
+
+    produced =
+      Enum.reduce(programs, 0.0, fn p, acc ->
+        value =
+          p.discoveries
+          |> Enum.reduce(0.0, fn did, a ->
+            case Map.get(discoveries, did) do
+              nil -> a
+              d -> a + (d.confidence || 1.0) * (d.relevance || 1.0)
+            end
+          end)
+
+        acc + value + (p.metrics[:discovery_yield] || 0.0)
+      end)
+
+    cond do
+      programs == [] -> 1.0
+      consumed <= 0.0 -> if produced > 0.0, do: 2.0, else: 1.0
+      true -> produced / consumed
+    end
   end
 
+  # AFG (Adaptive Fitness Gradient): mean discovery value (confidence x
+  # relevance + discovery_yield) of the newest generation of active programs
+  # minus that of the oldest generation — a real within-state fitness
+  # gradient. Was a hardcoded 0.05 placeholder (doc-vs-reality audit finding).
+  # Single generation or no programs → 0.0 (no gradient measurable — honest).
   @spec calculate_afg(State.t()) :: float()
-  defp calculate_afg(_state) do
-    # Simplified AFG calculation
-    # In production, would compare current ESR to historical average
-    # Placeholder
-    0.05
+  defp calculate_afg(%State{} = state) do
+    discoveries = state.discoveries || %{}
+
+    by_gen =
+      (state.research_programs || %{})
+      |> Map.values()
+      |> Enum.filter(&(&1.status == :active))
+      |> Enum.group_by(&(&1.generation || 1))
+
+    case by_gen |> Map.keys() |> Enum.sort() do
+      gens when length(gens) < 2 ->
+        0.0
+
+      gens ->
+        value_of = fn gen ->
+          by_gen
+          |> Map.get(gen, [])
+          |> Enum.reduce(0.0, fn p, acc ->
+            dval =
+              p.discoveries
+              |> Enum.reduce(0.0, fn did, a ->
+                case Map.get(discoveries, did) do
+                  nil -> a
+                  d -> a + (d.confidence || 1.0) * (d.relevance || 1.0)
+                end
+              end)
+
+            acc + dval + (p.metrics[:discovery_yield] || 0.0)
+          end)
+        end
+
+        oldest = value_of.(hd(gens))
+        newest = value_of.(List.last(gens))
+        newest - oldest
+    end
   end
 
   @spec count_lineage_depth(ResearchProgram.t(), map()) :: integer()

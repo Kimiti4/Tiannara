@@ -1,3 +1,4 @@
+﻿> **HONESTY DISCLAIMER (doc-vs-reality audit):** This document is an **implementation specification / design plan**. Portions have since been implemented (live telemetry adapters, CI wiring, `LivePipeline` + supervised runner, `Omega.Supervisor` app wiring) and others remain aspirational. Treat every unverified claim here as a proposal; confirm module paths exist in `lib/` before relying on them.
 Proceeding with both. These are the two highest-leverage operationalization steps: **live telemetry** (real runtime observations replacing synthetic dry-run inputs) and **correlation-aware CI wiring** (proving a CI result is never attributed to a proposal unless its correlation identity is proven). Both are grounded in Verification First, “Maintain audit trails,” and “Capability must never outpace verification.”
 
 ---

@@ -31,6 +31,7 @@ defmodule Tiannara.CI.GitHubActions do
 
       {:ok, status, resp} ->
         {:error, {:http_status, status, resp}}
+
       {:error, _} = e ->
         e
     end
@@ -123,18 +124,24 @@ defmodule Tiannara.CI.GitHubActions do
 
   defp do_wait_for_correlation_id(config, correlation_id, deadline) do
     case find_run_by_correlation(config, correlation_id) do
-      {:ok, id} -> {:ok, id}
-      :not_found ->
+      {:ok, id} ->
+        {:ok, id}
+
+      {:error, :not_found} ->
         if System.monotonic_time(:millisecond) < deadline do
           Process.sleep(500)
           do_wait_for_correlation_id(config, correlation_id, deadline)
         else
           {:error, :timeout}
         end
+
+      {:error, _} = e ->
+        e
     end
   end
 
-  defp find_run_by_correlation(config, correlation_id) do
+  @impl true
+  def find_run_by_correlation(config, correlation_id) do
     http = fetch_http!(config)
     url = "#{config.api_base}/repos/#{config.owner}/#{config.repo}/actions/runs?per_page=100"
 
@@ -142,10 +149,14 @@ defmodule Tiannara.CI.GitHubActions do
       {:ok, 200, %{"workflow_runs" => runs}} ->
         case Enum.find(runs, &match_correlation?(&1, correlation_id)) do
           %{"id" => id} -> {:ok, id}
-          nil -> :not_found
+          nil -> {:error, :not_found}
         end
-      _ ->
-        :not_found
+
+      {:ok, _status, _resp} ->
+        {:error, :not_found}
+
+      {:error, _} = e ->
+        e
     end
   end
 

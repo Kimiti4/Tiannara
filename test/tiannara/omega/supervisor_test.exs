@@ -10,6 +10,7 @@ defmodule Tiannara.Omega.SupervisorTest do
     suffix = System.unique_integer([:positive])
 
     [
+      name: :"omega_sup_#{suffix}",
       bus_name: :"bus_#{suffix}",
       telemetry_window_name: :"tw_#{suffix}",
       heartbeat_name: :"hb_#{suffix}",
@@ -57,7 +58,9 @@ defmodule Tiannara.Omega.SupervisorTest do
     Process.sleep(100)
 
     # The Research Director should have investigated
-    investigations = Tiannara.Omega.ResearchDirectorServer.investigations(opts[:research_director_name])
+    investigations =
+      Tiannara.Omega.ResearchDirectorServer.investigations(opts[:research_director_name])
+
     assert length(investigations) >= 1
 
     # The Cognitive Interface should have produced a decision

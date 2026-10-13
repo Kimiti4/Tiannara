@@ -27,7 +27,9 @@ defmodule Tiannara.Omega.Supervisor do
   use Supervisor
 
   def start_link(opts \\ []) do
-    Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+    # Name is injectable so tests can start isolated trees while the
+    # application boots the canonical singleton under __MODULE__.
+    Supervisor.start_link(__MODULE__, opts, name: Keyword.get(opts, :name, __MODULE__))
   end
 
   @doc "Stop the supervisor tree (test/teardown helper)."
@@ -83,10 +85,11 @@ defmodule Tiannara.Omega.Supervisor do
   end
 
   defp heartbeat_opts(opts) do
-    base = Tiannara.Telemetry.SentinelBridge.build_heartbeat_opts(
-      adapter: Keyword.get(opts, :telemetry_adapter, Tiannara.Telemetry.RuntimeAdapter),
-      window_size: Keyword.get(opts, :window_size, 5)
-    )
+    base =
+      Tiannara.Telemetry.SentinelBridge.build_heartbeat_opts(
+        adapter: Keyword.get(opts, :telemetry_adapter, Tiannara.Telemetry.RuntimeAdapter),
+        window_size: Keyword.get(opts, :window_size, 5)
+      )
 
     base
     |> Keyword.put(:name, Keyword.get(opts, :heartbeat_name, Tiannara.Sentinel.Heartbeat.Server))

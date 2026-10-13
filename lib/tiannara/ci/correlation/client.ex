@@ -20,12 +20,18 @@ defmodule Tiannara.CI.Correlation.Client do
   def dispatch(provider, config, proposal, registry_path) do
     correlation_id = Token.generate()
 
-    with :ok <- Registry.register(correlation_id, proposal.id,
-                                  Map.get(proposal, :lineage_id), registry_path),
-         {:ok, run_id} <- provider.trigger_workflow(config, %{
-           correlation_id: correlation_id,
-           proposal_id: proposal.id
-         }) do
+    with :ok <-
+           Registry.register(
+             correlation_id,
+             proposal.id,
+             Map.get(proposal, :lineage_id),
+             registry_path
+           ),
+         {:ok, run_id} <-
+           provider.trigger_workflow(config, %{
+             correlation_id: correlation_id,
+             proposal_id: proposal.id
+           }) do
       {:ok, %{correlation_id: correlation_id, run_id: run_id}}
     end
   end
@@ -42,7 +48,8 @@ defmodule Tiannara.CI.Correlation.Client do
     with {:ok, %{correlation_id: cid, run_id: rid}} <-
            dispatch(provider, config, proposal, registry_path),
          {:ok, _} <- await_completion(provider, config, cid, opts),
-         {:ok, conclusion} <- fetch_verified_result(provider, config, cid, proposal.id, registry_path) do
+         {:ok, conclusion} <-
+           fetch_verified_result(provider, config, cid, proposal.id, registry_path) do
       {:ok, %{correlation_id: cid, run_id: rid, proposal_id: proposal.id, conclusion: conclusion}}
     end
   end
@@ -58,23 +65,37 @@ defmodule Tiannara.CI.Correlation.Client do
   end
 
   defp do_await(provider, config, correlation_id, deadline, poll_interval) do
-    with {:ok, run_id} <- provider.find_run_by_correlation(config, correlation_id),
-         {:ok, status} <- provider.run_status(config, run_id) do
-      case status do
-        :done ->
-          {:ok, run_id}
+    case provider.find_run_by_correlation(config, correlation_id) do
+      {:ok, run_id} ->
+        case provider.run_status(config, run_id) do
+          {:ok, :done} ->
+            {:ok, run_id}
 
-        status when status in [:pending, :running] ->
-          if System.monotonic_time(:millisecond) > deadline do
-            {:error, :await_timeout}
-          else
-            Process.sleep(poll_interval)
-            do_await(provider, config, correlation_id, deadline, poll_interval)
-          end
+          {:ok, status} when status in [:pending, :running] ->
+            if System.monotonic_time(:millisecond) > deadline do
+              {:error, :await_timeout}
+            else
+              Process.sleep(poll_interval)
+              do_await(provider, config, correlation_id, deadline, poll_interval)
+            end
 
-        other ->
-          {:error, {:unexpected_status, other}}
-      end
+          {:ok, other} ->
+            {:error, {:unexpected_status, other}}
+
+          {:error, _} = e ->
+            e
+        end
+
+      {:error, :not_found} ->
+        if System.monotonic_time(:millisecond) > deadline do
+          {:error, :await_timeout}
+        else
+          Process.sleep(poll_interval)
+          do_await(provider, config, correlation_id, deadline, poll_interval)
+        end
+
+      {:error, _} = e ->
+        e
     end
   end
 
