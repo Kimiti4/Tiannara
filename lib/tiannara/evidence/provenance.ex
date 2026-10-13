@@ -39,6 +39,12 @@ defmodule Tiannara.Evidence.Provenance do
   Returns {:ok, record} on valid input, {:error, reason} otherwise.
   NEVER fabricates a provenance record — if the origin is unknown,
   the kind MUST be :unknown, not a fabricated :real_execution.
+
+  If the calling process has pinned `:tiannara_provenance_now` in its
+  process dictionary, that instant is stamped instead of the wall clock.
+  This exists so tests can verify hash reproducibility deterministically
+  on fine-grained clocks (the pinned value never crosses process
+  boundaries, so production callers always get the real wall clock).
   """
   @spec build(keyword()) :: {:ok, provenance_record()} | {:error, term()}
   def build(opts) do
@@ -52,7 +58,9 @@ defmodule Tiannara.Evidence.Provenance do
          kind: kind,
          source: Keyword.get(opts, :source),
          producer: Keyword.get(opts, :producer),
-         produced_at: Keyword.get(opts, :produced_at) || DateTime.utc_now(),
+         produced_at:
+           Keyword.get(opts, :produced_at) || Process.get(:tiannara_provenance_now) ||
+             DateTime.utc_now(),
          execution_id: Keyword.get(opts, :execution_id),
          experiment_id: Keyword.get(opts, :experiment_id),
          environment: Keyword.get(opts, :environment),

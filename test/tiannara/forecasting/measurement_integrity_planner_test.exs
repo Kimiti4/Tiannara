@@ -87,6 +87,10 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
   # ---- 2. Contradictory payload does not produce a different "decision" ----
 
   test "R4-03: contradictory payloads produce the same kind/structure (no measured record exists)" do
+    # Pin produced_at so the time-derived provenance_hash cannot mask a
+    # payload-derived difference between the three records.
+    Process.put(:tiannara_provenance_now, ~U[2026-01-01 00:00:00Z])
+
     r1 =
       StrategicPlanner.evaluate_and_act(:intervention_quality, %{
         claim: :excellent,
@@ -207,6 +211,10 @@ defmodule Tiannara.Forecasting.MeasurementIntegrity.PlannerAdversarialTest do
   # ---- 7–9. Provenance: missing/synthetic/real ----
 
   test "R4-10: the returned record carries a provenance_hash and that hash is reproducible from a rebuilt record" do
+    # Pin produced_at so the rebuild below reproduces the planner's record
+    # exactly — reproducibility must hold regardless of clock granularity.
+    Process.put(:tiannara_provenance_now, ~U[2026-01-01 00:00:00Z])
+
     {:ok, %{provenance_hash: h}} = StrategicPlanner.evaluate_and_act(:intervention_quality, %{})
 
     # Re-build the same provenance (kind: :simulation, fixed source, fixed audit_trail)

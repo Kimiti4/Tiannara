@@ -217,8 +217,16 @@ defmodule Tiannara.Council.AuditLogRecoveryTest do
       holder_os = String.trim(File.read!(pidfile))
 
       # Brutal OS kill — no :dets.close, no terminate.
-      {_, kill_status} = System.cmd("taskkill", ["/PID", holder_os, "/F"], stderr_to_stdout: true)
-      assert kill_status == 0, "taskkill must succeed for holder pid=#{holder_os}"
+      {_, kill_status} =
+        case :os.type() do
+          {:win32, _} ->
+            System.cmd("taskkill", ["/PID", holder_os, "/F"], stderr_to_stdout: true)
+
+          {:unix, _} ->
+            System.cmd("kill", ["-9", holder_os], stderr_to_stdout: true)
+        end
+
+      assert kill_status == 0, "os kill must succeed for holder pid=#{holder_os}"
       _ = Task.shutdown(task, :brutal_kill)
 
       # File is dirty (open flag left set). Strict open must fail.
