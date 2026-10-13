@@ -159,12 +159,21 @@ async def analyze_with_vision(input_data: str, context: Dict[str, Any]) -> Dict[
     try:
         engine = get_vision_engine()
         
-        # TODO: Implement actual vision analysis
-        # For now, return simulated result
+        if engine is None:
+            # VisionEngine is not implemented yet (placeholder getter returns
+            # None). Previously this path returned a hardcoded "simulated"
+            # result with confidence 0.85 (doc-vs-reality audit finding) —
+            # fail honest instead.
+            return {
+                "error": "Vision engine not implemented",
+                "confidence": 0.0,
+                "metadata": {"processing_time_ms": (time.time() - start_time) * 1000}
+            }
+        
         result = {
-            "objects": ["object1", "object2"],  # Simulated
+            "objects": [],
             "description": "Vision analysis complete",
-            "confidence": 0.85,
+            "confidence": 0.0,
             "metadata": {
                 "processing_time_ms": (time.time() - start_time) * 1000,
                 "model_version": "v1.0"
@@ -187,14 +196,20 @@ async def analyze_with_web_intelligence(input_data: str, context: Dict[str, Any]
     try:
         engine = get_web_intelligence_engine()
         
-        # TODO: Implement actual web intelligence analysis
+        if engine is None:
+            return {
+                "error": "Web intelligence engine not implemented",
+                "confidence": 0.0,
+                "metadata": {"processing_time_ms": (time.time() - start_time) * 1000}
+            }
+        
         result = {
-            "related_info": ["Related information 1", "Related information 2"],
-            "sources": ["Source 1", "Source 2"],
-            "trends": ["Trend 1"],
+            "related_info": [],
+            "sources": [],
+            "trends": [],
             "metadata": {
                 "processing_time_ms": (time.time() - start_time) * 1000,
-                "sources_checked": 5
+                "sources_checked": 0
             }
         }
         
@@ -214,15 +229,21 @@ async def analyze_with_nlp(input_data: str, context: Dict[str, Any]) -> Dict[str
     try:
         engine = get_nlp_engine()
         
-        # TODO: Implement actual NLP analysis
+        if engine is None:
+            return {
+                "error": "NLP engine not implemented",
+                "confidence": 0.0,
+                "metadata": {"processing_time_ms": (time.time() - start_time) * 1000}
+            }
+        
         result = {
-            "summary": "NLP analysis summary",
-            "entities": ["Entity 1", "Entity 2"],
-            "sentiment": "positive",
-            "key_topics": ["Topic 1", "Topic 2"],
+            "summary": "",
+            "entities": [],
+            "sentiment": "neutral",
+            "key_topics": [],
             "metadata": {
                 "processing_time_ms": (time.time() - start_time) * 1000,
-                "language_detected": "en"
+                "language_detected": ""
             }
         }
         
@@ -242,12 +263,18 @@ async def analyze_with_prediction(input_data: str, context: Dict[str, Any]) -> D
     try:
         engine = get_prediction_engine()
         
-        # TODO: Implement actual prediction analysis
+        if engine is None:
+            return {
+                "error": "Prediction engine not implemented",
+                "confidence": 0.0,
+                "metadata": {"processing_time_ms": (time.time() - start_time) * 1000}
+            }
+        
         result = {
-            "insights": ["Insight 1", "Insight 2"],
-            "recommendations": ["Recommendation 1"],
+            "insights": [],
+            "recommendations": [],
             "forecasts": [],
-            "confidence_scores": {"overall": 0.75},
+            "confidence_scores": {"overall": 0.0},
             "metadata": {
                 "processing_time_ms": (time.time() - start_time) * 1000,
                 "model_used": "default"

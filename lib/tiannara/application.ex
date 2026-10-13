@@ -45,6 +45,8 @@ defmodule Tiannara.Application do
                 Logger.warning("  service #{id}: #{result}")
               end)
 
+              start_discovery_supervisor()
+
             {:error, reason} ->
               Logger.error("[CEL] EOS boot failed: #{inspect(reason)}")
           end
@@ -67,6 +69,36 @@ defmodule Tiannara.Application do
   @doc "Whether the ASC subsystem (Phases 6–10) is enabled."
   def asc_enabled? do
     Application.get_env(:tiannara, :asc, []) |> Keyword.get(:enabled, false)
+  end
+
+  # DiscoverySupervisor is the sole owner of DiscoveryEngine/Scheduler/Metrics
+  # (ControlCenter AE-010 removed its copies) but was never started anywhere
+  # (doc-vs-reality audit finding). It depends on CEL services that only exist
+  # after Kernel.boot(), so it starts here rather than in core_children.
+  # Skipped in test mode: discovery tests self-provision the children via
+  # ensure_running, and the scheduler's boot-time EventBus/CEL chatter pushed
+  # heavy simulation tests past the 30s ExUnit timeout.
+  defp start_discovery_supervisor do
+    if Application.get_env(:tiannara, :test_mode, false) or Mix.env() == :test do
+      :ok
+    else
+      case Process.whereis(Tiannara.Discovery.DiscoverySupervisor) do
+        nil ->
+          case Tiannara.Discovery.DiscoverySupervisor.start_link([]) do
+            {:ok, _pid} ->
+              Logger.info("[Discovery] DiscoverySupervisor started (Engine/Scheduler/Metrics)")
+
+            {:error, {:already_started, _}} ->
+              :ok
+
+            {:error, reason} ->
+              Logger.error("[Discovery] DiscoverySupervisor failed to start: #{inspect(reason)}")
+          end
+
+        _pid ->
+          :ok
+      end
+    end
   end
 
   # Foundation, World layer, Phase 4, Phase 5 control — always on.
