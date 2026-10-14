@@ -94,6 +94,11 @@ defmodule Tiannara.Physics.MC004PPilotExecutionTest do
                Physics.execute_experiment(%{hypothesis: %{subject: :test}, context: %{}})
     end
 
+    test "direct provider refuses when real execution is disabled" do
+      assert {:error, :real_execution_not_enabled} =
+               PhysicsPilotExecution.execute(%{grant: minted_grant(), pilot: unique_pilot()})
+    end
+
     test "refuses without a grant" do
       Application.put_env(:tiannara, :real_execution_enabled, true)
 
