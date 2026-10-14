@@ -126,34 +126,34 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     adapted_state = apply_pending_adaptations(state)
 
     # Execute Stage 1-2: Research Episode Generation
-    IO.puts("\n📊 Executing Stages 1-2: Research Episode Generation...")
+    IO.puts("\n📊 SIMULATING Stages 1-2: Research Episode Generation...")
     episodes = simulate_episode_generation(config.episodes_per_generation, gen_num)
     IO.puts("  ✓ Generated #{length(episodes)} episodes")
 
     # Execute Theory Formation (simulated)
-    IO.puts("\n🧠 Executing Theory Formation...")
+    IO.puts("\n🧠 SIMULATING Theory Formation...")
     theories_formed = simulate_theory_formation(episodes, gen_num)
     IO.puts("  ✓ Formed #{theories_formed} theories")
 
     # Execute Distributed Validation (simulated)
-    IO.puts("\n✅ Executing Distributed Validation...")
+    IO.puts("\n✅ SIMULATING Distributed Validation...")
     unknowns_resolved = simulate_validation(episodes, gen_num)
     IO.puts("  ✓ Resolved #{unknowns_resolved} unknowns")
 
     # Execute Stages 3-5 only if adaptation is enabled
     {stage3_results, stage4_results, stage5_result} = if adapted_state.enable_adaptation do
       # Execute Stage 3: Method Evolution
-      IO.puts("\n🔬 Executing Stage 3: Method Evolution...")
+      IO.puts("\n🔬 SIMULATING Stage 3: Method Evolution (real engine not called)...")
       stage3 = execute_stage3(episodes, gen_num)
       IO.puts("  ✓ Produced #{length(stage3)} MethodEvolutionResults")
 
       # Execute Stage 4: Institution Adaptation
-      IO.puts("\n🏛️  Executing Stage 4: Institution Adaptation...")
+      IO.puts("\n🏛️  SIMULATING Stage 4: Institution Adaptation (real engine not called)...")
       stage4 = execute_stage4(stage3, config.institutions, gen_num)
       IO.puts("  ✓ Produced #{length(stage4)} InstitutionAdaptationResults")
 
       # Execute Stage 5: Civilization Adaptation
-      IO.puts("\n🌍 Executing Stage 5: Civilization Adaptation...")
+      IO.puts("\n🌍 SIMULATING Stage 5: Civilization Adaptation (based on simulated inputs)...")
       stage5 = execute_stage5(stage4, gen_num)
       IO.puts("  ✓ Civilization decision: #{inspect(stage5.civilization_decision)}")
 
@@ -165,7 +165,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     end
 
     # Collect metrics
-    IO.puts("\n📈 Collecting generation metrics...")
+    IO.puts("\n📈 Collecting harness metrics (some synthetic, constant, or stub-derived)...")
     history = collect_generation_metrics(%{
       generation_number: gen_num,
       start_time: gen_start_time,
