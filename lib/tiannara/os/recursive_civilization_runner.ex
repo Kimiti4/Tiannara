@@ -50,7 +50,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     - `checkpoint_interval`: Save checkpoint every N generations (default: 10)
 
   ## Returns
-  {:ok, [GenerationHistory.t()]} - List of all generation histories in order
+  {:ok, [TiannaraOS.Kernel.GenerationHistory.t()]} - List of all generation histories in order
 
   ## Examples
 
