@@ -7,8 +7,17 @@ defmodule Tiannara.Phase4.RealExecutionTest do
   setup do
     Application.delete_env(:tiannara, :real_execution_enabled)
 
+    # Isolate the execution ledger — never append test artifacts to the
+    # tracked canonical file under priv/.
+    Application.put_env(
+      :tiannara,
+      :real_execution_ledger_path,
+      Path.join(System.tmp_dir!(), "real_exec_#{System.unique_integer([:positive])}.jsonl")
+    )
+
     on_exit(fn ->
       Application.delete_env(:tiannara, :real_execution_enabled)
+      Application.delete_env(:tiannara, :real_execution_ledger_path)
     end)
 
     :ok

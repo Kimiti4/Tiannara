@@ -1,21 +1,31 @@
 defmodule Tiannara.Physics.MC004PPilotExecutionTest do
   use ExUnit.Case, async: false
 
-  alias Tiannara.Phase4.{PhysicsPilotExecution, RealExecution}
+  alias Tiannara.Phase4.PhysicsPilotExecution
   alias Tiannara.Domains.Physics
   alias Tiannara.Foundations.Mathematics.Calculus
   alias Tiannara.Omega.HumanDelivery.{Authorization, AuthenticatedHumanIdentity}
 
-  @executions_log "priv/tiannara/real_execution/executions.jsonl"
-
   setup do
     Application.delete_env(:tiannara, :real_execution_enabled)
 
+    # Isolate the execution ledger so tests never append to the tracked
+    # canonical file under priv/ (evidence integrity: test artifacts and
+    # production evidence must not interleave).
+    ledger =
+      Path.join(
+        System.tmp_dir!(),
+        "mc004_p_executions_#{System.unique_integer([:positive])}.jsonl"
+      )
+
+    Application.put_env(:tiannara, :real_execution_ledger_path, ledger)
+
     on_exit(fn ->
       Application.delete_env(:tiannara, :real_execution_enabled)
+      Application.delete_env(:tiannara, :real_execution_ledger_path)
     end)
 
-    :ok
+    {:ok, ledger: ledger}
   end
 
   defp minted_grant do
@@ -68,23 +78,42 @@ defmodule Tiannara.Physics.MC004PPilotExecutionTest do
       assert result.verification.harness == :real_simulation
     end
 
-    test "records execution to JSONL ledger" do
+    test "records execution to JSONL ledger with provenance", %{ledger: ledger} do
       Application.put_env(:tiannara, :real_execution_enabled, true)
 
-      before_content =
-        if File.exists?(@executions_log),
-          do: File.read!(@executions_log),
-          else: ""
-
-      assert {:ok, _result} =
+      assert {:ok, result} =
                PhysicsPilotExecution.execute(%{grant: minted_grant(), pilot: unique_pilot()})
 
-      after_content = File.read!(@executions_log)
-      new_entries = String.replace(after_content, before_content, "")
+      assert File.exists?(ledger)
+      [entry] = ledger |> File.read!() |> String.split("\n", trim: true) |> Enum.map(&Jason.decode!/1)
 
-      assert new_entries =~ "\"subsystem\":\"physics_pilot\""
-      assert new_entries =~ "\"type\":\"real_execution\""
-      assert new_entries =~ "\"harness\":\"real_simulation\""
+      assert entry["type"] == "real_execution"
+      assert entry["subsystem"] == "physics_pilot"
+      assert entry["execution_id"] == result.execution_id
+      assert entry["verification"]["harness"] == "real_simulation"
+      assert entry["provenance"]["kind"] == "real_execution"
+      assert entry["provenance"]["execution_id"] == result.execution_id
+    end
+
+    test "ledger write failure fails closed and does not release the grant claim" do
+      Application.put_env(:tiannara, :real_execution_enabled, true)
+
+      # Point the ledger at a directory so File.write! raises deterministically.
+      blocked =
+        Path.join(System.tmp_dir!(), "mc004_p_blocked_#{System.unique_integer([:positive])}")
+
+      File.mkdir_p!(blocked)
+      Application.put_env(:tiannara, :real_execution_ledger_path, blocked)
+
+      spec = %{grant: minted_grant(), pilot: unique_pilot()}
+
+      assert {:error, {:execution_ledger_write_failed, _detail}} =
+               PhysicsPilotExecution.execute(spec)
+
+      # Post-effect failure: the claim must stay consumed — a retry of the
+      # same canonical effect is refused rather than silently re-executed.
+      assert {:error, second_reason} = PhysicsPilotExecution.execute(spec)
+      assert second_reason in [:effect_already_executed, :already_consumed]
     end
 
     test "refuses when real execution is disabled" do

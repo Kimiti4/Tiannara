@@ -8,7 +8,9 @@ defmodule Tiannara.Phase4.PhysicsPilotExecution do
   provenance used during the MC-004-M mutation gate.
 
   Evidence written on every successful execution:
-    * a durable append-only JSONL ledger (`priv/tiannara/real_execution/executions.jsonl`),
+    * a durable append-only JSONL ledger (path configurable via
+      `:real_execution_ledger_path`; default
+      `priv/tiannara/real_execution/executions.jsonl`),
     * a `Evidence.Provenance` record with `kind: :real_execution`,
     * best-effort append to the Executive EventStore (when running).
 
@@ -34,6 +36,12 @@ defmodule Tiannara.Phase4.PhysicsPilotExecution do
 
   @executions_log "priv/tiannara/real_execution/executions.jsonl"
 
+  # The ledger path is env-overridable so operators/tests can isolate it; the
+  # default keeps the original tracked location.
+  defp executions_log do
+    Application.get_env(:tiannara, :real_execution_ledger_path, @executions_log)
+  end
+
   @doc """
   Executes the physics pilot as a real, authorized experiment.
 
@@ -55,6 +63,12 @@ defmodule Tiannara.Phase4.PhysicsPilotExecution do
       case run_and_record(pilot) do
         {:ok, result} ->
           audit_execution(admission, result)
+
+        {:error, {:post_effect_failure, reason}} ->
+          # The simulation (the effect) already ran. Provenance/ledger
+          # persistence failed: fail closed — keep the claim consumed
+          # (M6/M8 semantics) and report the evidence failure.
+          {:error, reason}
 
         {:error, _reason} = execution_error ->
           ExecutionGovernance.release(admission.effect_id)
@@ -93,18 +107,25 @@ defmodule Tiannara.Phase4.PhysicsPilotExecution do
 
   defp run_and_record(pilot) do
     with {:ok, simulation} <- run_simulation(pilot),
-         {:ok, validation} <- run_validation(simulation),
-         execution_id <- make_execution_id(),
-         verification <- build_verification(execution_id, simulation, validation),
-         provenance <- build_provenance(execution_id),
-         :ok <- record_execution(execution_id, verification) do
-      {:ok,
-       %{
-         execution_id: execution_id,
-         verification: verification,
-         provenance: provenance,
-         simulation: simulation
-       }}
+         {:ok, validation} <- run_validation(simulation) do
+      execution_id = make_execution_id()
+      verification = build_verification(execution_id, simulation, validation)
+
+      # Post-effect boundary: the simulation has run. Failures from here on
+      # are tagged :post_effect_failure so the caller does not release the
+      # grant claim — the effect happened even though evidence may not persist.
+      with {:ok, provenance} <- build_provenance(execution_id),
+           :ok <- record_execution(execution_id, verification, provenance) do
+        {:ok,
+         %{
+           execution_id: execution_id,
+           verification: verification,
+           provenance: provenance,
+           simulation: simulation
+         }}
+      else
+        {:error, reason} -> {:error, {:post_effect_failure, reason}}
+      end
     end
   end
 
@@ -179,15 +200,29 @@ defmodule Tiannara.Phase4.PhysicsPilotExecution do
            producer: "Tiannara.Phase4.PhysicsPilotExecution",
            environment: %{method: :rk4, model: :damped_harmonic_oscillator}
          ) do
-      {:ok, record} -> record
-      {:error, reason} -> Provenance.unknown("provenance_build_failed: #{inspect(reason)}")
+      {:ok, record} ->
+        {:ok, record}
+
+      {:error, reason} ->
+        {:error, {:provenance_build_failed, reason}}
     end
   end
 
   # --- persistence ---
 
-  defp record_execution(execution_id, verification) do
-    File.mkdir_p!(Path.dirname(@executions_log))
+  defp record_execution(execution_id, verification, provenance) do
+    with :ok <- persist_ledger_line(execution_id, verification, provenance) do
+      append_event(execution_id, verification, provenance)
+      :ok
+    end
+  end
+
+  # Fail-closed: a ledger write failure aborts the execution report. The
+  # computation happened (post-effect), so the caller must not release the
+  # grant claim, but a success must never be reported without durable evidence.
+  defp persist_ledger_line(execution_id, verification, provenance) do
+    path = executions_log()
+    File.mkdir_p!(Path.dirname(path))
 
     line =
       Jason.encode!(%{
@@ -195,27 +230,45 @@ defmodule Tiannara.Phase4.PhysicsPilotExecution do
         subsystem: "physics_pilot",
         execution_id: execution_id,
         executed_at: DateTime.utc_now() |> DateTime.to_iso8601(),
-        verification: Map.drop(verification, [:validation])
+        verification: Map.drop(verification, [:validation]),
+        provenance: provenance
       })
 
-    File.write!(@executions_log, line <> "\n", [:append])
+    File.write!(path, line <> "\n", [:append])
+    :ok
+  rescue
+    e ->
+      Logger.error("[PhysicsPilotExecution] Execution ledger write failed: #{Exception.message(e)}")
+      {:error, {:execution_ledger_write_failed, Exception.message(e)}}
+  end
 
+  # Best-effort secondary sink (per moduledoc): the JSONL ledger is canonical.
+  defp append_event(execution_id, verification, provenance) do
     event =
       Event.new("experiment.real_execution.completed", %{
         execution_id: execution_id,
         subsystem: "physics_pilot",
-        verification: verification
+        verification: verification,
+        provenance: provenance
       })
 
     case Process.whereis(Tiannara.Executive.EventStore) do
-      pid when is_pid(pid) -> Tiannara.Executive.EventStore.append(event)
-      _ -> :ok
+      pid when is_pid(pid) ->
+        Tiannara.Executive.EventStore.append(event)
+
+      _ ->
+        Logger.warning(
+          "[PhysicsPilotExecution] Executive EventStore not running; event not appended (JSONL ledger is canonical evidence)"
+        )
     end
 
     :ok
   rescue
     e ->
-      Logger.error("[PhysicsPilotExecution] Failed to persist execution ledger: #{inspect(e)}")
+      Logger.error(
+        "[PhysicsPilotExecution] EventStore append failed (ledger already durable): #{Exception.message(e)}"
+      )
+
       :ok
   end
 
