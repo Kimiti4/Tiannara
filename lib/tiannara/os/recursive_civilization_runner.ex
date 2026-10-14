@@ -69,6 +69,14 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     # Ensure output directory exists
     File.mkdir_p!(output_dir)
 
+    # Build constitutional manifest from live system state (canonical Phase 13.5B.3
+    # hash ownership) and persist it so manifest_id references remain resolvable.
+    manifest = TiannaraOS.Kernel.ConstitutionManifest.build()
+    File.write!(
+      Path.join(output_dir, "constitution_manifest.json"),
+      TiannaraOS.Kernel.ConstitutionManifest.to_json(manifest)
+    )
+
     IO.puts("=" |> String.duplicate(80))
     IO.puts("Stage 6 - Recursive Civilization SIMULATION HARNESS (NOT CERTIFICATION)")
     IO.puts("Executing #{num_generations} generations...")
@@ -96,7 +104,8 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
         episodes_per_generation: episodes_per_gen,
         institutions: institutions,
         output_dir: output_dir,
-        checkpoint_interval: checkpoint_interval
+        checkpoint_interval: checkpoint_interval,
+        manifest: manifest
       })
     end)
 
@@ -175,7 +184,9 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       stage3_results: stage3_results,
       stage4_results: stage4_results,
       stage5_result: stage5_result,
-      state: adapted_state
+      state: adapted_state,
+      manifest: config.manifest,
+      output_dir: config.output_dir
     })
 
     # Append to history (immutable)
@@ -389,6 +400,25 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     
     budget_remaining = max(0, data.state.budget - credits_spent)
 
+    # Constitutional provenance (Phase 13.5B.3): the run-start manifest owns all
+    # component hashes (policy, definition, ledger, invariant registry, combined).
+    # A per-generation certificate binds this history row to that manifest with
+    # honest statuses - this harness performs no real validation, replay,
+    # watchdog, or invariant verification, so those are recorded as
+    # :not_verified/:not_run and the certification level resolves to "minimal".
+    certificate =
+      TiannaraOS.Kernel.ConstitutionCertificate.generate(
+        execution_id: "harness_gen_#{gen_num}_#{:erlang.unique_integer([:positive])}",
+        generation_count: gen_num,
+        manifest: data.manifest,
+        validation_status: :harness_simulated,
+        replay_status: :not_verified,
+        watchdog_status: :not_run,
+        invariant_status: :not_verified
+      )
+
+    persist_attestation(data.output_dir, gen_num, certificate)
+
     # Build history record
     TiannaraOS.Kernel.GenerationHistory.new(%{
       generation_number: gen_num,
@@ -426,15 +456,31 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       constitutional_violations: 0,
       lifecycle_completeness_pct: 100.0,
       rollback_frequency: 0.05,
-      # Constitutional policy provenance (Phase 13.5B)
-      policy_version: policy.version,
-      policy_hash: policy.policy_hash,
-      # Constitutional artifact hashes (Phase 13.5B.1)
-      definition_hash: compute_definition_hash(),
-      ledger_hash: compute_ledger_hash(),
-      invariant_registry_hash: compute_invariant_registry_hash(),
-      constitution_hash: compute_constitution_hash()
+      # Constitutional provenance linkage (Phase 13.5B.3) - hashes live in the
+      # persisted manifest referenced by manifest_id
+      manifest_id: data.manifest.manifest_id,
+      certificate_id: certificate.certificate_id
     })
+  end
+
+  # Persist per-generation constitutional attestation (append-only JSONL) so
+  # manifest_id/certificate_id on history rows remain resolvable against the
+  # certificate hash and constitution combined hash.
+  defp persist_attestation(output_dir, gen_num, certificate) do
+    attestation = %{
+      generation_number: gen_num,
+      manifest_id: certificate.manifest.manifest_id,
+      certificate_id: certificate.certificate_id,
+      certificate_hash: certificate.certificate_hash,
+      constitution_combined_hash: certificate.combined_hash,
+      certification_level: certificate.metadata.certification_level
+    }
+
+    File.write!(
+      Path.join(output_dir, "constitution_attestations.jsonl"),
+      Jason.encode!(attestation) <> "\n",
+      [:append]
+    )
   end
 
   # ──────────────────────────────────────────────
@@ -708,68 +754,5 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       true ->
         "stable operation with room for optimization"
     end
-  end
-
-  # ──────────────────────────────────────────────
-  # Constitutional Hash Computation (Phase 13.5B.1)
-  # ──────────────────────────────────────────────
-
-  @spec compute_definition_hash() :: String.t()
-  defp compute_definition_hash() do
-    # Delegate to ConstitutionalExecutor for consistency
-    # In production, this would be cached and reused
-    alias TiannaraOS.ScientificCapitalDefinition
-    
-    hash_input = [
-      ScientificCapitalDefinition.canonical_sources(),
-      ScientificCapitalDefinition.all_contribution_fields()
-    ]
-    |> :erlang.term_to_binary()
-    
-    hash = :crypto.hash(:sha256, hash_input)
-    |> Base.encode16(case: :lower)
-    
-    hash
-  end
-
-  @spec compute_ledger_hash() :: String.t()
-  defp compute_ledger_hash() do
-    # Hash the ledger module identity
-    # In production, use compiled beam hash or source code hash
-    :crypto.hash(:sha256, "ScientificCapitalLedger")
-    |> Base.encode16(case: :lower)
-  end
-
-  @spec compute_invariant_registry_hash() :: String.t()
-  defp compute_invariant_registry_hash() do
-    # Hash all registered invariants
-    alias TiannaraOS.Kernel.ConstitutionalInvariantRegistry
-    
-    invariants = ConstitutionalInvariantRegistry.list_invariants()
-    
-    hash_input = invariants
-    |> Enum.map(fn inv -> {inv.id, inv.title, inv.failure_severity} end)
-    |> :erlang.term_to_binary()
-    
-    hash = :crypto.hash(:sha256, hash_input)
-    |> Base.encode16(case: :lower)
-    
-    hash
-  end
-
-  @spec compute_constitution_hash() :: String.t()
-  defp compute_constitution_hash() do
-    # SHA256(Definition + Ledger + Invariant Registry)
-    definition_hash = compute_definition_hash()
-    ledger_hash = compute_ledger_hash()
-    invariant_hash = compute_invariant_registry_hash()
-    
-    hash_input = [definition_hash, ledger_hash, invariant_hash]
-    |> :erlang.term_to_binary()
-    
-    hash = :crypto.hash(:sha256, hash_input)
-    |> Base.encode16(case: :lower)
-    
-    hash
   end
 end
