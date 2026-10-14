@@ -183,7 +183,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
     # Save to CSV
     csv_path = Path.join(config.output_dir, "generation_history.csv")
-    GenerationHistory.append_to_file(history, csv_path)
+    TiannaraOS.Kernel.GenerationHistory.append_to_file(history, csv_path)
 
     # Update state with new totals
     updated_state = %{
@@ -353,7 +353,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       theories_formed: data.theories_formed,
       unknowns_resolved: data.unknowns_resolved
     }
-    delta_capital = TiannaraOS.ScientificCapitalLedger.calculate_delta(policy, transactions)
+    delta_capital = TiannaraOS.Kernel.ScientificCapitalLedger.calculate_delta(policy, transactions)
     
     # Cumulative scientific capital (monotonically increasing)
     # This represents total accumulated validated knowledge stock
@@ -374,7 +374,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       institution_diversity: institution_diversity,
       method_diversity: method_diversity
     }
-    civilization_adaptation_index = GenerationHistory.calculate_cai(cai_sample)
+    civilization_adaptation_index = TiannaraOS.Kernel.GenerationHistory.calculate_cai(cai_sample)
 
     # Resource utilization - seed-driven variation
     credits_spent = adaptations_evaluated * 100 + adaptations_adopted * 500
@@ -390,7 +390,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     budget_remaining = max(0, data.state.budget - credits_spent)
 
     # Build history record
-    GenerationHistory.new(%{
+    TiannaraOS.Kernel.GenerationHistory.new(%{
       generation_number: gen_num,
       execution_duration_ms: System.monotonic_time(:millisecond) - data.start_time,
       episodes_created: length(data.episodes),
