@@ -1,15 +1,18 @@
 defmodule TiannaraOS.RecursiveCivilizationRunner do
   @moduledoc """
-  RecursiveCivilizationRunner - Master execution loop for Stage 6.
+  RecursiveCivilizationRunner - multi-generation SIMULATION HARNESS for Stage 6.
 
-  This module executes the complete research civilization for N generations,
-  demonstrating that constitutional recursive adaptation produces measurable
-  long-term scientific improvement.
+  This module generates synthetic episodes, simulated theory/validation counts,
+  and simulated Stage 3-5 outputs. It does NOT establish real-engine integration,
+  real experiments, constitutional compliance, or empirical self-improvement.
+  Generated metrics may be random, constant, simplified, or stub-derived.
 
-  ## Constitutional Role
+  ## Evidence Boundary
 
-  Stage 6 is NOT an implementation phase. It is a longitudinal validation phase
-  that proves the architecture works through actual execution, not synthetic metrics.
+  This runner is a simulation harness, not a certification runner. Stage 1-2
+  outputs and Stage 3-5 results are simulated. The real Stage 3-5 engines are not
+  invoked here. Do not use harness output as evidence of production behavior or
+  empirical self-improvement.
 
   Every generation executes:
   1. Research Episode Generation (Stage 1-2)
@@ -29,7 +32,8 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
       RecursiveCivilizationRunner.execute(num_generations, opts)
 
-  Returns list of GenerationHistory records (append-only, immutable).
+  Returns in-memory GenerationHistory records from the harness. Persistence and
+  immutability must not be inferred from this return value; the CSV writer is stubbed.
   """
 
 
@@ -66,7 +70,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     File.mkdir_p!(output_dir)
 
     IO.puts("=" |> String.duplicate(80))
-    IO.puts("Stage 6 - Recursive Civilization Evolution")
+    IO.puts("Stage 6 - Recursive Civilization SIMULATION HARNESS (NOT CERTIFICATION)")
     IO.puts("Executing #{num_generations} generations...")
     IO.puts("=" |> String.duplicate(80))
     IO.puts("")
@@ -101,7 +105,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
     IO.puts("")
     IO.puts("=" |> String.duplicate(80))
-    IO.puts("Stage 6 Complete - #{num_generations} generations executed")
+    IO.puts("Simulation harness finished - #{num_generations} generations processed; real Stage 6 validation NOT ESTABLISHED")
     IO.puts("=" |> String.duplicate(80))
 
     {:ok, final_state.history}
@@ -212,8 +216,8 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
   # ──────────────────────────────────────────────
 
   defp execute_stage3(_episodes, gen_num) do
-    # Simulate Stage 3 execution
-    # In production, this would call Stage3MethodEvolution.execute_stage_3/3
+    # SIMULATION ONLY: do not treat these randomized placeholders as engine output.
+    # The real Stage3MethodEvolution engine is not invoked by this harness.
     Enum.map(1..Enum.random(3..8), fn i ->
       %{
         id: "method_evol_#{gen_num}_#{i}",
@@ -570,10 +574,10 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
   defp generate_final_reports(histories, output_dir) do
     IO.puts("\n📄 Generating final reports...")
 
-    # Generate trend analysis
+    # Generate harness-only trend analysis; outputs are not certification evidence.
     generate_trend_report(histories, output_dir)
 
-    # Generate CSV exports
+    # CSV export helper is a no-op; do not claim CSV persistence from this call.
     generate_csv_exports(histories, output_dir)
 
     IO.puts("  ✓ Reports saved to #{output_dir}")
@@ -583,10 +587,16 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     report_path = Path.join(output_dir, "recursive_evolution_report.md")
 
     content = """
-    # Recursive Evolution Report - Stage 6 Validation
+    # Recursive Evolution Report - Stage 6 SIMULATION HARNESS
 
-    **Generations Executed**: #{length(histories)}
+    **Evidence status**: SIMULATED OUTPUT — NOT REAL-ENGINE VALIDATION
+    **Generations processed by harness**: #{length(histories)}
     **Date**: #{DateTime.utc_now() |> DateTime.to_iso8601()}
+
+    This report summarizes synthetic/simulated harness output. It is not evidence of
+    real research execution, empirical self-improvement, calibrated predictions,
+    constitutional compliance, or complete provenance. Some metrics are random,
+    constant, simplified, or stub-derived. The real Stage 3-5 engines are not invoked.
 
     ---
 
@@ -629,10 +639,11 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
     ## Conclusion
 
-    The civilization demonstrates #{assess_improvement(histories)} through recursive adaptation.
+    Harness trend classification: #{assess_improvement(histories)} (SIMULATED INPUTS; NOT AN EMPIRICAL CLAIM).
 
-    All improvements are traceable to canonical transactions.
-    No synthetic metrics were used.
+    The reported trends derive from this harness's simulated, randomized, constant,
+    simplified, or stub-derived values. They do not establish real improvement.
+    Provenance completeness and durable persistence have not been established.
     """
 
     File.write!(report_path, content)
