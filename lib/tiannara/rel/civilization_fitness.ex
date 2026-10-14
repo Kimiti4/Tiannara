@@ -74,14 +74,14 @@ defmodule Tiannara.REL.CivilizationFitness do
   end
 
   defp get_lineage_score(civ_id) do
-    # How many children / fissions / migrations?
-    # Query OMCS for out-edges
-    try do
-      graph = :sys.get_state(Tiannara.OMCS.Engine).graph
-      out_edges = Graph.out_edges(graph, civ_id)
-      min(1.0, length(out_edges) / 5.0)
-    catch
-      _, _ -> 0.0
+    # Direct out-edge count (children/fissions/migrations) via the active OMCS
+    # public lineage API. The old implementation poked :sys.get_state for a
+    # nonexistent .graph field and called the archived bare Graph stub's
+    # out_edges/2, silently scoring 0.0 via catch-all. Unregistered
+    # civilizations have no lineage evidence: 0.0.
+    case Tiannara.OMCS.Engine.get_lineage(civ_id) do
+      {:ok, %{children: children}} -> min(1.0, length(children) / 5.0)
+      {:error, :not_found} -> 0.0
     end
   end
 

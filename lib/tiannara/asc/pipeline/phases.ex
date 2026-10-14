@@ -74,7 +74,7 @@ defmodule Tiannara.ASC.Pipeline.Phases do
   def handler(:architecture),   do: Tiannara.ASC.Architecture.Civilization
   def handler(:testing),        do: Tiannara.ASC.Testing.Civilization
   def handler(:implementation), do: Tiannara.ASC.Implementation.Civilization
-  def handler(:crucible),       do: Tiannara.ASC.Crucible.Supervisor
+  def handler(:crucible),       do: nil   # archived Supervisor stub removed; no active phase handler - crucible libraries are direct-invocation
   def handler(:api_evolution),  do: Tiannara.ASC.APIEvolution.Civilization
   def handler(:deployment),     do: Tiannara.ASC.Deployment.Civilization
   def handler(:operations),     do: Tiannara.ASC.Operations.Civilization
