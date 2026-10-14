@@ -126,6 +126,12 @@ defmodule Tiannara.Phase4.PhysicsPilotExecution do
 
   # --- guards ---
 
+  defp guard_enabled do
+    if Tiannara.Phase4.RealExecution.enabled?(),
+      do: :ok,
+      else: {:error, :real_execution_not_enabled}
+  end
+
   defp guard_grant(%Authorization{status: :granted} = grant) do
     if Authorization.expired?(grant) do
       {:error, :grant_expired}
