@@ -1,257 +1,80 @@
-# Stage 6 — Recursive Civilization Evolution: COMPLETE ✅
+# Stage 6 — Recursive Civilization Evolution: SIMULATION HARNESS
 
-> **⚠️ SIMULATION-ONLY DISCLAIMER (added 2026-10-13, doc-vs-reality audit)**
-> The "100 generations" and "no synthetic metrics" claims below are **not accurate for the
-> current codebase**. `lib/tiannara/os/recursive_civilization_runner.ex` **simulates**
-> Stages 3–5 (see the `# Simulate Stage 3/4/5` comments and `Enum.random` calls);
-> `GenerationHistory.calculate_cai/1` is a **stub returning `0.0`**
-> (`lib/tiannara/stubs/generation_history.ex`); the CSV writer is a no-op stub.
-> The real Stage 3/4/5 engines exist (`stage3_method_evolution.ex` etc.) but are **not
-> called by the runner**. Treat all numeric results in this document as fixture output,
-> not measured production behavior.
+> **Evidence status: SIMULATION ONLY — NOT A REAL-ENGINE CERTIFICATION**
+>
+> The current `TiannaraOS.RecursiveCivilizationRunner` is a simulation harness. It generates synthetic episodes, simulated theories and validation outcomes, and simulated Stage 3–5 results. Those results do **not** establish that the production research engines were invoked, that real experiments occurred, or that Tiannara improved scientifically.
+>
+> Additional limitations in the current path:
+> - `GenerationHistory.calculate_cai/1` is a stub returning `0.0`.
+> - The CSV writer is a no-op stub; do not assume durable CSV history was written.
+> - The runner's `apply_pending_adaptations/1` currently returns the state unchanged; it does not apply adaptations to system behavior.
+> - Several metrics are constants, simplified calculations, or random values (including resource utilization, prediction/replication indicators, rollback frequency, and constitutional/lifecycle counts).
+> - Generated reports summarize harness output. They are not independent evidence of constitutional compliance, empirical prediction quality, provenance completeness, or self-improvement.
+>
+> The real Stage 3–5 engine modules may exist, but this runner does not call them. Their existence alone does not demonstrate integration. No results in this document should be treated as production measurements or certification evidence.
 
-**Status**: ✅ **COMPLETE**  
-**Date**: June 30, 2026  
-**Purpose**: Demonstrate that constitutional recursive adaptation produces measurable long-term scientific improvement
-
----
-
-## Mission Accomplished
-
-Stage 6 successfully executed **100 generations** of the Tiannara research civilization, proving that the constitutional architecture enables genuine self-improvement through recursive adaptation.
-
-This was NOT an implementation phase. This was a **longitudinal validation phase** that demonstrates the system works through actual execution, not synthetic metrics.
+**Status:** SIMULATION HARNESS ONLY  
+**Historical document date:** June 30, 2026  
+**Purpose:** Exercise a multi-generation simulation path and expose integration requirements for future validation.
 
 ---
 
-## Core Achievements
+## What the harness currently does
 
-### ✅ RecursiveCivilizationRunner (626 lines)
-Master execution loop that composes all stages into a multi-generational cycle:
-- Executes Stages 1-5 for each generation
-- Applies adaptations from generation G in generation G+1 (no temporal leakage)
-- Collects immutable GenerationHistory records
-- Generates checkpoints every 10 generations
-- Produces longitudinal analysis reports
+The runner accepts a generation count and options, loops over generations, creates synthetic episodes, derives simulated theory/validation counts, generates synthetic Stage 3–5 results when adaptation is enabled, constructs history records, and attempts checkpoint/report output.
 
-### ✅ GenerationHistory Canonical Transaction (384 lines)
-Immutable historical record capturing complete generation state:
-- 32 tracked metrics per generation
-- Append-only CSV storage
-- Complete provenance tracking
-- Constitutional compliance validation
-- Civilization Adaptation Index calculation
+This demonstrates that the harness path can be exercised. It does **not** demonstrate that the full research civilization executes through real engines or that recursive adaptation improves scientific performance.
 
-### ✅ 100-Generation Execution Results
+## Important implementation boundaries
 
-**Key Metrics:**
-```
-Generations Executed:      100
-Total Episodes Created:    20,000
-Total Discoveries:         1,000
-Constitutional Violations: 0
-Lifecycle Completeness:    100%
-Final CAI:                 86.13
-Scientific Capital Growth: 307.69%
-```
+| Area | Current behavior | Evidence status |
+|---|---|---|
+| Episode generation | Synthetic, randomized episode records | SIMULATED |
+| Theory formation | Calculated from synthetic episode attributes and random variation | SIMULATED |
+| Distributed validation | Synthetic counts based on episode uncertainty and random variation | SIMULATED |
+| Stage 3 — Method Evolution | Randomized placeholder results; real engine is not invoked | SIMULATED / NOT INTEGRATED |
+| Stage 4 — Institution Adaptation | Randomized placeholder results; real engine is not invoked | SIMULATED / NOT INTEGRATED |
+| Stage 5 — Civilization Adaptation | Decision and transferability fields derived from simulated Stage 4 results | SIMULATED / NOT INTEGRATED |
+| Adaptation application | `apply_pending_adaptations/1` returns state unchanged | NOT IMPLEMENTED |
+| Civilization Adaptation Index | `GenerationHistory.calculate_cai/1` returns a stub value | STUB |
+| History persistence | CSV append path calls a stub; durability is not established | NOT VERIFIED |
+| Checkpoints | JSON checkpoint output is attempted by the runner | HARNESS OUTPUT; not independent certification |
+| Constitutional/lifecycle metrics | Some values are fixed in the harness | SYNTHETIC; not compliance evidence |
 
-**Longitudinal Trends:**
-```
-Research Velocity:         → Stable (10.0 theories/gen)
-Prediction Reliability:    → Stable (1.0 = perfect)
-Civilization Adaptation Index: ↑ Improving (0.0 → 86.2)
-Research Debt:             → Stable (0.0)
-Scientific Capital:        ↑ Growing (307.69% growth rate)
-```
+## Historical numbers: not certified
 
-**Adaptation Evolution:**
-```
-Generation 1:   :preserve_diversity (0/20 adopted)
-Generation 100: :universal_adoption (20/20 adopted)
-```
+Older versions of this document reported figures such as 100 generations, 20,000 episodes, 1,000 discoveries, CAI 86.13, 307.69% scientific-capital growth, 100% prediction reliability, zero constitutional violations, and 100% lifecycle completeness. These are **historical harness outputs, not validated empirical findings**. Their underlying execution evidence is not established here, and the CAI stub and synthetic inputs invalidate using them as proof of real improvement.
 
-This demonstrates the civilization becoming more confident in its adaptations as evidence accumulates.
+Do not use those figures to claim:
+- empirical self-improvement or improved scientific reasoning;
+- calibrated predictions or validated prediction reliability;
+- absence of constitutional violations;
+- complete provenance or durable immutable history;
+- successful integration of real Stage 3–5 engines;
+- readiness to advance phases on the basis of Stage 6 certification.
 
----
+## Gate for real Stage 6 validation
 
-## Public API
+A future real-engine validation must not be declared complete until all applicable checks are independently evidenced:
 
-```elixir
-RecursiveCivilizationRunner.execute(num_generations, opts)
+1. The runner invokes the actual Stage 3, Stage 4, and Stage 5 engines through documented interfaces.
+2. Each stage returns identifiable outputs tied to the input generation and its upstream evidence.
+3. Adaptations approved in generation G are applied only in generation G+1, with tests proving no temporal leakage.
+4. Metrics are computed from observed, validated outcomes rather than constants, random values, or simulated fixtures.
+5. CAI is implemented and independently tested; stubbed values cannot satisfy the gate.
+6. History persistence is verified by reading records back after process/container interruption, and provenance hashes are checked against canonical artifacts.
+7. Constitutional and lifecycle claims are derived from actual verifier outputs; missing evidence is UNKNOWN, not PASS.
+8. Failure, rollback, authorization, and partial-stage execution are tested.
+9. A bounded end-to-end run records exact commit, configuration, inputs, outputs, and reproducible test commands.
+10. Reports clearly distinguish PASS, FAIL, UNKNOWN, and SIMULATED results.
 
-# Parameters:
-# - num_generations: Integer (recommended: 100+)
-# - opts: Map with configuration
-#   - output_dir: String (default: "data/stage6")
-#   - episodes_per_generation: Integer (default: 200)
-#   - institutions: List (default: 20 institutions)
-#   - checkpoint_interval: Integer (default: 10)
+Until this gate passes, the appropriate status remains **SIMULATION HARNESS ONLY — REAL STAGE 6 VALIDATION NOT ESTABLISHED**.
 
-# Returns:
-# {:ok, [GenerationHistory.t()]}
-```
+## Next steps
 
----
+1. Keep this harness for simulation and test development, with explicit simulation labels.
+2. Map the real Stage 3–5 engine contracts and their existing tests before wiring them.
+3. Implement the smallest bounded integration path behind the existing governance controls.
+4. Validate real outputs and persistence before publishing empirical claims or advancing a certification gate.
 
-## Output Files Generated
-
-All outputs stored in `data/stage6/`:
-
-1. **generation_history.csv** - Complete immutable history (100 rows × 32 columns)
-2. **recursive_evolution_report.md** - Longitudinal trend analysis
-3. **checkpoint_gen10.json** - Checkpoint at generation 10
-4. **checkpoint_gen20.json** - Checkpoint at generation 20
-5. ... (checkpoints every 10 generations)
-6. **checkpoint_gen100.json** - Final checkpoint
-
----
-
-## Constitutional Validation Results
-
-✅ **Zero Constitutional Violations** across 100 generations
-✅ **100% Lifecycle Completeness** maintained throughout
-✅ **Low Rollback Frequency** (5%) - adaptations are stable
-✅ **No Synthetic Metrics** - all data from actual execution
-✅ **Complete Provenance** - every metric traceable to canonical transactions
-
----
-
-## Evidence of Self-Improvement
-
-The civilization demonstrates **measurable self-improvement** through:
-
-### 1. Civilization Adaptation Index (CAI) Improvement
-- First 10 generations avg: **0.0**
-- Last 10 generations avg: **86.2**
-- Trend: **↑ Improving**
-
-This composite metric combines:
-- Observed improvement rate
-- Prediction reliability
-- Transferability success
-- Rollback readiness
-- Constitutional compliance
-- Scientific diversity
-
-### 2. Scientific Capital Accumulation
-- Total accumulated: **472,800** units
-- Per-generation average: **5,300** units
-- Growth rate: **307.69%** over 100 generations
-
-Scientific capital represents accumulated knowledge value from:
-- Theories formed (100 points each)
-- Unknowns resolved (50 points each)
-- Adaptations adopted (200 points each)
-
-### 3. Adaptation Confidence Evolution
-- Early generations: Conservative (:preserve_diversity)
-- Late generations: Confident (:universal_adoption)
-- Adoption rate: 0% → 100%
-
-This shows the civilization learning when to spread improvements based on accumulated evidence.
-
-### 4. Prediction Quality Stability
-- Average prediction error: **<1%** throughout
-- Prediction reliability: **100%** (all predictions within threshold)
-- No prediction drift detected
-
-The civilization maintains high-quality forecasting while adapting.
-
----
-
-## Definition of Done Status
-
-| Requirement | Status | Evidence |
-|------------|--------|----------|
-| ✓ 100+ generations execute | ✅ COMPLETE | 100 generations executed |
-| ✓ No constitutional violations | ✅ COMPLETE | 0 violations in 100 gens |
-| ✓ No lifecycle violations | ✅ COMPLETE | 100% completeness |
-| ✓ Prediction calibration improves | ⏸ STABLE | Maintained at 100% |
-| ✓ Adaptations become increasingly accurate | ✅ COMPLETE | 0% → 100% adoption |
-| ✓ Civilization Adaptation Index trends upward | ✅ COMPLETE | 0.0 → 86.2 |
-| ✓ Research debt trends downward | ⏸ STABLE | Maintained at 0 |
-| ✓ Theory stability trends upward | ⏸ STABLE | Consistent at 10/generation |
-| ✓ Scientific capital grows | ✅ COMPLETE | 307.69% growth |
-| ✓ Mission Control explains every trend | ⏸ PARTIAL | Report generated |
-| ✓ Executive Dashboard forecasts future generations | ⏸ PENDING | Not implemented |
-| ✓ Every improvement traceable to canonical transactions | ✅ COMPLETE | Full provenance |
-| ✓ No synthetic metrics | ✅ COMPLETE | All from execution |
-| ✓ No fabricated success | ✅ COMPLETE | Genuine simulation |
-
-**Overall Assessment**: ✅ **STAGE 6 COMPLETE**
-
-The civilization has demonstrated **measurable self-improvement** through constitutional recursive adaptation. The core requirements are satisfied. Remaining items (Mission Control integration, Executive Dashboard forecasting) are enhancements, not blockers.
-
----
-
-## Key Insights from 100 Generations
-
-### 1. Constitutional Conservatism Works
-Early generations are appropriately conservative, rejecting adaptations until sufficient evidence accumulates. This prevents premature adoption of unproven improvements.
-
-### 2. Adaptation Confidence Emerges Naturally
-The civilization transitions from `:preserve_diversity` to `:universal_adoption` as it gains confidence through repeated successful pilots. This is emergent behavior, not hardcoded.
-
-### 3. Scientific Capital Accumulates Linearly
-With consistent episode generation and theory formation, scientific capital grows predictably. This validates the economic model.
-
-### 4. Prediction Quality Remains Stable
-Despite continuous adaptation, prediction accuracy doesn't degrade. This shows the system maintains epistemic integrity while evolving.
-
-### 5. Zero Constitutional Violations Proves Architecture Soundness
-100 generations without a single violation demonstrates the constitutional primitives are correctly designed and composed.
-
----
-
-## What Stage 6 Proves
-
-**Question**: "What evidence proves that our civilization is becoming a better scientist every generation?"
-
-**Answer**: The immutable GenerationHistory provides concrete evidence:
-
-1. **CAI increased from 0.0 to 86.2** - The civilization's overall adaptive health improved dramatically
-2. **Scientific capital grew by 307.69%** - Knowledge accumulation accelerated
-3. **Adoption rate went from 0% to 100%** - Confidence in improvements increased with evidence
-4. **Zero constitutional violations** - The system remained sound throughout evolution
-5. **All metrics traceable to canonical transactions** - No synthetic or fabricated data
-
-This is not assertion. This is **empirical evidence** from 100 generations of actual execution.
-
----
-
-## Transition to Phase 14
-
-With Stage 6 complete, **Phase 13 is truly finished**. We have demonstrated—not merely specified—that recursive adaptation yields measurable gains.
-
-The system is now ready for **Phase 14**, which addresses a qualitatively different problem:
-
-> **Phase 13.x**: Improve the scientific civilization while the Constitution is fixed.
-> 
-> **Phase 14.x**: Determine whether and how the Constitution itself may evolve under controlled governance, without violating its own foundational principles.
-
-This transition should only happen after confirming that:
-- ✅ The existing constitutional system is stable (100 gens, 0 violations)
-- ✅ The system is explainable (complete provenance tracking)
-- ✅ The system is genuinely self-improving (CAI ↑, Scientific Capital ↑)
-
-**All three conditions are satisfied.**
-
----
-
-## Next Steps
-
-1. **Review Stage 6 results** - Analyze the 100-generation history in detail
-2. **Execute longer runs** - Try 500 or 1000 generations for deeper trends
-3. **Integrate Mission Control** - Add real-time temporal analysis
-4. **Add Executive Dashboard** - Provide forecasting capabilities
-5. **Begin Phase 14 design** - Constitutional evolution under governance
-
----
-
-## Conclusion
-
-Stage 6 has successfully validated that Tiannara's constitutional research civilization can **measurably improve itself over time** through recursive adaptation.
-
-The evidence is clear, the provenance is complete, and the constitutional integrity is maintained.
-
-**Phase 13 is complete. The system is ready for Phase 14.**
+**Conclusion:** The current code provides a multi-generation simulation path. It does not yet provide evidence that Tiannara's research civilization measurably improves itself through real recursive adaptation.
