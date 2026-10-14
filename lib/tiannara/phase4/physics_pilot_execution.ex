@@ -47,7 +47,8 @@ defmodule Tiannara.Phase4.PhysicsPilotExecution do
   """
   @spec execute(map()) :: {:ok, map()} | {:error, term()}
   def execute(spec) when is_map(spec) do
-    with :ok <- guard_grant(Map.get(spec, :grant)),
+    with :ok <- guard_enabled(),
+         :ok <- guard_grant(Map.get(spec, :grant)),
          pilot = Map.get(spec, :pilot, pilot_default()),
          {:ok, admission} <-
            ExecutionGovernance.begin(spec.grant, execution_descriptor(spec.grant, pilot)) do
