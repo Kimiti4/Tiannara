@@ -5,12 +5,6 @@ defmodule Tiannara.REA.OrbitGenesisTest do
   alias Tiannara.REA.OrbitGenesis.Causal
   alias Tiannara.REA.OrbitGenesis.Predictor
 
-  setup_all do
-    # Perform a fast sweep to make sure database is ready
-    {:ok, records} = OrbitGenesis.run_full_sweeps(10)
-    {:ok, %{records: records}}
-  end
-
   describe "Phase 11.10 Orbit Genesis & Attractor Design Suite" do
 
     test "Q1 — Constitutional Genesis: GSI/Robustness configurations map to expected prediction bounds" do

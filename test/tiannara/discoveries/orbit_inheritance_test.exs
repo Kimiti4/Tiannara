@@ -6,7 +6,26 @@ defmodule Tiannara.REA.OrbitMemoryInheritanceTest do
   alias Tiannara.REA.OrbitMemory.Inheritance
 
   setup_all do
-    records = OrbitGenesis.all_records()
+    # Built in-memory from fixed configs instead of reading
+    # data/orbit_genesis_archive.ndjson: that file is a shared append target,
+    # and reading it here raced with OrbitGenesisTest's former setup sweep
+    # (async modules appending records while this suite sampled hd/last).
+    configs = [
+      {"parent_stable", %{gsi: 0.85, agency: 0.50, robustness: 0.80, generativity: 0.10,
+                          trust_centralization: 0.50, identity_persistence: 0.90, oi: 0.70, rv: 0.30}},
+      {"parent_stable_variant", %{gsi: 0.80, agency: 0.45, robustness: 0.75, generativity: 0.15,
+                                  trust_centralization: 0.45, identity_persistence: 0.85, oi: 0.65, rv: 0.35}},
+      {"parent_triage", %{gsi: 0.30, agency: 0.40, robustness: 0.20, generativity: 0.60,
+                          trust_centralization: 0.40, identity_persistence: 0.50, oi: 0.60, rv: 0.50}},
+      {"parent_explore", %{gsi: 0.40, agency: 0.70, robustness: 0.50, generativity: 0.70,
+                           trust_centralization: 0.30, identity_persistence: 0.40, oi: 0.80, rv: 0.60}}
+    ]
+
+    records =
+      Enum.map(configs, fn {world_id, config} ->
+        OrbitGenesis.simulate_trajectory_for_config(world_id, config)
+      end)
+
     {:ok, %{records: records}}
   end
 
