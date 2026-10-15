@@ -1,5 +1,7 @@
 defmodule TiannaraOS.MethodEvolutionPipeline do
   require Logger
+  alias TiannaraOS.{EpisodeIndex, InstitutionKernel, ResearchEpisode}
+
   @moduledoc """
   Method Evolution Pipeline - Real episode analysis for Capability 13.2
   
@@ -9,7 +11,7 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
   
   ## Pipeline Steps
   
-  1. Retrieve episodes from EpisodeIndex within time window
+  1. Retrieve institution-indexed episodes (time window reported, not applied)
   2. Cluster episodes by investigation type/domain
   3. Measure performance metrics across evaluation categories
   4. Detect recurring weaknesses through statistical analysis
@@ -24,81 +26,261 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
   @doc """
   Execute complete method evolution analysis pipeline.
   
-  Returns enriched MethodEvolutionResult with real episode analysis data.
+  Retrieves real indexed episodes first, then analyzes only what was
+  actually retrieved. Returns:
+  
+    * `{:ok, result}` - MethodEvolutionResult enriched with the analysis
+    * `{:error, reason}` - no retrievable evidence, institution not running,
+      or invalid input. No result struct is produced in this case, so an
+      empty or unreachable evidence base can never yield confident-looking
+      conclusions.
   """
   def execute_pipeline(result, institution_id, opts) do
     evaluation_categories = opts[:evaluation_categories] || default_categories()
     time_window_months = opts[:time_window_months] || 6
     
-    # Step 1: Retrieve episodes for this institution within time window
-    episodes = retrieve_episodes_for_analysis(institution_id, time_window_months)
-    
-    # Step 2: Cluster episodes by investigation type/domain
-    clustered_episodes = cluster_episodes_by_type(episodes)
-    
-    # Step 3: Measure performance metrics across all categories
-    current_metrics = measure_performance_metrics(episodes, evaluation_categories)
-    
-    # Step 4: Detect recurring weaknesses (statistical analysis)
-    inefficiencies = detect_recurring_weaknesses(episodes, clustered_episodes, evaluation_categories)
-    
-    # Step 5: Generate evidence-based improvement proposals
-    {candidate_improvements, competing_improvements} = generate_improvement_proposals(
-      inefficiencies, episodes, evaluation_categories
-    )
-    
-    # Step 6: Predict impact using historical evidence
-    impact_predictions = predict_impact_from_evidence(candidate_improvements, episodes)
-    
-    # Step 7: Estimate implementation risk
-    risk_assessments = assess_implementation_risks(candidate_improvements, episodes)
-    
-    # Build enriched result with real analysis
-    result = %{result |
-      episodes_analyzed: length(episodes),
-      current_performance_metrics: current_metrics,
-      inefficiencies_detected: inefficiencies,
-      candidate_improvements: candidate_improvements,
-      competing_improvements: competing_improvements,
-      impact_predictions: impact_predictions,
-      risk_assessments: risk_assessments,
-      supporting_episodes: Enum.map(episodes, fn ep -> ep.episode_id end)
-    }
-    
-    # Add evidence summary
-    result = TiannaraOS.MethodEvolutionResult.add_evidence_summary(result, %{
-      total_episodes_analyzed: length(episodes),
-      domains_covered: Map.keys(clustered_episodes),
-      time_window_months: time_window_months,
-      weakness_categories: Enum.map(inefficiencies, fn i -> i[:category] end),
-      improvement_count: length(candidate_improvements),
-      competing_count: length(competing_improvements)
-    })
-    
-    result
+    case retrieve_episodes_for_analysis(institution_id, time_window_months) do
+      {:ok, retrieval} ->
+        episodes = retrieval.episodes
+        
+        # Step 2: Cluster episodes by investigation type/domain
+        clustered_episodes = cluster_episodes_by_type(episodes)
+        
+        # Step 3: Measure performance metrics across all categories
+        current_metrics = measure_performance_metrics(episodes, evaluation_categories)
+        
+        # Step 4: Detect recurring weaknesses (statistical analysis)
+        inefficiencies = detect_recurring_weaknesses(episodes, clustered_episodes, evaluation_categories)
+        
+        # Step 5: Generate evidence-based improvement proposals
+        {candidate_improvements, competing_improvements} = generate_improvement_proposals(
+          inefficiencies, episodes, evaluation_categories
+        )
+        
+        # Step 6: Predict impact using historical evidence
+        impact_predictions = predict_impact_from_evidence(candidate_improvements, episodes)
+        
+        # Step 7: Estimate implementation risk
+        risk_assessments = assess_implementation_risks(candidate_improvements, episodes)
+        
+        # Build enriched result with real analysis over the retrieved episodes
+        result = %{result |
+          episodes_analyzed: length(episodes),
+          current_performance_metrics: current_metrics,
+          inefficiencies_detected: inefficiencies,
+          candidate_improvements: candidate_improvements,
+          competing_improvements: competing_improvements,
+          impact_predictions: impact_predictions,
+          risk_assessments: risk_assessments,
+          supporting_episodes: Enum.map(episodes, fn ep -> ep.episode_id end),
+          evidence_summary: %{
+            total_episodes_analyzed: length(episodes),
+            domains_covered: Map.keys(clustered_episodes),
+            time_window_months: time_window_months,
+            time_window_applied: retrieval.provenance.time_window_applied,
+            time_window_reason: retrieval.provenance.time_window_reason,
+            index_entries: retrieval.provenance.index_entries,
+            exclusions: retrieval.exclusions,
+            weakness_categories: Enum.map(inefficiencies, fn i -> i[:category] end),
+            improvement_count: length(candidate_improvements),
+            competing_count: length(competing_improvements)
+          }
+        }
+        
+        {:ok, result}
+        
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
   
   # ==================== Step 1: Episode Retrieval ====================
   
   @doc """
-  Retrieve episodes for method evolution analysis.
-  Composes EpisodeIndex to get historical investigations.
+  Retrieve real indexed episodes for method evolution analysis.
+  
+  The `EpisodeIndex` held in the institution's `civilizational_memory` is the
+  retrieval authority: only indexed episode references are considered, and each
+  reference is resolved to its full `ResearchEpisode` from the same memory
+  store (there is no `KnowledgeGraph.get_episode/1`; the institution kernel is
+  the sole owner of full episodes).
+  
+  A reference is included only when all of the following hold:
+  
+    * it exists as a valid index entry owned by the requested institution
+    * the full episode record exists in `civilizational_memory.episodes`
+    * the episode record's identity and institution match the reference
+    * the episode status is `:finalized`
+  
+  Everything else is returned in `exclusions` with an explicit reason - stale
+  references, institution mismatches, unfinished episodes, duplicate stored
+  references, and references absent from the index are never silently counted
+  as evidence, and exclusions are reported even when no evidence is returned.
+  
+  ## Returns
+  
+    * `{:ok, %{episodes, exclusions, provenance}}` - at least one valid episode
+    * `{:error, {:no_evidence, %{index_entries, exclusions, provenance}}}` -
+      the index is empty, or no indexed reference resolves to valid evidence
+    * `{:error, :institution_not_running}` - no reachable institution kernel
+    * `{:error, {:invalid_institution_id, id}}` - non-atom identifier
+    * `{:error, {:invalid_memory_state, institution_id}}` - civilizational
+      memory holds a structurally malformed index, episode store, or reference list
+  
+  `time_window_months` is recorded in provenance but NOT applied: episodes are
+  tick-based and the codebase defines no tick-to-calendar conversion. The window
+  is reported as explicitly unapplied rather than approximated.
   """
-  def retrieve_episodes_for_analysis(institution_id, time_window_months) do
-    # In production, this would query EpisodeIndex with filters:
-    # - institution_id match
-    # - timestamp within time_window_months
-    # - status == :finalized (only completed episodes)
+  def retrieve_episodes_for_analysis(institution_id, time_window_months)
+  
+  def retrieve_episodes_for_analysis(institution_id, time_window_months)
+      when is_atom(institution_id) do
+    with {:ok, kernel} <- resolve_kernel(institution_id),
+         {:ok, institution} <- fetch_institution(kernel),
+         {:ok, index, full_episodes, stored_ids} <- read_memory(institution, institution_id) do
+      stored_exclusions = stored_reference_exclusions(stored_ids, index)
+      index_owner_ok = index.institution_id == institution_id
+      
+      indexed_ids =
+        index.entries
+        |> Enum.sort_by(fn {episode_id, entry} ->
+          start_tick = if is_struct(entry, EpisodeIndex.Entry) and is_integer(entry.start_tick),
+            do: entry.start_tick, else: 0
+          {start_tick, episode_id}
+        end)
+        |> Enum.map(fn {episode_id, _entry} -> episode_id end)
+      
+      {episodes, exclusions} =
+        Enum.reduce(indexed_ids, {[], []}, fn episode_id, {episodes_acc, exclusions_acc} ->
+          case resolve_indexed_episode(episode_id, index, full_episodes, institution_id, index_owner_ok) do
+            {:ok, episode} ->
+              {[episode | episodes_acc], exclusions_acc}
+            {:exclude, reason, detail} ->
+              {episodes_acc, [%{episode_id: episode_id, reason: reason, detail: detail} | exclusions_acc]}
+          end
+        end)
+      
+      episodes = Enum.reverse(episodes)
+      exclusions = Enum.reverse(exclusions) ++ stored_exclusions
+      
+      provenance = %{
+        institution_id: institution_id,
+        source: :institution_kernel_civilizational_memory,
+        index_entries: length(indexed_ids),
+        returned: length(episodes),
+        excluded: length(exclusions),
+        time_window_months: time_window_months,
+        time_window_applied: false,
+        time_window_reason: :no_tick_calendar_conversion_defined
+      }
+      
+      cond do
+        indexed_ids == [] ->
+          {:error, {:no_evidence,
+            %{index_entries: 0, exclusions: exclusions, provenance: provenance}}}
+        episodes == [] ->
+          {:error, {:no_evidence,
+            %{index_entries: length(indexed_ids), exclusions: exclusions, provenance: provenance}}}
+        true ->
+          {:ok, %{episodes: episodes, exclusions: exclusions, provenance: provenance}}
+      end
+    end
+  end
+  
+  def retrieve_episodes_for_analysis(institution_id, _time_window_months) do
+    {:error, {:invalid_institution_id, institution_id}}
+  end
+  
+  defp resolve_kernel(institution_id) do
+    case Process.whereis(institution_id) do
+      pid when is_pid(pid) -> {:ok, pid}
+      nil -> resolve_kernel_via_registry(institution_id)
+    end
+  end
+  
+  defp resolve_kernel_via_registry(institution_id) do
+    if Process.whereis(TiannaraOS.KernelRegistry) do
+      case Registry.lookup(TiannaraOS.KernelRegistry, institution_id) do
+        [{pid, _value}] when is_pid(pid) -> {:ok, pid}
+        _ -> {:error, :institution_not_running}
+      end
+    else
+      {:error, :institution_not_running}
+    end
+  end
+  
+  defp fetch_institution(kernel) do
+    try do
+      {:ok, InstitutionKernel.get_institution(kernel)}
+    catch
+      :exit, _ -> {:error, :institution_not_running}
+    end
+  end
+  
+  defp read_memory(institution, institution_id) do
+    memory = institution.civilizational_memory || %{}
+    index = Map.get(memory, :episode_index, EpisodeIndex.new(institution_id))
+    full_episodes = Map.get(memory, :episodes, %{})
+    stored_ids = Map.get(memory, :stored_episodes, [])
     
-    # For now, return empty list (EpisodeIndex is in-memory and needs population)
-    # When EpisodeIndex has data, implementation would be:
-    # EpisodeIndex.get_entries()
-    # |> Enum.filter(fn {_id, entry} -> entry.institution_id == institution_id end)
-    # |> Enum.filter(fn {_id, entry} -> within_time_window?(entry.timestamp, time_window_months) end)
-    # |> Enum.map(fn {episode_id, _entry} -> ResearchEpisode.retrieve(episode_id) end)
+    if is_struct(index, EpisodeIndex) and is_map(full_episodes) and is_list(stored_ids) do
+      {:ok, index, full_episodes, stored_ids}
+    else
+      {:error, {:invalid_memory_state, institution_id}}
+    end
+  end
+  
+  defp stored_reference_exclusions(stored_ids, index) do
+    stored_ids
+    |> Enum.frequencies()
+    |> Enum.sort_by(fn {episode_id, _occurrences} -> episode_id end)
+    |> Enum.flat_map(fn {episode_id, occurrences} ->
+      indexed? = Map.has_key?(index.entries, episode_id)
+      cond do
+        occurrences > 1 and indexed? ->
+          [%{episode_id: episode_id, reason: :duplicate_reference,
+             detail: %{occurrences: occurrences}}]
+        not indexed? ->
+          [%{episode_id: episode_id, reason: :not_indexed,
+             detail: %{occurrences: occurrences}}]
+        true ->
+          []
+      end
+    end)
+  end
+  
+  defp resolve_indexed_episode(episode_id, index, full_episodes, institution_id, index_owner_ok) do
+    entry = Map.get(index.entries, episode_id)
     
-    Logger.info("[MethodEvolutionPipeline] Retrieving episodes for #{inspect(institution_id)} over #{time_window_months} months")
-    []  # Placeholder - would return actual episodes when EpisodeIndex populated
+    cond do
+      not index_owner_ok ->
+        {:exclude, :index_institution_mismatch, index.institution_id}
+      not is_struct(entry, EpisodeIndex.Entry) ->
+        {:exclude, :invalid_index_entry, nil}
+      entry.episode_id != episode_id ->
+        {:exclude, :entry_identity_mismatch, entry.episode_id}
+      true ->
+        resolve_full_episode(episode_id, Map.get(full_episodes, episode_id), institution_id)
+    end
+  end
+  
+  defp resolve_full_episode(_episode_id, nil, _institution_id) do
+    {:exclude, :stale_reference, nil}
+  end
+  
+  defp resolve_full_episode(episode_id, episode, institution_id) do
+    cond do
+      not is_struct(episode, ResearchEpisode) ->
+        {:exclude, :invalid_episode_record, nil}
+      episode.episode_id != episode_id ->
+        {:exclude, :episode_identity_mismatch, episode.episode_id}
+      episode.institution_id != institution_id ->
+        {:exclude, :institution_mismatch, episode.institution_id}
+      episode.status != :finalized ->
+        {:exclude, :status_not_finalized, episode.status}
+      true ->
+        {:ok, episode}
+    end
   end
   
   # ==================== Step 2: Episode Clustering ====================
