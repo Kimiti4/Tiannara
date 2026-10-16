@@ -88,32 +88,50 @@ Surfaces (four — only one is the real path):
 
 | Surface | Entry | Class |
 |---|---|---|
-| `MethodEvolutionPipeline.execute_pipeline/3` | `method_evolution_pipeline.ex:38` | MIXED (the integration target) |
+| `MethodEvolutionPipeline.execute_pipeline/3` | `method_evolution_pipeline.ex:38` | MIXED → GENUINE-over-known-data (Phase B, see below) |
 | `Stage3MethodEvolution.execute_stage_3/3` | `stage3_method_evolution.ex:35` | SIMULATED (synthesizes episodes from CSV stats or hardcoded defaults) |
 | `InstitutionKernel.evaluate_method_evolution/2` | `institution_kernel.ex:647` | SIMULATED (stub retrieval + constant tables) |
 | Runner `execute_stage3/2` | `recursive_civilization_runner.ex:229` | SIMULATED (self-declared; input ignored) |
 
-### What is genuine in `execute_pipeline/3` today
+### Phase B status (implemented)
+
+Every leaf that previously emitted a constant is now either a documented
+derivation over the retrieved episodes or the atom `:insufficient_data`:
+
+| Function | Was | Now |
+|---|---|---|
+| `calculate_avg_replication_rate/1`, `calculate_avg_prediction_accuracy/1`, `calculate_theory_efficiency/1` | constants `0.75/0.68/0.55` | `:insufficient_data` — episodes record no replication, prediction-outcome, or hypothesis-outcome data |
+| `calculate_resource_efficiency/1` | constant `0.72` | mean `value_generated/total_cost` over episodes with cost > 0; `:insufficient_data` when none carry cost data |
+| `calculate_collaboration_index/1` | constant `0.45` | share of episodes with > 1 contributor |
+| `calculate_validation_quality/1` | constant `0.80` | share of episodes with ≥ 1 validation transaction (coverage, not a quality score) |
+| `measure_category_metric/2` | 11 category constants + `0.50` fallback | `:insufficient_data` for every category — episodes carry no per-category performance data |
+| `detect_recurring_weaknesses/3` | thresholded the constants | numeric metrics only; `:insufficient_data` is never coerced or flagged |
+| `count_supporting_episodes/2` | `length(episodes)` (category-blind) | `0` — no per-category episode linkage exists |
+| `generate_improvement_proposals/3` | `confidence: 0.75`; cloned "Alternative approach" competitors | `confidence: :insufficient_data`; competing list always empty (no alternative-approach analysis exists) |
+| `estimate_improvement_potential/1` | `gap * 0.6` forecast | `gap` — documented upper bound, not a forecast |
+| `predict_impact_from_evidence/2` | `evidence_strength: :moderate`, invented ±20% interval, `take(episodes, 5)` ids | both fields `:insufficient_data`; `supporting_episode_ids: []` |
+
+`evidence_summary.insufficient_data_metrics` lists every unknown metric.
+Tests: `test/tiannara/os/method_evolution_analysis_test.exs` (evidence
+sensitivity, explicit unknowns, no fabricated confidence/competitors,
+deterministic replay, fail-closed error propagation).
+
+Remaining gaps (later phases, not blockers for B): the vacuous
+`success_rate` (always 1.0 under retrieval's `:finalized` filter) reflects
+set composition, not outcome quality; generic mitigation templates and
+category→complexity lookup tables are documented heuristics, not
+measurements; the kernel duplicate path and `Stage3MethodEvolution` remain
+SIMULATED surfaces.
+
+### What is still genuine in `execute_pipeline/3` today
 
 - Retrieval threading: Steps 2–7 consume *exactly* the retrieved episodes
   (`method_evolution_pipeline.ex:44-64`); result records
   `supporting_episodes` as real episode ids (`:75`), plus full exclusion
   provenance.
-- `cluster_episodes_by_type/1` (`:291`), `calculate_avg_duration/1` (`:304`),
-  `calculate_success_rate/1` (`:337`, but vacuous — retrieval guarantees
-  `:finalized`, so it is always `1.0`), `calculate_severity/2` (`:389`).
-
-### What is still simulated inside the real path (the Phase B gap)
-
-| Function | line | Evidence |
-|---|---|---|
-| `calculate_avg_replication_rate/1` … `calculate_theory_efficiency/1` | `:343-348` | `defp calculate_avg_replication_rate(_episodes), do: 0.75` — argument discarded |
-| `measure_category_metric/2` | `:350-361` | 11 hardcoded category constants; `_episodes` unused |
-| `count_supporting_episodes/2` | `:399` | `length(episodes)` — category-blind |
-| `generate_improvement_proposals/3` | `:407-427` | `confidence: 0.75` hardcoded (`:413`); "competing improvements" fabricated by prefixing `"Alternative approach: …"` (`:420-423`) |
-| `predict_impact_from_evidence/2` | `:450-467` | `evidence_strength: :moderate  # Would analyze historical similarity` (`:457`); supporting ids = `Enum.take(episodes, 5)` |
-| `detect_recurring_weaknesses/3` | `:369-387` | threshold logic genuine (`:370`) but operates on the constant table ⇒ identical output regardless of evidence |
-| `estimate_improvement_potential/1` | `:429-433` | `gap * 0.6  # Assume can close 60% of gap` — unvalidated constant (UNKNOWN) |
+- `cluster_episodes_by_type/1`, `calculate_avg_duration/1`,
+  `calculate_success_rate/1` (vacuous — retrieval guarantees `:finalized`,
+  so it is always `1.0`), `calculate_severity/2`.
 
 ### Failure modes (contract)
 
@@ -127,11 +145,10 @@ Required, already true for retrieval; must remain true end-to-end:
 5. Deterministic replay: same evidence set ⇒ same analysis output.
 6. Unresolved semantics (time window) stay explicitly unknown in output.
 
-Required for Phase B, not yet true: **analysis values must be functions of the
-evidence.** A metric derived from a constant table is not analysis. Until each
-leaf in the table above is a reduction over `episodes`, Stage 3 output must be
-labeled MIXED at best, and any result whose value would not change when the
-episodes change is fabricated by construction.
+All six now hold for the real path. The remaining Phase B-era requirement —
+"analysis values must be functions of the evidence" — holds for every metric
+that episodes can support; metrics episodes cannot support are labeled
+unknown instead of fabricated.
 
 ---
 
