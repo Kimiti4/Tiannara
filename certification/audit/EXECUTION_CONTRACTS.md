@@ -183,6 +183,13 @@ evidence persistence, and surfaced persistence failure.
 
 ### Fabricated-metric inventory (must be removed or isolated before any wiring)
 
+*Phase C status: all `stage4_institution_adaptation.ex` rows below are now
+isolated behind the explicit `:simulated` evidence mode (never on the
+default `:evidence_backed` path); `institution_adaptation_result.ex` check-5
+row fixed (`:governance_reviewed` no longer required in stage history).
+`institution_adaptation_pipeline.ex` rows remain as documented, unwired
+surfaces.*
+
 | Location | Fabrication |
 |---|---|
 | `stage4_institution_adaptation.ex:383-440` | 20 pilot episodes drawn from `:rand.uniform()` reported as observed `pilot_metrics` |
@@ -198,7 +205,7 @@ Governance gap: `validate_governance/3` guards only `spawn_campaign`
 (`institution_kernel.ex:505`), never adaptation; `record_governance_review/2`
 (`institution_adaptation_result.ex:415`) has zero callers.
 
-### Cross-cutting shape trap (blocks naive integration)
+### Cross-cutting shape trap (PRE-PHASE-C BASELINE — fixed below)
 
 `validate_provenance/1` dot-accesses `proposal.supporting_episodes` and
 `proposal.evidence_quality` (`stage4_institution_adaptation.ex:163, :166`).
@@ -207,6 +214,58 @@ Stage 4's gate today.** Untested (no Stage 4 tests exist), expected outcome:
 `KeyError` for genuine input. Phase C must fix the gate before any genuine
 proposal can flow — and the gate must check *provenance* (real episode
 references resolvable per C1), not a self-asserted `evidence_quality` tag.
+
+### Phase C outcome (implemented)
+
+`execute_stage_4/3` now takes `opts.evidence_mode` ∈
+`[:evidence_backed (default), :simulated]` (invalid mode raises
+`ArgumentError`). Both fabrication vectors above are addressed:
+
+- **Provenance gate fixed.** `validate_provenance/2` in `:evidence_backed`
+  mode accepts only proposals carrying non-empty `supporting_episode_ids`
+  (genuine Phase B shape); the legacy synthetic keys
+  (`supporting_episodes` + `evidence_quality`) are rejected outright.
+  The synthetic gate survives only under explicit `:simulated` opt-in.
+- **No fabricated pilot metrics on the evidence path.** The evidence
+  pipeline performs no RNG: compatibility uses a documented complexity/risk
+  cost heuristic, projections are labeled
+  `projection_method: :upper_bound_decay` (efficiency
+  `:insufficient_data`), and the pilot phase records
+  `pilot_executed: false` with `reason: :no_pilot_execution_capability`.
+  Adoption is impossible without pilot evidence — every compatible proposal
+  is deferred `:awaiting_pilot_evidence`; decision is always `:none_adopted`.
+- **Lifecycle honesty.** `:governance_reviewed` is no longer appended by
+  `add_all_lifecycle_events` (theater removed); the evidence path appends
+  only performed stages (`:proposal_received` via `new/2`, then
+  `:compatibility_analyzed`, `:risk_assessed`, `:projected`,
+  `:decision_recorded`) and is therefore honestly non-compliant with the
+  full-adaptation checklist (fail-closed). The simulated path appends its
+  historical 10-stage list (still without `:governance_reviewed`).
+- **Labeling.** `simulation_results.evidence_source` is `:evidence_backed`
+  on the evidence path and `:simulated` on the opt-in synthetic path (both
+  result shapes; rejection results labeled too). Simulated-mode constants
+  (`get_historical_success_rate` 0.6 default, placeholder baselines) remain
+  but are reachable only under the explicit label.
+- **Compliance fix.** `validate_constitutional_compliance` check 5
+  (`institution_adaptation_result.ex`) no longer requires
+  `:governance_reviewed` in stage history — governance review remains
+  enforced by check 4 whenever `:adopted`/`:rejected` is recorded;
+  pipeline-completeness is not a substitute for a review that never
+  happened. `record_governance_review/2` still has zero callers (unchanged;
+  the governance stack in C5 remains the path for future wiring).
+- **Still unchanged (documented, deliberate):** `InstitutionAdaptationPipeline`
+  constants and no-op `ensure_rollback_capability` (C5-adjacent surfaces,
+  unwired); `Phase13Stabilization.ensure_complete_lifecycle` still
+  fabricates missing stages (including `:governance_reviewed`) — noted as a
+  fail-open point, untouched this phase; `RecursiveCivilizationRunner`
+  untouched (Phase D, gated).
+- **Tests:** `test/tiannara/os/stage4_institution_adaptation_test.exs`
+  (12 tests): synthetic-shape rejected; empty references rejected; genuine
+  proposals deferred never adopted with no fabricated pilot metrics;
+  projection labels; lifecycle honesty; determinism (no RNG); invalid mode
+  raises; simulated-mode opt-in accepts legacy shape, labels `:simulated`,
+  never appends `:governance_reviewed`, and still filters genuine
+  proposals (gate symmetry).
 
 ---
 
@@ -254,6 +313,50 @@ compares adaptation results; it must not manufacture pedigree.
    derived from inputs.
 4. Structural gate (`validate_adaptations/1`) plus provenance gate; both
    fail-closed.
+
+### Phase C outcome (implemented)
+
+All four requirements are implemented:
+
+1. **Evidence-source gate.** `validate_adaptations/1` now requires each
+   input to carry `simulation_results.evidence_source` ∈
+   `[:evidence_backed, :synthetic]`; unlabeled inputs are filtered out
+   (fail-closed) and, with no valid inputs remaining, the pipeline emits
+   `create_empty_result(result, :no_valid_adaptations)` (`status: :failed`,
+   no `evidence_lineage`).
+2. **No pedigree upgrade.** After validation, `build_evidence_lineage/1`
+   records `weakest_input_source` (`:synthetic` if ANY input is synthetic,
+   else `:evidence_backed`) plus the per-input source map on
+   `result.evidence_lineage` (new struct field on
+   `CivilizationAdaptationResult`). Synthetic inputs are accepted for
+   analysis but the output never claims stronger provenance than its
+   weakest input.
+3. **Rollout plan labeled.** `generate_rollout_plan/3` now includes
+   `rollout_plan_source: :simulated` in the plan map.
+4. **Both gates fail-closed** (structural + evidence-source, plus the
+   pre-existing fail-closed empty-input handling).
+
+Also fixed while wiring tests (pre-existing latent crash, never exercised):
+`advance_stage/2` transition machine lacked the `pending → adaptations_collected`
+hop that its own documented chain (`:210-216`) starts from — Stage 5's
+`advance_stage(:validated)` from `new/2`'s `status: :pending` raised
+`ArgumentError` for every labeled input. Added the missing hop and the
+matching `advance_stage(:adaptations_collected)` call in Stage 5.
+`add_lifecycle_event/3` now emits both `:type` and `:stage` keys so
+`validate_constitutional_compliance`'s `e.stage` reads succeed regardless
+of which API appended the event.
+
+**Tests:** `test/tiannara/os/stage5_evidence_lineage_test.exs` (5 tests):
+unlabeled inputs fail closed; empty input list fails closed; evidence-backed
+lineage; mixed inputs mark weakest `:synthetic` (never upgraded); rollout
+plan labeled `:simulated`.
+
+**Still unchanged (documented, deliberate):** the kernel-reachable
+`CivilizationAdaptationPipeline` path (`collect_institution_data` fabricates
+`:rand.uniform()` efficiency gains) remains a SIMULATED surface — it is not
+the `execute_stage_5` surface fixed here, has not been wired, and needs the
+same treatment before any kernel exposure. `RecursiveCivilizationRunner`
+untouched (Phase D, gated).
 
 ---
 
@@ -346,19 +449,32 @@ Open policy question: three lib validator modules
 
 ## Cross-cutting open unknowns (carried forward)
 
-1. Stage 4 ingestion of genuine proposals untested; expected `KeyError` on
-   missing `supporting_episodes` (C3 shape trap) — confirm at Phase C.
-2. Kernel `evaluate_method_evolution` reachable-but-simulated; stub `[]`
-   retrieval violates fail-closed if exposed (C1).
+1. ~~Stage 4 ingestion of genuine proposals untested; expected `KeyError` on
+   missing `supporting_episodes` (C3 shape trap) — confirm at Phase C.~~
+   **RESOLVED at Phase C:** the shape trap is confirmed and fixed —
+   `validate_provenance/2` now branches on `evidence_mode`; genuine
+   proposals flow through the `:evidence_backed` path (deferred, never
+   adopted, no fabricated metrics), legacy synthetic shape flows only
+   under explicit `:simulated`. Covered by
+   `stage4_institution_adaptation_test.exs`.
+2. ~~Kernel `evaluate_method_evolution` reachable-but-simulated; stub `[]`
+   retrieval violates fail-closed if exposed (C1).~~ **RESOLVED at Phase
+   B:** genuine retrieval integration; kernel surface remains SIMULATED
+   (documented, not rewired — Decision 4).
 3. No write-back path exists anywhere: evidence → decision → effect → new
    episode/index entry loop is NOT_IMPLEMENTED in `lib/tiannara/os/`.
 4. Human-grant production wiring and `GovernedEffectSink` consumers unresolved
    (C5) — product confirmation needed, not assumptions.
 5. `run_stage5_civilization_adaptation.exs` demo inputs appear to fail Stage
    5's own structural gate (`constitutional_compliance: true` boolean vs
-   `%{is_compliant: true}`) — by inspection, never executed here.
+   `%{is_compliant: true}`) — by inspection, never executed here. Phase C
+   adds a second gate: demo inputs also lack `simulation_results.evidence_source`,
+   so they now fail closed on provenance as well.
 6. AuditLog degraded mode (`world_mutation_engine.ex:361-366` makes evidence
    gating conditional on `not AuditLog.degraded?`) — not fully traced.
+7. `Phase13Stabilization.ensure_complete_lifecycle` fabricates missing
+   stages (including `:governance_reviewed`) — a fail-open point recorded
+   at Phase C; intentionally untouched (separate remediation).
 
 ## What this document does not certify
 
