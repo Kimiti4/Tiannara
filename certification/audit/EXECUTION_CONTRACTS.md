@@ -472,11 +472,60 @@ regression + 8 new): unauthorized raise, bounds raise, labels file contents
 unwired-stage raise, unknown-key raise, invalid-mode raise, explicit
 :simulated modes accepted.
 
+### Phase D step 2 outcome (implemented)
+
+Stage 3 Method Evolution is now genuinely wired when requested via
+`stage_modes: %{stage3_method_evolution: :evidence_backed}`:
+
+- **Typed contract:** `MethodEvolutionPipeline.execute_pipeline/3` returns
+  `{:ok, %MethodEvolutionResult{}} | {:error, reason}`. Engine errors and
+  output-validation failures raise `ArgumentError` (fail-closed; never a
+  simulated fallback). Output validation requires `MethodEvolutionResult`
+  struct, `episodes_analyzed` matching expected count, non-empty
+  `supporting_episodes`, and map `evidence_summary`.
+- **Input provenance:** per-institution round-robin assignment of the
+  generation's synthetic episodes to `ResearchInstitution`s; each becomes a
+  genuine, finalized `ResearchEpisode` with `metadata.harness_synthetic:
+  true` and deterministic cost/value derivations (not engine outputs).
+  Honest labeling: genuine engine over harness-constructed synthetic
+  inputs, recorded as `stage_provenance["stage3_method_evolution"] =
+  "genuine_engine_over_harness_synthetic_episodes"` in machine-readable
+  state (labels file, attestation rows, checkpoints) — never claimed as
+  field evidence.
+- **Kernel lifecycle:** per-institution `InstitutionKernel` started under
+  namespace atoms `:"stage6_harness_#{institution_id}"` (no collision with
+  real kernels), stopped in an `after` block after each institution run.
+  `{:error, {:already_started, …}}` raises fail-closed (never hijacks an
+  unowned kernel). Tests assert `Process.whereis` is `nil` after runs.
+- **Evidence persistence:** per-generation JSON at
+  `<output_dir>/stage3_evidence/generation_<n>.json` with engine name,
+  institution rows (episode counts, improvement counts, insufficient-data
+  metrics, exclusions), `input_provenance` string, and
+  `certification_claim: "none"`.
+- **Guards:** `:evidence_backed` + `enable_adaptation: false` raises
+  (`ArgumentError`); `:evidence_backed` for stage3 requires a non-empty
+  list of **atom** institution ids (harness kernels register under these
+  names); `:evidence_backed` for any other stage still raises "does not
+  support :evidence_backed yet".
+- **Stages 1-2, 4-5, metrics:** remain simulated (unchanged labels);
+  Stage 4 ignores genuine stage3 results (Phase C verified shape-trap
+  fixed); metrics collection uses only result counts.
+
+Tests: `recursive_civilization_runner_test.exs` — 18 total (9 step-1 +
+9 step-2): unwired-stage raise switched to stage4; genuine run persists
+evidence JSON with `episodes_analyzed`/`supporting_episodes` and no
+`"pass"` string; labels flip to `evidence_backed` with honest provenance;
+attestation carries flipped label + provenance; kernel cleanup after runs;
+`:evidence_backed` + disabled adaptation raises; non-atom institutions
+raise; already-running kernel raises fail-closed; multi-generation runs
+restart kernels cleanly each generation.
+
 Failure semantics: no rescue anywhere — stage errors abort the run
 (fail-closed), except the ignored CSV append (`:197`, fail-open).
 Bounding: `num_generations > 0` only; no timeout/max-steps. Opt-out flag
-`enable_adaptation` (default `true` runs stages 3–5). The single existing
-test runs with adaptation **disabled**, so stages 3–5 have zero coverage.
+`enable_adaptation` (default `true` runs stages 3–5). Stage 3 genuine
+wiring (step 2) has test coverage with adaptation enabled; stages 4–5
+remain simulated with zero genuine-engine coverage.
 
 Phase D rules (per approved plan): replace stages one at a time with typed
 contracts + input/output provenance + output validation + evidence persistence
