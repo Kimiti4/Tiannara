@@ -62,12 +62,6 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
       total_adaptations_analyzed: length(institution_results)
     })
 
-    # Add lifecycle event
-    result = CivilizationAdaptationResult.add_lifecycle_event(result, :adaptations_collected, %{
-      institution_count: length(institution_results),
-      timestamp: DateTime.utc_now()
-    })
-
     # Phase 1: Validate completeness
     Logger.debug("[Stage5] Phase 1: Validating adaptation completeness")
     validated_results = validate_adaptations(institution_results)
@@ -77,7 +71,13 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
       create_empty_result(result, :no_valid_adaptations)
     else
 
+    result = CivilizationAdaptationResult.advance_stage(result, :adaptations_collected)
     result = CivilizationAdaptationResult.advance_stage(result, :validated)
+
+    # Phase 1b: Record evidence lineage of accepted inputs
+    evidence_lineage = build_evidence_lineage(validated_results)
+    result = %{result | evidence_lineage: evidence_lineage}
+    Logger.info("[Stage5] Evidence lineage: weakest input source = #{inspect(evidence_lineage.weakest_input_source)}")
 
     # Phase 2: Group into adaptation families
     Logger.debug("[Stage5] Phase 2: Grouping adaptations into families")
@@ -157,9 +157,47 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
       # Check rollback availability
       has_rollback = result.rollback_available == true
 
+      # Check explicit evidence-source labeling: inputs must declare
+      # whether they are evidence-backed or synthetic. Unlabeled inputs
+      # are rejected - pedigree is never assumed.
+      has_evidence_source = evidence_source_of(result) != nil
+
       # All checks must pass
-      has_lifecycle and is_compliant and has_rollback
+      has_lifecycle and is_compliant and has_rollback and has_evidence_source
     end)
+  end
+
+  defp evidence_source_of(result) do
+    sim = result.simulation_results || %{}
+
+    case sim[:evidence_source] do
+      source when source in [:evidence_backed, :synthetic] -> source
+      _ -> nil
+    end
+  end
+
+  defp build_evidence_lineage(validated_results) do
+    inputs =
+      Enum.map(validated_results, fn r ->
+        %{
+          adaptation_result_id: r.id,
+          institution_id: r.institution_id,
+          evidence_source: evidence_source_of(r)
+        }
+      end)
+
+    weakest =
+      if Enum.any?(inputs, &(&1.evidence_source == :synthetic)) do
+        :synthetic
+      else
+        :evidence_backed
+      end
+
+    %{
+      weakest_input_source: weakest,
+      inputs: inputs,
+      note: "Output pedigree never exceeds the weakest input source; synthetic inputs are never upgraded to evidence of genuine adaptation."
+    }
   end
 
   # ──────────────────────────────────────────────
@@ -485,8 +523,11 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
 
   defp generate_rollout_plan(decision, _transferability, validated_results) do
     # Simplified rollout plan - helper functions have compilation issues
-    # TODO: Fix estimate_* and identify_* helper functions
+    # TODO: Fix estimate_* and identify_* helper functions.
+    # Labeled :simulated: resource and benefit figures are placeholders,
+    # not derived from inputs.
     base_plan = %{
+      rollout_plan_source: :simulated,
       deployment_order: [],
       recommended_institutions: [],
       required_resources: %{credits: 0, researcher_hours: 0, time_months: 0},

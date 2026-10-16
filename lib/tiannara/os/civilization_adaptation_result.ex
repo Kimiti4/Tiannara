@@ -112,6 +112,7 @@ defmodule TiannaraOS.CivilizationAdaptationResult do
     :supporting_episodes,
     :supporting_adaptation_results,
     :prediction_history,
+    :evidence_lineage,
 
     # Resource tracking
     :estimated_resources,
@@ -223,6 +224,7 @@ defmodule TiannaraOS.CivilizationAdaptationResult do
   """
   def advance_stage(result, new_stage) do
     valid_transitions = %{
+      pending: [:adaptations_collected],
       adaptations_collected: [:validated],
       validated: [:families_grouped],
       families_grouped: [:compared],
@@ -385,8 +387,11 @@ defmodule TiannaraOS.CivilizationAdaptationResult do
   CivilizationAdaptationResult.t()
   """
   def add_lifecycle_event(result, event_type, metadata) do
+    # Include both :type and :stage keys: validate_constitutional_compliance/1
+    # reads e.stage while legacy callers pass event types as :type.
     event = %{
       type: event_type,
+      stage: event_type,
       timestamp: DateTime.utc_now(),
       metadata: metadata
     }
