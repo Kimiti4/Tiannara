@@ -619,8 +619,12 @@ defmodule TiannaraOS.InstitutionAdaptationResult do
       violations
     end
 
-    # Check 5: All required stages must be completed
-    required_stages = [:proposal_received, :compatibility_analyzed, :risk_assessed, :simulated, :piloted, :performance_compared, :governance_reviewed]
+    # Check 5: All required pipeline stages must be completed.
+    # :governance_reviewed is intentionally NOT required here: governance
+    # review is enforced separately by check 4 whenever an adoption or
+    # rejection decision is recorded. Requiring the stage in history forced
+    # pipelines to append a review event that never happened.
+    required_stages = [:proposal_received, :compatibility_analyzed, :risk_assessed, :simulated, :piloted, :performance_compared]
     completed_stages = Enum.map(result.stage_history, fn s -> s.stage end)
     missing_stages = Enum.filter(required_stages, fn stage -> stage not in completed_stages end)
 

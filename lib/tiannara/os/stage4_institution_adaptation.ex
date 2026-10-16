@@ -1,74 +1,68 @@
 defmodule TiannaraOS.Stage4InstitutionAdaptation do
   @moduledoc """
   Stage 4 - Institution Adaptation Using Real Episode History
-  
-  Replaces placeholder Institution Adaptation with genuine constitutional execution.
-  
-  Consumes actual MethodEvolutionResults generated from historical ResearchEpisodes.
-  Nothing fabricated. No synthetic metrics. No invented improvement proposals.
-  Everything traces back to canonical ResearchEpisodes.
-  
+
+  Consumes MethodEvolutionResults generated from historical ResearchEpisodes.
+
+  ## Evidence modes
+
+  `execute_stage_4/3` takes `opts.evidence_mode`:
+
+    * `:evidence_backed` (default) - fail-closed path. Only proposals carrying
+      non-empty `supporting_episode_ids` (references to episodes) pass the
+      provenance gate; legacy synthetic keys are rejected. No random or
+      fabricated pilot metrics are ever produced: the pilot phase records
+      `pilot_executed: false` with reason `:no_pilot_execution_capability`,
+      and no proposal can be adopted while pilot evidence is unavailable -
+      every valid proposal is deferred with `:awaiting_pilot_evidence`.
+      Projections are labeled `projection_method: :upper_bound_decay`.
+      Results carry `evidence_source: :evidence_backed` in `simulation_results`.
+
+    * `:simulated` - explicit opt-in to the historical synthetic pipeline
+      (RNG pilot episodes, placeholder baselines). Required for legacy
+      synthetic proposal shapes (`supporting_episodes` + `evidence_quality`).
+      Results carry `evidence_source: :simulated`; synthetic output is never
+      unlabeled.
+
+  Analyzing a proposal is not applying it. This module never mutates
+  institutional state; there is no effect-execution path here.
+
   ## Public API
-  
-      InstitutionKernel.adapt_institution(
-        institution_pid,
-        method_evolution_result,
+
+      Stage4InstitutionAdaptation.execute_stage_4(
+        method_evolution_results,
+        institution_id,
         opts
       )
-      # Returns: InstitutionAdaptationResult
-  
-  ## Execution Pipeline (7 Phases)
-  
-  1. Receive & Validate - Verify proposal provenance
-  2. Compatibility Analysis - Evaluate against domain profile, theories, laws, programs, budget
-  3. Simulation - Predict outcomes without mutation
-  4. Pilot Deployment - Apply to single Program, measure actual performance
-  5. Compare - Historical vs pilot episodes (observed, not estimated)
-  6. Decision - Adopt/Reject/Retry/Modify based on evidence
-  7. Record - Immutable InstitutionAdaptationResult with complete provenance
-  
+
   ## Required Composition (Frozen Primitives Only)
-  
+
   - ResearchEpisode
   - EpisodeIndex
   - MethodEvolutionResult
   - InstitutionAdaptationResult
-  - ProgramRegistry
-  - ResearchDirector
-  - KnowledgeGraph
-  - LifecycleRegistry
-  - ValidationFramework
-  - EconomicLedger
-  
-  ## Validation Scenarios (8 Required)
-  
-  1. Strong improvement → Adopt
-  2. Weak evidence → Reject
-  3. Conflicting proposals → Pilot highest EV
-  4. Budget exhausted → Defer
-  5. Governance review → Process passes
-  6. Pilot failure → Rollback
-  7. Twenty institutions adapt independently → No violations
-  8. Five recursive generations → Measurable improvement
   """
-  
+
   require Logger
   alias TiannaraOS.InstitutionAdaptationResult
-  
+
+  @evidence_modes [:evidence_backed, :simulated]
+
   @doc """
   Execute Stage 4: Institution adaptation using real MethodEvolutionResults.
-  
+
   ## Parameters
-  
+
   - `method_evolution_results`: List of MethodEvolutionResult structs from Stage 3
   - `institution_id`: Target institution for adaptation
   - `opts`: Options map with keys:
+    - `:evidence_mode` - `:evidence_backed` (default) or `:simulated`
     - `:budget` - Available research budget (default: 10000 credits)
     - `:pilot_programs` - Number of programs for pilot (default: 1)
-    - `:simulation_generations` - Generations to simulate (default: 3)
-    
+    - `:simulation_generations` - Generations to simulate/project (default: 3)
+
   ## Returns
-  
+
   Map with adaptation results including:
   - `:adaptation_results` - List of InstitutionAdaptationResult structs
   - `:total_adopted` - Number of improvements adopted
@@ -76,7 +70,16 @@ defmodule TiannaraOS.Stage4InstitutionAdaptation do
   - `:evidence_quality` - Quality metrics for decisions
   """
   def execute_stage_4(method_evolution_results, institution_id \\ :all, opts \\ %{}) do
+    evidence_mode = Map.get(opts, :evidence_mode, :evidence_backed)
+
+    unless evidence_mode in @evidence_modes do
+      raise ArgumentError,
+        message:
+          "evidence_mode must be one of #{inspect(@evidence_modes)}, got: #{inspect(evidence_mode)}"
+    end
+
     Logger.info("[Stage4] ===== Activating Institution Adaptation =====")
+    Logger.info("  Evidence mode: #{inspect(evidence_mode)}")
     Logger.info("  Method evolution results: #{length(method_evolution_results)}")
     Logger.info("  Target institution: #{inspect(institution_id)}")
     
@@ -95,7 +98,7 @@ defmodule TiannaraOS.Stage4InstitutionAdaptation do
     
     # Execute adaptation pipeline for each institution
     {adaptation_results, summary} = run_adaptation_pipeline(
-      target_results, budget, pilot_programs, simulation_generations
+      target_results, budget, pilot_programs, simulation_generations, evidence_mode
     )
     
     Logger.info("[Stage4] Institution adaptation complete:")
@@ -110,23 +113,28 @@ defmodule TiannaraOS.Stage4InstitutionAdaptation do
       total_rejected: summary.total_rejected,
       total_deferred: summary.total_deferred,
       evidence_quality: calculate_evidence_quality(adaptation_results),
+      evidence_mode: evidence_mode,
       summary: summary
     }
   end
   
-  defp run_adaptation_pipeline(method_evolution_results, budget, pilot_programs, sim_gens) do
+  defp run_adaptation_pipeline(method_evolution_results, budget, pilot_programs, sim_gens, evidence_mode) do
     results = Enum.map(method_evolution_results, fn mer ->
       Logger.debug("[Stage4] Processing institution #{inspect(mer.institution_id)}")
       
       # Phase 1: Validate provenance
-      validated_proposals = validate_provenance(mer)
+      validated_proposals = validate_provenance(mer, evidence_mode)
       
       if length(validated_proposals) == 0 do
         Logger.warning("[Stage4] No valid proposals for #{inspect(mer.institution_id)}, skipping")
         nil
       else
-        # Phase 2-7: Execute full adaptation pipeline
-        execute_full_pipeline(mer, validated_proposals, budget, pilot_programs, sim_gens)
+        case evidence_mode do
+          :evidence_backed ->
+            execute_evidence_pipeline(mer, validated_proposals, budget)
+          :simulated ->
+            execute_full_pipeline(mer, validated_proposals, budget, pilot_programs, sim_gens)
+        end
       end
     end)
     |> Enum.filter(& &1)  # Remove nils
@@ -155,22 +163,37 @@ defmodule TiannaraOS.Stage4InstitutionAdaptation do
   # Phase 1: Validate Provenance
   # ──────────────────────────────────────────────
   
-  defp validate_provenance(mer) do
-    # Verify every proposal references genuine Episodes
+  defp validate_provenance(mer, :evidence_backed) do
+    # Evidence mode accepts only proposals carrying explicit episode
+    # references (supporting_episode_ids). Legacy synthetic keys
+    # (supporting_episodes + self-asserted evidence_quality) are rejected.
     mer.candidate_improvements
     |> Enum.filter(fn proposal ->
-      # Check that supporting_episodes exist and are non-empty
-      has_episodes = !is_nil(proposal.supporting_episodes) and length(proposal.supporting_episodes) > 0
-      
-      # Check evidence quality
-      has_evidence_quality = proposal.evidence_quality in [:strong, :moderate]
-      
-      # All validation must pass
+      case Map.get(proposal, :supporting_episode_ids) do
+        ids when is_list(ids) and ids != [] -> true
+        _ -> false
+      end
+    end)
+    |> Enum.map(fn proposal ->
+      Map.put(proposal, :provenance_validated, true)
+      |> Map.put(:evidence_source, :evidence_backed)
+      |> Map.put(:validation_timestamp, DateTime.utc_now())
+    end)
+  end
+  
+  defp validate_provenance(mer, :simulated) do
+    # Legacy synthetic gate: structural tags only. Reachable exclusively
+    # under the explicit :simulated opt-in.
+    mer.candidate_improvements
+    |> Enum.filter(fn proposal ->
+      has_episodes = !is_nil(Map.get(proposal, :supporting_episodes)) and
+        length(proposal.supporting_episodes) > 0
+      has_evidence_quality = Map.get(proposal, :evidence_quality) in [:strong, :moderate]
       has_episodes and has_evidence_quality
     end)
     |> Enum.map(fn proposal ->
-      # Add validation metadata
       Map.put(proposal, :provenance_validated, true)
+      |> Map.put(:evidence_source, :simulated)
       |> Map.put(:validation_timestamp, DateTime.utc_now())
     end)
   end
@@ -179,6 +202,197 @@ defmodule TiannaraOS.Stage4InstitutionAdaptation do
   # Phase 2: Compatibility Analysis
   # ──────────────────────────────────────────────
   
+  # ──────────────────────────────────────────────
+  # Evidence-backed pipeline (fail-closed, no fabrication)
+  # ──────────────────────────────────────────────
+
+  defp execute_evidence_pipeline(mer, proposals, budget) do
+    Logger.debug("[Stage4] Evidence mode: evaluating #{length(proposals)} proposal(s)")
+
+    evaluated =
+      Enum.map(proposals, fn proposal ->
+        compatibility = evidence_compatibility(proposal, budget)
+        projection = project_evidence_impact(proposal, mer)
+        pilot = %{pilot_executed: false, reason: :no_pilot_execution_capability}
+        decision = evidence_decision(compatibility, projection)
+
+        {proposal, compatibility, projection, pilot, decision}
+      end)
+
+    create_evidence_result(mer, evaluated)
+  end
+
+  defp evidence_compatibility(proposal, budget) do
+    implementation_cost = estimate_evidence_cost(proposal)
+    budget_feasible = implementation_cost <= budget * 0.3
+
+    risk_level = Map.get(proposal, :risk_level)
+
+    %{
+      compatible: budget_feasible and risk_level in [:low, :medium, :high],
+      budget_feasible: budget_feasible,
+      risk_acceptable: risk_level in [:low, :medium, :high],
+      implementation_cost: implementation_cost,
+      confidence: evidence_confidence(proposal)
+    }
+  end
+
+  defp estimate_evidence_cost(proposal) do
+    # Documented heuristic: implementation_complexity lookup (not a
+    # measurement). Genuine proposals carry complexity, not priority.
+    base_cost =
+      case Map.get(proposal, :implementation_complexity) do
+        :high -> 1000
+        :medium -> 750
+        :low -> 500
+        _ -> 500
+      end
+
+    risk_multiplier =
+      case Map.get(proposal, :risk_level) do
+        :high -> 1.5
+        :medium -> 1.2
+        :low -> 1.0
+        _ -> 1.0
+      end
+
+    round(base_cost * risk_multiplier)
+  end
+
+  defp evidence_confidence(proposal) do
+    # Heuristic from reference count only; no quality tag is trusted.
+    case Map.get(proposal, :supporting_episode_ids) do
+      ids when is_list(ids) -> Float.round(min(length(ids) / 10, 1.0), 3)
+      _ -> 0.0
+    end
+  end
+
+  defp project_evidence_impact(proposal, _mer) do
+    expected_impact = Map.get(proposal, :expected_impact)
+
+    per_generation =
+      if is_number(expected_impact) do
+        Enum.map(1..3, fn gen ->
+          %{
+            generation: gen,
+            projected_success_upper_bound: Float.round(expected_impact / gen, 3),
+            projected_efficiency_gain: :insufficient_data
+          }
+        end)
+      else
+        []
+      end
+
+    %{
+      projection_method: :upper_bound_decay,
+      generations_projected: length(per_generation),
+      projected_success_upper_bound:
+        (if is_number(expected_impact),
+           do: Float.round(expected_impact, 3),
+           else: :insufficient_data),
+      projected_efficiency_gain: :insufficient_data,
+      per_generation_projections: per_generation
+    }
+  end
+
+  defp evidence_decision(compatibility, _projection) do
+    # Adoption is impossible without pilot evidence: honest deferral.
+    if compatibility.compatible do
+      %{decision: :deferred, reason: :awaiting_pilot_evidence}
+    else
+      %{decision: :rejected, reason: :incompatible_proposal}
+    end
+  end
+
+  defp create_evidence_result(mer, evaluated) do
+    institution_id = mer.institution_id
+
+    deferred = Enum.filter(evaluated, fn {_, _, _, _, d} -> d.decision == :deferred end)
+    rejected = Enum.filter(evaluated, fn {_, _, _, _, d} -> d.decision == :rejected end)
+
+    result = InstitutionAdaptationResult.new(institution_id, %{
+      method_evolution_result_id: mer.id,
+      evaluation_timestamp: DateTime.utc_now()
+    })
+
+    # Append only the stages this mode actually performed; no :simulated,
+    # :piloted, :performance_compared, or :governance_reviewed claims.
+    # :proposal_received was already recorded by InstitutionAdaptationResult.new/2.
+    result =
+      Enum.reduce(
+        [:compatibility_analyzed, :risk_assessed, :projected, :decision_recorded],
+        result,
+        fn stage, acc ->
+          TiannaraOS.Phase13Stabilization.advance_lifecycle(acc, stage, %{
+            institution: institution_id,
+            evidence_mode: :evidence_backed,
+            proposals_count: length(evaluated)
+          })
+        end
+      )
+
+    detail = %{
+      evidence_source: :evidence_backed,
+      pilot_executed: false,
+      pilot_refusal_reason: :no_pilot_execution_capability,
+      adopted_proposals: [],
+      rejected_proposals:
+        Enum.map(rejected, fn {prop, _, _, _, decision} ->
+          %{
+            proposal_id: evidence_proposal_id(prop),
+            category: Map.get(prop, :category),
+            rejection_reason: decision.reason
+          }
+        end),
+      deferred_proposals:
+        Enum.map(deferred, fn {prop, compat, projection, _pilot, decision} ->
+          %{
+            proposal_id: evidence_proposal_id(prop),
+            category: Map.get(prop, :category),
+            deferral_reason: decision.reason,
+            compatibility: compat,
+            projection: projection,
+            supporting_episode_ids: Map.get(prop, :supporting_episode_ids, [])
+          }
+        end),
+      deferred_proposal_ids: Enum.map(deferred, fn {prop, _, _, _, _} -> evidence_proposal_id(prop) end),
+      total_proposals_evaluated: length(evaluated),
+      adoption_ratio: 0.0
+    }
+
+    result = %{result | adoption_decision: :none_adopted, simulation_results: detail}
+
+    result = InstitutionAdaptationResult.add_semantic_event(result, :adaptation_evaluated, %{
+      institution_id: institution_id,
+      evidence_mode: :evidence_backed,
+      deferred_count: length(deferred),
+      rejected_count: length(rejected)
+    })
+
+    {result_with_compliance, violations} =
+      InstitutionAdaptationResult.validate_constitutional_compliance(result)
+
+    if length(violations) > 0 do
+      Logger.info(
+        "[Stage4] Evidence-mode result is not a completed adaptation (expected): #{inspect(Enum.map(violations, & &1.rule))}"
+      )
+    end
+
+    result_with_compliance
+  end
+
+  defp evidence_proposal_id(proposal) do
+    case Map.get(proposal, :improvement_id) do
+      nil ->
+        "proposal_#{Map.get(proposal, :category)}_#{:erlang.phash2({Map.get(proposal, :description), Map.get(proposal, :expected_impact)})}"
+      id -> id
+    end
+  end
+
+  # ──────────────────────────────────────────────
+  # Simulated pipeline (explicit :simulated opt-in only)
+  # ──────────────────────────────────────────────
+
   defp execute_full_pipeline(mer, proposals, budget, pilot_count, sim_gens) do
     _institution_id = mer.institution_id
     
@@ -605,6 +819,7 @@ defmodule TiannaraOS.Stage4InstitutionAdaptation do
     adoption_ratio_val = if length(decisions) > 0, do: Float.round(length(adopted) / length(decisions), 3), else: 0.0
     
     detailed_analysis = %{
+      evidence_source: :simulated,
       adopted_proposals: adopted_props,
       rejected_proposals: rejected_props,
       deferred_proposal_ids: Enum.map(deferred, fn {prop, _, _, _, _, _, _, _} -> prop.improvement_id end),
@@ -658,8 +873,9 @@ defmodule TiannaraOS.Stage4InstitutionAdaptation do
       result |
       adoption_decision: :rejected,
       simulation_results: %{
+        evidence_source: :simulated,
         rejected_proposals: Enum.map(proposals, fn prop ->
-          %{proposal_id: prop.improvement_id, rejection_reason: reason}
+          %{proposal_id: Map.get(prop, :improvement_id), rejection_reason: reason}
         end),
         total_proposals_evaluated: length(proposals)
       }
@@ -668,7 +884,9 @@ defmodule TiannaraOS.Stage4InstitutionAdaptation do
   
   defp add_all_lifecycle_events(result, institution_id, decisions) do
     # Use unified Phase13Stabilization.advance_lifecycle API
-    # This ensures stages are added to stage_history (not lifecycle_events)
+    # This ensures stages are added to stage_history (not lifecycle_events).
+    # :governance_reviewed is intentionally absent: no governance review
+    # occurs in this module, and claiming the stage would be theater.
     
     stages = [
       :proposal_received,
@@ -677,7 +895,6 @@ defmodule TiannaraOS.Stage4InstitutionAdaptation do
       :simulated,
       :piloted,
       :performance_compared,
-      :governance_reviewed,
       :decision_recorded,
       :rollback_generated,
       :constitutional_validation_completed,
