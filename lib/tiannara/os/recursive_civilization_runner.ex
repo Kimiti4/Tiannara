@@ -9,12 +9,14 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
   ## Evidence Boundary
 
-  This runner is a simulation harness, not a certification runner. Stage 1-2
-  outputs and Stage 3-5 results are simulated. The real Stage 3-5 engines are not
-  invoked here. Do not use harness output as evidence of production behavior or
+  This runner is a simulation harness, not a certification runner. By default
+  Stage 1-2 outputs and Stage 3-5 results are simulated. Under Phase D staged
+  wiring, stages 3 and 4 can execute their genuine engines when requested via
+  `stage_modes` (see below); stages 1-2, 5, and metrics remain simulated.
+  Do not use harness output as evidence of production behavior or
   empirical self-improvement.
 
-  ## Phase D: machine-readable stage evidence labels (steps 1-2)
+  ## Phase D: machine-readable stage evidence labels (steps 1-3)
 
   Every run carries a `stage_evidence_labels` map assigning each pipeline
   component an evidence label from the vocabulary `:simulated` or
@@ -23,19 +25,31 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
   genuine engine is wired through `opts.stage_modes` (each swap is staged,
   typed, validated, and independently tested).
 
-  Wired so far (step 2): `stage3_method_evolution`. When set to
-  `:evidence_backed`, the runner constructs provenance-tagged synthetic
-  `ResearchEpisode` records (metadata `harness_synthetic: true`), indexes them
-  into an `EpisodeIndex`, starts a real `InstitutionKernel` owning that memory,
-  and executes the genuine `MethodEvolutionPipeline.execute_pipeline/3`.
-  Output struct validation runs before any result is accepted; engine or
-  validation errors abort the run fail-closed (no simulated fallback); the
-  kernel is always stopped before the generation ends; and per-generation
-  evidence is persisted to `<output_dir>/stage3_evidence/`. A companion
-  `stage_provenance` map records, per stage, what each label means
-  operationally — for step 2: `genuine_engine_over_harness_synthetic_episodes`
-  (the engine is real, the inputs are harness-constructed and tagged as such,
-  never field evidence).
+  Wired so far:
+    - **step 2** `stage3_method_evolution`: the runner constructs
+      provenance-tagged synthetic `ResearchEpisode` records (metadata
+      `harness_synthetic: true`), indexes them into an `EpisodeIndex`, starts
+      a real `InstitutionKernel` owning that memory, and executes the genuine
+      `MethodEvolutionPipeline.execute_pipeline/3`. Output struct validation
+      runs before any result is accepted; engine or validation errors abort
+      the run fail-closed (no simulated fallback); the kernel is always
+      stopped before the generation ends; per-generation evidence persisted
+      to `<output_dir>/stage3_evidence/`. Provenance:
+      `genuine_engine_over_harness_synthetic_episodes`.
+    - **step 3** `stage4_institution_adaptation`: the runner feeds Stage 3
+      `MethodEvolutionResult` structs (with `supporting_episode_ids`
+      backfilled from each result's `supporting_episodes` — honest
+      derivation) into the genuine `Stage4InstitutionAdaptation.execute_stage_4/3`
+      (pure functions, no GenServer). Evidence mode defers every compatible
+      proposal with `:awaiting_pilot_evidence` (fail-closed; never fabricates
+      adoptions). Per-generation evidence persisted to
+      `<output_dir>/stage4_evidence/`. Provenance:
+      `genuine_engine_over_stage3_method_evolution_outputs`. Stage 4
+      `:evidence_backed` requires stage 3 `:evidence_backed` as well (the
+      genuine engine consumes real Stage 3 structs, never fabricated maps).
+
+  A companion `stage_provenance` map records, per stage, what each label means
+  operationally.
 
   Labels are persisted machine-readably in:
     - `<output_dir>/stage_evidence_labels.json` (run-level, written at start)
@@ -78,7 +92,8 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     MethodEvolutionPipeline,
     MethodEvolutionResult,
     ResearchEpisode,
-    ResearchInstitution
+    ResearchInstitution,
+    Stage4InstitutionAdaptation
   }
 
 
@@ -93,10 +108,12 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     - `stage_modes`: Per-stage evidence mode map, e.g.
       `%{stage3_method_evolution: :simulated}`. `:simulated` is supported for
       every stage; `:evidence_backed` is supported only for stages whose
-      genuine engine is wired (Phase D step 2: `stage3_method_evolution`) and
-      raises for every other stage. A `:evidence_backed` stage that would not
-      execute (adaptation disabled, empty institution list) also raises — the
-      runner never records a label for work that did not run.
+      genuine engine is wired (Phase D steps 2-3: `stage3_method_evolution`,
+      `stage4_institution_adaptation`) and raises for every other stage.
+      Stage 4 `:evidence_backed` additionally requires stage 3
+      `:evidence_backed`. A `:evidence_backed` stage that would not execute
+      (adaptation disabled) also raises — the runner never records a label
+      for work that did not run.
     - `output_dir`: Directory for CSV exports (default: "data/stage6")
     - `episodes_per_generation`: Episodes to generate per generation (default: 200, must be > 0)
     - `institutions`: List of institution IDs (default: 20 institutions)
@@ -167,6 +184,19 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
               "list of atom institution ids (harness kernels register under these names); " <>
               "got: #{inspect(institutions)}"
       end
+    end
+
+    # Phase D step 3: stage4's genuine engine consumes Stage 3
+    # MethodEvolutionResult structs; requesting :evidence_backed for stage4
+    # while stage3 is :simulated would feed fabricated maps to a real engine.
+    if :stage4_institution_adaptation in evidence_backed and
+         :stage3_method_evolution not in evidence_backed do
+      raise ArgumentError,
+        message:
+          "stage_modes.stage4_institution_adaptation: :evidence_backed requires " <>
+            "stage_modes.stage3_method_evolution: :evidence_backed as well — the " <>
+            "genuine Stage 4 engine consumes MethodEvolutionResult structs produced " <>
+            "by the genuine Stage 3 engine (Phase D: no fabricated inputs to real engines)."
     end
 
     # Ensure output directory exists
@@ -258,9 +288,17 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
   # Wired genuine engines per stage. Phase D step 2 wired stage 3: the genuine
   # MethodEvolutionPipeline executes per institution over provenance-tagged
   # synthetic ResearchEpisode records (inputs are harness-constructed, never
-  # field evidence — see stage_provenance). Requesting :evidence_backed for a
-  # stage absent from this set raises (never pretend).
-  @wired_evidence_backed_stages MapSet.new([:stage3_method_evolution])
+  # field evidence — see stage_provenance). Phase D step 3 wired stage 4: the
+  # genuine Stage4InstitutionAdaptation engine consumes Stage 3's
+  # MethodEvolutionResult structs (pure functions, no kernel required);
+  # evidence-backed mode defers every compatible proposal with
+  # :awaiting_pilot_evidence (fail-closed, never fabricates adoptions).
+  # Requesting :evidence_backed for a stage absent from this set raises
+  # (never pretend).
+  @wired_evidence_backed_stages MapSet.new([
+    :stage3_method_evolution,
+    :stage4_institution_adaptation
+  ])
 
   defp validate_stage_modes(stage_modes) when is_map(stage_modes) do
     Enum.each(stage_modes, fn {stage, mode} ->
@@ -307,12 +345,18 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
   # :evidence_backed for stage3 => the genuine MethodEvolutionPipeline engine
   # executed, but over harness-constructed (synthetic, provenance-tagged)
   # ResearchEpisode inputs — never observed field evidence.
+  # :evidence_backed for stage4 => the genuine Stage4InstitutionAdaptation
+  # engine executed over Stage 3 MethodEvolutionResult structs; evidence mode
+  # defers every compatible proposal (no fabricated adoptions).
   defp build_stage_provenance(stage_modes) do
     Map.new(@stage_mode_keys, fn stage ->
       provenance =
         case {stage, Map.fetch!(stage_modes, stage)} do
           {:stage3_method_evolution, :evidence_backed} ->
             "genuine_engine_over_harness_synthetic_episodes"
+
+          {:stage4_institution_adaptation, :evidence_backed} ->
+            "genuine_engine_over_stage3_method_evolution_outputs"
 
           {_stage, :evidence_backed} ->
             "genuine_engine"
@@ -395,9 +439,22 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
       IO.puts("  ✓ Produced #{length(stage3)} MethodEvolutionResults")
 
-      # Execute Stage 4: Institution Adaptation
-      IO.puts("\n🏛️  SIMULATING Stage 4: Institution Adaptation (real engine not called)...")
-      stage4 = execute_stage4(stage3, config.institutions, gen_num)
+      # Execute Stage 4: Institution Adaptation (mode from stage_modes; Phase D
+      # step 3 wires :evidence_backed to the genuine Stage4InstitutionAdaptation
+      # engine — pure functions over Stage 3 MethodEvolutionResult structs)
+      stage4_mode = adapted_state.stage_modes.stage4_institution_adaptation
+
+      stage4 = case stage4_mode do
+        :evidence_backed ->
+          IO.puts("\n🏛️  EXECUTING Stage 4: Institution Adaptation (genuine " <>
+                    "Stage4InstitutionAdaptation over Stage 3 results)...")
+          execute_stage4_evidence_backed(stage3, gen_num, config)
+
+        :simulated ->
+          IO.puts("\n🏛️  SIMULATING Stage 4: Institution Adaptation (real engine not called)...")
+          execute_stage4(stage3, config.institutions, gen_num)
+      end
+
       IO.puts("  ✓ Produced #{length(stage4)} InstitutionAdaptationResults")
 
       # Execute Stage 5: Civilization Adaptation
@@ -538,17 +595,10 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
             {:ok, result} ->
               validate_stage3_output!(result, harness_id, length(research_episodes))
 
-              %{
-                institution_id: institution_id,
-                harness_institution_id: harness_id,
-                result_id: result.id,
-                episodes_analyzed: result.episodes_analyzed,
-                candidate_improvements: length(result.candidate_improvements || []),
-                supporting_episodes: length(result.supporting_episodes || []),
-                insufficient_data_metrics:
-                  (result.evidence_summary || %{})[:insufficient_data_metrics] || [],
-                exclusions: (result.evidence_summary || %{})[:exclusions] || []
-              }
+              # Tag the genuine struct with the original institution_id (the
+              # engine ran under harness_id) so downstream harness consumers
+              # and Stage 4 see a consistent institution mapping.
+              %{result | institution_id: institution_id}
 
             {:error, reason} ->
               raise ArgumentError,
@@ -669,6 +719,19 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     evidence_dir = Path.join(config.output_dir, "stage3_evidence")
     File.mkdir_p!(evidence_dir)
 
+    institution_rows =
+      Enum.map(results, fn %MethodEvolutionResult{} = r ->
+        %{
+          institution_id: r.institution_id,
+          result_id: r.id,
+          episodes_analyzed: r.episodes_analyzed,
+          candidate_improvements: length(r.candidate_improvements || []),
+          supporting_episodes: length(r.supporting_episodes || []),
+          insufficient_data_metrics: (r.evidence_summary || %{})[:insufficient_data_metrics] || [],
+          exclusions: (r.evidence_summary || %{})[:exclusions] || []
+        }
+      end)
+
     payload = %{
       generation: gen_num,
       stage: "stage3_method_evolution",
@@ -677,7 +740,97 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       engine: "TiannaraOS.MethodEvolutionPipeline.execute_pipeline/3",
       input_provenance:
         "harness_synthetic_research_episodes (metadata.harness_synthetic=true; not field evidence)",
-      institutions: results,
+      institutions: institution_rows,
+      certification_claim: "none"
+    }
+
+    File.write!(
+      Path.join(evidence_dir, "generation_#{gen_num}.json"),
+      Jason.encode!(payload, pretty: true)
+    )
+  end
+
+  # ──────────────────────────────────────────────
+  # Phase D step 3: genuine Stage 4 wiring
+  #
+  # Executes the genuine Stage4InstitutionAdaptation engine over Stage 3
+  # MethodEvolutionResult structs (pure functions, no GenServer). Inputs are
+  # the genuine Stage 3 outputs; proposals are backfilled with
+  # supporting_episode_ids from each result's supporting_episodes (honest
+  # derivation — the engine requires them for evidence-backed validation).
+  # Evidence mode defers every compatible proposal with
+  # :awaiting_pilot_evidence (fail-closed; never fabricates adoptions).
+  # Results are converted to plain maps for downstream harness compatibility
+  # while preserving the genuine engine's vocabulary (:adopted/:none_adopted,
+  # not the harness's :adopt). Per-generation evidence persisted to
+  # <output_dir>/stage4_evidence/generation_<n>.json.
+  # ──────────────────────────────────────────────
+
+  defp execute_stage4_evidence_backed(stage3_results, gen_num, config) do
+    mers = Enum.map(stage3_results, &backfill_supporting_episode_ids/1)
+
+    out =
+      Stage4InstitutionAdaptation.execute_stage_4(mers, :all, %{
+        evidence_mode: :evidence_backed,
+        budget: 10_000,
+        pilot_programs: 1,
+        simulation_generations: 3
+      })
+
+    adaptation_results =
+      Map.get(out, :adaptation_results, [])
+      |> Enum.map(&Map.from_struct/1)
+
+    persist_stage4_evidence(gen_num, out, adaptation_results, config)
+    adaptation_results
+  end
+
+  # Genuine Stage 3 proposals carry supporting_episode_count but not
+  # supporting_episode_ids (the pipeline omits them). Backfill from the
+  # result's supporting_episodes — honest derivation from the same genuine
+  # run's evidence linkage, never invented.
+  defp backfill_supporting_episode_ids(%MethodEvolutionResult{} = mer) do
+    ids = mer.supporting_episodes || []
+
+    proposals =
+      Enum.map(mer.candidate_improvements || [], fn proposal ->
+        Map.put_new(proposal, :supporting_episode_ids, ids)
+      end)
+
+    %{mer | candidate_improvements: proposals}
+  end
+
+  defp backfill_supporting_episode_ids(other), do: other
+
+  defp persist_stage4_evidence(gen_num, out, adaptation_results, config) do
+    evidence_dir = Path.join(config.output_dir, "stage4_evidence")
+    File.mkdir_p!(evidence_dir)
+
+    deferral_reasons =
+      Enum.flat_map(adaptation_results, fn r ->
+        (r.simulation_results || %{})
+        |> Map.get(:deferred_proposals, [])
+        |> Enum.map(&Map.get(&1, :deferral_reason))
+      end)
+
+    payload = %{
+      generation: gen_num,
+      stage: "stage4_institution_adaptation",
+      stage_mode: "evidence_backed",
+      stage_provenance: Map.get(config.stage_provenance || %{}, :stage4_institution_adaptation),
+      engine: "TiannaraOS.Stage4InstitutionAdaptation.execute_stage_4/3",
+      input_provenance: "genuine_stage3_method_evolution_outputs (MethodEvolutionResult structs)",
+      evidence_mode: Map.get(out, :evidence_mode),
+      total_adopted: Map.get(out, :total_adopted, 0),
+      total_rejected: Map.get(out, :total_rejected, 0),
+      total_deferred: Map.get(out, :total_deferred, 0),
+      adaptation_results_count: length(adaptation_results),
+      deferral_reasons: deferral_reasons,
+      note:
+        "Genuine engine executed in :evidence_backed mode — every compatible " <>
+          "proposal is deferred with :awaiting_pilot_evidence; no adoptions " <>
+          "are fabricated. Adoption requires pilot evidence this harness does " <>
+          "not produce.",
       certification_claim: "none"
     }
 
