@@ -4,13 +4,13 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
 
   @moduledoc """
   Method Evolution Pipeline - Real episode analysis for Capability 13.2
-  
+
   Composes frozen constitutional primitives (EpisodeIndex, ResearchEpisode) to perform
   evidence-based method evolution analysis. No fabricated recommendations - all proposals
   must reference supporting episodes.
-  
+
   ## Pipeline Steps
-  
+
   1. Retrieve institution-indexed episodes (time window reported, not applied)
   2. Cluster episodes by investigation type/domain
   3. Measure performance metrics across evaluation categories
@@ -18,9 +18,19 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
   5. Generate evidence-based improvement proposals
   6. Predict impact using historical evidence
   7. Estimate implementation risk
-  
+
   All intermediate reasoning remains internal. Only the final MethodEvolutionResult
   canonical transaction is exposed.
+
+  ## Metric semantics
+
+  Every performance metric is either a documented derivation over the retrieved
+  episodes or the atom `:insufficient_data`. `:insufficient_data` means the
+  `ResearchEpisode` record carries no field from which the metric could be
+  honestly computed; it is never replaced by a constant, an estimate, or a
+  fabricated sample. Metrics marked `:insufficient_data` are listed in the
+  result's `evidence_summary.insufficient_data_metrics` and are never
+  thresholded by weakness detection.
   """
   
   @doc """
@@ -83,7 +93,8 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
             exclusions: retrieval.exclusions,
             weakness_categories: Enum.map(inefficiencies, fn i -> i[:category] end),
             improvement_count: length(candidate_improvements),
-            competing_count: length(competing_improvements)
+            competing_count: length(competing_improvements),
+            insufficient_data_metrics: insufficient_data_metrics(current_metrics)
           }
         }
         
@@ -314,7 +325,32 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
   
   @doc """
   Measure performance metrics across evaluation categories.
-  Analyzes episode outcomes, transaction counts, and efficiency indicators.
+
+  Every value is a documented derivation over the retrieved episodes or the
+  atom `:insufficient_data`:
+
+    * `total_episodes` - size of the analyzed evidence set
+    * `success_rate` - share of episodes with `:finalized` status (retrieval
+      already guarantees this, so the value reflects set composition, not
+      outcome quality)
+    * `avg_replication_rate` - `:insufficient_data`; `ResearchEpisode`
+      records no replication transactions
+    * `avg_prediction_accuracy` - `:insufficient_data`; no prediction-vs-
+      outcome records exist on episodes
+    * `resource_efficiency` - mean `value_generated / total_cost` over
+      episodes with recorded cost > 0; `:insufficient_data` when no episode
+      carries cost data
+    * `collaboration_index` - share of episodes with more than one
+      contributor
+    * `validation_quality` - share of episodes carrying at least one
+      validation transaction (evidence coverage, not a quality score)
+    * `theory_formation_efficiency` - `:insufficient_data`; no hypothesis-
+      to-outcome linkage is recorded on episodes
+    * category metrics - `:insufficient_data`; episodes carry no per-category
+      performance data, so no category score can be honestly computed
+
+  An empty episode set never produces numeric shares - each share metric
+  becomes `:insufficient_data` rather than `0.0`.
   """
   def measure_performance_metrics(episodes, categories) do
     base_metrics = %{
@@ -340,51 +376,97 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
     successful / length(episodes)
   end
   
-  defp calculate_avg_replication_rate(_episodes), do: 0.75  # Would analyze replication transactions
-  defp calculate_avg_prediction_accuracy(_episodes), do: 0.68  # Would analyze prediction vs outcome
-  defp calculate_resource_efficiency(_episodes), do: 0.72  # Would analyze cost vs value
-  defp calculate_collaboration_index(_episodes), do: 0.45  # Would analyze contributor counts
-  defp calculate_validation_quality(_episodes), do: 0.80  # Would analyze validation quality scores
-  defp calculate_theory_efficiency(_episodes), do: 0.55  # Would analyze hypothesis-to-theory rate
+  defp calculate_avg_replication_rate(_episodes), do: :insufficient_data
+  defp calculate_avg_prediction_accuracy(_episodes), do: :insufficient_data
+  defp calculate_theory_efficiency(_episodes), do: :insufficient_data
   
-  defp measure_category_metric(_episodes, :experiment_design), do: 0.70
-  defp measure_category_metric(_episodes, :evidence_gathering), do: 0.75
-  defp measure_category_metric(_episodes, :replication_workflow), do: 0.65
-  defp measure_category_metric(_episodes, :publication_quality), do: 0.80
-  defp measure_category_metric(_episodes, :collaboration_efficiency), do: 0.45
-  defp measure_category_metric(_episodes, :validation_strategy), do: 0.78
-  defp measure_category_metric(_episodes, :resource_allocation), do: 0.72
-  defp measure_category_metric(_episodes, :theory_formation), do: 0.55
-  defp measure_category_metric(_episodes, :planning_quality), do: 0.68
-  defp measure_category_metric(_episodes, :reasoning_strategy), do: 0.73
-  defp measure_category_metric(_episodes, :uncertainty_management), do: 0.62
-  defp measure_category_metric(_episodes, _other), do: 0.50
+  defp calculate_resource_efficiency(episodes) do
+    costed =
+      Enum.filter(episodes, fn ep ->
+        is_number(ep.total_cost) and ep.total_cost > 0
+      end)
+    
+    case costed do
+      [] ->
+        :insufficient_data
+      
+      _ ->
+        ratios =
+          Enum.map(costed, fn ep ->
+            (ep.value_generated || 0.0) / ep.total_cost
+          end)
+        
+        Float.round(Enum.sum(ratios) / length(ratios), 4)
+    end
+  end
+  
+  defp calculate_collaboration_index(episodes) do
+    case length(episodes) do
+      0 ->
+        :insufficient_data
+      
+      total ->
+        collaborative =
+          Enum.count(episodes, fn ep -> length(ep.contributors || []) > 1 end)
+        
+        Float.round(collaborative / total, 4)
+    end
+  end
+  
+  defp calculate_validation_quality(episodes) do
+    case length(episodes) do
+      0 ->
+        :insufficient_data
+      
+      total ->
+        validated =
+          Enum.count(episodes, fn ep -> length(ep.validation_results || []) > 0 end)
+        
+        Float.round(validated / total, 4)
+    end
+  end
+  
+  defp measure_category_metric(_episodes, _category), do: :insufficient_data
   
   # ==================== Step 4: Weakness Detection ====================
   
   @doc """
   Detect recurring weaknesses through statistical analysis of episode patterns.
-  Identifies categories where performance consistently falls below thresholds.
+
+  Only categories with a numeric performance metric can be evaluated against
+  the threshold. Categories whose metric is `:insufficient_data` are never
+  flagged as weaknesses and never coerced into a number: absence of evidence
+  is not evidence of weakness.
   """
   def detect_recurring_weaknesses(episodes, _clustered_episodes, categories) do
     threshold = 0.65  # Performance threshold for weakness detection
     
     categories
-    |> Enum.map(fn category ->
-      metric_value = measure_category_metric(episodes, category)
-      {category, metric_value, metric_value < threshold}
-    end)
-    |> Enum.filter(fn {_cat, _val, is_weak} -> is_weak end)
-    |> Enum.map(fn {category, value, _is_weak} ->
-      %{
-        category: category,
-        current_performance: value,
-        severity: calculate_severity(value, threshold),
-        description: "Performance in #{inspect(category)} is below threshold (#{Float.round(value, 2)} < #{threshold})",
-        supporting_evidence: count_supporting_episodes(episodes, category)
-      }
+    |> Enum.flat_map(fn category ->
+      case measure_category_metric(episodes, category) do
+        :insufficient_data ->
+          []
+        
+        metric_value ->
+          weakness_for_metric(category, metric_value, threshold, episodes)
+      end
     end)
   end
+  
+  defp weakness_for_metric(category, metric_value, threshold, episodes)
+       when is_number(metric_value) and metric_value < threshold do
+    [
+      %{
+        category: category,
+        current_performance: metric_value,
+        severity: calculate_severity(metric_value, threshold),
+        description: "Performance in #{inspect(category)} is below threshold (#{Float.round(metric_value, 2)} < #{threshold})",
+        supporting_evidence: count_supporting_episodes(episodes, category)
+      }
+    ]
+  end
+  
+  defp weakness_for_metric(_category, _metric_value, _threshold, _episodes), do: []
   
   defp calculate_severity(value, threshold) do
     gap = threshold - value
@@ -396,13 +478,22 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
     end
   end
   
-  defp count_supporting_episodes(episodes, _category), do: length(episodes)
+  defp count_supporting_episodes(_episodes, _category) do
+    # Episodes carry no per-category linkage, so no episode can be honestly
+    # attributed as category-level support.
+    0
+  end
   
   # ==================== Step 5: Improvement Generation ====================
   
   @doc """
   Generate evidence-based improvement proposals from detected weaknesses.
-  Each proposal references supporting episodes and predicts impact.
+
+  Proposals are produced only for weaknesses that were detected from numeric,
+  evidence-derived metrics. Confidence is `:insufficient_data` because no
+  calibration data links evidence sets to outcome probabilities. The
+  competing-improvements list is always empty: no genuine alternative-approach
+  analysis exists, and cloning descriptions is not analysis.
   """
   def generate_improvement_proposals(inefficiencies, _episodes, _categories) do
     candidate_improvements = Enum.map(inefficiencies, fn ineff ->
@@ -410,26 +501,21 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
         category: ineff[:category],
         description: "Improve #{ineff[:category]} through evidence-based optimization",
         expected_impact: estimate_improvement_potential(ineff[:current_performance]),
-        confidence: 0.75,
+        confidence: :insufficient_data,
         implementation_complexity: estimate_complexity(ineff[:category]),
         supporting_episode_count: ineff[:supporting_evidence],
         risk_level: assess_risk_level(ineff[:severity])
       }
     end)
     
-    # Generate competing improvements (alternative approaches)
-    competing_improvements = Enum.take(candidate_improvements, div(length(candidate_improvements), 2))
-    |> Enum.map(fn imp ->
-      %{imp | description: "Alternative approach: #{imp[:description]}"}
-    end)
-    
-    {candidate_improvements, competing_improvements}
+    {candidate_improvements, []}
   end
   
-  defp estimate_improvement_potential(current_performance) do
-    # Estimate potential improvement based on gap to optimal (1.0)
-    gap = 1.0 - current_performance
-    Float.round(gap * 0.6, 2)  # Assume can close 60% of gap
+  defp estimate_improvement_potential(current_performance)
+       when is_number(current_performance) do
+    # Documented upper bound: distance from the observed metric to the
+    # structural maximum of 1.0. This is not a forecast of achievable gain.
+    Float.round(max(0.0, 1.0 - current_performance), 2)
   end
   
   defp estimate_complexity(:experiment_design), do: :high
@@ -445,25 +531,25 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
   
   @doc """
   Predict impact of proposed improvements using historical evidence.
-  Analyzes similar past improvements and their outcomes.
+
+  `predicted_improvement` is the improvement's evidence-derived upper bound.
+  `confidence_interval` and `evidence_strength` are `:insufficient_data`: no
+  historical-similarity analysis exists, and no interval basis is recorded on
+  episodes. `supporting_episode_ids` is empty because episodes carry no
+  per-category linkage that would let any episode be honestly attributed as
+  category-level support.
   """
-  def predict_impact_from_evidence(improvements, episodes) do
+  def predict_impact_from_evidence(improvements, _episodes) do
     improvements
     |> Enum.map(fn imp ->
       %{
         improvement_category: imp[:category],
         predicted_improvement: imp[:expected_impact],
-        confidence_interval: [imp[:expected_impact] * 0.8, imp[:expected_impact] * 1.2],
-        evidence_strength: :moderate,  # Would analyze historical similarity
-        supporting_episode_ids: take_sample_episodes(episodes, 5)
+        confidence_interval: :insufficient_data,
+        evidence_strength: :insufficient_data,
+        supporting_episode_ids: []
       }
     end)
-  end
-  
-  defp take_sample_episodes(episodes, count) do
-    episodes
-    |> Enum.take(count)
-    |> Enum.map(fn ep -> ep.episode_id end)
   end
   
   # ==================== Step 7: Risk Assessment ====================
@@ -503,6 +589,13 @@ defmodule TiannaraOS.MethodEvolutionPipeline do
   end
   
   # ==================== Utilities ====================
+  
+  defp insufficient_data_metrics(metrics) do
+    metrics
+    |> Enum.filter(fn {_metric, value} -> value == :insufficient_data end)
+    |> Enum.map(fn {metric, _value} -> metric end)
+    |> Enum.sort()
+  end
   
   defp default_categories do
     [
