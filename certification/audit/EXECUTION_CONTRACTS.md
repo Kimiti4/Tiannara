@@ -421,11 +421,56 @@ theory → validation → Stage 3 → Stage 4 → Stage 5 → metrics/attestatio
 | Metrics (`:346-458`) | MIXED | real modules (`ConstitutionManifest.build`, `ScientificCapitalLedger.calculate_delta`, `GenerationHistory.calculate_cai`, `ConstitutionCertificate.generate`) fed synthetic inputs (simulated transactions, hardcoded `rollback_frequency: 0.05`, `constitutional_violations: 0`) |
 | `apply_pending_adaptations/1` (`:538-542`) | NOT_IMPLEMENTED | returns `state` unchanged — the documented temporal rule "approvals in G active in G+1" (moduledoc `:26-29`) has no implementing path |
 
-Labeling: no per-stage SIMULATED/PASS vocabulary exists in runner state —
-`GenerationHistory` records only counts/ids (`generation_history.ex:113-116`).
-Closest signals: certificate atoms `:harness_simulated`/`:not_verified`
-→ `certification_level: "minimal"` (asserted honest by
-`recursive_civilization_runner_test.exs:55`).
+Labeling (PRE-PHASE-D BASELINE): no per-stage SIMULATED/PASS vocabulary existed
+in runner state — `GenerationHistory` records only counts/ids
+(`generation_history.ex:113-116`). Closest signals: certificate atoms
+`:harness_simulated`/`:not_verified` → `certification_level: "minimal"`
+(asserted honest by `recursive_civilization_runner_test.exs:55`).
+
+### Phase D step 1 outcome (implemented)
+
+Machine-readable stage evidence labeling plus explicit authorization and
+bounding are now enforced by the runner itself:
+
+- **`stage_evidence_labels`** map assigns each of the 7 pipeline components
+  (`episode_generation`, `theory_formation`, `distributed_validation`,
+  `stage3_method_evolution`, `stage4_institution_adaptation`,
+  `stage5_civilization_adaptation`, `metrics_collection`) a label from the
+  vocabulary `:simulated | :evidence_backed` — never `:pass`. All labels
+  start `:simulated`; a stage flips only when its genuine wiring lands via
+  a later Phase D step.
+- **Persistence (machine-readable state):** run-level
+  `<output_dir>/stage_evidence_labels.json` (with `run_authorized`,
+  `bounded` bounds, `certification_claim: "none"`); every per-generation
+  attestation row in `constitution_attestations.jsonl`; every checkpoint
+  file. Labels travel with the evidence, not only console text.
+- **Explicit authorization:** `execute/2` raises `ArgumentError` unless
+  `opts.authorized == true` (fail-closed). `ConstitutionalExecutor`
+  (the documented legal path) passes `authorized: true` after its
+  structural gate. The runner test passes it explicitly.
+- **Bounding:** `episodes_per_generation > 0` enforced (`ArgumentError`
+  otherwise); `num_generations > 0` was already enforced by the guard;
+  effective bounds recorded in the labels file and attestation rows.
+- **Staged wiring plumbing:** `opts.stage_modes` validates per-stage mode;
+  `:evidence_backed` for any stage raises
+  `ArgumentError ("does not support :evidence_backed yet")` until that
+  stage's typed contract + provenance + validation + persistence wiring
+  lands — the runner never pretends a stage is wired.
+
+### Direct-bypass enforcement note (policy question unchanged)
+
+`RecursiveEvolutionValidator`, `StatisticalValidation`, and `ValidatorAudit`
+still call `execute/2` directly, bypassing `ConstitutionalExecutor` — the
+open policy question stands and is NOT resolved here. Those call sites do
+not pass `authorized: true`, so they now fail closed with `ArgumentError`
+when invoked. Resolving how they should run (through the executor, or with
+an explicit sanctioned authorization) remains a product decision.
+
+Tests: `recursive_civilization_runner_test.exs` — 9 tests (1 provenance
+regression + 8 new): unauthorized raise, bounds raise, labels file contents
+(all simulated, no `:pass`), attestation labels, checkpoint labels,
+unwired-stage raise, unknown-key raise, invalid-mode raise, explicit
+:simulated modes accepted.
 
 Failure semantics: no rescue anywhere — stage errors abort the run
 (fail-closed), except the ignored CSV append (`:197`, fail-open).
@@ -444,6 +489,8 @@ Open policy question: three lib validator modules
 (`validator_audit.ex:113`, `statistical_validation.ex:115`,
 `recursive_evolution_validator.ex:109`) call `execute/2` directly, bypassing
 `ConstitutionalExecutor`, contradicting the documented "only legal path".
+*Phase D step 1 update: those direct calls now fail closed (`ArgumentError`
+from the new authorization gate) when invoked — the policy question stands.
 
 ---
 
