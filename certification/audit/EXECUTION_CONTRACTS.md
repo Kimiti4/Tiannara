@@ -520,12 +520,62 @@ attestation carries flipped label + provenance; kernel cleanup after runs;
 raise; already-running kernel raises fail-closed; multi-generation runs
 restart kernels cleanly each generation.
 
+### Phase D step 3 outcome (implemented)
+
+Stage 4 Institution Adaptation is now genuinely wired when requested via
+`stage_modes: %{stage4_institution_adaptation: :evidence_backed}` (requires
+stage 3 `:evidence_backed` as well — the genuine engine consumes real
+`MethodEvolutionResult` structs, never fabricated maps):
+
+- **Typed contract:** `Stage4InstitutionAdaptation.execute_stage_4/3`
+  (pure functions, no GenServer) returns a map with
+  `adaptation_results: [%InstitutionAdaptationResult{}]`,
+  `total_adopted/rejected/deferred`, `evidence_mode`, and `summary`.
+  Engine errors and validation failures raise `ArgumentError`
+  (fail-closed). Institutions with zero valid proposals are skipped
+  honestly (engine logs "No valid proposals … skipping"; no fabrication).
+- **Input provenance:** Stage 3 `MethodEvolutionResult` structs (with
+  `supporting_episode_ids` backfilled from each result's
+  `supporting_episodes` — honest derivation; the genuine pipeline emits
+  counts but not ids). Provenance string:
+  `genuine_engine_over_stage3_method_evolution_outputs` recorded in
+  machine-readable state (labels file, attestation rows, checkpoints).
+- **Fail-closed semantics:** evidence mode defers every compatible
+  proposal with `:awaiting_pilot_evidence` (never fabricates adoptions);
+  incompatible proposals are rejected. Adoption requires pilot evidence
+  this harness does not produce. Results are converted to plain maps for
+  downstream harness compatibility while preserving the genuine engine's
+  vocabulary (`:adopted`/`:none_adopted`, not the harness's `:adopt`).
+- **Evidence persistence:** per-generation JSON at
+  `<output_dir>/stage4_evidence/generation_<n>.json` with engine name,
+  `input_provenance`, `evidence_mode`, adoption/deferral counts, deferral
+  reasons, and `certification_claim: "none"`.
+- **Guards:** stage 4 `:evidence_backed` without stage 3 `:evidence_backed`
+  raises `ArgumentError` ("requires stage_modes.stage3_method_evolution
+  … the genuine Stage 4 engine consumes MethodEvolutionResult structs
+  produced by the genuine Stage 3 engine (Phase D: no fabricated inputs
+  to real engines)"); existing stage-3 guards (disabled adaptation,
+  non-atom institutions) apply.
+- **Stage 5 / metrics:** Stage 4 genuine results (all `:none_adopted` in
+  evidence mode) flow into the simulated Stage 5 and metrics collection;
+  downstream consumers use only counts and map access, so no vocabulary
+  or struct-shape breaks occur.
+
+Tests: `recursive_civilization_runner_test.exs` — 24 total (9 step-1 +
+9 step-2 + 6 step-3): unwired-stage raise switched to stage5; genuine
+stage4 run persists evidence JSON with `total_deferred`/`total_adopted`
+and no `"pass"` string; labels flip stage3+stage4 to `evidence_backed`
+with honest provenance (stage5 stays `simulated`); stage4 without stage3
+raises; evidence-backed stage4 defers proposals (never fabricates
+adoptions); attestation carries flipped label + provenance; multi-generation
+runs persist evidence each generation.
+
 Failure semantics: no rescue anywhere — stage errors abort the run
 (fail-closed), except the ignored CSV append (`:197`, fail-open).
 Bounding: `num_generations > 0` only; no timeout/max-steps. Opt-out flag
-`enable_adaptation` (default `true` runs stages 3–5). Stage 3 genuine
-wiring (step 2) has test coverage with adaptation enabled; stages 4–5
-remain simulated with zero genuine-engine coverage.
+`enable_adaptation` (default `true` runs stages 3–5). Stage 3 and Stage 4
+genuine wiring (steps 2-3) have test coverage with adaptation enabled;
+stage 5 and metrics remain simulated with zero genuine-engine coverage.
 
 Phase D rules (per approved plan): replace stages one at a time with typed
 contracts + input/output provenance + output validation + evidence persistence
