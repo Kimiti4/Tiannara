@@ -190,7 +190,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunnerTest do
           authorized: true,
           output_dir: output_dir,
           episodes_per_generation: 5,
-          stage_modes: %{stage3_method_evolution: :evidence_backed}
+          stage_modes: %{stage4_institution_adaptation: :evidence_backed}
         })
       end
     end
@@ -236,6 +236,210 @@ defmodule TiannaraOS.RecursiveCivilizationRunnerTest do
 
       assert payload["stage_modes"]["stage4_institution_adaptation"] == "simulated"
       assert payload["stage_evidence_labels"]["stage4_institution_adaptation"] == "simulated"
+    end
+  end
+
+  # ──────────────────────────────────────────────
+  # Phase D step 2: genuine Stage 3 wiring
+  # ──────────────────────────────────────────────
+
+  defp unique_institution(label) do
+    String.to_atom("stage3_#{label}_#{System.unique_integer([:positive])}")
+  end
+
+  describe "genuine Stage 3 wiring (Phase D step 2)" do
+    test "evidence_backed stage3 runs the genuine engine and persists machine-readable evidence",
+         %{output_dir: output_dir} do
+      inst_a = unique_institution(:genuine_a)
+      inst_b = unique_institution(:genuine_b)
+
+      assert {:ok, histories} =
+               RecursiveCivilizationRunner.execute(1, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 5,
+                 institutions: [inst_a, inst_b],
+                 stage_modes: %{stage3_method_evolution: :evidence_backed}
+               })
+
+      [history] = histories
+      assert history.stage3_results_count == 2
+
+      evidence_path = Path.join(output_dir, "stage3_evidence/generation_1.json")
+      assert File.exists?(evidence_path)
+
+      raw = File.read!(evidence_path)
+      refute String.contains?(raw, "\"pass\"")
+
+      payload = Jason.decode!(raw)
+      assert payload["generation"] == 1
+      assert payload["stage"] == "stage3_method_evolution"
+      assert payload["stage_mode"] == "evidence_backed"
+      assert payload["engine"] == "TiannaraOS.MethodEvolutionPipeline.execute_pipeline/3"
+      assert payload["certification_claim"] == "none"
+      assert payload["input_provenance"] =~ "harness_synthetic"
+
+      assert length(payload["institutions"]) == 2
+
+      for record <- payload["institutions"] do
+        assert record["institution_id"] in [Atom.to_string(inst_a), Atom.to_string(inst_b)]
+        assert record["episodes_analyzed"] == 5
+        assert record["supporting_episodes"] > 0
+        assert record["result_id"] =~ "method_evolution_"
+        assert is_list(record["insufficient_data_metrics"])
+        assert is_list(record["exclusions"])
+      end
+    end
+
+    test "labels file records stage3 as evidence_backed with honest provenance", %{
+      output_dir: output_dir
+    } do
+      inst = unique_institution(:genuine_labels)
+
+      assert {:ok, _} =
+               RecursiveCivilizationRunner.execute(1, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 3,
+                 institutions: [inst],
+                 stage_modes: %{stage3_method_evolution: :evidence_backed}
+               })
+
+      payload =
+        Path.join(output_dir, "stage_evidence_labels.json")
+        |> File.read!()
+        |> Jason.decode!()
+
+      assert payload["stage_evidence_labels"]["stage3_method_evolution"] == "evidence_backed"
+      assert payload["stage_evidence_labels"]["stage4_institution_adaptation"] == "simulated"
+
+      assert payload["stage_provenance"]["stage3_method_evolution"] ==
+               "genuine_engine_over_harness_synthetic_episodes"
+
+      assert payload["stage_provenance"]["stage4_institution_adaptation"] ==
+               "harness_fabricated_output"
+
+      refute String.contains?(File.read!(Path.join(output_dir, "stage_evidence_labels.json")), "\"pass\"")
+    end
+
+    test "attestation rows carry the flipped label and provenance", %{output_dir: output_dir} do
+      inst = unique_institution(:genuine_attest)
+
+      assert {:ok, _} =
+               RecursiveCivilizationRunner.execute(1, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 3,
+                 institutions: [inst],
+                 stage_modes: %{stage3_method_evolution: :evidence_backed}
+               })
+
+      [attestation] =
+        Path.join(output_dir, "constitution_attestations.jsonl")
+        |> File.read!()
+        |> String.split("\n", trim: true)
+        |> Enum.map(&Jason.decode!/1)
+
+      assert attestation["stage_evidence_labels"]["stage3_method_evolution"] == "evidence_backed"
+
+      assert attestation["stage_provenance"]["stage3_method_evolution"] ==
+               "genuine_engine_over_harness_synthetic_episodes"
+    end
+
+    test "harness institution kernels are stopped after the stage (no process leaks)", %{
+      output_dir: output_dir
+    } do
+      inst = unique_institution(:genuine_cleanup)
+      harness_id = :"stage6_harness_#{inst}"
+
+      assert {:ok, _} =
+               RecursiveCivilizationRunner.execute(1, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 3,
+                 institutions: [inst],
+                 stage_modes: %{stage3_method_evolution: :evidence_backed}
+               })
+
+      assert Process.whereis(harness_id) == nil
+    end
+
+    test "evidence_backed with adaptation disabled raises (labels never lie)", %{
+      output_dir: output_dir
+    } do
+      inst = unique_institution(:genuine_disabled)
+
+      assert_raise ArgumentError, ~r/enable_adaptation: false/, fn ->
+        RecursiveCivilizationRunner.execute(1, %{
+          authorized: true,
+          output_dir: output_dir,
+          episodes_per_generation: 3,
+          institutions: [inst],
+          enable_adaptation: false,
+          stage_modes: %{stage3_method_evolution: :evidence_backed}
+        })
+      end
+    end
+
+    test "evidence_backed with non-atom institutions raises", %{output_dir: output_dir} do
+      assert_raise ArgumentError, ~r/non-empty\s+list of atom institution ids/, fn ->
+        RecursiveCivilizationRunner.execute(1, %{
+          authorized: true,
+          output_dir: output_dir,
+          episodes_per_generation: 3,
+          institutions: ["not_an_atom"],
+          stage_modes: %{stage3_method_evolution: :evidence_backed}
+        })
+      end
+    end
+
+    test "refuses to reuse an already-running harness kernel (fail-closed)", %{
+      output_dir: output_dir
+    } do
+      inst = unique_institution(:genuine_conflict)
+      harness_id = :"stage6_harness_#{inst}"
+
+      institution =
+        TiannaraOS.ResearchInstitution.new(harness_id, :stage6_harness_world, 0)
+        |> Map.put(:civilizational_memory, %{})
+
+      {:ok, kernel_pid} = TiannaraOS.InstitutionKernel.start_link(harness_id, institution)
+
+      on_exit(fn ->
+        if Process.alive?(kernel_pid), do: Process.exit(kernel_pid, :kill)
+      end)
+
+      assert_raise ArgumentError, ~r/already running/, fn ->
+        RecursiveCivilizationRunner.execute(1, %{
+          authorized: true,
+          output_dir: output_dir,
+          episodes_per_generation: 3,
+          institutions: [inst],
+          stage_modes: %{stage3_method_evolution: :evidence_backed}
+        })
+      end
+    end
+
+    test "multi-generation genuine runs restart kernels cleanly each generation", %{
+      output_dir: output_dir
+    } do
+      inst = unique_institution(:genuine_multi)
+      harness_id = :"stage6_harness_#{inst}"
+
+      assert {:ok, histories} =
+               RecursiveCivilizationRunner.execute(2, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 4,
+                 institutions: [inst],
+                 stage_modes: %{stage3_method_evolution: :evidence_backed}
+               })
+
+      assert length(histories) == 2
+      assert Process.whereis(harness_id) == nil
+
+      assert File.exists?(Path.join(output_dir, "stage3_evidence/generation_1.json"))
+      assert File.exists?(Path.join(output_dir, "stage3_evidence/generation_2.json"))
     end
   end
 end
