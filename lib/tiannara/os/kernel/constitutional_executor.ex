@@ -211,7 +211,11 @@ defmodule TiannaraOS.Kernel.ConstitutionalExecutor do
         IO.puts("🚀 ConstitutionalExecutor: Executing RecursiveCivilizationRunner...")
 
         num_generations = Map.get(config, :max_generations, 3)
-        {:ok, generation_history} = RecursiveCivilizationRunner.execute(num_generations, config)
+        # Phase D: the runner requires explicit authorization. This executor is
+        # the documented legal path — the structural validation gate has passed
+        # — so the bounded run is authorized here.
+        {:ok, generation_history} =
+          RecursiveCivilizationRunner.execute(num_generations, Map.put(config, :authorized, true))
         IO.puts("✅ ConstitutionalExecutor: Simulation completed successfully")
 
         # Step 11: Generate ConstitutionCertificate (bind execution to manifest)

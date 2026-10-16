@@ -14,6 +14,28 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
   invoked here. Do not use harness output as evidence of production behavior or
   empirical self-improvement.
 
+  ## Phase D: machine-readable stage evidence labels (step 1)
+
+  Every run carries a `stage_evidence_labels` map assigning each pipeline
+  component an evidence label from the vocabulary `:simulated` or
+  `:evidence_backed` (never `:pass` — certification gates stay closed). All
+  labels start `:simulated`; a stage flips to `:evidence_backed` only when a
+  genuine engine is wired through `opts.stage_modes` in a later Phase D step
+  (each swap is staged, typed, validated, and independently tested).
+
+  Labels are persisted machine-readably in:
+    - `<output_dir>/stage_evidence_labels.json` (run-level, written at start)
+    - each per-generation attestation row (`constitution_attestations.jsonl`)
+    - each checkpoint file
+
+  ## Authorization and bounding (Phase D rules)
+
+  `execute/2` requires explicit authorization: `opts.authorized` must be
+  `true` or the call raises `ArgumentError` (fail-closed). Runs are bounded:
+  `num_generations > 0` and `episodes_per_generation > 0` are enforced.
+  Requesting a non-simulated `stage_modes` entry raises until that stage's
+  genuine wiring lands — the runner never pretends a stage is wired.
+
   Every generation executes:
   1. Research Episode Generation (Stage 1-2)
   2. Theory Formation
@@ -44,8 +66,13 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
   ## Parameters
   - `num_generations`: Number of generations to execute (recommended: 100+)
   - `opts`: Configuration options
+    - `authorized`: MUST be `true` — explicit authorization for a bounded run
+      (Phase D rule); missing/false raises `ArgumentError`
+    - `stage_modes`: Per-stage evidence mode map, e.g.
+      `%{stage3_method_evolution: :simulated}`; only `:simulated` supported
+      until a stage's genuine wiring lands (raises otherwise)
     - `output_dir`: Directory for CSV exports (default: "data/stage6")
-    - `episodes_per_generation`: Episodes to generate per generation (default: 200)
+    - `episodes_per_generation`: Episodes to generate per generation (default: 200, must be > 0)
     - `institutions`: List of institution IDs (default: 20 institutions)
     - `checkpoint_interval`: Save checkpoint every N generations (default: 10)
 
@@ -55,16 +82,37 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
   ## Examples
 
       {:ok, histories} = RecursiveCivilizationRunner.execute(100, %{
+        authorized: true,
         output_dir: "data/stage6",
         episodes_per_generation: 200
       })
   """
   def execute(num_generations, opts \\ %{}) when num_generations > 0 do
+    authorized = Map.get(opts, :authorized, false)
+
+    unless authorized == true do
+      raise ArgumentError,
+        message:
+          "RecursiveCivilizationRunner.execute/2 requires explicit authorization " <>
+            "(Phase D: bounded, explicitly authorized runs only). " <>
+            "Pass opts.authorized: true to proceed."
+    end
+
     output_dir = Map.get(opts, :output_dir, "data/stage6")
     episodes_per_gen = Map.get(opts, :episodes_per_generation, 200)
     institutions = Map.get(opts, :institutions, generate_default_institutions())
     checkpoint_interval = Map.get(opts, :checkpoint_interval, 10)
     enable_adaptation = Map.get(opts, :enable_adaptation, true)  # NEW: Allow disabling adaptation
+
+    unless is_integer(episodes_per_gen) and episodes_per_gen > 0 do
+      raise ArgumentError,
+        message:
+          "episodes_per_generation must be a positive integer (bounded runs), " <>
+            "got: #{inspect(episodes_per_gen)}"
+    end
+
+    stage_modes = validate_stage_modes(Map.get(opts, :stage_modes, %{}))
+    stage_evidence_labels = build_evidence_labels(stage_modes)
 
     # Ensure output directory exists
     File.mkdir_p!(output_dir)
@@ -77,9 +125,19 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       TiannaraOS.Kernel.ConstitutionManifest.to_json(manifest)
     )
 
+    # Persist run-level machine-readable stage evidence labels (Phase D step 1).
+    run_bounds = %{
+      generations: num_generations,
+      episodes_per_generation: episodes_per_gen,
+      checkpoint_interval: checkpoint_interval
+    }
+
+    write_run_evidence_labels(output_dir, stage_evidence_labels, stage_modes, run_bounds)
+
     IO.puts("=" |> String.duplicate(80))
     IO.puts("Stage 6 - Recursive Civilization SIMULATION HARNESS (NOT CERTIFICATION)")
     IO.puts("Executing #{num_generations} generations...")
+    IO.puts("Stage evidence labels: #{inspect(stage_evidence_labels)}")
     IO.puts("=" |> String.duplicate(80))
     IO.puts("")
 
@@ -95,7 +153,12 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       scientific_capital: 0.0,
       budget: 1_000_000,  # Starting budget
       start_time: System.monotonic_time(:millisecond),
-      enable_adaptation: enable_adaptation  # NEW: Track adaptation flag
+      enable_adaptation: enable_adaptation,  # NEW: Track adaptation flag
+      # Phase D step 1: machine-readable evidence labeling + authorization
+      run_authorized: true,
+      stage_modes: stage_modes,
+      stage_evidence_labels: stage_evidence_labels,
+      run_bounds: run_bounds
     }
 
     # Execute generations
@@ -118,6 +181,85 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     IO.puts("=" |> String.duplicate(80))
 
     {:ok, final_state.history}
+  end
+
+  # ──────────────────────────────────────────────
+  # Phase D: stage evidence labeling
+  # ──────────────────────────────────────────────
+
+  @stage_mode_keys [
+    :episode_generation,
+    :theory_formation,
+    :distributed_validation,
+    :stage3_method_evolution,
+    :stage4_institution_adaptation,
+    :stage5_civilization_adaptation,
+    :metrics_collection
+  ]
+
+  # Wired genuine engines per stage. Empty until a Phase D step lands that
+  # stage's typed contract + provenance + validation + persistence wiring.
+  # Requesting :evidence_backed for an unwired stage raises (never pretend).
+  @wired_evidence_backed_stages MapSet.new()
+
+  defp validate_stage_modes(stage_modes) when is_map(stage_modes) do
+    Enum.each(stage_modes, fn {stage, mode} ->
+      unless stage in @stage_mode_keys do
+        raise ArgumentError,
+          message:
+            "Unknown stage_modes key: #{inspect(stage)}. " <>
+              "Valid keys: #{inspect(@stage_mode_keys)}"
+      end
+
+      unless mode in [:simulated, :evidence_backed] do
+        raise ArgumentError,
+          message:
+            "Invalid stage mode for #{inspect(stage)}: #{inspect(mode)}. " <>
+              "Valid modes: [:simulated, :evidence_backed]"
+      end
+
+      if mode == :evidence_backed and not MapSet.member?(@wired_evidence_backed_stages, stage) do
+        raise ArgumentError,
+          message:
+            "Stage #{inspect(stage)} does not support :evidence_backed yet — " <>
+              "genuine wiring is not implemented (Phase D staged integration pending). " <>
+              "The runner never pretends a stage is wired."
+      end
+    end)
+
+    # Normalize: every known stage has an explicit mode (default :simulated)
+    Map.new(@stage_mode_keys, fn stage ->
+      {stage, Map.get(stage_modes, stage, :simulated)}
+    end)
+  end
+
+  defp validate_stage_modes(stage_modes) do
+    raise ArgumentError,
+      message: "stage_modes must be a map, got: #{inspect(stage_modes)}"
+  end
+
+  defp build_evidence_labels(stage_modes) do
+    Map.new(@stage_mode_keys, fn stage -> {stage, Map.fetch!(stage_modes, stage)} end)
+  end
+
+  defp write_run_evidence_labels(output_dir, labels, stage_modes, bounds) do
+    payload = %{
+      run_authorized: true,
+      bounded: bounds,
+      stage_evidence_labels: labels,
+      stage_modes: stage_modes,
+      certification_claim: "none",
+      note:
+        "Evidence labels are machine-readable runner state. :simulated means the " <>
+          "harness fabricated this stage's output; :evidence_backed requires a wired " <>
+          "genuine engine. This vocabulary never contains :pass — certification gates " <>
+          "remain closed."
+    }
+
+    File.write!(
+      Path.join(output_dir, "stage_evidence_labels.json"),
+      Jason.encode!(payload, pretty: true)
+    )
   end
 
   # ──────────────────────────────────────────────
@@ -417,7 +559,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
         invariant_status: :not_verified
       )
 
-    persist_attestation(data.output_dir, gen_num, certificate)
+    persist_attestation(data, gen_num, certificate)
 
     # Build history record
     TiannaraOS.Kernel.GenerationHistory.new(%{
@@ -465,19 +607,25 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
   # Persist per-generation constitutional attestation (append-only JSONL) so
   # manifest_id/certificate_id on history rows remain resolvable against the
-  # certificate hash and constitution combined hash.
-  defp persist_attestation(output_dir, gen_num, certificate) do
+  # certificate hash and constitution combined hash. Phase D step 1: each row
+  # also carries the machine-readable stage evidence labels and the run's
+  # explicit authorization record.
+  defp persist_attestation(data, gen_num, certificate) do
     attestation = %{
       generation_number: gen_num,
       manifest_id: certificate.manifest.manifest_id,
       certificate_id: certificate.certificate_id,
       certificate_hash: certificate.certificate_hash,
       constitution_combined_hash: certificate.combined_hash,
-      certification_level: certificate.metadata.certification_level
+      certification_level: certificate.metadata.certification_level,
+      # Phase D: machine-readable evidence labeling + authorization record
+      stage_evidence_labels: data.state.stage_evidence_labels,
+      run_authorized: data.state.run_authorized,
+      bounded: data.state.run_bounds
     }
 
     File.write!(
-      Path.join(output_dir, "constitution_attestations.jsonl"),
+      Path.join(data.output_dir, "constitution_attestations.jsonl"),
       Jason.encode!(attestation) <> "\n",
       [:append]
     )
@@ -613,7 +761,10 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       total_episodes: state.total_episodes,
       total_discoveries: state.total_discoveries,
       scientific_capital: state.scientific_capital,
-      timestamp: DateTime.utc_now()
+      timestamp: DateTime.utc_now(),
+      # Phase D: machine-readable evidence labeling travels with checkpoints
+      stage_evidence_labels: state.stage_evidence_labels,
+      run_authorized: state.run_authorized
     }))
   end
 
@@ -678,8 +829,8 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     ## Constitutional Compliance
 
     - Total violations: #{Enum.sum(Enum.map(histories, & &1.constitutional_violations))}
-    - Lifecycle completeness: #{calculate_avg(histories, :lifecycle_completeness_pct, 0..-1//-1)}%
-    - Rollback frequency: #{calculate_avg(histories, :rollback_frequency, 0..-1//-1) * 100}%
+    - Lifecycle completeness: #{calculate_avg(histories, :lifecycle_completeness_pct, 0..-1//1)}%
+    - Rollback frequency: #{calculate_avg(histories, :rollback_frequency, 0..-1//1) * 100}%
 
     ---
 
