@@ -1,8 +1,8 @@
 # TIANNARA CAPABILITY LEDGER — WHAT EXISTS vs WHAT IS PENDING
 
 **Status:** EVIDENCE-BACKED, WORKING-TREE STATE
-**Date:** 2026-09-22
-**Branch:** `local/pr4` (HEAD `b564fbe`)
+**Date:** 2026-10-17 (gap-remediation update; original audit 2026-09-22)
+**Branch:** `local/pr4` (HEAD `de7116fe`)
 **Auditor role:** independent verification pass (no runtime self-report accepted as proof)
 **Supersedes:** the "MISSING" rows of `docs/production_completion_baseline.md` §3.1 where contradicted below
 
@@ -180,8 +180,8 @@ All are reproducible from the cited path. None is a documentation gap; all are b
 | 10 | ESAP — software compiler | `PARTIAL` | Deterministic-identity + provenance + lowering concepts present | **Single backend adapter** (`adapter/elixir.ex`); `deployment_mode: :artifact_only` → backend-neutrality is designed, not demonstrated |
 | 11 | Autonomous software evolution | `PARTIAL`, fail-closed `IMPLEMENTED` | `ProposalGenome` + `FitnessEvaluator` (real multi-dimensional logic: invariant checks, viability projection, recommendation), evolution modules, fail-closed fitness semantics | No demonstrated generation→build→execute→fitness→promotion cycle in production |
 | 12 | Self-monitoring | `IMPLEMENTED` | Sentinel, `RuntimeVerifier` per-subsystem certificate hashes, Ω health aggregator (`:partial`, 5/6), runtime census, supervisor integrity | Honest reporting is real — but see **D-C**: health is only as truthful as the self-report it aggregates |
-| 13 | Self-diagnosis / archaeology | `IMPLEMENTED` | 21 CRAV modules; `archaeology/archaeology.ex`; `runtime_atlas` 799 L, `discovery_chain` 240 L, `dead_code_detector` 477 L | — |
-| 14 | Self-repair | `PARTIAL` | Crucible builder/breaker/attacker/validator (2 000+ L), repair ecology + phylogeny, **RepairLibrary live ETS = 18 016 patterns** | Repair → promotion → authorization closure unproven; promotion gates not exercised against HEAD |
+| 13 | Self-diagnosis / archaeology | `PARTIAL` (CRAV `IMPLEMENTED`; `archaeology.ex` **fail-closed 2026-10-17**) | 21 CRAV modules; `archaeology/archaeology.ex` **now returns `{:error, :archaeology_simulation_unavailable}`** (was hardcoded 0.99/0.96/… theatrical metrics, CLAIM-E07 FALSIFIED); `runtime_atlas` 799 L, `discovery_chain` 240 L, `dead_code_detector` 477 L | Archaeology substrate does not exist; historical E07 falsification preserved in `MEASUREMENT_INTEGRITY_EVIDENCE.json` |
+| 14 | Self-repair | `PARTIAL` (stubs remediated 2026-10-17) | Crucible builder/breaker/attacker/validator (2 000+ L), repair ecology + phylogeny, **RepairLibrary live ETS = 18 016 patterns**; `RootCauseAnalyzer`/`PatchGenerator`/`Operations.Civilization.run/1` **now fail-closed** (were success-shaped stubs, C5) | Repair → promotion → authorization closure unproven; promotion gates not exercised against HEAD |
 | 15 | Constitutional governance | `PARTIAL` (framework `IMPLEMENTED`) | 18 council modules, invariant registry + 3 invariant test suites, human approval queue, amendment engine | Durability defect **D-A6**; gates do not constrain behaviour → **D-C** |
 | 16 | Authorization as a first-class capability | `PARTIAL` | `phase4/real_execution.ex` fails closed (`enabled?` default **false**), requires a `HumanDelivery.Authorization` grant; `DeploymentGateway` enforces certification + lineage + grant; two-key adoption gate; **B4 minting landed 09-22: `Authorization.human_grant/2-3` requires `AuthenticatedHumanIdentity` at both delivery APIs (`human_authorization_identity_test.exs` 2/2)** | Minting coverage is narrow (no credential/session persistence, revocation, or external identity verification); **no universal authorization→effect closure** |
 | 17 | Effect identity / consequential-action integrity | `PARTIAL → IMPROVED` | `omega/deployment_effect_identity_test.exs` (09-22 04:11), `omega/human_authorization_identity_test.exs` (04:14), `ReadOnlyHTTP.effect_identity/1` binds SHA-256 to `{:read_only_get, url}` | D165 class closed only in Ω deployment + external-read paths; not a global invariant |
@@ -428,12 +428,13 @@ disabling ASC or weakening assertions.
 | **C2** | HIGH | **`Tiannara.StubRegistry` has no consumers.** The macro records every stub call, but nothing — no gate, no health check, no census, no certification — ever reads it. Stub instrumentation is dormant. (Partially mitigated: the new boot capability gate detects *macro* stubs structurally via `__tiannara_stub__/0`.) | `lib/tiannara/stubs/stub_registry.ex`; only referents `lib/tiannara/stubs/stub.ex:36-42` |
 | **C3** | HIGH | **`Tiannara.Ctl.CausalRegistry` module-name case mismatch binds a caller to a stub instead of the real module.** The real registry is `Tiannara.CTL.CausalRegistry` (`ctl/causal_registry.ex:1`); the caller's alias resolves to `Tiannara.Ctl.CausalRegistry`, which is the decommission stub (`stubs/causal_registry.ex:1`). Latent, not live: `Tiannara.Ctl.BranchValidator` has **zero callers**. | `ctl/branch_validator.ex:7,14-15` vs `ctl/causal_registry.ex:1` and `stubs/causal_registry.ex:1` |
 | **C4** | HIGH | **A stub returns a fabricated measurement presented as a reading:** `get_branch/1` → `{:ok, %{stress: 0.0}}`. A caller cannot distinguish "measured stress 0.0" from "no data", which is precisely the failure the Phase 17.8+ Proof Rule forbids (fallback values that let execution proceed when evidence is absent). | `lib/tiannara/stubs/causal_registry.ex:4-6` |
-| **C5** | HIGH | **Success-shaped stubs on the self-repair path:** `{:ok, %{patch_id: …, type: :stub}}` and `{:ok, :stub}`. Outer shape is success, so a `{:ok, X}` caller proceeds. Self-repair is the architecture's most distinctive claim and its implementation is a Phase-H stub. | `asc/repair/pipeline.ex:24,27`; `asc/operations/civilization.ex:30-31,35` |
+| **C5** | HIGH → **REMEDIATED 2026-10-17** | ~~**Success-shaped stubs on the self-repair path:** `{:ok, %{patch_id: …, type: :stub}}` and `{:ok, :stub}`.~~ `RootCauseAnalyzer.analyze/1`, `PatchGenerator.generate/2` and `ASC.Operations.Civilization.run/1` now return `{:error, :unavailable}` (commit `de7116fe`); the three downstream stages were already fail-closed. Real path remains `RepairReuseEngine` over `RepairLibrary` (18 016 patterns). | `asc/repair/pipeline.ex:19,27` (was); `asc/operations/civilization.ex:30-31` (was); fix verified: 10/10 ASC tests pass |
 | **C6** | **CRITICAL** | **Fabricated domain evidence across the scientific layer.** 20/31 domain modules: `generate_hypotheses(_context), do: {:ok, []}`. 18 modules: `validate(_experiment), do: {:ok, %{valid: true}}` — unconditional. 20 modules: `simulate/2` returns a hardcoded verdict atom. Two modules fabricate *quantitative* results: `governance.validate` → `constitutional_alignment: 0.94`; `medicine.validate` → `trial_phase: :phase_2`. Under the Phase 17.8+ Proof Rule these are prohibited inputs (hardcoded domain measurements and theory rules presented as evidence). | `lib/tiannara/domains/*.ex` (measured: 20 of 31 files affected; e.g. `governance.ex`, `medicine.ex`, `physics.ex`) |
 | **C7** | MEDIUM | **Advertised capability is not reconciled with runtime capability.** `ReplayEngine` is registered with `provides: [:deterministic_replay, :sandboxed_execution, :state_recovery]` while `replay/4` returns `{:error, :replay_source_unavailable}`. The registry is therefore not a truthful capability manifest. | `cel/kernel/service_registry.ex:238` vs `world/replay_engine.ex:69-72` |
 | **C8** | MEDIUM | **`FitnessEvaluator.compare_fitness/2` divides by the baseline score without a zero guard** → `ArithmeticError` (badarith) whenever `baseline_fitness == 0`. A constitutional fitness comparison that crashes on a legitimate zero baseline. Also: `calculate_confidence/1` starts from a hardcoded `0.7` and `estimate_lifespan/1` from `base_months 12` — hardcoded weights in a constitutional evaluator. | `lib/tiannara/os/governance/fitness_evaluator.ex` (`compare_fitness/2`, `calculate_confidence/1`, `estimate_lifespan/1`) |
 | **C9** | MEDIUM | **`Tiannara.CIS.validate_plan/1` returns `{:ok, plan}` unconditionally**, regardless of plan content — a fake-success path in the immune system. | `lib/tiannara/cis.ex` |
 | **C10** | **CRITICAL (fixed & verified)** | **The research loop crashed on unknown-workflow events.** `handle_workflow_failure/2` and `update_experiment_on_workflow_done/3` passed the **entire GenServer state** to `find_experiment_by_workflow/2`, so `Enum.find_value` iterated unrelated state entries (including a `DateTime`) and raised `KeyError: key :workflow_ids not found in ~U[...]`, crashing `handle_info` instead of ignoring the event. Both call sites corrected to `state.experiments`; payload access hardened to `Map.get/2` (because `event_payload/1` can legitimately return `%{}`). Verified: `7 tests, 0 failures`. | `lib/tiannara/phase4/experiment_orchestrator.ex:491,550` (was), `:609-613` (contract note), fix verified via `test/tiannara/phase4/event_bus_envelope_test.exs` + `test/tiannara/phase4/experiment_orchestrator_test.exs` |
+| **C11** | MEDIUM (**OPEN**, architectural) | **Effect-to-sink closure gap.** `GovernedEffectSink` (the intended authorization→effect boundary) handles a single event type and has **zero production callers in `lib/`**; the 28-sink inventory exists only in audit `.out` artifacts, not as an enforced runtime invariant. Consequential actions can therefore still reach world-state mutation without traversing a universal governed sink. Remediation requires an architectural decision (which sinks are mandatory, how non-compliant call sites are detected), not a local fix — deferred from Stage 5 scope by directive. | capability scan 2026-10-17 (see `certification/audit/TIANNARA_CAPABILITY_SCAN.md`); grep: 0 production call sites |
 
 ### 3.1 The dangerous pair
 
@@ -458,8 +459,8 @@ domain implementation, because it restores the gate's authority for *every* futu
    `{:ok, []}` hypothesis generators into explicit `{:unavailable, reason}` + named
    constitutional failure artifacts. Removing a false capability beats implementing
    a new one.
-3. **C5 — stop success-shaping stub returns** on the repair path; make them named
-   failures so nothing downstream can treat them as repairs.
+3. ~~**C5 — stop success-shaping stub returns** on the repair path; make them named
+   failures so nothing downstream can treat them as repairs.~~ **DONE 2026-10-17** (`de7116fe`).
 4. **Full-suite topology alignment** (`{:already_started, pid}`) — fix the topology,
    never the assertions. This is what turns "≥99 failures" into a usable regression gate.
 5. **C7 — reconcile the service registry** with runtime capability, so the registry
@@ -513,12 +514,13 @@ Nothing historical was rewritten to make the project look cleaner.
 | C2 | `Tiannara.StubRegistry` has no consumers | HIGH |
 | C3 | `Tiannara.Ctl.CausalRegistry` case mismatch binds caller to the stub | HIGH |
 | C4 | Stub returns fabricated `stress: 0.0` measurement | HIGH |
-| C5 | Success-shaped stubs on the self-repair path | HIGH |
+| C5 | Success-shaped stubs on the self-repair path | HIGH → **REMEDIATED 2026-10-17** |
 | C6 | Fabricated domain evidence across the scientific layer | CRITICAL |
 | C7 | Advertised `provides:` not reconciled with runtime capability | MEDIUM |
 | C8 | `FitnessEvaluator.compare_fitness/2` badarith on zero baseline | MEDIUM |
 | C9 | `CIS.validate_plan/1` returns `{:ok, plan}` unconditionally | MEDIUM |
 | C10 | Research loop crashed on unknown-workflow events | CRITICAL (fixed & verified) |
+| C11 | Effect-to-sink closure gap (governed sink has zero production callers) | MEDIUM (OPEN, architectural) |
 
 The superseded production-ledger §2 table was a duplicate classification of the same
 39 capability families now recorded in §4 (under D-series row references), and several
