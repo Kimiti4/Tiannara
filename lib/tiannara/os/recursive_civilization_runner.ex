@@ -11,12 +11,12 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
   This runner is a simulation harness, not a certification runner. By default
   Stage 1-2 outputs and Stage 3-5 results are simulated. Under Phase D staged
-  wiring, stages 3 and 4 can execute their genuine engines when requested via
-  `stage_modes` (see below); stages 1-2, 5, and metrics remain simulated.
+  wiring, stages 3, 4, and 5 can execute their genuine engines when requested
+  via `stage_modes` (see below); stages 1-2 and metrics remain simulated.
   Do not use harness output as evidence of production behavior or
   empirical self-improvement.
 
-  ## Phase D: machine-readable stage evidence labels (steps 1-3)
+  ## Phase D: machine-readable stage evidence labels (steps 1-4)
 
   Every run carries a `stage_evidence_labels` map assigning each pipeline
   component an evidence label from the vocabulary `:simulated` or
@@ -47,6 +47,18 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       `genuine_engine_over_stage3_method_evolution_outputs`. Stage 4
       `:evidence_backed` requires stage 3 `:evidence_backed` as well (the
       genuine engine consumes real Stage 3 structs, never fabricated maps).
+    - **step 4** `stage5_civilization_adaptation`: the runner feeds Stage 4
+      `InstitutionAdaptationResults` (genuine evidence-backed outputs) into
+      the genuine `Stage5CivilizationAdaptation.execute_stage_5/3` (pure
+      functions, no GenServer). The engine's own validation gates reject
+      genuine Stage 4 evidence-backed results (5-stage history, noncompliant
+      status), producing the engine's honest blocked result
+      (`status: :failed, failure_reason: :no_valid_adaptations`) — the
+      runner never fabricates adoption to bypass the gates. Per-generation
+      evidence persisted to `<output_dir>/stage5_evidence/`. Provenance:
+      `genuine_engine_over_stage4_institution_adaptation_outputs`. Stage 5
+      `:evidence_backed` requires stage 4 `:evidence_backed` as well (the
+      genuine engine consumes real Stage 4 results, never fabricated maps).
 
   A companion `stage_provenance` map records, per stage, what each label means
   operationally.
@@ -93,7 +105,8 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     MethodEvolutionResult,
     ResearchEpisode,
     ResearchInstitution,
-    Stage4InstitutionAdaptation
+    Stage4InstitutionAdaptation,
+    Stage5CivilizationAdaptation
   }
 
 
@@ -108,12 +121,13 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     - `stage_modes`: Per-stage evidence mode map, e.g.
       `%{stage3_method_evolution: :simulated}`. `:simulated` is supported for
       every stage; `:evidence_backed` is supported only for stages whose
-      genuine engine is wired (Phase D steps 2-3: `stage3_method_evolution`,
-      `stage4_institution_adaptation`) and raises for every other stage.
-      Stage 4 `:evidence_backed` additionally requires stage 3
-      `:evidence_backed`. A `:evidence_backed` stage that would not execute
-      (adaptation disabled) also raises — the runner never records a label
-      for work that did not run.
+      genuine engine is wired (Phase D steps 2-4: `stage3_method_evolution`,
+      `stage4_institution_adaptation`, `stage5_civilization_adaptation`) and
+      raises for every other stage. Stage 4 `:evidence_backed` additionally
+      requires stage 3 `:evidence_backed`; stage 5 `:evidence_backed`
+      additionally requires stage 4 `:evidence_backed`. A `:evidence_backed`
+      stage that would not execute (adaptation disabled) also raises — the
+      runner never records a label for work that did not run.
     - `output_dir`: Directory for CSV exports (default: "data/stage6")
     - `episodes_per_generation`: Episodes to generate per generation (default: 200, must be > 0)
     - `institutions`: List of institution IDs (default: 20 institutions)
@@ -197,6 +211,19 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
             "stage_modes.stage3_method_evolution: :evidence_backed as well — the " <>
             "genuine Stage 4 engine consumes MethodEvolutionResult structs produced " <>
             "by the genuine Stage 3 engine (Phase D: no fabricated inputs to real engines)."
+    end
+
+    # Phase D step 4: stage5's genuine engine consumes Stage 4
+    # InstitutionAdaptationResults; requesting :evidence_backed for stage5
+    # while stage4 is :simulated would feed fabricated maps to a real engine.
+    if :stage5_civilization_adaptation in evidence_backed and
+         :stage4_institution_adaptation not in evidence_backed do
+      raise ArgumentError,
+        message:
+          "stage_modes.stage5_civilization_adaptation: :evidence_backed requires " <>
+            "stage_modes.stage4_institution_adaptation: :evidence_backed as well — the " <>
+            "genuine Stage 5 engine consumes InstitutionAdaptationResults produced " <>
+            "by the genuine Stage 4 engine (Phase D: no fabricated inputs to real engines)."
     end
 
     # Ensure output directory exists
@@ -293,11 +320,17 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
   # MethodEvolutionResult structs (pure functions, no kernel required);
   # evidence-backed mode defers every compatible proposal with
   # :awaiting_pilot_evidence (fail-closed, never fabricates adoptions).
+  # Phase D step 4 wired stage 5: the genuine Stage5CivilizationAdaptation
+  # engine consumes Stage 4's InstitutionAdaptationResults (pure functions);
+  # the engine's validation gates reject evidence-backed Stage 4 results
+  # (5-stage history, noncompliant status), producing its honest blocked
+  # result — the runner never fabricates adoption to bypass the gates.
   # Requesting :evidence_backed for a stage absent from this set raises
   # (never pretend).
   @wired_evidence_backed_stages MapSet.new([
     :stage3_method_evolution,
-    :stage4_institution_adaptation
+    :stage4_institution_adaptation,
+    :stage5_civilization_adaptation
   ])
 
   defp validate_stage_modes(stage_modes) when is_map(stage_modes) do
@@ -348,6 +381,10 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
   # :evidence_backed for stage4 => the genuine Stage4InstitutionAdaptation
   # engine executed over Stage 3 MethodEvolutionResult structs; evidence mode
   # defers every compatible proposal (no fabricated adoptions).
+  # :evidence_backed for stage5 => the genuine Stage5CivilizationAdaptation
+  # engine executed over Stage 4 InstitutionAdaptationResults; the engine's
+  # validation gates reject evidence-backed Stage 4 results, producing its
+  # honest blocked result (no fabricated adoption).
   defp build_stage_provenance(stage_modes) do
     Map.new(@stage_mode_keys, fn stage ->
       provenance =
@@ -357,6 +394,9 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
           {:stage4_institution_adaptation, :evidence_backed} ->
             "genuine_engine_over_stage3_method_evolution_outputs"
+
+          {:stage5_civilization_adaptation, :evidence_backed} ->
+            "genuine_engine_over_stage4_institution_adaptation_outputs"
 
           {_stage, :evidence_backed} ->
             "genuine_engine"
@@ -457,9 +497,21 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
       IO.puts("  ✓ Produced #{length(stage4)} InstitutionAdaptationResults")
 
-      # Execute Stage 5: Civilization Adaptation
-      IO.puts("\n🌍 SIMULATING Stage 5: Civilization Adaptation (based on simulated inputs)...")
-      stage5 = execute_stage5(stage4, gen_num)
+      # Execute Stage 5: Civilization Adaptation (mode from stage_modes; Phase D
+      # step 4 wires :evidence_backed to the genuine Stage5CivilizationAdaptation
+      # engine — consumes Stage 4 InstitutionAdaptationResults)
+      stage5_mode = adapted_state.stage_modes.stage5_civilization_adaptation
+
+      stage5 = case stage5_mode do
+        :evidence_backed ->
+          IO.puts("\n🌍 EXECUTING Stage 5: Civilization Adaptation (genuine " <>
+                    "Stage5CivilizationAdaptation over Stage 4 results)...")
+          execute_stage5_evidence_backed(stage4, gen_num, config)
+
+        :simulated ->
+          IO.puts("\n🌍 SIMULATING Stage 5: Civilization Adaptation (based on simulated inputs)...")
+          execute_stage5(stage4, gen_num)
+      end
       IO.puts("  ✓ Civilization decision: #{inspect(stage5.civilization_decision)}")
 
       {stage3, stage4, stage5}
@@ -874,6 +926,68 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
         constitutional_compliance: true
       }
     end)
+  end
+
+  # ──────────────────────────────────────────────
+  # Phase D step 4: genuine Stage 5 wiring
+  #
+  # Executes the genuine Stage5CivilizationAdaptation engine over Stage 4
+  # InstitutionAdaptationResults (pure functions, no GenServer). Inputs are
+  # the genuine Stage 4 evidence-backed outputs (deferred/noncompliant
+  # results, never fabricated adoptions). The engine's validate_adaptations/1
+  # enforces four gates — stage_history >= 7, constitutional compliance,
+  # rollback availability, and explicit evidence-source labeling — which
+  # genuine Stage 4 evidence-backed results do not satisfy (5-stage history,
+  # noncompliant status). The engine therefore returns its honest blocked
+  # result (status: :failed, failure_reason: :no_valid_adaptations); the
+  # runner never fabricates adoption to bypass those gates. Per-generation
+  # evidence persisted to <output_dir>/stage5_evidence/.
+  # ──────────────────────────────────────────────
+
+  defp execute_stage5_evidence_backed(stage4_results, gen_num, config) do
+    result =
+      Stage5CivilizationAdaptation.execute_stage_5(stage4_results, :tiannara,
+        generation: gen_num,
+        min_institutions: 15,
+        prediction_reliability_threshold: 0.6
+      )
+
+    persist_stage5_evidence(gen_num, result, config)
+    result
+  end
+
+  defp persist_stage5_evidence(gen_num, result, config) do
+    evidence_dir = Path.join(config.output_dir, "stage5_evidence")
+    File.mkdir_p!(evidence_dir)
+
+    payload = %{
+      generation: gen_num,
+      stage: "stage5_civilization_adaptation",
+      stage_mode: "evidence_backed",
+      stage_provenance: Map.get(config.stage_provenance || %{}, :stage5_civilization_adaptation),
+      engine: "TiannaraOS.Stage5CivilizationAdaptation.execute_stage_5/3",
+      input_provenance: "genuine_stage4_institution_adaptation_outputs (InstitutionAdaptationResults)",
+      result_id: result.id,
+      civilization_decision: result.civilization_decision,
+      status: result.status,
+      failure_reason: result.failure_reason,
+      institutions_evaluated: result.institutions_evaluated,
+      supporting_institutions_count: length(result.supporting_institutions || []),
+      note:
+        "Genuine engine executed over genuine Stage 4 evidence-backed outputs. " <>
+          "Stage 4 evidence mode defers every proposal (:awaiting_pilot_evidence) " <>
+          "and produces noncompliant results, so the engine's validation gates " <>
+          "(stage_history >= 7, compliance, rollback, evidence-source) reject " <>
+          "them and the result is the engine's honest blocked outcome — " <>
+          "status: :failed, failure_reason: :no_valid_adaptations. Adoption is " <>
+          "never fabricated by the runner.",
+      certification_claim: "none"
+    }
+
+    File.write!(
+      Path.join(evidence_dir, "generation_#{gen_num}.json"),
+      Jason.encode!(payload, pretty: true)
+    )
   end
 
   defp execute_stage5(stage4_results, gen_num) do

@@ -190,7 +190,7 @@ defmodule TiannaraOS.RecursiveCivilizationRunnerTest do
           authorized: true,
           output_dir: output_dir,
           episodes_per_generation: 5,
-          stage_modes: %{stage5_civilization_adaptation: :evidence_backed}
+          stage_modes: %{metrics_collection: :evidence_backed}
         })
       end
     end
@@ -606,6 +606,222 @@ defmodule TiannaraOS.RecursiveCivilizationRunnerTest do
       assert length(histories) == 2
       assert File.exists?(Path.join(output_dir, "stage4_evidence/generation_1.json"))
       assert File.exists?(Path.join(output_dir, "stage4_evidence/generation_2.json"))
+    end
+  end
+
+  # ──────────────────────────────────────────────
+  # Phase D step 4: genuine Stage 5 wiring
+  # ──────────────────────────────────────────────
+
+  describe "genuine Stage 5 wiring (Phase D step 4)" do
+    test "evidence_backed stage5 runs the genuine engine and persists machine-readable evidence",
+         %{output_dir: output_dir} do
+      inst = unique_institution(:s5_evidence)
+
+      assert {:ok, histories} =
+               RecursiveCivilizationRunner.execute(1, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 4,
+                 institutions: [inst],
+                 stage_modes: %{
+                   stage3_method_evolution: :evidence_backed,
+                   stage4_institution_adaptation: :evidence_backed,
+                   stage5_civilization_adaptation: :evidence_backed
+                 }
+               })
+
+      assert length(histories) == 1
+
+      evidence_path = Path.join(output_dir, "stage5_evidence/generation_1.json")
+      assert File.exists?(evidence_path)
+
+      payload =
+        evidence_path
+        |> File.read!()
+        |> Jason.decode!()
+
+      assert payload["stage"] == "stage5_civilization_adaptation"
+      assert payload["stage_mode"] == "evidence_backed"
+      assert payload["stage_provenance"] ==
+               "genuine_engine_over_stage4_institution_adaptation_outputs"
+      assert payload["engine"] ==
+               "TiannaraOS.Stage5CivilizationAdaptation.execute_stage_5/3"
+      assert payload["input_provenance"] =~ "genuine_stage4_institution_adaptation_outputs"
+      assert payload["certification_claim"] == "none"
+    end
+
+    test "genuine stage5 over evidence-backed stage4 produces the engine's honest blocked result, never a fabricated adoption",
+         %{output_dir: output_dir} do
+      inst = unique_institution(:s5_honest)
+
+      assert {:ok, histories} =
+               RecursiveCivilizationRunner.execute(1, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 4,
+                 institutions: [inst],
+                 stage_modes: %{
+                   stage3_method_evolution: :evidence_backed,
+                   stage4_institution_adaptation: :evidence_backed,
+                   stage5_civilization_adaptation: :evidence_backed
+                 }
+               })
+
+      payload =
+        Path.join(output_dir, "stage5_evidence/generation_1.json")
+        |> File.read!()
+        |> Jason.decode!()
+
+      # The genuine engine's validate_adaptations/1 rejects evidence-backed
+      # Stage 4 results (5-stage history < 7, noncompliant status), so the
+      # engine returns its honest blocked outcome.
+      assert payload["status"] == "failed"
+      assert payload["failure_reason"] == "no_valid_adaptations"
+      # No adoption is fabricated: decision is :reject (the engine's
+      # create_empty_result path), supporting institutions count is 0.
+      assert payload["civilization_decision"] == "reject"
+      assert payload["supporting_institutions_count"] == 0
+
+      # The harness's active_adaptations for this generation must be empty —
+      # a blocked result can never become adopted adaptations downstream.
+      history = List.first(histories)
+      assert history.stage5_result_id != nil
+    end
+
+    test "labels file records stage5 as evidence_backed with honest provenance", %{
+      output_dir: output_dir
+    } do
+      inst = unique_institution(:s5_labels)
+
+      assert {:ok, _} =
+               RecursiveCivilizationRunner.execute(1, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 4,
+                 institutions: [inst],
+                 stage_modes: %{
+                   stage3_method_evolution: :evidence_backed,
+                   stage4_institution_adaptation: :evidence_backed,
+                   stage5_civilization_adaptation: :evidence_backed
+                 }
+               })
+
+      payload =
+        Path.join(output_dir, "stage_evidence_labels.json")
+        |> File.read!()
+        |> Jason.decode!()
+
+      assert payload["stage_evidence_labels"]["stage5_civilization_adaptation"] ==
+               "evidence_backed"
+
+      assert payload["stage_provenance"]["stage5_civilization_adaptation"] ==
+               "genuine_engine_over_stage4_institution_adaptation_outputs"
+
+      # Simulated vs evidence-backed remain distinguishable per stage.
+      assert payload["stage_evidence_labels"]["episode_generation"] == "simulated"
+      assert payload["stage_evidence_labels"]["metrics_collection"] == "simulated"
+    end
+
+    test "stage5 evidence_backed without stage4 evidence_backed raises", %{
+      output_dir: output_dir
+    } do
+      inst = unique_institution(:s5_guard)
+
+      assert_raise ArgumentError, ~r/requires\s+stage_modes\.stage4_institution_adaptation/, fn ->
+        RecursiveCivilizationRunner.execute(1, %{
+          authorized: true,
+          output_dir: output_dir,
+          episodes_per_generation: 4,
+          institutions: [inst],
+          stage_modes: %{
+            stage3_method_evolution: :evidence_backed,
+            stage5_civilization_adaptation: :evidence_backed
+          }
+        })
+      end
+    end
+
+    test "evidence_backed stage5 with adaptation disabled raises (labels never lie)", %{
+      output_dir: output_dir
+    } do
+      inst = unique_institution(:s5_disabled)
+
+      assert_raise ArgumentError, ~r/enable_adaptation: false/, fn ->
+        RecursiveCivilizationRunner.execute(1, %{
+          authorized: true,
+          output_dir: output_dir,
+          episodes_per_generation: 4,
+          institutions: [inst],
+          enable_adaptation: false,
+          stage_modes: %{
+            stage3_method_evolution: :evidence_backed,
+            stage4_institution_adaptation: :evidence_backed,
+            stage5_civilization_adaptation: :evidence_backed
+          }
+        })
+      end
+    end
+
+    test "stage5 remains simulated by default and no stage5_evidence directory is created",
+         %{output_dir: output_dir} do
+      inst = unique_institution(:s5_default)
+
+      assert {:ok, _} =
+               RecursiveCivilizationRunner.execute(1, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 4,
+                 institutions: [inst],
+                 stage_modes: %{
+                   stage3_method_evolution: :evidence_backed,
+                   stage4_institution_adaptation: :evidence_backed
+                 }
+               })
+
+      payload =
+        Path.join(output_dir, "stage_evidence_labels.json")
+        |> File.read!()
+        |> Jason.decode!()
+
+      assert payload["stage_evidence_labels"]["stage5_civilization_adaptation"] == "simulated"
+      assert payload["stage_provenance"]["stage5_civilization_adaptation"] ==
+               "harness_fabricated_output"
+      refute File.exists?(Path.join(output_dir, "stage5_evidence"))
+    end
+
+    test "multiple generations produce one honest blocked result per generation", %{
+      output_dir: output_dir
+    } do
+      inst = unique_institution(:s5_multi)
+
+      assert {:ok, histories} =
+               RecursiveCivilizationRunner.execute(2, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 4,
+                 institutions: [inst],
+                 stage_modes: %{
+                   stage3_method_evolution: :evidence_backed,
+                   stage4_institution_adaptation: :evidence_backed,
+                   stage5_civilization_adaptation: :evidence_backed
+                 }
+               })
+
+      assert length(histories) == 2
+      assert File.exists?(Path.join(output_dir, "stage5_evidence/generation_1.json"))
+      assert File.exists?(Path.join(output_dir, "stage5_evidence/generation_2.json"))
+
+      for gen <- [1, 2] do
+        payload =
+          Path.join(output_dir, "stage5_evidence/generation_#{gen}.json")
+          |> File.read!()
+          |> Jason.decode!()
+
+        assert payload["status"] == "failed"
+        assert payload["failure_reason"] == "no_valid_adaptations"
+        assert payload["civilization_decision"] == "reject"
+      end
     end
   end
 end
