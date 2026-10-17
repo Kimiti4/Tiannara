@@ -29,7 +29,6 @@ defmodule Tiannara.CRAV.SupervisorIntegrity do
     Tiannara.A10.Supervisor,
     Tiannara.ASC.Supervisor,
     Tiannara.WorldModel.Supervisor,
-    Tiannara.PlanetaryTwin.Supervisor,
     Tiannara.DiscoveryPipeline.Supervisor,
     Tiannara.EngineeringPipeline.Supervisor,
     Tiannara.SimulationRuntime.Supervisor,

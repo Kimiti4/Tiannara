@@ -331,7 +331,6 @@ defmodule Tiannara.CRAV.RuntimeDependencyGraph do
       String.starts_with?(str, "Elixir.Tiannara.ASC") -> :asc
       String.starts_with?(str, "Elixir.Tiannara.WorldModel") -> :world_model
       String.starts_with?(str, "Elixir.Tiannara.Sentinel") -> :sentinel
-      String.starts_with?(str, "Elixir.Tiannara.PlanetaryTwin") -> :planetary_twin
       String.starts_with?(str, "Elixir.Tiannara.DiscoveryPipeline") -> :discovery_pipeline
       String.starts_with?(str, "Elixir.Tiannara.EngineeringPipeline") -> :engineering_pipeline
       String.starts_with?(str, "Elixir.Tiannara.SimulationRuntime") -> :simulation_runtime
@@ -352,7 +351,7 @@ defmodule Tiannara.CRAV.RuntimeDependencyGraph do
 
     known = [
       :rea, :sopl, :cis, :msg, :omce, :hsv, :grcc, :oed, :ctl,
-      :a10, :asc, :world_model, :sentinel, :planetary_twin,
+      :a10, :asc, :world_model, :sentinel,
       :discovery_pipeline, :engineering_pipeline, :simulation_runtime,
       :theory_ecology, :knowledge_graph, :civilization_runtime
     ]

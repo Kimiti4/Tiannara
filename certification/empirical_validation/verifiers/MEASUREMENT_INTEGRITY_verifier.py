@@ -176,15 +176,21 @@ v10 = (
 )
 gate("V10_D5_FACADE_UNCHANGED_CERTIFIED_BOUNDED", v10)
 
-# --- 11. E06/E07 falsifications preserved: Discovery.Engine + Archaeology unchanged ---
+# --- 11. E06/E07 falsifications preserved: Discovery.Engine unchanged; ---
+# Archaeology remediated to fail-closed (2026-10-17). The historical E07
+# falsification (hardcoded 0.99 ignoring input) is preserved in
+# MEASUREMENT_INTEGRITY_EVIDENCE.json and FALSE_EMERGENCE_TEST_PLAN.md;
+# the source itself now fails closed so no future caller can mistake
+# theatrical output for a real measurement.
 discovery_engine = text_of(ROOT / "lib" / "tiannara" / "discovery" / "engine.ex")
 archaeology = text_of(ROOT / "lib" / "tiannara" / "archaeology" / "archaeology.ex")
 v11 = (
     "def discover(scenario, _payload)" in discovery_engine
-    and "def excavate(scenario, _payload)" in archaeology
-    and "0.99" in archaeology  # the falsifiable hardcoded value
+    and "def excavate(_scenario, _payload)" in archaeology
+    and "{:error, :archaeology_simulation_unavailable}" in archaeology
+    and "0.99" not in archaeology  # the falsifiable hardcoded value is gone
 )
-gate("V11_E06_E07_DISCOVERY_ARCHAEOLOGY_UNCHANGED", v11)
+gate("V11_E06_E07_DISCOVERY_ARCHAEOLOGY_FAIL_CLOSED", v11)
 
 # --- 12. The planner was modified but no other forecasting module was ---
 # This is a structural check: the only forecasting file modified by R3 is planner.ex.

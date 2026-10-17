@@ -12,7 +12,7 @@ defmodule Tiannara.CRAV.RuntimeAtlas do
 
   @known_subsystems [
     :rea, :sopl, :cis, :msg, :omce, :hsv, :grcc, :oed, :ctl, :a10, :ucc,
-    :asc, :world_model, :sentinel, :planetary_twin, :discovery_pipeline,
+    :asc, :world_model, :sentinel, :discovery_pipeline,
     :engineering_pipeline, :simulation_runtime, :theory_ecology, :knowledge_graph,
     :civilization_runtime, :omcs, :olef, :opc, :nde, :twp, :ird, :acf, :ccr,
     :dfg, :osl, :rrg, :ros, :rel, :civilization_kernel, :telemetry, :phase_omega
@@ -33,7 +33,6 @@ defmodule Tiannara.CRAV.RuntimeAtlas do
     asc: "Adaptive System Controller — self-modification engine",
     world_model: "World Model — planetary state representation",
     sentinel: "Sentinel — anomaly detection and health monitoring",
-    planetary_twin: "Planetary Twin — Earth system simulation",
     discovery_pipeline: "Discovery Pipeline — hypothesis-to-evidence pipeline",
     engineering_pipeline: "Engineering Pipeline — theory-to-deployment pipeline",
     simulation_runtime: "Simulation Runtime — parallel simulation execution",
@@ -72,7 +71,6 @@ defmodule Tiannara.CRAV.RuntimeAtlas do
     asc: Tiannara.ASC,
     world_model: Tiannara.WorldModel,
     sentinel: Tiannara.Sentinel,
-    planetary_twin: Tiannara.PlanetaryTwin,
     discovery_pipeline: Tiannara.DiscoveryPipeline,
     engineering_pipeline: Tiannara.EngineeringPipeline,
     simulation_runtime: Tiannara.SimulationRuntime,
@@ -510,7 +508,6 @@ defmodule Tiannara.CRAV.RuntimeAtlas do
       %{name: :evidence_events, source: Tiannara.REA, consumers: [Tiannara.KnowledgeGraph, Tiannara.Sentinel], frequency: :continuous},
       %{name: :anomaly_events, source: Tiannara.Sentinel, consumers: [Tiannara.WorldModel, Tiannara.CivilizationRuntime], frequency: :on_detection},
       %{name: :health_events, source: Tiannara.Telemetry, consumers: [Tiannara.PhaseOmega], frequency: :periodic},
-      %{name: :model_update_events, source: Tiannara.WorldModel, consumers: [Tiannara.PlanetaryTwin, Tiannara.TheoryEcology], frequency: :on_update},
       %{name: :certification_events, source: Module.concat([Tiannara, Observatory, Certification]), consumers: [Tiannara.PhaseOmega], frequency: :on_certify}
     ]
     |> Enum.reject(fn stream ->
@@ -672,7 +669,7 @@ defmodule Tiannara.CRAV.RuntimeAtlas do
     ])
 
     planetary_readiness = compute_category_readiness(subsystems, [
-      :planetary_twin, :world_model, :theory_ecology, :knowledge_graph
+      :world_model, :theory_ecology, :knowledge_graph
     ])
 
     civilization_readiness = compute_category_readiness(subsystems, [

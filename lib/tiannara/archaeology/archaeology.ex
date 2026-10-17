@@ -1,84 +1,68 @@
 defmodule Tiannara.Archaeology.FossilExcavator do
-  @moduledoc "Extracts compressed knowledge from deepest EpochalStrata layers."
-  require Logger
-  alias Tiannara.Metrics.Aggregator
+  @moduledoc """
+  Extracts compressed knowledge from deepest EpochalStrata layers.
 
-  def excavate(scenario, _payload) do
-    case scenario do
-      :million_tick_memory_survival ->
-        Logger.info("⛏️ [FossilExcavator] Simulating 1,000,000 tick memory retrieval...")
-        Logger.info("⛏️ [FossilExcavator] Core axioms successfully retrieved from strata.")
-        Aggregator.push_event([:tiannara, :archaeology, :fossil_recovery_rate], 0.99)
+  ## Current Status: fail-closed.
 
-      :historical_retrieval_accuracy ->
-        Logger.info("⛏️ [FossilExcavator] Querying specific pre-epoch technological blueprint.")
-        Logger.info("⛏️ [FossilExcavator] Blueprint recovered with high fidelity.")
-        Aggregator.push_event([:tiannara, :archaeology, :historical_retrieval_accuracy], 0.96)
-        
-      :multi_era_recovery ->
-        Logger.info("⛏️ [FossilExcavator] Attempting recovery spanning 3 distinct civilizational eras.")
-        Aggregator.push_event([:tiannara, :archaeology, :multi_era_recovery_score], 0.92)
+  This module previously returned hardcoded metric literals (0.99/0.96/0.92)
+  regardless of input — classified SIMULATED by the E03 recon harness and
+  FALSIFIED at function level (CLAIM-E07). It now fails closed until a real
+  fossil-recovery substrate exists. The historical falsification is preserved
+  in the certification evidence (MEASUREMENT_INTEGRITY_EVIDENCE.json);
+  removing the evidence of fabrication would itself be dishonest.
+  """
 
-      _ -> :ok
-    end
+  @spec excavate(atom(), term()) :: {:error, :archaeology_simulation_unavailable}
+  def excavate(_scenario, _payload) do
+    {:error, :archaeology_simulation_unavailable}
   end
 end
 
 defmodule Tiannara.Archaeology.SemanticReconstructor do
-  @moduledoc "Pieces together fragmented causal chains broken by timeline merges."
-  require Logger
-  alias Tiannara.Metrics.Aggregator
+  @moduledoc """
+  Pieces together fragmented causal chains broken by timeline merges.
 
-  def reconstruct(scenario, _payload) do
-    case scenario do
-      :semantic_preservation ->
-        Logger.info("🧩 [SemanticReconstructor] Bridging broken causal link across 50,000 ticks.")
-        Logger.info("🧩 [SemanticReconstructor] Semantic meaning restored without contradiction.")
-        Aggregator.push_event([:tiannara, :archaeology, :semantic_reconstruction_accuracy], 0.95)
+  ## Current Status: fail-closed.
 
-      :precedent_reconstruction ->
-        Logger.info("🧩 [SemanticReconstructor] Reconstructing legal precedent from archaic governance models.")
-        Aggregator.push_event([:tiannara, :archaeology, :semantic_reconstruction_accuracy], 0.94)
+  Previously returned hardcoded metric literals ignoring input (CLAIM-E07
+  FALSIFIED). Fails closed until a real semantic-reconstruction substrate exists.
+  """
 
-      _ -> :ok
-    end
+  @spec reconstruct(atom(), term()) :: {:error, :archaeology_simulation_unavailable}
+  def reconstruct(_scenario, _payload) do
+    {:error, :archaeology_simulation_unavailable}
   end
 end
 
 defmodule Tiannara.Archaeology.EpochCompressor do
-  @moduledoc "Handles extreme compression events transitioning epochs."
-  require Logger
-  alias Tiannara.Metrics.Aggregator
+  @moduledoc """
+  Handles extreme compression events transitioning epochs.
 
-  def compress(scenario, _payload) do
-    case scenario do
-      :epoch_compression_fidelity ->
-        Logger.warning("🗜️ [EpochCompressor] Executing epoch-level Reality Graph compression.")
-        Logger.info("🗜️ [EpochCompressor] Epoch boundaries solidified. High-value data preserved.")
-        Aggregator.push_event([:tiannara, :archaeology, :epoch_compression_fidelity], 0.98)
+  ## Current Status: fail-closed.
 
-      :recursive_compression ->
-        Logger.warning("🗜️ [EpochCompressor] Compressing an already compressed epoch (recursive).")
-        Logger.info("🗜️ [EpochCompressor] Recursive survival confirmed without structural collapse.")
-        Aggregator.push_event([:tiannara, :archaeology, :recursive_compression_survival], 0.97)
+  Previously returned hardcoded metric literals ignoring input (CLAIM-E07
+  FALSIFIED). Fails closed until a real epoch-compression substrate exists.
+  """
 
-      _ -> :ok
-    end
+  @spec compress(atom(), term()) :: {:error, :archaeology_simulation_unavailable}
+  def compress(_scenario, _payload) do
+    {:error, :archaeology_simulation_unavailable}
   end
 end
 
 defmodule Tiannara.Archaeology.IdentityPreserver do
-  @moduledoc "Maintains civilizational continuity across radical physical/topological shifts."
-  require Logger
-  alias Tiannara.Metrics.Aggregator
+  @moduledoc """
+  Maintains civilizational continuity across radical physical/topological shifts.
 
-  def preserve(scenario, _payload) do
-    case scenario do
-      :civilizational_identity ->
-        Logger.info("🧬 [IdentityPreserver] Auditing core identity after 1M ticks of drift.")
-        Logger.info("🧬 [IdentityPreserver] Foundational identity remains continuous with origin.")
-        Aggregator.push_event([:tiannara, :archaeology, :civilizational_identity_continuity], 0.99)
-      _ -> :ok
-    end
+  ## Current Status: fail-closed.
+
+  Previously returned a hardcoded 0.99 continuity score ignoring input
+  (CLAIM-E07 FALSIFIED). Fails closed until a real identity-continuity
+  substrate exists.
+  """
+
+  @spec preserve(atom(), term()) :: {:error, :archaeology_simulation_unavailable}
+  def preserve(_scenario, _payload) do
+    {:error, :archaeology_simulation_unavailable}
   end
 end

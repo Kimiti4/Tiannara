@@ -27,7 +27,7 @@ defmodule Tiannara.CRAV.LaunchReadiness do
   ])
 
   @planetary_subsystems MapSet.new([
-    :planetary_twin, :world_model, :theory_ecology, :knowledge_graph
+    :world_model, :theory_ecology, :knowledge_graph
   ])
 
   @civilization_subsystems MapSet.new([

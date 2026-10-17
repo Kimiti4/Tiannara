@@ -13,7 +13,7 @@ defmodule Tiannara.CRAV.EventBusAudit do
 
   @subsystems [
     :rea, :sopl, :cis, :msg, :omce, :hsv, :grcc, :oed, :ctl,
-    :a10, :asc, :world_model, :sentinel, :planetary_twin,
+    :a10, :asc, :world_model, :sentinel,
     :discovery_pipeline, :engineering_pipeline, :simulation_runtime,
     :theory_ecology, :knowledge_graph, :civilization_runtime,
     :observatory, :sentinel
@@ -33,7 +33,6 @@ defmodule Tiannara.CRAV.EventBusAudit do
     asc: [Tiannara.ASC],
     world_model: [Tiannara.WorldModel],
     sentinel: [Tiannara.Sentinel],
-    planetary_twin: [Tiannara.PlanetaryTwin],
     discovery_pipeline: [Tiannara.DiscoveryPipeline],
     engineering_pipeline: [Tiannara.EngineeringPipeline],
     simulation_runtime: [Tiannara.SimulationRuntime],

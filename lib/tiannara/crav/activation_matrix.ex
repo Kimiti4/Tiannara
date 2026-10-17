@@ -12,14 +12,14 @@ defmodule Tiannara.CRAV.ActivationMatrix do
 
   @subsystems [
     :rea, :sopl, :cis, :msg, :omce, :hsv, :grcc, :oed, :ctl,
-    :a10, :asc, :world_model, :sentinel, :planetary_twin,
+    :a10, :asc, :world_model, :sentinel,
     :discovery_pipeline, :engineering_pipeline, :simulation_runtime,
     :theory_ecology, :knowledge_graph, :civilization_runtime
   ]
 
   @observable_subsystems MapSet.new([
     :rea, :sopl, :cis, :msg, :omce, :hsv, :grcc, :oed, :ctl,
-    :a10, :asc, :world_model, :sentinel, :planetary_twin,
+    :a10, :asc, :world_model, :sentinel,
     :discovery_pipeline, :engineering_pipeline, :simulation_runtime,
     :theory_ecology, :knowledge_graph, :civilization_runtime
   ])
@@ -38,7 +38,6 @@ defmodule Tiannara.CRAV.ActivationMatrix do
     asc: {Tiannara.ASC, Tiannara.ASC.Supervisor},
     world_model: {Tiannara.WorldModel, Tiannara.WorldModel.Supervisor},
     sentinel: {Tiannara.Sentinel, Tiannara.Sentinel.Supervisor},
-    planetary_twin: {Tiannara.PlanetaryTwin, Tiannara.PlanetaryTwin.Supervisor},
     discovery_pipeline: {Tiannara.DiscoveryPipeline, Tiannara.DiscoveryPipeline.Supervisor},
     engineering_pipeline: {Tiannara.EngineeringPipeline, Tiannara.EngineeringPipeline.Supervisor},
     simulation_runtime: {Tiannara.SimulationRuntime, Tiannara.SimulationRuntime.Supervisor},

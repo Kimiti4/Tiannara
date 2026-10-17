@@ -19,7 +19,11 @@ defmodule Tiannara.ASC.Operations.Civilization do
     - Triggers `ASC.Repair` pipeline
     - Updates `long_term_stability` in Observatory
 
-  ## Current Status: Phase H stub.
+  ## Current Status: fail-closed (Phase H stub remediated).
+
+  `run/1` previously returned `{:ok, :stub}` — a success-shaped stub
+  (capability ledger C5). Now reports unavailability so no caller can
+  mistake it for a real operations execution.
   """
 
   use GenServer
@@ -27,8 +31,8 @@ defmodule Tiannara.ASC.Operations.Civilization do
 
   def start_link(opts \\ []), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
 
-  @spec run(Tiannara.ASC.Project.t()) :: {:ok, :stub}
-  def run(_project), do: {:ok, :stub}
+  @spec run(Tiannara.ASC.Project.t()) :: {:error, :unavailable}
+  def run(_project), do: {:error, :unavailable}
 
   @impl true
   def init(_opts) do
