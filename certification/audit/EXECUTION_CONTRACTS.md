@@ -3,7 +3,8 @@
 Status: contract documentation only (no code changes in this phase).
 Baseline: `4d982de7` — Elixir CI and Cross-Platform Verification both `success`.
 Prepared: 2026-10-16, branch `local/pr4`.
-Feeds: Phase B (Stage 3 genuine-analysis integration), Phase C (Stage 4/5 reassessment), Phase D (staged runner wiring).
+Updated: 2026-10-17 — Phase D steps 1-4 implemented (stages 3, 4, 5 genuine-engine wiring).
+Feeds: Phase B (Stage 3 genuine-analysis integration), Phase C (Stage 4/5 reassessment), Phase D (staged runner wiring, steps 1-4 complete).
 
 This document records what each pipeline stage *actually computes today*, which
 behavior is GENUINE (real computation over resolved evidence) and which is
@@ -557,25 +558,26 @@ stage 3 `:evidence_backed` as well — the genuine engine consumes real
   to real engines)"); existing stage-3 guards (disabled adaptation,
   non-atom institutions) apply.
 - **Stage 5 / metrics:** Stage 4 genuine results (all `:none_adopted` in
-  evidence mode) flow into the simulated Stage 5 and metrics collection;
-  downstream consumers use only counts and map access, so no vocabulary
-  or struct-shape breaks occur.
+  evidence mode) flow into Stage 5 and metrics collection; downstream
+  consumers use only counts and map access, so no vocabulary or
+  struct-shape breaks occur. (Stage 5 genuine wiring added at step 4 —
+  see below.)
 
-Tests: `recursive_civilization_runner_test.exs` — 24 total (9 step-1 +
-9 step-2 + 6 step-3): unwired-stage raise switched to stage5; genuine
-stage4 run persists evidence JSON with `total_deferred`/`total_adopted`
-and no `"pass"` string; labels flip stage3+stage4 to `evidence_backed`
-with honest provenance (stage5 stays `simulated`); stage4 without stage3
-raises; evidence-backed stage4 defers proposals (never fabricates
-adoptions); attestation carries flipped label + provenance; multi-generation
-runs persist evidence each generation.
+Tests: `recursive_civilization_runner_test.exs` — step-3 tests cover
+genuine stage4 evidence JSON with `total_deferred`/`total_adopted` and
+no `"pass"` string; labels flip stage3+stage4 to `evidence_backed` with
+honest provenance; stage4 without stage3 raises; evidence-backed stage4
+defers proposals (never fabricates adoptions); attestation carries
+flipped label + provenance; multi-generation runs persist evidence each
+generation.
 
 Failure semantics: no rescue anywhere — stage errors abort the run
 (fail-closed), except the ignored CSV append (`:197`, fail-open).
 Bounding: `num_generations > 0` only; no timeout/max-steps. Opt-out flag
-`enable_adaptation` (default `true` runs stages 3–5). Stage 3 and Stage 4
-genuine wiring (steps 2-3) have test coverage with adaptation enabled;
-stage 5 and metrics remain simulated with zero genuine-engine coverage.
+`enable_adaptation` (default `true` runs stages 3–5). Stage 3, Stage 4,
+and Stage 5 genuine wiring (steps 2-4) have test coverage with adaptation
+enabled; stages 1-2 and metrics remain simulated with zero genuine-engine
+coverage.
 
 Phase D rules (per approved plan): replace stages one at a time with typed
 contracts + input/output provenance + output validation + evidence persistence
@@ -590,6 +592,111 @@ Open policy question: three lib validator modules
 `ConstitutionalExecutor`, contradicting the documented "only legal path".
 *Phase D step 1 update: those direct calls now fail closed (`ArgumentError`
 from the new authorization gate) when invoked — the policy question stands.
+
+### Phase D step 4 outcome (implemented)
+
+Stage 5 Civilization Adaptation is now genuinely wired when requested via
+`stage_modes: %{stage5_civilization_adaptation: :evidence_backed}` (requires
+stage 4 `:evidence_backed` as well — the genuine engine consumes real
+`InstitutionAdaptationResult`s, never fabricated maps):
+
+- **Typed contract:** `Stage5CivilizationAdaptation.execute_stage_5/3`
+  (pure functions, no GenServer) returns a `%CivilizationAdaptationResult{}`.
+  The engine's `validate_adaptations/1` enforces four gates on every input:
+  `stage_history` length >= 7 (count-only; no named-stage check),
+  `constitutional_compliance.is_compliant == true`, `rollback_available ==
+  true`, and `simulation_results.evidence_source` labeled
+  `:evidence_backed` or `:synthetic` (unlabeled inputs are rejected —
+  pedigree is never assumed). Failure → `create_empty_result` with
+  `status: :failed, failure_reason: :no_valid_adaptations` — the engine's
+  honest blocked result.
+- **Input provenance:** Stage 4 `InstitutionAdaptationResult` maps (genuine
+  evidence-backed outputs). Provenance string:
+  `genuine_engine_over_stage4_institution_adaptation_outputs` recorded in
+  machine-readable state (labels file, attestation rows, checkpoints).
+- **Honest outcome (no fabrication):** genuine Stage 4 evidence-backed
+  results carry exactly 5 `stage_history` entries (`:proposal_received`,
+  `:compatibility_analyzed`, `:risk_assessed`, `:projected`,
+  `:decision_recorded`) and fail `is_compliant` — both gates reject them,
+  so the engine returns its blocked result. The runner never fabricates
+  adoption, pads `stage_history`, sets `rollback_available: true`, or
+  synthesizes compliance fields to bypass the gates. The blocked result
+  (`civilization_decision: :reject`, `status: :failed`,
+  `failure_reason: :no_valid_adaptations`,
+  `supporting_institutions_count: 0`) is persisted and flows into metrics
+  and `active_adaptations` (which becomes `[]`).
+- **Analysis vs. adaptation eligibility (gate semantics — proposed, not
+  implemented):** the `stage_history >= 7` gate is count-only: a 7-entry
+  history of `[:a, :b, :c, :d, :e, :f, :g]` passes, as does a single-stage
+  history of 7 repeats. The gate therefore cannot distinguish "analysis
+  completed" from "adaptation executed and piloted". A narrowly scoped
+  future change would add a named-stage check (e.g. `:decision_recorded`
+  and `:piloted` present) to separate *analysis* eligibility from
+  *adaptation rollout* eligibility — **not implemented here** (the gate
+  is unchanged per scope directive; changing it would weaken the existing
+  contract's evidence requirements).
+- **Deferred-status preservation:** Stage 4 evidence mode defers every
+  proposal (`:awaiting_pilot_evidence`); these deferrals flow into Stage 5
+  as noncompliant, short-history results and are rejected by the engine's
+  gates — a deferred Stage 4 result can never become an adopted Stage 5
+  rollout through the genuine path.
+- **Evidence persistence:** per-generation JSON at
+  `<output_dir>/stage5_evidence/generation_<n>.json` with engine name,
+  `input_provenance`, `result_id`, `civilization_decision`, `status`,
+  `failure_reason`, `institutions_evaluated`,
+  `supporting_institutions_count`, and `certification_claim: "none"`.
+  Simulated vs evidence-backed remain distinguishable per stage (labels
+  file records both; the `stage5_evidence/` directory exists only under
+  `:evidence_backed`).
+- **Guards:** stage 5 `:evidence_backed` without stage 4 `:evidence_backed`
+  raises `ArgumentError` ("requires stage_modes.stage4_institution_adaptation
+  … the genuine Stage 5 engine consumes InstitutionAdaptationResults
+  produced by the genuine Stage 4 engine (Phase D: no fabricated inputs
+  to real engines)"); evidence-backed with adaptation disabled raises;
+  unwired-stage raise moved to `metrics_collection`.
+
+Tests: `recursive_civilization_runner_test.exs` — 31 total (9 step-1 +
+9 step-2 + 6 step-3 + 7 step-4): genuine stage5 over evidence-backed
+stage4 produces the engine's honest blocked result (status `failed`,
+failure_reason `no_valid_adaptations`, decision `reject`, 0 supporting
+institutions — never a fabricated adoption); labels record stage5
+`evidence_backed` with honest provenance while stages 1-2/metrics stay
+`simulated`; stage5 without stage4 raises; evidence-backed stage5 with
+adaptation disabled raises; default (no stage5 mode) leaves stage5
+`simulated` with no `stage5_evidence/` directory; multi-generation runs
+persist one honest blocked result per generation.
+
+Failure semantics: no rescue anywhere — stage errors abort the run
+(fail-closed). The engine's blocked result is a *successful return of a
+failed-status struct*, not an exception — errors are never converted into
+successful-looking results, and a successful-looking result is never
+fabricated from an error.
+
+Open policy question (unchanged): three lib validator modules still call
+`execute/2` directly, bypassing `ConstitutionalExecutor`; the
+authorization gate makes those calls fail closed, but the policy question
+stands.
+
+### Proposed next step (not implemented): analysis/adaptation gate separation
+
+The `stage_history >= 7` gate treats analysis-only histories (5 genuine
+Stage 4 stages) identically to fabricated 7-entry histories. A proposed
+narrowly scoped change — **pending product confirmation, not part of this
+phase** — would:
+
+1. Add a named-stage check to `validate_adaptations/1` (e.g. require
+   `:decision_recorded` AND `:piloted` present in `stage_history`) so
+   *analysis* eligibility (5-stage genuine Stage 4 evidence) and
+   *adaptation rollout* eligibility (pilot + governance reviewed) are
+   separable.
+2. Keep the count-only check as a fast-path filter (never weaken it).
+3. Preserve the engine's honest blocked-result semantics for inputs that
+   pass analysis eligibility but lack rollout evidence (missing rollback
+   proof → no rollout authorization; noncompliant → no adoption;
+   simulated input → never upgraded).
+
+This is a gate-semantics change and was deliberately excluded from Phase D
+step 4 (which wires the existing contract without modifying it).
 
 ---
 
