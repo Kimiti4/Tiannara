@@ -371,6 +371,8 @@ The gate trace (completed this session) established:
 
 7. **No test asserts the `>= 7` boundary itself** (6 vs 7). The threshold is only exercised indirectly via the 5-vs-7 collision. Gate 2 (compliance) has no isolated unit test. Gate-passing in the lineage test uses hardcoded fixture values, not the real compliance validator.
 
+8. **Design response (2026-10-18)**: findings 1–4 are addressed by design — not yet by code — in `certification/audit/STAGE5_OUTCOME_VOCABULARY.md`. It defines the five-atom outcome vocabulary (`:evidence_insufficient`, `:analysis_possible`, `:adaptation_rejected`, `:adaptation_approved`, `:rollout_authorized`), separates analysis/approval/rollout as strictly cumulative tiers (count gate byte-identical), reserves `:rollout_authorized` as structurally unreachable until genuine pilot + governance-review records exist, and sequences contract tests (S5-0) before any behavior change (S5-1/S5-2 pending operator sign-off on OQ-1/OQ-2). Finding 6 (`ensure_complete_lifecycle`) was already fail-closed in B6, `c2cb4975`. Finding 7's boundary test is CT-1 in the S5-0 plan.
+
 ---
 
 ## E. Stage 6 Evidence Chain Coherence
