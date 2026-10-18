@@ -151,5 +151,8 @@ defmodule Tiannara.MetaCognition do
     # For now, if it passes precheck, we return it as a viable proposal.
   end
 
-  def consult_world_model(_query, _opts), do: {:ok, :stub}
+  # Fail-closed (production-readiness scan B5): no world-model consultation
+  # backend exists. Callers must keep their previous state on {:error, _}
+  # instead of storing this tuple as if it were updated cognition.
+  def consult_world_model(_query, _opts), do: {:error, :not_implemented}
 end

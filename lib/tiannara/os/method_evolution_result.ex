@@ -534,5 +534,8 @@ defmodule TiannaraOS.MethodEvolutionResult do
     }
   end
 
-  def add_evidence_summary(_result_id, _summary), do: {:ok, :stub}
+  # Fail-closed (production-readiness scan A2): evidence summaries are never
+  # persisted for evolution results; {:ok, :stub} claimed a write that does
+  # not exist. No callers exist today — future callers must handle {:error, _}.
+  def add_evidence_summary(_result_id, _summary), do: {:error, :not_implemented}
 end

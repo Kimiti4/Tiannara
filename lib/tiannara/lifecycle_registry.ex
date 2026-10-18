@@ -724,5 +724,8 @@ defmodule Tiannara.LifecycleRegistry do
     end
   end
 
-  def track_entity(_module, _entity_id, _event_type, _metadata), do: {:ok, :stub}
+  # Fail-closed (production-readiness scan B4): lifecycle events are never
+  # persisted by this stub, so it must not report success. All current callers
+  # ignore the result inside try/rescue blocks.
+  def track_entity(_module, _entity_id, _event_type, _metadata), do: {:error, :not_implemented}
 end

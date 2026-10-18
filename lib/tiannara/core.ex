@@ -103,8 +103,14 @@ defmodule Tiannara.Core do
   def update_world_model(core_state, update_key, update_value) do
     updated_world_model = WorldModel.update(core_state.world_model, update_key, update_value)
     
-    # Update MetaCognition based on World Model changes
-    updated_meta_cognition = MetaCognition.consult_world_model(core_state.meta_cognition, updated_world_model)
+    # Update MetaCognition based on World Model changes. Consultation is not
+    # implemented (scan B5); on {:error, _} the previous meta-cognition state
+    # is retained rather than storing an error tuple as cognition.
+    updated_meta_cognition =
+      case MetaCognition.consult_world_model(core_state.meta_cognition, updated_world_model) do
+        {:ok, consulted} -> consulted
+        {:error, _reason} -> core_state.meta_cognition
+      end
     
     %{core_state | 
       world_model: updated_world_model,

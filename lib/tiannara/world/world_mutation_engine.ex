@@ -468,7 +468,11 @@ defmodule Tiannara.World.WorldMutationEngine do
     )
   end
 
-  defp publish_if_approved(_auth, _mutation_id, _type, _spec, _context), do: :ok
+  # Defensive catch-all: check_decision/1 rejects non-approved authorizations
+  # before publication is reached, and the caller discards this result. It
+  # returns :not_published so the outcome is distinguishable from a real
+  # publish — the old bare :ok was indistinguishable (scan B3).
+  defp publish_if_approved(_auth, _mutation_id, _type, _spec, _context), do: :not_published
 
   defp record_and_verify_audit(mutation_id, type, %MachineAuthorization{} = bound) do
     payload = %{
