@@ -1,6 +1,12 @@
 defmodule Tiannara.ASC.Research.ResearchRegistry do
   @moduledoc """
-  Phase 11: Stub for ResearchRegistry.
+  Registry of ASC research programs (Phase 6/11).
+
+  The GenServer-backed register/read/fitness-allocation path is real.
+  Several functions remain declared stubs — `freeze_program/1` logs without
+  acting, `update_program_metrics/2` discards deltas, `get_surviving_genomes/0`
+  and the genome/ROI writers return constants — tracked in the
+  production-readiness scan (A4/A4b).
   """
   use GenServer
   require Logger
@@ -24,13 +30,13 @@ defmodule Tiannara.ASC.Research.ResearchRegistry do
     {:reply, prog_id, updated}
   end
 
-  # Phase 16 Stubs
+  # Real read path (scan A4): returns every program registered in GenServer
+  # state (ResearchProgram/ResearchGenome structs). Was two hardcoded mock
+  # maps that made the Epistemic Closure scan decide on fiction. The registry
+  # is supervised under Tiannara.ASC.Supervisor; if it is not running,
+  # GenServer.call exits — callers fail closed instead of scanning fixtures.
   def get_all_programs do
-    # Simulated mock programs to test Immune System (Epistemic Closure)
-    [
-      %{id: "prog_healthy", name: "Network Optimization", internal_citation_ratio: 0.1, laws_generated: 2},
-      %{id: "prog_echo_chamber", name: "Quantum Theory 88", internal_citation_ratio: 0.95, laws_generated: 12}
-    ]
+    get_programs() |> Map.values()
   end
 
   def freeze_program(prog_id) do

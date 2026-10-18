@@ -49,19 +49,30 @@ defmodule Tiannara.ASC.Immunity.PathogenScanner do
   # Pathogen 2: Epistemic Closure (Echo Chambers)
   defp scan_epistemic_closure do
     programs = ResearchRegistry.get_all_programs()
-    
-    filter_map(programs, fn prog -> 
-      prog.internal_citation_ratio > 0.90 and prog.laws_generated > 5
-    end, fn prog ->
+
+    filter_map(programs, &echo_chamber?/1, fn prog ->
       %EpistemicThreat{
         type: :epistemic_closure,
         severity: :level_4_quarantine,
-        source_id: prog.id,
+        source_id: Map.get(prog, :id),
         source_type: :research_program,
-        evidence: "Program '#{prog.name}' is an echo chamber. Internal citation ratio: #{prog.internal_citation_ratio}.",
+        evidence: "Program '#{Map.get(prog, :name) || "unknown"}' is an echo chamber. Internal citation ratio: #{Map.get(prog, :internal_citation_ratio)}.",
         detected_at: System.system_time(:millisecond)
       }
     end)
+  end
+
+  # Echo-chamber predicate (scan A4). The registry previously returned two
+  # fabricated mock programs, so this scan always produced exactly one threat.
+  # Registered ResearchProgram/ResearchGenome structs do not report
+  # internal_citation_ratio at all: only programs that self-report the metric
+  # can be evaluated, and absent data is not evidence of an echo chamber.
+  @doc false
+  def echo_chamber?(prog) do
+    case Map.get(prog, :internal_citation_ratio) do
+      ratio when is_number(ratio) -> ratio > 0.90 and Map.get(prog, :laws_generated, 0) > 5
+      _ -> false
+    end
   end
 
   # Pathogen 4: Runaway Proliferation (Context Bloat)
