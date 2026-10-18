@@ -127,6 +127,10 @@ end
 
 **Remediation**: `evaluate` → `{:error, :evaluation_unavailable}`; `metrics` → return zeroed/empty metrics with a `data_source: :unavailable` marker, or fail closed.
 
+**Status**: REMEDIATED in `a3f9602d` — the fail-close option taken throughout. The five constant verdicts (architecture `structural_soundness: 0.93`, chemistry `confidence: 0.91`, governance `alignment_score: 0.82`, logistics `optimality: 0.91`, robotics `feasibility: 0.88`) now return `{:error, :evaluation_unavailable}` with dated quarantine comments; the nineteen hardcoded `metrics/0` keep their exact key sets (preserving the observatory dashboard's dot-access contract) with every value `nil` plus `data_source: :unavailable`, so absent data can never be read as a measurement. Real computes were verified and left untouched: entropy/Bayes/Nash evaluates and physics metrics (state-derived, `metrics_source: :state_derived`). Locked by five new assertions in `domain_quarantine_test.exs` (constant evaluates fail closed, real evaluates callable, 19 marker maps, physics unmarked, dashboard renders nils without crashing).
+
+**A5b (wiring observation discovered during A5 remediation) — OPEN**: `Tiannara.Observatory.Metrics.Domains.get_dashboard_data/0` has zero production callers, and the only way to populate it (`Domains.ResearchDirector.register_domain/1`) also has zero production callers — so the domain dashboard would render `[]` even if invoked. Dead-consumer infrastructure (same class as C2), not a fabrication: it reports nothing rather than inventing numbers. Wire or remove in a follow-up batch.
+
 ### A6. `CCI.Orchestrator` — hardcoded civilization state + sentinel observations
 
 **File**: `lib/tiannara/cci/orchestrator.ex:80-93`
@@ -436,8 +440,8 @@ Disproof: `RecursiveCivilizationRunner.execute/2` is public, builds its own `Con
 | **P3** | C1, C2, C3 — theatrical tests, dead infrastructure, stale docs | LOW | Low | Cleanup; no production exposure. |
 
 **Remediation status (updated 2026-10-18)**:
-- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`), A4 (`3a57c421`), A6 + A7 (`5a8be8d5`), B1 (`cde2fc30`).
-- OPEN — A4b, A5, B8 (c, documented-retained), C1, C2, C11 (section F).
+- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`), A4 (`3a57c421`), A6 + A7 (`5a8be8d5`), B1 (`cde2fc30`), A5 (`a3f9602d`).
+- OPEN — A4b, A5b, B8 (c, documented-retained), C1, C2, C11 (section F).
 
 ---
 
