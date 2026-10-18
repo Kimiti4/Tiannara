@@ -192,6 +192,8 @@ rescue _ -> :ok end
 
 **Remediation**: At minimum log the failure at `:warning` with the topic and event_type. Prefer returning `{:error, reason}` so callers can decide. Not fail-closed (events are best-effort by nature) but must not be silent.
 
+**Status**: REMEDIATED in `cde2fc30` — the log-at-`:warning` option taken: all four modules now warn on EventBus-down (the `whereis`-nil skip was also silent — not quoted above — and now warns per topic), on `publish` raise (topic + error), and on `ExecutiveMemory.record_event` raise (event_type + error). Return contract unchanged (still best-effort — emit returns the event).
+
 ### B2. `DiscoverySupervisor.constitutional_score/0` — rescues to default
 
 **File**: `lib/tiannara/discovery/discovery_supervisor.ex:32-35`
@@ -434,8 +436,8 @@ Disproof: `RecursiveCivilizationRunner.execute/2` is public, builds its own `Con
 | **P3** | C1, C2, C3 — theatrical tests, dead infrastructure, stale docs | LOW | Low | Cleanup; no production exposure. |
 
 **Remediation status (updated 2026-10-18)**:
-- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`), A4 (`3a57c421`), A6 + A7 (`5a8be8d5`).
-- OPEN — A4b, A5, B1, B8 (c, documented-retained), C1, C2, C11 (section F).
+- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`), A4 (`3a57c421`), A6 + A7 (`5a8be8d5`), B1 (`cde2fc30`).
+- OPEN — A4b, A5, B8 (c, documented-retained), C1, C2, C11 (section F).
 
 ---
 
