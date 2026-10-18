@@ -30,15 +30,20 @@ defmodule Tiannara.Domains.Sociology do
   def translate(_hypothesis), do: {:ok, %{engineering_applications: [:social_policy]}}
 
   @impl true
+  # A5 quarantine (2026-10-18): previously hardcoded counts and scores
+  # presented as measurements (production-readiness scan A5). Keys are
+  # preserved for consumers; values are nil with an explicit data_source
+  # marker so absent data is never read as a measurement.
   def metrics do
     %{
-      active_hypotheses: 39,
-      open_experiments: 11,
-      discoveries_this_cycle: 1,
-      knowledge_growth_rate: 0.03,
-      evidence_quality_score: 0.76,
-      hypotheses_generated: 39,
-      experiments_completed: 11
+      active_hypotheses: nil,
+      open_experiments: nil,
+      discoveries_this_cycle: nil,
+      knowledge_growth_rate: nil,
+      evidence_quality_score: nil,
+      hypotheses_generated: nil,
+      experiments_completed: nil,
+      data_source: :unavailable
     }
   end
 end

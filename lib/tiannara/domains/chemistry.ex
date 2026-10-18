@@ -7,7 +7,10 @@ defmodule Tiannara.Domains.Chemistry do
   def discover(context), do: {:ok, %{domain: :chemistry, discoveries: [], context: context}}
 
   @impl true
-  def evaluate(_hypothesis), do: {:ok, %{confidence: 0.91}}
+  # A5 quarantine (2026-10-18): constant verdict with no computation -
+  # fabricated domain evidence (production-readiness scan A5).
+  # Fails closed until a real evaluator exists.
+  def evaluate(_hypothesis), do: {:error, :evaluation_unavailable}
 
   @impl true
   def simulate(hypothesis, context) do
@@ -29,15 +32,20 @@ defmodule Tiannara.Domains.Chemistry do
   def translate(_hypothesis), do: {:ok, %{engineering_applications: []}}
 
   @impl true
+  # A5 quarantine (2026-10-18): previously hardcoded counts and scores
+  # presented as measurements (production-readiness scan A5). Keys are
+  # preserved for consumers; values are nil with an explicit data_source
+  # marker so absent data is never read as a measurement.
   def metrics do
     %{
-      active_hypotheses: 88,
-      open_experiments: 22,
-      discoveries_this_cycle: 2,
-      knowledge_growth_rate: 0.09,
-      evidence_quality_score: 0.91,
-      hypotheses_generated: 88,
-      experiments_completed: 22
+      active_hypotheses: nil,
+      open_experiments: nil,
+      discoveries_this_cycle: nil,
+      knowledge_growth_rate: nil,
+      evidence_quality_score: nil,
+      hypotheses_generated: nil,
+      experiments_completed: nil,
+      data_source: :unavailable
     }
   end
 end

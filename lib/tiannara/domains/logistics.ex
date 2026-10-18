@@ -5,7 +5,10 @@ defmodule Tiannara.Domains.Logistics do
   def discover(context), do: {:ok, %{domain: :logistics, discoveries: [], context: context}}
 
   @impl true
-  def evaluate(_hypothesis), do: {:ok, %{optimality: 0.91}}
+  # A5 quarantine (2026-10-18): constant verdict with no computation -
+  # fabricated domain evidence (production-readiness scan A5).
+  # Fails closed until a real evaluator exists.
+  def evaluate(_hypothesis), do: {:error, :evaluation_unavailable}
 
   @impl true
   # D-A3 quarantine (2026-09-23): constant verdict with no computation - fabricated domain evidence.
@@ -27,15 +30,20 @@ defmodule Tiannara.Domains.Logistics do
   def translate(_hypothesis), do: {:ok, %{engineering_applications: [:supply_chain]}}
 
   @impl true
+  # A5 quarantine (2026-10-18): previously hardcoded counts and scores
+  # presented as measurements (production-readiness scan A5). Keys are
+  # preserved for consumers; values are nil with an explicit data_source
+  # marker so absent data is never read as a measurement.
   def metrics do
     %{
-      active_hypotheses: 41,
-      open_experiments: 10,
-      discoveries_this_cycle: 2,
-      knowledge_growth_rate: 0.07,
-      evidence_quality_score: 0.84,
-      hypotheses_generated: 41,
-      experiments_completed: 10
+      active_hypotheses: nil,
+      open_experiments: nil,
+      discoveries_this_cycle: nil,
+      knowledge_growth_rate: nil,
+      evidence_quality_score: nil,
+      hypotheses_generated: nil,
+      experiments_completed: nil,
+      data_source: :unavailable
     }
   end
 end

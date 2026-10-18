@@ -30,15 +30,20 @@ defmodule Tiannara.Domains.Philosophy do
   def translate(_hypothesis), do: {:ok, %{engineering_applications: [:ethical_framework]}}
 
   @impl true
+  # A5 quarantine (2026-10-18): previously hardcoded counts and scores
+  # presented as measurements (production-readiness scan A5). Keys are
+  # preserved for consumers; values are nil with an explicit data_source
+  # marker so absent data is never read as a measurement.
   def metrics do
     %{
-      active_hypotheses: 28,
-      open_experiments: 5,
-      discoveries_this_cycle: 1,
-      knowledge_growth_rate: 0.02,
-      evidence_quality_score: 0.72,
-      hypotheses_generated: 28,
-      experiments_completed: 5
+      active_hypotheses: nil,
+      open_experiments: nil,
+      discoveries_this_cycle: nil,
+      knowledge_growth_rate: nil,
+      evidence_quality_score: nil,
+      hypotheses_generated: nil,
+      experiments_completed: nil,
+      data_source: :unavailable
     }
   end
 end
