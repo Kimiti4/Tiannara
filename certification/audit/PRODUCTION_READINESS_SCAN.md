@@ -2,6 +2,7 @@
 
 **Date**: 2026-10-17  
 **HEAD**: `33c53256` (local/pr4)  
+**Updated**: 2026-10-18 — remediation statuses recorded (A1, A3, B6, B8, C3, G1); follow-up finding G1 appended.
 **Method**: Exhaustive pattern search across `lib/` (excluding already-remediated sites) for success-shaped stubs, hardcoded metrics, fail-open rescues, and zero-caller real code. Each finding cites exact file:line.
 
 **Context**: Phase D steps 1–4 are complete and CI-green. The roadmap is done; this scan identifies what remains between the current state and production. Prior remediations (archaeology, ASC repair, ASC operations, CRAV PlanetaryTwin, domain simulate/validate quarantine) are verified and not re-reported.
@@ -283,6 +284,8 @@ Vocabulary mismatch:
 
 **Remediation**: (a) Fix the atom mismatch (`:adopted`). (b) Replace hardcoded `constitutional_violations`, `rollback_frequency`, `lifecycle_completeness_pct` with values derived from actual stage results (or `nil` with a `measured: false` marker). (c) Remove or explicitly label seed-random values as `simulated_variance` in the CSV schema. This is a metrics-honesty remediation, not a gate change.
 
+**Status**: (a) and (b) REMEDIATED in `712e0cd6` — adoption counting accepts both vocabularies (`:adopt`, `:adopted`, `:partially_adopted`); `constitutional_violations` is summed from each result's `constitutional_compliance.violations` (unchecked results contribute nothing — no fabricated minimum); `rollback_frequency` is 0.0 (the harness never executes a rollback); `lifecycle_completeness_pct` is the average `Phase13Stabilization.validate_lifecycle_completeness` ratio across Stage 4 results (genuine evidence-backed runs now honestly record ~45.45%, empty results 0.0). CAI consumes the derived values. (c) DELIBERATELY RETAINED: `method_diversity`, `collaboration_density`, `replication_success_rate`, `resource_utilization` remain simulation-model outputs of a run whose provenance is declared in `stage_evidence_labels.json` and per-generation attestations (`certification_claim: "none"`); they contradict no observable run state. Consequence recorded: the lifecycle/rollback invariant validators in `constitutional_invariant_registry.ex` will now honestly flag incomplete lifecycles if runner histories are ever supplied — no test or production caller passes `generation_histories` today.
+
 ---
 
 ## C. LOW — Theatrical Tests and Infrastructure Stubs
@@ -354,7 +357,7 @@ The gate trace (completed this session) established:
 | `stage5_evidence/generation_N.json` | ✓ honest | Records blocked result with `status: failed`, `failure_reason: no_valid_adaptations` |
 | `constitution_attestations.jsonl` | ✓ honest | Carries `stage_evidence_labels`, `stage_provenance`, `run_authorized`, `bounded` |
 | Constitution certificate | ✓ honest | `validation_status: :harness_simulated`, `replay_status: :not_verified`, `watchdog_status: :not_run`, `invariant_status: :not_verified` → level "minimal" |
-| `generation_history.csv` | ✗ dishonest | Hardcoded `lifecycle_completeness_pct: 100.0`, `constitutional_violations: 0`, seed-random diversity metrics (B8) |
+| `generation_history.csv` | ✓ corrected (B8) | Hardcoded constants replaced by derived values in `712e0cd6`; seed-random diversity metrics retained as declared simulation-model outputs |
 
 ### Provenance chain (verified monotone):
 
@@ -381,6 +384,22 @@ The chain does not over-claim. Stage 3 is the honest boundary.
 
 ---
 
+## G. Follow-up Finding (found during B8 consumer tracing)
+
+### G1. `ConstitutionalExecutor` moduledoc claimed a structural guarantee that does not exist
+
+**File**: `lib/tiannara/os/kernel/constitutional_executor.ex:79-83` (moduledoc, at scan time)
+
+Claimed: *"There exists NO code path that reaches RecursiveCivilizationRunner without first passing through ConstitutionalExecutor and StructuralValidationGate."*
+
+Disproof: `RecursiveCivilizationRunner.execute/2` is public, builds its own `ConstitutionManifest` (`recursive_civilization_runner.ex:234`), and enforces only its own explicit-authorization check; this repository's runner tests invoke it directly. `ConstitutionalExecutor.execute/1` is called only by two mix tasks (`tiannara.generate_reproducibility_package`, `tiannara.generate_minimal_repro_package`). The moduledoc presented a structural enforcement guarantee that no code provides.
+
+**Remediation**: Replace the guarantee with an honest entry-point note stating the executor is the intended (not enforced) front door and that direct runner calls bypass the gate.
+
+**Status**: REMEDIATED in this commit — moduledoc corrected; no behavior change.
+
+---
+
 ## Prioritized Remediation Plan
 
 | Priority | Item | Severity | Effort | Rationale |
@@ -394,6 +413,10 @@ The chain does not over-claim. Stage 3 is the honest boundary.
 | **P2** | B1, B2, B3, B4, B5 — fail-open rescues and stubs | MEDIUM | Low | Logging + fail-closed conversions. |
 | **P3** | C1, C2, C3 — theatrical tests, dead infrastructure, stale docs | LOW | Low | Cleanup; no production exposure. |
 
+**Remediation status (updated 2026-10-18)**:
+- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), C3 (worker moduledoc, `0bc5b0ff`), G1 (this commit).
+- OPEN — A2, A4, A5, A6, A7, B1, B2, B3, B4, B5, B7, B8 (c, documented-retained), C1, C2, C11 (section F).
+
 ---
 
 ## Stage 5 Gate-Semantics Next Steps (user-recommended, not yet started)
@@ -403,7 +426,7 @@ Per the user's recommended phase, after the stub remediations above:
 1. **Trace callers/tests of `>= 7` and compliance gates** — DONE (section D).
 2. **Define separate outcome vocabulary**: `:analysis_possible`, `:evidence_insufficient`, `:adaptation_rejected`, `:adaptation_approved`, `:rollout_authorized` — must not collapse to `status: :failed`. Design doc before code.
 3. **Write contract tests before behavior changes**: incomplete history never authorizes rollout; missing rollback stays blocking; rejected ≠ adopted. These tests lock the current honest behavior so gate changes cannot silently weaken it.
-4. **Stage 6 evidence end-to-end review** — DONE (section E). Key gap: CertificationGate not wired; `lifecycle_completeness_pct: 100.0` in history CSV contradicts honest blocked Stage 5.
+4. **Stage 6 evidence end-to-end review** — DONE (section E). Key gap: CertificationGate not wired; the history-CSV contradiction (`lifecycle_completeness_pct: 100.0` vs honest blocked Stage 5) is FIXED in `712e0cd6`.
 5. **C11 stays open** — CONFIRMED (section F).
 
 ---

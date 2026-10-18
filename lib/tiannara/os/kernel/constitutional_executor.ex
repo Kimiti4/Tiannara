@@ -76,11 +76,17 @@ defmodule TiannaraOS.Kernel.ConstitutionalExecutor do
         {:error, violation} -> handle_constitutional_violation(violation)
       end
 
-  ## Constitutional Guarantee
+  ## Entry-point note (production-readiness scan G1)
 
-  There exists NO code path that reaches RecursiveCivilizationRunner without
-  first passing through ConstitutionalExecutor and StructuralValidationGate.
-  Every execution produces a ConstitutionCertificate bound to a ConstitutionManifest.
+  The executor is the *intended* front door: it runs drift checks and the
+  StructuralValidationGate (constitutional invariants) before invoking the
+  bounded runner. This is NOT structurally enforced —
+  RecursiveCivilizationRunner.execute/2 is public, builds its own
+  ConstitutionManifest, and enforces only its own explicit-authorization
+  check, so callers (including this repository's tests) can invoke the
+  runner directly and bypass this gate. Every runner execution still
+  produces a ConstitutionCertificate bound to a ConstitutionManifest, and
+  that certificate records honestly which verifications were not run.
   """
 
   alias TiannaraOS.Kernel.StructuralValidationGate
