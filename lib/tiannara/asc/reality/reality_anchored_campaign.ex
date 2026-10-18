@@ -71,7 +71,16 @@ defmodule Tiannara.ASC.Reality.RealityAnchoredCampaign do
           _outcome = %{outcome | calculated_roi: roi}
           
           Logger.info("✅ [Phase 8B] Real-world optimization approved! ROI: #{roi}")
-          ResearchRegistry.apply_engineering_roi(top_genome.id, roi)
+
+          case ResearchRegistry.apply_engineering_roi(top_genome.id, roi) do
+            {:ok, _} ->
+              Logger.info("  📈 ROI #{roi} recorded for genome #{top_genome.id}")
+
+            {:error, reason} ->
+              Logger.warning(
+                "  ⚠️ ROI #{roi} NOT recorded for genome #{top_genome.id} (#{inspect(reason)}) — no real ROI-feedback semantics exist yet."
+              )
+          end
           
           commit_msg = "perf(#{proposal.target_file}): #{proposal.purpose} (ROI: #{roi})"
           RealityBridge.commit_to_mainline(sandbox_dir, "sandbox_#{proposal.id}", commit_msg)

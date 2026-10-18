@@ -38,8 +38,15 @@ defmodule Tiannara.ASC.Engineering.AutonomousEngineeringCampaign do
     Enum.each(results, fn project ->
       if project.deployed do
         # The ultimate test: Does the science actually produce good engineering?
-        ResearchRegistry.apply_engineering_roi(project.source_genome_id, project.civilizational_roi)
-        Logger.info("  🧬 Fed ROI #{project.civilizational_roi} back to Genome #{project.source_genome_id}")
+        case ResearchRegistry.apply_engineering_roi(project.source_genome_id, project.civilizational_roi) do
+          {:ok, _} ->
+            Logger.info("  🧬 Fed ROI #{project.civilizational_roi} back to Genome #{project.source_genome_id}")
+
+          {:error, reason} ->
+            Logger.warning(
+              "  ⚠️ ROI #{project.civilizational_roi} NOT fed back to Genome #{project.source_genome_id} (#{inspect(reason)}) — no real ROI-feedback semantics exist yet."
+            )
+        end
       end
     end)
   end

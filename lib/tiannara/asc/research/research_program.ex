@@ -27,6 +27,7 @@ defmodule Tiannara.ASC.Research.ResearchProgram do
     # Evolutionary Fitness
     program_fitness: 0.0,  # Composite score determining resource allocation
     generation: 1,
+    frozen: false,         # Immune-system freeze (scan A4b): excluded from allocation
     
     # Temporal Tracking
     created_at: nil,
@@ -47,6 +48,7 @@ defmodule Tiannara.ASC.Research.ResearchProgram do
     fitness_contribution: float(),
     program_fitness: float(),
     generation: integer(),
+    frozen: boolean(),
     created_at: integer(),
     last_active: integer()
   }

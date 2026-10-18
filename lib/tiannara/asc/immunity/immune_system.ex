@@ -65,8 +65,13 @@ defmodule Tiannara.ASC.Immunity.ImmuneSystem do
   end
 
   defp execute_quarantine(:quarantine, %EpistemicThreat{type: :epistemic_closure, source_id: prog_id}) do
-    Logger.warning("   🧊 [Quarantine] FREEZING Research Program #{prog_id}. Budget set to 0. Echo chamber isolated.")
-    ResearchRegistry.freeze_program(prog_id)
+    case ResearchRegistry.freeze_program(prog_id) do
+      {:ok, _frozen} ->
+        Logger.warning("   🧊 [Quarantine] FREEZING Research Program #{prog_id}. Budget set to 0. Echo chamber isolated.")
+
+      {:error, :not_found} ->
+        Logger.warning("   🧊 [Quarantine] Freeze requested for unknown Research Program #{inspect(prog_id)}. Nothing frozen.")
+    end
   end
 
   defp execute_quarantine(:quarantine, %EpistemicThreat{type: :runaway_proliferation}) do
