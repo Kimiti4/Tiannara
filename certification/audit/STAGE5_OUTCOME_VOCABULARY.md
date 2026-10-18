@@ -293,7 +293,7 @@ behavior so S5-1/S5-2 cannot silently weaken it:
 | CT-5 | Success path ends `status: :recorded` (cursor semantics), `lifecycle_events` contains all 8 required stages, `failure_reason == nil` |
 | CT-6 | Rejected ≠ adopted: decision `:reject` vs `:universal_adoption` produce distinct `civilization_decision`, and the reject-shaped rollout plan has `recommended_institutions: []` while adoption has ≥1 |
 | CT-7 | No rollout-authorization claim exists pre-change: struct has no `:outcome` field yet (this assertion is *replaced* in S5-1 by "outcome never `:rollout_authorized` for any fixture"), and nothing in the result claims deployment authorization |
-| CT-8 | Gate-rejection result keeps `failure_reason == :no_valid_adaptations` persisted through the runner's stage5 evidence writer |
+| CT-8 | Blocked-result shape: `civilization_decision == :reject`, `rollout_plan == nil`, `supporting_institutions == nil`, `evidence_lineage == nil`. The persistence half of this contract is already locked by `recursive_civilization_runner_test.exs` ("genuine stage5 … honest blocked result": persisted `status: "failed"`, `failure_reason: "no_valid_adaptations"`, `certification_claim: "none"`), so the contract file asserts the engine side and cites the runner test |
 | CT-9 | Compliance violations do not flip `status`/`civilization_decision` today (e.g. inputs with no prediction assessments → `prediction_history_required` violation recorded while decision stands) |
 | CT-10 | Genuine Stage 4-shaped input (5 entries ending `:decision_recorded`) is rejected by the count gate — documents the *current* blocking behavior that §4 Tier C must not "fix" by loosening |
 
