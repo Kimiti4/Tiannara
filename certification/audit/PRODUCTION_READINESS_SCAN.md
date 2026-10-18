@@ -146,6 +146,8 @@ State at lines 80-86 is also hardcoded (`validated_assets: 450`, `pending_valida
 
 **Remediation**: Wire to real subsystem health/metrics queries, or fail closed with `{:error, :subsystem_observations_unavailable}`.
 
+**Status**: REMEDIATED in `5a8be8d5` — `civilizational_cycle/0` now reads through two fail-closed seams: `fetch_asc_state/0` and `fetch_sentinel_observations/0` return `{:error, :subsystem_state_unavailable}` / `{:error, :observations_unavailable}` (atom differs slightly from the option above — covers the whole state fetch, not only observations), and the cycle propagates the named error instead of pushing hardcoded counts/invented confidences through the risk, forecast, and priority engines. Test rewritten to assert the honest failure.
+
 ### A7. `ASC.ResearchPlanner.decompose_goal/1` — hardcoded program confidences
 
 **File**: `lib/tiannara/asc/research_planner.ex:24-43`
@@ -164,6 +166,8 @@ end
 **Impact**: Any goal decomposes into the same four programs with the same confidences. The `goal` argument is only used in string interpolation; it does not influence domain selection or confidence.
 
 **Remediation**: Fail closed or mark `confidence: nil` with `confidence_source: :unavailable` until a real decomposition engine exists.
+
+**Status**: REMEDIATED in `5a8be8d5` — the fail-closed option taken: `plan/2` replies `{:error, :planner_unavailable}` and the goal-blind `decompose_goal/1` template (fabricated confidences 0.7/0.65/0.8/0.75) is deleted. Test rewritten to assert the named error.
 
 ---
 
@@ -430,8 +434,8 @@ Disproof: `RecursiveCivilizationRunner.execute/2` is public, builds its own `Con
 | **P3** | C1, C2, C3 — theatrical tests, dead infrastructure, stale docs | LOW | Low | Cleanup; no production exposure. |
 
 **Remediation status (updated 2026-10-18)**:
-- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`), A4 (`3a57c421`).
-- OPEN — A4b, A5, A6, A7, B1, B8 (c, documented-retained), C1, C2, C11 (section F).
+- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`), A4 (`3a57c421`), A6 + A7 (`5a8be8d5`).
+- OPEN — A4b, A5, B1, B8 (c, documented-retained), C1, C2, C11 (section F).
 
 ---
 
