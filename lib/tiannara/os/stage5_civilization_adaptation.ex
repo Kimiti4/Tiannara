@@ -25,9 +25,21 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
   Returns CivilizationAdaptationResult with complete provenance.
   """
 
-  alias TiannaraOS.{CivilizationAdaptationResult, PredictionAssessment}
+  alias TiannaraOS.{CivilizationAdaptationResult, PredictionAssessment, Stage5GovernanceRegistry}
 
   require Logger
+
+  # S5-2 Tier C (OQ-2): named stages every supporting input must claim AND
+  # have verified in authoritative records.
+  @required_tier_stages [:piloted, :governance_reviewed]
+
+  # Provisional freshness window for authoritative verified_at timestamps
+  # (pending governance policy; records older than this fail closed).
+  @max_authoritative_age_days 90
+
+  # Tolerated clock skew before a future-dated verified_at is treated as
+  # forged/stale.
+  @verified_at_skew_seconds 60
 
   @doc """
   Execute Stage 5 - Civilization Adaptation.
@@ -42,6 +54,8 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
     - :generation - integer() current generation number
     - :min_institutions - integer() minimum institutions for universal adoption
     - :prediction_reliability_threshold - float() minimum prediction quality
+    - :rollout_registry - module() authoritative Tier C record source
+      (default: Stage5GovernanceRegistry; tests may inject a fake)
 
   ## Returns
   CivilizationAdaptationResult.t()
@@ -126,25 +140,33 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
       Logger.info("[Stage5] Civilization adaptation constitutionally compliant")
     end
 
-    # S5-1: derive the five-atom outcome
-    # (certification/audit/STAGE5_OUTCOME_VOCABULARY.md §2.3).
+    # S5-2: derive the five-atom outcome via the full §2.3 table
+    # (certification/audit/STAGE5_OUTCOME_VOCABULARY.md §2.3/§4).
     # OQ-1 (approved): compliance violations block :rollout_authorized only —
     # they never cap :analysis_possible or :adaptation_approved, and no
     # violation rule is reclassified here (all remain recorded in
     # :constitutional_compliance).
-    outcome = derive_outcome(final_result.civilization_decision, violations, validated_results)
+    # OQ-2 (approved): :rollout_authorized additionally requires
+    # verify_rollout_tier/3 == :authorized; the production registry has no
+    # authoritative records, so verification fails closed to
+    # :adaptation_approved with the denial reason recorded in the event.
+    registry = Keyword.get(opts, :rollout_registry, Stage5GovernanceRegistry)
+    {outcome, rollout_tier} = derive_outcome(final_result, validated_results, registry)
 
     final_result = %{final_result | outcome: outcome}
 
     # Semantic events: appended after outcome derivation so the completed
-    # event carries the outcome and the violation rules considered with it.
+    # event carries the outcome, the rollout-tier decision, and the
+    # violation rules considered with it.
     final_result =
       CivilizationAdaptationResult.add_semantic_event(final_result, :civilization_adaptation_completed, %{
         decision: final_result.civilization_decision,
         generation: generation,
         institutions_evaluated: length(validated_results),
         outcome: outcome,
-        compliance_violation_rules: Enum.map(violations, & &1.rule)
+        compliance_violation_rules: Enum.map(violations, & &1.rule),
+        rollout_tier_status: Map.fetch!(rollout_tier, :rollout_tier_status),
+        rollout_tier_reason: Map.get(rollout_tier, :rollout_tier_reason)
       })
 
     Logger.info("[Stage5] Civilization adaptation complete:")
@@ -678,49 +700,174 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
   end
 
   # ──────────────────────────────────────────────
-  # S5-1: Outcome derivation (five-atom vocabulary)
-  # certification/audit/STAGE5_OUTCOME_VOCABULARY.md §2.3
+  # S5-2: Outcome derivation (five-atom vocabulary, full §2.3 table)
+  # certification/audit/STAGE5_OUTCOME_VOCABULARY.md §2.3/§4
   # ──────────────────────────────────────────────
 
-  # S5-1 note: the full §2.3 derivation table includes :rollout_authorized
-  # (adoption + zero blocking violations + OQ-2 rollout-tier verification).
-  # Both rollout preconditions land in S5-2 (kept separate per operator GO):
-  #   OQ-1: violations == [] — compliance violations block rollout ONLY;
-  #         they never cap :analysis_possible or :adaptation_approved, and
-  #         no violation rule is reclassified (all stay recorded in
-  #         :constitutional_compliance and in the completed event).
-  #   OQ-2: PER SUPPORTING INPUT, verified from authoritative records and
-  #         never inferred from labels, stage cursor position, or upstream
-  #         gate passage — (1) named :piloted stage in stage_history,
-  #         (2) named :governance_reviewed stage in stage_history,
-  #         (3) simulation_results.evidence_source == :evidence_backed.
-  #         Missing, malformed, or unverified evidence fails closed.
-  # S5-1 therefore resolves every adoption decision to :adaptation_approved:
-  # :rollout_authorized is unreachable and no rollout code path exists yet.
-  # (An S5-1 draft called a never-satisfiable verify_rollout_tier/1 here;
-  # the type checker proved its :ok clause dead, so the dead path was removed
-  # instead of shipped — S5-2 implements verification for real.)
-  defp derive_outcome(decision, _violations, _validated_results) do
+  # Returns {outcome, rollout_tier_meta}:
+  #   :reject           → :adaptation_rejected
+  #   adoption decision → :rollout_authorized  if verify_rollout_tier/3 authorizes
+  #                     → :adaptation_approved otherwise (denial recorded)
+  #   anything else     → :analysis_possible
+  #
+  # OQ-1 (approved): violations block :rollout_authorized ONLY (check inside
+  # verify_rollout_tier/3); they never cap :analysis_possible or
+  # :adaptation_approved, and no violation rule is reclassified.
+  # OQ-2 (approved): Tier C verification is authoritative and fail-closed —
+  # never inferred from labels, synthetic acceptance, stage-cursor position,
+  # or an earlier gate passing. The production registry
+  # (Stage5GovernanceRegistry) serves no authoritative records yet, so
+  # production adoption resolves to :adaptation_approved.
+  defp derive_outcome(final_result, validated_results, registry) do
+    decision = final_result.civilization_decision
+
     cond do
       decision == :reject ->
         # Evidence was analyzed; the analyzer refused to spread it.
         # Rejected is never represented as adopted or approved.
-        :adaptation_rejected
+        {:adaptation_rejected, %{rollout_tier_status: :not_applicable}}
 
       adoption_decision?(decision) ->
-        # OQ-1 (approved): violations do not block approval — they stay
-        # recorded in :constitutional_compliance (nothing disappears) and
-        # are carried in the completed semantic event. Rollout remains
-        # S5-2 (see header comment).
-        :adaptation_approved
+        case verify_rollout_tier(validated_results, final_result, registry) do
+          :authorized ->
+            {:rollout_authorized, %{rollout_tier_status: :authorized}}
+
+          {:denied, reason} ->
+            {:adaptation_approved,
+             %{rollout_tier_status: :denied, rollout_tier_reason: reason}}
+        end
 
       true ->
         # :further_validation, :preserve_diversity, or any unrecognized
         # decision: analysis ran but grants no adoption authority
         # (fail-safe direction — never rolls forward into approval).
-        :analysis_possible
+        {:analysis_possible, %{rollout_tier_status: :not_applicable}}
     end
   end
+
+  @doc """
+  Tier C rollout-tier verification (S5-2, OQ-2) — design doc §4.
+
+  Returns `:authorized` only when every check passes, in this fixed
+  fail-closed order (first failure wins, deterministic):
+
+  1. Supporting inputs exist.
+  2. Every supporting input's `stage_history` claims BOTH required named
+     stages (`:piloted` and `:governance_reviewed`) — necessary, not
+     sufficient (a claim alone never authorizes).
+  3. Every supporting input has `rollback_available == true`.
+  4. Every supporting input declares
+     `simulation_results.evidence_source == :evidence_backed` (synthetic
+     never authorizes rollout).
+  5. Civilization-level compliance violations == [] (OQ-1: violations block
+     rollout only).
+  6. Result-level `evidence_lineage` exists (provenance present).
+  7. The authoritative registry verifies EVERY supporting input: a record
+     exists, its `stages` include both required named stages, its
+     `evidence_source` is `:evidence_backed`, and its `verified_at` is
+     present, not future-dated beyond tolerated skew, and not older than
+     the provisional freshness window (stale provenance fails closed).
+
+  The default registry (`Stage5GovernanceRegistry`) has no authoritative
+  records, so production always fails closed here — rollout authorization
+  is never guessed from self-reported fields.
+  """
+  def verify_rollout_tier(validated_results, civilization_result, registry \\ Stage5GovernanceRegistry) do
+    cond do
+      validated_results == [] ->
+        {:denied, :no_supporting_inputs}
+
+      not Enum.all?(validated_results, &claims_required_tier_stages?/1) ->
+        {:denied, :missing_named_stage_claims}
+
+      not Enum.all?(validated_results, &(&1.rollback_available == true)) ->
+        {:denied, :rollback_unavailable}
+
+      not Enum.all?(validated_results, &(evidence_source_of(&1) == :evidence_backed)) ->
+        {:denied, :evidence_not_backed}
+
+      civilization_violations(civilization_result) != [] ->
+        {:denied, :compliance_violations}
+
+      missing_lineage?(civilization_result) ->
+        {:denied, :missing_provenance}
+
+      true ->
+        verify_authoritative_records(validated_results, registry)
+    end
+  end
+
+  defp claims_required_tier_stages?(input) do
+    stages = Enum.map(input.stage_history || [], & &1.stage)
+    Enum.all?(@required_tier_stages, &(&1 in stages))
+  end
+
+  defp civilization_violations(civilization_result) do
+    case civilization_result.constitutional_compliance do
+      %{violations: violations} when is_list(violations) -> violations
+      _ -> []
+    end
+  end
+
+  defp missing_lineage?(civilization_result) do
+    case civilization_result.evidence_lineage do
+      %{inputs: inputs} when is_list(inputs) -> inputs == []
+      _ -> true
+    end
+  end
+
+  defp verify_authoritative_records(validated_results, registry) do
+    ids = Enum.map(validated_results, & &1.institution_id)
+
+    case registry.fetch_rollout_authorizations(ids) do
+      {:ok, records} when is_map(records) ->
+        now = DateTime.utc_now()
+
+        cond do
+          Enum.any?(ids, &(not Map.has_key?(records, &1))) ->
+            {:denied, :unverified_tier_claim}
+
+          Enum.any?(records, fn {_id, record} ->
+               not (is_map(record) and
+                      Enum.all?(@required_tier_stages, &(&1 in (record[:stages] || []))))
+             end) ->
+            {:denied, :missing_governance_review}
+
+          Enum.any?(records, fn {_id, record} ->
+               not (is_map(record) and record[:evidence_source] == :evidence_backed)
+             end) ->
+            {:denied, :inconsistent_evidence}
+
+          Enum.any?(records, fn {_id, record} ->
+               not is_map(record) or stale_verified_at?(record[:verified_at], now)
+             end) ->
+            {:denied, :stale_provenance}
+
+          true ->
+            :authorized
+        end
+
+      {:error, reason} when is_atom(reason) ->
+        {:denied, reason}
+
+      _ ->
+        # Malformed registry response fails closed.
+        {:denied, :authoritative_records_unavailable}
+    end
+  end
+
+  # Freshness: missing → stale; future-dated beyond tolerated skew → forged
+  # (stale); older than the provisional window → stale.
+  defp stale_verified_at?(%DateTime{} = verified_at, now) do
+    too_old = DateTime.before?(verified_at, DateTime.add(now, -@max_authoritative_age_days, :day))
+
+    future_dated =
+      DateTime.after?(verified_at, DateTime.add(now, @verified_at_skew_seconds, :second))
+
+    too_old or future_dated
+  end
+
+  defp stale_verified_at?(_verified_at, _now), do: true
 
   defp adoption_decision?(decision) do
     decision in [:universal_adoption, :selective_adoption, :experimental_expansion]
