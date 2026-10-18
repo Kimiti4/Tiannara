@@ -50,6 +50,8 @@ def add_evidence_summary(_result_id, _summary), do: {:ok, :stub}
 
 **Remediation**: `{:error, :not_implemented}`.
 
+**Status**: REMEDIATED in `491e760d` — returns `{:error, :not_implemented}`; zero callers existed at remediation time.
+
 ### A3. ASC Pipeline auto-advances on `{:ok, :stub}`
 
 **File**: `lib/tiannara/asc/pipeline/worker.ex:72-77, 145-152`
@@ -197,6 +199,8 @@ end
 
 **Remediation**: Return `{:error, :engine_unavailable}` or `nil` and let callers handle absence explicitly. A constitutional score must never be synthesized.
 
+**Status**: REMEDIATED in `491e760d` — engine failure now logs a warning and returns `ConstitutionalScore.unavailable/1` (all zeros, `boot_ready?/2` always fails — the constitutionally defined fail-closed score, C1/D-A9 vocabulary) instead of the all-ones `default`. The `{:error, _}` option above was not taken because the CEL service contract (`constitutional_score_check`) expects a score struct; `unavailable/1` preserves the contract while failing closed. Switched `rescue` to `catch` so `:noproc` exits (engine not running) are also covered.
+
 ### B3. `WorldMutationEngine.publish_if_approved/5` — always `:ok`
 
 **File**: `lib/tiannara/world/world_mutation_engine.ex:471`
@@ -208,6 +212,8 @@ defp publish_if_approved(_auth, _mutation_id, _type, _spec, _context), do: :ok
 **Impact**: The function name promises conditional publication based on approval; the implementation unconditionally returns `:ok` without publishing anything. Callers believe an approval-gated publish occurred.
 
 **Remediation**: Either implement the actual publish or rename to reflect that no publication happens (and return an explicit `:not_published` or error).
+
+**Status**: REMEDIATED in `491e760d` — the catch-all now returns `:not_published`. Scan-accuracy note: the original finding was imprecise. The approved-decision clause (`world_mutation_engine.ex:452` at scan time) does publish — `ExecutiveMemory.record_decision` + `EventBus.publish`. Only the catch-all clause was dishonest: it is defensive (unreachable — `check_decision/1` rejects non-approved authorizations before publication is reached) and its bare `:ok` was indistinguishable from a real publish. The caller (`handle_mutate/4`) discards the result.
 
 ### B4. `LifecycleRegistry.track_entity/4` — stub
 
@@ -221,6 +227,8 @@ def track_entity(_module, _entity_id, _event_type, _metadata), do: {:ok, :stub}
 
 **Remediation**: `{:error, :not_implemented}`.
 
+**Status**: REMEDIATED in `491e760d` — returns `{:error, :not_implemented}`; all three real callers ignore the result inside `try/rescue` blocks.
+
 ### B5. `MetaCognition.consult_world_model/2` — stub
 
 **File**: `lib/tiannara/meta_cognition.ex:154`
@@ -232,6 +240,8 @@ def consult_world_model(_query, _opts), do: {:ok, :stub}
 **Impact**: World-model consultation returns success-shaped stub. A meta-cognitive loop believing it consulted the world model did not.
 
 **Remediation**: `{:error, :not_implemented}`.
+
+**Status**: REMEDIATED in `491e760d` — returns `{:error, :not_implemented}`; the single caller (`Tiannara.Core.update_world_model/3`) now retains the previous meta-cognition state on `{:error, _}` instead of storing the error tuple as cognition.
 
 ### B6. `Phase13Stabilization.ensure_complete_lifecycle/2` — fabricates missing stages
 
@@ -416,8 +426,8 @@ Disproof: `RecursiveCivilizationRunner.execute/2` is public, builds its own `Con
 | **P3** | C1, C2, C3 — theatrical tests, dead infrastructure, stale docs | LOW | Low | Cleanup; no production exposure. |
 
 **Remediation status (updated 2026-10-18)**:
-- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`).
-- OPEN — A2, A4, A5, A6, A7, B1, B2, B3, B4, B5, B8 (c, documented-retained), C1, C2, C11 (section F).
+- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`).
+- OPEN — A4, A5, A6, A7, B1, B8 (c, documented-retained), C1, C2, C11 (section F).
 
 ---
 

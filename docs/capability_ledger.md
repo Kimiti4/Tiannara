@@ -539,13 +539,14 @@ retained in supersession, not silently dropped.
 | ID | Finding | Status (2026-10-18) |
 |---|---|---|
 | A1 | `CivilizationAdaptationResult` — 14 arg-ignoring success stubs on the Stage 5 path | **REMEDIATED** `0bc5b0ff` — all → `{:error, :not_implemented}`; pipeline + kernel fail-closed |
-| A2 | `MethodEvolutionResult.add_evidence_summary/2` discards the summary | OPEN |
+| A2 | `MethodEvolutionResult.add_evidence_summary/2` discards the summary | **REMEDIATED** `491e760d` — `{:ok, :stub}` → `{:error, :not_implemented}` (zero callers existed) |
 | A3 | ASC pipeline auto-advanced on `{:ok, :stub}` / missing handler | **REMEDIATED** `0bc5b0ff` — phases block with `{:error, :phase_unavailable}` / `:no_handler` |
 | A4 | `ASC.Research.ResearchRegistry` returns hardcoded mock programs | OPEN |
 | A5 | Domain `evaluate/1` + `metrics/0` still fabricated (`simulate`/`validate` quarantined earlier) | OPEN (= D-A11) |
 | A6 | `CCI.Orchestrator` — hardcoded civilization state + sentinel confidences | OPEN |
 | A7 | `ASC.ResearchPlanner.decompose_goal/1` — hardcoded confidences | OPEN |
-| B1–B5 | Fail-open rescues and success-shaped stubs (4 events modules, discovery constitutional score, `publish_if_approved`, `track_entity`, `consult_world_model`) | OPEN |
+| B1 | 4 events modules swallow publish failures with `rescue _ -> :ok` (silent) | OPEN |
+| B2–B5 | Fail-open rescues and success-shaped stubs (discovery constitutional score, `publish_if_approved` catch-all, `track_entity`, `consult_world_model`) | **REMEDIATED** `491e760d` — B2 now returns `ConstitutionalScore.unavailable/1` (all zeros, never boot-ready) with a logged warning and `catch` covering `:noproc` exits; B3 catch-all returns `:not_published` (approved clause already published); B4 → `{:error, :not_implemented}`; B5 → `{:error, :not_implemented}` with `Core.update_world_model/3` retaining prior state on error |
 | B6 | `Phase13Stabilization.ensure_complete_lifecycle/2` fabricated missing lifecycle stages | **REMEDIATED** `c2cb4975` — returns `{:error, {:incomplete_lifecycle, missing_stages}}` |
 | B7 | `CertificationGate` had zero enforcement surface | **REMEDIATED** `f267dd31` — the runner now evaluates every persisted evidence artifact through `CertificationGate.evaluate/1` post-run and durably records verdicts in `certification_evaluation.json` (honest result today: all `:rejected` — simulation-rooted evidence is never acceptable as scientific evidence; new test locks this) |
 | B8 | `collect_generation_metrics` hardcoded metrics + `:adopt`/`:adopted` mismatch | **REMEDIATED (a)(b)** `712e0cd6` — adoption counting accepts both vocabularies; violations/rollback/lifecycle-completeness derived from actual stage results (CAI consumes derived values); (c) seed-random diversity metrics retained as declared simulation-model outputs (provenance in labels/attestations) |
