@@ -108,32 +108,30 @@ defmodule TiannaraOS.Phase13Stabilization do
   end
   
   @doc """
-  Add missing lifecycle stages to an adaptation result.
-  
-  Ensures every stage has timestamp, institution reference, and semantic event.
+  Validate lifecycle completeness without modifying the result.
+
+  Fail-closed (2026-10-17, production-readiness scan B6): this function
+  previously fabricated every missing lifecycle stage (with fresh timestamps
+  and semantic events) and then "validated" the result it had just padded —
+  a fail-open stage-fabrication path directly counter to the Stage 5
+  `stage_history >= 7` gate, which exists to reject exactly this kind of
+  manufactured history. It now returns the result unchanged when the
+  lifecycle is already complete, and `{:error, {:incomplete_lifecycle,
+  missing_stages}}` when it is not — never synthetic stages.
+
+  Note: the old fabrication path was additionally broken — its semantic-event
+  mapping had no clauses for `:compatibility_analyzed`, `:simulated`,
+  `:piloted`, `:performance_compared`, or `:governance_reviewed`, so it
+  raised CaseClauseError on typical incomplete results (only swallowed by
+  `stabilize_multiple_results/1`'s rescue).
   """
-  def ensure_complete_lifecycle(result, institution_id \\ nil) do
-    institution_id = institution_id || result.institution_id
-    
-    # Start with existing stages
-    current_stages = Enum.map(result.stage_history || [], fn s -> s.stage end)
-    
-    # Determine which stages are missing
-    missing_stages = Enum.filter(@required_lifecycle_stages, fn stage ->
-      stage not in current_stages
-    end)
-    
-    # Add missing stages with proper timestamps
-    updated_result = Enum.reduce(missing_stages, result, fn stage, acc ->
-      acc
-      |> add_lifecycle_stage(stage, institution_id)
-      |> add_semantic_event_for_stage(stage, institution_id)
-    end)
-    
-    # Final validation
-    case validate_lifecycle_completeness(updated_result) do
-      {:ok, final_result} -> final_result
-      {:error, _} -> raise "Failed to complete lifecycle after adding missing stages"
+  def ensure_complete_lifecycle(result, _institution_id \\ nil) do
+    case validate_lifecycle_completeness(result) do
+      {:ok, _} ->
+        result
+
+      {:error, %{missing_stages: missing_stages}} ->
+        {:error, {:incomplete_lifecycle, missing_stages}}
     end
   end
   
@@ -240,31 +238,39 @@ defmodule TiannaraOS.Phase13Stabilization do
   def stabilize_adaptation_result(result) do
     Logger.info("[Phase13Stabilization] Starting stabilization for #{result.id}")
     
-    # Step 1: Ensure complete lifecycle
-    result_with_lifecycle = ensure_complete_lifecycle(result)
-    
-    # Step 2: Calculate prediction accuracy
-    prediction_accuracy = calculate_prediction_accuracy(result_with_lifecycle)
-    result_with_prediction = if prediction_accuracy do
-      record_prediction_accuracy(result_with_lifecycle, prediction_accuracy)
-    else
-      result_with_lifecycle
+    # Step 1: Validate lifecycle completeness (fail-closed — never fabricates)
+    case ensure_complete_lifecycle(result) do
+      {:error, {:incomplete_lifecycle, missing_stages}} = error ->
+        Logger.warning(
+          "[Phase13Stabilization] Cannot stabilize #{result.id}: incomplete lifecycle, " <>
+            "missing stages: #{inspect(missing_stages)}. Refusing to fabricate."
+        )
+        error
+
+      result_with_lifecycle ->
+        # Step 2: Calculate prediction accuracy
+        prediction_accuracy = calculate_prediction_accuracy(result_with_lifecycle)
+        result_with_prediction = if prediction_accuracy do
+          record_prediction_accuracy(result_with_lifecycle, prediction_accuracy)
+        else
+          result_with_lifecycle
+        end
+
+        # Step 3: Generate rollback plan
+        rollback_plan = generate_rollback_plan(result_with_prediction)
+        result_with_rollback = record_rollback_plan(result_with_prediction, rollback_plan)
+
+        # Step 4: Validate constitutional compliance
+        {final_result, violations} = InstitutionAdaptationResult.validate_constitutional_compliance(result_with_rollback)
+
+        if length(violations) > 0 do
+          Logger.warning("[Phase13Stabilization] Constitutional violations remain: #{inspect(violations)}")
+        else
+          Logger.info("[Phase13Stabilization] Stabilization complete - fully compliant")
+        end
+
+        final_result
     end
-    
-    # Step 3: Generate rollback plan
-    rollback_plan = generate_rollback_plan(result_with_prediction)
-    result_with_rollback = record_rollback_plan(result_with_prediction, rollback_plan)
-    
-    # Step 4: Validate constitutional compliance
-    {final_result, violations} = InstitutionAdaptationResult.validate_constitutional_compliance(result_with_rollback)
-    
-    if length(violations) > 0 do
-      Logger.warning("[Phase13Stabilization] Constitutional violations remain: #{inspect(violations)}")
-    else
-      Logger.info("[Phase13Stabilization] Stabilization complete - fully compliant")
-    end
-    
-    final_result
   end
   
   @doc """
@@ -403,43 +409,6 @@ defmodule TiannaraOS.Phase13Stabilization do
   end
   
   # Private helper functions
-  
-  defp add_lifecycle_stage(result, stage, institution_id) do
-    stage_record = %{
-      stage: stage,
-      timestamp: DateTime.utc_now(),
-      institution: institution_id,
-      episode_references: extract_episode_references(result)
-    }
-    
-    stage_history = (result.stage_history || []) ++ [stage_record]
-    
-    %{result | stage_history: stage_history}
-  end
-  
-  defp add_semantic_event_for_stage(result, stage, institution_id) do
-    event_type = case stage do
-      :proposal_received -> :adaptation_proposal_received
-      :compatibility_evaluated -> :compatibility_evaluation_completed
-      :risk_assessed -> :risk_assessment_completed
-      :simulation_completed -> :simulation_execution_completed
-      :pilot_started -> :pilot_deployment_initiated
-      :pilot_completed -> :pilot_execution_completed
-      :historical_comparison_completed -> :performance_comparison_completed
-      :decision_recorded -> :adoption_decision_recorded
-      :rollback_generated -> :rollback_plan_generated
-      :constitutional_validation_completed -> :constitutional_validation_completed
-      :adaptation_closed -> :adaptation_lifecycle_closed
-    end
-    
-    metadata = %{
-      stage: stage,
-      institution: institution_id,
-      improvement_id: result.improvement_id
-    }
-    
-    InstitutionAdaptationResult.add_semantic_event(result, event_type, metadata)
-  end
   
   defp extract_improvement_metric(data, key) do
     case Map.get(data, key) do
