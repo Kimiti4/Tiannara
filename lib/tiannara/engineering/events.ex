@@ -1,4 +1,6 @@
 defmodule Tiannara.Engineering.Events do
+  require Logger
+
   @prefix "engineering"
 
   @event_types [
@@ -22,18 +24,31 @@ defmodule Tiannara.Engineering.Events do
     event = %{event_type: event_type, topic: topic(event_type), design_id: design_id,
       data: data, timestamp: DateTime.utc_now(), source: :engineering_subsystem}
 
+    # Best-effort emission stays non-failing (scan B1) but must never be
+    # silent: a down EventBus or raising ExecutiveMemory now logs instead
+    # of swallowing the event invisibly.
     case Process.whereis(Tiannara.CEL.Services.EventBus) do
-      nil -> :ok
+      nil ->
+        Logger.warning("[EngineeringEvents] EventBus not running; #{event.topic} not published (scan B1)")
+
       _pid ->
         try do
           Tiannara.CEL.Services.EventBus.publish(event.topic, event)
-        rescue _ -> :ok end
+        rescue
+          error ->
+            Logger.warning("[EngineeringEvents] publish failed for #{event.topic}: #{inspect(error)} (scan B1)")
+            :ok
+        end
     end
 
     try do
       Tiannara.CEL.Services.ExecutiveMemory.record_event(:engineering, event_type,
         Map.put(data, :design_id, design_id))
-    rescue _ -> :ok end
+    rescue
+      error ->
+        Logger.warning("[EngineeringEvents] ExecutiveMemory.record_event failed for #{event_type}: #{inspect(error)} (scan B1)")
+        :ok
+    end
 
     event
   end
