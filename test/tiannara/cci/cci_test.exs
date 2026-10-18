@@ -155,14 +155,12 @@ defmodule Tiannara.CCI.CCITest do
   end
 
   describe "integration: full civilizational cycle" do
-    test "orchestrator produces comprehensive report" do
-      report = Tiannara.CCI.Orchestrator.civilizational_cycle()
-
-      assert report.civilization_state != nil
-      assert report.risk_assessment != nil
-      assert report.forecast != nil
-      assert length(report.priorities) > 0
-      assert report.requires_human_review == true
+    test "cycle fails closed while subsystem state is unavailable (scan A6)" do
+      # The cycle previously ran on hardcoded ASC counts and invented
+      # sentinel observations; it must not fabricate a report until the
+      # fetch seams are wired to real reads.
+      assert {:error, :subsystem_state_unavailable} =
+               Tiannara.CCI.Orchestrator.civilizational_cycle()
     end
   end
 end

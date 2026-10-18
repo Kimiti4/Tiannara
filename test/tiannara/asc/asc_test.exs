@@ -161,14 +161,12 @@ defmodule Tiannara.ASC.ASCTest do
   end
 
   describe "functional: research planning" do
-    test "decomposes goal into programs" do
-      {:ok, _plan_id, programs} =
-        Tiannara.ASC.ResearchPlanner.plan(:test_res_plan, "Improve renewable energy")
-
-      assert length(programs) == 4
-      domains = Enum.map(programs, & &1.domain)
-      assert :materials in domains
-      assert :engineering in domains
+    test "planning fails closed until a real decomposition engine exists (scan A7)" do
+      # Any goal previously produced the same four template programs with
+      # fabricated confidences; the planner must report unavailability
+      # instead of inventing a roadmap.
+      assert {:error, :planner_unavailable} =
+               Tiannara.ASC.ResearchPlanner.plan(:test_res_plan, "Improve renewable energy")
     end
   end
 

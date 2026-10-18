@@ -17,38 +17,46 @@ defmodule Tiannara.CCI.Orchestrator do
   @doc """
   Performs a comprehensive civilizational intelligence cycle.
   Returns a civilizational report for human review.
+
+  Fail-closed (production-readiness scan A6): until the ASC and Sentinel
+  reads below are implemented, the cycle reports unavailability instead of
+  pushing hardcoded subsystem counts and invented observation confidences
+  through the risk, forecast, and priority engines as if they were
+  measurements.
   """
   def civilizational_cycle do
-    asc_state = fetch_asc_state()
-    CivilizationSelfModel.update_state(:cci_csm, asc_state)
-    civ_state = CivilizationSelfModel.get_state(:cci_csm)
+    with {:ok, asc_state} <- fetch_asc_state(),
+         {:ok, sentinel_observations} <- fetch_sentinel_observations() do
+      CivilizationSelfModel.update_state(:cci_csm, asc_state)
+      civ_state = CivilizationSelfModel.get_state(:cci_csm)
 
-    {:ok, risk_assessment} = CivilizationRiskIntelligence.assess_risks(:cci_cri, civ_state)
+      {:ok, risk_assessment} = CivilizationRiskIntelligence.assess_risks(:cci_cri, civ_state)
 
-    {:ok, forecast} = CivilizationForecastingEngine.forecast(:cci_cfe, civ_state, 100)
+      {:ok, forecast} = CivilizationForecastingEngine.forecast(:cci_cfe, civ_state, 100)
 
-    institutional_health = InstitutionalEvolutionSystem.list_health(:cci_ies)
+      institutional_health = InstitutionalEvolutionSystem.list_health(:cci_ies)
 
-    sentinel_observations = fetch_sentinel_observations()
-    {:ok, priorities} = PriorityResearchEngine.recommend_priorities(:cci_pre, sentinel_observations, civ_state)
+      {:ok, priorities} =
+        PriorityResearchEngine.recommend_priorities(:cci_pre, sentinel_observations, civ_state)
 
-    CivilizationalMemoryEngine.preserve(:cci_cme, %{
-      type: :decision,
-      domain: :civilizational,
-      content: "Civilizational cycle completed",
-      context: %{risk_level: risk_assessment.overall_risk_level, forecast_confidence: forecast.confidence},
-      outcome: :completed
-    })
+      CivilizationalMemoryEngine.preserve(:cci_cme, %{
+        type: :decision,
+        domain: :civilizational,
+        content: "Civilizational cycle completed",
+        context: %{risk_level: risk_assessment.overall_risk_level, forecast_confidence: forecast.confidence},
+        outcome: :completed
+      })
 
-    %{
-      civilization_state: civ_state,
-      risk_assessment: risk_assessment,
-      forecast: forecast,
-      institutional_health: institutional_health,
-      priorities: priorities,
-      timestamp: DateTime.utc_now(),
-      requires_human_review: true
-    }
+      %{
+        civilization_state: civ_state,
+        risk_assessment: risk_assessment,
+        forecast: forecast,
+        institutional_health: institutional_health,
+        priorities: priorities,
+        timestamp: DateTime.utc_now(),
+        requires_human_review: true
+      }
+    end
   end
 
   @doc """
@@ -75,21 +83,15 @@ defmodule Tiannara.CCI.Orchestrator do
     end
   end
 
+  # Fail-closed seams (scan A6). The previous implementations returned
+  # hardcoded ASC counts (validated_assets: 450, ...) and two invented
+  # sentinel observations (confidences 0.78/0.72) regardless of reality.
+  # Real reads plug in here; until then the cycle reports unavailability.
   defp fetch_asc_state do
-    %{
-      knowledge_state: %{validated_assets: 450, pending_validation: 80, principles: 42},
-      capability_state: %{emerging: 25, promoted: 18, obsolete: 5},
-      research_state: %{active_programs: 12, completed: 87, failed: 15},
-      institutional_state: %{active: 8, forming: 2, declining: 1},
-      resource_state: %{available: 850, allocated: 420, reserved: 100},
-      risk_state: %{critical: 0, elevated: 2, nominal: 15}
-    }
+    {:error, :subsystem_state_unavailable}
   end
 
   defp fetch_sentinel_observations do
-    [
-      %{type: :pattern, description: "Cross-domain convergence detected", confidence: 0.78},
-      %{type: :anomaly, description: "Institutional adaptability declining", confidence: 0.72}
-    ]
+    {:error, :observations_unavailable}
   end
 end
