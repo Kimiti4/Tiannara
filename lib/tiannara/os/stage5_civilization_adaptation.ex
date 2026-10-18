@@ -62,15 +62,17 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
       total_adaptations_analyzed: length(institution_results)
     })
 
-    # Phase 1: Validate completeness
+    # Phase 1: Validate completeness (S5-1: classify instead of silent
+    # filter — acceptance logic unchanged; per-input gate failures recorded)
     Logger.debug("[Stage5] Phase 1: Validating adaptation completeness")
-    validated_results = validate_adaptations(institution_results)
+    {validated_results, gate_rejections} = classify_adaptations(institution_results)
 
     if length(validated_results) == 0 do
       Logger.warning("[Stage5] No valid adaptations found")
-      create_empty_result(result, :no_valid_adaptations)
+      create_empty_result(result, :no_valid_adaptations, gate_rejections)
     else
 
+    result = %{result | gate_rejections: gate_rejections}
     result = CivilizationAdaptationResult.advance_stage(result, :adaptations_collected)
     result = CivilizationAdaptationResult.advance_stage(result, :validated)
 
@@ -113,13 +115,6 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
     evidence = extract_supporting_evidence(validated_results)
     result = CivilizationAdaptationResult.record_supporting_evidence(result, evidence)
 
-    # Add semantic events
-    result = CivilizationAdaptationResult.add_semantic_event(result, :civilization_adaptation_completed, %{
-      decision: decision,
-      generation: generation,
-      institutions_evaluated: length(validated_results)
-    })
-
     result = CivilizationAdaptationResult.advance_stage(result, :recorded)
 
     # Validate constitutional compliance
@@ -131,8 +126,30 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
       Logger.info("[Stage5] Civilization adaptation constitutionally compliant")
     end
 
+    # S5-1: derive the five-atom outcome
+    # (certification/audit/STAGE5_OUTCOME_VOCABULARY.md §2.3).
+    # OQ-1 (approved): compliance violations block :rollout_authorized only —
+    # they never cap :analysis_possible or :adaptation_approved, and no
+    # violation rule is reclassified here (all remain recorded in
+    # :constitutional_compliance).
+    outcome = derive_outcome(final_result.civilization_decision, violations, validated_results)
+
+    final_result = %{final_result | outcome: outcome}
+
+    # Semantic events: appended after outcome derivation so the completed
+    # event carries the outcome and the violation rules considered with it.
+    final_result =
+      CivilizationAdaptationResult.add_semantic_event(final_result, :civilization_adaptation_completed, %{
+        decision: final_result.civilization_decision,
+        generation: generation,
+        institutions_evaluated: length(validated_results),
+        outcome: outcome,
+        compliance_violation_rules: Enum.map(violations, & &1.rule)
+      })
+
     Logger.info("[Stage5] Civilization adaptation complete:")
     Logger.info("  Decision: #{inspect(final_result.civilization_decision)}")
+    Logger.info("  Outcome: #{inspect(final_result.outcome)}")
     Logger.info("  Supporting institutions: #{length(final_result.supporting_institutions || [])}")
 
     final_result
@@ -143,28 +160,47 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
   # Phase 1: Validate Adaptations
   # ──────────────────────────────────────────────
 
-  defp validate_adaptations(institution_results) do
-    Enum.filter(institution_results, fn result ->
-      # Check lifecycle completeness
-      has_lifecycle = result.stage_history && length(result.stage_history) >= 7
+  # S5-1: acceptance logic is byte-identical to the former
+  # validate_adaptations/1 (all four checks AND-ed, count gate unchanged at
+  # `stage_history >= 7`), but each rejected input now carries deterministic,
+  # attributable gate-rejection reasons instead of being silently dropped.
+  defp classify_adaptations(institution_results) do
+    institution_results
+    |> Enum.reduce({[], []}, fn input, {valid, rejected} ->
+      case input_gate_reasons(input) do
+        [] ->
+          {[input | valid], rejected}
 
-      # Check constitutional compliance
-      is_compliant = case result.constitutional_compliance do
-        %{is_compliant: true} -> true
-        _ -> false
+        reasons ->
+          rejection = %{
+            institution_id: input.institution_id,
+            adaptation_result_id: input.id,
+            reasons: reasons
+          }
+
+          {valid, [rejection | rejected]}
       end
+    end)
+    |> then(fn {valid, rejected} -> {Enum.reverse(valid), Enum.reverse(rejected)} end)
+  end
 
-      # Check rollback availability
-      has_rollback = result.rollback_available == true
-
-      # Check explicit evidence-source labeling: inputs must declare
+  # Returns [] when the input passes every analysis gate; otherwise the list
+  # of failed gates in fixed order (deterministic and attributable).
+  defp input_gate_reasons(result) do
+    checks = [
+      # Check 1: lifecycle completeness — count-only, never relaxed (>= 7)
+      {:lifecycle_count, result.stage_history != nil and length(result.stage_history) >= 7},
+      # Check 2: constitutional compliance
+      {:not_compliant, match?(%{is_compliant: true}, result.constitutional_compliance)},
+      # Check 3: rollback availability
+      {:no_rollback, result.rollback_available == true},
+      # Check 4: explicit evidence-source labeling: inputs must declare
       # whether they are evidence-backed or synthetic. Unlabeled inputs
       # are rejected - pedigree is never assumed.
-      has_evidence_source = evidence_source_of(result) != nil
+      {:unlabeled_evidence_source, evidence_source_of(result) != nil}
+    ]
 
-      # All checks must pass
-      has_lifecycle and is_compliant and has_rollback and has_evidence_source
-    end)
+    for {reason, passed} <- checks, passed != true, do: reason
   end
 
   defp evidence_source_of(result) do
@@ -618,13 +654,75 @@ defmodule TiannaraOS.Stage5CivilizationAdaptation do
     }
   end
 
-  defp create_empty_result(result, reason) do
+  defp create_empty_result(result, reason, gate_rejections) do
     result = CivilizationAdaptationResult.make_civilization_decision(result, :reject, %{
       reasoning: "No valid adaptations to evaluate",
       key_factors: ["#{reason}"],
       supporting_evidence: []
     })
 
-    %{result | status: :failed, failure_reason: reason}
+    result =
+      CivilizationAdaptationResult.add_semantic_event(result, :civilization_adaptation_blocked, %{
+        outcome: :evidence_insufficient,
+        failure_reason: reason,
+        gate_rejection_count: length(gate_rejections)
+      })
+
+    %{
+      result
+      | status: :failed,
+        failure_reason: reason,
+        outcome: :evidence_insufficient,
+        gate_rejections: gate_rejections
+    }
+  end
+
+  # ──────────────────────────────────────────────
+  # S5-1: Outcome derivation (five-atom vocabulary)
+  # certification/audit/STAGE5_OUTCOME_VOCABULARY.md §2.3
+  # ──────────────────────────────────────────────
+
+  # S5-1 note: the full §2.3 derivation table includes :rollout_authorized
+  # (adoption + zero blocking violations + OQ-2 rollout-tier verification).
+  # Both rollout preconditions land in S5-2 (kept separate per operator GO):
+  #   OQ-1: violations == [] — compliance violations block rollout ONLY;
+  #         they never cap :analysis_possible or :adaptation_approved, and
+  #         no violation rule is reclassified (all stay recorded in
+  #         :constitutional_compliance and in the completed event).
+  #   OQ-2: PER SUPPORTING INPUT, verified from authoritative records and
+  #         never inferred from labels, stage cursor position, or upstream
+  #         gate passage — (1) named :piloted stage in stage_history,
+  #         (2) named :governance_reviewed stage in stage_history,
+  #         (3) simulation_results.evidence_source == :evidence_backed.
+  #         Missing, malformed, or unverified evidence fails closed.
+  # S5-1 therefore resolves every adoption decision to :adaptation_approved:
+  # :rollout_authorized is unreachable and no rollout code path exists yet.
+  # (An S5-1 draft called a never-satisfiable verify_rollout_tier/1 here;
+  # the type checker proved its :ok clause dead, so the dead path was removed
+  # instead of shipped — S5-2 implements verification for real.)
+  defp derive_outcome(decision, _violations, _validated_results) do
+    cond do
+      decision == :reject ->
+        # Evidence was analyzed; the analyzer refused to spread it.
+        # Rejected is never represented as adopted or approved.
+        :adaptation_rejected
+
+      adoption_decision?(decision) ->
+        # OQ-1 (approved): violations do not block approval — they stay
+        # recorded in :constitutional_compliance (nothing disappears) and
+        # are carried in the completed semantic event. Rollout remains
+        # S5-2 (see header comment).
+        :adaptation_approved
+
+      true ->
+        # :further_validation, :preserve_diversity, or any unrecognized
+        # decision: analysis ran but grants no adoption authority
+        # (fail-safe direction — never rolls forward into approval).
+        :analysis_possible
+    end
+  end
+
+  defp adoption_decision?(decision) do
+    decision in [:universal_adoption, :selective_adoption, :experimental_expansion]
   end
 end

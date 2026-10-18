@@ -53,6 +53,18 @@ defmodule TiannaraOS.CivilizationAdaptationResult do
   - :reject - Unsafe or ineffective, do not spread
   - :preserve_diversity - Conflicting adaptations both valid locally
 
+  ## Status vs Outcome (S5-1)
+
+  - `:status` is the **stage cursor** for `advance_stage/2`
+    (`:pending` → `:recorded` on success, `:failed` after gate rejection).
+    Never read `:status` for eligibility decisions.
+  - `:outcome` is the five-atom eligibility vocabulary defined in
+    `certification/audit/STAGE5_OUTCOME_VOCABULARY.md`:
+    `nil` (not computed), `:evidence_insufficient`, `:analysis_possible`,
+    `:adaptation_rejected`, `:adaptation_approved`, `:rollout_authorized`.
+  - `:gate_rejections` records per-input analysis-gate rejection reasons
+    (deterministic, attributable to the exact gate that failed).
+
   ## Transferability Categories
 
   - :universal - Works across all domains/institutions
@@ -125,9 +137,19 @@ defmodule TiannaraOS.CivilizationAdaptationResult do
     :semantic_events,
     :constitutional_compliance,
 
-    # Status
+    # Status (stage cursor for advance_stage/2 — NOT an eligibility status;
+    # consumers read :outcome for eligibility)
     :status,
-    :failure_reason
+    :failure_reason,
+
+    # Outcome vocabulary (S5-1, additive) — see @moduledoc "Status vs Outcome"
+    :outcome,
+
+    # Per-input analysis-gate rejection detail (S5-1, additive):
+    # [%{institution_id: atom(), adaptation_result_id: String.t(),
+    #   reasons: [:lifecycle_count | :not_compliant | :no_rollback |
+    #             :unlabeled_evidence_source]}]
+    gate_rejections: []
   ]
 
   @type t :: %__MODULE__{
@@ -155,7 +177,14 @@ defmodule TiannaraOS.CivilizationAdaptationResult do
     semantic_events: [map()],
     constitutional_compliance: map() | nil,
     status: atom(),
-    failure_reason: String.t() | nil
+    failure_reason: String.t() | nil,
+    outcome: nil
+      | :evidence_insufficient
+      | :analysis_possible
+      | :adaptation_rejected
+      | :adaptation_approved
+      | :rollout_authorized,
+    gate_rejections: [map()]
   }
 
   @doc """
@@ -196,7 +225,9 @@ defmodule TiannaraOS.CivilizationAdaptationResult do
       semantic_events: [],
       constitutional_compliance: nil,
       status: :pending,
-      failure_reason: nil
+      failure_reason: nil,
+      outcome: nil,
+      gate_rejections: []
     }
   end
 

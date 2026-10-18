@@ -1,14 +1,17 @@
 defmodule TiannaraOS.Stage5OutcomeContractTest do
   @moduledoc """
-  S5-0 contract tests — lock CURRENT Stage 5 gate/outcome behavior before any
-  outcome-vocabulary change (certification/audit/STAGE5_OUTCOME_VOCABULARY.md,
-  phase S5-0).
+  Stage 5 outcome/gate contract tests
+  (certification/audit/STAGE5_OUTCOME_VOCABULARY.md).
 
-  These tests intentionally assert today's behavior, including its defects
-  (count-only gate, silent filtering, no `:outcome` field). S5-1 must keep
-  CT-1..CT-6 and CT-8..CT-10 green while REPLACING CT-7 with the permanent
-  outcome invariant (CT-7'). Nothing here may be weakened to make a later
-  change pass.
+  S5-0 locked current behavior (CT-1..CT-6, CT-8..CT-10); S5-1 replaced the
+  temporary "no :outcome field" assertion with the permanent outcome contract
+  (CT-7) and added CT-11 (decision→outcome mapping), CT-12 (OQ-1 violation
+  tiers), CT-13 (gate_rejections attribution).
+
+  Nothing here may be weakened to make a later change pass: the `>= 7` count
+  gate stays byte-identical (CT-1/CT-10), rejected stays distinct from
+  adopted/approved (CT-6/CT-7/CT-11), and :rollout_authorized must remain
+  unreachable until S5-2 implements OQ-2 tier verification (CT-7/CT-12).
   """
 
   use ExUnit.Case, async: true
@@ -217,19 +220,216 @@ defmodule TiannaraOS.Stage5OutcomeContractTest do
   end
 
   # ──────────────────────────────────────────────
-  # CT-7 (pre-S5-1): no outcome vocabulary exists yet
+  # CT-7 (S5-1): outcome vocabulary contract — replaces the pre-S5-1
+  # "no :outcome field exists" assertion with the permanent contract.
   # ──────────────────────────────────────────────
 
-  describe "CT-7 no rollout-authorization claim exists pre-change" do
-    test "result struct has no :outcome field on either terminal shape" do
-      analyzed = analyze([valid_input("nooutcome")])
+  describe "CT-7 outcome vocabulary contract (S5-1)" do
+    test "both terminal shapes carry :outcome within the five-atom vocabulary" do
+      vocabulary = [
+        :evidence_insufficient,
+        :analysis_possible,
+        :adaptation_rejected,
+        :adaptation_approved,
+        :rollout_authorized
+      ]
+
+      analyzed = analyze([valid_input("voc")])
       blocked = blocked([])
 
-      refute Map.has_key?(analyzed, :outcome)
-      refute Map.has_key?(blocked, :outcome)
-      # Nothing in either result claims deployment/rollout authorization.
-      refute Map.has_key?(analyzed, :rollout_authorized)
-      refute Map.has_key?(blocked, :rollout_authorized)
+      assert Map.has_key?(analyzed, :outcome)
+      assert Map.has_key?(blocked, :outcome)
+      assert analyzed.outcome in vocabulary
+      assert blocked.outcome in vocabulary
+      assert blocked.outcome == :evidence_insufficient
+    end
+
+    test "no fixture produces :rollout_authorized (S5-2 verification not implemented; fails closed)" do
+      # Adoption with ZERO compliance violations: still capped at
+      # :adaptation_approved because rollout-tier verification is S5-2.
+      zero_violation_adoption =
+        analyze(
+          [
+            valid_input("ra_a", category: :caching),
+            valid_input("ra_b", category: :compression)
+          ],
+          min_institutions: 1
+        )
+
+      assert zero_violation_adoption.constitutional_compliance.is_compliant == true
+      assert zero_violation_adoption.outcome == :adaptation_approved
+      refute zero_violation_adoption.outcome == :rollout_authorized
+    end
+
+    test "blocked input is never represented as adopted, approved, or rejected-on-merits" do
+      blocked_result = blocked([valid_input("six2", stages: 6)])
+
+      assert blocked_result.outcome == :evidence_insufficient
+
+      refute blocked_result.outcome in [
+               :adaptation_approved,
+               :adaptation_rejected,
+               :rollout_authorized
+             ]
+    end
+  end
+
+  # ──────────────────────────────────────────────
+  # CT-11: decision → outcome mapping (reachable decisions)
+  # ──────────────────────────────────────────────
+
+  describe "CT-11 decision-to-outcome mapping (reachable decisions)" do
+    test ":further_validation maps to :analysis_possible" do
+      result = analyze([valid_input("map_fv")])
+
+      assert result.civilization_decision == :further_validation
+      assert result.outcome == :analysis_possible
+    end
+
+    test "analyzer :reject maps to :adaptation_rejected" do
+      result = analyze([valid_input("map_rej", adopted: [], prediction: reliable_prediction())])
+
+      assert result.civilization_decision == :reject
+      assert result.outcome == :adaptation_rejected
+    end
+
+    test ":universal_adoption maps to :adaptation_approved" do
+      result =
+        analyze(
+          [
+            valid_input("map_ua", category: :caching),
+            valid_input("map_ub", category: :compression)
+          ],
+          min_institutions: 1
+        )
+
+      assert result.civilization_decision == :universal_adoption
+      assert result.outcome == :adaptation_approved
+    end
+
+    test ":selective_adoption (default opts) maps to :adaptation_approved" do
+      adopted = Enum.map(1..7, fn i -> valid_input("sel_#{i}", category: :caching) end)
+      deferred = Enum.map(8..10, fn i -> valid_input("sel_#{i}", adopted: []) end)
+      result = analyze(adopted ++ deferred)
+
+      assert result.civilization_decision == :selective_adoption
+      assert result.outcome == :adaptation_approved
+    end
+  end
+
+  # ──────────────────────────────────────────────
+  # CT-12: compliance violations at each outcome tier (OQ-1 regression)
+  # ──────────────────────────────────────────────
+
+  describe "CT-12 compliance violations at each outcome tier (OQ-1)" do
+    test "analysis tier: violations do not cap :analysis_possible" do
+      result = analyze([valid_input("tier_a", prediction: nil)])
+
+      refute result.constitutional_compliance.is_compliant
+      assert result.outcome == :analysis_possible
+    end
+
+    test "approval tier: violations do not cap :adaptation_approved and stay recorded" do
+      adopted = Enum.map(1..7, fn i -> valid_input("vt_#{i}", category: :caching, prediction: nil) end)
+      deferred = Enum.map(8..10, fn i -> valid_input("vt_#{i}", adopted: [], prediction: nil) end)
+      result = analyze(adopted ++ deferred)
+
+      assert result.civilization_decision == :selective_adoption
+      refute result.constitutional_compliance.is_compliant
+      assert result.outcome == :adaptation_approved
+
+      # Violations remain explicitly recorded — they must not disappear
+      # merely because they do not block lower tiers.
+      rules = Enum.map(result.constitutional_compliance.violations, & &1.rule)
+      assert "prediction_history_required" in rules
+
+      # And they are carried into the completed semantic event alongside
+      # the outcome.
+      completed =
+        Enum.find(result.semantic_events, &(&1.type == :civilization_adaptation_completed))
+
+      assert completed.metadata.outcome == :adaptation_approved
+      assert "prediction_history_required" in completed.metadata.compliance_violation_rules
+    end
+
+    test "rollout tier: violations can never authorize rollout; S5-1 emits no rollout even when clean" do
+      # Clean adoption (zero violations): still :adaptation_approved —
+      # :rollout_authorized additionally requires S5-2 tier verification,
+      # so violations-prevent-rollout and not-implemented-verification both
+      # fail closed to approval.
+      clean =
+        analyze(
+          [
+            valid_input("cr_a", category: :caching),
+            valid_input("cr_b", category: :compression)
+          ],
+          min_institutions: 1
+        )
+
+      assert clean.constitutional_compliance.is_compliant == true
+      assert clean.outcome == :adaptation_approved
+      refute clean.outcome == :rollout_authorized
+    end
+  end
+
+  # ──────────────────────────────────────────────
+  # CT-13: gate_rejections attribution (S5-1)
+  # ──────────────────────────────────────────────
+
+  describe "CT-13 gate_rejections attribution (S5-1)" do
+    test "each failing gate produces its deterministic reason, one input per gate" do
+      inputs = [
+        valid_input("g1", stages: 6),
+        valid_input("g2", compliance: %{is_compliant: false, violations: []}),
+        valid_input("g3", rollback: false),
+        %{valid_input("g4") | simulation_results: %{adopted_proposals: []}}
+      ]
+
+      result = blocked(inputs)
+
+      assert result.outcome == :evidence_insufficient
+      assert length(result.gate_rejections) == 4
+
+      reasons_by_id =
+        Map.new(result.gate_rejections, fn rejection ->
+          {rejection.adaptation_result_id, rejection.reasons}
+        end)
+
+      assert reasons_by_id["g1"] == [:lifecycle_count]
+      assert reasons_by_id["g2"] == [:not_compliant]
+      assert reasons_by_id["g3"] == [:no_rollback]
+      assert reasons_by_id["g4"] == [:unlabeled_evidence_source]
+
+      # Attributable: institution ids preserved, input order deterministic.
+      assert Enum.map(result.gate_rejections, & &1.institution_id) ==
+               [:institution_g1, :institution_g2, :institution_g3, :institution_g4]
+    end
+
+    test "multi-gate failure lists every failed reason in fixed order" do
+      bad = %{
+        valid_input("multi", stages: 6)
+        | constitutional_compliance: %{is_compliant: false, violations: []},
+          rollback_available: false
+      }
+
+      result = blocked([bad])
+
+      assert [%{adaptation_result_id: "multi", reasons: reasons}] = result.gate_rejections
+      assert reasons == [:lifecycle_count, :not_compliant, :no_rollback]
+    end
+
+    test "mixed valid/invalid: analysis runs and only rejected inputs are recorded" do
+      result = analyze([valid_input("ok_m"), valid_input("bad_m", stages: 6)])
+
+      assert result.status == :recorded
+
+      assert [%{adaptation_result_id: "bad_m", reasons: [:lifecycle_count]}] =
+               result.gate_rejections
+    end
+
+    test "empty input list has no gate rejections to attribute" do
+      result = blocked([])
+      assert result.gate_rejections == []
     end
   end
 

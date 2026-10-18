@@ -1058,6 +1058,10 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       civilization_decision: result.civilization_decision,
       status: result.status,
       failure_reason: result.failure_reason,
+      # S5-1 outcome vocabulary — explicit defaults for records/structs
+      # produced before the new fields existed.
+      outcome: Map.get(result, :outcome, nil),
+      gate_rejections: Map.get(result, :gate_rejections, []),
       institutions_evaluated: result.institutions_evaluated,
       supporting_institutions_count: length(result.supporting_institutions || []),
       note:
@@ -1066,7 +1070,8 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
           "and produces noncompliant results, so the engine's validation gates " <>
           "(stage_history >= 7, compliance, rollback, evidence-source) reject " <>
           "them and the result is the engine's honest blocked outcome — " <>
-          "status: :failed, failure_reason: :no_valid_adaptations. Adoption is " <>
+          "status: :failed, failure_reason: :no_valid_adaptations, " <>
+          "outcome: :evidence_insufficient. Adoption is " <>
           "never fabricated by the runner.",
       certification_claim: "none"
     }

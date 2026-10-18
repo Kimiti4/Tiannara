@@ -721,6 +721,20 @@ defmodule TiannaraOS.RecursiveCivilizationRunnerTest do
       # engine returns its honest blocked outcome.
       assert payload["status"] == "failed"
       assert payload["failure_reason"] == "no_valid_adaptations"
+      # S5-1 outcome vocabulary persisted alongside status/failure_reason.
+      assert payload["outcome"] == "evidence_insufficient"
+      assert is_list(payload["gate_rejections"])
+
+      # Blocked outcome means every input the engine saw was rejected (or
+      # Stage 4 produced none at all): rejected count == inputs evaluated.
+      assert length(payload["gate_rejections"]) == payload["institutions_evaluated"]
+
+      # Stage 4 evidence-mode results carry a 5-entry history, so every
+      # non-empty rejection records the count gate.
+      assert Enum.all?(payload["gate_rejections"], fn rejection ->
+               is_list(rejection["reasons"]) and "lifecycle_count" in rejection["reasons"]
+             end)
+
       # No adoption is fabricated: decision is :reject (the engine's
       # create_empty_result path), supporting institutions count is 0.
       assert payload["civilization_decision"] == "reject"
