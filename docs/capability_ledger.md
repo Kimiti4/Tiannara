@@ -541,7 +541,7 @@ retained in supersession, not silently dropped.
 | A1 | `CivilizationAdaptationResult` — 14 arg-ignoring success stubs on the Stage 5 path | **REMEDIATED** `0bc5b0ff` — all → `{:error, :not_implemented}`; pipeline + kernel fail-closed |
 | A2 | `MethodEvolutionResult.add_evidence_summary/2` discards the summary | **REMEDIATED** `491e760d` — `{:ok, :stub}` → `{:error, :not_implemented}` (zero callers existed) |
 | A3 | ASC pipeline auto-advanced on `{:ok, :stub}` / missing handler | **REMEDIATED** `0bc5b0ff` — phases block with `{:error, :phase_unavailable}` / `:no_handler` |
-| A4 | `ASC.Research.ResearchRegistry` returns hardcoded mock programs | OPEN |
+| A4 | `ASC.Research.ResearchRegistry` returns hardcoded mock programs | **REMEDIATED** `3a57c421` — `get_all_programs/0` reads real GenServer state; scanner flags only self-reported citation metrics (fixtures can never appear; 6-test lock). Adjacent stubs in the same module tracked as **A4b — OPEN** (`update_program_metrics/2` discards deltas, `freeze_program/1` logs without acting, genome/ROI writers return `{:ok, :stub}`/`[]`) |
 | A5 | Domain `evaluate/1` + `metrics/0` still fabricated (`simulate`/`validate` quarantined earlier) | OPEN (= D-A11) |
 | A6 | `CCI.Orchestrator` — hardcoded civilization state + sentinel confidences | OPEN |
 | A7 | `ASC.ResearchPlanner.decompose_goal/1` — hardcoded confidences | OPEN |

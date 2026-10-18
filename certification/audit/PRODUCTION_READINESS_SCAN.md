@@ -105,6 +105,10 @@ end
 
 **Remediation**: Read from GenServer state (delegate to `get_programs/0`), or fail closed with `{:error, :not_implemented}` until the read path is wired.
 
+**Status**: REMEDIATED in `3a57c421` — `get_all_programs/0` delegates to `get_programs/0 |> Map.values()`; the reader serves registered `ResearchProgram`/`ResearchGenome` structs (or an honest empty list), and registry-down raises instead of serving fixtures (immune scan fails closed). `PathogenScanner` now evaluates via `echo_chamber?/1`: only programs self-reporting `internal_citation_ratio` are evaluable — neither registered struct reports it today, so no threat can be fabricated from absent data (previously the fixtures guaranteed exactly one threat). Locked by `research_registry_a4_test.exs` (6 tests).
+
+**A4b (adjacent same-module stubs discovered during A4 remediation) — OPEN**: in `research_registry.ex`: `update_program_metrics/2` returns `:ok` while discarding real telemetry deltas (callers verified to discard the return); `freeze_program/1` logs a quarantine without acting on any budget (theatrical no-op); `get_surviving_genomes/0` returns `[]` while no storage exists; `apply_engineering_roi/2` and `store_surviving_genomes/1` return `{:ok, :stub}` (callers discard). Fail-close or implement as a follow-up batch.
+
 ### A5. Domain modules — partial quarantine, fabricated `evaluate` and `metrics`
 
 **Files**: `lib/tiannara/domains/*.ex` (robotics, chemistry, materials, engineering, computation, physics, sociology, and others)
@@ -426,8 +430,8 @@ Disproof: `RecursiveCivilizationRunner.execute/2` is public, builds its own `Con
 | **P3** | C1, C2, C3 — theatrical tests, dead infrastructure, stale docs | LOW | Low | Cleanup; no production exposure. |
 
 **Remediation status (updated 2026-10-18)**:
-- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`).
-- OPEN — A4, A5, A6, A7, B1, B8 (c, documented-retained), C1, C2, C11 (section F).
+- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`), A4 (`3a57c421`).
+- OPEN — A4b, A5, A6, A7, B1, B8 (c, documented-retained), C1, C2, C11 (section F).
 
 ---
 
