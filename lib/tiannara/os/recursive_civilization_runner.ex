@@ -290,6 +290,12 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     # Generate final reports
     generate_final_reports(final_state.history, output_dir)
 
+    # Production-readiness scan B7: CertificationGate previously had zero
+    # enforcement surface — evidence artifacts were written but never
+    # evaluated. Evaluate every persisted artifact through the gate and
+    # record the verdicts (see evaluate_run_certification/4).
+    evaluate_run_certification(output_dir, stage_evidence_labels, manifest)
+
     IO.puts("")
     IO.puts("=" |> String.duplicate(80))
     IO.puts("Simulation harness finished - #{num_generations} generations processed; real Stage 6 validation NOT ESTABLISHED")
@@ -427,6 +433,87 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
     File.write!(
       Path.join(output_dir, "stage_evidence_labels.json"),
+      Jason.encode!(payload, pretty: true)
+    )
+  end
+
+  # ──────────────────────────────────────────────
+  # Production-readiness scan B7: CertificationGate enforcement
+  #
+  # Tiannara.Evidence.CertificationGate previously had zero production
+  # callers — evidence artifacts were durably written but never evaluated.
+  # After the run, every persisted evidence artifact is read back and run
+  # through the gate. The provenance kind is derived from what this run
+  # structurally is: a harness-simulated run rooted in synthetic episodes
+  # (certificates carry validation_status: :harness_simulated, labels carry
+  # certification_claim: "none"), so kind is :simulation — never
+  # self-asserted as :real_execution, which Provenance.build/1 would only
+  # accept with an execution-id-backed real origin.
+  #
+  # The gate's honest verdict for every artifact is therefore :rejected for
+  # scientific-evidence use. Verdicts are persisted to
+  # certification_evaluation.json. They do not fail the run: the run is an
+  # explicitly authorized, bounded simulation, and this record — that the
+  # run's artifacts are NOT acceptable as scientific evidence — is its
+  # product. Downstream consumers must read the evaluation before citing
+  # any artifact from this run.
+  # ──────────────────────────────────────────────
+
+  defp evaluate_run_certification(output_dir, stage_evidence_labels, manifest) do
+    stage_evidence_paths = Path.wildcard(Path.join(output_dir, "stage*_evidence/generation_*.json"))
+    labels_path = Path.join(output_dir, "stage_evidence_labels.json")
+    attestations_path = Path.join(output_dir, "constitution_attestations.jsonl")
+
+    artifact_paths =
+      [labels_path | stage_evidence_paths]
+      |> Enum.filter(&File.exists?/1)
+      |> then(fn paths -> if File.exists?(attestations_path), do: paths ++ [attestations_path], else: paths end)
+      |> Enum.sort()
+
+    evaluations =
+      Enum.map(artifact_paths, fn path ->
+        artifact_id = Path.basename(path)
+
+        {:ok, provenance} =
+          Tiannara.Evidence.Provenance.build(
+            kind: :simulation,
+            source: artifact_id,
+            producer: "TiannaraOS.RecursiveCivilizationRunner",
+            execution_id: manifest.manifest_id,
+            audit_trail: ["run_validation_status: :harness_simulated"]
+          )
+
+        case Tiannara.Evidence.CertificationGate.evaluate(%{id: artifact_id, provenance: provenance}) do
+          {:accepted, artifact} -> %{artifact: artifact.id, verdict: :accepted, reason: nil}
+          {:rejected, artifact, reason} -> %{artifact: artifact.id, verdict: :rejected, reason: reason}
+          {:quarantined, artifact, reason} -> %{artifact: artifact.id, verdict: :quarantined, reason: reason}
+        end
+      end)
+
+    payload = %{
+      gate: "Tiannara.Evidence.CertificationGate.evaluate/1",
+      evaluated_at: DateTime.to_iso8601(DateTime.utc_now()),
+      run_validation_status: "harness_simulated",
+      provenance_kind: "simulation",
+      stage_evidence_labels: stage_evidence_labels,
+      certification_claim: "none",
+      counts: %{
+        accepted: Enum.count(evaluations, &(&1.verdict == :accepted)),
+        rejected: Enum.count(evaluations, &(&1.verdict == :rejected)),
+        quarantined: Enum.count(evaluations, &(&1.verdict == :quarantined))
+      },
+      evaluations: evaluations,
+      note:
+        "CertificationGate verdicts over this run's persisted evidence " <>
+          "artifacts. Provenance kind :simulation is derived from the run's " <>
+          "harness-simulated validation status — the run structurally cannot " <>
+          "produce real-execution evidence. A :rejected verdict means the " <>
+          "artifact must not be cited as scientific evidence. This file is " <>
+          "the gate's enforcement record (production-readiness scan B7)."
+    }
+
+    File.write!(
+      Path.join(output_dir, "certification_evaluation.json"),
       Jason.encode!(payload, pretty: true)
     )
   end

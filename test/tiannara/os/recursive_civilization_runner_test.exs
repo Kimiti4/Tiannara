@@ -93,6 +93,49 @@ defmodule TiannaraOS.RecursiveCivilizationRunnerTest do
     end
   end
 
+  # ──────────────────────────────────────────────
+  # Production-readiness scan B7: CertificationGate enforcement surface
+  # ──────────────────────────────────────────────
+
+  describe "certification gate evaluation (B7)" do
+    test "run persists honest CertificationGate verdicts over its evidence artifacts",
+         %{output_dir: output_dir} do
+      assert {:ok, _histories} =
+               RecursiveCivilizationRunner.execute(1, %{
+                 authorized: true,
+                 output_dir: output_dir,
+                 episodes_per_generation: 5,
+                 enable_adaptation: false
+               })
+
+      eval_path = Path.join(output_dir, "certification_evaluation.json")
+      assert File.exists?(eval_path)
+
+      eval = eval_path |> File.read!() |> Jason.decode!()
+
+      assert eval["gate"] == "Tiannara.Evidence.CertificationGate.evaluate/1"
+      assert eval["run_validation_status"] == "harness_simulated"
+      assert eval["provenance_kind"] == "simulation"
+      assert eval["certification_claim"] == "none"
+
+      evaluations = eval["evaluations"]
+      assert is_list(evaluations)
+      assert evaluations != []
+
+      # The run-level labels artifact is always evaluated
+      assert Enum.any?(evaluations, &(&1["artifact"] == "stage_evidence_labels.json"))
+
+      # Harness-simulated evidence can never be accepted as scientific evidence
+      assert Enum.all?(evaluations, &(&1["verdict"] == "rejected"))
+      assert Enum.all?(evaluations, &(&1["reason"] == "fabricated_or_synthetic:simulation"))
+
+      counts = eval["counts"]
+      assert counts["accepted"] == 0
+      assert counts["rejected"] == length(evaluations)
+      assert counts["quarantined"] == 0
+    end
+  end
+
   describe "machine-readable stage evidence labels (Phase D step 1)" do
     test "run-level labels file is written, all simulated, never PASS", %{
       output_dir: output_dir
