@@ -264,6 +264,8 @@ The gate is well-implemented (checks provenance, rejects simulation/fixture, qua
 
 **Remediation**: Wire `CertificationGate.evaluate/1` into the runner's post-run verification, or into a CI check that reads the evidence artifacts. Until wired, document the gate as "implemented but not enforced" in the capability ledger.
 
+**Status**: REMEDIATED in `f267dd31` — after `generate_final_reports`, the runner reads back every persisted evidence artifact (`stage_evidence_labels.json`, `stage*_evidence/generation_*.json`, `constitution_attestations.jsonl`), evaluates each through `CertificationGate.evaluate/1` with provenance kind derived from the run's structural nature (`:simulation` — harness-simulated, rooted in synthetic episodes; never self-asserted `:real_execution`), and persists verdicts to `certification_evaluation.json`. Honest result today: every artifact `:rejected` (`fabricated_or_synthetic:simulation`); zero accepted. Verdicts do not fail the run — the run is an authorized bounded simulation and this durable record is its product. Locked by a new runner test (32/32 green).
+
 ### B8. `collect_generation_metrics/1` — hardcoded/fabricated values and vocabulary mismatch
 
 **File**: `lib/tiannara/os/recursive_civilization_runner.ex:1087-1169`
@@ -369,7 +371,7 @@ The chain does not over-claim. Stage 3 is the honest boundary.
 
 ### What is missing for the Stage 6 gate to be truly satisfied:
 
-1. **CertificationGate is not wired** (B7) — evidence artifacts are written but never evaluated by the gate.
+1. **CertificationGate now evaluates every persisted artifact** (B7, remediated `f267dd31` — verdicts in `certification_evaluation.json`); downstream consumers must read that evaluation before citing artifacts.
 2. **No real pilot evidence** — Stage 4 defers every proposal to `:awaiting_pilot_evidence`. No pilot has ever run. The `:piloted` lifecycle stage has never been reached on the genuine path.
 3. **No independent verification** — the runner is self-verifying. `replay_status: :not_verified` is honest but means no external check has confirmed the evidence.
 4. **No durable mutation source** — the runner writes JSON files; no append-only, tamper-evident ledger (C11 effect-sink is still zero-caller).
@@ -414,8 +416,8 @@ Disproof: `RecursiveCivilizationRunner.execute/2` is public, builds its own `Con
 | **P3** | C1, C2, C3 — theatrical tests, dead infrastructure, stale docs | LOW | Low | Cleanup; no production exposure. |
 
 **Remediation status (updated 2026-10-18)**:
-- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), C3 (worker moduledoc, `0bc5b0ff`), G1 (this commit).
-- OPEN — A2, A4, A5, A6, A7, B1, B2, B3, B4, B5, B7, B8 (c, documented-retained), C1, C2, C11 (section F).
+- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`).
+- OPEN — A2, A4, A5, A6, A7, B1, B2, B3, B4, B5, B8 (c, documented-retained), C1, C2, C11 (section F).
 
 ---
 

@@ -1,8 +1,8 @@
 # TIANNARA CAPABILITY LEDGER — WHAT EXISTS vs WHAT IS PENDING
 
 **Status:** EVIDENCE-BACKED, WORKING-TREE STATE
-**Date:** 2026-10-17 (gap-remediation update; original audit 2026-09-22)
-**Branch:** `local/pr4` (HEAD `de7116fe`)
+**Date:** 2026-10-17 (gap-remediation update; original audit 2026-09-22) · 2026-10-18 (production-readiness scan, §11)
+**Branch:** `local/pr4` (branch HEAD recorded in git; historical pins: `de7116fe` at the 2026-10-17 update)
 **Auditor role:** independent verification pass (no runtime self-report accepted as proof)
 **Supersedes:** the "MISSING" rows of `docs/production_completion_baseline.md` §3.1 where contradicted below
 
@@ -528,3 +528,30 @@ of its rows were already stale when consolidated. It carried no findings beyond 
 row classifications, so it was retired rather than copied — this is the one piece of
 the prior ledger not preserved verbatim, and it is recorded here as deliberately
 retained in supersession, not silently dropped.
+
+---
+
+## 11. Production-readiness scan (2026-10-17/18) — status table
+
+**Authoritative source:** `certification/audit/PRODUCTION_READINESS_SCAN.md` (7 HIGH, 8 MEDIUM,
+3 LOW + follow-up G1, with file:line cites). This section mirrors only the statuses.
+
+| ID | Finding | Status (2026-10-18) |
+|---|---|---|
+| A1 | `CivilizationAdaptationResult` — 14 arg-ignoring success stubs on the Stage 5 path | **REMEDIATED** `0bc5b0ff` — all → `{:error, :not_implemented}`; pipeline + kernel fail-closed |
+| A2 | `MethodEvolutionResult.add_evidence_summary/2` discards the summary | OPEN |
+| A3 | ASC pipeline auto-advanced on `{:ok, :stub}` / missing handler | **REMEDIATED** `0bc5b0ff` — phases block with `{:error, :phase_unavailable}` / `:no_handler` |
+| A4 | `ASC.Research.ResearchRegistry` returns hardcoded mock programs | OPEN |
+| A5 | Domain `evaluate/1` + `metrics/0` still fabricated (`simulate`/`validate` quarantined earlier) | OPEN (= D-A11) |
+| A6 | `CCI.Orchestrator` — hardcoded civilization state + sentinel confidences | OPEN |
+| A7 | `ASC.ResearchPlanner.decompose_goal/1` — hardcoded confidences | OPEN |
+| B1–B5 | Fail-open rescues and success-shaped stubs (4 events modules, discovery constitutional score, `publish_if_approved`, `track_entity`, `consult_world_model`) | OPEN |
+| B6 | `Phase13Stabilization.ensure_complete_lifecycle/2` fabricated missing lifecycle stages | **REMEDIATED** `c2cb4975` — returns `{:error, {:incomplete_lifecycle, missing_stages}}` |
+| B7 | `CertificationGate` had zero enforcement surface | **REMEDIATED** `f267dd31` — the runner now evaluates every persisted evidence artifact through `CertificationGate.evaluate/1` post-run and durably records verdicts in `certification_evaluation.json` (honest result today: all `:rejected` — simulation-rooted evidence is never acceptable as scientific evidence; new test locks this) |
+| B8 | `collect_generation_metrics` hardcoded metrics + `:adopt`/`:adopted` mismatch | **REMEDIATED (a)(b)** `712e0cd6` — adoption counting accepts both vocabularies; violations/rollback/lifecycle-completeness derived from actual stage results (CAI consumes derived values); (c) seed-random diversity metrics retained as declared simulation-model outputs (provenance in labels/attestations) |
+| C1 | Self-fulfilling theatrical test (`audit/tier4/domain_cortex.ex`) | OPEN |
+| C2 | `StubRegistry` — zero consumers (dead infrastructure) | OPEN |
+| C3 | ASC worker moduledoc documented stub auto-advance as intentional | **REMEDIATED** `0bc5b0ff` |
+| G1 | `ConstitutionalExecutor` moduledoc claimed a structural "NO code path" guarantee that does not exist | **REMEDIATED** `01a693b6` — honest entry-point note; documentation only |
+| D | Stage 5 gate semantics — `>= 7` is count-only and conflates analysis/approval/rollout eligibility | OPEN — outcome-vocabulary design doc + contract tests are the next phase; **the `>= 7` threshold must not be loosened** |
+| **C11** | Effect-to-sink closure gap (governed sink has zero production callers) | **OPEN** — unchanged; explicitly not proposed for closure (§10.2 C11) |
