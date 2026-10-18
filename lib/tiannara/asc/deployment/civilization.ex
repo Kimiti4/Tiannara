@@ -23,6 +23,12 @@ defmodule Tiannara.ASC.Deployment.Civilization do
     REA-3: External deployment (requires explicit approval)
 
   Records `deployment_readiness` to Observatory.
+
+  ## Current Status: Phase H — unavailable (fail-closed)
+
+  `run/1` previously returned `{:ok, :stub}` — a success-shaped stub that
+  let the pipeline auto-advance through a phase that never executed. It now
+  returns `{:error, :phase_unavailable}` so the pipeline halts honestly.
   """
 
   use GenServer
@@ -30,8 +36,8 @@ defmodule Tiannara.ASC.Deployment.Civilization do
 
   def start_link(opts \\ []), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
 
-  @spec run(Tiannara.ASC.Project.t()) :: {:ok, :stub}
-  def run(_project), do: {:ok, :stub}
+  @spec run(Tiannara.ASC.Project.t()) :: {:error, :phase_unavailable}
+  def run(_project), do: {:error, :phase_unavailable}
 
   @impl true
   def init(_opts) do

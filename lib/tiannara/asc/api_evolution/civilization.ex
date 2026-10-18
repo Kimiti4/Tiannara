@@ -135,7 +135,12 @@ defmodule Tiannara.ASC.APIEvolution.Civilization do
 
   Records `api_fitness` to Observatory after each evolution cycle.
 
-  ## Current Status: Phase G stub with Genome struct active.
+  ## Current Status: Phase G — unavailable (fail-closed)
+
+  `run/1` previously returned `{:ok, :stub}` — a success-shaped stub that
+  let the pipeline auto-advance through a phase that never executed. It now
+  returns `{:error, :phase_unavailable}` so the pipeline halts honestly.
+  The Genome struct and GenServer state remain active for future wiring.
   """
 
   use GenServer
@@ -143,8 +148,8 @@ defmodule Tiannara.ASC.APIEvolution.Civilization do
 
   def start_link(opts \\ []), do: GenServer.start_link(__MODULE__, opts, name: __MODULE__)
 
-  @spec run(Tiannara.ASC.Project.t()) :: {:ok, :stub}
-  def run(_project), do: {:ok, :stub}
+  @spec run(Tiannara.ASC.Project.t()) :: {:error, :phase_unavailable}
+  def run(_project), do: {:error, :phase_unavailable}
 
   @impl true
   def init(_opts) do

@@ -316,45 +316,23 @@ defmodule TiannaraOS.CivilizationKernel do
     result = %{result | institutions_evaluated: state.institutions}
 
     # REAL PIPELINE: Execute cross-institution coordination analysis
-    result = CivilizationAdaptationPipeline.execute_pipeline(result, state.civilization_id, opts)
-
-    # Extract strategy for logging
-    coordination_strategy = result.coordination_strategy || :none
-
-    # Validate constitutional compliance
-    {result_with_compliance, violations} =
-      CivilizationAdaptationResult.validate_constitutional_compliance(result)
-
-    if length(violations) > 0 do
-      Logger.warning(
-        "[CivilizationKernel] Civilization adaptation has constitutional violations: #{inspect(violations)}"
-      )
+    #
+    # Fail-closed (2026-10-17, production-readiness scan A1): the pipeline
+    # returns {:error, reason} while its institutional inputs are simulated
+    # and its result-attachment layer was success-shaped stubs. The previous
+    # success path here was also broken — execute_pipeline returned
+    # {:ok, :stub} (a tuple) and the code dereferenced .coordination_strategy
+    # on it, which would crash on any call (this handle_call has no
+    # production callers). The struct-handling success path is removed;
+    # restore it when the pipeline is rewired with real institutional inputs
+    # and real CivilizationAdaptationResult attachment functions.
+    case CivilizationAdaptationPipeline.execute_pipeline(result, state.civilization_id, opts) do
+      {:error, _reason} = error ->
+        Logger.warning(
+          "[CivilizationKernel] Adaptation pipeline unavailable: #{inspect(error)}"
+        )
+        {:reply, error, state}
     end
-
-    # Mark as completed
-    Logger.debug(
-      "[CivilizationKernel] Mark complete (CivilizationAdaptationResult.mark_complete not available)"
-    )
-
-    # Add to adaptation history
-    updated_state = %{
-      state
-      | adaptation_history:
-          state.adaptation_history ++
-            [
-              %{
-                result_id: result_with_compliance.id,
-                timestamp: DateTime.utc_now(),
-                strategy: result_with_compliance.coordination_strategy
-              }
-            ]
-    }
-
-    Logger.info(
-      "[CivilizationKernel] Civilization adaptation evaluation completed with strategy: #{inspect(coordination_strategy)}"
-    )
-
-    {:reply, {:ok, result_with_compliance}, updated_state}
   end
 
   @impl true

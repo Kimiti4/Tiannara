@@ -572,18 +572,23 @@ defmodule TiannaraOS.CivilizationAdaptationResult do
     }
   end
 
-  def identify_successful_patterns(_institution_id, _opts), do: {:ok, []}
-  def record_comparative_analysis(_institution_id, _opts), do: {:ok, :stub}
-  def assess_transferability(_institution_id, _opts), do: {:ok, :stub}
-  def assess_diversity_impact(_institution_id, _opts), do: {:ok, :stub}
-  def analyze_specialization_opportunities(_institution_id, _opts), do: {:ok, []}
-  def analyze_collaboration_potential(_institution_id, _opts), do: {:ok, []}
-  def analyze_ecosystem_effects(_institution_id, _opts), do: {:ok, :stub}
-  def assess_resilience_impact(_institution_id, _opts), do: {:ok, :stub}
-  def make_coordination_recommendation(_institution_id, _opts, _context), do: {:ok, :stub}
-  def plan_rollout(_institution_id, _opts), do: {:ok, :stub}
-  def track_adoption(_institution_id, _opts), do: {:ok, :stub}
-  def evaluate_outcome(_institution_id, _opts), do: {:ok, :stub}
-  def add_lessons_learned(_institution_id, _opts), do: {:ok, :stub}
-  def record_institutional_improvements(_institution_id, _opts), do: {:ok, :stub}
+  # Production-readiness scan A1 (2026-10-17): these functions previously
+  # returned {:ok, []} or {:ok, :stub} while ignoring their arguments —
+  # success-shaped stubs that let callers believe comparative analysis,
+  # transferability assessment, rollout planning, adoption tracking, etc.
+  # had run. They now fail closed until real implementations exist.
+  def identify_successful_patterns(_institution_id, _opts), do: {:error, :not_implemented}
+  def record_comparative_analysis(_institution_id, _opts), do: {:error, :not_implemented}
+  def assess_transferability(_institution_id, _opts), do: {:error, :not_implemented}
+  def assess_diversity_impact(_institution_id, _opts), do: {:error, :not_implemented}
+  def analyze_specialization_opportunities(_institution_id, _opts), do: {:error, :not_implemented}
+  def analyze_collaboration_potential(_institution_id, _opts), do: {:error, :not_implemented}
+  def analyze_ecosystem_effects(_institution_id, _opts), do: {:error, :not_implemented}
+  def assess_resilience_impact(_institution_id, _opts), do: {:error, :not_implemented}
+  def make_coordination_recommendation(_institution_id, _opts, _context), do: {:error, :not_implemented}
+  def plan_rollout(_institution_id, _opts), do: {:error, :not_implemented}
+  def track_adoption(_institution_id, _opts), do: {:error, :not_implemented}
+  def evaluate_outcome(_institution_id, _opts), do: {:error, :not_implemented}
+  def add_lessons_learned(_institution_id, _opts), do: {:error, :not_implemented}
+  def record_institutional_improvements(_institution_id, _opts), do: {:error, :not_implemented}
 end

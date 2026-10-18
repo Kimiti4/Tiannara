@@ -35,10 +35,30 @@ defmodule TiannaraOS.CivilizationAdaptationPipeline do
   
   @doc """
   Execute complete civilization adaptation pipeline.
-  
-  Returns enriched CivilizationAdaptationResult with real cross-institution analysis.
+
+  Fail-closed (2026-10-17, production-readiness scan A1): this pipeline's
+  institutional input collection is simulated (see `collect_institution_data/2`,
+  which fabricates adoption status and metrics with `:rand.uniform()`), and its
+  result-attachment layer (`CivilizationAdaptationResult.*` functions) was a
+  set of success-shaped stubs. It previously returned `{:ok, :stub}` while
+  appearing to perform 14 analysis steps. It now returns
+  `{:error, :civilization_adaptation_pipeline_unavailable}` until real
+  institutional queries and real attachment functions exist.
+
+  The intermediate analysis functions below remain for future wiring but are
+  unreachable from this entry point while fail-closed.
   """
-  def execute_pipeline(result, civilization_id, opts) do
+  @spec execute_pipeline(TiannaraOS.CivilizationAdaptationResult.t(), String.t(), map()) ::
+          TiannaraOS.CivilizationAdaptationResult.t() | {:error, atom()}
+  def execute_pipeline(_result, _civilization_id, _opts) do
+    {:error, :civilization_adaptation_pipeline_unavailable}
+  end
+
+  @doc """
+  Legacy full pipeline body (unreachable while `execute_pipeline/3` is
+  fail-closed — retained for reference when real inputs are wired).
+  """
+  def execute_pipeline_legacy(result, civilization_id, opts) do
     institutions = opts[:institutions_evaluated] || []
     improvement_category = opts[:improvement_category] || :general
     

@@ -11,10 +11,12 @@ defmodule Tiannara.ASC.Pipeline.Worker do
   Each phase is executed by calling `handler_module.run(project)` which
   returns `{:ok, updated_project} | {:error, reason}`.
 
-  While sub-civilizations are stubs (Phases B through D), `run/1` returns
-  `{:ok, :stub}` and the pipeline advances immediately. Once real implementations
-  are in place, the worker blocks in each phase until the sub-civilization
-  signals completion via `advance_phase/2`.
+  Fail-closed (2026-10-17, production-readiness scan A3): a phase whose
+  handler is missing or returns `{:error, reason}` HALTS the project — it
+  does not auto-advance. The previous `{:ok, :stub}` auto-advance let
+  projects reach `:completed` having run zero real sub-civilization logic.
+  Phases with no handler (`:crucible`, `:repair`) return
+  `{:error, :no_handler}` and block the pipeline for human intervention.
   """
 
   use GenServer
@@ -70,14 +72,7 @@ defmodule Tiannara.ASC.Pipeline.Worker do
     Logger.info("[ASC.Pipeline] Project #{project.id} executing phase: #{project.phase}")
 
     case execute_phase(project) do
-      {:ok, :stub} ->
-        # Sub-civilization is still a stub — auto-advance to keep pipeline moving
-        next_phase = next_phase_for(project.phase)
-        send(self(), {:advance, next_phase})
-        {:noreply, state}
-
       {:ok, updated_project} ->
-        # Real execution completed synchronously — rare but handled
         new_state = update_project_state(state, updated_project)
         {:noreply, new_state}
 
@@ -148,21 +143,10 @@ defmodule Tiannara.ASC.Pipeline.Worker do
          true <- function_exported?(mod, :run, 1) do
       mod.run(project)
     else
-      _ -> {:ok, :stub}
+      nil -> {:error, :no_handler}
+      false -> {:error, :handler_not_loaded}
     end
   end
-
-  # Testing before Implementation: define "what success looks like" before writing code.
-  defp next_phase_for(:requirements),   do: :research
-  defp next_phase_for(:research),       do: :architecture
-  defp next_phase_for(:architecture),   do: :testing
-  defp next_phase_for(:testing),        do: :implementation
-  defp next_phase_for(:implementation), do: :crucible
-  defp next_phase_for(:crucible),       do: :api_evolution
-  defp next_phase_for(:api_evolution),  do: :deployment
-  defp next_phase_for(:deployment),     do: :operations
-  defp next_phase_for(:operations),     do: :completed
-  defp next_phase_for(_),               do: :completed
 
   defp update_project_state(state, updated_project) do
     CivilizationKernel.update_project(updated_project)
