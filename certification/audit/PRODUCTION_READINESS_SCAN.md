@@ -107,7 +107,9 @@ end
 
 **Status**: REMEDIATED in `3a57c421` — `get_all_programs/0` delegates to `get_programs/0 |> Map.values()`; the reader serves registered `ResearchProgram`/`ResearchGenome` structs (or an honest empty list), and registry-down raises instead of serving fixtures (immune scan fails closed). `PathogenScanner` now evaluates via `echo_chamber?/1`: only programs self-reporting `internal_citation_ratio` are evaluable — neither registered struct reports it today, so no threat can be fabricated from absent data (previously the fixtures guaranteed exactly one threat). Locked by `research_registry_a4_test.exs` (6 tests).
 
-**A4b (adjacent same-module stubs discovered during A4 remediation) — OPEN**: in `research_registry.ex`: `update_program_metrics/2` returns `:ok` while discarding real telemetry deltas (callers verified to discard the return); `freeze_program/1` logs a quarantine without acting on any budget (theatrical no-op); `get_surviving_genomes/0` returns `[]` while no storage exists; `apply_engineering_roi/2` and `store_surviving_genomes/1` return `{:ok, :stub}` (callers discard). Fail-close or implement as a follow-up batch.
+**A4b (adjacent same-module stubs discovered during A4 remediation)**: in `research_registry.ex`: `update_program_metrics/2` returns `:ok` while discarding real telemetry deltas (callers verified to discard the return); `freeze_program/1` logs a quarantine without acting on any budget (theatrical no-op); `get_surviving_genomes/0` returns `[]` while no storage exists; `apply_engineering_roi/2` and `store_surviving_genomes/1` return `{:ok, :stub}` (callers discard). Fail-close or implement as a follow-up batch.
+
+**Status**: REMEDIATED in `2cc31ebf` — implemented where real semantics were definable, fail-closed where not. `update_program_metrics/2` now persists: overlapping numeric delta fields merge into the stored program (laws/utility/compute) and the full delta accumulates readably via the new `get_program_metrics/1`; unknown ids → `{:error, :not_found}`. `freeze_program/1` actually freezes (`frozen: true`, `budget: 0`, `program_fitness: 0.0`) and `allocate_resources/1` excludes frozen programs — making the immune system's "Budget set to 0" claim true; registration assigns the registry key as the program's `:id` when the struct has an id slot, so threat `source_id` values resolve to the same key (previously production programs registered with `id: nil`). `store_surviving_genomes/1`/`get_surviving_genomes/0` round-trip through GenServer state (Phase 8A/8B campaigns can now actually receive Phase 7 survivors; previously they always saw `[]` and halted). `apply_engineering_roi/2` → `{:error, :not_implemented}` (no real feedback semantics — genomes carry no fitness the registry could update); the immune-system and both campaign callers now branch on results and log the honest outcome instead of asserting freeze/ROI happened. Locked by `research_registry_a4b_test.exs` (8 tests); full ASC suite 193 tests green.
 
 ### A5. Domain modules — partial quarantine, fabricated `evaluate` and `metrics`
 
@@ -440,8 +442,8 @@ Disproof: `RecursiveCivilizationRunner.execute/2` is public, builds its own `Con
 | **P3** | C1, C2, C3 — theatrical tests, dead infrastructure, stale docs | LOW | Low | Cleanup; no production exposure. |
 
 **Remediation status (updated 2026-10-18)**:
-- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`), A4 (`3a57c421`), A6 + A7 (`5a8be8d5`), B1 (`cde2fc30`), A5 (`a3f9602d`).
-- OPEN — A4b, A5b, B8 (c, documented-retained), C1, C2, C11 (section F).
+- REMEDIATED — A1 + A3 (`0bc5b0ff`), B6 (`c2cb4975`), B8 (a)+(b) (`712e0cd6`), B7 (`f267dd31`), C3 (worker moduledoc, `0bc5b0ff`), G1 (`01a693b6`), A2 + B2–B5 (`491e760d`), A4 (`3a57c421`), A6 + A7 (`5a8be8d5`), B1 (`cde2fc30`), A5 (`a3f9602d`), A4b (`2cc31ebf`).
+- OPEN — A5b, B8 (c, documented-retained), C1, C2, C11 (section F).
 
 ---
 
