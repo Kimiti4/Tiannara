@@ -185,7 +185,8 @@ Notes:
   check 4 can fire on otherwise-genuine analysis (§1.3-3), so folding violations
   into approval would make approval unreachable for honest inputs; blocking
   rollout on violations puts the strictness exactly where deployment risk lives.
-  *(Open question OQ-1, §7: stricter variants are listed there.)*
+  *(OQ-1 resolved per §7: violations block rollout only; stricter variants
+  documented there as the rejected alternative.)*
 - The adoption set is exactly `{:universal_adoption, :selective_adoption,
   :experimental_expansion}` — same set already used by compliance check 2
   (`:454`), so approval vocabulary and rollout-plan requirement cannot drift.
@@ -270,10 +271,14 @@ any existing behavior.
    `gate_rejections` alongside the already-persisted `status` /
    `failure_reason` / `civilization_decision`.
 6. The semantic event `:civilization_adaptation_completed`
-   (`stage5_civilization_adaptation.ex:117-121`) gains `outcome:` in its
-   metadata; the empty-result path gains a `:civilization_adaptation_blocked`
-   event with `outcome: :evidence_insufficient`. Events are additive — existing
-   metadata keys untouched.
+   (`stage5_civilization_adaptation.ex`) gains `outcome:` and
+   `compliance_violation_rules:` in its metadata. **S5-1 implementation note:**
+   the event is emitted *after* outcome derivation (moved from its original
+   position) so it can carry `outcome:` — safe because nothing outside this
+   module/docs consumes `:civilization_adaptation_completed` (verified during
+   S5-1). The blocked path gains a `:civilization_adaptation_blocked` event
+   with `outcome:`, `failure_reason:`, and `gate_rejection_count:`. Existing
+   metadata keys (decision, generation, institutions_evaluated) untouched.
 
 ---
 
@@ -299,22 +304,44 @@ behavior so S5-1/S5-2 cannot silently weaken it:
 
 Run: full suite green; commit as `test(stage5): lock current gate/outcome behavior (S5-0 contract tests)`.
 
-### Phase S5-1 — Additive vocabulary (after CT green)
+### Phase S5-1 — Additive vocabulary — **IMPLEMENTED in `713d1de3`** (2026-10-18)
 
-Implement §5 (`:outcome`, `:gate_rejections`, derivation per §2.3, persistence,
-events). Replace CT-7 with the permanent invariant:
+OQ-1 approved with the §7 semantics. Implementation notes:
+
+- `validate_adaptations/1` → `classify_adaptations/1` returning
+  `{valid, gate_rejections}`. Acceptance logic byte-identical (four AND-ed
+  checks, count `>= 7` unchanged); reasons recorded per rejected input in
+  fixed order `[:lifecycle_count, :not_compliant, :no_rollback,
+  :unlabeled_evidence_source]`.
+- `derive_outcome/3` (private): decision `:reject` → `:adaptation_rejected`;
+  adoption decisions (universal/selective/experimental) → `:adaptation_approved`;
+  `:further_validation`/`:preserve_diversity`/unrecognized → `:analysis_possible`;
+  blocked path → `:evidence_insufficient`.
+- **The `:rollout_authorized` row of §2.3 is deliberately not yet code**: an
+  S5-1 draft `verify_rollout_tier/1` was proven dead by the type checker (its
+  `:ok` branch unreachable with no rollout path) and was removed rather than
+  shipped. The OQ-1/OQ-2 contract lives in `derive_outcome/3` header comments;
+  S5-2 implements tier verification for real and restores the branch. §2.3
+  remains the target spec.
+- CT-7 replaced by the permanent invariant:
 
 - **CT-7′**: for every constructible fixture, `outcome ∈ {nil} ∪ §2.1 set`,
   and `outcome == :rollout_authorized` is produced by **no** fixture (fails
   closed); `:evidence_insufficient` ⇔ `status == :failed`; analyzed shapes get
   exactly one of the other four per §2.3.
 
-Plus mapping tests: each of the six `civilization_decision` atoms → its §2.3
-outcome; synthetic-only supporting set with adoption decision → capped at
-`:adaptation_approved`; adoption decision with a compliance violation → capped
-below `:rollout_authorized` (stays `:adaptation_approved`).
+Plus mapping tests (CT-11): the four E2E-reachable decisions → their §2.3
+outcome (`:preserve_diversity`/`:experimental_expansion` are unreachable E2E —
+family success rates are only 0.0 or 1.0 by construction — covered by the
+fallback branch); synthetic-only supporting set with adoption decision → capped
+at `:adaptation_approved`; adoption decision with a compliance violation →
+stays `:adaptation_approved` (CT-12: violations never cap analysis/approval,
+and remain recorded); gate-rejection attribution in fixed order (CT-13).
+Runner persists `outcome`/`gate_rejections` via explicit `Map.get` defaults
+(older persisted records stay compatible). Verified: contract 26/26, lineage
+5/5, runner 32/32, full recompile adds no typing violations in touched files.
 
-### Phase S5-2 — Tier C named-stage checks (only after OQ-2 confirmation)
+### Phase S5-2 — Tier C named-stage checks (only after a separate operator GO — OQ-2 approved per §7)
 
 Implement §4 Tier C (rollout tier). Since `:rollout_authorized` is unreachable
 until genuine `:piloted` + `:governance_reviewed` records exist, CT-7′ stays
@@ -327,16 +354,30 @@ byte-identical before/after (diff-locked in the PR).
 
 ---
 
-## 7. Open questions (need operator sign-off before S5-1/S5-2)
+## 7. Open questions — OQ-1/OQ-2 RESOLVED (operator sign-off 2026-10-18)
 
-- **OQ-1 — violation strictness**: proposal is "violations block rollout only"
-  (§2.3). Alternative: any violation caps outcome at `:analysis_possible`
-  (stricter; makes `:adaptation_approved` require zero violations, which today
-  would require prediction assessments on every input set).
-- **OQ-2 — Tier C named stages**: `EXECUTION_CONTRACTS.md:680-699` proposes
-  named-stage separation "pending product confirmation". Which named stages,
-  and how many, constitute rollout evidence? Proposal in §4: `:piloted` AND
-  `:governance_reviewed`, on every supporting input.
+- **OQ-1 — violation strictness: APPROVED as proposed** — "violations block
+  rollout only" (§2.3), with these operator semantics (implemented in S5-1,
+  `713d1de3`):
+  - `:analysis_possible` remains available when its existing evidence and
+    analysis gates pass, even with violations present.
+  - `:adaptation_approved` remains available when its existing approval gates
+    pass, even with violations present.
+  - `:rollout_authorized` additionally requires zero blocking compliance
+    violations (plus every existing rollout gate; S5-2).
+  - Violations remain explicitly recorded (`:constitutional_compliance` +
+    completed event's `compliance_violation_rules:`) — they must not disappear
+    because they don't block lower tiers.
+  - Safeguard: classify violations per the existing compliance model; no
+    advisory finding is reclassified as harmless, no genuine safety violation
+    becomes a non-blocking warning.
+- **OQ-2 — Tier C named stages: APPROVED as proposed** — every supporting
+  input must have all three: (1) named `:piloted` stage, (2) named
+  `:governance_reviewed` stage, (3) `:evidence_backed` status — verified from
+  authoritative records, never inferred from labels, synthetic acceptance,
+  stage-cursor position, or an earlier gate passing. Missing/malformed/
+  unverified evidence fails closed. **Kept in S5-2** (separate GO): S5-1
+  introduces the outcome contract without rollout-authorization semantics.
 - **OQ-3 — `status` cursor cleanup**: leaving `:failed` in the cursor slot is
   ugly but locked for compatibility (CT-5/CT-8). A later, separate refactor
   could split `stage` vs `outcome` — explicitly out of scope here (§0.2).
@@ -345,8 +386,8 @@ byte-identical before/after (diff-locked in the PR).
 
 ## 8. Non-goals
 
-- No change to `validate_adaptations/1` acceptance in S5-1 (four checks stay
-  AND-ed, count stays `>= 7`).
+- No change to acceptance criteria in S5-1 (`classify_adaptations/1`, renamed
+  from `validate_adaptations/1`; four checks stay AND-ed, count stays `>= 7`).
 - No new effect paths, no ledger/effect-sink work (C11 untouched).
 - No Stage 6 certification claims; `:rollout_authorized` is eligibility
   vocabulary, not a certification.
