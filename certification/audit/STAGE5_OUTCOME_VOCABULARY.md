@@ -234,8 +234,9 @@ unreachable — §2.1):
 2. Every supporting input carries named-stage evidence in `stage_history`,
    including at minimum `:piloted` **and** `:governance_reviewed`
    (named stages inspected — this is the deferred scan D.2 separation,
-   `EXECUTION_CONTRACTS.md:680-699`, marked "pending product confirmation"
-   there and therefore **not implemented without OQ-2 sign-off**, §7);
+   `EXECUTION_CONTRACTS.md:680-699`, "pending product confirmation" there;
+   **OQ-2 signed off per §7, implemented in S5-2 `5bb0990e`** — self-reported
+   claims alone never authorize; authoritative verification required);
 3. Every supporting input has `evidence_source == :evidence_backed`
    (excludes synthetic — §0.4);
 4. `rollback_available == true` for every supporting input (already implied by
@@ -341,14 +342,38 @@ Runner persists `outcome`/`gate_rejections` via explicit `Map.get` defaults
 (older persisted records stay compatible). Verified: contract 26/26, lineage
 5/5, runner 32/32, full recompile adds no typing violations in touched files.
 
-### Phase S5-2 — Tier C named-stage checks (only after a separate operator GO — OQ-2 approved per §7)
+### Phase S5-2 — Tier C named-stage checks — **IMPLEMENTED in `5bb0990e`** (operator GO, OQ-2 approved per §7)
 
-Implement §4 Tier C (rollout tier). Since `:rollout_authorized` is unreachable
-until genuine `:piloted` + `:governance_reviewed` records exist, CT-7′ stays
-green: the phase adds the deny-side machinery and its unit tests (fabricated
-named stages from `:synthetic` inputs still never authorize — §0.4), while
-production outputs remain capped at `:adaptation_approved`. Count gate
-byte-identical before/after (diff-locked in the PR).
+Implementation notes:
+
+- `Stage5CivilizationAdaptation.verify_rollout_tier/3` implements §4's
+  Tier C as a fixed fail-closed check chain (first failure wins): named-stage
+  claims → rollback → evidence-backed → zero violations (OQ-1) → provenance
+  lineage present → **authoritative registry verification** (record exists
+  per supporting input; record `stages` include `:piloted` AND
+  `:governance_reviewed`; record `evidence_source == :evidence_backed`;
+  record `verified_at` fresh — missing/future-dated/older-than-window all
+  fail closed as stale).
+- New module `TiannaraOS.Stage5GovernanceRegistry` is the authoritative
+  source boundary: it currently returns
+  `{:error, :authoritative_records_unavailable}` because no authoritative
+  pilot/governance store exists (scan: no pilot has ever run; Stage 4
+  appends `:governance_reviewed` unconditionally). Per the operator ruling,
+  missing authoritative evidence yields an **explicit blocked tier** —
+  outcome capped at `:adaptation_approved` with the denial reason recorded
+  in the completed event (`rollout_tier_status: :denied`,
+  `rollout_tier_reason:`) — never a guessed tier or a relaxed gate.
+- Derivation: adoption decisions now consult Tier C — `:authorized` →
+  `:rollout_authorized`; any denial → `:adaptation_approved`. All other
+  outcomes unchanged. Count gate byte-identical.
+- Tests: CT-14 (forged tier claims: absent claims / present-but-unverified /
+  production fail-closed E2E), CT-15 (missing rollback), CT-16 (stale
+  provenance: old, future-dated, missing lineage), CT-17 (unauthorized:
+  missing `:governance_reviewed` record, inconsistent synthetic record,
+  synthetic input denied pre-registry), CT-18 (positive wiring via injected
+  registry → E2E `:rollout_authorized`; violations still cap at approval
+  with `:compliance_violations` recorded). Contract file: 39 tests green;
+  lineage 5/5; runner 32/32; zero new typing violations.
 
 ### Phase S5-3 — Stage 6 evidence review → already done (scan); C11 stays OPEN.
 
@@ -376,8 +401,10 @@ byte-identical before/after (diff-locked in the PR).
   `:governance_reviewed` stage, (3) `:evidence_backed` status — verified from
   authoritative records, never inferred from labels, synthetic acceptance,
   stage-cursor position, or an earlier gate passing. Missing/malformed/
-  unverified evidence fails closed. **Kept in S5-2** (separate GO): S5-1
-  introduces the outcome contract without rollout-authorization semantics.
+  unverified evidence fails closed. **Implemented in S5-2 (`5bb0990e`)** via
+  `verify_rollout_tier/3` + `Stage5GovernanceRegistry` (§6): the production
+  registry serves no authoritative records, so production adoption resolves
+  fail-closed to `:adaptation_approved` with the denial reason recorded.
 - **OQ-3 — `status` cursor cleanup**: leaving `:failed` in the cursor slot is
   ugly but locked for compatibility (CT-5/CT-8). A later, separate refactor
   could split `stage` vs `outcome` — explicitly out of scope here (§0.2).
