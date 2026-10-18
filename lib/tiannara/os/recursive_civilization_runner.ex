@@ -1027,7 +1027,16 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
 
     # Calculate metrics
     adaptations_evaluated = length(stage4_results)
-    adaptations_adopted = Enum.count(stage4_results, fn r -> r.adoption_decision == :adopt end)
+
+    # Production-readiness scan B8: count both adoption vocabularies — the
+    # simulator records :adopt/:reject while genuine Stage 4 records
+    # :adopted/:partially_adopted/:rejected/:none_adopted. Matching only
+    # :adopt silently reported zero adoptions on genuine runs.
+    adaptations_adopted =
+      Enum.count(stage4_results, fn r ->
+        r.adoption_decision in [:adopt, :adopted, :partially_adopted]
+      end)
+
     adaptations_rejected = adaptations_evaluated - adaptations_adopted
     adaptation_success_rate = if adaptations_evaluated > 0 do
       Float.round(adaptations_adopted / adaptations_evaluated, 3)
@@ -1087,12 +1096,19 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
     method_diversity = 0.6 + (:rand.uniform() * 0.3)  # Varies 0.6-0.9 based on seed
     collaboration_density = 0.2 + (:rand.uniform() * 0.3) + (gen_num * 0.003)  # Base variation + improvement
 
+    # Honest derived metrics (production-readiness scan B8): computed from
+    # this generation's actual Stage 4 results instead of hardcoded constants.
+    # The harness never executes a rollback, so the observed frequency is 0.0.
+    constitutional_violations = count_constitutional_violations(stage4_results)
+    rollback_frequency = 0.0
+    lifecycle_completeness_pct = derive_lifecycle_completeness_pct(stage4_results)
+
     # Calculate CAI
     cai_sample = %{
       adaptation_success_rate: adaptation_success_rate,
       prediction_reliability: prediction_reliability || 0.5,
-      rollback_frequency: 0.05,  # Low rollback frequency
-      constitutional_violations: 0,
+      rollback_frequency: rollback_frequency,
+      constitutional_violations: constitutional_violations,
       institution_diversity: institution_diversity,
       method_diversity: method_diversity
     }
@@ -1164,14 +1180,46 @@ defmodule TiannaraOS.RecursiveCivilizationRunner do
       stage3_results_count: length(data.stage3_results),
       stage4_results_count: length(stage4_results),
       stage5_result_id: stage5_result.id,
-      constitutional_violations: 0,
-      lifecycle_completeness_pct: 100.0,
-      rollback_frequency: 0.05,
+      constitutional_violations: constitutional_violations,
+      lifecycle_completeness_pct: lifecycle_completeness_pct,
+      rollback_frequency: rollback_frequency,
       # Constitutional provenance linkage (Phase 13.5B.3) - hashes live in the
       # persisted manifest referenced by manifest_id
       manifest_id: data.manifest.manifest_id,
       certificate_id: certificate.certificate_id
     })
+  end
+
+  # Sum of recorded constitutional-compliance violations across this
+  # generation's Stage 4 results. Results that never ran a compliance check
+  # (nil, or the simulator's boolean flag) contribute nothing — no fabricated
+  # minimum is recorded. Production-readiness scan B8.
+  defp count_constitutional_violations(stage4_results) do
+    Enum.reduce(stage4_results, 0, fn result, acc ->
+      case result.constitutional_compliance do
+        %{violations: violations} when is_list(violations) -> acc + length(violations)
+        _ -> acc
+      end
+    end)
+  end
+
+  # Average fraction of the 11 required stabilization lifecycle stages present
+  # in each Stage 4 result's stage history. Genuine evidence-backed results
+  # carry 5 of 11 stages (~45.45%) and must not be recorded as 100.0.
+  # Production-readiness scan B8.
+  defp derive_lifecycle_completeness_pct([]), do: 0.0
+
+  defp derive_lifecycle_completeness_pct(stage4_results) do
+    ratios =
+      Enum.map(stage4_results, fn result ->
+        case TiannaraOS.Phase13Stabilization.validate_lifecycle_completeness(result) do
+          {:ok, _} -> 1.0
+          {:error, %{completeness_ratio: ratio}} -> ratio
+          _ -> 0.0
+        end
+      end)
+
+    Float.round(Enum.sum(ratios) / length(ratios) * 100.0, 2)
   end
 
   # Persist per-generation constitutional attestation (append-only JSONL) so
