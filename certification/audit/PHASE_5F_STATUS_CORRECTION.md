@@ -32,8 +32,13 @@ cites file:line or commit evidence.
   QuotaGovernor, LineageCompression, GCK) were **removed** from
   `application.ex` in `8610c558` ("Fix dialyzer type mismatches and unused
   variables" — no safety rationale).
-- **Truth:** ChronogramMatrix is implemented (305 LOC, 20 tests) but
-  unwired; zero supervisors reference it.
+- **Truth (at time of audit):** ChronogramMatrix is implemented (305 LOC,
+  20 tests) but unwired; zero supervisors referenced it.
+- **Superseded (W1, `3690efbd`):** ChronogramMatrix is now boot-wired into
+  the Meta layer via `optional_child` (`runtime_layers/supervisors.ex:178`);
+  the original claim about `application.ex` starting it directly remains
+  false (it lives in the Meta layer, not application.ex). The 5F.3.5
+  children are now boot-wired at the application level (see C-10).
 
 ### C-02 — "production-ready and fully integrated" (5F.4/5F.5) — DISPROVEN
 - **Claims:** `PHASE_5F4_COMPLETION_STATUS.md:268`,
@@ -151,9 +156,25 @@ cites file:line or commit evidence.
   `ExecutionController.execute_kill/3`/`terminate_resource/3` re-added with
   the original `51847461` decision contract; 12 pinned contract tests
   (`tiannara_runtime/test/tiannara/cis/authorization_contract_test.exs`),
-  48/48 green with the 5F.3.5/5F.4 suites. **Still true:** the chain is
-  not wired into any supervision tree (deliberate — wiring requires
+  48/48 green with the 5F.3.5/5F.4 suites. **Still true at P0:** the chain
+  was not wired into any supervision tree (deliberate — wiring requires
   explicit approval), and duplicates remain (C-11).
+- **Remediated (W1, `3690efbd`, operator-approved incremental wiring):**
+  the 5F.3.5 stack is now boot-wired as application-level
+  `BootPolicy.optional_child` children in dependency order
+  (`application.ex:28-37`): CIS.Supervisor (arbitration kernel, before its
+  callers) → ExecutionController → QuotaGovernor → LineageCompression →
+  GCK; ChronogramMatrix is wired into the Meta layer
+  (`supervisors.ex:178`). `ExecutionController.handle_cast(:reset)` was
+  added (parity with the other four CIS modules; integration-test helpers
+  cast `:reset` on already-started boot children). A dedicated boot test
+  (`test/tiannara/cis/boot_wiring_test.exs`) asserts all six modules are
+  live after app boot and the frozen caller vocabulary; the fail-closed
+  contract test now uses `Elixir.Supervisor.terminate_child/restart_child`
+  (avoids the one_for_one restart race; the module alias shadows
+  Elixir.Supervisor). CI green (Elixir CI + Cross-Platform) on `3690efbd`.
+  **Still true:** not production-ready (delivery path log-only, duplicates
+  C-11 remain).
 
 ### C-11 — "Eliminated duplicate KillSwitch implementations" — DISPROVEN
 - **Evidence:** three kill-switch modules coexist:
@@ -211,7 +232,7 @@ documentation must use the canonical names above.
 |---|---|
 | C-01..C-09, C-11..C-14 | Banners added to flagged docs (this change) |
 | C-10 safety chain | **RESTORED** `f64785df` + contract tests, CI green |
-| Supervision wiring of any 5F stack | **Not done — requires explicit operator scope approval** |
+| Supervision wiring of any 5F stack | **CIS stack + ChronogramMatrix: DONE** `3690efbd` (operator-approved W1); remaining stacks (OMRL/OCG, OLEF canonical, Babel) **not done — requires explicit operator scope approval** |
 | Duplicate/renaming consolidation (C-11/C-13) | Deferred — destructive, needs approval |
 | OPC fabricated-execution quarantine (C-04) | **DONE** `7855aa6d` — fail-closed sync+async, tagged outputs, 5 tests, 3 async crashes repaired |
 | ExecutionRuntime simulated-status honesty (C-04, P3) | **DONE** `b480338c` — result `:simulated`, Producer payload `"simulated"`, instrumentation test green against app-booted runtime |
