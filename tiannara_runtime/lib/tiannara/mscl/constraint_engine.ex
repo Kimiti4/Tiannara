@@ -2,6 +2,16 @@ defmodule Tiannara.MSCL.ConstraintEngine do
   @moduledoc """
   Core enforcement state for Meta-Stability Constraints.
   Holds constraints and emits 'constraint.updated' events via EventBus.
+
+  ## Ownership (5F-P1 canonical naming)
+
+  This `Tiannara.MSCL.*` set is the canonical **Phase 5F.5** MSCL
+  implementation. Two unrelated systems share the acronym and are NOT part
+  of this module's ownership: `Tiannara.Meta.MSCL` (Phase 5F.1) and
+  `Tiannara.Meta.OPC.Stabilization.MSCLBudgetGate` (Phase 5F.6), plus a
+  deprecated copy under `TiannaraRuntime.Legacy.MSCL`. None of these are
+  wired into application startup — see
+  `certification/audit/PHASE_5F_STATUS_CORRECTION.md` (C-02).
   """
   use GenServer
   alias Tiannara.EventBus

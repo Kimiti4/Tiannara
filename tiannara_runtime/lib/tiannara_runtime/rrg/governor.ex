@@ -4,6 +4,14 @@ defmodule Tiannara.Runtime.RRG.Governor do
 
   Governs observers' access to raw ontology features, preventing compiler
   awareness cascades, escape risks, and recursive collapse of decoy ontologies.
+
+  ## Ownership (5F-P1 canonical naming)
+
+  Canonical name for this component is **Runtime Revelation Governor**
+  (Phase 5F.7). It is NOT the Rate-limiting Ontological Graph
+  (`Tiannara.RRG`, the booted system) and NOT the retired "Recursive
+  Reality Governor" label. This process is not started by any application
+  supervision tree. Register: C-09/C-13.
   """
 
   use GenServer

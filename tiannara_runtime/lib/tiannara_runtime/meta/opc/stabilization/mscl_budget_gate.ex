@@ -12,6 +12,12 @@ defmodule Tiannara.Meta.OPC.Stabilization.MSCLBudgetGate do
   for the live budget. The stub implementation uses a configurable
   threshold so the pipeline can be exercised without a running MSCL.
 
+  > **STATUS CORRECTION (2026-10-19):** `TiannaraRuntime.MSCL.BudgetTracker`
+  > does not exist — the live tracker is `Tiannara.MSCL.BudgetTracker`
+  > (Phase 5F.5), which is itself unwired, so every call here takes the
+  > stub path. This gate is Phase 5F.6 and does not own the MSCL stack.
+  > See `certification/audit/PHASE_5F_STATUS_CORRECTION.md` (C-02/C-13).
+
   ## Usage
 
       :ok = MSCLBudgetGate.check(estimated_cost)

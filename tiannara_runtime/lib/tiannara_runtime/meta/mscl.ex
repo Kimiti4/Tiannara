@@ -5,6 +5,14 @@ defmodule Tiannara.Meta.MSCL do
   Prevents observer-relative reality from degenerating into unbounded incoherent
   drift while preserving full ontological plurality.
 
+  ## Ownership (5F-P1 canonical naming)
+
+  This `Tiannara.Meta.MSCL` module is the canonical **Phase 5F.1**
+  implementation and is a *different system* from the Phase 5F.5
+  `Tiannara.MSCL.*` set and the Phase 5F.6 `MSCLBudgetGate` despite the
+  shared acronym. See `certification/audit/PHASE_5F_STATUS_CORRECTION.md`
+  (C-13 sibling acronym collisions).
+
   ## Core Principle: "Stability Without Consensus"
 
   Instead of: "Do all observers agree?"

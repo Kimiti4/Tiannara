@@ -5,6 +5,16 @@ defmodule Tiannara.RRG do
 
   RRG sits above MSCL + OLEF as the civilization-level control plane for cognition,
   ontology, and distributed reality evolution.
+
+  ## Ownership (5F-P1 canonical naming)
+
+  This is the canonical **RRG** namespace — the Rate-limiting Ontological
+  Graph, the only RRG actually booted (via
+  `TiannaraRuntime.Supervisors.Runtimes`). The retired name "Recursive
+  Reality Governor" (see `PHASE_5F12_RRG_IMPLEMENTATION_COMPLETE.md`)
+  referred to this same code and must not be used. Phase 5F.7's
+  "Runtime Revelation Governor" is the separate, unsupervised
+  `Tiannara.Runtime.RRG.Governor`. Register: C-09/C-13.
   """
 
   alias Tiannara.RRG.{Graph, Node, Edge, ExposureTracker, RateLimiter, CoherenceCalculator, CTNAnomalyDetector}
