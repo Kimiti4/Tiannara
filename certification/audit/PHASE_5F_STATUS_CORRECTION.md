@@ -50,6 +50,15 @@ cites file:line or commit evidence.
   `meta/opc/stabilization/mscl_budget_gate.ex:65-67` says "replace with real
   MSCL call when 5F.5 is wired in" (and names a module that does not exist).
 - **Truth:** implemented + tested, **not wired**, not production-ready.
+- **Partially superseded (W3, `9307d6ed`):** the canonical OLEF supervisor
+  (`Tiannara.OLEF.Supervisor` → PressureSolver + GradientRouter) is no
+  longer reachable only via `P9XEcosystem` — it is re-parented into the
+  Ecology layer (`runtime_layers/supervisors.ex`), with
+  `Tiannara.EventRegistry` booting in Infrastructure. The 5F.5
+  `Tiannara.MSCL.*` set is still reachable only via `P9XEcosystem`
+  (unwired), and the production-ready claim remains **disproven** (wiring
+  ≠ production-readiness: no fail-closed contract audit, no verified
+  production callers for OLEF).
 
 ### C-03 — "Phase 5F.5 ~3,500 lines ✅ / ALL PHASES COMPLETE" — DISPROVEN
 - **Claim:** `PHASE_5_COMPLETE_SUMMARY.md` (lines 4, 24).
@@ -236,7 +245,7 @@ documentation must use the canonical names above.
 |---|---|
 | C-01..C-09, C-11..C-14 | Banners added to flagged docs (this change) |
 | C-10 safety chain | **RESTORED** `f64785df` + contract tests, CI green |
-| Supervision wiring of any 5F stack | **CIS stack + ChronogramMatrix: DONE** `3690efbd` (operator-approved W1); **OMRL/OCG/OCAL observer stack: DONE** `07971bf9` (operator-approved W2 — MetaEvolutionStreamManager, MSCL 5F.1, MCK, OCAL, OCG, OMRL via Meta-layer `optional_child`, plus OMRL NATS stub fix); remaining stacks (OLEF canonical, Babel) **not done — requires explicit operator scope approval** |
+| Supervision wiring of any 5F stack | **CIS stack + ChronogramMatrix: DONE** `3690efbd` (operator-approved W1); **OMRL/OCG/OCAL observer stack: DONE** `07971bf9` (operator-approved W2 — MetaEvolutionStreamManager, MSCL 5F.1, MCK, OCAL, OCG, OMRL via Meta-layer `optional_child`, plus OMRL NATS stub fix); **canonical OLEF supervisor: DONE** `9307d6ed` (operator-approved W3 — `Tiannara.OLEF.Supervisor` re-parented into Ecology, `Tiannara.EventRegistry` into Infrastructure, non-destructive: `P9XEcosystem` left in place unwired); remaining stacks (P9XEcosystem children MSCL 5F.5 set / CIS / P9X / GRCC, Babel) **not done — requires explicit operator scope approval** |
 | Duplicate/renaming consolidation (C-11/C-13) | Deferred — destructive, needs approval |
 | OPC fabricated-execution quarantine (C-04) | **DONE** `7855aa6d` — fail-closed sync+async, tagged outputs, 5 tests, 3 async crashes repaired |
 | ExecutionRuntime simulated-status honesty (C-04, P3) | **DONE** `b480338c` — result `:simulated`, Producer payload `"simulated"`, instrumentation test green against app-booted runtime |

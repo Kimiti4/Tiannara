@@ -18,9 +18,9 @@ profile `:stable`:
 
 | Layer | Children (source) |
 |---|---|
-| Infrastructure (`:70-77`) | NATS.Supervisor (required), Telemetry (optional) |
+| Infrastructure (`:70-81`) | NATS.Supervisor (required), Telemetry (optional) + `Tiannara.EventRegistry` duplicate-key Registry for `Tiannara.EventBus` (W3 `9307d6ed`) |
 | Execution (`:98-100`) | `Tiannara.OPC.CoreSupervisor` (required), `Tiannara.OPC.Supervisor` (optional) |
-| Ecology (`:121-125`) | `Tiannara.UniverseSupervisor` (required), **Legacy OLEF FieldSupervisor**, OCM, `Tiannara.RRG.Supervisor` (optional) |
+| Ecology (`:125-135`) | `Tiannara.UniverseSupervisor` (required), **Legacy OLEF FieldSupervisor**, **canonical `Tiannara.OLEF.Supervisor` (PressureSolver + GradientRouter — W3 `9307d6ed`)**, OCM, `Tiannara.RRG.Supervisor` (optional) |
 | Constraint (`:150-156`) | IRD, CCR, HSV, ACF (optional), SafetyCortex (required) |
 | Meta (`:177-195`) | `Tiannara.MetaSOPL.RateModulationSupervisor` (required) + `Tiannara.Meta.ChronogramMatrix` (optional) — W1 (`3690efbd`) — then 6 optional children added by W2 (`07971bf9`) in dependency order: `NATS.MetaEvolutionStreamManager`, `Tiannara.Meta.MSCL` (5F.1), `TiannaraRuntime.MCK`, `Tiannara.Meta.ObserverArbitrationLayer` (OCAL), `Tiannara.Meta.ObserverCollapseGovernor` (OCG), `Tiannara.Meta.ObserverMemoryReconciliation` (OMRL) |
 
@@ -40,7 +40,7 @@ raises (`runtime_layers/supervisors.ex:6-21`).
 | ChronogramMatrix | 5F.4 | yes (305 LOC) | 20 (local) | **yes** (W1 `3690efbd`) | no | wired into Meta layer via `optional_child` (`supervisors.ex:178`); real callers: `gck/chronogram_gate.ex:39-49`, `meta/metastability/*` (OCG/OCAL/Resonance/Kernel), `cis/execution_controller.ex:68-83`, `legacy/cis/*`; boot test `test/tiannara/cis/boot_wiring_test.exs` |
 | GCK gate | 5F.4 | yes | yes | **yes via booted callers** (W1 `3690efbd`) | no | plain function module; callers now booted: `cis/execution_controller.ex:72` (W1 application-level child) and legacy CIS (Ecology layer); ChronogramMatrix data dependency booted (W1) — previous "depends on unwired ChronogramMatrix" reason retired; thresholds 0.92/0.75 real (`gck/chronogram_gate.ex:60,63`); `validate_read/2` always-allow; entropy = map-size placeholder |
 | OMRL | 5F.3 | yes (567 LOC) | 23 (local) + 1 boot test | **yes** (W2 `07971bf9`) | no | wired as Meta-layer `optional_child` (last — calls OCG/MSCL); NATS stub **fixed**: publishes via `MetaEvolutionStreamManager` → local Bus (`observer_memory_reconciliation.ex`, `publish_reconciliation_event`); hydration bugs fixed: alias `Tiannara.Meta.MCK` (nonexistent) → `Tiannara.Meta.MSCL`, `hydrate_oss` now `OCG.get_score/1`, both `catch :exit`; remaining: defaults all `0.5` (`:67-69`), divergence hardcoded `0.5` (`:506`) |
-| OLEF (5F.5 stack) | 5F.5 | yes | partial | **half** | no | **wired:** Legacy `TiannaraRuntime.Legacy.Tiannara.OLEF.FieldSupervisor` via optional_child (`supervisors.ex:123`). **Unwired:** canonical `Tiannara.OLEF.*` reachable only from `Tiannara.P9XEcosystem.Supervisor` (`lib/tiannara/supervisors.ex:164`) which has **zero references** repo-wide; the repo's own TODO at `meta/opc/stabilization/mscl_budget_gate.ex` moduledoc admits 5F.5 "is not wired" (correction banner added in P1b) |
+| OLEF (5F.5 stack) | 5F.5 | yes | partial + `test/tiannara/olef/boot_wiring_w3_test.exs` | **yes** (W3 `9307d6ed`) | no | **wired:** Legacy `TiannaraRuntime.Legacy.Tiannara.OLEF.FieldSupervisor` (Ecology, pre-W3) and canonical `Tiannara.OLEF.Supervisor` → PressureSolver + GradientRouter re-parented into the Ecology layer (W3 `9307d6ed`, non-destructive — `Tiannara.P9XEcosystem.Supervisor` left in place, still unwired/zero-referenced); prerequisite `Tiannara.EventRegistry` (EventBus backing) added to Infrastructure; canonical `Tiannara.OLEF.FieldSupervisor`/`DiffusionModel`/`NodeRegistry` remain on-demand library modules (were never P9XEcosystem children); the 5F.5 `Tiannara.MSCL.*` set under P9XEcosystem is still unwired (separate row) |
 | MSCL (5F.5 set) | 5F.5 | yes (≈310 LOC named set) | yes | **NO** | no | C-02; three same-acronym systems documented in P1b ownership notes |
 | OPC | 5F.6 | parsers/validators/OIR yes | ≈117 (local) | **half** | no | **wired:** `OPC.CoreSupervisor` required + `OPC.Supervisor` optional (`supervisors.ex:99-100`). **Unwired/blocked:** `compile_physics/2` zero production callers; main-app facade fail-closes `{:error, :physics_substrate_unavailable}`; execution quarantined `:simulated_execution_quarantined` (P1c `7855aa6d`) |
 | RRG (rate-limit graph) | 5F.7/5F.12 | yes (~2k LOC) | 21 | **yes** (optional_child `:125`; `rrg/supervisor.ex:1`) | partial | naming: C-09/C-13 (3 systems share acronym; canonical = Rate-limiting Ontological Graph) |
@@ -49,12 +49,12 @@ raises (`runtime_layers/supervisors.ex:6-21`).
 | CIS safety stack | 5F.3.5 | **restored** | 48+ (local) | **yes** (W1 `3690efbd`) | no | contract restored `f64785df`; boot-wired `3690efbd` as application-level `optional_child` (CIS.Supervisor → ExecutionController → QuotaGovernor → LineageCompression → GCK, dependency order); chain callable/testable/booted; still not production-ready (duplicates remain C-11, ExecutionController delivery path is log-only) |
 | OCG/OCAL/OMRL integration | 5F.2/5F.3 | yes | tests exist + `test/tiannara/meta/boot_wiring_w2_test.exs` | **yes** (W2 `07971bf9`) | no | wired as Meta-layer `optional_child` in dependency order (MSCL → MCK → OCAL → OCG → OMRL, after MetaEvolutionStreamManager); OCG gained `get_score/1` (was missing — compile warning); `hydrate_msf` `rescue` → `catch :exit` (GenServer.call to absent process exits); `MetaEvolutionStreamManager.publish` crash fixed (`Jason.encode!` → `Jason.encode` + logged drop; tuple payloads previously killed the GenServer and cascaded the one_for_one Meta supervisor mid-test). Note: `Tiannara.Meta.Supervisor` (`meta/supervisor.ex`) remains an orphan — wiring went through `TiannaraRuntime.Meta.Supervisor` (§4's smallest-safe-path) instead |
 
-**Result:** of 11 audited systems, 6 have real boot paths (RRG graph, OPC
+**Result:** of 11 audited systems, 7 have real boot paths (RRG graph, OPC
 supervisors, ChronogramMatrix + CIS safety stack + GCK gate callers via W1
-`3690efbd`, OMRL + OCG/OCAL observer stack via W2 `07971bf9`), 2 are
-half-wired (OLEF legacy, OPC surface), the rest are implemented-or-partial
-but unwired. **None is production-ready** (wired + verified callers +
-fail-closed contracts).
+`3690efbd`, OMRL + OCG/OCAL observer stack via W2 `07971bf9`, canonical
+OLEF supervisor via W3 `9307d6ed`), 1 is half-wired (OPC surface), the
+rest are implemented-or-partial but unwired. **None is production-ready**
+(wired + verified callers + fail-closed contracts).
 
 ## 2. Missing 5F.9 / 5F.10 components — classification
 
@@ -140,8 +140,24 @@ Ordering follows the operator's "smallest safe path" rule:
    was NOT used — wiring went through `TiannaraRuntime.Meta.Supervisor`
    per §4's smallest-safe-path. Not production-ready: OMRL defaults
    `0.5`, divergence hardcoded, no fail-closed contract audit.
-3. **OLEF canonical set**: either re-parent `Tiannara.OLEF.*` under a live
-   supervisor or declare `P9XEcosystem` retired (deletion needs approval).
+3. **OLEF canonical set**: **DONE (`9307d6ed`, operator-approved W3)** —
+   non-destructive re-parent chosen over retirement: `Tiannara.OLEF.Supervisor`
+   (PressureSolver + GradientRouter) added to the Ecology layer via
+   `optional_child` (`runtime_layers/supervisors.ex`); prerequisite
+   `Tiannara.EventRegistry` (duplicate-key Registry backing
+   `Tiannara.EventBus` — PressureSolver.init subscribes through it)
+   added to the Infrastructure layer so it boots first;
+   `Tiannara.P9XEcosystem.Supervisor` left in place, unwired, undeleted
+   (its remaining children — MSCL 5F.5 set, CIS, P9X, GRCC — are NOT
+   re-parented; that would be a larger scope decision);
+   `:already_started` tolerance added to `p9x_ecosystem_test` and
+   `a10_test` setups (boot-wiring test pattern);
+   boot test `test/tiannara/olef/boot_wiring_w3_test.exs` (3 tests,
+   incl. EventBus pressure_update round-trip through the live
+   PressureSolver). CI green (Elixir CI + Cross-Platform) on `9307d6ed`.
+   Note: `test/tiannara/mscl/adaptive_controller_test.exs` (untracked,
+   one of the audit's 127) got the same setup tolerance locally but
+   remains untracked — tracking is §4 item 5 scope.
 4. **Babel**: real key material + a caller before any integration claim.
 5. **CI**: run `tiannara_runtime` suites on branch pushes; remove the dead
    `start_app` key or implement it; track-or-prune the 127 untracked test
