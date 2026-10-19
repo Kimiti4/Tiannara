@@ -221,7 +221,11 @@ documentation must use the canonical names above.
   verbatim (`gck/chronogram_gate.ex:60,63`); `validate_read/2` always-allow
   stub; entropy = map-size placeholder.
 - 5F.3 OMRL weighted-merge engine (567 LOC, 23 tests) — divergence score
-  hardcoded 0.5, NATS publish = Logger.debug stub.
+  hardcoded 0.5. **Partially superseded (W2, `07971bf9`):** NATS publish
+  stub replaced with a real `MetaEvolutionStreamManager.publish/2` call
+  (local Bus), and the broken `Tiannara.Meta.MCK` hydration path fixed
+  (→ `MSCL.get_msf/1`, `OCG.get_score/1`); hardcoded divergence `0.5`
+  and `0.5` defaults remain as stated.
 - 5F.6 OPC parsers/validators/OIR (≈8.9k LOC, ≈117 tests).
 - 5F.11 Babel non-commutative operator rotation (14/14 tests).
 - CIS safety contract — **restored** (C-10).
@@ -232,7 +236,7 @@ documentation must use the canonical names above.
 |---|---|
 | C-01..C-09, C-11..C-14 | Banners added to flagged docs (this change) |
 | C-10 safety chain | **RESTORED** `f64785df` + contract tests, CI green |
-| Supervision wiring of any 5F stack | **CIS stack + ChronogramMatrix: DONE** `3690efbd` (operator-approved W1); remaining stacks (OMRL/OCG, OLEF canonical, Babel) **not done — requires explicit operator scope approval** |
+| Supervision wiring of any 5F stack | **CIS stack + ChronogramMatrix: DONE** `3690efbd` (operator-approved W1); **OMRL/OCG/OCAL observer stack: DONE** `07971bf9` (operator-approved W2 — MetaEvolutionStreamManager, MSCL 5F.1, MCK, OCAL, OCG, OMRL via Meta-layer `optional_child`, plus OMRL NATS stub fix); remaining stacks (OLEF canonical, Babel) **not done — requires explicit operator scope approval** |
 | Duplicate/renaming consolidation (C-11/C-13) | Deferred — destructive, needs approval |
 | OPC fabricated-execution quarantine (C-04) | **DONE** `7855aa6d` — fail-closed sync+async, tagged outputs, 5 tests, 3 async crashes repaired |
 | ExecutionRuntime simulated-status honesty (C-04, P3) | **DONE** `b480338c` — result `:simulated`, Producer payload `"simulated"`, instrumentation test green against app-booted runtime |

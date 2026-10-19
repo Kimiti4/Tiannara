@@ -6,7 +6,7 @@ defmodule TiannaraRuntime.Meta.BootWiringW2Test do
   application boot tree — not merely callable when a test starts them
   by hand.
 
-  Evidence: PHASE_5F_WIRING_AUDIT.md §4.2.
+  Evidence: PHASE_5F_WIRING_AUDIT.md §4 item 2.
   """
 
   use ExUnit.Case, async: false
