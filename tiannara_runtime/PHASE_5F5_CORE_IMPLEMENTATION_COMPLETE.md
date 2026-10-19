@@ -1,5 +1,12 @@
 # Phase 5F.5 CORE — MSCL + OLEF Integration ✅ COMPLETE
 
+> **STATUS CORRECTION (2026-10-19)** — "PRODUCTION READY", the
+> `application.ex` MSCL/OLEF wiring claim, and "fully integrated" are
+> **DISPROVEN** (modules reachable only from the unwired P9X supervisor;
+> repo TODO admits 5F.5 is not wired). See
+> `certification/audit/PHASE_5F_STATUS_CORRECTION.md` entry C-02.
+> Original text preserved below for traceability.
+
 ## Implementation Status: **PRODUCTION READY**
 
 All MSCL (Meta-Stability Constraint Layer) and OLEF (Ontological Load Equilibrium Field) components have been successfully implemented, tested, and integrated into the Tiannara Runtime.

@@ -1,5 +1,13 @@
 # Phase 5F.12: Recursive Reality Governor (RRG) - Implementation Complete
 
+> **STATUS CORRECTION (2026-10-19)** — "Recursive Reality Governor" is a
+> **retired name**: the same `rrg/**` code is moduledoc'd "Rate-limiting
+> Ontological Graph" (the booted system); 5F.7's actual "Runtime Revelation
+> Governor" is a separate 51-line unsupervised policy. Three systems share
+> the RRG acronym. See
+> `certification/audit/PHASE_5F_STATUS_CORRECTION.md` entry C-09/C-13.
+> Original text preserved below for traceability.
+
 **Date:** May 21, 2026  
 **Status:** ✅ **COMPLETE**  
 **Total Lines:** ~1,400 lines across 9 core modules + 305-line test suite  

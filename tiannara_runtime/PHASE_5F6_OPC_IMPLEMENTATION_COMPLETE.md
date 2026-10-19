@@ -1,5 +1,13 @@
 # Phase 5F.6 — Observer Physics Compiler (OPC) ✅ IMPLEMENTATION COMPLETE
 
+> **STATUS CORRECTION (2026-10-19)** — "PRODUCTION READY" and "fully
+> operational" are **DISPROVEN**: `compile_physics/2` has zero production
+> callers, the main-app facade fail-closes with
+> `{:error, :physics_substrate_unavailable}`, and GPU execution fabricates
+> outputs (simulated tensors; 5 of 6 claimed backends absent). See
+> `certification/audit/PHASE_5F_STATUS_CORRECTION.md` entry C-04.
+> Original text preserved below for traceability.
+
 ## Status: **PRODUCTION READY**
 
 The Observer Physics Compiler is now fully operational, providing the first true reality compilation layer for Tiannara.

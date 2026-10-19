@@ -1,5 +1,12 @@
 # Phase 5F.8 OED Implementation Complete
 
+> **STATUS CORRECTION (2026-10-19)** — The claimed supervision modules
+> (`Tiannara.Runtime.OED.Supervisor`, `Tiannara.Runtime.Kernel`) are
+> **ABSENT** — neither `defmodule` exists in the repo. OED's real modules
+> are implemented but start only in tests. See
+> `certification/audit/PHASE_5F_STATUS_CORRECTION.md` entry C-05.
+> Original text preserved below for traceability.
+
 Phase 5F.8 turns Procedural Decoy Ontologies from static traps into a supervised adversarial containment layer.
 
 ## Implemented Runtime Modules

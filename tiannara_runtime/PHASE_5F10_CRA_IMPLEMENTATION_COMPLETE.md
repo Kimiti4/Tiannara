@@ -1,5 +1,12 @@
 # Phase 5F.10 CRA Implementation Complete
 
+> **STATUS CORRECTION (2026-10-19)** — `Tiannara.Runtime.CRA.Supervisor`
+> and Kernel supervision are **ABSENT** (neither module exists; CRA
+> GenServers run only in tests), and the external 5F.10 distributed-
+> resilience scope is absent entirely. See
+> `certification/audit/PHASE_5F_STATUS_CORRECTION.md` entry C-07.
+> Original text preserved below for traceability.
+
 Phase 5F.10 adds Causal Redundancy Autogenesis to the Elixir runtime.
 
 Implemented runtime modules:

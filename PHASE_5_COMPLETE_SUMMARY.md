@@ -1,5 +1,12 @@
 # Phase 5 Complete Feature Summary - Multi-World Cognitive Universe
 
+> **STATUS CORRECTION (2026-10-19)** — "ALL PHASES COMPLETE", the 5F.5
+> "~3,500 lines" claim, and the overall completion status are **DISPROVEN**
+> (5F.5 ≈ 800 LOC named modules; 5F.9 Option A absent; all external 5F.10
+> subsystems absent). See
+> `certification/audit/PHASE_5F_STATUS_CORRECTION.md` entry C-03.
+> Original text preserved below for traceability.
+
 **Last Updated:** May 21, 2026  
 **Status:** ✅ **ALL PHASES COMPLETE** (5A through 5F.11)  
 **Total Implementation:** ~15,000+ lines across 40+ core modules  

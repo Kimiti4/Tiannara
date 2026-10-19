@@ -1,5 +1,12 @@
 # Phase 5F.9 RODL Implementation Complete
 
+> **STATUS CORRECTION (2026-10-19)** — `Tiannara.Runtime.RODL.Supervisor`,
+> `Tiannara.Runtime.OLEF.GradientSolver`, and Kernel supervision are
+> **ABSENT** (supervisor nonexistent; GradientSolver markdown-only); Choice
+> A (AOE) was never built at all. See
+> `certification/audit/PHASE_5F_STATUS_CORRECTION.md` entry C-06.
+> Original text preserved below for traceability.
+
 Phase 5F.9 implements Choice B from the architecture notes: Recursive Ontological Delegation, also called the Demiurge Protocol.
 
 ## Implemented Runtime Modules

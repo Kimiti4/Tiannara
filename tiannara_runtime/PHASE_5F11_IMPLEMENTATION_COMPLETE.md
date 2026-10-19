@@ -1,5 +1,12 @@
 # Phase 5F.11 Implementation Complete - Observer Singularity Dissolution & GPU Bridge
 
+> **STATUS CORRECTION (2026-10-19)** — The application-supervisor
+> integration claim is **OVERSTATED**: Babel's
+> `encrypt_causal_payload` has zero production callers (implemented and
+> 14/14 tested, not wired). See
+> `certification/audit/PHASE_5F_STATUS_CORRECTION.md` entry C-08.
+> Original text preserved below for traceability.
+
 ## 🎯 Overview
 
 Successfully implemented three critical components for Phase 5F.11:

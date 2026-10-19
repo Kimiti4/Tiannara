@@ -1,5 +1,10 @@
 # Phase 5F.5 — Meta-Stability Constraint Layer (MSCL-Ω) ✅ COMPLETE
 
+> **STATUS CORRECTION (2026-10-19)** — The `application.ex` wiring claim
+> (:156) and "production-ready and fully integrated" (:337) are
+> **DISPROVEN** (MSCL unwired; see entry C-02). Original text preserved
+> below for traceability: `certification/audit/PHASE_5F_STATUS_CORRECTION.md`.
+
 ## Implementation Status: **COMPLETE**
 
 All MSCL-Ω components implemented, tested, and integrated into the Tiannara Runtime.

@@ -1,5 +1,12 @@
 # Phase 5F.4 — Holographic Chronogram Memory System ✅ COMPLETE
 
+> **STATUS CORRECTION (2026-10-19)** — The claims that `application.ex`
+> starts ChronogramMatrix automatically and that this system is
+> "production-ready and fully integrated" are **DISPROVEN** (never wired;
+> 5F.3.5 children removed in `8610c558`). See
+> `certification/audit/PHASE_5F_STATUS_CORRECTION.md` entries C-01/C-02.
+> Original text preserved below for traceability.
+
 ## Implementation Status: **COMPLETE**
 
 All components implemented, tested, and integrated into the Tiannara Runtime.
