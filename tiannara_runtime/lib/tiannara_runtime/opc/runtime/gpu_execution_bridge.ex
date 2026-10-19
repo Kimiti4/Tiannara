@@ -19,6 +19,22 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
   - VRAM quota enforcement via sandbox injection
   - Asynchronous kernel execution with completion callbacks
   - Multi-observer isolation through separate command buffers
+
+  ## 5F-P1c Quarantine (2026-10-19)
+
+  **This bridge performs no GPU execution and must never be treated as
+  real physics execution.** Its dispatch path references APIs that do not
+  exist (`GPUCompiler.generate_shader_hash/1`, `GPUCompiler.compile_to_glsl/1`,
+  `SandboxInjector.inject_sandbox/2`), and `generate_output_tensor/1`
+  fabricates placeholder data (`sin`/`cos` waves). Until a real backend
+  exists, the synchronous and asynchronous execution entry points fail
+  closed with `{:error, :simulated_execution_quarantined}` so no synthetic
+  tensor can ever be presented as a physics result. Internal generators
+  tag anything they build with `simulated: true` /
+  `execution_mode: :simulated` as defense in depth. Lifting the quarantine
+  requires a real shader-hash/compile/dispatch implementation plus
+  explicit operator approval. Register:
+  `certification/audit/PHASE_5F_STATUS_CORRECTION.md` (C-04).
   """
   
   use GenServer
@@ -116,7 +132,12 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
   end
   
   def handle_call({:execute, oir, observer_id, options}, from, state) do
-    case validate_execution_request(oir, observer_id, state) do
+    case quarantine_gate() do
+      {:error, _} = refused ->
+        {:reply, refused, state}
+
+      :ok ->
+        case validate_execution_request(oir, observer_id, state) do
       :ok ->
         # Check shader cache first
         shader_hash = GPUCompiler.generate_shader_hash(oir)
@@ -145,6 +166,7 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
       
       {:error, reason} ->
         {:reply, {:error, reason}, state}
+        end
     end
   end
   
@@ -250,8 +272,13 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
   end
   
   defp compile_and_execute(oir, observer_id, options, state) do
-    # Step 1: Compile OIR to GLSL
-    case GPUCompiler.compile_to_glsl(oir) do
+    case quarantine_gate() do
+      {:error, _} = refused ->
+        refused
+
+      :ok ->
+        # Step 1: Compile OIR to GLSL
+        case GPUCompiler.compile_to_glsl(oir) do
       {:ok, glsl_code, metadata} ->
         # Step 2: Inject sandbox constraints
         constrained_glsl = SandboxInjector.inject_sandbox(glsl_code, state.sandbox_limits)
@@ -265,8 +292,9 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
             {:error, reason}
         end
       
-      {:error, compilation_error} ->
-        {:error, {:compilation_failed, compilation_error}}
+          {:error, compilation_error} ->
+            {:error, {:compilation_failed, compilation_error}}
+        end
     end
   end
   
@@ -287,6 +315,7 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
       output_tensor ->
         shader_hash = :crypto.hash(:sha256, glsl_code) |> Base.encode16(case: :lower)
         {:ok, %{
+          execution_mode: :simulated,
           output_tensor: output_tensor,
           execution_time_ms: computation_time_ms,
           workgroups_dispatched: calculate_workgroups(oir),
@@ -334,10 +363,24 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
         data = Enum.map(1..element_count, fn i ->
           :math.sin(i * 0.1) + :math.cos(i * 0.05)
         end)
-        %{dimensions: dims, data_type: :f32, element_count: element_count, data: data}
+        %{
+          dimensions: dims,
+          data_type: :f32,
+          element_count: element_count,
+          data: data,
+          simulated: true
+        }
     end
   end
   
+  defp quarantine_gate do
+    if Application.get_env(:tiannara_runtime, :opc_execution_quarantine, true) do
+      {:error, :simulated_execution_quarantined}
+    else
+      :ok
+    end
+  end
+
   defp generate_job_id() do
     :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
   end
@@ -350,7 +393,7 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
       {job, new_queue} = :queue.out(state.execution_queue)
       
       case job do
-        {{:value, job_data}, _} ->
+        {:value, job_data} ->
           # Launch job
           job_id = job_data.id
           
@@ -360,15 +403,16 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
           })
           
           # Execute asynchronously
+          bridge = self()
           Task.start(fn ->
             result = compile_and_execute(job_data.oir, job_data.observer_id, %{}, state)
             
             case result do
               {:ok, result_data, _shader} ->
-                send(self(), {:job_complete, job_id, result_data})
+                send(bridge, {:job_complete, job_id, result_data})
               
               {:error, error} ->
-                send(self(), {:job_failed, job_id, error})
+                send(bridge, {:job_failed, job_id, error})
             end
           end)
           
@@ -380,7 +424,7 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
           
           process_execution_queue(new_state)
         
-        {:empty, _} ->
+        :empty ->
           state
       end
     else
@@ -410,7 +454,7 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
   
   def handle_info({:job_complete, job_id, result}, state) do
     updated_kernels = Map.update!(state.active_kernels, job_id, fn job ->
-      %{job | status: :complete, result: result}
+      job |> Map.put(:status, :complete) |> Map.put(:result, result)
     end)
     
     # Call callback if provided
@@ -433,7 +477,7 @@ defmodule Tiannara.OPC.Runtime.GPUExecutionBridge do
   
   def handle_info({:job_failed, job_id, error}, state) do
     updated_kernels = Map.update!(state.active_kernels, job_id, fn job ->
-      %{job | status: :failed, error: error}
+      job |> Map.put(:status, :failed) |> Map.put(:error, error)
     end)
     
     Logger.error("❌ [GPU Bridge] Job #{job_id} failed: #{inspect(error)}")
