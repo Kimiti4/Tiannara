@@ -180,7 +180,20 @@ defmodule TiannaraRuntime.Meta.Supervisor do
         # 5F wiring W1: ChronogramMatrix is the write/read substrate for GCK
         # and the CIS ExecutionController; it must boot before them (they are
         # started later, after StartupSupervisor, in application.ex).
-        optional_child(Tiannara.Meta.ChronogramMatrix)
+        optional_child(Tiannara.Meta.ChronogramMatrix) ++
+        # 5F wiring W2 (operator-approved 2026-10-19): 5F.2/5F.3 observer
+        # stack restored as optional children in dependency order.
+        # MetaEvolutionStreamManager routes OCG/OCAL/OMRL/MCK events onto
+        # the local NATS Bus (already booted in Infrastructure).
+        # MSCL must start before OCG (OCG.hydrate_msf/1 calls MSCL.get_msf/1).
+        # OCAL before OCG (OCG.arbitrate/5 calls OCAL.resolve/5).
+        # OMRL last (OMRL.hydrate_oss/1 calls OCG.get_score/1).
+        optional_child(Tiannara.NATS.MetaEvolutionStreamManager) ++
+        optional_child(Tiannara.Meta.MSCL) ++
+        optional_child(TiannaraRuntime.MCK) ++
+        optional_child(Tiannara.Meta.ObserverArbitrationLayer) ++
+        optional_child(Tiannara.Meta.ObserverCollapseGovernor) ++
+        optional_child(Tiannara.Meta.ObserverMemoryReconciliation)
 
     Supervisor.init(children, strategy: :one_for_one)
   end

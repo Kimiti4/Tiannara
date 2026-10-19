@@ -120,6 +120,14 @@ defmodule Tiannara.Meta.ObserverCollapseGovernor do
   end
 
   @doc """
+  Return the stored OSS score for a single observer.
+  Returns `{:ok, oss}` or `{:error, :not_found}`.
+  """
+  def get_score(observer_id) do
+    GenServer.call(__MODULE__, {:get_score, observer_id})
+  end
+
+  @doc """
   Classify an OSS score into a stability tier.
   """
   def classify(oss) when oss >= @dominant_floor, do: :dominant_attractor
@@ -203,6 +211,14 @@ defmodule Tiannara.Meta.ObserverCollapseGovernor do
     {:reply, {:ok, state.observer_scores}, state}
   end
 
+  @impl true
+  def handle_call({:get_score, observer_id}, _from, state) do
+    case Map.fetch(state.observer_scores, observer_id) do
+      {:ok, oss} -> {:reply, {:ok, oss}, state}
+      :error -> {:reply, {:error, :not_found}, state}
+    end
+  end
+
   # ── Core Arbitration Logic ────────────────────────────────────────────────
 
   defp arbitrate(a, b, oss_a, oss_b, state) do
@@ -250,8 +266,8 @@ defmodule Tiannara.Meta.ObserverCollapseGovernor do
     live_msf =
       try do
         MSCL.get_msf(observer.observer_id)
-      rescue
-        _ -> nil
+      catch
+        :exit, _ -> nil
       end
 
     case live_msf do

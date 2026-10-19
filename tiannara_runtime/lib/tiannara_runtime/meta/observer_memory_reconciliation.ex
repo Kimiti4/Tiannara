@@ -52,7 +52,9 @@ defmodule Tiannara.Meta.ObserverMemoryReconciliation do
   ## Integration
 
   - Hydrates OSS from OCG for reconciliation weighting
-  - Publishes reconciliation events via NATS JetStream
+  - Hydrates MSF from MSCL (same source as OCG.hydrate_msf/1)
+  - Publishes reconciliation events via MetaEvolutionStreamManager
+    (local NATS Bus; degraded to caught warning if the manager is absent)
   - Stores reconciled memories in ETS tables
   """
 
@@ -60,7 +62,8 @@ defmodule Tiannara.Meta.ObserverMemoryReconciliation do
   require Logger
 
   alias Tiannara.Meta.ObserverCollapseGovernor, as: OCG
-  alias Tiannara.Meta.MCK
+  alias Tiannara.Meta.MSCL
+  alias Tiannara.NATS.MetaEvolutionStreamManager
 
   # ── Configuration ────────────────────────────────────────────────────────
 
@@ -372,26 +375,28 @@ defmodule Tiannara.Meta.ObserverMemoryReconciliation do
   end
 
   defp hydrate_msf(observer_id) do
-    # Try to get live MSF from MSCL/MCK
+    # Live MSF from MSCL — same canonical source as OCG.hydrate_msf/1.
+    # catch :exit for the case where MSCL is not running (GenServer.call to
+    # an unregistered name exits, which rescue alone does not catch).
     try do
-      case MCK.get_observer_state(observer_id) do
-        {:ok, %{msf: msf}} when is_number(msf) -> msf
+      case MSCL.get_msf(observer_id) do
+        msf when is_number(msf) -> msf
         _ -> @default_msf
       end
-    rescue
-      _ -> @default_msf
+    catch
+      :exit, _ -> @default_msf
     end
   end
 
   defp hydrate_oss(observer_id) do
-    # Try to get OSS from OCG
+    # OSS from OCG; catch :exit for when OCG is not running.
     try do
       case OCG.get_score(observer_id) do
         {:ok, oss} when is_number(oss) -> oss
         _ -> @default_oss
       end
-    rescue
-      _ -> @default_oss
+    catch
+      :exit, _ -> @default_oss
     end
   end
 
@@ -539,10 +544,11 @@ defmodule Tiannara.Meta.ObserverMemoryReconciliation do
   end
 
   defp publish_reconciliation_event(memory_id, result) do
-    # Publish to NATS for telemetry (fire-and-forget)
+    # Publish via MetaEvolutionStreamManager (same path as OCG/OCAL/MCK).
+    # Fire-and-forget: a missing manager or bus degrades to a caught warning.
     try do
       mode = Map.get(result, :mode, :single_observer)
-      
+
       payload = %{
         event_type: "memory_reconciled",
         memory_id: memory_id,
@@ -551,8 +557,7 @@ defmodule Tiannara.Meta.ObserverMemoryReconciliation do
         timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
       }
 
-      # Would integrate with NATS publisher here
-      Logger.debug("[OMRL] Published reconciliation event for #{memory_id}")
+      MetaEvolutionStreamManager.publish("tiannara.meta.omrl.reconciliation", payload)
     rescue
       e ->
         Logger.warning("[OMRL] Failed to publish reconciliation event: #{inspect(e)}")

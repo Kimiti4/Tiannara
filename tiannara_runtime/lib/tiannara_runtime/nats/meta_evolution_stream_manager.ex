@@ -53,8 +53,16 @@ defmodule Tiannara.NATS.MetaEvolutionStreamManager do
 
   @impl true
   def handle_cast({:publish, topic, payload}, state) do
-    encoded = Jason.encode!(payload)
-    TiannaraRuntime.NATS.Bus.publish(topic, encoded)
+    case Jason.encode(payload) do
+      {:ok, encoded} ->
+        TiannaraRuntime.NATS.Bus.publish(topic, encoded)
+
+      {:error, reason} ->
+        Logger.warning(
+          "MetaEvolutionStreamManager dropping unencodable payload on #{topic}: #{inspect(reason)}"
+        )
+    end
+
     {:noreply, state}
   end
 
