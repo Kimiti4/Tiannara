@@ -71,6 +71,10 @@ defmodule TiannaraRuntime.Infrastructure.Supervisor do
       [
         {Phoenix.PubSub, name: TiannaraRuntime.PubSub},
         {Registry, keys: :unique, name: Tiannara.Registry},
+        # 5F wiring W3: Tiannara.EventBus signaling registry (duplicate
+        # keys). Lives here so it is up before the Ecology layer boots
+        # canonical OLEF (PressureSolver.init subscribes via EventBus).
+        {Registry, keys: :duplicate, name: Tiannara.EventRegistry},
         {TiannaraRuntime.SharedMemory, []}
       ] ++
         required_child(TiannaraRuntime.NATS.Supervisor) ++
@@ -121,6 +125,12 @@ defmodule TiannaraRuntime.Ecology.Supervisor do
     children =
       required_child(Tiannara.UniverseSupervisor) ++
         optional_child(TiannaraRuntime.Legacy.Tiannara.OLEF.FieldSupervisor) ++
+        # 5F wiring W3 (operator-approved 2026-10-19): canonical OLEF set
+        # (PressureSolver + GradientRouter) re-parented from the reference-less
+        # Tiannara.P9XEcosystem.Supervisor (audit §4 item 3). PressureSolver.init
+        # subscribes via Tiannara.EventBus -> Tiannara.EventRegistry, which
+        # boots earlier in the Infrastructure layer.
+        optional_child(Tiannara.OLEF.Supervisor) ++
         optional_child(TiannaraRuntime.OCM.Supervisor) ++
         optional_child(Tiannara.RRG.Supervisor)
 

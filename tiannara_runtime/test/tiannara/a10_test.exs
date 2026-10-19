@@ -3,7 +3,11 @@ defmodule Tiannara.A10Test do
   alias Tiannara.EventBus
 
   setup do
-    Registry.start_link(keys: :duplicate, name: Tiannara.EventRegistry)
+    case Registry.start_link(keys: :duplicate, name: Tiannara.EventRegistry) do
+      {:ok, _} -> :ok
+      {:error, {:already_started, _}} -> :ok
+    end
+
     Tiannara.A10.AttractorMemory.start_link([])
     Tiannara.A10.DriftTensor.start_link([])
     Tiannara.A10.AttractorAnalyzer.start_link([])

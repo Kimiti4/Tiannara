@@ -3,7 +3,10 @@ defmodule Tiannara.P9XEcosystemTest do
   alias Tiannara.EventBus
 
   setup do
-    Registry.start_link(keys: :duplicate, name: Tiannara.EventRegistry)
+    case Registry.start_link(keys: :duplicate, name: Tiannara.EventRegistry) do
+      {:ok, _} -> :ok
+      {:error, {:already_started, _}} -> :ok
+    end
     Tiannara.MSCL.Supervisor.start_link([])
     Supervisor.start_link([
       Tiannara.MSCL.ConstraintEngine,
@@ -14,7 +17,12 @@ defmodule Tiannara.P9XEcosystemTest do
     Tiannara.P9X.ObserverFreeCoherence.start_link([])
     Tiannara.CIS.ImmuneDecisionEngine.start_link([])
     Tiannara.CIS.RegulationExecutor.start_link([])
-    Tiannara.OLEF.PressureSolver.start_link([])
+
+    case Tiannara.OLEF.PressureSolver.start_link([]) do
+      {:ok, _} -> :ok
+      {:error, {:already_started, _}} -> :ok
+    end
+
     :ok
   end
 
