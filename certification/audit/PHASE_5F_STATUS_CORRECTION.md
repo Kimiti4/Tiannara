@@ -68,6 +68,15 @@ cites file:line or commit evidence.
 - **Truth:** parsers/validators/OIR implemented + tested (≈117 tests);
   execution simulated; production-ready claim false. (Fabricated execution
   results are quarantined under 5F-P1c — see remediation status.)
+- **Remediated (5F-P1c, `7855aa6d`):** both execution entry points now
+  fail closed with `{:error, :simulated_execution_quarantined}` (runtime
+  config gate `:opc_execution_quarantine`, default on), internal generators
+  tag outputs `simulated: true` / `execution_mode: :simulated`, moduledoc
+  states no GPU execution occurs; 5 quarantine contract tests. Quarantine
+  work also uncovered and repaired three pre-existing async-path crashes:
+  wrong `:queue.out` case pattern, `send(self(), ...)` inside the worker
+  task (messages never reached the bridge), and `%{job | error: ...}`
+  `KeyError` on job maps lacking the key.
 
 ### C-05 — 5F.8 OED "supervised layer" — DISPROVEN (absent modules)
 - **Claim:** `PHASE_5F8_OED_IMPLEMENTATION_COMPLETE.md` — "Implemented
@@ -190,5 +199,5 @@ documentation must use the canonical names above.
 | C-10 safety chain | **RESTORED** `f64785df` + contract tests, CI green |
 | Supervision wiring of any 5F stack | **Not done — requires explicit operator scope approval** |
 | Duplicate/renaming consolidation (C-11/C-13) | Deferred — destructive, needs approval |
-| OPC fabricated-execution quarantine (C-04) | In progress (5F-P1c) |
+| OPC fabricated-execution quarantine (C-04) | **DONE** `7855aa6d` — fail-closed sync+async, tagged outputs, 5 tests, 3 async crashes repaired |
 | Verification scripts honesty (P3) | Open |
