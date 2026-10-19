@@ -9,6 +9,14 @@ defmodule Tiannara.OPC.Runtime.ExecutionRuntime do
   lifecycle-normalized through `TiannaraOS.Provenance.Producer` instead of a
   producer-local `System.unique_integer`. The producer has no local authority
   over `execution_id`; the minted canonical id is a `forward_exec_v1` binary.
+
+  ## 5F-P1c/P3 honesty (2026-10-19)
+
+  No compute occurs here: the MSCL budget check and OLEF allocation below are
+  placeholders (TODOs) and the shader is never dispatched. Results therefore
+  report `status: :simulated` / `execution_mode: :simulated` (and the
+  provenance payload records `"status" => "simulated"`) so a fabricated
+  execution is never presented as real physics execution.
   """
   
   use GenServer
@@ -64,12 +72,13 @@ defmodule Tiannara.OPC.Runtime.ExecutionRuntime do
               execution_id: execution_id,
               shader_length: byte_size(shader),
               allocated_node: allocation,
-              status: :executed
+              status: :simulated,
+              execution_mode: :simulated
             }
 
             case Producer.complete(@producer, execution_id, lifecycle, %{
                    "observer_id" => observer_id,
-                   "status" => "executed"
+                   "status" => "simulated"
                  }) do
               {:ok, _normalized, _lifecycle2} ->
                 :ok
