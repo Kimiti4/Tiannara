@@ -170,6 +170,11 @@ defmodule TiannaraRuntime.CIS.ExecutionController do
   end
 
   @impl true
+  def handle_cast(:reset, _state) do
+    {:noreply, %__MODULE__{}}
+  end
+
+  @impl true
   def handle_cast({:emergency_shutdown, _reason}, state) do
     {:noreply, state}
   end

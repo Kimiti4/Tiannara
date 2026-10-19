@@ -18,11 +18,24 @@ defmodule TiannaraRuntime.Application do
   def start(_type, _args) do
     Logger.info("🧠 Tiannara Runtime - Constitutional Scientific Organism Starting...")
     
-    children = [
-      # Start all systems through the unified startup supervisor
-      {TiannaraRuntime.StartupSupervisor, []}
-    ]
-    
+    # 5F wiring W1 (operator-approved 2026-10-19): the Phase 5F.3.5 Control
+    # Plane Consolidation Layer removed in 8610c558 is restored as optional
+    # children, in dependency order. ChronogramMatrix boots earlier inside
+    # the Meta layer (runtime_layers/supervisors.ex); the CIS arbitration
+    # kernel must precede its ExecutionController/QuotaGovernor callers.
+    # optional_child only skips missing modules — a failing start still
+    # fails the boot. Fail-closed :noproc semantics are unchanged.
+    children =
+      [
+        # Start all systems through the unified startup supervisor
+        {TiannaraRuntime.StartupSupervisor, []}
+      ] ++
+        TiannaraRuntime.BootPolicy.optional_child(TiannaraRuntime.CIS.Supervisor) ++
+        TiannaraRuntime.BootPolicy.optional_child(TiannaraRuntime.CIS.ExecutionController) ++
+        TiannaraRuntime.BootPolicy.optional_child(TiannaraRuntime.Resources.QuotaGovernor) ++
+        TiannaraRuntime.BootPolicy.optional_child(TiannaraRuntime.Memory.LineageCompression) ++
+        TiannaraRuntime.BootPolicy.optional_child(TiannaraRuntime.Causal.GCK)
+
     opts = [strategy: :one_for_one, name: TiannaraRuntime.Supervisor]
     
     case Supervisor.start_link(children, opts) do

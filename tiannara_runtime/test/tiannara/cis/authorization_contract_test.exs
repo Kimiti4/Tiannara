@@ -173,13 +173,24 @@ defmodule TiannaraRuntime.CIS.AuthorizationContractTest do
 
   describe "fail-closed on absent arbitration kernel" do
     test "authorize_kill/3 exits (nothing proceeds) when the CIS process is gone" do
-      if pid = Process.whereis(Supervisor) do
-        GenServer.stop(pid)
+      if Process.whereis(Supervisor) do
+        # 5F wiring W1: the kernel is a boot child of TiannaraRuntime.Supervisor.
+        # terminate_child (not GenServer.stop) removes it without the
+        # one_for_one auto-restart racing the assertion below. Note the
+        # module alias shadows Elixir.Supervisor — use the Elixir module
+        # explicitly for terminate/restart_child.
+        :ok = Elixir.Supervisor.terminate_child(TiannaraRuntime.Supervisor, Supervisor)
       end
 
       assert catch_exit(Supervisor.authorize_kill(:world_h, "kernel absent"))
 
-      # Restart for the rest of the suite (setup of later tests also re-checks).
+      # Restore the boot child (or start it directly when not boot-wired).
+      case Elixir.Supervisor.restart_child(TiannaraRuntime.Supervisor, Supervisor) do
+        {:ok, _pid} -> :ok
+        {:ok, _pid, _info} -> :ok
+        _ -> ensure_started(Supervisor)
+      end
+
       ensure_started(Supervisor)
       :ok = Supervisor.set_safety_mode(:normal)
     end

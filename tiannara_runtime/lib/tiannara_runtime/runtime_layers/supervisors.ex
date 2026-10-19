@@ -175,7 +175,13 @@ defmodule TiannaraRuntime.Meta.Supervisor do
 
   @impl true
   def init(_opts) do
-    children = required_child(Tiannara.MetaSOPL.RateModulationSupervisor)
+    children =
+      required_child(Tiannara.MetaSOPL.RateModulationSupervisor) ++
+        # 5F wiring W1: ChronogramMatrix is the write/read substrate for GCK
+        # and the CIS ExecutionController; it must boot before them (they are
+        # started later, after StartupSupervisor, in application.ex).
+        optional_child(Tiannara.Meta.ChronogramMatrix)
+
     Supervisor.init(children, strategy: :one_for_one)
   end
 end
