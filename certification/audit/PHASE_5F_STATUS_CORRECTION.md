@@ -77,6 +77,20 @@ cites file:line or commit evidence.
   wrong `:queue.out` case pattern, `send(self(), ...)` inside the worker
   task (messages never reached the bridge), and `%{job | error: ...}`
   `KeyError` on job maps lacking the key.
+- **Remediated (5F-P3, `b480338c` + `14c7988a`):** `ExecutionRuntime`
+  result status is now `:simulated` (`execution_mode: :simulated`) and the
+  provenance `Producer.complete` payload records `"status" => "simulated"`
+  — cert-path-safe because `RuntimeContract.certifiable?/1` accepts only
+  `"completed"`; instrumentation test asserts the honest shape (its
+  pre-existing `:already_started` setup failure was baseline-confirmed by
+  stash before the fix); `scripts/verify_phase_5f6_opc.exs` no longer
+  prints unconditional "PRODUCTION READY" — it computes module presence,
+  boot wiring, export existence (`compile_to_glsl/1` and
+  `generate_shader_hash/1` are ABSENT), quarantine state, and execution
+  status, and exits 1 (current run: 26 checks, 4 failed).
+- **Adjacent, out of scope:** `lib/tiannara_runtime/dfg/latent_runtime.ex:39-40`
+  still fabricates `%{status: :executed}` from `execute_single_op` —
+  recorded here; not remediated in P3.
 
 ### C-05 — 5F.8 OED "supervised layer" — DISPROVEN (absent modules)
 - **Claim:** `PHASE_5F8_OED_IMPLEMENTATION_COMPLETE.md` — "Implemented
@@ -200,4 +214,6 @@ documentation must use the canonical names above.
 | Supervision wiring of any 5F stack | **Not done — requires explicit operator scope approval** |
 | Duplicate/renaming consolidation (C-11/C-13) | Deferred — destructive, needs approval |
 | OPC fabricated-execution quarantine (C-04) | **DONE** `7855aa6d` — fail-closed sync+async, tagged outputs, 5 tests, 3 async crashes repaired |
-| Verification scripts honesty (P3) | Open |
+| ExecutionRuntime simulated-status honesty (C-04, P3) | **DONE** `b480338c` — result `:simulated`, Producer payload `"simulated"`, instrumentation test green against app-booted runtime |
+| Verification scripts honesty (P3) | **DONE** `14c7988a` — 5F.6 script: 26 computed checks, 4 real failures, exit 1; 5F.5 script: boot-wiring audit before script-local starts, 30 checks, 3 real failures, exit 1 |
+| Untracked 5F.5/MSCL test (P3 tracking) | **DONE (this change)** — `test/tiannara/meta/metastability/phase_5f5_mscl_test.exs` 21/21 green, added to git |
