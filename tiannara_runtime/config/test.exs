@@ -39,6 +39,9 @@ config :ex_unit,
   timeout: 30_000,  # 30 seconds timeout for integration tests
   capture_log: true
 
-# Disable application startup for tests - modules are tested independently
-config :tiannara_runtime, TiannaraRuntime.Application,
-  start_app: false
+# Removed 2026-10-20 (PHASE_5F_WIRING_AUDIT §4 item 5): the
+# `start_app: false` key under TiannaraRuntime.Application was dead —
+# grep of lib/ showed no consumer, so tests never disabled app boot;
+# they booted the app implicitly (setup callbacks call
+# Application.ensure_all_started/1). The key's comment claimed the
+# opposite of what happened.
