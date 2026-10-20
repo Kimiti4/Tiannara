@@ -479,13 +479,35 @@ defmodule TiannaraRuntime.OS.Persistence.ConstitutionalPersistenceLayer do
     |> File.ls!()
     |> Enum.flat_map(fn file ->
       case File.read(Path.join(layer_path, file)) do
-        {:ok, content} -> [Jason.decode!(content)]
+        {:ok, content} -> [content |> Jason.decode!() |> normalize_checkpoint_keys()]
         {:error, _} -> []
       end
     end)
-    |> Enum.sort_by(fn checkpoint -> checkpoint["timestamp"] || checkpoint[:timestamp] || 0 end)
+    |> Enum.sort_by(fn checkpoint -> checkpoint.timestamp || 0 end)
     |> List.last()
   end
+
+  # JSON round-trips atoms to string keys. load_events normalizes via
+  # normalize_event_keys/1, but checkpoints previously did not: a
+  # checkpoint loaded from disk kept string keys, and the next
+  # auto-checkpoint (every 30s) crashed in create_checkpoint_record/3
+  # with `key :checkpoint_id not found` (observed on CI run 39382482185
+  # where the crash reset TelemetryPublisher mid-window and failed the
+  # 'no telemetry message loss' test).
+  defp normalize_checkpoint_keys(checkpoint) when is_map(checkpoint) do
+    %{
+      checkpoint_id: Map.get(checkpoint, :checkpoint_id) || Map.get(checkpoint, "checkpoint_id"),
+      layer: normalize_atom(Map.get(checkpoint, :layer) || Map.get(checkpoint, "layer")),
+      timestamp: Map.get(checkpoint, :timestamp) || Map.get(checkpoint, "timestamp"),
+      event_count: Map.get(checkpoint, :event_count) || Map.get(checkpoint, "event_count"),
+      state_hash: Map.get(checkpoint, :state_hash) || Map.get(checkpoint, "state_hash"),
+      previous_checkpoint_id:
+        Map.get(checkpoint, :previous_checkpoint_id) ||
+          Map.get(checkpoint, "previous_checkpoint_id")
+    }
+  end
+
+  defp normalize_checkpoint_keys(checkpoint), do: checkpoint
 
   defp compute_recovery_stats(state) do
     %{
