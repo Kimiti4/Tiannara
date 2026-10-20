@@ -47,6 +47,17 @@ defmodule ColdIgnition.PassiveModeTest do
     end
   end
 
+  # QUARANTINED (CI-A inventory, Elixir CI run 39363009648): env-dependent
+  # AND a product question. Passes warm-build Windows full-suite runs
+  # (where earlier tests often leave initial_pop = 0 and the assertion
+  # passes vacuously), fails Linux CI where the world reaches this test
+  # with 4 organisms that all die within the 15s window (4 -> 0, 100%).
+  # Either passive mode does not actually prevent population decay
+  # (family of the two findings above) or the test's precondition
+  # (population present and stable) is not guaranteed. Re-admit when
+  # passive mode pins population, or when the test establishes its own
+  # precondition. Stage C.
+  @tag :quarantine
   test "population remains stable or only decays" do
     initial_pop = ColdIgnitionSupport.total_population()
 

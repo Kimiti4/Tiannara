@@ -11,17 +11,34 @@ defmodule ColdIgnition.NoMocksTest do
     :ok
   end
 
+  # CI-A inventory finding (Elixir CI run 39363009648 + local fresh-build
+  # repro): the original check filtered :code.all_loaded() for module
+  # names containing "Mock", which conflates LOADED with ACTIVE. On any
+  # fresh checkout (CI) the compiler loads every compiled module into
+  # the test VM before ExUnit starts, so the check failed deterministically
+  # on a cold _build and passed only on a warm local _build — it never
+  # tested the actual finding. The finding itself is preserved below:
+  # no mock observatory PROCESS may be running and no mock
+  # certification report may exist, i.e. no mock layers are ACTIVE.
   test "no mock supervisors active" do
-    active_mods = :code.all_loaded()
-
-    mocks =
-      Enum.filter(active_mods, fn {mod, _beam} ->
-        mod != ColdIgnition.NoMocksTest and
-          (mod |> Atom.to_string() |> String.contains?("Mock"))
+    running_mocks =
+      Enum.filter(mock_observatory_modules(), fn mod ->
+        Process.whereis(mod) != nil
       end)
 
-    assert mocks == [],
-           "Found active mock modules: #{Enum.map(mocks, fn {mod, _beam} -> Atom.to_string(mod) end) |> Enum.join(", ")}"
+    assert running_mocks == [],
+           "Found active mock observatory processes: #{inspect(running_mocks)}"
+
+    case Process.whereis(Tiannara.Sentinel.Validation.ValidationState) do
+      nil ->
+        :ok
+
+      _pid ->
+        report = Tiannara.Sentinel.Validation.ValidationState.get_report()
+
+        assert report == nil,
+               "Mock certification report is active: #{inspect(report)}"
+    end
   end
 
   test "RootSupervisor has exactly 5 children" do
@@ -77,6 +94,19 @@ defmodule ColdIgnition.NoMocksTest do
   end
 
   # --- Helpers ---
+
+  defp mock_observatory_modules do
+    [
+      Tiannara.Sentinel.Validation.MockObservatories.AdaptiveDriftObservatory,
+      Tiannara.Sentinel.Validation.MockObservatories.NoisyObservatory,
+      Tiannara.Sentinel.Validation.MockObservatories.UnderconfidentObservatory,
+      Tiannara.Sentinel.Validation.MockObservatories.RandomObservatory,
+      Tiannara.Sentinel.Validation.MockObservatories.MonocultureObservatory,
+      Tiannara.Sentinel.Validation.MockObservatories.OverconfidentObservatory,
+      Tiannara.Sentinel.Validation.MockObservatories.ContrarianObservatory,
+      Tiannara.Sentinel.Validation.MockObservatories.PerfectObservatory
+    ]
+  end
 
   defp start_root_supervisor do
     try do
