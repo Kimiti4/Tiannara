@@ -91,6 +91,14 @@ classifies 5F6–5F9 as *proposals to defer*).
 
 ## 3. Test/CI tracking gap (feeds 5F-P3)
 
+> **SUPERSEDED (2026-10-20, CI-suite widening — evidence:
+> `TIANNARA_RUNTIME_TEST_INVENTORY.md`):** all bullets below were true as of
+> 2026-10-19 and are now closed. `Elixir CI` gained a required
+> `tiannara_runtime suite` job + a non-blocking quarantine job (`3d3ae924`);
+> all 166 test files + 2 support helpers are tracked (`c9a0306c`); the dead
+> `start_app` key is removed (`7343f1c7`); the runtime suite is green on every
+> push (run `39388434031`). Original text kept verbatim below.
+
 - `Elixir CI` (all pushes) runs the **root** Mix project
   (`.github/workflows/elixir_ci.yml` root `mix test`); the root app does not
   reference `tiannara_runtime`, so **runtime suites do not run on this
@@ -155,10 +163,22 @@ Ordering follows the operator's "smallest safe path" rule:
    boot test `test/tiannara/olef/boot_wiring_w3_test.exs` (3 tests,
    incl. EventBus pressure_update round-trip through the live
    PressureSolver). CI green (Elixir CI + Cross-Platform) on `9307d6ed`.
-   Note: `test/tiannara/mscl/adaptive_controller_test.exs` (untracked,
-   one of the audit's 127) got the same setup tolerance locally but
-   remains untracked — tracking is §4 item 5 scope.
+   Note: `test/tiannara/mscl/adaptive_controller_test.exs` (untracked at the
+   time, one of the audit's 127) got the same setup tolerance locally; it was
+   tracked together with the rest of the suite in `c9a0306c` (§4 item 5, now
+   DONE).
 4. **Babel**: real key material + a caller before any integration claim.
-5. **CI**: run `tiannara_runtime` suites on branch pushes; remove the dead
-   `start_app` key or implement it; track-or-prune the 127 untracked test
-   files.
+5. **CI**: **DONE (`c9a0306c`, `3d3ae924`, `d4747586`, `c7214a50`,
+   `7343f1c7`, operator-approved CI-suite widening)** — all 166 test files +
+   2 support helpers tracked (fresh-checkout `mix test` works); required
+   `tiannara_runtime suite (required)` job on all pushes/PRs, fail-closed on
+   nonzero exit, plus a visibly-separate non-blocking quarantine job
+   (`continue-on-error`); `start_app` dead key removed (grep-verified no
+   consumer; the comment claimed boot was disabled while tests booted the app
+   implicitly — removal documented in `config/test.exs`); P9X flake fixed by
+   statistical soundness (N=64, P≈6.3e-7), never retries; 6 tests quarantined
+   with reasons/re-admission conditions (2 Stage B omega, 4 Stage C product
+   findings). Three CI-only failures diagnosed and fixed (no_mocks
+   loaded-vs-active conflation, passive population env-dependence →
+   quarantine, CPL checkpoint string-key crash). First fully green required
+   run: `39388434031`. Evidence: `TIANNARA_RUNTIME_TEST_INVENTORY.md`.
