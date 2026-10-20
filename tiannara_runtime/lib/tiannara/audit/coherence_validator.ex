@@ -14,10 +14,32 @@ defmodule Tiannara.Audit.CoherenceValidator do
   }
   def run_full_coherence_audit do
     # Fetch states from live runtime systems
-    branch_registry = fetch_branch_registry()
-    node_states = fetch_node_states()
-    observer_states = fetch_observer_states()
-    cosmological_metrics = fetch_cosmological_metrics()
+    run_full_coherence_audit(%{
+      branch_registry: fetch_branch_registry(),
+      node_states: fetch_node_states(),
+      observer_states: fetch_observer_states(),
+      cosmological_metrics: fetch_cosmological_metrics()
+    })
+  end
+
+  @doc """
+  Runs the full coherence audit against explicit states (test/injection API).
+
+  `branch_registry`, `node_states`, `observer_states` and
+  `cosmological_metrics` default to empty/neutral values when absent.
+  `active_rules`, when present as a map, replaces the live
+  SelfCompilation GenServer check; otherwise the live check is used.
+  """
+  @spec run_full_coherence_audit(map()) :: %{
+    status: atom(),
+    findings: list(),
+    recommendations: list()
+  }
+  def run_full_coherence_audit(%{} = states) do
+    branch_registry = Map.get(states, :branch_registry, %{})
+    node_states = Map.get(states, :node_states, %{})
+    observer_states = Map.get(states, :observer_states, %{})
+    cosmological_metrics = Map.get(states, :cosmological_metrics, %{psi: 1.0, omega: 0.5, phi: 0.5})
 
     {findings, recommendations} = {[], []}
 
@@ -59,7 +81,7 @@ defmodule Tiannara.Audit.CoherenceValidator do
 
     # 5. Self-compilation rules integrity check
     {findings, recommendations} =
-      case validate_self_compilation_history() do
+      case validate_self_compilation_history(states) do
         :ok -> {findings, recommendations}
         {:error, reason} ->
           {[{:self_compilation, :failed, reason} | findings],
@@ -75,25 +97,32 @@ defmodule Tiannara.Audit.CoherenceValidator do
     }
   end
 
-  defp validate_self_compilation_history do
-    if Process.whereis(SelfCompilation) do
-      history = SelfCompilation.active_rules()
-      # Invariant check: verify that active rules are not empty and have valid invariants
-      if Map.equal?(history, %{}) do
-        {:error, "No active rule set loaded in self-compilation"}
-      else
-        invalid = Enum.filter(history, fn {_subsystem, rule} ->
-          not rule_valid?(rule)
-        end)
+  defp validate_self_compilation_history(%{active_rules: rules}) when is_map(rules) do
+    validate_rules_map(rules)
+  end
 
-        if invalid == [] do
-          :ok
-        else
-          {:error, "Invalid rules deployed: #{Enum.map_join(invalid, ", ", &elem(&1, 0))}"}
-        end
-      end
+  defp validate_self_compilation_history(_states) do
+    if Process.whereis(SelfCompilation) do
+      validate_rules_map(SelfCompilation.active_rules())
     else
       {:error, "SelfCompilation GenServer is offline"}
+    end
+  end
+
+  defp validate_rules_map(rules) do
+    # Invariant check: verify that active rules are not empty and have valid invariants
+    if Map.equal?(rules, %{}) do
+      {:error, "No active rule set loaded in self-compilation"}
+    else
+      invalid = Enum.filter(rules, fn {_subsystem, rule} ->
+        not rule_valid?(rule)
+      end)
+
+      if invalid == [] do
+        :ok
+      else
+        {:error, "Invalid rules deployed: #{Enum.map_join(invalid, ", ", &elem(&1, 0))}"}
+      end
     end
   end
 

@@ -73,15 +73,15 @@ defmodule Tiannara.P9XEcosystemTest do
   test "Test 5: P9X Isolation Gate blocks downstream events" do
     EventBus.subscribe("validation.status")
 
-    # Send a bad loop state to ObserverFreeCoherence (simulating an OFL break)
-    # The evaluation returns rand, so let's mock it or just send many until it fails?
-    # Wait, the OFL logic uses rand.uniform(). We can't guarantee a fail.
-    # Let's bypass random and send the message directly to EventBus to see if isolation works?
-    # Or just loop until it triggers.
-    Enum.each(1..20, fn _ ->
+    # Send bad loop states to ObserverFreeCoherence (simulating OFL breaks).
+    # OFL evaluates :rand.uniform() inside its OWN GenServer process, so the
+    # test process cannot seed it. Make the expectation statistically sound
+    # instead: each message gates with p(reject) = 0.2, so
+    # P(no rejection after N) = 0.8^N; N = 64 → P ≈ 6.3e-7.
+    Enum.each(1..64, fn _ ->
       send(Process.whereis(Tiannara.P9X.ObserverFreeCoherence), {:mutation_proposed, %{}})
     end)
-    
+
     assert_receive {:observer_free_invalid, %{reason: "Low coherence"}}, 1000
     
     # Verify LineageManager is blocked

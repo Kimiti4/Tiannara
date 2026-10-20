@@ -10,17 +10,23 @@ defmodule Tiannara.Audit.AuditReporter do
 
   @spec generate_pre_phase6_audit_report() :: String.t()
   def generate_pre_phase6_audit_report do
+    generate_pre_phase6_audit_report(:live)
+  end
+
+  @doc """
+  Generates the pre-Phase 6 audit report.
+
+  `:live` reads from the running runtime systems. A states map (the
+  test/injection API) renders the report from the given
+  `cosmological_metrics` and `active_rules` instead, delegating
+  coherence validation to `CoherenceValidator.run_full_coherence_audit/1`.
+  """
+  @spec generate_pre_phase6_audit_report(:live | map()) :: String.t()
+  def generate_pre_phase6_audit_report(source_or_states) do
     timestamp = DateTime.utc_now() |> DateTime.to_iso8601()
     hash = :crypto.hash(:sha256, timestamp) |> Base.encode16(case: :lower)
 
-    # 1. Cross-layer coherence audit from live runtime
-    coherence = CoherenceValidator.run_full_coherence_audit()
-
-    # 2. Stability metrics from live GenServers
-    stability = run_stability_summary()
-
-    # 3. Self-compilation rules audit from live kernel
-    self_compilation = verify_self_compilation_integrity()
+    {coherence, stability, self_compilation} = audit_inputs(source_or_states)
 
     status_str = if coherence.status == :passed, do: "READY", else: "NOT READY"
 
@@ -51,6 +57,42 @@ defmodule Tiannara.Audit.AuditReporter do
   end
 
   # ==================== Helper Functions ====================
+
+  defp audit_inputs(:live) do
+    # 1. Cross-layer coherence audit from live runtime
+    coherence = CoherenceValidator.run_full_coherence_audit()
+    # 2. Stability metrics from live GenServers
+    stability = run_stability_summary()
+    # 3. Self-compilation rules audit from live kernel
+    self_compilation = verify_self_compilation_integrity(:live)
+    {coherence, stability, self_compilation}
+  end
+
+  defp audit_inputs(%{} = states) do
+    coherence = CoherenceValidator.run_full_coherence_audit(states)
+
+    stability =
+      case states do
+        %{cosmological_metrics: %{psi: psi}} when is_number(psi) ->
+          %{run_stability_summary() | psi: psi}
+
+        _ ->
+          run_stability_summary()
+      end
+
+    self_compilation =
+      case states do
+        %{active_rules: rules} when is_map(rules) ->
+          valid_count = Enum.count(rules, fn {_k, v} -> rule_valid?(v) end)
+          total_count = map_size(rules)
+          %{valid: valid_count, total: total_count, integrity: valid_count == total_count}
+
+        _ ->
+          verify_self_compilation_integrity(:live)
+      end
+
+    {coherence, stability, self_compilation}
+  end
 
   defp format_findings([]), do: "✅ No coherence violations detected in any layers."
   defp format_findings(findings) do
@@ -130,7 +172,7 @@ defmodule Tiannara.Audit.AuditReporter do
     """
   end
 
-  defp verify_self_compilation_integrity do
+  defp verify_self_compilation_integrity(_source) do
     rules =
       if Process.whereis(SelfCompilation) do
         try do
