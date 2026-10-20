@@ -100,3 +100,67 @@ jobs:
       - env:
           MIX_ENV: test
         run: mix test --max-failures 25 --color
+  # CI-suite widening (operator plan, steps 2-3): the tiannara_runtime
+  # project's test suite was never executed by any workflow on this
+  # branch (the root `suite` job above is a different mix project, and
+  # phase_5f2_tests.yml only triggers on main/develop). Required gate:
+  # full suite with the quarantined tests excluded; a test or compile
+  # failure fails this job (nonzero exit), so green here means the
+  # required tests truly ran.
+  tiannara-runtime-suite:
+    name: tiannara_runtime suite (required)
+    runs-on: ubuntu-latest
+    needs: [compile, test-placement]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: |
+            tiannara_runtime/deps
+            tiannara_runtime/_build
+          key: ${{ runner.os }}-mix-tr-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles('tiannara_runtime/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-tr-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-
+      - run: mix deps.get
+        working-directory: tiannara_runtime
+      - name: Run tiannara_runtime suite (quarantine excluded)
+        env:
+          MIX_ENV: test
+        run: mix test --exclude quarantine --color
+        working-directory: tiannara_runtime
+  # Intentionally non-blocking (visible, separate): executes ONLY the
+  # quarantined tests so their status stays observable without gating
+  # the required suite. Quarantine inventory: certification/audit/
+  # TIANNARA_RUNTIME_TEST_INVENTORY.md.
+  tiannara-runtime-quarantine:
+    name: tiannara_runtime quarantine (non-blocking)
+    runs-on: ubuntu-latest
+    needs: [compile, test-placement]
+    continue-on-error: true
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: |
+            tiannara_runtime/deps
+            tiannara_runtime/_build
+          key: ${{ runner.os }}-mix-tr-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles('tiannara_runtime/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-tr-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-
+      - run: mix deps.get
+        working-directory: tiannara_runtime
+      - name: Run quarantined tests (informational)
+        env:
+          MIX_ENV: test
+        run: mix test --only quarantine --color
+        working-directory: tiannara_runtime
