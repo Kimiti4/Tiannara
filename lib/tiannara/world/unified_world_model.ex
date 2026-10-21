@@ -592,7 +592,8 @@ defmodule Tiannara.World.UnifiedWorldModel do
       not is_struct(decision, Authorization) ->
         {:error, :decision_invalid}
 
-      not Authorization.permitted?(decision) ->
+      not (Authorization.permitted?(decision) or
+             Authorization.conditional_grant?(decision)) ->
         {:error, :decision_invalid}
 
       is_nil(decision.policy_applied) ->

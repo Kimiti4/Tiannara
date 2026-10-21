@@ -102,7 +102,8 @@ defmodule Tiannara.Council.MachineAuthorization do
 
   defp do_mint(decision, decision_type, ttl) when is_integer(ttl) do
     cond do
-      not Authorization.permitted?(decision) ->
+      not Authorization.permitted?(decision) and
+          not Authorization.conditional_grant?(decision) ->
         {:error, :decision_not_permitted}
 
       is_nil(decision.decided_at) ->

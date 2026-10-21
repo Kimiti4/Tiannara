@@ -98,39 +98,13 @@ defmodule Tiannara.World.WorldMutationEngine do
   @doc false
   @spec conditions_met?(Authorization.t()) :: boolean()
   def conditions_met?(%Authorization{} = auth) do
-    structural_conditions_met?(auth) and unmet_conditions(auth) == []
+    # The conditions rule lives in the Council layer so that the authorization
+    # predicate and the mutation gate cannot drift apart.
+    Authorization.conditions_met?(auth)
   end
 
   def conditions_met?(_authorization), do: false
 
-  defp structural_conditions_met?(%Authorization{} = auth) do
-    auth.evidence not in [nil, []] and
-      auth.violated_principles in [nil, []] and
-      is_number(auth.constitutional_score) and auth.constitutional_score >= 0.6 and
-      auth.required_human_review != true
-  end
-
-  defp unmet_conditions(%Authorization{conditions: conditions} = auth)
-       when is_list(conditions) and conditions != [] do
-    evidence = List.wrap(auth.evidence)
-
-    Enum.reject(conditions, &condition_satisfied?(&1, evidence))
-  end
-
-  defp unmet_conditions(%Authorization{}), do: []
-
-  defp condition_satisfied?(%{concern: concern, evidence_check: check}, evidence)
-       when is_atom(concern) and is_atom(check) do
-    Enum.any?(evidence, fn entry ->
-      is_map(entry) and
-        (Map.get(entry, :principle) == concern or
-           Map.get(entry, :principle_id) == concern or
-           Map.get(entry, :check) == check) and
-        Map.get(entry, :passed, true) != false
-    end)
-  end
-
-  defp condition_satisfied?(_condition, _evidence), do: false
 
   def rollback(mutation_id), do: GenServer.call(__MODULE__, {:rollback, mutation_id})
 
@@ -314,7 +288,7 @@ defmodule Tiannara.World.WorldMutationEngine do
 
   @doc false
   def check_decision(%Authorization{decision: :approved} = auth) do
-    case unmet_conditions(auth) do
+    case Authorization.unmet_conditions(auth) do
       [] -> :ok
       _unmet -> {:error, {:conditional_conditions_unmet, condition_detail(auth)}}
     end
@@ -347,7 +321,7 @@ defmodule Tiannara.World.WorldMutationEngine do
       violated_principles: List.wrap(auth.violated_principles),
       constitutional_score: auth.constitutional_score,
       required_human_review: auth.required_human_review == true,
-      unmet_conditions: unmet_conditions(auth)
+      unmet_conditions: Authorization.unmet_conditions(auth)
     }
   end
 

@@ -109,7 +109,70 @@ defmodule Tiannara.Council.Authorization do
     }
   end
 
+  @doc """
+  True only for a full approval.
+
+  A `:conditional` decision is **not** a machine grant. `permitted?/1` is the
+  strict predicate: it must never be used as a "not explicitly rejected"
+  test. The audited path for a conditional decision is
+  `conditional_grant?/1`, which requires the decision's conditions to be
+  satisfied.
+  """
   def permitted?(%__MODULE__{decision: :approved}), do: true
-  def permitted?(%__MODULE__{decision: :conditional}), do: true
   def permitted?(_), do: false
+
+  @doc """
+  The explicitly designed conditional-grant mechanism.
+
+  True for a `:conditional` decision whose attached conditions are all
+  satisfied by its evidence and whose structural preconditions hold. This is
+  the only way a `:conditional` decision may authorise an effect; every other
+  consumer must use `permitted?/1`.
+  """
+  def conditional_grant?(%__MODULE__{decision: :conditional} = auth) do
+    conditions_met?(auth)
+  end
+
+  def conditional_grant?(_), do: false
+
+  @doc """
+  True when the decision carries no unmet condition and satisfies the
+  structural preconditions: evidence is present, no principle was violated,
+  the constitutional score is at least 0.6, and no human review is required.
+  """
+  def conditions_met?(%__MODULE__{} = auth) do
+    structural_conditions_met?(auth) and unmet_conditions(auth) == []
+  end
+
+  def conditions_met?(_), do: false
+
+  @doc "The conditions of a decision that its evidence does not satisfy."
+  def unmet_conditions(%__MODULE__{conditions: conditions} = auth)
+      when is_list(conditions) and conditions != [] do
+    evidence = List.wrap(auth.evidence)
+
+    Enum.reject(conditions, &condition_satisfied?(&1, evidence))
+  end
+
+  def unmet_conditions(%__MODULE__{}), do: []
+
+  defp structural_conditions_met?(%__MODULE__{} = auth) do
+    auth.evidence not in [nil, []] and
+      auth.violated_principles in [nil, []] and
+      is_number(auth.constitutional_score) and auth.constitutional_score >= 0.6 and
+      auth.required_human_review != true
+  end
+
+  defp condition_satisfied?(%{concern: concern, evidence_check: check}, evidence)
+       when is_atom(concern) and is_atom(check) do
+    Enum.any?(evidence, fn entry ->
+      is_map(entry) and
+        (Map.get(entry, :principle) == concern or
+           Map.get(entry, :principle_id) == concern or
+           Map.get(entry, :check) == check) and
+        Map.get(entry, :passed, true) != false
+    end)
+  end
+
+  defp condition_satisfied?(_condition, _evidence), do: false
 end
