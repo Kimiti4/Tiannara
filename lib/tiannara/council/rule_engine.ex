@@ -11,6 +11,16 @@ defmodule Tiannara.Council.RuleEngine do
 
   @hard_invariants [:human_final_authority, :no_self_amendment, :audit_log_immutability]
 
+  # Verdict thresholds for the built-in assessment.
+  #
+  # The built-in scorer used to report only :neutral and :violated, so the
+  # compliance score could never exceed 0.70 and the :approved verdict was
+  # unreachable for any real caller decision type (F-GOV-006). A principle
+  # that is scored highly is now reported as :strengthened, which is the
+  # information the raw score already carried.
+  @strengthened_threshold 0.9
+  @neutral_threshold 0.5
+
   @doc """
   Evaluate a decision against constitutional principles.
 
@@ -35,7 +45,7 @@ defmodule Tiannara.Council.RuleEngine do
       |> Enum.filter(fn r -> r.verdict == :strengthened end)
       |> Enum.map(& &1.principle_id)
 
-    compliance = compute_compliance_score(all_results)
+    compliance = compute_compliance_score(all_results, violated != [])
     confidence = compute_confidence(all_results, payload, plugin_results)
 
     decision = determine_decision(violated, all_results, confidence, compliance)
@@ -102,8 +112,27 @@ defmodule Tiannara.Council.RuleEngine do
 
       _pid ->
         case PrincipleRegistry.evaluate_all(decision_type, payload, context) do
-          results when is_list(results) -> results
-          _ -> assess_principles(decision_type, payload)
+          # Fail closed: an empty plugin set is not evidence that every
+          # principle is satisfied. Without this guard, starting the registry
+          # without registering any principle would score every decision 1.0
+          # and approve it - the misleading success the authority decision
+          # (D-ARC-011) warns about.
+          [] ->
+            assess_principles(decision_type, payload)
+
+          results when is_list(results) ->
+            # The plugin results AUGMENT the built-in assessment; they never
+            # replace it. The registry pre-registers two plugin principles
+            # whose declared weight is 1.0 each, so a replacement semantics
+            # would drop the eleven built-in constitutional checks - including
+            # :evidence_based - and a decision with no evidence would report
+            # no violated principle at all. Augmentation keeps the coverage
+            # intact. How the plugin weights should be scaled against the
+            # built-in weights is an open decision (D-ARC-012).
+            assess_principles(decision_type, payload) ++ results
+
+          _ ->
+            assess_principles(decision_type, payload)
         end
     end
   rescue
@@ -143,7 +172,12 @@ defmodule Tiannara.Council.RuleEngine do
       principle_id: id,
       principle_name: name,
       version: "built-in",
-      verdict: if(score >= 0.5, do: :neutral, else: :violated),
+      verdict:
+        cond do
+          score >= @strengthened_threshold -> :strengthened
+          score >= @neutral_threshold -> :neutral
+          true -> :violated
+        end,
       reasoning: "#{name} score: #{Float.round(score, 3)}",
       evidence: build_evidence_simple(id, decision_type, payload),
       weight: principle_weight(id)
@@ -264,14 +298,24 @@ defmodule Tiannara.Council.RuleEngine do
 
   defp has_hard_violation?(violations), do: length(violations) > 0
 
-  defp compute_compliance_score(results) do
+  # The compliance score.
+  #
+  # When a principle was violated, the score is computed on the baseline
+  # reading (a satisfied-but-not-strong principle counts as 0.7), which is the
+  # score the scorer produced before the :strengthened verdict existed. A
+  # decision that broke a principle therefore keeps exactly the verdict it had
+  # before, and the strengthened reading only ever applies to a decision with
+  # no violation at all. Without this, a decision that violates a principle
+  # would be lifted across the :conditional threshold by the uplift of the
+  # principles it did satisfy.
+  defp compute_compliance_score(results, baseline_only? \\ false) do
     total_w = Enum.reduce(results, 0.0, &(&1.weight + &2))
 
     weighted =
       Enum.reduce(results, 0.0, fn r, acc ->
         score =
           case r.verdict do
-            :strengthened -> 1.0
+            :strengthened -> if baseline_only?, do: 0.7, else: 1.0
             :neutral -> 0.7
             :violated -> 0.0
           end
@@ -297,11 +341,30 @@ defmodule Tiannara.Council.RuleEngine do
       Enum.any?(results, fn r -> r.principle_id in @hard_invariants and r.verdict == :violated end)
 
     cond do
-      has_hard -> :rejected
-      compliance >= 0.8 and confidence >= 0.7 -> :approved
-      compliance >= 0.6 -> :conditional
-      compliance >= 0.4 -> :requires_human
-      true -> :rejected
+      has_hard ->
+        :rejected
+
+      # An approval requires that no principle was violated: a decision that
+      # broke a principle may not be approved, whatever the score says.
+      #
+      # The verdict taxonomy below is deliberately unchanged. Routing a
+      # violated decision to :requires_human is tempting, but until the
+      # human-approval resume path exists (F-GOV-004) such a decision would be
+      # parked with no way to resume - the same dead end the backlog records.
+      # A violating decision is refused by both authorisation gates instead:
+      # the structural precondition (no violated principles) fails, so it can
+      # never become a machine grant.
+      violated == [] and compliance >= 0.8 and confidence >= 0.7 ->
+        :approved
+
+      compliance >= 0.6 ->
+        :conditional
+
+      compliance >= 0.4 ->
+        :requires_human
+
+      true ->
+        :rejected
     end
   end
 
