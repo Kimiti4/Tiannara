@@ -31,6 +31,11 @@ defmodule TiannaraRuntime.Application do
         {TiannaraRuntime.StartupSupervisor, []}
       ] ++
         TiannaraRuntime.BootPolicy.optional_child(TiannaraRuntime.CIS.Supervisor) ++
+        # The unified KillSwitch (5F.3.5) is the execution layer of the kill
+        # chain and must be running before the ExecutionController it calls.
+        # It was never started (F-GOV-013), so the whole safety chain was
+        # unreachable.
+        TiannaraRuntime.BootPolicy.optional_child(TiannaraRuntime.MultiWorld.KillSwitch) ++
         TiannaraRuntime.BootPolicy.optional_child(TiannaraRuntime.CIS.ExecutionController) ++
         TiannaraRuntime.BootPolicy.optional_child(TiannaraRuntime.Resources.QuotaGovernor) ++
         TiannaraRuntime.BootPolicy.optional_child(TiannaraRuntime.Memory.LineageCompression) ++

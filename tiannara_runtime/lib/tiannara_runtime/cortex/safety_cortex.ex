@@ -389,14 +389,17 @@ defmodule TiannaraRuntime.Cortex.SafetyCortex do
   defp freeze_world(world_id, reason) do
     Logger.info("❄️  Freezing world #{world_id} (reason: #{reason})")
 
-    # Send freeze message to HardenedKillSwitch
-    send(TiannaraRuntime.MultiWorld.HardenedKillSwitch, {:freeze_request, world_id, reason})
-
-    # Also notify WorldSupervisor if available
+    # The freeze goes through the world supervisor's real API. The previous
+    # implementation sent a message to a module name that is not a running
+    # process, which raised outside any rescue (F-GOV-013).
     try do
-      send(TiannaraRuntime.MultiWorld.WorldSupervisor, {:freeze_world, world_id})
+      TiannaraRuntime.MultiWorld.WorldSupervisor.freeze_world(world_id)
+
+      :ok
     rescue
-      _ -> Logger.warning("WorldSupervisor not available for freeze notification")
+      error ->
+        Logger.warning("Freeze notification for world #{world_id} failed: #{inspect(error)}")
+        :error
     end
   end
 

@@ -52,6 +52,7 @@ defmodule TiannaraRuntime.MultiWorld.KillSwitch do
 
   defstruct [
     kill_requests: %{},              # %{world_id => {requested_at, reason, severity}}
+    killed_worlds: [],               # worlds whose termination was executed
     total_requests: 0,
     total_executed: 0,
     total_denied: 0
@@ -127,6 +128,17 @@ defmodule TiannaraRuntime.MultiWorld.KillSwitch do
     :cancelled
   end
 
+  @doc """
+  The worlds whose termination was executed through this switch.
+
+  This is the reporting contract the world supervisor needs; it is implemented
+  here, on the canonical module, because the consumer previously called a
+  function that existed in no implementation at all (F-GOV-013).
+  """
+  def get_killed_worlds do
+    GenServer.call(__MODULE__, :get_killed_worlds)
+  end
+
   # ── GenServer Callbacks ───────────────────────────────────────────────────
 
   @impl true
@@ -147,8 +159,14 @@ defmodule TiannaraRuntime.MultiWorld.KillSwitch do
   def handle_cast({:request_termination, world_id, reason, severity}, state) do
     Logger.info("Kill request received for #{world_id}: #{reason} (severity: #{severity})")
 
-    # Track request
-    new_requests = put_in(state.kill_requests[world_id], {DateTime.utc_now(), reason, severity})
+    # Track request.
+    #
+    # An explicit Map.put, not put_in/2: put_in on a struct field with a
+    # variable key expands to an Access call on the struct, which structs do
+    # not implement - the request handler raised and the switch lost the
+    # request (F-GOV-013).
+    new_requests =
+      Map.put(state.kill_requests, world_id, {DateTime.utc_now(), reason, severity})
     new_state = %{state | kill_requests: new_requests, total_requests: state.total_requests + 1}
 
     # Delegate to ExecutionController (single authority chain)
@@ -224,6 +242,11 @@ defmodule TiannaraRuntime.MultiWorld.KillSwitch do
   end
 
   @impl true
+  def handle_call(:get_killed_worlds, _from, state) do
+    {:reply, {:ok, Enum.reverse(state.killed_worlds)}, state}
+  end
+
+  @impl true
   def handle_cast({:update_result, world_id, result}, state) do
     # Remove from pending requests
     new_requests = Map.delete(state.kill_requests, world_id)
@@ -232,7 +255,12 @@ defmodule TiannaraRuntime.MultiWorld.KillSwitch do
     new_state =
       case result do
         :executed ->
-          %{state | total_executed: state.total_executed + 1, kill_requests: new_requests}
+          %{
+            state
+            | total_executed: state.total_executed + 1,
+              kill_requests: new_requests,
+              killed_worlds: [world_id | state.killed_worlds]
+          }
 
         :denied ->
           %{state | total_denied: state.total_denied + 1, kill_requests: new_requests}

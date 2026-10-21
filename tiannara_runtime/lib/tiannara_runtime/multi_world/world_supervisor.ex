@@ -133,11 +133,9 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
   end
 
   def request_kill(world_id, reason) do
-    TiannaraRuntime.MultiWorld.KillSwitch.request_kill(world_id, reason)
-  end
-
-  def confirm_kill(world_id, confirmation_code) do
-    TiannaraRuntime.MultiWorld.KillSwitch.confirm_kill(world_id, confirmation_code)
+    # The canonical kill switch exposes request_termination/3; the previous
+    # request_kill/2 existed in no implementation at all (F-GOV-013).
+    TiannaraRuntime.MultiWorld.KillSwitch.request_termination(world_id, reason, :critical)
   end
 
   def emergency_kill(world_id, reason) do
