@@ -73,6 +73,20 @@ defmodule Tiannara.Council.RuleEngine do
     }
   end
 
+  @doc """
+  Returns the hard invariants this decision would violate.
+
+  Hard invariants are the constitutional checks that no policy, plugin or
+  payload may override. Callers that must not be overruled by a policy action
+  (for example the Council authorization path) consult this before trusting an
+  approval.
+  """
+  @spec hard_invariant_violations(atom(), map()) :: [atom()]
+  def hard_invariant_violations(decision_type, payload \\ %{}) do
+    check_hard_invariants(decision_type, payload)
+    |> Enum.map(& &1.principle_id)
+  end
+
   defp build_conditions(:conditional, results) do
     Enum.map(results, fn r ->
       %{concern: r.principle_id, evidence_check: r.principle_id}

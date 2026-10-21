@@ -134,13 +134,45 @@ defmodule Tiannara.Council do
   defp score_auth(auth, decision_type, payload) do
     rule = RuleEngine.evaluate(decision_type, payload)
 
-    %{auth |
-      constitutional_score: rule.constitutional_score,
-      confidence: min(auth.confidence, rule.confidence),
-      evidence: auth.evidence ++ rule.evidence,
-      violated_principles: auth.violated_principles ++ rule.violated_principles
+    %{
+      auth
+      | constitutional_score: rule.constitutional_score,
+        confidence: min(auth.confidence, rule.confidence),
+        evidence: auth.evidence ++ rule.evidence,
+        violated_principles: auth.violated_principles ++ rule.violated_principles
     }
+    |> enforce_hard_invariants(decision_type, payload)
   end
+
+  # The constitutional rule engine is authoritative; a policy action is
+  # advisory. An approval that rests on a violated hard invariant is withdrawn
+  # and the decision becomes a rejection, so a policy with action :approve can
+  # never manufacture an approval the hard invariants forbid.
+  defp enforce_hard_invariants(%{decision: :approved} = auth, decision_type, payload) do
+    case RuleEngine.hard_invariant_violations(decision_type, payload) do
+      [] ->
+        auth
+
+      violations ->
+        AuditLog.append(:decision_blocked_by_hard_invariant, :council, %{
+          decision_type: decision_type,
+          policy: auth.policy_applied,
+          violated_invariants: violations
+        })
+
+        %{
+          auth
+          | decision: :rejected,
+            required_human_review: false,
+            explanation:
+              "Approval withdrawn by the constitutional rule engine: hard invariant(s) " <>
+                Enum.join(violations, ", ") <> " would be violated.",
+            metadata: Map.put(auth.metadata, :overridden_by, :hard_invariant)
+        }
+    end
+  end
+
+  defp enforce_hard_invariants(auth, _decision_type, _payload), do: auth
 
   defp run_governance_simulation(decision_type, payload) do
     %{
