@@ -86,30 +86,34 @@ defmodule Tiannara.CEL.Kernel do
   @impl true
   def handle_call({:restart_service, id, actor}, _from, state) do
     case Council.authorize(:architectural_change, %{action: :restart, service: id}, nil) do
-      %Authorization{decision: :approved} ->
-        do_restart(id, state)
-
-      %Authorization{decision: :conditional} ->
-        do_restart(id, state)
-
-      auth ->
-        {:reply, {:error, :council_denied, auth.explanation}, state}
+      %Authorization{} = auth ->
+        # The audited grant predicates decide, not the decision label: a
+        # conditional decision is a grant only when its conditions are
+        # satisfied.
+        if Authorization.permitted?(auth) or Authorization.conditional_grant?(auth) do
+          do_restart(id, state)
+        else
+          {:reply, {:error, :council_denied, auth.explanation}, state}
+        end
     end
   end
 
   @impl true
   def handle_call({:halt, actor, reason}, _from, state) do
     case Council.authorize(:architectural_change, %{action: :halt_eos, actor: actor}, nil) do
-      %Authorization{decision: :approved} ->
-        Enum.each(state.service_pids, fn {_id, pid} ->
-          DynamicSupervisor.terminate_child(state.dyn_sup, pid)
-        end)
+      %Authorization{} = auth ->
+        # A shutdown of the executive kernel requires a full approval; a
+        # conditional decision is not a grant for it.
+        if Authorization.permitted?(auth) do
+          Enum.each(state.service_pids, fn {_id, pid} ->
+            DynamicSupervisor.terminate_child(state.dyn_sup, pid)
+          end)
 
-        log_to_council(:eos_halted, %{actor: actor, reason: reason})
-        {:reply, :ok, transition_state(%{state | service_pids: %{}}, :shutdown)}
-
-      auth ->
-        {:reply, {:error, :council_denied, auth.explanation}, state}
+          log_to_council(:eos_halted, %{actor: actor, reason: reason})
+          {:reply, :ok, transition_state(%{state | service_pids: %{}}, :shutdown)}
+        else
+          {:reply, {:error, :council_denied, auth.explanation}, state}
+        end
     end
   end
 

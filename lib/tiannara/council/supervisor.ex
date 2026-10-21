@@ -11,6 +11,7 @@ defmodule Tiannara.Council.Supervisor do
       Tiannara.Council.ConstitutionRepository,
       Tiannara.Council.PolicyRegistry,
       Tiannara.Council.HumanApprovalQueue,
+      Tiannara.Council.HumanApprovalResumer,
       Tiannara.Council.AmendmentEngine,
       Tiannara.Council.ConstitutionalMonitor,
       Tiannara.Council

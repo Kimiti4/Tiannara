@@ -72,26 +72,91 @@ defmodule Tiannara.Council do
   @impl true
   def handle_call(:emergency_state, _from, state), do: {:reply, state.emergency, state}
 
+  @doc """
+  Re-evaluates a parked decision with a human grant applied.
+
+  The approval record alone never authorises anything: the decision is
+  re-evaluated here, and the human grant only removes the human-review
+  requirement of the matching policy. A policy that rejects the decision
+  still rejects it - a human cannot grant what a policy refuses.
+  """
+  def resume_human_approval(request_id, decision_type, payload) do
+    auth = evaluate_with_human_grant(decision_type, payload)
+
+    AuditLog.append(:human_approval_resumed, :council, %{
+      request_id: request_id,
+      decision_type: decision_type,
+      decision: auth.decision
+    })
+
+    auth
+  end
+
+  defp evaluate_with_human_grant(decision_type, payload) do
+    case PolicyRegistry.evaluate(decision_type, payload) do
+      {:matched, %{action: :reject} = policy} ->
+        Authorization.rejected(
+          explanation: "Policy '#{policy.id}' rejects this decision; a human grant cannot override it.",
+          violated_principles: [:constitutional_compliance_first],
+          policy_applied: policy.id
+        )
+
+      {:matched, %{action: :approve} = policy} ->
+        score_auth(
+          Authorization.approved(
+            explanation: "Policy '#{policy.id}': #{policy.description}",
+            policy_applied: policy.id
+          ),
+          decision_type,
+          payload
+        )
+
+      {:matched, _policy} ->
+        # The human grant satisfies the human-review requirement of the
+        # policy; the constitutional evaluation still decides.
+        RuleEngine.evaluate(decision_type, payload)
+
+      {:default_approve, _} ->
+        RuleEngine.evaluate(decision_type, payload)
+    end
+  end
+
   defp evaluate_and_authorize(decision_type, payload, context) do
     # 1. Check PolicyRegistry for declarative governance policies
     case PolicyRegistry.evaluate(decision_type, payload) do
       {:matched, %{action: :require_human} = policy} ->
-        request_id = "req_#{:crypto.strong_rand_bytes(8) |> Base.encode16(case: :lower)}"
+        case HumanApprovalQueue.approved_request(decision_type, payload) do
+          {:ok, request} ->
+            # A human already approved this exact decision. The approval is a
+            # record, not an authorisation, so the decision is re-evaluated
+            # with the grant applied; a recorded resumption is used only when
+            # it is available.
+            resumed =
+              case request do
+                %{resumed_decision: %Authorization{} = recorded} -> recorded
+                _ -> evaluate_with_human_grant(decision_type, payload)
+              end
 
-        HumanApprovalQueue.enqueue(
-          request_id, decision_type, payload,
-          "Policy '#{policy.id}' requires human approval: #{policy.description}"
-        )
+            score_auth(resumed, decision_type, payload)
 
-        auth = Authorization.requires_human(
-          explanation: "Policy '#{policy.id}': #{policy.description}",
-          evidence: [%{policy: policy.id, description: policy.description}],
-          context: context,
-          policy_applied: policy.id,
-          metadata: %{request_id: request_id}
-        )
+          :none ->
+            request_id = "req_#{:crypto.strong_rand_bytes(8) |> Base.encode16(case: :lower)}"
 
-        score_auth(auth, decision_type, payload)
+            HumanApprovalQueue.enqueue(
+              request_id, decision_type, payload,
+              "Policy '#{policy.id}' requires human approval: #{policy.description}"
+            )
+
+            auth = Authorization.requires_human(
+              explanation: "Policy '#{policy.id}': #{policy.description}",
+              evidence: [%{policy: policy.id, description: policy.description}],
+              context: context,
+              policy_applied: policy.id,
+              metadata: %{request_id: request_id}
+            )
+
+            score_auth(auth, decision_type, payload)
+        end
 
       {:matched, %{action: :require_simulation} = policy} ->
         sim_result = run_governance_simulation(decision_type, payload)
