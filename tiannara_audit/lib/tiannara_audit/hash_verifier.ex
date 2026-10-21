@@ -15,9 +15,30 @@ defmodule TiannaraAudit.HashVerifier do
     results = Enum.map(samples, fn sample ->
       input = sample[:input]
       expected = sample[:expected_hash]
-      computed = from_canonical_map(input)
-      match = computed == expected
-      %{sample_id: sample[:sample_id], match: match, expected: expected, computed: computed}
+
+      cond do
+        is_nil(input) ->
+          %{sample_id: sample[:sample_id], match: false, detail: "no input to verify"}
+
+        is_nil(expected) ->
+          %{
+            sample_id: sample[:sample_id],
+            match: false,
+            detail: "no expected hash to verify against"
+          }
+
+        true ->
+          computed = from_canonical_map(input)
+          match = computed == expected
+
+          %{
+            sample_id: sample[:sample_id],
+            match: match,
+            expected: expected,
+            computed: computed,
+            detail: if(match, do: "hash verified", else: "expected #{expected}, computed #{computed}")
+          }
+      end
     end)
 
     failures = Enum.filter(results, fn r -> not r.match end)
@@ -26,7 +47,7 @@ defmodule TiannaraAudit.HashVerifier do
       total: length(results),
       failures: length(failures),
       details: Enum.map(failures, fn f ->
-        "Sample ##{f.sample_id}: expected #{f.expected}, computed #{f.computed}"
+        "Sample ##{f.sample_id}: #{Map.get(f, :detail, "mismatch")}"
       end)
     }
   end

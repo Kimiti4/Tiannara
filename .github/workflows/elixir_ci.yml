@@ -164,3 +164,35 @@ jobs:
           MIX_ENV: test
         run: mix test --only quarantine --color
         working-directory: tiannara_runtime
+  # The independent audit tool (tiannara_audit) had no test suite and no CI
+  # job at all (F-GOV-011), while the reports it produced - the tracked
+  # "220 / 220 PASS" audit report - were cited as evidence elsewhere. Two of
+  # its verifiers could not fail (F-ARC-007). This job runs the fail-closed
+  # verifier suite, so a verifier that can no longer fail is detected here
+  # rather than by a consumer of a stale report.
+  tiannara-audit-suite:
+    name: tiannara_audit suite (required)
+    runs-on: ubuntu-latest
+    needs: [compile, test-placement]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+      - uses: actions/cache@v4
+        with:
+          path: |
+            tiannara_audit/deps
+            tiannara_audit/_build
+          key: ${{ runner.os }}-mix-audit-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles('tiannara_audit/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-audit-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-
+      - run: mix deps.get
+        working-directory: tiannara_audit
+      - name: Run tiannara_audit verifier suite
+        env:
+          MIX_ENV: test
+        run: mix test --color
+        working-directory: tiannara_audit

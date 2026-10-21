@@ -9,21 +9,36 @@ defmodule TiannaraAudit.ProofVerifier do
 
   alias TiannaraAudit.HashVerifier
 
+  # The verifier is fail-closed: a proof is verified only when the sample
+  # carries the fingerprint it is compared against. A missing expectation is a
+  # failure, not a pass (F-ARC-007).
   def verify(samples) when is_list(samples) do
     results = Enum.map(samples, fn sample ->
       ps = sample[:proof_summary]
-      if ps == nil do
-        %{sample_id: sample[:sample_id], match: false, detail: "no proof summary"}
-      else
-        computed = compute_fingerprint(ps)
-        expected = sample[:expected_fingerprint]
+      expected = sample[:expected_fingerprint]
 
-        if expected == nil do
-          %{sample_id: sample[:sample_id], match: true, detail: "independent fingerprint: #{String.slice(computed, 0, 12)}..."}
-        else
+      cond do
+        ps == nil ->
+          %{sample_id: sample[:sample_id], match: false, detail: "no proof summary"}
+
+        is_nil(expected) ->
+          %{
+            sample_id: sample[:sample_id],
+            match: false,
+            detail: "no expected fingerprint to verify against"
+          }
+
+        true ->
+          computed = compute_fingerprint(ps)
           match = computed == expected
-          %{sample_id: sample[:sample_id], match: match, expected: expected, computed: computed}
-        end
+
+          %{
+            sample_id: sample[:sample_id],
+            match: match,
+            expected: expected,
+            computed: computed,
+            detail: if(match, do: "fingerprint verified", else: "expected #{expected}, computed #{computed}")
+          }
       end
     end)
 
@@ -33,7 +48,7 @@ defmodule TiannaraAudit.ProofVerifier do
       total: length(results),
       failures: length(failures),
       details: Enum.map(failures, fn f ->
-        "Proof ##{f.sample_id}: expected #{f.expected}, computed #{f.computed}"
+        "Proof ##{f.sample_id}: #{Map.get(f, :detail, "mismatch")}"
       end)
     }
   end
