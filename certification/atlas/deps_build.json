@@ -1,0 +1,231 @@
+{
+  "generated_at_utc": "2026-10-21T03:44:02Z",
+  "method": "documented+static_inferred",
+  "coverage_note": "Pass 3 (read-only) reconstruction of the build / test / deployment dependency graph of repo C:\\Users\\user\\Tiannara\\Tiannara-MindCache-Prosthetic, branch local/pr4, HEAD 521cb7fe513a466302ec3bb398940df3814edf2d. Method: every file in .github/workflows was read in full (triggers, jobs, steps, conditions, toolchain versions, working directories, caches); every mix.exs was read; every Dockerfile, docker-compose.yml, kustomization.yaml, Procfile, mise.toml, requirements*.txt, setup.cfg, pytest.ini and package.json that exists in the checkout was read. No workflow was executed, no image was built, no test was run. CI results are cited ONLY as historical run ids bound to explicit SHAs, never as proof of current behaviour. Node kinds: workflow | mix_project | python_pkg | frontend_pkg | image | deploy_target (plus toolchain nodes).",
+  "nodes": [
+    {"id": "workflow.elixir_ci", "kind": "workflow", "path": ".github/workflows/elixir_ci.yml", "triggers": "push branches [\"**\"], pull_request, workflow_dispatch", "toolchain": "Elixir 1.18 / OTP 28 (env ELIXIR_VERSION/OTP_VERSION)", "jobs": "compile, test-placement, lineage-regression, suite, tiannara-runtime-suite (required), tiannara-runtime-quarantine (non-blocking, continue-on-error)"},
+    {"id": "workflow.cross_platform_verify", "kind": "workflow", "path": ".github/workflows/cross_platform_verify.yml", "triggers": "push branches [\"**\"], pull_request branches [\"**\"], workflow_dispatch", "toolchain": "Elixir 1.18 / OTP 27 (matrix ubuntu-latest + macos-latest)", "jobs": "verify (matrix), compare-hashes"},
+    {"id": "workflow.ci_cd", "kind": "workflow", "path": ".github/workflows/ci-cd.yml", "triggers": "push branches [main, master] + tags v*, pull_request [main, master]", "toolchain": "Python 3.10 / 3.11 / 3.12 (matrix)", "jobs": "test (matrix + coverage >= 80%), lint, build (Docker), deploy-staging, release"},
+    {"id": "workflow.test", "kind": "workflow", "path": ".github/workflows/test.yml", "triggers": "push branches [main, master], pull_request [main, master]", "toolchain": "Python 3.10 / 3.11 / 3.12 on ubuntu-latest + windows-latest", "jobs": "test (coverage >= 20%), lint"},
+    {"id": "workflow.phase_5f2_tests", "kind": "workflow", "path": ".github/workflows/phase_5f2_tests.yml", "triggers": "push branches [main, develop] with paths tiannara_runtime/lib/tiannara_runtime/meta/** and tiannara_runtime/test/tiannara/meta/**; pull_request [main] same paths", "toolchain": "Elixir 1.18 / OTP 27", "jobs": "test-phase-5f (nats service container nats:latest:4222)"},
+    {"id": "workflow.observatory_ci", "kind": "workflow", "path": "tiannara_observatory/.github/workflows/ci.yml", "triggers": "push [main, dev], pull_request [main]", "toolchain": "Elixir 1.18 / OTP 27, Node 22, postgres:16 service", "jobs": "elixir_ci, node_ci, docker_build", "tracked": false, "note": "UNTRACKED in git (git ls-files tiannara_observatory/.github = 0 files) -> never runs in this repository"},
+
+    {"id": "mix_project.tiannara", "kind": "mix_project", "path": "mix.exs", "app": ":tiannara", "elixir": "~> 1.15", "releases": "yes (mix.exs:32-42, steps [:assemble, :tar])", "deps": "forward_provenance (path), gnat, jason, uuid, telemetry*, phoenix 1.7, phoenix_live_view, phoenix_html, plug_cowboy, cors_plug, protobuf, gen_stage, broadway, nx, ets, excoveralls/test, dialyxir/dev, credo, ex_doc, recon, stream_data, benchee"},
+    {"id": "mix_project.tiannara_runtime", "kind": "mix_project", "path": "tiannara_runtime/mix.exs", "app": ":tiannara_runtime", "elixir": "~> 1.14", "releases": "NO releases/0", "deps": "forward_provenance (path ../forward_provenance), phoenix 1.7, phoenix_live_view 0.20, plug_cowboy, gnat 1.0, uuid, jason, req, ex_doc, credo, propcheck, telemetry*, rustler 0.36 (declared, never used - no use Rustler / crate: config)"},
+    {"id": "mix_project.tiannara_observatory", "kind": "mix_project", "path": "tiannara_observatory/mix.exs", "app": "umbrella (apps_path apps)", "elixir": "~> 1.17 (per app)", "releases": "NO releases/0", "deps": "umbrella deps []; per-app deps include phoenix 1.8.9, phoenix_ecto, ecto_sql, postgrex, swoosh, req, dns_cluster, bandit, cors_plug, telemetry*, jason, stream_data"},
+    {"id": "mix_project.forward_provenance", "kind": "mix_project", "path": "forward_provenance/mix.exs", "app": ":forward_provenance", "role": "shared contract library; path dep of both root and runtime"},
+    {"id": "mix_project.tiannara_audit", "kind": "mix_project", "path": "tiannara_audit/mix.exs", "app": "escript only (main_module: TiannaraAudit); no application/0", "deps": "jason", "role": "independent audit verifiers - NEVER compiled, tested or run by any workflow (F-ARC-007, F-ARC-015)"},
+
+    {"id": "mix_app.observatory_api", "kind": "mix_project", "path": "tiannara_observatory/apps/observatory_api/mix.exs", "app": ":observatory_api", "note": "depends on the other 9 in-umbrella apps"},
+    {"id": "mix_app.observatory_core", "kind": "mix_project", "path": "tiannara_observatory/apps/observatory_core/mix.exs", "app": ":observatory_core"},
+    {"id": "mix_app.shared", "kind": "mix_project", "path": "tiannara_observatory/apps/shared/mix.exs", "app": ":shared", "note": "no application.ex - library app"},
+    {"id": "mix_app.event_store", "kind": "mix_project", "path": "tiannara_observatory/apps/event_store/mix.exs", "app": ":event_store"},
+    {"id": "mix_app.replay_store", "kind": "mix_project", "path": "tiannara_observatory/apps/replay_store/mix.exs", "app": ":replay_store"},
+    {"id": "mix_app.observatory_state", "kind": "mix_project", "path": "tiannara_observatory/apps/observatory_state/mix.exs", "app": ":observatory_state"},
+    {"id": "mix_app.metrics_engine", "kind": "mix_project", "path": "tiannara_observatory/apps/metrics_engine/mix.exs", "app": ":metrics_engine"},
+    {"id": "mix_app.telemetry_gateway", "kind": "mix_project", "path": "tiannara_observatory/apps/telemetry_gateway/mix.exs", "app": ":telemetry_gateway"},
+    {"id": "mix_app.rbac", "kind": "mix_project", "path": "tiannara_observatory/apps/rbac/mix.exs", "app": ":rbac"},
+    {"id": "mix_app.observation_bus", "kind": "mix_project", "path": "tiannara_observatory/apps/observation_bus/mix.exs", "app": ":observation_bus"},
+
+    {"id": "python_pkg.tiannara_api", "kind": "python_pkg", "path": "tiannara_api/ (132 tracked files)", "entry": "tiannara_api.main:app (main.py) and tiannara_api.main_production:app (main_production.py)", "deps": "fastapi, uvicorn, sqlalchemy, psycopg2-binary, pydantic, python-jose, passlib, bcrypt, stripe, httpx, prometheus-client, structlog, python-dotenv"},
+    {"id": "python_pkg.tiannara_core", "kind": "python_pkg", "path": "tiannara_core/ (440 tracked files, ~70 sub-packages)", "entry": "importable library; tiannara_core.autonomous.loop is the docker/core worker entrypoint"},
+    {"id": "python_pkg.tiannara_pros", "kind": "python_pkg", "path": "tiannara_pros/ (47 tracked files)", "entry": "importable library (actuators, io, orchestrators, scenarios); zero tests anywhere (F-ARC-023)"},
+    {"id": "python_pkg.tests_root", "kind": "python_pkg", "path": "tests/ (36 .py files) - the only directory CI collects via 'pytest tests/'"},
+    {"id": "python_pkg.root_loose_tests", "kind": "python_pkg", "path": "76 tracked test_*.py at repo root - NEVER collected by any workflow (ci-cd.yml:49 runs 'pytest tests/' only)"},
+    {"id": "python_packaging.requirements", "kind": "python_pkg", "path": "requirements.txt (unpinned, dev+prod mix) + requirements-production.txt (pinned; used by Dockerfile.production) + setup.cfg (flake8 max-line-length 120, select E,F,W,B9) + pytest.ini (testpaths = tiannara_core/nlp/tests only)"},
+
+    {"id": "frontend_pkg.tiannara_saas", "kind": "frontend_pkg", "path": "tiannara_saas/package.json (Next.js 16.2.6, React 19, 90 tracked files)", "scripts": "dev, build (next build), start (next start), lint", "note": "next.config.ts uses server-side rewrites() to API_UPSTREAM_URL (default http://127.0.0.1:8004); no output:'export'"},
+    {"id": "frontend_pkg.observatory_ui", "kind": "frontend_pkg", "path": "tiannara_observatory/apps/observatory_ui/package.json (Next.js 15, React 19, 133 tracked files)", "scripts": "dev, build, start, lint, test (vitest run)", "note": "NOT an umbrella app - has no mix.exs and is not in the umbrella apps: list, so mix never builds it"},
+    {"id": "frontend_pkg.tiannara_desktop", "kind": "frontend_pkg", "path": "tiannara-desktop/package.json (Electron 33 + electron-builder, 10 tracked files)", "scripts": "start (electron .), build (:win / :mac / :linux)", "note": "package name 'tiannara-observatory' collides with the Observatory umbrella (F-PLT-014); no CI job builds it"},
+    {"id": "frontend_pkg.root_package_json", "kind": "frontend_pkg", "path": "package.json (root)", "note": "single dependency framer-motion, NO scripts -> not a buildable frontend; no CI job references it"},
+
+    {"id": "image.dockerfile_production", "kind": "image", "path": "Dockerfile.production (python:3.11-slim, multi-stage, non-root appuser)", "cmd": "uvicorn tiannara_api.main:app --port 8000 --workers 4", "built_by": "workflow.ci_cd job build (never runs on local/pr4)"},
+    {"id": "image.docker_api", "kind": "image", "path": "docker/api/Dockerfile (python:3.11-slim)", "cmd": "uvicorn tiannara_api.main:app --port 8000 --workers 4", "healthcheck": "curl -f http://localhost:8000/api/v1/health -> ROUTE DOES NOT EXIST (F-ARC-230)", "built_by": "docker-compose.yml service tiannara-api"},
+    {"id": "image.docker_core", "kind": "image", "path": "docker/core/Dockerfile (python:3.11-slim, no exposed port)", "cmd": "python -m tiannara_core.autonomous.loop", "built_by": "docker-compose.yml service tiannara-core"},
+    {"id": "image.docker_saas", "kind": "image", "path": "docker/saas/Dockerfile (node:18-alpine builder -> nginx:alpine)", "cmd": "nginx -g daemon off;", "broken": "COPY --from=builder /app/out but next.config.ts has no output:'export' -> image CANNOT be built (F-ARC-231)", "built_by": "nothing - no workflow or compose service references it"},
+    {"id": "image.observatory_api", "kind": "image", "path": "tiannara_observatory/Dockerfile.api (hexpm/elixir:1.18.3-erlang-27.3.3-alpine -> alpine; MIX_ENV=prod; mix release)", "cmd": "/app/bin/server", "built_by": "workflow.observatory_ci job docker_build (UNTRACKED workflow -> never runs)"},
+    {"id": "image.observatory_ui", "kind": "image", "path": "tiannara_observatory/Dockerfile.ui (node:22-alpine build + runtime, npm start)", "built_by": "workflow.observatory_ci job docker_build (UNTRACKED workflow -> never runs)"},
+
+    {"id": "deploy_target.ghcr_image", "kind": "deploy_target", "path": "ghcr.io/${{ github.repository }} (workflow.ci_cd job build)", "condition": "if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))", "reachable_on_branch": false},
+    {"id": "deploy_target.staging_env", "kind": "deploy_target", "path": "environment 'staging' (url https://staging.tiannara.com)", "condition": "if: github.ref == 'refs/heads/main' && github.event_name == 'push'", "note": "the deploy step is a PLACEHOLDER (echo only, no ssh/pull); the health check is a commented-out curl followed by an unconditional success echo (ci-cd.yml:166-180)", "reachable_on_branch": false},
+    {"id": "deploy_target.github_release", "kind": "deploy_target", "path": "GitHub Release via softprops/action-gh-release", "condition": "if: startsWith(github.ref, 'refs/tags/v')", "reachable_on_branch": false},
+    {"id": "deploy_target.compose_stack", "kind": "deploy_target", "path": "docker-compose.yml: postgres 15, redis 7, tiannara-api, tiannara-core", "note": "no restart: policy on any service; ENVIRONMENT=development (auth middleware off); JWT_SECRET_KEY and Postgres password are literals"},
+    {"id": "deploy_target.procfile_web", "kind": "deploy_target", "path": "Procfile -> web: uvicorn tiannara_api.main:app --host 0.0.0.0 --port $PORT", "note": "the ONLY declared process type in the repo; no Elixir process is declared"},
+    {"id": "deploy_target.k8s_phase6_prod", "kind": "deploy_target", "path": "tiannara_runtime/k8s/phase6/overlays/production/kustomization.yaml", "note": "resources: ../../base - base has NO kustomization.yaml -> kustomize build fails; secretGenerator carries a literal release cookie and NATS token"},
+    {"id": "deploy_target.k8s_phase6_base", "kind": "deploy_target", "path": "tiannara_runtime/k8s/phase6/base/ (namespace.yaml, nats-cluster.yaml StatefulSet, runtime-deployment.yaml, gpu-node-selector.yaml)"},
+    {"id": "deploy_target.k8s_phase8_rtl", "kind": "deploy_target", "path": "tiannara_runtime/k8s/phase8-rtl/base/ (rtl-deployment, rtl-jetstream-streams, rtl-keda-scaledobject)"},
+    {"id": "deploy_target.keda_scaledobjects", "kind": "deploy_target", "path": "tiannara_runtime/k8s/phase13_14, phase17, phase18, phase19 - 4 ScaledObjects targeting tiannara-phase13-14, tiannara-ucc, tiarnara-rrm (typo), tiannara-tcl - NO matching Deployment manifests exist"},
+
+    {"id": "toolchain.mise_elixir", "kind": "deploy_target", "path": "mise.toml -> elixir 1.18.4-otp-28, erlang 28", "note": "workflows pin their own versions independently: elixir_ci = OTP 28, cross_platform_verify = OTP 27, phase_5f2 = OTP 27, observatory_ci = OTP 27"},
+    {"id": "toolchain.python", "kind": "deploy_target", "path": "CPython 3.10 / 3.11 / 3.12 (CI matrix); Dockerfiles pin 3.11"},
+    {"id": "toolchain.node", "kind": "deploy_target", "path": "Node (npm ci): docker/saas uses node:18-alpine, observatory Dockerfile.ui + ci use node:22, CI setup-node 22"},
+    {"id": "toolchain.rust_cargo", "kind": "deploy_target", "path": "rust_core/ffi_bindings/Cargo.toml - no CI job, no build script, no crate: config in tiannara_runtime/mix.exs"},
+    {"id": "toolchain.nats_server", "kind": "deploy_target", "path": "nats:latest:4222 service container in workflow.phase_5f2_tests; nats-cluster StatefulSet in k8s; NATS_URL env in tiannara_runtime/config/*.exs; nats-bin/ dir at repo root"}
+  ],
+  "edges": [
+    {"from": "workflow.elixir_ci", "to": "mix_project.tiannara", "kind": "tests", "basis": "documented", "evidence": ".github/workflows/elixir_ci.yml:13-34 (compile), :81-102 (suite: mix test, 387 tests), :59-80 (lineage-regression: mix test test/tiannara/discovery/discovery_lineage_test.exs), :35-58 (test-placement gate forbidding ExUnit modules under lib/)"},
+    {"from": "workflow.elixir_ci", "to": "mix_project.tiannara_runtime", "kind": "tests", "basis": "documented", "evidence": "elixir_ci.yml:110-135 job 'tiannara_runtime suite (required)': mix deps.get + mix test --exclude quarantine in cwd tiannara_runtime, MIX_ENV=test, 60 min timeout, fail-closed on nonzero exit"},
+    {"from": "workflow.elixir_ci", "to": "mix_project.tiannara_runtime", "kind": "tests", "basis": "documented", "evidence": "elixir_ci.yml:140-166 job 'tiannara_runtime quarantine (non-blocking)': mix test --only quarantine with continue-on-error: true"},
+    {"from": "workflow.cross_platform_verify", "to": "mix_project.tiannara", "kind": "tests", "basis": "documented", "evidence": "cross_platform_verify.yml:74-79 (mix compile), :79 (mix run generate_phase14_evidence_package.exs), :131 (run_archaeological_reconstruction.exs), :135 (run_mutation_testing.exs), :139 (run_independent_audit.exs)"},
+    {"from": "workflow.cross_platform_verify", "to": "mix_project.tiannara_runtime", "kind": "tests", "basis": "documented", "evidence": "cross_platform_verify.yml:87-113 compares a SHA-256 of phase14/certification/certificate.json (timestamp fields stripped) between ubuntu-latest and macos-latest; mismatch fails the job"},
+    {"from": "workflow.phase_5f2_tests", "to": "mix_project.tiannara_runtime", "kind": "tests", "basis": "documented", "evidence": "phase_5f2_tests.yml:50-52 (mix compile --warnings-as-errors), :54-74 (4 targeted OCG/OCAL/OMRL test files + mix coveralls.json test/tiannara/meta/) - the whole tiannara_runtime/meta/** tree"},
+    {"from": "workflow.ci_cd", "to": "python_pkg.tiannara_api", "kind": "tests", "basis": "documented", "evidence": "ci-cd.yml:47-49: pytest tests/ -v --cov=tiannara_api --cov=tiannara_core --cov-report=xml --cov-report=term-missing (36 files in tests/ only)"},
+    {"from": "workflow.ci_cd", "to": "python_pkg.tiannara_core", "kind": "tests", "basis": "documented", "evidence": "ci-cd.yml:49 (--cov=tiannara_core)"},
+    {"from": "workflow.ci_cd", "to": "python_pkg.tiannara_core", "kind": "requires_toolchain", "basis": "documented", "evidence": "ci-cd.yml:92-93: flake8 tiannara_api/ tiannara_core/ --select=E9,F63,F7,F82"},
+    {"from": "workflow.test", "to": "python_pkg.tiannara_core", "kind": "tests", "basis": "documented", "evidence": "test.yml:43-45: pytest tests/ -v --cov=tiannara_core.evaluation; :87 flake8 tiannara_core/evaluation/"},
+    {"from": "workflow.observatory_ci", "to": "mix_project.tiannara_observatory", "kind": "tests", "basis": "documented", "evidence": "tiannara_observatory/.github/workflows/ci.yml (elixir_ci job: mix compile --warnings-as-errors, mix test, mix format --check-formatted) - BUT the workflow file is UNTRACKED, so it never runs in this repository"},
+    {"from": "workflow.observatory_ci", "to": "frontend_pkg.observatory_ui", "kind": "tests", "basis": "documented", "evidence": "tiannara_observatory/.github/workflows/ci.yml node_ci job (npm ci, npm run lint, npx tsc --noEmit, npm test, npm run build) - UNTRACKED workflow"},
+
+    {"from": "mix_project.tiannara", "to": "mix_project.forward_provenance", "kind": "requires_toolchain", "basis": "documented", "evidence": "mix.exs:67 {:forward_provenance, path: \"forward_provenance\"}"},
+    {"from": "mix_project.tiannara_runtime", "to": "mix_project.forward_provenance", "kind": "requires_toolchain", "basis": "documented", "evidence": "tiannara_runtime/mix.exs:32 {:forward_provenance, path: \"../forward_provenance\"} - the only shared contract library between the two Elixir projects"},
+    {"from": "mix_project.tiannara_observatory", "to": "mix_app.observatory_api", "kind": "builds", "basis": "documented", "evidence": "tiannara_observatory/mix.exs:7-18 apps: [:shared, :observatory_core, :telemetry_gateway, :event_store, :metrics_engine, :replay_store, :observatory_state, :observatory_api, :rbac, :observation_bus]"},
+    {"from": "mix_app.observatory_api", "to": "mix_app.observatory_core", "kind": "requires_toolchain", "basis": "documented", "evidence": "apps/observatory_api/mix.exs:35-47 (9 in-umbrella deps)"},
+    {"from": "mix_app.observatory_api", "to": "mix_app.rbac", "kind": "requires_toolchain", "basis": "documented", "evidence": "apps/observatory_api/mix.exs:46 {:rbac, in_umbrella: true}"},
+
+    {"from": "image.dockerfile_production", "to": "python_packaging.requirements", "kind": "requires_toolchain", "basis": "documented", "evidence": "Dockerfile.production:16-17 COPY requirements-production.txt + pip install --prefix=/install"},
+    {"from": "image.dockerfile_production", "to": "python_pkg.tiannara_api", "kind": "produces_artifact_for", "basis": "documented", "evidence": "Dockerfile.production:36-37, :66 (COPY tiannara_api/; CMD uvicorn tiannara_api.main:app)"},
+    {"from": "image.docker_api", "to": "python_packaging.requirements", "kind": "requires_toolchain", "basis": "documented", "evidence": "docker/api/Dockerfile:11-12 COPY requirements.txt + pip install"},
+    {"from": "image.docker_api", "to": "python_pkg.tiannara_api", "kind": "produces_artifact_for", "basis": "documented", "evidence": "docker/api/Dockerfile:16-17, :30"},
+    {"from": "image.docker_core", "to": "python_pkg.tiannara_core", "kind": "produces_artifact_for", "basis": "documented", "evidence": "docker/core/Dockerfile:19-20, :29 (CMD python -m tiannara_core.autonomous.loop)"},
+    {"from": "image.docker_saas", "to": "frontend_pkg.tiannara_saas", "kind": "produces_artifact_for", "basis": "documented", "evidence": "docker/saas/Dockerfile:11-21 (npm ci, npm run build) - then copies /app/out which next build never produces"},
+    {"from": "image.observatory_api", "to": "mix_app.observatory_api", "kind": "produces_artifact_for", "basis": "documented", "evidence": "tiannara_observatory/Dockerfile.api:16-21 (mix deps.get --only prod, mix compile --warnings-as-errors, mix phx.digest, mix release)"},
+    {"from": "image.observatory_ui", "to": "frontend_pkg.observatory_ui", "kind": "produces_artifact_for", "basis": "documented", "evidence": "tiannara_observatory/Dockerfile.ui:8-13 (npm ci, npm run build)"},
+
+    {"from": "workflow.ci_cd", "to": "image.dockerfile_production", "kind": "builds", "basis": "documented", "evidence": "ci-cd.yml:139-148 (docker/build-push-action, context ., file Dockerfile.production, push: true)"},
+    {"from": "workflow.observatory_ci", "to": "image.observatory_api", "kind": "builds", "basis": "documented", "evidence": "tiannara_observatory/.github/workflows/ci.yml docker_build job - UNTRACKED workflow, never runs"},
+    {"from": "workflow.observatory_ci", "to": "image.observatory_ui", "kind": "builds", "basis": "documented", "evidence": "tiannara_observatory/.github/workflows/ci.yml docker_build job - UNTRACKED workflow, never runs"},
+    {"from": "deploy_target.compose_stack", "to": "image.docker_api", "kind": "deploys", "basis": "documented", "evidence": "docker-compose.yml:33-35 build.dockerfile docker/api/Dockerfile"},
+    {"from": "deploy_target.compose_stack", "to": "image.docker_core", "kind": "deploys", "basis": "documented", "evidence": "docker-compose.yml:54-56 build.dockerfile docker/core/Dockerfile"},
+    {"from": "image.dockerfile_production", "to": "deploy_target.ghcr_image", "kind": "produces_artifact_for", "basis": "documented", "evidence": "ci-cd.yml:120-125 (docker/login-action to ghcr.io), :133-137 (metadata tags)"},
+    {"from": "deploy_target.ghcr_image", "to": "deploy_target.staging_env", "kind": "deploys", "basis": "documented", "evidence": "ci-cd.yml:154-180 (deploy-staging job, needs build, if ref == refs/heads/main && event == push) - the deploy command body is a placeholder echo"},
+    {"from": "deploy_target.ghcr_image", "to": "deploy_target.github_release", "kind": "deploys", "basis": "documented", "evidence": "ci-cd.yml:183-218 (release job, needs build, if startsWith(ref, 'refs/tags/v') - creates a release with a generated CHANGELOG.md, attaches only CHANGELOG.md, no image digest)"},
+
+    {"from": "mix_project.tiannara", "to": "toolchain.mise_elixir", "kind": "requires_toolchain", "basis": "documented", "evidence": "mise.toml (elixir 1.18.4-otp-28 / erlang 28) - the local toolchain pin; CI installs its own via erlef/setup-beam"},
+    {"from": "mix_project.tiannara_runtime", "to": "toolchain.mise_elixir", "kind": "requires_toolchain", "basis": "documented", "evidence": "mix.exs:8 elixir ~> 1.14; workflow.elixir_ci uses OTP 28 while workflow.cross_platform_verify and workflow.phase_5f2_tests use OTP 27"},
+    {"from": "mix_project.tiannara_runtime", "to": "toolchain.nats_server", "kind": "requires_toolchain", "basis": "documented", "evidence": "tiannara_runtime/config/config.exs:15-18 and dev.exs / test.exs configure TiannaraRuntime.NATS.ConnectionManager (a module that DOES NOT EXIST) with server_url System.get_env('NATS_URL', 'nats://localhost:4222'); workflow.phase_5f2_tests.yml:20-25 runs a nats:latest service"},
+    {"from": "mix_project.tiannara_runtime", "to": "toolchain.rust_cargo", "kind": "requires_toolchain", "basis": "documented", "evidence": "tiannara_runtime/mix.exs:67 {:rustler, \"~> 0.36.0\"} - but there is no use Rustler and no crate: config, and rust_core/ffi_bindings is never built by any workflow"},
+    {"from": "workflow.ci_cd", "to": "toolchain.python", "kind": "requires_toolchain", "basis": "documented", "evidence": "ci-cd.yml:23, :28-30 (matrix python-version 3.10/3.11/3.12 + actions/setup-python)"},
+    {"from": "workflow.test", "to": "toolchain.python", "kind": "requires_toolchain", "basis": "documented", "evidence": "test.yml:16, :24-25 (matrix os ubuntu-latest + windows-latest)"},
+    {"from": "workflow.observatory_ci", "to": "toolchain.node", "kind": "requires_toolchain", "basis": "documented", "evidence": "tiannara_observatory/.github/workflows/ci.yml node_ci job (setup-node 22) - UNTRACKED workflow"},
+
+    {"from": "workflow.phase_5f2_tests", "to": "mix_project.tiannara_runtime", "kind": "produces_artifact_for", "basis": "documented", "evidence": "phase_5f2_tests.yml:76-80 uploads tiannara_runtime/cover/excoveralls.json to Coveralls"},
+    {"from": "workflow.ci_cd", "to": "python_pkg.tests_root", "kind": "tests", "basis": "documented", "evidence": "ci-cd.yml:49 'pytest tests/ -v' - the CI collects the tests/ DIRECTORY only; root pytest.ini testpaths (tiannara_core/nlp/tests) is bypassed"},
+    {"from": "python_packaging.requirements", "to": "python_pkg.tests_root", "kind": "requires_toolchain", "basis": "documented", "evidence": "ci-cd.yml:44-45 pip install -r requirements.txt + pytest pytest-cov hypothesis; requirements.txt itself lists pytest"},
+    {"from": "workflow.elixir_ci", "to": "mix_project.tiannara_audit", "kind": "tests", "basis": "documented", "evidence": "NO EDGE EXISTS: tiannara_audit is never compiled or tested by any workflow (F-ARC-007, F-ARC-015). The cross_platform_verify 'independent audit' step runs the root script run_independent_audit.exs, which calls TiannaraOS.Governance.Certification.IndependentAuditor - NOT the tiannara_audit verifiers (graph_verifier.ex / proof_verifier.ex)"},
+    {"from": "mix_project.tiannara", "to": "frontend_pkg.root_package_json", "kind": "requires_toolchain", "basis": "documented", "evidence": "NO EDGE EXISTS: root package.json has no scripts and no workflow references it"},
+    {"from": "frontend_pkg.tiannara_desktop", "to": "deploy_target.ghcr_image", "kind": "produces_artifact_for", "basis": "documented", "evidence": "NO EDGE EXISTS: no workflow builds or packages the Electron shell"}
+  ],
+  "discrepancies": [
+    {
+      "id": "B-01",
+      "topic": "ci-cd.yml / test.yml branch filters",
+      "claim": "certification/atlas/baseline.md:48 - 'ci-cd.yml runs on pushes to local/pr5, local/pr6 only'",
+      "actual": "ci-cd.yml:5 'branches: [main, master]'; test.yml:8 'branches: [main, master]'",
+      "consequence": "The Python test suite, the lint job, the Docker build, the staging deploy and the release job NEVER execute on local/pr4 (or on any local/pr* branch). The baseline text is wrong; F-PLT-004 already flags it.",
+      "basis": "independently_verified"
+    },
+    {
+      "id": "B-02",
+      "topic": "phase_5f2_tests.yml scope",
+      "claim": "baseline.md:47 - 'only triggers on main/develop - never runs on local/pr4'",
+      "actual": "Confirmed: phase_5f2_tests.yml:5 'branches: [ main, develop ]' with paths filters on tiannara_runtime/lib/tiannara_runtime/meta/** and tiannara_runtime/test/tiannara/meta/**; pull_request only [main]. It also compiles with --warnings-as-errors (:52) on OTP 27, whereas the runtime suite in elixir_ci runs OTP 28.",
+      "consequence": "The OCG/OCAL/OMRL integration tests are additionally covered by elixir_ci's tiannara_runtime required suite since c9a0306c, so the coverage gap is narrower than the branch filter alone implies - but the path-filtered workflow itself is dead on this branch.",
+      "basis": "independently_verified"
+    },
+    {
+      "id": "B-03",
+      "topic": "Docker image buildability",
+      "claim": "The repository has four Dockerfiles plus Dockerfile.production and a working compose stack",
+      "actual": "docker/saas/Dockerfile:26 copies /app/out, which next build never produces (no output:'export' in tiannara_saas/next.config.ts) -> the image CANNOT be built. docker/api/Dockerfile:26 healthchecks /api/v1/health, a route that does not exist -> the container is permanently unhealthy. docker/saas/Dockerfile is referenced by NOTHING (no workflow, no compose service).",
+      "consequence": "Only 3 of 6 image definitions are usable, and one of those 3 fails its health check.",
+      "basis": "statically_inferred"
+    },
+    {
+      "id": "B-04",
+      "topic": "Release artifacts",
+      "claim": "mix.exs:32-42 defines a tiannara release with steps [:assemble, :tar]",
+      "actual": "No workflow invokes mix release. The only workflow that calls mix release is the UNTRACKED tiannara_observatory/.github/workflows/ci.yml (for observatory_api). tiannara_runtime and tiannara_observatory have no releases/0 at all.",
+      "consequence": "No Elixir artifact of the root or runtime application is ever produced by CI (F-ARC-229).",
+      "basis": "statically_inferred"
+    },
+    {
+      "id": "B-05",
+      "topic": "Observatory CI",
+      "claim": "tiannara_observatory/.github/workflows/ci.yml exists with 3 jobs",
+      "actual": "The file is UNTRACKED (git ls-files tiannara_observatory/.github returns 0 files) and the directory is inside an umbrella that is itself a normal tracked directory.",
+      "consequence": "499 tracked umbrella files have zero CI coverage in this repository (F-ARC-019, F-ARC-015, F-ARC-233).",
+      "basis": "independently_verified"
+    },
+    {
+      "id": "B-06",
+      "topic": "Python test collection",
+      "claim": "root pytest.ini declares testpaths = tiannara_core/nlp/tests",
+      "actual": "CI does not use pytest.ini's testpaths - ci-cd.yml:49 and test.yml:45 both invoke 'pytest tests/' explicitly, collecting only the 36 files under tests/. The 76 tracked root-level test_*.py files and every tiannara_pros file are never collected. Root pytest.ini also forces --cov=tiannara_core.nlp, which is irrelevant to the tests/ directory.",
+      "consequence": "The locally-run 'pytest' and the CI-run 'pytest tests/' are DIFFERENT test selections.",
+      "basis": "independently_verified"
+    },
+    {
+      "id": "B-07",
+      "topic": "tiannara_pros has no tests and no build target",
+      "actual": "tiannara_pros (47 tracked files, actuator and safety IO) is not a dependency of requirements.txt consumers' CI, has no tests anywhere (F-ARC-023), and is not packaged by any Dockerfile (docker/core/Dockerfile copies only tiannara_core/).",
+      "consequence": "The prosthetic hardware IO path has neither a test target nor a packaging target.",
+      "basis": "statically_inferred"
+    },
+    {
+      "id": "B-08",
+      "topic": "Rust crate",
+      "actual": "rust_core/ffi_bindings is tracked (2 files) and tiannara_runtime/mix.exs:67 declares rustler ~> 0.36.0, but there is no use Rustler, no crate: config, and no CI step or Dockerfile that runs cargo build.",
+      "consequence": "The NIF substrate is unbuildable as configured; six native_bridge.ex modules load from a phantom :tiannara_phase14 app (F-ARC-025).",
+      "basis": "independently_verified"
+    },
+    {
+      "id": "B-09",
+      "topic": "Elixir/OTP version skew across workflows",
+      "actual": "elixir_ci.yml:11 OTP 28; cross_platform_verify.yml:25 OTP 27; phase_5f2_tests.yml:34 OTP 27; observatory ci OTP 27; mise.toml pins elixir 1.18.4-otp-28.",
+      "consequence": "Two OTP majors are used to validate the same tree; the cross-platform determinism proof runs on a different OTP than the required suite.",
+      "basis": "statically_inferred"
+    },
+    {
+      "id": "B-10",
+      "topic": "k8s production overlay buildability",
+      "actual": "tiannara_runtime/k8s/phase6/overlays/production/kustomization.yaml:5 resources: - ../../base, but tiannara_runtime/k8s/phase6/base/ contains no kustomization.yaml (only namespace.yaml, nats-cluster.yaml, runtime-deployment.yaml, gpu-node-selector.yaml). The same file's secretGenerator (:33-39) embeds a literal release cookie and NATS auth token.",
+      "consequence": "kustomize build of the production overlay fails on a clean checkout, and the secrets are committed (F-PLT-005, F-ARC-008).",
+      "basis": "independently_verified"
+    },
+    {
+      "id": "B-11",
+      "topic": "Deploy steps are placeholders",
+      "actual": "ci-cd.yml:166-180 deploy-staging contains only echo statements and a commented-out curl; the health check then unconditionally prints success. The release job attaches only a generated CHANGELOG.md and never the built image digest.",
+      "consequence": "'Deploy to staging' performs no deployment and reports success.",
+      "basis": "statically_inferred"
+    },
+    {
+      "id": "B-13",
+      "topic": "Committed dependency artefacts",
+      "actual": "git ls-files node_modules returns exactly one file: node_modules/.package-lock.json - i.e. a node_modules artefact is tracked while .gitignore:24,40-42 ignore node_modules otherwise. Root package-lock.json is also tracked for a package.json that declares no scripts (a single framer-motion dependency).",
+      "consequence": "A stale/partial node_modules lockfile is version-controlled at the repo root and would be restored by any checkout before 'npm ci' runs.",
+      "basis": "independently_verified"
+    },
+    {
+      "id": "B-12",
+      "topic": "Docker image targets the development app object",
+      "actual": "Dockerfile.production:66 and docker/api/Dockerfile:30 both run 'uvicorn tiannara_api.main:app' (the 5-middleware, 40-router app) even though the file is named 'production'. main_production.py (the app with 13 routers and CORS only) is deployed by nothing.",
+      "consequence": "The name 'production' in the image refers to the pip requirements set only; the application object is the development one (F-PLT-002, F-ARC-009).",
+      "basis": "statically_inferred"
+    }
+  ],
+  "unknowns": [
+    "Whether any of the five tracked workflows has EVER been green on a branch other than main/master/develop. Baseline records only run ids on local/pr4 (Elixir CI 39392651371 @ 521cb7fe and Cross-Platform 39392651343 @ 521cb7fe, both success) and a historical phase_5f2 run on main @ e082e79a. No CI history was queried in this pass (no network).",
+    "Whether the phase_5f2_tests.yml 'mix compile --warnings-as-errors' step currently succeeds. TIANNARA_RUNTIME_TEST_INVENTORY.md:139 records ~700 warning lines in a test-env compile at an earlier SHA, which would fail that step; tiannara_runtime/mix.exs:15 sets warnings_as_errors: false, so the compile itself passes but the workflow step would fail.",
+    "Whether docker/api/Dockerfile's healthcheck was ever observed passing (the route it probes does not exist, so it cannot have been).",
+    "Whether the tiannara_observatory umbrella's own CI ever passed in its source repository - the file is untracked here and its history is not available in this checkout.",
+    "Whether the 4 KEDA ScaledObjects ever bound to live workloads in a cluster outside this checkout (no cluster access).",
+    "The build provenance of the committed reports/world_health_epoch_*.csv and of the 5 INDEPENDENT_AUDIT_REPORT.md copies - which are produced by verifiers that cannot fail (F-ARC-007), so their CI provenance is unestablishable.",
+    "Whether any npm registry lockfile is consistent: tiannara_observatory/apps/observatory_ui/package-lock.json is referenced by the untracked CI (cache-dependency-path) and by 'npm ci', but the tiannara_saas build uses 'npm ci' against tiannara_saas/package*.json with no tracked package-lock.json in that directory (only the repo-root package-lock.json exists) - the resolution of tiannara_saas deps was not verified.",
+    "Whether the rust_core crate compiles at all - cargo was never invoked and the crate is not referenced by any build target.",
+    "Whether the k8s phase6/phase8 manifests reference images that exist in any registry (no registry access).",
+    "Whether the 76 root-level test_*.py files, if collected, would pass - they were never executed by any workflow.",
+    "Whether the tracked npm lockfiles resolve: tiannara_saas/package-lock.json, tiannara_observatory/apps/observatory_ui/package-lock.json, tiannara-desktop/package-lock.json and the repo-root package-lock.json are all tracked, but 'npm ci' was never executed against them in this pass, so lockfile/package.json consistency is unverified.",
+    "The exact contents of the single tracked node_modules artefact (node_modules/.package-lock.json) - node_modules is otherwise gitignored, so a lone lockfile is committed at the package root; its effect on 'npm ci' was not tested."
+  ]
+}
