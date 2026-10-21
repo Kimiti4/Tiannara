@@ -16,7 +16,7 @@ explicitly rather than deleting them, and (d) cluster them by root cause.
 
 **Field-level authority.** `findings_ledger.csv` is the authoritative record for the long free-text fields
 (`evidence`, `root_cause`, `remediation`, `acceptance_criteria`, `prerequisites`, `blast_radius`).
-This document carries the same 130 findings with their normalised attributes, the clustering, and the
+This document carries the same 131 findings with their normalised attributes, the clustering, and the
 explicit disagreements, and points at the CSV for the verbatim field text.
 
 ### 0.1 Sources consolidated
@@ -513,6 +513,12 @@ Every row below is present in `findings_ledger.csv` with its full `evidence`, `r
 | `F-ESP-008` | Eight historical fail-open defects are verified fixed with regression tests | low | confirmed | documented | CAP-ESP-013 | Historical fail-open defects were fixed; the register itself is the evidence | - |
 | `F-ESP-009` | The run evidence ledger records pass verdicts with essentially empty test inventories | medium | probable | statically_inferred | CAP-ESP-005; CAP-ESP-013 | The evidence ledger was populated by a reporting path that did not require real test inventories | - |
 | `F-ESP-010` | Three parallel ISR representations and three emitter stacks coexist with no clear single authority | medium | confirmed | statically_inferred | CAP-ESP-002; CAP-ESP-005; CAP-ESP-006 | The compiler was extended in place across three generations of the project layout without an authority decision | - |
+
+### 6.8 R1/OP-01 — operator disposition (1 finding)
+
+| ID | Finding | Sev | Conf | Basis | Affected capabilities | Root cause | duplicate_of |
+|---|---|---|---|---|---|---|---|
+| \F-SEC-001\ | Rotated credential and git history for the phase-6 production secret are not yet remediated | critical | confirmed | documented | CAP-PLT-009; CAP-PLT-010 | The literal values entered the tracked repository through a hand-written kustomize overlay; the rotation is an environment action that the repository cannot perform on its own | - |
 
 ---
 

@@ -59,16 +59,28 @@
   not in the approved execution scope; proposed under §13.)*
 
 ### 1.2 `tiannara_runtime/k8s` — literal production credentials + broken base
-- `k8s/phase6/overlays/production/kustomization.yaml:36-37` contains
-  literal `release-cookie=tiannara_phase6_cookie_prod_2026` and
-  `nats-auth-token=tiannara_nats_prod_token_2026` in a tracked file.
-- Same file references `../../base` (`:5`) but `k8s/phase6/base/` has **no
-  `kustomization.yaml`** (only one kustomization exists under all of `k8s/`);
-  the production overlay cannot build from tracked files.
+- `k8s/phase6/overlays/production/kustomization.yaml:36-37` contained
+  literal production secret values (a `release-cookie` and an `nats-auth-token`)
+  in a tracked file.
+  **Superseded 2026-10-21 (R1/OP-01): the literal values were removed from the
+  tracked overlay and the secret generator now reads them from the build
+  environment.** The values themselves are deliberately **not reproduced here**;
+  see `certification/atlas/ops/OP-01_CREDENTIAL_ROTATION.md` for the rotation
+  procedure and the evidence template.
+- Same file references `../../base` (`:5`) but `k8s/phase6/base/` had **no
+  `kustomization.yaml`** (only one kustomization existed under all of `k8s/`);
+  the production overlay could not build from tracked files.
+  **Superseded 2026-10-21 (R1/OP-01): a tracked base `kustomization.yaml` was
+  added**, so the overlay can now be built (and the secret reference verified)
+  from tracked files.
 - Repo-wide scan of `k8s/` + `config/` found **no other literal secrets**.
-- **Plan:** rotate both values if ever deployed; switch to deployment-time
+- **Plan (original, 2026-10-19):** rotate both values if ever deployed; switch to deployment-time
   secret injection; add a tracked base `kustomization.yaml`. *(Not done —
   credential rotation is an ops action.)*
+  **Status 2026-10-21:** deployment-time secret injection and the base
+  kustomization are done; **rotation itself remains an operator action** and is
+  not claimed complete.
+
 
 ### 1.3 `tiannara_api` — production entrypoint auth gaps
 - `main.py:97-105` installs `ProductionAuthMiddleware`,

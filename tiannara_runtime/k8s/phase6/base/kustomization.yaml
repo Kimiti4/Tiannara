@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Phase 6 base for the Tiannara runtime deployment.
+# Added with the R1/OP-01 credential remediation: the production overlay
+# references this directory (../../base) but no base kustomization existed, so
+# the overlay could not be built from tracked files and the secret reference
+# could not be verified. See certification/audit/DIRECTORY_AUDIT_2026-10-19.md
+# section 1.2 and certification/atlas/ops/OP-01_CREDENTIAL_ROTATION.md.
+
+resources:
+- namespace.yaml
+- gpu-node-selector.yaml
+- runtime-deployment.yaml
+- nats-cluster.yaml

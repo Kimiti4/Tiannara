@@ -32,8 +32,12 @@ configMapGenerator:
 
 secretGenerator:
 - name: tiannara-secrets
-  literals:
-  - release-cookie=tiannara_phase6_cookie_prod_2026
-  - nats-auth-token=tiannara_nats_prod_token_2026
+  # Values are read from the build environment at deploy time; no secret value
+  # is stored in this repository. The build fails closed when a variable is
+  # unset. Keys match the secretKeyRef keys consumed by the base deployment.
+  # Rotation procedure: certification/atlas/ops/OP-01_CREDENTIAL_ROTATION.md
+  env:
+  - release-cookie
+  - nats-auth-token
   options:
     disableNameSuffixHash: true
