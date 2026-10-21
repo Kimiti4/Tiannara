@@ -6,6 +6,13 @@ Operator evidence rule (§1 of the R0 program): a capability counts as VERIFIED 
 execution evidence exist. Module existence, documentation, and isolated passing tests are not evidence.
 Reconciliation: MATCHED / PARTIAL / CONTRADICTED / UNKNOWN — UNKNOWN is never counted as a pass.
 
+> **Counting note (2026-10-21, operator review).** The evidence-state table below and the "22 capabilities affected by
+> missing contract documents" figure quoted in `R0_UNIFICATION_REPORT.md` are **different axes and must not be read as
+> the same count**. The table counts each capability once, by its primary evidence state (5 carry
+> `specified_not_proven`). The 22 is a cross-cutting set: capabilities whose governing specification (CAE v1.1,
+> CAP v1.0, ISD v2.0, IF-001..IF-004, UEP) is absent from this repository — enumerated in
+> `spec_discrepancy_report.md` group (d). The sets overlap but are not equal, and neither figure is a pass.
+
 ## Summary
 
 | Evidence state | Count |

@@ -14,7 +14,9 @@
 
 The repository is not a platform that is slightly broken. It is a large, well-documented, partially-connected collection of subsystems in which **most claimed capabilities have an implementation, and only a few have an operating runtime path**.
 
-Of **117 registered capabilities**, **5 are verified operational** (4.3 %), **43 are implemented but incompletely verified**, **47 are partially connected**, **5 are specified only**, and **17 are missing or unresolved**. On the spec-vs-code-vs-runtime axis, only **6 are MATCHED**; **60 are PARTIAL**, **38 are CONTRADICTED** and **13 are UNKNOWN**.
+Of **117 registered capabilities**, **5 are verified operational** (4.3 %), **43 are implemented but incompletely verified**, **47 are partially connected**, **5 are specified only** (evidence state `specified_not_proven`), and **17 are missing or unresolved**. On the spec-vs-code-vs-runtime axis, only **6 are MATCHED**; **60 are PARTIAL**, **38 are CONTRADICTED** and **13 are UNKNOWN**.
+
+> **R0 review correction (2026-10-21, operator).** Two counts above sit on *different axes* and were previously worded as if they were the same. The **5** is an evidence-state bucket: capabilities whose primary classification is `specified_not_proven` in `capability_status_lists.md`. The **22** used in §1 ("Twenty-two capabilities are therefore 'specified only' against a document that is not here") is a *cross-cutting* count: capabilities affected by the absence of the governing contract documents (CAE v1.1, CAP v1.0, ISD v2.0, IF-001..IF-004, UEP) in this repository, per `spec_discrepancy_report.md` group (d). The two sets overlap but are not equal, and **neither is a pass**.
 
 The audit produced **130 findings** (13 critical, 48 high, 59 medium, 10 low) and grouped them into **14 root-cause clusters**. Five structural causes explain almost everything:
 
@@ -35,6 +37,8 @@ The audit produced **130 findings** (13 critical, 48 high, 59 medium, 10 low) an
 | # | Deliverable | Artifact | Notes |
 |---|---|---|---|
 | 1 | Complete file inventory with accounted-for exclusions | `certification/atlas/file_inventory.csv` (207,028 rows), `file_inventory_summary.json` | Every worktree path classified; vendor/generated/tooling exclusions carry reason codes; 470 tracked-but-absent files recorded |
+
+> **R0 review correction (2026-10-21, operator) — inventory method fields.** "207,028 paths" is the number of paths **classified**, not the number of content hashes. The three counts are kept separate in `file_inventory_summary.json` → `totals`: `paths_classified` = 207,028 (206,558 present on disk + 470 tracked-but-absent recorded as `MISSING_FROM_WORKTREE`); `content_hashes_produced` = 39,495 (sha256 for every non-vendor, non-generated file ≤ 20 MB); `hash_skipped_by_reason` = 167,030 skipped as class-generated/vendor/tooling (`SKIPPED_CLASS_*`) + 33 skipped as oversize (`SKIPPED_OVERSIZE`). Every skipped row carries its reason in the `sha256` column; no path is silently dropped.
 | 2 | Full capability and subsystem register | `certification/atlas/capability_register.csv` (117 rows) + per-section registers (A/B/C/D/F/ESAP) | Every row: evidence state, reconciliation, owner, implementation, entry points, consumers, tests, evidence, competing implementations, confidence |
 | 3 | Four dependency views | `deps_code.json` (29/29, 5 cycles), `deps_runtime.json` (117/110, 21 gaps), `deps_governance.json` (85/86, 18 discrepancies), `deps_build.json` (51/46, 13 discrepancies) | Every edge labelled documented / statically_inferred / dynamically_observed / independently_verified |
 | 4 | Interface and schema compatibility report | `certification/atlas/interfaces_schemas.md` | ISD/IF absence, proto schemas, event subjects, OpenAPI surfaces, namespace drift |

@@ -1,10 +1,29 @@
 {
-  "generated_at_utc": "2026-10-21T04:24:49Z",
-  "method": "full os.walk of worktree excluding .git internals; git ls-files state mapping; sha256 for all non-vendor/non-generated files <=20MB (8 threads); vendor/generated hashes skipped with explicit reason SKIPPED_CLASS_*; 33 files >20MB skipped as SKIPPED_OVERSIZE; classification refined in a second pass; 470 tracked-but-absent files recorded as deleted_tracked",
+  "generated_at_utc": "2026-10-21T10:21:12Z",
+  "revision_note": "Field names clarified after the 2026-10-21 operator review: path classification, content-hash production and hash-skip reasons are now three separate counts. No classification or hash value changed.",
+  "method": {
+    "walk": "full os.walk of the worktree, .git internals excluded (reason recorded)",
+    "git_state_mapping": "git ls-files (tracked), git ls-files -o (untracked), git ls-files -o -i (ignored), git status --porcelain (modified / deleted)",
+    "hashing": "sha256 for every non-vendor, non-generated file <= 20 MB, computed with 8 threads",
+    "skip_policy": "vendor / generated / tooling-state classes are inventoried but not hashed (reason SKIPPED_CLASS_*); files > 20 MB are not hashed (reason SKIPPED_OVERSIZE); tracked-but-absent files are recorded (MISSING_FROM_WORKTREE)",
+    "elixir_entry_symbols": "first defmodule/-module match per .ex/.erl file, for consumer lookup"
+  },
   "totals": {
-    "rows": 207028,
-    "on_disk": 206558,
-    "deleted_tracked": 470,
+    "paths_classified": 207028,
+    "paths_present_on_disk": 206558,
+    "paths_tracked_but_absent": 470,
+    "content_hashes_produced": 39495,
+    "hash_skipped_by_reason": {
+      "skipped_class_generated": 165767,
+      "skipped_class_vendor": 913,
+      "skipped_class_tooling_state": 0,
+      "skipped_class_other": 350,
+      "skipped_oversize_gt_20MB": 33,
+      "not_applicable_tracked_but_absent": 470,
+      "error": 0,
+      "other_unlabelled": 0
+    },
+    "hash_skipped_total": 167063,
     "by_git_state": {
       "ignored": 167415,
       "tracked": 25569,
@@ -48,22 +67,7 @@
       "cjs": 1483,
       "Erlang": 1343,
       "Python": 1051,
-      "YAML": 693,
-      "cts": 687,
-      "EEx": 619,
-      "pyc": 486,
-      "eterm": 452,
-      "bin": 451,
-      "fetch": 372,
-      "elixir_scm": 362,
-      "elixir": 361,
-      "Text": 334,
-      "config": 209,
-      "PowerShell": 165,
-      "Log": 162,
-      "CSV": 152,
-      "cmd": 147,
-      "DETS": 145
+      "YAML": 693
     },
     "by_subsystem_top25": {
       "tiannara_runtime": 45768,
@@ -90,23 +94,24 @@
       "certification": 319,
       "markdown": 253,
       "phase14": 240,
-      "tiannara_api": 238,
-      "forward_provenance": 172,
-      "scripts": 170,
-      ".github": 124,
-      "archive": 114,
-      "scratch": 114
+      "tiannara_api": 238
     },
-    "sha256_ok": 39495,
-    "hash_skipped_oversize": 33,
-    "hash_skipped_class": 167030,
     "elixir_entry_symbols": 6680,
-    "reclassified_rows": 27380
+    "rows_by_hash_outcome": {
+      "skipped_class_generated": 165767,
+      "content_hash_produced": 39495,
+      "skipped_class_vendor": 913,
+      "not_applicable_tracked_but_absent": 470,
+      "skipped_class_artifact": 197,
+      "skipped_class_log": 148,
+      "skipped_oversize_gt_20MB": 33,
+      "skipped_class_binary": 5
+    }
   },
   "exclusion_policy": {
     ".git_internals": "excluded (VCS metadata) - reason recorded",
-    "vendor_generated": "inventoried with class vendor/generated; content hash skipped with reason",
-    "tooling_state": "IDE/agent state directories inventoried but excluded from capability analysis - reason recorded",
-    "deleted_tracked": "tracked in git, absent on disk - recorded, not restored (R0 is read-only)"
+    "vendor_generated_tooling": "inventoried and classified; content hash skipped with explicit reason code",
+    "oversize_files": "not hashed (SKIPPED_OVERSIZE) - size recorded",
+    "tracked_but_absent": "recorded (MISSING_FROM_WORKTREE) - not restored (R0 is read-only)"
   }
 }
