@@ -42,7 +42,7 @@ defmodule Tiannara.Council.PolicyRegistry do
     matching =
       state.policies
       |> Map.values()
-      |> Enum.filter(&(&1.enabled and decision_type in &1.applies_to))
+      |> Enum.filter(&(&1.enabled and applies_to?(&1, decision_type)))
       |> Enum.filter(&all_conditions_met?(&1.conditions, context))
       |> Enum.sort_by(& &1.priority, :desc)
 
@@ -50,6 +50,14 @@ defmodule Tiannara.Council.PolicyRegistry do
       [best | _] -> {:reply, {:matched, best}, state}
       [] -> {:reply, {:default_approve, nil}, state}
     end
+  end
+
+  # A policy may declare that it applies to every decision type with the
+  # wildcard :any. The matcher has to honour that wildcard explicitly:
+  # without it, `decision_type in [:any]` is false for every decision type and
+  # the policy is silently dead.
+  defp applies_to?(policy, decision_type) do
+    :any in policy.applies_to or decision_type in policy.applies_to
   end
 
   @impl true
