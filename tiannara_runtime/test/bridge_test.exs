@@ -9,9 +9,25 @@ defmodule Tiannara.BridgeTest do
     HarmonicSynchronizer
   }
 
+  # The kernel registers a global name by default, so starting it directly
+  # races with the application's own instance (and with the other tests in
+  # this file). Each test therefore starts an isolated instance under a
+  # unique name.
+  defp start_isolated_kernel do
+    name = :"omega_phi_kernel_test_#{System.unique_integer([:positive])}"
+
+    case OmegaPhiKernel.start_link(name: name) do
+      {:ok, pid} ->
+        pid
+
+      {:error, {:already_started, pid}} ->
+        pid
+    end
+  end
+
   describe "OmegaPhiKernel" do
     test "initializes with default values" do
-      {:ok, pid} = OmegaPhiKernel.start_link([])
+      pid = start_isolated_kernel()
       state = :sys.get_state(pid)
       
       assert state.omega == 0.0
@@ -35,7 +51,7 @@ defmodule Tiannara.BridgeTest do
     end
 
     test "tick updates omega and phi based on OMCE/OLEF states" do
-      {:ok, pid} = OmegaPhiKernel.start_link([])
+      pid = start_isolated_kernel()
       
       omce_state = %{
         compression_rate: 0.5,
@@ -60,7 +76,7 @@ defmodule Tiannara.BridgeTest do
     end
 
     test "multiple ticks maintain bounded values" do
-      {:ok, pid} = OmegaPhiKernel.start_link([])
+      pid = start_isolated_kernel()
       
       omce_state = %{compression_rate: 0.7, ontology_size: 200.0}
       olef_state = %{global_pressure: 0.6, pressure_field: 0.5}

@@ -35,8 +35,16 @@ defmodule Tiannara.Bridge.OmegaPhiKernel do
   @load_coefficient 0.01
   @entropy_damping 0.1
 
-  def start_link(_opts \\ []) do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+  @doc """
+  Starts the kernel.
+
+  The registered name defaults to this module, which is the production
+  behaviour. A caller that needs an isolated instance - a test, for example -
+  can pass a `:name` option; without that option two callers race for the same
+  global name and the second one fails with `{:error, {:already_started, pid}}`.
+  """
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, %{}, name: Keyword.get(opts, :name, __MODULE__))
   end
 
   @impl true
