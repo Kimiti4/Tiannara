@@ -36,3 +36,46 @@ A historical green run is history, not proof for a later commit: each entry name
 | Residual scope | F-GOV-006 / F-GOV-023 (a compliant decision still cannot reach `:approved`; the plugin path is dormant) and F-GOV-004 / F-GOV-017 (no human-approval resume path) remain **OPEN** — deliberately not started in this step. |
 | Status | **`VERIFIED_CLOSED`** — the step-1 acceptance criterion is demonstrated by a reproducible negative test that runs in CI, bound to sha `5dcc9ebd`. |
 | Record | `certification/atlas/closure_records/R1-B1-01_F-GOV-007.md` |
+
+---
+
+## Batch 1 — CI-bound verification summary
+
+**Final state commit:** `799c106d` · **Elixir CI `39682261149`: success** (compile, test-placement, lineage-regression,
+`tiannara_runtime suite (required)` 1,854 tests / 0 failures, `suite` 2,491+ tests / 0 failures, and the **new**
+`tiannara_audit suite (required)` 13 tests / 0 failures) · **Cross-Platform `39682261150`: success** (ubuntu, macos,
+hash comparison).
+
+| Step | Change | Finding | Acceptance evidence | CI (Elixir CI) | Status |
+|---|---|---|---|---|---|
+| OP-01 | `d3db325b` | F-ARC-008 / F-PLT-005 (exposure) | Literal values removed from the tracked overlay; both greps return no matches; base kustomization added | `39585781409` ✓ | FIXED_PENDING_VERIFICATION (rotation is an operator action — F-SEC-001) |
+| 1 | `5dcc9ebd` | **F-GOV-007** | Denial-path suite: 4 failures before, 6/6 after; CI root-suite test count 2,485 → 2,491 (the +6 are the new suite) | `39634396854` ✓ | **VERIFIED_CLOSED** |
+| — | `1ff0ecaf` | evidence binding for step 1 | — | `39637895128` ✓ | — |
+| 3a | `ca95773b` | **F-GOV-003** | Wildcard suite: 3 failures before, 5/5 after; council + consumers 80/0 | `39640997784` ✓ | **VERIFIED_CLOSED** |
+| 3b | `003a53ee` | **F-GOV-005** | Conditional-grant suite: 8 failures before, 15/15 after; regression 169/0 | `39653455302` ✓ | **VERIFIED_CLOSED** |
+| 2 | `11404ac9` | **F-GOV-006 / F-GOV-023** | Reachability suite: 3 failures before, 7/7 after; regression 242 tests / 21 properties / 0 | own run `39658874815` **failed on an unrelated pre-existing race** (F-ARC-239); the finding's evidence is the cumulative green run `39673698526` (bb341c60) | **VERIFIED_CLOSED** |
+| 4 | `cd036478` | **F-GOV-004 / F-GOV-017** | Resume suite: 4 failures before, 6/6 after; regression 255 / 21 properties / 2 (both in the known-flaky F-ARC-238 file) | pushed together with the F-ARC-239 fix, so its evidence is run `39673698526` ✓ | **VERIFIED_CLOSED** |
+| CI | `bb341c60` | **F-ARC-239** | The required runtime job is green with the isolated bridge test | `39673698526` ✓ | **VERIFIED_CLOSED** |
+| 5 | `ac12b3a2` | **F-ARC-007 / F-GOV-011** | Fail-closed verifier suite 13/13; the "220/220 PASS" report retired as non-evidence; the tool now has a required CI job | `39677145165` ✓ (Cross-Platform `39677144900` failed with the macOS job **cancelled** — F-ARC-241) | **VERIFIED_CLOSED** |
+| 6 | `799c106d` | **F-GOV-013** | Kill-switch suite: 6 of 7 failed before, 7/7 after; affected runtime suites 66/0 | `39682261149` ✓ | **VERIFIED_CLOSED** |
+
+**Order deviations from the operator's plan, and why (all safety-driven, all recorded in the closure records):**
+
+1. **F-GOV-003 and F-GOV-005 were landed before step 2** (approval reachability). With the `:any` wildcard broken, a
+   high-risk decision would have reached the rule engine instead of the `high_risk` policy — and once `:approved` is
+   reachable, a `:conditional` decision that is still treated as a grant would let an evidence-poor decision authorise
+   an effect. Both would have opened a bypass window; landing them first removes it. The operator's explicit
+   constraint (F-GOV-007 verified before F-GOV-006/F-GOV-023) was respected: F-GOV-007 closed at `5dcc9ebd` with CI
+   evidence before any approval became reachable.
+2. **The authority boundary (HC-2) was determined before step 2**, as the operator required, and is recorded in
+   `closure_records/R1-B1-04_F-GOV-006.md` and D-ARC-011.
+
+**Batch 1 outcome:** 10 findings VERIFIED_CLOSED, 1 (the credential rotation) FIXED_PENDING_VERIFICATION with the
+operator action outstanding, 4 new findings opened (F-ARC-238 chaos flake, F-ARC-239 bridge race — now closed,
+F-ARC-240 world supervisor not started, F-ARC-241 macOS job cancellation), and 1 evidence-contract finding
+(F-GOV-025). No finding was closed by a code change alone: every closure is bound to a CI run id and a before/after
+test result.
+
+**What Batch 1 did not do:** it did not make the constitutional layer reachable from a launcher (F-ARC-226 / F-ARC-240
+remain), did not implement certificate signing (F-GOV-010), did not build CAE/CAP gate machinery (the specifications
+are still not in the repository, F-GOV-001), and did not change the CIS arbitration default (D-ARC-015).
