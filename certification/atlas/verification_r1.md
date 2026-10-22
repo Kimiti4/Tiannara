@@ -7,6 +7,21 @@ A historical green run is history, not proof for a later commit: each entry name
 **Status vocabulary:** `FIXED_PENDING_VERIFICATION` (change landed, evidence not yet bound) → `VERIFIED_CLOSED`
 (acceptance criteria demonstrated and bound to the exact SHA).
 
+## Revision fields (traceability correction, 2026-10-21, operator review)
+
+A verification result binds **three separate revisions**, which are not the same thing and must not be conflated:
+
+| Field | Meaning |
+|---|---|
+| `source_code_revision` | The commit whose **code** was exercised. This is the revision the evidence is a claim *about*. |
+| `evidence_record_revision` | The commit that records the evidence in the atlas. It is frequently a documentation-only commit that sits *on top of* the source revision. |
+| `ci_run_id` / `ci_run_tested_sha` | The workflow run, and the SHA that run actually checked out and tested. A run cited against a documentation commit tested the code as of that commit — which is the code revision only if the documentation commit changed no code. |
+
+**Rule:** a run is only evidence for a source revision if the tested SHA contains that source revision and changes no
+code beyond it. In the entries below the tested SHA and the source revision are stated separately, and where the tested
+SHA is a documentation commit, that is said explicitly. The distinction is a traceability correction only — it does not
+reopen any finding, because each closure already rests on its own before/after test evidence.
+
 ---
 
 ## V-R1-001 — R1/OP-01 exposed credential, code-side removal
@@ -46,18 +61,20 @@ A historical green run is history, not proof for a later commit: each entry name
 `tiannara_audit suite (required)` 13 tests / 0 failures) · **Cross-Platform `39682261150`: success** (ubuntu, macos,
 hash comparison).
 
-| Step | Change | Finding | Acceptance evidence | CI (Elixir CI) | Status |
-|---|---|---|---|---|---|
-| OP-01 | `d3db325b` | F-ARC-008 / F-PLT-005 (exposure) | Literal values removed from the tracked overlay; both greps return no matches; base kustomization added | `39585781409` ✓ | FIXED_PENDING_VERIFICATION (rotation is an operator action — F-SEC-001) |
-| 1 | `5dcc9ebd` | **F-GOV-007** | Denial-path suite: 4 failures before, 6/6 after; CI root-suite test count 2,485 → 2,491 (the +6 are the new suite) | `39634396854` ✓ | **VERIFIED_CLOSED** |
-| — | `1ff0ecaf` | evidence binding for step 1 | — | `39637895128` ✓ | — |
-| 3a | `ca95773b` | **F-GOV-003** | Wildcard suite: 3 failures before, 5/5 after; council + consumers 80/0 | `39640997784` ✓ | **VERIFIED_CLOSED** |
-| 3b | `003a53ee` | **F-GOV-005** | Conditional-grant suite: 8 failures before, 15/15 after; regression 169/0 | `39653455302` ✓ | **VERIFIED_CLOSED** |
-| 2 | `11404ac9` | **F-GOV-006 / F-GOV-023** | Reachability suite: 3 failures before, 7/7 after; regression 242 tests / 21 properties / 0 | own run `39658874815` **failed on an unrelated pre-existing race** (F-ARC-239); the finding's evidence is the cumulative green run `39673698526` (bb341c60) | **VERIFIED_CLOSED** |
-| 4 | `cd036478` | **F-GOV-004 / F-GOV-017** | Resume suite: 4 failures before, 6/6 after; regression 255 / 21 properties / 2 (both in the known-flaky F-ARC-238 file) | pushed together with the F-ARC-239 fix, so its evidence is run `39673698526` ✓ | **VERIFIED_CLOSED** |
-| CI | `bb341c60` | **F-ARC-239** | The required runtime job is green with the isolated bridge test | `39673698526` ✓ | **VERIFIED_CLOSED** |
-| 5 | `ac12b3a2` | **F-ARC-007 / F-GOV-011** | Fail-closed verifier suite 13/13; the "220/220 PASS" report retired as non-evidence; the tool now has a required CI job | `39677145165` ✓ (Cross-Platform `39677144900` failed with the macOS job **cancelled** — F-ARC-241) | **VERIFIED_CLOSED** |
-| 6 | `799c106d` | **F-GOV-013** | Kill-switch suite: 6 of 7 failed before, 7/7 after; affected runtime suites 66/0 | `39682261149` ✓ | **VERIFIED_CLOSED** |
+| Step | source_code_revision | evidence_record_revision | ci_run_id (tested SHA) | Finding | Acceptance evidence | Status |
+|---|---|---|---|---|---|---|
+| OP-01 | `d3db325b` | `7d6bd061` (docs) | `39585781409` @ `d3db325b` | F-ARC-008 / F-PLT-005 (exposure) | Literal values removed from the tracked overlay; both greps return no matches; base kustomization added | FIXED_PENDING_VERIFICATION (rotation is an operator action — F-SEC-001) |
+| 1 | `5dcc9ebd` | `1ff0ecaf` (docs) | `39634396854` @ `5dcc9ebd` | **F-GOV-007** | Denial-path suite: 4 failures before, 6/6 after; CI root-suite test count 2,485 → 2,491 (the +6 are the new suite) | **VERIFIED_CLOSED** |
+| — | `5dcc9ebd` | `1ff0ecaf` (docs) | `39637895128` @ `1ff0ecaf` (docs; same code as `5dcc9ebd`) | evidence binding for step 1 | — | — |
+| 3a | `ca95773b` | `7d6bd061` (docs) | `39640997784` @ `ca95773b` | **F-GOV-003** | Wildcard suite: 3 failures before, 5/5 after; council + consumers 80/0 | **VERIFIED_CLOSED** |
+| 3b | `003a53ee` | `7d6bd061` (docs) | `39653455302` @ `003a53ee` | **F-GOV-005** | Conditional-grant suite: 8 failures before, 15/15 after; regression 169/0 | **VERIFIED_CLOSED** |
+| 2 | `11404ac9` | `7d6bd061` (docs) | own run `39658874815` @ `11404ac9` **failed on an unrelated pre-existing race** (F-ARC-239); the finding's evidence is the cumulative green run `39673698526` @ `bb341c60` (code identical to `11404ac9` for this finding) | **F-GOV-006 / F-GOV-023** | Reachability suite: 3 failures before, 7/7 after; regression 242 tests / 21 properties / 0 | **VERIFIED_CLOSED** |
+| 4 | `cd036478` | `7d6bd061` (docs) | pushed together with the F-ARC-239 fix, so its evidence is run `39673698526` @ `bb341c60` | **F-GOV-004 / F-GOV-017** | Resume suite: 4 failures before, 6/6 after; regression 255 / 21 properties / 2 (both in the known-flaky F-ARC-238 file) | **VERIFIED_CLOSED** |
+| CI | `bb341c60` | `7d6bd061` (docs) | `39673698526` @ `bb341c60` | **F-ARC-239** | The required runtime job is green with the isolated bridge test | **VERIFIED_CLOSED** |
+| 5 | `ac12b3a2` | `7d6bd061` (docs) | `39677145165` @ `ac12b3a2` (Cross-Platform `39677144900` failed with the macOS job **cancelled** — F-ARC-241) | **F-ARC-007 / F-GOV-011** | Fail-closed verifier suite 13/13; the "220/220 PASS" report retired as non-evidence; the tool now has a required CI job | **VERIFIED_CLOSED** |
+| 6 | `799c106d` | `7d6bd061` (docs) | `39682261149` @ `799c106d`; Cross-Platform `39682261150` @ `799c106d` | **F-GOV-013** | Kill-switch suite: 6 of 7 failed before, 7/7 after; affected runtime suites 66/0 | **VERIFIED_CLOSED** |
+| — | `799c106d` (code) | `7d6bd061` (docs) | `39707868382` @ `7d6bd061` (docs; **same code as `799c106d`** — the run tested the documentation commit, whose code content is `799c106d`'s) | Batch 1 final state, re-verified | All required jobs green, including the new `tiannara_audit suite (required)` | — |
+| — | `799c106d` (code) | `7d6bd061` (docs) | `39707868722` @ `7d6bd061` (same code as `799c106d`) | Batch 1 final state, cross-platform | ubuntu ✓, macos ✓, hash comparison ✓ | — |
 
 **Order deviations from the operator's plan, and why (all safety-driven, all recorded in the closure records):**
 
