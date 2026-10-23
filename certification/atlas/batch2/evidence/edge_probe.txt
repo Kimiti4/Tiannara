@@ -1,0 +1,40 @@
+%{
+  probe: "B2 runtime integration edges",
+  cwd: "c:/Users/user/AppData/Local/Temp/opencode/b2_runtime/edges1",
+  boot_profile: :minimal,
+  dummy_4222: "{:ok, #Port<0.9>}",
+  nats_status: "%{connected: false, port: 4222, listen_socket: nil, clients: %{}}",
+  event_gateway_state: ":not_running",
+  endpoints: %{
+    runtime_health: %{
+      status: 200,
+      body: "{\"status\":\"ok\",\"timestamp\":1792702433768,\"systems\":{\"runtime\":true,\"supervisor\":true,\"cpl\":true,\"omega\":true,\"cop\":true}}"
+    },
+    runtime_system_status: %{
+      status: 200,
+      body: "{\"timestamp\":1792702433769,\"metrics\":{},\"systems\":{\"runtime\":true,\"supervisor\":true,\"cpl\":true,\"omega\":true,\"cop\":true},\"overall_health\":\"HEALTHY\"}"
+    },
+    runtime_cpl_stats: %{
+      status: 200,
+      body: "{\"hash_chain_intact\":true,\"layers_checkpointed\":[],\"total_checkpoints\":0,\"total_events\":20,\"cpl_alive\":true}"
+    },
+    k8s_health_live: %{
+      status: 404,
+      body: "# Phoenix.Router.NoRouteError at GET /health/live\n\nException:\n\n    ** (Phoenix.Router.NoRouteError) no route found for GET /health/live (TiannaraRuntimeWeb.Router)\n        (tiannara_runtime 0.1.0) deps/phoenix/lib/phoenix/router.ex:541: TiannaraRuntimeWeb.Router.call/2\n        (tiannara_runtime 0.1.0) lib/tiannara_runtime_web/endpoint.ex:1: TiannaraRuntimeWeb.Endpoint.plug_builder_call/2\n        (tiannara_runtime 0.1.0) deps/plug/lib/plug/debugger.ex:155: TiannaraRuntimeWeb.Endpoint.\"call (overridable 3)\"/2\n        (tiannara_runtime 0.1.0) lib/tiannara_runtime_web/endpoint.ex:1: TiannaraRuntimeWeb.Endpoint.call/2\n        (phoenix 1.7.23) lib/phoenix/endpoint/sync_code_reload_plug.ex:22: Phoe"
+    },
+    k8s_health_ready: %{
+      status: 404,
+      body: "# Phoenix.Router.NoRouteError at GET /health/ready\n\nException:\n\n    ** (Phoenix.Router.NoRouteError) no route found for GET /health/ready (TiannaraRuntimeWeb.Router)\n        (tiannara_runtime 0.1.0) deps/phoenix/lib/phoenix/router.ex:541: TiannaraRuntimeWeb.Router.call/2\n        (tiannara_runtime 0.1.0) lib/tiannara_runtime_web/endpoint.ex:1: TiannaraRuntimeWeb.Endpoint.plug_builder_call/2\n        (tiannara_runtime 0.1.0) deps/plug/lib/plug/debugger.ex:155: TiannaraRuntimeWeb.Endpoint.\"call (overridable 3)\"/2\n        (tiannara_runtime 0.1.0) lib/tiannara_runtime_web/endpoint.ex:1: TiannaraRuntimeWeb.Endpoint.call/2\n        (phoenix 1.7.23) lib/phoenix/endpoint/sync_code_reload_plug.ex:22: Ph"
+    },
+    python_ingest_from_runtime: %{
+      status: 404,
+      body: "# Phoenix.Router.NoRouteError at GET /api/v1/meta-ecology/ingest\n\nException:\n\n    ** (Phoenix.Router.NoRouteError) no route found for GET /api/v1/meta-ecology/ingest (TiannaraRuntimeWeb.Router)\n        (tiannara_runtime 0.1.0) deps/phoenix/lib/phoenix/router.ex:541: TiannaraRuntimeWeb.Router.call/2\n        (tiannara_runtime 0.1.0) lib/tiannara_runtime_web/endpoint.ex:1: TiannaraRuntimeWeb.Endpoint.plug_builder_call/2\n        (tiannara_runtime 0.1.0) deps/plug/lib/plug/debugger.ex:155: TiannaraRuntimeWeb.Endpoint.\"call (overridable 3)\"/2\n        (tiannara_runtime 0.1.0) lib/tiannara_runtime_web/endpoint.ex:1: TiannaraRuntimeWeb.Endpoint.call/2\n        (phoenix 1.7.23) lib/phoenix/endpoint/syn"
+    }
+  },
+  utc: "2026-10-22T20:53:53.785000Z",
+  app_start: "{:ok, [:mnesia, :forward_provenance, :eex, :mime, :plug_crypto, :telemetry, :plug, :phoenix_pubsub, :phoenix_html, :phoenix_template, :websock, :cowlib, :ranch, :cowboy, :cowboy_telemetry, :plug_cowboy, :websock_adapter, :castore, :jason, :phoenix, :phoenix_live_view, :connection, :nimble_parsec, :ed25519, :curve25519, :salsa20, :chacha20, :equivalex, :poly1305, :kcl, :nkeys, :gnat, :uuid, :hpax, :mint, :nimble_pool, :nimble_options, :finch, :req, :iex, :proper, :libgraph, :propcheck, :telemetry_metrics, :rustler, :tiannara_runtime]}",
+  all_running: true,
+  world_supervisor_alive: true,
+  nats_connection_alive: true,
+  event_gateway_alive: false
+}

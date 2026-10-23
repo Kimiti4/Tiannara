@@ -1,0 +1,12 @@
+mix : ** (File.Error) could not read file 
+"c:/Users/user/Tiannara/Tiannara-MindCache-Prosthetic/tiannara_runtime/config/prod.exs": no such file or directory
+At line:1 char:24
++ $env:MIX_ENV = "prod"; mix compile 2>&1 | Tee-Object -FilePath "C:\Us ...
++                        ~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (** (File.Error)...le or directory:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+    (elixir 1.18.4) lib/file.ex:385: File.read!/1
+    (elixir 1.18.4) lib/config.ex:301: Config.__import__!/1
+    (stdlib 7.3) erl_eval.erl:924: :erl_eval.do_apply/7
+    (stdlib 7.3) erl_eval.erl:276: :erl_eval.exprs/6

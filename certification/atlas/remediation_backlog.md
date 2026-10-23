@@ -44,6 +44,13 @@ Every entry is `OPEN`. A code change alone would not close a finding — closure
 
 ## Batch 2 — reachability: make the runtime application actually start
 
+**Execution record (2026-10-22/23):** `certification/atlas/batch2/runtime_reachability.md`. The isolated safe boot
+and kill-switch chain were demonstrated locally on an uncommitted working tree; the full runtime suite passes (1863
+tests + 40 properties, 0 failures) with CPL/Omega/Mnesia/identity-ledger test isolation. F-ARC-240 is
+`FIXED_PENDING_VERIFICATION`; F-ARC-018/B4 remains `OPEN` because test isolation does not satisfy its broader
+persistence-hygiene criteria. F-ARC-226,
+F-ARC-228, F-ARC-235, F-ARC-014 and F-ARC-229 remain open.
+
 **Why:** `F-ARC-226` (launcher never starts `:tiannara_runtime`) is the single highest-leverage fix: every "wired" claim inside that application is currently test-time-only wiring. 24 registered capabilities are affected by the cluster that contains it.
 
 | # | Finding | Minimal recommended change | Acceptance criteria |

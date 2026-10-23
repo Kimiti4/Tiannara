@@ -36,7 +36,18 @@ defmodule Tiannara.OPC.ExecutionRuntimeInstrumentationTest do
     end
 
     on_exit(fn ->
-      Application.delete_env(:forward_provenance, :identity_authority_ledger_path)
+      case Application.get_env(:tiannara_runtime, :test_tmp) do
+        nil ->
+          Application.delete_env(:forward_provenance, :identity_authority_ledger_path)
+
+        test_tmp ->
+          Application.put_env(
+            :forward_provenance,
+            :identity_authority_ledger_path,
+            Path.join(test_tmp, "identity_authority_ledger.jsonl")
+          )
+      end
+
       File.rm_rf!(tmp)
     end)
 

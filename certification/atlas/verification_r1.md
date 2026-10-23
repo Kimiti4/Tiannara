@@ -96,3 +96,18 @@ test result.
 **What Batch 1 did not do:** it did not make the constitutional layer reachable from a launcher (F-ARC-226 / F-ARC-240
 remain), did not implement certificate signing (F-GOV-010), did not build CAE/CAP gate machinery (the specifications
 are still not in the repository, F-GOV-001), and did not change the CIS arbitration default (D-ARC-015).
+
+## Batch 2 — runtime reachability (provisional; no closure)
+
+These results are **not** Register 6 closures. They were produced from base `8ff5ec83` plus an uncommitted
+working-tree patch (diff object `6d2cabdd`); there is no `source_code_revision`, no `evidence_record_revision` and no
+CI run yet. They are recorded so the next commit can bind them without re-deriving the result.
+
+| Step | source_code_revision | evidence_record_revision | ci_run_id | Finding | Acceptance evidence | Status |
+|---|---|---|---|---|---|---|
+| 2 | uncommitted (`8ff5ec83` + diff `6d2cabdd`) | uncommitted | none | F-ARC-226 boot reachability | Isolated `:minimal` boot (final-source run 7): app start ok, `all_running` true, top supervisor alive, world supervisor alive, endpoint 8004, CIS lockdown denies kill, 27 CPL events confined to scratch | provisional |
+| 3 | uncommitted (`8ff5ec83` + diff `6d2cabdd`) | uncommitted | none | **F-ARC-240** | Kill-switch before: `:executed` but delivery false. After: canonical chain stops two supervised probe worlds, reports both in `killed_worlds`, supervisor survives; unrelated-world survivor and recovery checks pass; isolated regression test 9/9; full runtime suite 1863 tests + 40 properties, 0 failures | `FIXED_PENDING_VERIFICATION` |
+| 4 | uncommitted (`8ff5ec83` + diff `6d2cabdd`) | uncommitted | none | F-ARC-228 / F-ARC-014 / F-ARC-235 | 4222 conflict degrades silently; EventGateway not started; `/health/live` 404; telemetry POST to 8004 hits the runtime router; prod compile fails | open |
+| 5 | uncommitted (`8ff5ec83` + diff `6d2cabdd`) | uncommitted | none | F-ARC-018 / B4 persistence hygiene | CPL, Omega, Mnesia, and identity ledger redirected under `_build/test/tmp`; final full runtime suite (1863 tests, 0 failures) made zero repository writes in those stores. Test isolation is partial mitigation only; configurable Python store paths, merged store ownership, and clean-checkout persistence criteria remain outstanding | `OPEN` |
+
+The detailed record is `certification/atlas/batch2/runtime_reachability.md`.

@@ -1,0 +1,1372 @@
+12:44:33.807 [warning] Observability StreamProcessor NATS unavailable: "timed out waiting for info"; entering degraded local-buffer mode
+Running ExUnit with seed: 0, max_cases: 8
+Excluding tags: [:quarantine]
+
+...12:44:35.020 [warning] 🚨 [RRG] CRITICAL: Ψ=0.299 - Universal convergence imminent!
+12:44:35.020 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.29920741304657. Initiating emergency rollback!
+12:44:35.020 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+mix :      warning: variable "mean" is unused (if the variable is not meant to be used, prefix it with an underscore)
+At line:1 char:106
++ ... full4.log"; mix test --no-compile --exclude quarantine *> $log; $code ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (     warning: v... an underscore):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+     │
+ 230 │       mean = (0.8 + 0.2) / 2.0  # 0.5
+     │       ~~~~
+     │
+     └─ test/bridge_test.exs:230:7: Tiannara.BridgeTest."test EntropyBalancer balances omega and phi toward mean"/1
+
+     warning: variable "preg" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 180 │     {:ok, preg} = ResearchProgramRegistry.register(preg, %{id: "prog_x", domain: :mathematics})
+     │           ~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:180:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "icoord" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 162 │     {:ok, icoord} = InstitutionCoordinator.coordinate(icoord, "inst_a", "inst_b", :particle_physics)
+     │           ~~~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:162:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "om" is unused (there is a variable with the same name in the context, use the pin operator (^) 
+to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 192 │     {:ok, om} = CivilizationObjectiveManager.add_objective(om, %{name: "Fusion", status: :active})
+     │           ~~
+     │
+     └─ test/civilization/certification/certification_test.exs:192:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "gcoord" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 163 │     {:ok, gcoord} = GovernanceCoordinator.execute_policy(gcoord, %{name: "Science Act"})
+     │           ~~~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:163:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "seng" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 205 │     {:ok, seng} = ScenarioEngine.register_scenario(seng, %{name: "baseline", type: :growth, state: civ_state})
+     │           ~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:205:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "kee" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 193 │     {:ok, kee} = KnowledgeExchangeEngine.exchange(kee, :physics, :engineering, %{theory: "plasma"})
+     │           ~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:193:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "reg" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 150 │     {:ok, reg} = CivilizationRegistry.register(reg, %{id: "civ_stress"})
+     │           ~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:150:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "sched" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 160 │     {:ok, {_item, sched}} = CivilizationScheduler.next(sched)
+     │                   ~~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:160:19: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "oe" is unused (there is a variable with the same name in the context, use the pin operator (^) 
+to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 198 │     {:ok, oe} = StrategicObjectiveEngine.add_objective(oe, %{name: "Fusion Energy", expected_impact: 0.9})
+     │           ~~
+     │
+     └─ test/civilization/certification/certification_test.exs:198:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "hp" is unused (there is a variable with the same name in the context, use the pin operator (^) 
+to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 199 │     {:ok, hp} = HorizonPlanner.plan(hp, 10, [%{id: "fusion"}])
+     │           ~~
+     │
+     └─ test/civilization/certification/certification_test.exs:199:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "dc" is unused (there is a variable with the same name in the context, use the pin operator (^) 
+to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 188 │     {:ok, dc} = DependencyCoordinator.add_dependency(dc, "fusion", "theory", :depends_on)
+     │           ~~
+     │
+     └─ test/civilization/certification/certification_test.exs:188:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "alloc" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 170 │     {:ok, alloc} = CapitalAllocator.allocate(alloc, "fusion", 300, :energy_research)
+     │           ~~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:170:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "peng" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 181 │     {:ok, peng} = PriorityEngine.compute(peng, [%{id: "prog_x", constitutional_priority: 5}], %{})
+     │           ~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:181:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "ireg" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 151 │     {:ok, ireg} = InstitutionRegistry.register(ireg, %{id: "inst_stress"})
+     │           ~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:151:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "ban" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 178 │     {mgr, preg, peng, ban, rpl, mt} = build_portfolio()
+     │                       ~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:178:23: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "pall" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 171 │     {:ok, pall} = PortfolioAllocator.allocate(pall, :physics, 150)
+     │           ~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:171:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "planner" is unused (there is a variable with the same name in the context, use the pin 
+operator (^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 172 │     {:ok, planner} = InvestmentPlanner.plan(planner, "fusion", 500, 10, 2.5)
+     │           ~~~~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:172:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "coord" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 186 │     {:ok, coord} = CivilizationCoordinator.coordinate(coord, :physics, :mathematics, :joint_project)
+     │           ~~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:186:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "infra" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 165 │     {:ok, infra} = InfrastructureRuntime.invest(infra, :energy, 3)
+     │           ~~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:165:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "kr" is unused (there is a variable with the same name in the context, use the pin operator (^) 
+to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 166 │     {:ok, kr} = KnowledgeRuntime.add_discovery(kr, %{id: "d1", domain: :physics, type: :theories})
+     │           ~~
+     │
+     └─ test/civilization/certification/certification_test.exs:166:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "mgr" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 179 │     {:ok, mgr} = ResearchPortfolioManager.add_portfolio(mgr, %{id: "port_1", domain: :physics})
+     │           ~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:179:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: variable "collab" is unused (there is a variable with the same name in the context, use the pin operator 
+(^) to match on it or prefix this variable with underscore if it is not meant to be used)
+     │
+ 187 │     {:ok, collab} = DomainCollaborationEngine.propose(collab, :physics, :biology, "quantum_bio")
+     │           ~~~~~~
+     │
+     └─ test/civilization/certification/certification_test.exs:187:11: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+    warning: variable "f" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    │
+ 74 │   defp assert_naturality_commutes(f, g, eta, morphs) do
+    │                                   ~
+    │
+    └─ test/category_theory/ontological_fusion_test.exs:74:35: 
+Tiannara.CategoryTheory.OntologicalFusionTest.assert_naturality_commutes/4
+
+    warning: variable "g" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    │
+ 74 │   defp assert_naturality_commutes(f, g, eta, morphs) do
+    │                                      ~
+    │
+    └─ test/category_theory/ontological_fusion_test.exs:74:38: 
+Tiannara.CategoryTheory.OntologicalFusionTest.assert_naturality_commutes/4
+
+    warning: unused alias FunctorMapping
+    │
+  9 │   alias Tiannara.Category.{OntologyCategory, FunctorMapping, PushoutFusion, NaturalTransformation}
+    │   ~
+    │
+    └─ test/category_theory/ontological_fusion_test.exs:9:3
+
+    warning: unused alias OntologyCategory
+    │
+  9 │   alias Tiannara.Category.{OntologyCategory, FunctorMapping, PushoutFusion, NaturalTransformation}
+    │   ~
+    │
+    └─ test/category_theory/ontological_fusion_test.exs:9:3
+
+    warning: unused alias CoordinationArchaeology
+    │
+ 44 │   alias TiannaraRuntime.Civilization.Coordination.CoordinationArchaeology
+    │   ~
+    │
+    └─ test/civilization/certification/certification_test.exs:44:3
+
+    warning: unused alias EconomyArchaeology
+    │
+ 28 │   alias TiannaraRuntime.Civilization.Economy.EconomyArchaeology
+    │   ~
+    │
+    └─ test/civilization/certification/certification_test.exs:28:3
+
+    warning: unused alias PlanningArchaeology
+    │
+ 51 │   alias TiannaraRuntime.Civilization.Planning.PlanningArchaeology
+    │   ~
+    │
+    └─ test/civilization/certification/certification_test.exs:51:3
+
+    warning: unused alias PortfolioArchaeology
+    │
+ 36 │   alias TiannaraRuntime.Civilization.Portfolio.PortfolioArchaeology
+    │   ~
+    │
+    └─ test/civilization/certification/certification_test.exs:36:3
+
+    warning: unused alias ScenarioArchaeology
+    │
+ 59 │   alias TiannaraRuntime.Civilization.Scenarios.ScenarioArchaeology
+    │   ~
+    │
+    └─ test/civilization/certification/certification_test.exs:59:3
+
+..................................12:44:41.513 [warning] TelemetryPublisher skipping metrics build due exit: {:timeout, {GenServer, :call, [{:via, Registry, {Tiannara.Registry, {:universe, :alpha_universe}}}, :snapshot, 5000]}}
+🌌 Booted seed civilizations for observation.
+    warning: default values for the optional arguments in run_mission_cycle/2 are never used
+    │
+ 10 │   defp run_mission_cycle(trajectory_id, config \\ %{}) do
+    │        ~
+    │
+    └─ test/cognitive/long_horizon/long_horizon_validation_test.exs:10:8: 
+TiannaraRuntime.Cognitive.LongHorizon.LongHorizonValidationTest (module)
+
+warning: found unused @tag before "describe", did you mean to use @describetag?
+  (ex_unit 1.18.4) lib/ex_unit/callbacks.ex:779: ExUnit.Callbacks.__describe__/4
+  test/cognitive/mass_validation/mass_validation_test.exs:8: (module)
+  (elixir 1.18.4) src/elixir_compiler.erl:77: :elixir_compiler.dispatch/4
+  (elixir 1.18.4) src/elixir_compiler.erl:52: :elixir_compiler.compile/4
+  (elixir 1.18.4) src/elixir_module.erl:456: :elixir_module.eval_form/7
+  (elixir 1.18.4) src/elixir_module.erl:156: :elixir_module.compile/7
+  (elixir 1.18.4) src/elixir_compiler.erl:38: :elixir_compiler.maybe_fast_compile/2
+  (elixir 1.18.4) src/elixir_lexical.erl:13: :elixir_lexical.run/3
+  (elixir 1.18.4) src/elixir_compiler.erl:17: :elixir_compiler.quoted/3
+  (elixir 1.18.4) lib/kernel/parallel_compiler.ex:542: Kernel.ParallelCompiler.require_file/2
+  (elixir 1.18.4) lib/kernel/parallel_compiler.ex:425: anonymous fn/5 in Kernel.ParallelCompiler.spawn_workers/8
+
+    warning: unused alias CognitiveRuntime
+    │
+  6 │   alias TiannaraRuntime.Cognitive.Runtime.{CognitiveRuntime, MissionOrchestrator, EvidenceRouter, 
+ReplayCoordinator, ArchaeologyCoordinator}
+    │   ~
+    │
+    └─ test/cognitive/mass_validation/mass_validation_test.exs:6:3
+
+    warning: variable "graph_map" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    │
+ 58 │       assert {:ok, graph_map} = TaskPlanner.build_task_graph(result.nodes, result.edges)
+    │                    ~~~~~~~~~
+    │
+    └─ test/cognitive/planning/planning_validation_test.exs:58:20: 
+TiannaraRuntime.Cognitive.Planning.PlanningValidationTest."test Tier 2 — Task Planning build_task_graph returns 
+adjacency"/1
+
+     warning: variable "comparison" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 116 │       assert {:ok, comparison} = TradeoffAnalyzer.compare(alt1, alt2)
+     │                    ~~~~~~~~~~
+     │
+     └─ test/cognitive/planning/planning_validation_test.exs:116:20: 
+TiannaraRuntime.Cognitive.Planning.PlanningValidationTest."test Tier 5 — Trade-off Analysis compare returns 
+comparison"/1
+
+     warning: variable "explanation" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 184 │       assert {:ok, explanation} = PlanArchaeology.explain(archaeology)
+     │                    ~~~~~~~~~~~
+     │
+     └─ test/cognitive/planning/planning_validation_test.exs:184:20: 
+TiannaraRuntime.Cognitive.Planning.PlanningValidationTest."test Tier 8 — Archaeology explain returns explanation"/1
+
+     warning: variable "lineage_map" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 191 │       assert {:ok, lineage_map} = PlanArchaeology.get_lineage(archaeology)
+     │                    ~~~~~~~~~~~
+     │
+     └─ test/cognitive/planning/planning_validation_test.exs:191:20: 
+TiannaraRuntime.Cognitive.Planning.PlanningValidationTest."test Tier 8 — Archaeology get_lineage returns lineage"/1
+
+     warning: variable "m1" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 263 │       {:ok, {r1, m1}} = CognitiveRuntime.start_mission(runtime, "s_1")
+     │                  ~~
+     │
+     └─ test/cognitive/runtime/runtime_validation_test.exs:263:18: 
+TiannaraRuntime.Cognitive.Runtime.RuntimeValidationTest."test Tier 10 — Stress summary returns correct counts after 
+multiple missions"/1
+
+     warning: variable "channels" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 113 │   defp collect_latencies(channels, opts) do
+     │                          ~~~~~~~~
+     │
+     └─ test/cold_ignition/telemetry_pipeline_test.exs:113:26: ColdIgnition.TelemetryPipelineTest.collect_latencies/2
+
+    warning: module attribute @perturbation_timeout was set but never used
+    │
+ 16 │   @perturbation_timeout 2000
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/cold_ignition/reactivity_test.exs:16: ColdIgnition.ReactivityTest (module)
+
+..........12:44:47.203 [warning] Observability StreamProcessor NATS reconnect failed: "timed out waiting for info"
+    warning: module attribute @stress_threshold was set but never used
+    │
+ 10 │   @stress_threshold 0.75
+    │   ~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/l2_stabilization/ctl_tensegrity_test.exs:10: Tiannara.L2Stabilization.CTLTensegrityTest (module)
+
+     warning: variable "backtrack_result" is unused (if the variable is not meant to be used, prefix it with an 
+underscore)
+     │
+ 155 │     backtrack_result = MultiHistoryRuntime.backtrack_to_checkpoint(checkpointed_runtime, "checkpoint-1")
+     │     ~~~~~~~~~~~~~~~~
+     │
+     └─ test/multi_component_opc_test.exs:155:5: MultiComponentOPCTest."test Multi-history runtime manages timeline 
+forks and merges"/1
+
+    warning: unused alias BranchReconciler
+    │
+  8 │   alias Tiannara.L2Stabilization.CTL.{StressCalculator, BranchReconciler}
+    │   ~
+    │
+    └─ test/l2_stabilization/ctl_tensegrity_test.exs:8:3
+
+    warning: unused alias CausalAdversary
+    │
+  4 │   alias Tiannara.OED.ACM.{
+    │   ~
+    │
+    └─ test/oed/acm_crucible_test.exs:4:3
+
+    warning: unused alias OntologyTranslation
+    │
+  4 │   alias Tiannara.OED.ACM.{
+    │   ~
+    │
+    └─ test/oed/acm_crucible_test.exs:4:3
+
+    warning: unused alias CausalConsistency
+    │
+  4 │   alias Tiannara.OED.OAVL.{
+    │   ~
+    │
+    └─ test/oed/oavl_validation_test.exs:4:3
+
+    warning: unused alias GlobalizationGate
+    │
+  4 │   alias Tiannara.OED.OAVL.{
+    │   ~
+    │
+    └─ test/oed/oavl_validation_test.exs:4:3
+
+     warning: variable "original_size" is unused (if the variable is not meant to be used, prefix it with an 
+underscore)
+     │
+ 208 │     original_size = Graph.size(graph)
+     │     ~~~~~~~~~~~~~
+     │
+     └─ test/omce_test.exs:208:5: OMCE.Test."test Identity merger consolidates overlapping nodes"/1
+
+    warning: unused alias V3
+    │
+  4 │   alias Tiannara.OPC.V3
+    │   ~
+    │
+    └─ test/opc_v3_gpu_test.exs:4:3
+
+    warning: unused alias V3
+    │
+  4 │   alias Tiannara.OPC.V3
+    │   ~
+    │
+    └─ test/opc_v3_olef_test.exs:4:3
+
+.....................................................✅ Simplification reduced 4 nodes (80.0%)
+......✅ Cache stats: 4 entries, 50.0% hit rate
+................✅ Estimated VRAM usage: 8 bytes
+......✅ Sandbox injection added 1686 bytes of safety code
+.✅ MEI encoding coherence: 1.0
+.✅ Reality divergence: 0.0
+    warning: unused alias V3
+    │
+  5 │   alias Tiannara.OPC.V3
+    │   ~
+    │
+    └─ test/opc_v3_test.exs:5:3
+
+    warning: variable "expected_limit" is unused (if the variable is not meant to be used, prefix it with an 
+underscore)
+    │
+ 54 │     expected_limit = (0.8 * 0.9 * 0.7) / (1 + 0.2)
+    │     ~~~~~~~~~~~~~~
+    │
+    └─ test/rrg_civilization_test.exs:54:5: RRGAndCivilizationTest."test RRG rate limiter enforces constraints 
+correctly"/1
+
+....................✅ Parsed: AST depth = 3
+.✅ Validated: AST is stable
+.✅ Simplified: Reduced 0 nodes
+.✅ Regularized: AOR epsilon injection applied
+.✅ OIR Built: 5 instructions
+.✅ Optimized: 40.0% instruction reduction
+✅ Compiled: 586 byte GLSL shader
+✅ Sandboxed: Added safety constraints
+✅ Cached: Shader stored for reuse
+✅ Executed: Kernel dispatched
+✅ Chronogram: Reality mutated (coherence: 1.0)
+✅ NATS: Execution result published
+
+🎉 Full OPC pipeline completed successfully!
+......Starting autonomous execution...
+Autonomous execution completed.
+Final Statistics: %{
+  step_counter: 100,
+  equilibrium_reached: true,
+  odef_stats: %{
+    active_connections: 0,
+    observer_count: 3,
+    mesh_dimensions: {20, 20},
+    equilibrium_state: :unknown,
+    step_count: 100
+  },
+  pressure_field_stats: %{count: 1, max: 0.8, min: 0.8, avg: 0.8},
+  rodl_state: %{
+    active: true,
+    observer_count: 3,
+    definition_count: 1,
+    execution_steps: 100
+  }
+}
+    warning: unused alias MultiHistorySync
+    │
+  9 │   alias Tiannara.Phase11.CRCA.{TemporalHarmonizer, MultiHistorySync, ParadoxResolver}
+    │   ~
+    │
+    └─ test/simulation/crca_temporal_test.exs:9:3
+
+    warning: unused alias TemporalHarmonizer
+    │
+  9 │   alias Tiannara.Phase11.CRCA.{TemporalHarmonizer, MultiHistorySync, ParadoxResolver}
+    │   ~
+    │
+    └─ test/simulation/crca_temporal_test.exs:9:3
+
+    warning: unused alias ConsensusQuorum
+    │
+ 11 │   alias Tiannara.Phase10.MEN.{NegotiationEngine, ConsensusQuorum, LatencyValidator}
+    │   ~
+    │
+    └─ test/simulation/men_negotiation_test.exs:11:3
+
+    warning: unused alias NegotiationEngine
+    │
+ 11 │   alias Tiannara.Phase10.MEN.{NegotiationEngine, ConsensusQuorum, LatencyValidator}
+    │   ~
+    │
+    └─ test/simulation/men_negotiation_test.exs:11:3
+
+     warning: function apply_semantic_decay/2 is unused
+     │
+ 164 │   defp apply_semantic_decay(ontology, decay) do
+     │        ~
+     │
+     └─ test/simulation/orb_resonance_convergence_test.exs:164:8: Tiannara.Simulation.ORBResonanceConvergenceTest 
+(module)
+
+     warning: function compute_recovery_rate/1 is unused
+     │
+ 187 │   defp compute_recovery_rate(sequence) do
+     │        ~
+     │
+     └─ test/simulation/omega_phi_convergence_test.exs:187:8: Tiannara.Simulation.OmegaPhiConvergenceTest (module)
+
+    warning: unused alias MetricsCollector
+    │
+ 16 │   alias Tiannara.Audit.MetricsCollector
+    │   ~
+    │
+    └─ test/simulation/omega_phi_convergence_test.exs:16:3
+
+    warning: unused alias SelfCompilation
+    │
+ 15 │   alias Tiannara.Kernel.SelfCompilation
+    │   ~
+    │
+    └─ test/simulation/omega_phi_convergence_test.exs:15:3
+
+    warning: unused alias ManifoldWarper
+    │
+ 16 │   alias Tiannara.Phase7.ORB.{ResonanceEngine, HorizonGuard, TopologicalAligner, ManifoldWarper}
+    │   ~
+    │
+    └─ test/simulation/orb_resonance_convergence_test.exs:16:3
+
+    warning: unused alias ResonanceEngine
+    │
+ 16 │   alias Tiannara.Phase7.ORB.{ResonanceEngine, HorizonGuard, TopologicalAligner, ManifoldWarper}
+    │   ~
+    │
+    └─ test/simulation/orb_resonance_convergence_test.exs:16:3
+
+    warning: unused alias TopologicalAligner
+    │
+ 16 │   alias Tiannara.Phase7.ORB.{ResonanceEngine, HorizonGuard, TopologicalAligner, ManifoldWarper}
+    │   ~
+    │
+    └─ test/simulation/orb_resonance_convergence_test.exs:16:3
+
+    warning: module attribute @convergence_epsilon was set but never used
+    │
+  9 │   @convergence_epsilon 1.0e-6
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/simulation/rea_harmonization_test.exs:9: Tiannara.Simulation.REAHarmonizationTest (module)
+
+    warning: unused alias ConflictResolver
+    │
+  6 │   alias Tiannara.Phase16.REA.{ConflictResolver, ConvergenceMonitor}
+    │   ~
+    │
+    └─ test/simulation/rea_harmonization_test.exs:6:3
+
+    warning: unused alias ConvergenceMonitor
+    │
+  6 │   alias Tiannara.Phase16.REA.{ConflictResolver, ConvergenceMonitor}
+    │   ~
+    │
+    └─ test/simulation/rea_harmonization_test.exs:6:3
+
+...............................................................................................................................................
+OK: Passed 100 test(s).
+    warning: unused alias ByzantineConsensus
+    │
+  6 │   alias Tiannara.Phase14.Formal.{ContractionVerifier, ByzantineConsensus, EquivocationDetector}
+    │   ~
+    │
+    └─ test/simulation/reg_convergence_bft_test.exs:6:3
+
+    warning: module attribute @max_drift was set but never used
+    │
+ 10 │   @max_drift 0.35
+    │   ~~~~~~~~~~~~~~~
+    │
+    └─ test/simulation/rrm_metamorphosis_test.exs:10: Tiarnara.Simulation.RRMMetamorphosisTest (module)
+
+    warning: module attribute @stability_threshold was set but never used
+    │
+  9 │   @stability_threshold 0.50
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/simulation/rrm_metamorphosis_test.exs:9: Tiarnara.Simulation.RRMMetamorphosisTest (module)
+
+    warning: unused alias EquivalenceVerifier
+    │
+  6 │   alias Tiarnara.Phase18.RRM.{AdaptationController, EquivalenceVerifier}
+    │   ~
+    │
+    └─ test/simulation/rrm_metamorphosis_test.exs:6:3
+
+    warning: module attribute @stability_threshold was set but never used
+    │
+  8 │   @stability_threshold 0.70
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/simulation/smcp_adaptation_test.exs:8: Tiannara.Simulation.SMCPAdaptationTest (module)
+
+    warning: unused alias FallbackController
+    │
+  6 │   alias Tiannara.Phase15.SMCP.{SafetyVerifier, FallbackController}
+    │   ~
+    │
+    └─ test/simulation/smcp_adaptation_test.exs:6:3
+
+    warning: module attribute @epsilon_tcl was set but never used
+    │
+  8 │   @epsilon_tcl 1.0e-5
+    │   ~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/simulation/tcl_consensus_test.exs:8: Tiannara.Simulation.TCLConsensusTest (module)
+
+    warning: unused alias FixedPointVerifier
+    │
+  6 │   alias Tiannara.Phase19.TCL.{FixedPointVerifier, PartitionHandler}
+    │   ~
+    │
+    └─ test/simulation/tcl_consensus_test.exs:6:3
+
+    warning: unused alias PartitionHandler
+    │
+  6 │   alias Tiannara.Phase19.TCL.{FixedPointVerifier, PartitionHandler}
+    │   ~
+    │
+    └─ test/simulation/tcl_consensus_test.exs:6:3
+
+    warning: module attribute @resource_threshold was set but never used
+    │
+  8 │   @resource_threshold 0.85
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/simulation/ucc_compilation_test.exs:8: Tiannara.Simulation.UCCCompilationTest (module)
+
+................................................................................................................
+OK: Passed 100 test(s).
+    warning: unused alias Engine
+    │
+  9 │   alias Tiannara.Phase8.TCT.{Engine, ConvergenceProver}
+    │   ~
+    │
+    └─ test/simulation/tct_transfinite_test.exs:9:3
+
+......................................................................................................
+OK: Passed 100 test(s).
+     warning: variable "result" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 450 │       {:ok, result} = OCAL.resolve(:suppress, observer, %{}, 0.45, 0.80)
+     │             ~~~~~~
+     │
+     └─ test/tiannara/meta/observer_collapse_integration_test.exs:450:13: 
+Tiannara.Meta.ObserverCollapseIntegrationTest."test NATS event publishing OCAL publishes decision events"/1
+
+    warning: unused alias MCK
+    │
+ 17 │   alias TiannaraRuntime.MCK
+    │   ~
+    │
+    └─ test/tiannara/meta/observer_arbitration_layer_test.exs:17:3
+
+    warning: unused alias MCK
+    │
+ 21 │   alias TiannaraRuntime.MCK
+    │   ~
+    │
+    └─ test/tiannara/meta/observer_collapse_integration_test.exs:21:3
+
+     warning: variable "result1" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 247 │       {:ok, result1} = OMRL.reconcile("cache_test")
+     │             ~~~~~~~
+     │
+     └─ test/tiannara/meta/observer_memory_reconciliation_test.exs:247:13: 
+Tiannara.Meta.ObserverMemoryReconciliationTest."test reconcile/1 caches reconciliation result"/1
+
+    warning: unused alias AdaptiveController
+    │
+  4 │   alias Tiannara.MSCL.AdaptiveController
+    │   ~
+    │
+    └─ test/tiannara/mscl/adaptive_controller_test.exs:4:3
+
+......12:45:03.443 [warning] 🚨 [RRG] CRITICAL: Ψ=0.245 - Universal convergence imminent!
+12:45:03.443 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.24478472046074523. Initiating emergency rollback!
+12:45:03.443 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+warning: pattern matching on 0.0 is equivalent to matching only on +0.0 from Erlang/OTP 27+. Instead you must match on 
++0.0 or -0.0
+└─ test/tiannara/opc/gpu_execution_quarantine_test.exs: Tiannara.OPC.GPUExecutionQuarantineTest."test cache control 
+remains operable under quarantine"/1
+
+    warning: variable "job" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    │
+ 88 │         {job_id, job} = Enum.find(kernels, fn {_id, job} -> job.status == :failed end) || {nil, nil}
+    │                  ~
+    │
+    └─ test/tiannara/opc/gpu_execution_quarantine_test.exs:88:18: 
+Tiannara.OPC.GPUExecutionQuarantineTest.await_failed_job/1
+
+    warning: the underscored variable "_opc_pid" is used after being set. A leading underscore indicates that the 
+value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 32 │       Process.exit(_opc_pid, :normal)
+    │                    ~
+    │
+    └─ test/tiannara/opc/phase_5f6_opc_test.exs:32:20: TiannaraRuntime.Phase5F6OPCTest."test OPC core compilation 
+compile_physics accepts valid simple physics"/1
+
+     warning: variable "oir" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 314 │       assert match?({:ok, oir}, result)
+     │                           ~
+     │
+     └─ test/tiannara/opc/phase_5f6_opc_test.exs:314:27: TiannaraRuntime.Phase5F6OPCTest."test OPC integration 
+scenarios compilation applies AOR regularization to fix singularities"/1
+
+     warning: function create_wide_complex_ast/0 is unused
+     │
+ 412 │   defp create_wide_complex_ast do
+     │        ~
+     │
+     └─ test/tiannara/opc/phase_5f6_opc_test.exs:412:8: TiannaraRuntime.Phase5F6OPCTest (module)
+
+    warning: default values for the optional arguments in linear_evidence/1 are never used
+    │
+ 20 │   defp linear_evidence(n \\ 100) do
+    │        ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:20:8: 
+TiannaraRuntime.CausalDiscovery.ValidationCampaignTest (module)
+
+    warning: default values for the optional arguments in independent_evidence/1 are never used
+    │
+ 27 │   defp independent_evidence(n \\ 100) do
+    │        ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:27:8: 
+TiannaraRuntime.CausalDiscovery.ValidationCampaignTest (module)
+
+    warning: unused alias ExperimentSchedule
+    │
+  5 │   alias TiannaraRuntime.WorldModel.AutonomousResearch.{
+    │   ~
+    │
+    └─ test/world_model/autonomous_research/validation_campaign_test.exs:5:3
+
+    warning: unused alias ProgramMetrics
+    │
+  5 │   alias TiannaraRuntime.WorldModel.AutonomousResearch.{
+    │   ~
+    │
+    └─ test/world_model/autonomous_research/validation_campaign_test.exs:5:3
+
+    warning: unused alias ResearchOutcome
+    │
+  5 │   alias TiannaraRuntime.WorldModel.AutonomousResearch.{
+    │   ~
+    │
+    └─ test/world_model/autonomous_research/validation_campaign_test.exs:5:3
+
+    warning: unused alias ArchaeologyEntry
+    │
+  4 │   alias TiannaraRuntime.CausalDiscovery.{
+    │   ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:4:3
+
+    warning: unused alias CausalValidationResult
+    │
+  4 │   alias TiannaraRuntime.CausalDiscovery.{
+    │   ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:4:3
+
+    warning: unused alias EdgeScorer
+    │
+  4 │   alias TiannaraRuntime.CausalDiscovery.{
+    │   ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:4:3
+
+    warning: unused alias IndependenceResult
+    │
+  4 │   alias TiannaraRuntime.CausalDiscovery.{
+    │   ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:4:3
+
+    warning: unused alias Interval
+    │
+ 12 │   alias TiannaraRuntime.WorldModel.Ontology.{
+    │   ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:12:3
+
+    warning: unused alias LatentVariable
+    │
+  4 │   alias TiannaraRuntime.CausalDiscovery.{
+    │   ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:4:3
+
+    warning: unused alias StructureCandidate
+    │
+  4 │   alias TiannaraRuntime.CausalDiscovery.{
+    │   ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:4:3
+
+    warning: unused alias ValidationCheck
+    │
+  4 │   alias TiannaraRuntime.CausalDiscovery.{
+    │   ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:4:3
+
+    warning: unused alias Variable
+    │
+ 12 │   alias TiannaraRuntime.WorldModel.Ontology.{
+    │   ~
+    │
+    └─ test/world_model/causal_discovery/validation_campaign_test.exs:12:3
+
+    warning: default values for the optional arguments in make_model/1 are never used
+    │
+ 11 │   defp make_model(overrides \\ []) do
+    │        ~
+    │
+    └─ test/world_model/model_registry_test.exs:11:8: TiannaraRuntime.WorldModel.ModelRegistryTest (module)
+
+    warning: unused alias CounterfactualEngine
+    │
+  9 │   alias TiannaraRuntime.WorldModel.Counterfactual.{
+    │   ~
+    │
+    └─ test/world_model/counterfactual/validation_campaign_test.exs:9:3
+
+    warning: unused alias CounterfactualRegistry
+    │
+  9 │   alias TiannaraRuntime.WorldModel.Counterfactual.{
+    │   ~
+    │
+    └─ test/world_model/counterfactual/validation_campaign_test.exs:9:3
+
+     warning: variable "final_twin" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 306 │       assert {:ok, final_twin, outcome} = DigitalTwinEngine.run_simulation(twin, scenario)
+     │                    ~~~~~~~~~~
+     │
+     └─ test/world_model/digital_twin/validation_campaign_test.exs:306:20: 
+TiannaraRuntime.DigitalTwin.ValidationCampaignTest."test C17.7.95.10 — Full Simulation Execution end-to-end simulation 
+produces outcome"/1
+
+    warning: unused alias CausalGraph
+    │
+  4 │   alias TiannaraRuntime.WorldModel.Ontology.{
+    │   ~
+    │
+    └─ test/world_model/ontology_test.exs:4:3
+
+    warning: unused alias CausalNode
+    │
+  4 │   alias TiannaraRuntime.WorldModel.Ontology.{
+    │   ~
+    │
+    └─ test/world_model/ontology_test.exs:4:3
+
+    warning: unused alias CertificationCheck
+    │
+  4 │   alias TiannaraRuntime.WorldModel.Ontology.{
+    │   ~
+    │
+    └─ test/world_model/ontology_test.exs:4:3
+
+    warning: unused alias CounterfactualModel
+    │
+  4 │   alias TiannaraRuntime.WorldModel.Ontology.{
+    │   ~
+    │
+    └─ test/world_model/ontology_test.exs:4:3
+
+    warning: unused alias ObservationModel
+    │
+  4 │   alias TiannaraRuntime.WorldModel.Ontology.{
+    │   ~
+    │
+    └─ test/world_model/ontology_test.exs:4:3
+
+    warning: unused alias TimeSeriesPoint
+    │
+  4 │   alias TiannaraRuntime.WorldModel.Ontology.{
+    │   ~
+    │
+    └─ test/world_model/ontology_test.exs:4:3
+
+     warning: variable "v1" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 199 │         {:ok, v1} = VariableSpecification.infer_variable("a", [1]),
+     │               ~~
+     │
+     └─ test/world_model/pipeline/variable_specification_test.exs:199:15: 
+TiannaraRuntime.WorldModel.Pipeline.VariableSpecificationTest."test compute_variable_root/1 returns deterministic 
+root"/1
+
+     warning: variable "ce1" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 141 │       {:ok, ce1} = ConfidenceEngine.compute(wm1, %Forecast{horizon: :immediate,
+     │             ~~~
+     │
+     └─ test/world_model/prediction/validation_campaign_test.exs:141:13: 
+TiannaraRuntime.Prediction.ValidationCampaignTest."test C17.4.95.2 — Confidence Estimation evidence quality is higher 
+with more evidence roots"/1
+
+     warning: variable "pred" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 232 │       pred = %Prediction{
+     │       ~~~~
+     │
+     └─ test/world_model/prediction/validation_campaign_test.exs:232:7: 
+TiannaraRuntime.Prediction.ValidationCampaignTest."test C17.4.95.6 — Math Verification fingerprint is deterministic"/1
+
+...............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................12:45:29.337 [warning] 🚨 [RRG] CRITICAL: Ψ=0.206 - Universal convergence imminent!
+12:45:29.337 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.20588276139229372. Initiating emergency rollback!
+12:45:29.337 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+12:45:31.543 [warning] 🚨 [RRG] CRITICAL: Ψ=0.188 - Universal convergence imminent!
+12:45:31.543 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.1884331079145572. Initiating emergency rollback!
+12:45:31.543 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+    warning: comparison between distinct types found:
+
+        left != right
+
+    given types:
+
+        dynamic(
+          %{
+            ...,
+            branch_registry: term(),
+            parallel_executor: %{..., active_branches: term()},
+            timeline: term(),
+            timeline_manager: %{..., merged_timelines: non_empty_list(term(), term())}
+          } or {:error, :timeline_not_found}
+        ) != nil
+
+    where "left" (context ExUnit.Assertions) was given the type:
+
+        # type: dynamic(
+          %{
+            ...,
+            branch_registry: term(),
+            parallel_executor: %{..., active_branches: term()},
+            timeline: term(),
+            timeline_manager: %{..., merged_timelines: non_empty_list(term(), term())}
+          } or {:error, :timeline_not_found}
+        )
+        # from: test/multi_component_opc_test.exs:79
+        left = merged_runtime
+
+    where "right" (context ExUnit.Assertions) was given the type:
+
+        # type: nil
+        # from: test/multi_component_opc_test.exs:79
+        right = nil
+
+    While Elixir can compare across all types, you are comparing across types which are always disjoint, and the 
+result is either always true or always false
+
+    typing violation found at:
+    │
+ 79 │     assert merged_runtime != nil
+    │                           ~
+    │
+    └─ test/multi_component_opc_test.exs:79:27: MultiComponentOPCTest."test OPC Reality Compiler integrates GPU 
+execution, contradiction resolution, and multi-history"/1
+
+    warning: the following clause will never match:
+
+        {:error, {:already_started, _pid}}
+
+    because it attempts to match on the result of:
+
+        TiannaraRuntime.Monitoring.TelemetryPublisher.start_link([])
+
+    which has type:
+
+        dynamic({:ok, term()})
+
+    typing violation found at:
+    │
+ 18 │       {:error, {:already_started, _pid}} -> :ok
+    │       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/cold_ignition/feedback_loop_test.exs:18: ColdIgnition.FeedbackLoopTest.__ex_unit_setup_1/1
+
+     warning: comparison between distinct types found:
+
+         left != right
+
+     given types:
+
+         binary() != nil
+
+     where "left" (context ExUnit.Assertions) was given the type:
+
+         # type: binary()
+         # from: test/civilization/certification/certification_test.exs:141
+         left = cs.id
+
+     where "right" (context ExUnit.Assertions) was given the type:
+
+         # type: nil
+         # from: test/civilization/certification/certification_test.exs:141
+         right = nil
+
+     While Elixir can compare across all types, you are comparing across types which are always disjoint, and the 
+result is either always true or always false
+
+     typing violation found at:
+     │
+ 141 │     assert cs.id != nil
+     │                  ~
+     │
+     └─ test/civilization/certification/certification_test.exs:141:18: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: comparison between distinct types found:
+
+         left != right
+
+     given types:
+
+         binary() != nil
+
+     where "left" (context ExUnit.Assertions) was given the type:
+
+         # type: binary()
+         # from: test/civilization/certification/certification_test.exs:142
+         left = gm.id
+
+     where "right" (context ExUnit.Assertions) was given the type:
+
+         # type: nil
+         # from: test/civilization/certification/certification_test.exs:142
+         right = nil
+
+     While Elixir can compare across all types, you are comparing across types which are always disjoint, and the 
+result is either always true or always false
+
+     typing violation found at:
+     │
+ 142 │     assert gm.id != nil
+     │                  ~
+     │
+     └─ test/civilization/certification/certification_test.exs:142:18: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: comparison between distinct types found:
+
+         left != right
+
+     given types:
+
+         binary() != nil
+
+     where "left" (context ExUnit.Assertions) was given the type:
+
+         # type: binary()
+         # from: test/civilization/certification/certification_test.exs:143
+         left = im.id
+
+     where "right" (context ExUnit.Assertions) was given the type:
+
+         # type: nil
+         # from: test/civilization/certification/certification_test.exs:143
+         right = nil
+
+     While Elixir can compare across all types, you are comparing across types which are always disjoint, and the 
+result is either always true or always false
+
+     typing violation found at:
+     │
+ 143 │     assert im.id != nil
+     │                  ~
+     │
+     └─ test/civilization/certification/certification_test.exs:143:18: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: comparison between distinct types found:
+
+         left != right
+
+     given types:
+
+         binary() != nil
+
+     where "left" (context ExUnit.Assertions) was given the type:
+
+         # type: binary()
+         # from: test/civilization/certification/certification_test.exs:144
+         left = em.id
+
+     where "right" (context ExUnit.Assertions) was given the type:
+
+         # type: nil
+         # from: test/civilization/certification/certification_test.exs:144
+         right = nil
+
+     While Elixir can compare across all types, you are comparing across types which are always disjoint, and the 
+result is either always true or always false
+
+     typing violation found at:
+     │
+ 144 │     assert em.id != nil
+     │                  ~
+     │
+     └─ test/civilization/certification/certification_test.exs:144:18: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: comparison between distinct types found:
+
+         left != right
+
+     given types:
+
+         binary() != nil
+
+     where "left" (context ExUnit.Assertions) was given the type:
+
+         # type: binary()
+         # from: test/civilization/certification/certification_test.exs:145
+         left = cm.id
+
+     where "right" (context ExUnit.Assertions) was given the type:
+
+         # type: nil
+         # from: test/civilization/certification/certification_test.exs:145
+         right = nil
+
+     While Elixir can compare across all types, you are comparing across types which are always disjoint, and the 
+result is either always true or always false
+
+     typing violation found at:
+     │
+ 145 │     assert cm.id != nil
+     │                  ~
+     │
+     └─ test/civilization/certification/certification_test.exs:145:18: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: comparison between distinct types found:
+
+         left != right
+
+     given types:
+
+         binary() != nil
+
+     where "left" (context ExUnit.Assertions) was given the type:
+
+         # type: binary()
+         # from: test/civilization/certification/certification_test.exs:146
+         left = km.id
+
+     where "right" (context ExUnit.Assertions) was given the type:
+
+         # type: nil
+         # from: test/civilization/certification/certification_test.exs:146
+         right = nil
+
+     While Elixir can compare across all types, you are comparing across types which are always disjoint, and the 
+result is either always true or always false
+
+     typing violation found at:
+     │
+ 146 │     assert km.id != nil
+     │                  ~
+     │
+     └─ test/civilization/certification/certification_test.exs:146:18: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+     warning: comparison between distinct types found:
+
+         left != right
+
+     given types:
+
+         binary() != nil
+
+     where "left" (context ExUnit.Assertions) was given the type:
+
+         # type: binary()
+         # from: test/civilization/certification/certification_test.exs:147
+         left = tp.id
+
+     where "right" (context ExUnit.Assertions) was given the type:
+
+         # type: nil
+         # from: test/civilization/certification/certification_test.exs:147
+         right = nil
+
+     While Elixir can compare across all types, you are comparing across types which are always disjoint, and the 
+result is either always true or always false
+
+     typing violation found at:
+     │
+ 147 │     assert tp.id != nil
+     │                  ~
+     │
+     └─ test/civilization/certification/certification_test.exs:147:18: 
+TiannaraRuntime.Civilization.Certification.CertificationTest."test run all subsystems together end-to-end"/1
+
+....................................................................................................................................................................................................12:46:41.314 [warning] 🚨 [RRG] CRITICAL: Ψ=0.166 - Universal convergence imminent!
+12:46:41.314 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.1660119552362351. Initiating emergency rollback!
+12:46:41.314 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+...........12:46:44.635 [warning] 🚨 [RRG] CRITICAL: Ψ=0.167 - Universal convergence imminent!
+12:46:44.635 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.16734929040455138. Initiating emergency rollback!
+12:46:44.635 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+.............12:46:47.426 [warning] Observability StreamProcessor NATS reconnect failed: "timed out waiting for info"
+....................................................................................12:47:15.126 [warning] 🚨 [RRG] CRITICAL: Ψ=0.225 - Universal convergence imminent!
+12:47:15.126 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.22488475896065324. Initiating emergency rollback!
+12:47:15.126 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+............12:47:35.549 [warning] 🚨 [RRG] CRITICAL: Ψ=0.275 - Universal convergence imminent!
+12:47:35.549 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.27466987772686224. Initiating emergency rollback!
+12:47:35.550 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+.........................12:48:16.587 [warning] 🚨 [RRG] CRITICAL: Ψ=0.158 - Universal convergence imminent!
+12:48:16.587 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.158227681695987. Initiating emergency rollback!
+12:48:16.587 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+.............✅ RealityBus module loaded
+.✅ RealityBus subscribe module loaded
+.✅ RealityBus publish_causal module loaded
+12:48:27.382 [warning] 🚨 [RRG] CRITICAL: Ψ=0.295 - Universal convergence imminent!
+12:48:27.382 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.29472033825009647. Initiating emergency rollback!
+.12:48:27.382 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+✅ RealityBus publish_partitioned module loaded
+.✅ High entropy classification: high
+.✅ Medium entropy classification: medium
+.✅ Low entropy classification: low
+.✅ Entropy score calculation works
+.✅ Rebalancing detection works
+.✅ MeshBalancer module loaded
+.✅ MeshBalancer emergency module loaded
+.✅ ChronogramSync.synchronize/3 works
+.✅ ChronogramSync.write_memory/3 works
+.✅ ChronogramSync.project_history/3 works
+.✅ ChronogramSync.reconcile/3 works
+.✅ ChronogramSync.publish_snapshot/1 works
+.✅ Low entropy event validated
+.✅ High entropy event blocked
+.✅ Event without causal chain blocked
+.✅ Entropy threshold checks work
+.✅ Causal chain verification works
+.✅ Failure recording works
+.✅ Observer quarantine works
+.✅ Observer unquarantine works
+.
+🧪 Testing complete mesh event flow...
+   ✅ Event validated by firewall
+   ✅ Routed to low entropy zone
+   ✅ Chronogram synchronized
+   ⚖️ Pressure rebalancing triggered
+
+🎉 Complete mesh event flow successful!
+.12:48:36.667 [warning] 🚨 [RRG] CRITICAL: Ψ=0.201 - Universal convergence imminent!
+12:48:36.667 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.20113815341009436. Initiating emergency rollback!
+12:48:36.667 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+
+🚨 Testing emergency evacuation scenario...
+   🚨 Emergency evacuation initiated
+✅ Emergency protocols functional
+.
+⚖️ Testing timeline reconciliation...
+   ✅ Reconciliation initiated
+   ✅ Branching reconciliation initiated
+✅ Timeline reconciliation functional
+.✅ All subject names follow tiannara.* convention
+.✅ Entropy partitioning subjects valid
+.........................12:48:44.734 [warning] 🚨 [RRG] CRITICAL: Ψ=0.211 - Universal convergence imminent!
+12:48:44.734 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.21131278144079574. Initiating emergency rollback!
+12:48:44.734 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+.........................12:48:53.959 [warning] 🚨 [RRG] CRITICAL: Ψ=0.287 - Universal convergence imminent!
+12:48:53.959 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.2865733014129267. Initiating emergency rollback!
+12:48:53.959 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+............................................................12:49:16.329 [warning] 🚨 [RRG] CRITICAL: Ψ=0.14 - Universal convergence imminent!
+12:49:16.329 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.13993568081279298. Initiating emergency rollback!
+12:49:16.330 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+................12:49:26.921 [warning] 🚨 [RRG] CRITICAL: Ψ=0.127 - Universal convergence imminent!
+12:49:26.921 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.1267408075600781. Initiating emergency rollback!
+12:49:26.921 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+.......12:49:30.527 [warning] 🚨 [RRG] CRITICAL: Ψ=0.267 - Universal convergence imminent!
+{removed_failing_handler,default}
+..12:49:31.733 [warning] 🚨 [RRG] CRITICAL: Ψ=0.2 - Universal convergence imminent!
+12:49:31.733 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.1996594225990442. Initiating emergency rollback!
+12:49:31.733 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+..12:49:33.954 [warning] 🚨 [RRG] CRITICAL: Ψ=0.267 - Universal convergence imminent!
+12:49:33.954 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.26739241081181075. Initiating emergency rollback!
+12:49:33.954 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+..........12:49:38.066 [warning] 🚨 [RRG] CRITICAL: Ψ=0.165 - Universal convergence imminent!
+12:49:38.066 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.16533884657788203. Initiating emergency rollback!
+12:49:38.066 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+........12:49:43.233 [warning] 🚨 [RRG] CRITICAL: Ψ=0.28 - Universal convergence imminent!
+12:49:43.233 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.27955419047167523. Initiating emergency rollback!
+12:49:43.233 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+...............12:49:50.673 [warning] Observability StreamProcessor NATS reconnect failed: "timed out waiting for info"
+.........12:49:55.135 [warning] MetaEvolutionStreamManager dropping unencodable payload on tiannara.meta.ocal.decisions: %Protocol.UndefinedError{protocol: Jason.Encoder, value: {"blend_a", "blend_b"}, description: "Jason.Encoder protocol must always be explicitly implemented"}
+.................12:49:59.444 [warning] 🚨 [RRG] CRITICAL: Ψ=0.18 - Universal convergence imminent!
+.12:49:59.444 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.18008744075023425. Initiating emergency rollback!
+12:49:59.444 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+.............12:50:05.688 [warning] 🚨 [RRG] CRITICAL: Ψ=0.125 - Universal convergence imminent!
+.12:50:05.688 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.12531814808923727. Initiating emergency rollback!
+12:50:05.688 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+........................12:50:18.223 [warning] 🚨 [RRG] CRITICAL: Ψ=0.265 - Universal convergence imminent!
+.12:50:18.224 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.26478611593652035. Initiating emergency rollback!
+12:50:18.224 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+.......................12:50:32.510 [warning] 🚨 [RRG] CRITICAL: Ψ=0.294 - Universal convergence imminent!
+12:50:32.510 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.2935900642652792. Initiating emergency rollback!
+12:50:32.510 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+.......................................12:50:51.695 [warning] Observability StreamProcessor NATS reconnect failed: "timed out waiting for info"
+.................................................................12:51:42.290 [warning] 🚨 [RRG] CRITICAL: Ψ=0.166 - Universal convergence imminent!
+12:51:42.290 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.16617132830033501. Initiating emergency rollback!
+12:51:42.290 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+...12:51:47.482 [warning] 🚨 [RRG] CRITICAL: Ψ=0.247 - Universal convergence imminent!
+12:51:47.482 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.24653739481204826. Initiating emergency rollback!
+12:51:47.483 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+...........................12:52:04.859 [warning] 🚨 [RRG] CRITICAL: Ψ=0.236 - Universal convergence imminent!
+12:52:04.859 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.23593579355292724. Initiating emergency rollback!
+12:52:04.859 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+....12:52:06.915 [warning] 🚨 [RRG] CRITICAL: Ψ=0.215 - Universal convergence imminent!
+12:52:06.915 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.21517424236711696. Initiating emergency rollback!
+12:52:06.915 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+..........................................................................................................................................................................12:52:31.015 [warning] 🚨 [RRG] CRITICAL: Ψ=0.183 - Universal convergence imminent!
+12:52:31.015 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.18308320592223656. Initiating emergency rollback!
+12:52:31.015 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+.......🌌 Booted seed civilizations for observation.
+..............................................................................................................................................................................................................
+Finished in 479.5 seconds (60.8s async, 418.7s sync)
+40 properties, 1863 tests, 0 failures, 6 excluded
+Logger - error: 

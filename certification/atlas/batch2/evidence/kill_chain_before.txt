@@ -1,0 +1,17 @@
+%{
+  probe: "B2 kill chain",
+  cwd: "c:/Users/user/AppData/Local/Temp/opencode/b2_runtime/kill_before",
+  boot_profile: :minimal,
+  world_supervisor_alive: false,
+  cis_mode: ":normal",
+  direct_execution: ":executed",
+  attempts: [],
+  final_stats: "%{total_requests: 0, total_executed: 0, total_denied: 0, pending_requests: 0, recent_requests: []}",
+  utc: "2026-10-22T20:16:18.030000Z",
+  app_start: "{:ok, [:mnesia, :forward_provenance, :eex, :mime, :plug_crypto, :telemetry, :plug, :phoenix_pubsub, :phoenix_html, :phoenix_template, :websock, :cowlib, :ranch, :cowboy, :cowboy_telemetry, :plug_cowboy, :websock_adapter, :castore, :jason, :phoenix, :phoenix_live_view, :connection, :nimble_parsec, :ed25519, :curve25519, :salsa20, :chacha20, :equivalex, :poly1305, :kcl, :nkeys, :gnat, :uuid, :hpax, :mint, :nimble_pool, :nimble_options, :finch, :req, :iex, :proper, :libgraph, :propcheck, :telemetry_metrics, :rustler, :tiannara_runtime]}",
+  kill_switch_alive: true,
+  execution_controller_alive: true,
+  quota_governor_alive: true,
+  top_supervisor_alive: true,
+  startup_all_running: true
+}

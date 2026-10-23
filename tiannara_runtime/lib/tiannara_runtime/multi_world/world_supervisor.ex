@@ -20,11 +20,17 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
   controllable, and debuggable.
   """
 
-  use DynamicSupervisor
+  use GenServer
   require Logger
 
+  @dynamic_supervisor TiannaraRuntime.MultiWorld.WorldSupervisor.Dynamics
+
   def start_link(init_arg \\ []) do
-    DynamicSupervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
+    GenServer.start_link(__MODULE__, init_arg, name: __MODULE__)
+  end
+
+  def start_child(world_id, child_spec) do
+    GenServer.call(__MODULE__, {:start_child, world_id, child_spec})
   end
 
   def spawn_world(config) do
@@ -63,7 +69,7 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
       }
     }
 
-    case DynamicSupervisor.start_child(__MODULE__, child_spec) do
+    case start_child(world_id, child_spec) do
       {:ok, world_pid} ->
         Logger.info("World #{world_id} spawned successfully")
         {:ok, world_pid, world_id}
@@ -77,32 +83,7 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
   end
 
   def terminate_world(world_id, reason \\ :normal) do
-    Logger.info("Terminating world #{world_id}: #{reason}")
-
-    TiannaraRuntime.MultiWorld.WorldFreeze.create_snapshot(world_id, %{
-      reason: reason,
-      type: :pre_termination
-    })
-
-    TiannaraRuntime.MultiWorld.DeterministicReplay.stop_recording(world_id)
-
-    world_pid = find_world_pid(world_id)
-
-    if world_pid do
-      Process.exit(world_pid, :shutdown)
-    end
-
-    TiannaraRuntime.MultiWorld.ResourceQuota.terminate_world(world_id, reason)
-
-    case TiannaraRuntime.MultiWorld.MemoryManager.get_world_memory(world_id) do
-      {:ok, memory_mb} ->
-        TiannaraRuntime.MultiWorld.MemoryManager.release_memory(world_id, memory_mb)
-
-      _ ->
-        :ok
-    end
-
-    Logger.info("World #{world_id} terminated and resources released")
+    GenServer.cast(__MODULE__, {:terminate_world, world_id, reason})
   end
 
   def get_status do
@@ -145,54 +126,74 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
   @impl true
   def init(_init_arg) do
     Logger.info("WorldSupervisor started with Phase 5 safeguards")
-    DynamicSupervisor.init(strategy: :one_for_one)
+
+    case DynamicSupervisor.start_link(strategy: :one_for_one, name: @dynamic_supervisor) do
+      {:ok, pid} -> {:ok, %{dynamic_supervisor: pid, worlds: %{}}}
+      {:error, reason} -> {:stop, reason}
+    end
+  end
+
+  @impl true
+  def handle_call({:start_child, world_id, child_spec}, _from, state) do
+    case DynamicSupervisor.start_child(state.dynamic_supervisor, child_spec) do
+      {:ok, pid} ->
+        {:reply, {:ok, pid}, put_in(state.worlds[world_id], pid)}
+
+      other ->
+        {:reply, other, state}
+    end
+  end
+
+  @impl true
+  def handle_cast({:terminate_world, world_id, reason}, state) do
+    Logger.warning("World #{world_id} termination requested: #{reason}")
+    {_pid, state} = terminate_world_process(world_id, reason, state)
+    {:noreply, state}
   end
 
   @impl true
   def handle_info({:terminate_world, world_id, reason}, state) do
     Logger.warning("World #{world_id} termination requested by ResourceQuota: #{reason}")
-    terminate_world(world_id, reason)
-    {:ok, state}
+    {_pid, state} = terminate_world_process(world_id, reason, state)
+    {:noreply, state}
   end
 
   @impl true
   def handle_info({:kill_world, world_id, method}, state) do
     Logger.error("World #{world_id} KILL command received (method: #{method})")
 
-    world_pid = find_world_pid(world_id)
+    {world_pid, state} = take_world_pid(world_id, state)
 
     if world_pid do
       Process.exit(world_pid, :kill)
     end
 
-    TiannaraRuntime.MultiWorld.ResourceQuota.terminate_world(world_id, :killed)
-    {:ok, state}
+    notify_quota_termination(world_id, :killed)
+    {:noreply, state}
   end
 
   @impl true
   def handle_info({:pause, world_id}, state) do
     Logger.info("Pausing world #{world_id}")
 
-    world_pid = find_world_pid(world_id)
-
-    if world_pid do
-      send(world_pid, :pause)
+    case Map.get(state.worlds, world_id) do
+      pid when is_pid(pid) -> send(pid, :pause)
+      _ -> :ok
     end
 
-    {:ok, state}
+    {:noreply, state}
   end
 
   @impl true
   def handle_info({:resume, world_id}, state) do
     Logger.info("Resuming world #{world_id}")
 
-    world_pid = find_world_pid(world_id)
-
-    if world_pid do
-      send(world_pid, :resume)
+    case Map.get(state.worlds, world_id) do
+      pid when is_pid(pid) -> send(pid, :resume)
+      _ -> :ok
     end
 
-    {:ok, state}
+    {:noreply, state}
   end
 
   defp generate_world_id do
@@ -211,11 +212,49 @@ defmodule TiannaraRuntime.MultiWorld.WorldSupervisor do
     min(total, 512)
   end
 
-  defp find_world_pid(world_id) do
-    children = DynamicSupervisor.which_children(__MODULE__)
+  defp take_world_pid(world_id, state) do
+    {Map.get(state.worlds, world_id), %{state | worlds: Map.delete(state.worlds, world_id)}}
+  end
 
-    Enum.find_value(children, fn {_id, pid, _type, _modules} ->
-      pid
-    end)
+  defp terminate_world_process(world_id, reason, state) do
+    Logger.info("Terminating world #{world_id}: #{reason}")
+
+    if Process.whereis(TiannaraRuntime.MultiWorld.WorldFreeze) do
+      TiannaraRuntime.MultiWorld.WorldFreeze.create_snapshot(world_id, %{
+        reason: reason,
+        type: :pre_termination
+      })
+    end
+
+    if Process.whereis(TiannaraRuntime.MultiWorld.DeterministicReplay) do
+      TiannaraRuntime.MultiWorld.DeterministicReplay.stop_recording(world_id)
+    end
+
+    {world_pid, state} = take_world_pid(world_id, state)
+
+    if world_pid do
+      Process.exit(world_pid, :shutdown)
+    end
+
+    notify_quota_termination(world_id, reason)
+
+    if Process.whereis(TiannaraRuntime.MultiWorld.MemoryManager) do
+      case TiannaraRuntime.MultiWorld.MemoryManager.get_world_memory(world_id) do
+        {:ok, memory_mb} ->
+          TiannaraRuntime.MultiWorld.MemoryManager.release_memory(world_id, memory_mb)
+
+        _ ->
+          :ok
+      end
+    end
+
+    Logger.info("World #{world_id} terminated and resources released")
+    {world_pid, state}
+  end
+
+  defp notify_quota_termination(world_id, reason) do
+    if Process.whereis(TiannaraRuntime.MultiWorld.ResourceQuota) do
+      TiannaraRuntime.MultiWorld.ResourceQuota.terminate_world(world_id, reason)
+    end
   end
 end

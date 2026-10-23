@@ -1,0 +1,136 @@
+%{
+  node: :nonode@nohost,
+  probe: "B2 safe-mode isolated boot",
+  cwd: "c:/Users/user/AppData/Local/Temp/opencode/b2_runtime/run7",
+  boot_profile: :minimal,
+  all_running: "true",
+  cis_mode_before: ":normal",
+  lockdown_set: ":ok",
+  cis_mode_after: ":lockdown",
+  kill_authorization_in_lockdown: ":deny",
+  kill_execution_in_lockdown: ":denied",
+  endpoint_config: "[url: [host: \"localhost\"], render_errors: [view: TiannaraRuntimeWeb.ErrorView, accepts: [\"json\"]], pubsub_server: TiannaraRuntime.PubSub, http: [port: 8004], server: true, debug_errors: true, code_reloader: true, check_origin: false, watchers: []]",
+  cpl_files: ["data/cpl/events/evt_133.json", "data/cpl/events/evt_1762.json",
+   "data/cpl/events/evt_1826.json", "data/cpl/events/evt_2947.json",
+   "data/cpl/events/evt_2979.json", "data/cpl/events/evt_3043.json",
+   "data/cpl/events/evt_3235.json", "data/cpl/events/evt_3267.json",
+   "data/cpl/events/evt_3331.json", "data/cpl/events/evt_3395.json",
+   "data/cpl/events/evt_3427.json", "data/cpl/events/evt_3491.json",
+   "data/cpl/events/evt_3619.json", "data/cpl/events/evt_3651.json",
+   "data/cpl/events/evt_37.json", "data/cpl/events/evt_3715.json",
+   "data/cpl/events/evt_3779.json", "data/cpl/events/evt_3843.json",
+   "data/cpl/events/evt_3939.json", "data/cpl/events/evt_3971.json",
+   "data/cpl/events/evt_4035.json", "data/cpl/events/evt_4483.json",
+   "data/cpl/events/evt_4515.json", "data/cpl/events/evt_4579.json",
+   "data/cpl/events/evt_4643.json", "data/cpl/events/evt_69.json"],
+  utc: "2026-10-23T07:41:59.719000Z",
+  app_start: "{:ok, [:mnesia, :forward_provenance, :eex, :mime, :plug_crypto, :telemetry, :plug, :phoenix_pubsub, :phoenix_html, :phoenix_template, :websock, :cowlib, :ranch, :cowboy, :cowboy_telemetry, :plug_cowboy, :websock_adapter, :castore, :jason, :phoenix, :phoenix_live_view, :connection, :nimble_parsec, :ed25519, :curve25519, :salsa20, :chacha20, :equivalex, :poly1305, :kcl, :nkeys, :gnat, :uuid, :hpax, :mint, :nimble_pool, :nimble_options, :finch, :req, :iex, :proper, :libgraph, :propcheck, :telemetry_metrics, :rustler, :tiannara_runtime]}",
+  app_started: [:tiannara_runtime, :rustler, :telemetry_metrics, :propcheck,
+   :libgraph, :proper, :iex, :req, :finch, :nimble_options, :nimble_pool, :mint,
+   :hpax, :uuid, :gnat, :nkeys, :kcl, :poly1305, :equivalex, :chacha20,
+   :salsa20, :curve25519, :ed25519, :nimble_parsec, :connection,
+   :phoenix_live_view, :phoenix, :jason, :castore, :websock_adapter,
+   :plug_cowboy, :cowboy_telemetry, :cowboy, :ranch, :cowlib, :websock,
+   :phoenix_template, :phoenix_html, :phoenix_pubsub, :plug, :telemetry,
+   :plug_crypto, :mime, :eex, :forward_provenance, :mnesia, :hex, :inets, :ssl,
+   :public_key, :asn1, :crypto, :mix, :logger, :elixir, :compiler, :stdlib,
+   :kernel],
+  top_supervisor_alive: true,
+  startup_supervisor_alive: true,
+  startup_status: "%{runtime: true, supervisor: true, cpl: true, omega: true, cop: true}",
+  cis_alive: true,
+  kill_switch_alive: true,
+  execution_controller_alive: true,
+  quota_governor_alive: true,
+  world_supervisor_alive: true,
+  endpoint_alive: true,
+  top_children: [
+    %{
+      id: "TiannaraRuntime.Causal.GCK",
+      pid: "#PID<0.1993.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.Causal.GCK]"
+    },
+    %{
+      id: "TiannaraRuntime.Memory.LineageCompression",
+      pid: "#PID<0.1992.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.Memory.LineageCompression]"
+    },
+    %{
+      id: "TiannaraRuntime.Resources.QuotaGovernor",
+      pid: "#PID<0.1991.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.Resources.QuotaGovernor]"
+    },
+    %{
+      id: "TiannaraRuntime.CIS.ExecutionController",
+      pid: "#PID<0.1990.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.CIS.ExecutionController]"
+    },
+    %{
+      id: "TiannaraRuntime.MultiWorld.WorldSupervisor",
+      pid: "#PID<0.1988.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.MultiWorld.WorldSupervisor]"
+    },
+    %{
+      id: "TiannaraRuntime.MultiWorld.KillSwitch",
+      pid: "#PID<0.1987.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.MultiWorld.KillSwitch]"
+    },
+    %{
+      id: "TiannaraRuntime.CIS.Supervisor",
+      pid: "#PID<0.1986.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.CIS.Supervisor]"
+    },
+    %{
+      id: "TiannaraRuntime.StartupSupervisor",
+      pid: "#PID<0.1683.0>",
+      type: :supervisor,
+      modules: "[TiannaraRuntime.StartupSupervisor]"
+    }
+  ],
+  startup_children: [
+    %{
+      id: "TiannaraRuntime.DiscoveryRunner",
+      pid: "#PID<0.1985.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.DiscoveryRunner]"
+    },
+    %{
+      id: "TiannaraRuntime.RootSupervisor",
+      pid: "#PID<0.1907.0>",
+      type: :supervisor,
+      modules: "[TiannaraRuntime.RootSupervisor]"
+    },
+    %{
+      id: "TiannaraRuntimeWeb.Endpoint",
+      pid: "#PID<0.1697.0>",
+      type: :supervisor,
+      modules: "[TiannaraRuntimeWeb.Endpoint]"
+    },
+    %{
+      id: "TiannaraRuntime.OS.Observatory",
+      pid: "#PID<0.1696.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.OS.Observatory]"
+    },
+    %{
+      id: "TiannaraRuntime.Omega.Supervisor",
+      pid: "#PID<0.1685.0>",
+      type: :supervisor,
+      modules: "[TiannaraRuntime.Omega.Supervisor]"
+    },
+    %{
+      id: "TiannaraRuntime.OS.Persistence.ConstitutionalPersistenceLayer",
+      pid: "#PID<0.1684.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.OS.Persistence.ConstitutionalPersistenceLayer]"
+    }
+  ],
+  mnesia_dir: "~c\"c:/Users/user/AppData/Local/Temp/opencode/b2_runtime/run7/mnesia\""
+}

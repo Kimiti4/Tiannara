@@ -1,0 +1,118 @@
+%{
+  node: :nonode@nohost,
+  probe: "B2 safe-mode isolated boot",
+  cwd: "c:/Users/user/AppData/Local/Temp/opencode/b2_runtime/run3",
+  boot_profile: :minimal,
+  all_running: "true",
+  cis_mode_before: ":normal",
+  lockdown_set: ":ok",
+  cis_mode_after: ":lockdown",
+  kill_authorization_in_lockdown: ":deny",
+  kill_execution_in_lockdown: ":denied",
+  endpoint_config: "[url: [host: \"localhost\"], render_errors: [view: TiannaraRuntimeWeb.ErrorView, accepts: [\"json\"]], pubsub_server: TiannaraRuntime.PubSub, http: [port: 8004], server: true, debug_errors: true, code_reloader: true, check_origin: false, watchers: []]",
+  cpl_files: [],
+  utc: "2026-10-22T20:09:47.224000Z",
+  app_start: "{:ok, [:mnesia, :forward_provenance, :eex, :mime, :plug_crypto, :telemetry, :plug, :phoenix_pubsub, :phoenix_html, :phoenix_template, :websock, :cowlib, :ranch, :cowboy, :cowboy_telemetry, :plug_cowboy, :websock_adapter, :castore, :jason, :phoenix, :phoenix_live_view, :connection, :nimble_parsec, :ed25519, :curve25519, :salsa20, :chacha20, :equivalex, :poly1305, :kcl, :nkeys, :gnat, :uuid, :hpax, :mint, :nimble_pool, :nimble_options, :finch, :req, :iex, :proper, :libgraph, :propcheck, :telemetry_metrics, :rustler, :tiannara_runtime]}",
+  app_started: [:tiannara_runtime, :rustler, :telemetry_metrics, :propcheck,
+   :libgraph, :proper, :iex, :req, :finch, :nimble_options, :nimble_pool, :mint,
+   :hpax, :uuid, :gnat, :nkeys, :kcl, :poly1305, :equivalex, :chacha20,
+   :salsa20, :curve25519, :ed25519, :nimble_parsec, :connection,
+   :phoenix_live_view, :phoenix, :jason, :castore, :websock_adapter,
+   :plug_cowboy, :cowboy_telemetry, :cowboy, :ranch, :cowlib, :websock,
+   :phoenix_template, :phoenix_html, :phoenix_pubsub, :plug, :telemetry,
+   :plug_crypto, :mime, :eex, :forward_provenance, :mnesia, :hex, :inets, :ssl,
+   :public_key, :asn1, :crypto, :mix, :logger, :elixir, :compiler, :stdlib,
+   :kernel],
+  top_supervisor_alive: true,
+  startup_supervisor_alive: true,
+  startup_status: "%{runtime: true, supervisor: true, cpl: true, omega: true, cop: true}",
+  cis_alive: true,
+  kill_switch_alive: true,
+  execution_controller_alive: true,
+  quota_governor_alive: true,
+  world_supervisor_alive: false,
+  endpoint_alive: true,
+  top_children: [
+    %{
+      id: "TiannaraRuntime.Causal.GCK",
+      pid: "#PID<0.1974.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.Causal.GCK]"
+    },
+    %{
+      id: "TiannaraRuntime.Memory.LineageCompression",
+      pid: "#PID<0.1973.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.Memory.LineageCompression]"
+    },
+    %{
+      id: "TiannaraRuntime.Resources.QuotaGovernor",
+      pid: "#PID<0.1972.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.Resources.QuotaGovernor]"
+    },
+    %{
+      id: "TiannaraRuntime.CIS.ExecutionController",
+      pid: "#PID<0.1971.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.CIS.ExecutionController]"
+    },
+    %{
+      id: "TiannaraRuntime.MultiWorld.KillSwitch",
+      pid: "#PID<0.1970.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.MultiWorld.KillSwitch]"
+    },
+    %{
+      id: "TiannaraRuntime.CIS.Supervisor",
+      pid: "#PID<0.1969.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.CIS.Supervisor]"
+    },
+    %{
+      id: "TiannaraRuntime.StartupSupervisor",
+      pid: "#PID<0.1674.0>",
+      type: :supervisor,
+      modules: "[TiannaraRuntime.StartupSupervisor]"
+    }
+  ],
+  startup_children: [
+    %{
+      id: "TiannaraRuntime.DiscoveryRunner",
+      pid: "#PID<0.1968.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.DiscoveryRunner]"
+    },
+    %{
+      id: "TiannaraRuntime.RootSupervisor",
+      pid: "#PID<0.1896.0>",
+      type: :supervisor,
+      modules: "[TiannaraRuntime.RootSupervisor]"
+    },
+    %{
+      id: "TiannaraRuntimeWeb.Endpoint",
+      pid: "#PID<0.1688.0>",
+      type: :supervisor,
+      modules: "[TiannaraRuntimeWeb.Endpoint]"
+    },
+    %{
+      id: "TiannaraRuntime.OS.Observatory",
+      pid: "#PID<0.1687.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.OS.Observatory]"
+    },
+    %{
+      id: "TiannaraRuntime.Omega.Supervisor",
+      pid: "#PID<0.1676.0>",
+      type: :supervisor,
+      modules: "[TiannaraRuntime.Omega.Supervisor]"
+    },
+    %{
+      id: "TiannaraRuntime.OS.Persistence.ConstitutionalPersistenceLayer",
+      pid: "#PID<0.1675.0>",
+      type: :worker,
+      modules: "[TiannaraRuntime.OS.Persistence.ConstitutionalPersistenceLayer]"
+    }
+  ],
+  mnesia_dir: "~c\"c:/Users/user/AppData/Local/Temp/opencode/b2_runtime/run3/mnesia\""
+}

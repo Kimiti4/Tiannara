@@ -169,8 +169,10 @@ defmodule TiannaraRuntime.MultiWorld.KillSwitch do
       Map.put(state.kill_requests, world_id, {DateTime.utc_now(), reason, severity})
     new_state = %{state | kill_requests: new_requests, total_requests: state.total_requests + 1}
 
-    # Delegate to ExecutionController (single authority chain)
-    Task.async(fn ->
+    # Delegate to ExecutionController (single authority chain). A detached
+    # task keeps a failed delivery attempt from crashing the switch and stops
+    # Task.async's result/DOWN messages from arriving as unexpected mail.
+    Task.start(fn ->
       execute_via_controller(world_id, reason, severity)
     end)
 

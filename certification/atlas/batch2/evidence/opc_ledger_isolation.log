@@ -1,0 +1,14 @@
+10:13:29.232 [warning] Observability StreamProcessor NATS unavailable: "timed out waiting for info"; entering degraded local-buffer mode
+10:13:29.407 [warning] TelemetryPublisher skipping metrics build due exit: {:noproc, {GenServer, :call, [{:via, Registry, {Tiannara.Registry, {:universe, :alpha_universe}}}, :snapshot, 5000]}}
+10:13:30.849 [warning] 🚨 [RRG] CRITICAL: Ψ=0.242 - Universal convergence imminent!
+10:13:30.849 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.24178147064912237. Initiating emergency rollback!
+10:13:30.849 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+Running ExUnit with seed: 0, max_cases: 8
+
+10:13:31.257 [warning] Observability StreamProcessor NATS reconnect failed: "timed out waiting for info"
+10:13:31.860 [warning] 🚨 [RRG] CRITICAL: Ψ=0.259 - Universal convergence imminent!
+10:13:31.860 [error] 🚨 [CCR Bridge] CRITICAL Ψ COLLAPSE DETECTED: 0.258637197984408. Initiating emergency rollback!
+10:13:31.860 [warning] ⚠️ [CCR Bridge] RollbackManager not running. Fallback rollback simulated.
+...
+Finished in 1.6 seconds (0.00s async, 1.6s sync)
+3 tests, 0 failures

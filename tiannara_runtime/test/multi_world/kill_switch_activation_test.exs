@@ -1,3 +1,12 @@
+defmodule TiannaraRuntime.MultiWorld.KillSwitchActivationTest.ProbeWorld do
+  use GenServer
+
+  def start_link(world_id), do: GenServer.start_link(__MODULE__, world_id)
+
+  @impl true
+  def init(world_id), do: {:ok, world_id}
+end
+
 defmodule TiannaraRuntime.MultiWorld.KillSwitchActivationTest do
   @moduledoc """
   R1/Batch 1 step 6 (F-GOV-013): the kill switch must actually run, and its
@@ -88,6 +97,98 @@ defmodule TiannaraRuntime.MultiWorld.KillSwitchActivationTest do
       # The call chain reads the kill switch's killed-world list; before the
       # repair this raised UndefinedFunctionError.
       assert {:ok, _killed} = KillSwitch.get_killed_worlds()
+    end
+  end
+
+  describe "end-to-end termination" do
+    test "an authorized kill stops a supervised world and the switch recovers" do
+      for attempt <- 1..2 do
+        world_id = "batch2-kill-probe-#{System.unique_integer([:positive])}-#{attempt}"
+
+        spec = %{
+          id: world_id,
+          start: {TiannaraRuntime.MultiWorld.KillSwitchActivationTest.ProbeWorld, :start_link, [world_id]},
+          restart: :temporary
+        }
+
+        assert {:ok, pid} = WorldSupervisor.start_child(world_id, spec)
+        assert Process.alive?(pid)
+
+        assert :requested = KillSwitch.request_termination(world_id, "batch2 e2e probe", :critical)
+
+        assert eventually(fn -> not Process.alive?(pid) end),
+               "world #{world_id} was not stopped by the kill chain"
+
+        assert eventually(fn ->
+                 {:ok, killed} = KillSwitch.get_killed_worlds()
+                 world_id in killed
+               end)
+      end
+
+      assert is_pid(Process.whereis(WorldSupervisor))
+      assert Process.alive?(Process.whereis(WorldSupervisor))
+    end
+
+    test "an authorized kill leaves unrelated supervised worlds running" do
+      suffix = System.unique_integer([:positive])
+      target_id = "batch2-kill-target-#{suffix}"
+      bystander_id = "batch2-kill-bystander-#{suffix}"
+
+      start_world = fn world_id ->
+        spec = %{
+          id: world_id,
+          start: {TiannaraRuntime.MultiWorld.KillSwitchActivationTest.ProbeWorld, :start_link, [world_id]},
+          restart: :temporary
+        }
+
+        assert {:ok, pid} = WorldSupervisor.start_child(world_id, spec)
+        pid
+      end
+
+      target_pid = start_world.(target_id)
+      bystander_pid = start_world.(bystander_id)
+
+      on_exit(fn ->
+        if Process.alive?(bystander_pid), do: Process.exit(bystander_pid, :kill)
+      end)
+
+      assert :requested = KillSwitch.request_termination(target_id, "batch2 isolation probe", :critical)
+
+      assert eventually(fn -> not Process.alive?(target_pid) end),
+             "target world #{target_id} was not stopped by the kill chain"
+
+      assert Process.alive?(bystander_pid),
+             "unrelated world #{bystander_id} was terminated by the target's kill"
+
+      assert eventually(fn ->
+               {:ok, killed} = KillSwitch.get_killed_worlds()
+               target_id in killed and bystander_id not in killed
+             end)
+
+      # Recovery: the supervisor and switch still work for the survivor.
+      assert :requested = KillSwitch.request_termination(bystander_id, "batch2 recovery probe", :critical)
+
+      assert eventually(fn -> not Process.alive?(bystander_pid) end),
+             "recovery kill for #{bystander_id} was not delivered"
+    end
+  end
+
+  defp eventually(fun, timeout \\ 2_000) do
+    deadline = System.monotonic_time(:millisecond) + timeout
+    do_eventually(fun, deadline)
+  end
+
+  defp do_eventually(fun, deadline) do
+    cond do
+      fun.() ->
+        true
+
+      System.monotonic_time(:millisecond) >= deadline ->
+        false
+
+      true ->
+        Process.sleep(25)
+        do_eventually(fun, deadline)
     end
   end
 end

@@ -1,5 +1,20 @@
 import Config
 
+test_tmp =
+  Path.expand("../_build/test/tmp/#{System.system_time(:millisecond)}", __DIR__)
+
+# Test isolation: never write CPL events/checkpoints or Mnesia logs into the
+# repository tree. These paths are absolute and live under the ignored
+# _build/test directory.
+config :tiannara_runtime, :test_tmp, test_tmp
+config :tiannara_runtime, :cpl_storage_path, Path.join(test_tmp, "cpl")
+config :tiannara_runtime, :omega_storage_path, Path.join(test_tmp, "omega")
+config :mnesia, :dir, String.to_charlist(Path.join(test_tmp, "mnesia"))
+
+config :forward_provenance,
+       :identity_authority_ledger_path,
+       Path.join(test_tmp, "identity_authority_ledger.jsonl")
+
 # Test environment configuration
 config :tiannara_runtime, TiannaraRuntimeWeb.Endpoint,
   http: [port: 4001],

@@ -1,0 +1,12 @@
+12:43:37.588 [warning] Observability StreamProcessor NATS unavailable: "timed out waiting for info"; entering degraded local-buffer mode
+12:43:37.928 [warning] TelemetryPublisher skipping metrics build due exit: {:noproc, {GenServer, :call, [{:via, Registry, {Tiannara.Registry, {:universe, :alpha_universe}}}, :snapshot, 5000]}}
+12:43:38.037 [warning] TelemetryPublisher skipping metrics build due exit: {:noproc, {GenServer, :call, [{:via, Registry, {Tiannara.Registry, {:universe, :alpha_universe}}}, :snapshot, 5000]}}
+12:43:38.142 [warning] TelemetryPublisher skipping metrics build due exit: {:noproc, {GenServer, :call, [{:via, Registry, {Tiannara.Registry, {:universe, :alpha_universe}}}, :snapshot, 5000]}}
+12:43:39.607 [warning] Observability StreamProcessor NATS reconnect failed: "timed out waiting for info"
+Running ExUnit with seed: 0, max_cases: 8
+
+....🌌 Booted seed civilizations for observation.
+.....
+Finished in 1.5 seconds (0.00s async, 1.5s sync)
+9 tests, 0 failures
+12:43:42.613 [warning] Observability StreamProcessor NATS reconnect failed: "timed out waiting for info"
