@@ -179,6 +179,8 @@ The audit remains read-only and open. The new findings strengthen the concern fr
 | ARCH-01 | AEO adapter unconfigured/fail-closed | Prior audit finding | Configured production caller plus fail-closed/end-to-end evidence |
 | ARCH-02 | RAC tests but no production callers/checkers configured | Prior audit finding | Production reachability and checker enforcement |
 | CAP-01 | Placeholder/theatrical capability claims | Prior classification; revalidate at candidate SHA | Capability-to-code-to-test matrix and truthful unsupported responses |
+| CAP-02 | Autonomous research/hypothesis/discovery path exists in source but end-to-end research quality and real-world discovery are not certified | Source-confirmed design/path; report says pre-certification baseline | Run exact-SHA pipeline tests with held-out tasks, real evidence, falsification, replication, calibrated uncertainty, and durable provenance |
+| CAP-03 | Archaeology terminology conflates research-provenance reconstruction with excavation of simulated prior civilizations | Source-confirmed fail-closed excavation module; site-excavation workflow unverified | Define artifact/world/site/stratum contracts and prove a world-history-to-site-to-artifact-to-hypothesis workflow end-to-end |
 | RL-01 | Spawn proceeds after quota error | Source-confirmed at `e71bc230...` | Prove no allocation/start after rejection |
 | RL-02 | Spawn proceeds after memory error | Source-confirmed at `e71bc230...` | Prove rollback and no child/replay start |
 | RL-03 | `WorldProcess` / supervisor bridge unresolved | Unresolved at inspected paths | Exact-SHA implementation plus integration test of intended world tree |
@@ -398,3 +400,34 @@ The inspected source supports concrete reset/volatility findings, but no crash-i
 #### Checkpoint 6 disposition
 
 The reviewed source confirms three additional state-machine defects/gaps: non-idempotent registry count updates, quota release before termination confirmation, and PID tracking removal before process-down observation. RL-11, RL-17, RL-18, RL-19, RL-20, RL-24, and RL-25 remain directly relevant blockers. No runtime outcome was claimed or tested. The frozen source SHA remains unchanged; only the audit ledger was updated.
+
+
+### Pre-checkpoint-7 targeted investigation — autonomous research, hypothesis formation, discovery, and prior-civilization excavation
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`. This is a targeted source/design review before lifecycle checkpoint 7. No runtime tests were executed in this investigation.
+
+#### Finding CAP-02 — Autonomous research is architecturally represented, but end-to-end discovery capability is not certified
+
+**Evidence:** `lib/tiannara/asc/autonomous_discovery.ex` implements a bounded cycle that gathers domain metrics, checks pipeline health, selects a candidate experiment, runs simulation and validation, records rejected hypotheses/counterexamples, and persists a fact only when validation contains non-empty checks that all pass. It distinguishes simulation/validation unavailable, timeout, crash, rejection, and knowledge-update failure rather than converting those states into successful discoveries. `lib/tiannara/agency/research_director.ex` also defines an observation/event → hypothesis generation/ranking → experiment design/execution → evidence evaluation → knowledge integration path.
+
+However, `AUTONOMOUS_DISCOVERY_REPORT.md` explicitly labels its status **PRE-CERTIFICATION BASELINE** and says hypothesis quality is not quantitatively validated, the required experiment campaign is absent, theory replay is not independently audited, contradiction detection is smoke-tested only, uncertainty calibration lacks a campaign, and explanation quality lacks blinded scoring. These are important distinctions: a pipeline and schemas are present, but they do not prove autonomous, scientifically reliable discoveries across domains or real-world truth.
+
+**Assessment:** Worlds/research components are designed to form hypotheses and test them in simulation; whether a running world autonomously initiates and completes this workflow is not established by the inspected world supervision tree. The reviewed `WorldSimulationLoop` does not call the autonomous discovery pipeline; it performs CAL/CIS steps and its visible event/snapshot helpers are logging/storage-oriented. Cross-world simulation results must remain labelled simulation-scoped and cannot alone certify real-world claims.
+
+**Closure evidence:** demonstrate boot-level reachability from a world/civilization research trigger into the research pipeline; run a bounded campaign against held-out tasks; retain raw observations, controls, predictions, failed experiments, counterexamples, provenance, independent validation, replication, and calibrated uncertainty. Show that missing simulation/evidence/validation backends fail closed and that no unvalidated fact is integrated.
+
+#### Finding CAP-03 — “Archaeology” has two distinct meanings; excavation of previous simulated civilizations is not established
+
+**Evidence:** `ARCHAEOLOGY_AUDIT.md`, `DISCOVERY_ARCHAEOLOGY.md`, and `ARCHAEOLOGY_IMPLEMENTATION_REPORT.md` describe research/discovery archaeology: provenance, immutable lineage, replay/reconstruction, and answering why an artifact exists. Those contracts are not, by themselves, a spatial archaeological excavation system for a previous simulated world or civilization.
+
+More decisively, `lib/tiannara/archaeology/archaeology.ex` defines `Tiannara.Archaeology.FossilExcavator`, `SemanticReconstructor`, `EpochCompressor`, and `IdentityPreserver` as **fail-closed**. The `excavate/2` function returns `{:error, :archaeology_simulation_unavailable}` unconditionally. Its module documentation says the previous implementation returned hardcoded metrics regardless of input and was falsified; the fail-closed behavior intentionally preserves that finding rather than fabricating excavation results.
+
+The repository also contains archaeological stratum data files and numerous architecture/model documents about discovery, theory, civilization, and archaeology. Their presence proves design artifacts/data exist, not that a running world can generate a prior civilization, preserve its physical/social/technical remains, discover a buried site, excavate it, classify artifacts, infer competing historical hypotheses, and validate discoveries against evidence.
+
+**Assessment:** The previously discussed excavation capability is represented in project concepts and data, but **a functional excavation of prior-world/civilization sites is not demonstrated at this SHA; the exposed FossilExcavator explicitly refuses execution**. Do not mark this capability as implemented or working based on documentation/test reports for provenance archaeology.
+
+**Closure evidence:** specify a world-history and strata contract; create persistent, queryable site/stratum/artifact records tied to a particular world and epoch; implement excavation as an evidence-producing operation (not hardcoded outputs); preserve location/depth/context, chain of custody, dating uncertainty, material/composition observations, competing interpretations, and provenance; test discovery, partial excavation, contradictory artifacts, failed hypotheses, and reproducible replay against generated prior-civilization scenarios. Keep simulated archaeology evidence clearly labelled simulation-only unless independently corroborated with real-world evidence.
+
+#### Investigation disposition before checkpoint 7
+
+This investigation was intentionally performed after checkpoint 6 and before checkpoint 7. It did not change the frozen source or execute tests. Current answer: **the architecture includes research/hypothesis/experiment/discovery paths, but their autonomous scientific reliability and live-world integration remain uncertified; the site-excavation function is explicitly fail-closed, and no end-to-end excavation of previous simulated civilizations is proven.** The audit should carry these as open capability findings, not treat the earlier archaeology design reports as runtime proof.
