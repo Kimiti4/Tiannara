@@ -1327,3 +1327,77 @@ The root `Tiannara.Research.ResearchDirector.Pipeline` explicitly records that R
 - This is an initial slice. It does not complete the audit of the separate Discovery pipeline, real experiment execution providers, falsification/replication, archaeology, or the full evidence-certification chain.
 
 **Checkpoint 18 research disposition:** RL-101–RL-107 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. Continue by tracing actual discovery/experiment execution and evidence certification before moving to mathematics and self-modification/self-improvement.
+
+### Checkpoint 18 continuation — mathematics and formal reasoning (initial source pass)
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** root `Tiannara.Math` kernels and runtime Phase 16.X mathematics runtime/registry. Source inspection only; no runtime tests or application changes.
+
+#### Positive control observations
+
+The root tree includes bounded, candidly scoped mathematics: `ProofKernel` explicitly limits its supported formal fragment and does not claim external reality; `Optimization.gradient_descent/4` returns numerical candidates with convergence diagnostics and does not claim global optimality; `nash_equilibrium/2` explicitly returns unavailable; and `CounterexampleSearch` correctly states that exhausting a supplied finite domain is not a global proof. Preserve these truthfulness boundaries.
+
+#### RL-108 — Runtime ExpressionExecutor reports completion without performing the expression operation
+
+**Status: Source-confirmed.** `MathematicsRuntime.ExpressionExecutor.execute/1` accepts operation names such as simplify, expand, differentiate and integrate, but its body only constructs a result map containing the original expression ID, requested operation and `status: "completed"`. It does not load the expression, invoke `SymbolicEngine`, transform an expression tree or return a computed artifact.
+
+**Impact:** a supported-operation label and completion status can be mistaken for actual symbolic computation.
+
+**Closure evidence:** invoke the real symbolic engine and return the computed canonical expression plus input/output hashes; otherwise return an explicit unavailable/unsupported result. Test each operation against known mathematical identities and invalid expressions.
+
+#### RL-109 — Runtime verification and replay coordinators certify metadata rather than mathematical correctness or recomputation
+
+**Status: Source-confirmed.** `VerificationCoordinator.verify/1` sets `verification_status: "verified"` for proof, expression and conjecture results, and also for every unknown result type; it does not call a proof checker or formal verification engine. `ReplayCoordinator.check/1` hashes only `request_id`, `type` and `status`. `ReplayCoordinator.replay/1` constructs a replay-shaped status map and computes the same metadata hash; it does not re-execute the mathematical operation or compare outputs.
+
+**Impact:** the runtime can label an operation verified and replayed without checking its mathematical result or reproducing the computation. These statuses cannot be used as proof/certification evidence.
+
+**Closure evidence:** dispatch verification to type-specific checkers; reject unknown types; require proof-kernel/formal-verification receipts; replay from immutable input and dependency artifacts, recompute outputs and compare canonical output hashes; test tampering and divergent results.
+
+#### RL-110 — Runtime dependency resolution marks every declared dependency resolved without resolving it
+
+**Status: Source-confirmed.** `MathematicsRuntime.DependencyResolver.resolve/1` sorts the request's dependency IDs and maps each to `%{"resolved" => true}`. It does not query MathematicsRegistry, verify existence, check lifecycle state, validate dependency type or traverse transitive dependencies.
+
+**Impact:** downstream scheduling/execution can proceed with missing, archived, frozen or incompatible mathematical dependencies while carrying a success-shaped resolved flag.
+
+**Closure evidence:** resolve each dependency against the authoritative registry; validate lifecycle/type/version and transitive closure; fail closed on missing/cyclic/incompatible references; test unknown IDs, frozen artifacts and dependency graph cycles.
+
+#### RL-111 — MathematicsRegistry state is public caller-owned ETS rather than supervised durable registry state
+
+**Status: Source-confirmed.** `MathematicsRegistry.init_table/0` creates a public named ETS table directly in whichever process first invokes it. The module has no table-owning GenServer/supervisor or persistence/recovery contract in the inspected implementation. The table is writable by any process in the VM and its lifetime is tied to its owner process.
+
+**Impact:** registry contents can disappear when the first caller exits, and arbitrary processes can mutate artifact registrations/lifecycle state outside the module's validation functions.
+
+**Closure evidence:** establish a long-lived supervised owner or durable transactional store; restrict write access to the registry API; add recovery/schema migration; test owner crash, restart, concurrent registration and unauthorized mutation.
+
+#### RL-112 — Typed MathematicsRuntime convenience APIs do not bind the requested operation type
+
+**Status: Source-confirmed.** `execute_proof/1`, `execute_conjecture/1` and `execute_verification/1` call `execute(request, %{type: "..."} )`, but `execute/2` expects keyword options and the supplied map is passed only to the scheduler, whose `schedule/2` ignores its options. Dispatch later reads `request["type"]`, defaulting to `"expression"`. Thus a request without an explicit string `"type"` sent through one of the typed convenience APIs is dispatched as an expression rather than the named operation.
+
+**Impact:** callers can request proof/conjecture/verification through a typed API but receive expression dispatch or an unrelated error, depending on request contents.
+
+**Closure evidence:** encode and validate operation type in the request before dependency resolution; use one canonical type representation; test each convenience API with omitted, conflicting and invalid type fields.
+
+#### RL-113 — Root Bayesian and entropy functions do not validate probability distributions
+
+**Status: Source-confirmed.** `Tiannara.Math.Probability.bayes_update/3` checks only that `evidence_prob > 0`; it does not validate that prior and likelihood are finite probabilities in [0,1], that evidence probability is valid or that the posterior is a valid probability. `shannon_entropy/1` filters non-positive entries but does not reject values greater than 1, non-finite values or a list whose probabilities do not sum to 1.
+
+**Impact:** invalid inputs can produce numeric outputs that look like valid Bayesian posteriors or Shannon entropy values. Downstream confidence/risk calculations can consume mathematically invalid quantities.
+
+**Closure evidence:** validate finite numeric inputs and probability bounds; define normalization policy explicitly (reject vs normalize); check denominator and posterior consistency; test negative, >1, NaN/infinite, zero-sum and non-normalized distributions.
+
+#### RL-114 — Runtime mathematical validation campaign converts thrown campaign failures into successful transport results
+
+**Status: Source-confirmed.** `Mathematics.Validation.Validator.run_campaign/2` catches exceptions and exits from a campaign and returns `{:ok, %{status: :error, ...}}` rather than an error tuple. The outer `run/1` therefore takes the success-shaped branch for a crashed campaign and relies on the embedded `status: :error` to aggregate the overall result.
+
+**Impact:** callers that treat the outer `{:ok, result}` as execution success can misread a crashed campaign. The internal aggregate does detect the embedded error, but the public transport contract is ambiguous.
+
+**Closure evidence:** return an explicit error tuple for execution failure or use a distinct tagged completed-with-errors result; ensure every consumer checks the aggregate status and campaign statuses; test raised, exited, timeout and malformed campaign results.
+
+#### 18.8 Mathematics disposition
+
+- Root proof checking, bounded optimization and finite-domain counterexample search have useful explicit limits and truthful unsupported states.
+- Runtime Phase 16.X contains substantial schemas and campaign scaffolding, but the inspected top-level execution path contains metadata-only expression completion, unconditional verification labels, metadata-only replay and placeholder dependency resolution.
+- The runtime MathematicsRegistry has a separate ETS ownership/access problem; root probability helpers lack input-domain validation.
+- Certification reports and passing campaign declarations are not substitutes for verifying that campaigns exercise the real mathematical execution path.
+
+**Checkpoint 18 mathematics disposition:** RL-108–RL-114 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. Continue with self-modification/self-improvement and then the security/governance cross-cut before consolidating the full architecture atlas.
