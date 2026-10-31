@@ -203,6 +203,9 @@ The audit remains read-only and open. The new findings strengthen the concern fr
 | RL-25 | World runtime supervisor and metadata registry have independent restart domains with no demonstrated reconciliation | Source-confirmed topology; runtime outcome unverified | Inject registry and DynamicSupervisor restarts separately; prove active-world inventory and duplicate-ID handling converge |
 | RL-26 | WorldMemoryStore is process-memory-only and resets on child/world restart | Source-confirmed | Persist snapshots durably or explicitly mark volatile; restart/kill tests prove retention contract and replay limits |
 | RL-27 | No demonstrated same-ID restart/termination reconciliation contract | Unresolved; registry collision and absent boot wiring already confirmed in RL-19/RL-20 | End-to-end same-ID restart test proving uniqueness, registration, metadata/count consistency, and stale-process cleanup |
+| RL-28 | Repeated registry termination can decrement `active_count` more than once | Source-confirmed at `e71bc230...` | Make termination idempotent by transitioning only active worlds; test duplicate and concurrent termination without negative/drifting counts |
+| RL-29 | Quota state is removed before world termination is observed, while cleanup notifications are asynchronous and callback contract is invalid | Source-confirmed at `e71bc230...`; runtime result untested | Use a termination state machine; preserve reservation until process-down and cleanup reconciliation; inject supervisor/manager failure |
+| RL-30 | MultiWorld supervisor removes world PID tracking before confirming process-down and can log success without observed termination | Source-confirmed at `e71bc230...`; runtime outcome untested | Monitor child, retain transitional state until DOWN, reconcile DynamicSupervisor and resources, and only then report terminal success |
 
 ## 8. Recommended remediation order
 
@@ -362,3 +365,36 @@ The per-world `WorldSupervisor` tree is separate from `MultiWorld.WorldSuperviso
 #### Checkpoint 5 disposition
 
 The inspected source supports concrete reset/volatility findings, but no crash-injection or runtime recovery test was run. Therefore this checkpoint does not claim that every supervisor restart fails; it establishes that the code shown does not implement durable state restoration or an automatic simulation-loop resume contract, and that registry/runtime reconciliation is not demonstrated. RL-19 and RL-20 remain foundational blockers. The frozen source SHA was not changed; only this audit ledger is updated.
+
+
+### Resource lifecycle evidence checkpoint 6 — termination and state-machine consistency
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`. Source files were fetched at this exact SHA. This was a read-only source review; no runtime fault injection or source modification was performed.
+
+#### RL-28 — Repeated registry termination can decrement active count more than once
+
+**Status: Source-confirmed.** In `tiannara_runtime/lib/tiannara_runtime/world_registry.ex`, `handle_cast({:terminate_world, world_id}, state)` decrements `active_count` whenever the world exists, without checking whether its prior status is already terminal. The code marks it `:extinct`, but a repeated termination for that same entry still enters the same branch and decrements the count again. The cast API is asynchronous, so the caller also receives no confirmation of the transition.
+
+**Impact:** Duplicate cleanup messages can make the registry count diverge from its catalogue. This is separate from the broader registry restart/reconciliation issue in RL-24/RL-25.
+
+**Closure:** Make the transition idempotent: only an active-to-terminal transition decrements count, and report a result that distinguishes transitioned, already terminal, and unknown world. Test duplicate, concurrent, and unknown-world termination.
+
+#### RL-29 — Quota reservation is removed before termination is confirmed
+
+**Status: Source-confirmed sequencing; runtime outcome untested.** In `multi_world/resource_quota.ex`, the termination callback deletes the world from `active_worlds` before notifying `MultiWorld.WorldSupervisor`; notification is a bare message. The same callback returns an invalid GenServer callback tuple (RL-11). The supervisor's termination path independently requests quota termination, removes its local PID mapping, sends an exit signal, requests asynchronous memory release, and logs completion without awaiting process-down or cleanup acknowledgement (RL-18).
+
+**Impact:** Quota can report capacity as free before the process has stopped. If the supervisor is unavailable, the message is not confirmed delivered; if the quota callback crashes, the process may restart with default accounting. These are source-level ordering and contract defects; no claim is made that a particular run was observed to leak a world.
+
+**Closure:** Model termination as explicit states (requested, authorized, signal delivered, process down, resources reconciled, terminal). Keep capacity reserved until the agreed terminal postconditions hold; make delivery and cleanup result-bearing and recoverable after manager restart.
+
+#### RL-30 — MultiWorld supervisor drops PID tracking and logs completion without observing process-down
+
+**Status: Source-confirmed.** `take_world_pid/2` deletes the world from `state.worlds` before the code sends `:shutdown` or `:kill`. The code does not monitor/await a `:DOWN` event or verify that the DynamicSupervisor has removed the child before it logs termination. The emergency-kill branch also removes tracking before signalling, then notifies quota without stopping replay or releasing memory (RL-17).
+
+**Impact:** The supervisor's local state can say the world is absent while the process is still alive or cleanup remains incomplete. Because the mapping is already removed, later cleanup attempts may no longer have that PID available through this state. This is a risk established by the control flow, not a runtime-confirmed orphan.
+
+**Closure:** Retain a termination-in-progress entry and monitor the child. Only remove the authoritative PID entry after observed process-down; then reconcile DynamicSupervisor, replay, quota, memory, and registry before reporting success. Ensure all normal and emergency paths share the same idempotent cleanup protocol.
+
+#### Checkpoint 6 disposition
+
+The reviewed source confirms three additional state-machine defects/gaps: non-idempotent registry count updates, quota release before termination confirmation, and PID tracking removal before process-down observation. RL-11, RL-17, RL-18, RL-19, RL-20, RL-24, and RL-25 remain directly relevant blockers. No runtime outcome was claimed or tested. The frozen source SHA remains unchanged; only the audit ledger was updated.
