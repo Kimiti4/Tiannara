@@ -1,6 +1,6 @@
 # Tiannara AI — Consolidated Audit Findings
 
-**Coverage:** R0-A through the resource-lifecycle audit checkpoint  
+**Coverage:** R0-A through resource-lifecycle checkpoint 5 (restart, crash recovery, persistence, registry reconciliation)  
 **Prepared:** 2026-10-31  
 **Scope:** Tiannara AI only. ESAP is deferred until Tiannara AI audit, remediation, verification, and refinement are closed.  
 **Audit posture:** Evidence-led and read-only. This record consolidates findings available in the audit context; it does not claim unresolved items were re-tested or closed.
@@ -197,6 +197,12 @@ The audit remains read-only and open. The new findings strengthen the concern fr
 | RL-19 | WorldRegistry name collision between metadata GenServer and Elixir Registry call sites | Source-confirmed at `e71bc230...` | Separate names, boot both services, verify registration and lookup |
 | RL-20 | WorldRegistrySupervisor absent from inspected application boot graph | Source-confirmed at `e71bc230...` | Wire into canonical boot graph and prove boot-level world lifecycle |
 | RL-21 | Per-world simulation loop starts stopped with no activation in tree startup | Source-confirmed at `e71bc230...`; external activation unresolved | Explicit activation contract and tick/pause/resume/termination tests |
+| RL-22 | `:one_for_all` child restart reinitializes in-memory world state and snapshot history | Source-confirmed reset behavior; restart not runtime-tested | Crash each child; assert required state recovery or explicitly documented reset semantics at exact SHA |
+| RL-23 | Restarted simulation loop loses running/tick state and does not self-resume | Source-confirmed | Inject child crash; verify activation/resume protocol and tick continuity or documented safe stop |
+| RL-24 | Metadata registry restart loses world/lineage/count state without recovery | Source-confirmed in-memory-only state; restart consequence not runtime-tested | Restart registry with active worlds; recover/reconcile durable metadata and actual child PIDs, or fail closed |
+| RL-25 | World runtime supervisor and metadata registry have independent restart domains with no demonstrated reconciliation | Source-confirmed topology; runtime outcome unverified | Inject registry and DynamicSupervisor restarts separately; prove active-world inventory and duplicate-ID handling converge |
+| RL-26 | WorldMemoryStore is process-memory-only and resets on child/world restart | Source-confirmed | Persist snapshots durably or explicitly mark volatile; restart/kill tests prove retention contract and replay limits |
+| RL-27 | No demonstrated same-ID restart/termination reconciliation contract | Unresolved; registry collision and absent boot wiring already confirmed in RL-19/RL-20 | End-to-end same-ID restart test proving uniqueness, registration, metadata/count consistency, and stale-process cleanup |
 
 ## 8. Recommended remediation order
 
@@ -299,3 +305,60 @@ No runtime claims are made. The findings above are source-confirmed only at the 
 #### Checkpoint 4 disposition
 
 The per-world `WorldSupervisor` tree is separate from `MultiWorld.WorldSupervisor`, which attempts to start `TiannaraRuntime.MultiWorld.WorldProcess`; that implementation remains unresolved at this SHA (RL-03). No bridge between the two paths was established. Although the per-world tree declares `:one_for_all`, no runtime fault-injection evidence was collected to prove restart behavior, state recovery, registry re-registration, or simulation-loop resumption.
+
+
+### Resource lifecycle evidence checkpoint 5 — restart, crash recovery, persistence, and registry reconciliation
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`. Source was fetched by exact commit SHA. This was read-only inspection; no runtime fault injection or source modification was performed.
+
+#### RL-22 — `:one_for_all` restarts discard the per-world components' in-memory state
+
+**Status: Source-confirmed reset behavior; restart outcome not runtime-tested.** `WorldSupervisor.init/1` declares `:one_for_all` over `WorldStateManager`, CAL, CIS, `WorldMemoryStore`, `WorldEventProcessor`, and `WorldSimulationLoop`. The inspected `WorldStateManager.init/1` reconstructs CAL/CIS/metrics from hard-coded defaults and the supplied config; it does not restore prior live state. `WorldMemoryStore.init/1` initializes an empty snapshot list and zero count. Thus a child failure that causes the tree to restart will reinitialize these state holders rather than restore their previous in-memory contents.
+
+**Impact:** A supervision restart is not equivalent to world recovery. Prior decisions, metrics, snapshots, and counters may be lost. No persistence/restore protocol for these modules was found in the inspected source.
+
+**Closure:** Define which state must survive each failure class, implement durable checkpoint/replay or explicitly declare loss/reset semantics, and inject a crash in every child while asserting recovery invariants.
+
+#### RL-23 — Simulation-loop restart resets execution state and does not automatically resume
+
+**Status: Source-confirmed.** `WorldSimulationLoop.init/1` sets `running: false` and `tick_count: 0`; ticks are scheduled only after `start_simulation/1`. Under the per-world `:one_for_all` strategy, a sibling failure restarts the loop too. The inspected `WorldSupervisor` does not start the simulation loop or perform a post-restart activation handshake.
+
+**Impact:** Even if the supervisor and all child processes restart successfully, the world can return as an alive but stopped tree, with its tick counter reset. No runtime test establishes external reactivation.
+
+**Closure:** Make world lifecycle state explicit and authoritative; restore or intentionally reset it, then acknowledge readiness/activation after every tree restart. Test crash, restart, and continued tick progression.
+
+#### RL-24 — Metadata registry restart loses the world catalogue and counters
+
+**Status: Source-confirmed in-memory-only state; restart behavior not runtime-tested.** `WorldRegistry.init/1` creates a fresh struct with empty `worlds` and `lineage` maps and zero `active_count` / `total_created`. No persistence or reconciliation step appears in the inspected module. Its supervisor uses `:one_for_one`, so the registry child can restart independently of `WorldRuntimeSupervisor`.
+
+**Impact:** If the registry process restarts while world runtime children remain alive, metadata, lineage, and counts are reset while those child processes may still exist. This creates a potential orphaned-runtime / empty-catalogue split. Actual surviving-child behavior was not executed here.
+
+**Closure:** Persist authoritative metadata or rebuild it from an authoritative runtime inventory on restart; reconcile counts and lineage; fail closed when inventory cannot be reconciled. Test registry-only restart with active worlds.
+
+#### RL-25 — Registry and world DynamicSupervisor restart domains have no recovery/reconciliation contract
+
+**Status: Source-confirmed topology; runtime outcome unverified.** `WorldRegistrySupervisor` starts metadata `WorldRegistry` and named `WorldRuntimeSupervisor` as siblings under `:one_for_one`. A failure of one child does not, by that strategy alone, force the other child to restart. The inspected registry has no reconciliation callback, and the application boot graph does not include `WorldRegistrySupervisor` (RL-20). Meanwhile the per-world supervisor registration calls target the conflicting registry name already recorded in RL-19.
+
+**Impact:** Recovery cannot be considered coherent: metadata may be lost independently, live children may persist without catalogue entries, and registry registration itself is not established by the inspected boot graph. No crash/restart evidence proves convergence.
+
+**Closure:** Resolve registry ownership and boot wiring first, then specify restart strategy and reconciliation semantics. Inject registry and DynamicSupervisor failures separately and assert inventory, registrations, metadata, and quotas converge without duplicate IDs.
+
+#### RL-26 — WorldMemoryStore snapshots are volatile, despite replay/history role descriptions
+
+**Status: Source-confirmed.** `WorldMemoryStore` keeps snapshots in the GenServer's in-memory list (bounded to 10,000) and initializes that list empty. Its append API is an asynchronous cast. No disk/database persistence, append acknowledgement, or restore operation appears in the inspected module. Under `:one_for_all`, this store is restarted when any sibling fails.
+
+**Impact:** The code's timeline/replay role description is not evidence of durable history. A process or world-tree restart resets the snapshot history, and an asynchronous append caller cannot confirm that a snapshot was stored before a crash.
+
+**Closure:** Either implement durable append/checkpoint/recovery with acknowledged writes and retention guarantees, or accurately label the store volatile and prevent it from satisfying durable replay/recovery requirements. Test abrupt process death and full runtime restart.
+
+#### RL-27 — Same-ID restart and termination reconciliation remain unproven
+
+**Status: Unresolved; related source defects already tracked in RL-19/RL-20.** The reviewed source does not establish a working end-to-end path that starts a world, registers it, observes its termination, removes/reconciles its metadata, and starts a replacement with the same ID safely. The current registry-name collision and missing boot wiring make a passing claim particularly unjustified. The metadata API generates a UUID on `create_world/2`, while `WorldSupervisor.start_link/1` registers by `world_config.id`; no proven transaction connects those identities and lifecycles.
+
+**Impact:** Duplicate registration, stale metadata, orphaned child processes, or mismatched active counts cannot be ruled out. This is a verification gap, not a claim that every attempted same-ID restart necessarily fails.
+
+**Closure:** Add a production-path test for create → start → crash/terminate → observe cleanup → restart same ID; assert exactly one owner, one registration, correct active count, no stale PID, and consistent quota/memory/replay state.
+
+#### Checkpoint 5 disposition
+
+The inspected source supports concrete reset/volatility findings, but no crash-injection or runtime recovery test was run. Therefore this checkpoint does not claim that every supervisor restart fails; it establishes that the code shown does not implement durable state restoration or an automatic simulation-loop resume contract, and that registry/runtime reconciliation is not demonstrated. RL-19 and RL-20 remain foundational blockers. The frozen source SHA was not changed; only this audit ledger is updated.
