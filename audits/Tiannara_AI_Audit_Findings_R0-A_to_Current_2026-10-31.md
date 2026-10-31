@@ -636,3 +636,60 @@ Checkpoint 10 confirms that the current source does not provide a trustworthy sn
 #### Checkpoint 11 disposition
 
 Checkpoint 11 finds a split activation model: the runtime application starts the multi-world coordinator without explicitly starting its registry, quota, memory, snapshot, and replay dependencies; the separate startup supervisor starts the DiscoveryRunner, whose timed cycles record simulated artifacts rather than calling the autonomous discovery pipeline. The world coordinator also owns a linked DynamicSupervisor outside an explicit supervisor child tree. These are source-confirmed boot-graph findings at the frozen SHA; startup integration, process-crash behavior, and end-to-end research execution remain untested. Only the audit ledger was updated.
+
+
+### Resource lifecycle evidence checkpoint 12 — autonomous research, hypotheses, experiments, evidence, and discovery
+
+**Audit target:** immutable application SHA `e71bc230a8d38f3a0108012685ae1a052d195b00`. Read-only source inspection of the Agency, ASC AutonomousDiscovery, canonical/domain research registry, and Artifact 13 `Tiannara.Research.ResearchDirector` pathways, including their supervisors, experiment sandbox, physics domain, hypothesis ranker, experiment planner, evidence scorer, knowledge integrator, and research queue. No application source was modified and no runtime tests were run.
+
+#### RL-51 — Agency heartbeat-to-investigation pipeline is not activated by the main application supervisor
+
+**Status: Source-confirmed.** `Tiannara.Agency.Supervisor` owns `Agency.Orchestrator`, `Agency.ResearchDirector`, and `Agency.SentinelHeartbeat`, and the heartbeat emits events to that orchestrator. However, `Tiannara.Application.core_children/0` does not include `Tiannara.Agency.Supervisor`. It includes `Tiannara.ASC.Agency.Sentinel`, which is a separate GenServer and calls `Tiannara.ASC.Agency.Orchestrator`, not `Tiannara.Agency.Orchestrator`. The two similarly named agency paths must not be treated as one connected pipeline.
+
+**Impact:** the Agency heartbeat → event → hypothesis → experiment pathway is not established as an automatically running main-application capability by the inspected boot graph. Its modules and unit-level APIs exist, but this is not proof that this particular loop runs in production.
+
+**Closure evidence:** choose and document the canonical agency pipeline, wire its supervisor into the application with declared dependencies, remove/bridge duplicate agency entry points explicitly, and test a clean application boot followed by a real heartbeat event reaching the intended research worker.
+
+#### RL-52 — Agency experiment sandbox fabricates randomized outcomes and evidence instead of executing the experiment design
+
+**Status: Source-confirmed.** `Tiannara.Agency.Sandbox.run_experiment/1` sleeps for 10 ms, generates success probability and success/failure from `:rand.uniform/0`, fabricates metric deltas/resource consumption, and creates three evidence items with random quality and contradiction flags. It does not inspect or execute the experiment's methodology, variables, controls, success criteria, failure conditions, or rollback plan against a simulator or real execution target. `available?/0` unconditionally returns true.
+
+**Impact:** the Agency ResearchDirector can turn random values into an apparent experiment result, evidence strength, recommendation, confidence update, and knowledge record. These outputs are synthetic fixtures, not observations from the designed experiment. A true `available?` result is not a capability/readiness check.
+
+**Closure evidence:** make the sandbox fail closed unless an explicit execution adapter is available; bind execution to the experiment specification and a declared simulation/real-execution mode; label fixture data as synthetic; and prove that results are derived from captured runs with reproducible inputs, outputs, and provenance.
+
+#### RL-53 — Artifact 13 research pipeline intentionally stops at experiment planning and quarantines execution
+
+**Status: Source-confirmed; intentional R0 safety boundary, not a false claim of execution.** `Tiannara.Research.ResearchDirector.Pipeline` accepts priorities, asks `HypothesisRanker` to generate/rank hypotheses, and queues them. On an `:advance` it plans an experiment and queues it; on the next `:advance` it calls `quarantine_experiment/1`, emits telemetry stating `:quarantined_by_R0` / `:fabrication_path_disabled`, and does not execute it. The pipeline's initialization log explicitly says fabricated experiment execution is disabled. It does not call `EvidenceScorer.score/2` or `KnowledgeIntegrator.integrate/3` in this path.
+
+**Impact:** this pipeline currently provides priority ingestion, hypothesis generation/ranking, and experiment planning, but not an end-to-end research cycle or new validated knowledge. This is an honest fail-closed boundary. Its status/health counters must not be interpreted as completed experiments or discoveries.
+
+**Closure evidence:** retain quarantine until a real, independently auditable execution adapter exists; then add an explicit execution lifecycle, evidence scoring over actual observations, validation gates, and knowledge integration that accepts only eligible provenance. Tests must prove the quarantine path cannot create completed/validated knowledge and that unavailable execution remains visibly quarantined.
+
+#### RL-54 — EvidenceScorer's current metrics are heuristic placeholders, not statistical/reproducibility analysis
+
+**Status: Source-confirmed; currently downstream of the quarantined execution path.** `EvidenceScorer.compute_evidence/2` assigns reproducibility as fixed 0.8 for three or more observations, 0.5 for one or two, and 0.2 for none; consistency is fixed 0.75 whenever any observations exist; and effect size is the arithmetic mean of `obs[:value]` divided by 100 and capped at 1.0. It does not compare independent run identities, estimate variance/uncertainty, test statistical significance, calculate a normalized effect size, or perform a falsification analysis. `falsification_attempted` is set from whether the experiment has any `failure_criteria` field, not whether a falsification attempt actually ran.
+
+**Impact:** if this scorer is later connected without replacement, its confidence score can look quantitative while not measuring the documented properties. Current R0 quarantine prevents the ordinary ResearchDirector pipeline from feeding it experiment outcomes, but the public scorer API remains callable.
+
+**Closure evidence:** define evidence schemas for actual repeated runs and controls; compute reproducibility from independent execution records, consistency from observed distributions, effect size with a declared baseline/scale, and falsification from recorded attempts/results. Keep unknown or insufficient samples explicitly unscored rather than assigning reassuring constants.
+
+#### RL-55 — Canonical 20-domain registry is not connected to the separate domain ResearchDirector registry
+
+**Status: Source-confirmed.** `Tiannara.Domains.CanonicalRegistry` initializes the 20 canonical domain records and maps them to domain modules. The separate `Tiannara.Domains.ResearchDirector` maintains its own domain map and exposes `register_domain/1`; its `init/1` starts with an empty map. The inspected main application starts both the canonical registry and this ResearchDirector, but no registration/bridge call is present in the inspected startup code or the inspected registry module. Its `discover/2`, `evaluate/2`, and `get_all_metrics/0` therefore operate against a separately maintained registry that is not populated by canonical registry initialization.
+
+**Impact:** the existence of 20 canonical domain bindings does not mean the domain ResearchDirector can dispatch research across them. The two registries can disagree, and domain-level dispatch can return `{:error, :domain_not_found}` despite canonical module metadata existing.
+
+**Closure evidence:** use one authoritative domain registry or add a deterministic boot-time registration adapter with validation; assert all expected domains are registered and that dispatch/metrics work for each supported domain after clean boot.
+
+#### RL-56 — ASC AutonomousDiscovery is a bounded callable physics pilot, not a continuously autonomous 20-domain research service
+
+**Status: Source-confirmed; execution not run in this checkpoint.** `Tiannara.ASC.AutonomousDiscovery.run_discovery_cycle/1` has a bounded experiment execution path: it collects metrics from canonical domain records, checks the bottleneck detector, selects a candidate, runs the domain module's `simulate/2` and `validate/1` under a timeout, and can persist a provenance-bearing fact or record a rejection. However, its default candidate list is hard-coded to a Physics damped-oscillator pilot and one Chemistry candidate; it does not derive experiment candidates from all 20 canonical domain modules. The optimizer selects by declared `domain_weight` only. The inspected application child lists do not start a worker/scheduler invoking `run_discovery_cycle/1`; it is a callable function, not a demonstrated continuous world-driven research loop. Physics validation is explicitly `:structural_checks`, not formal verification, and the result provenance is `:simulation`.
+
+**Impact:** this is meaningful bounded simulation/research infrastructure, stronger than the synthetic DiscoveryRunner, but it does not establish autonomous scientific discovery across 20 domains or empirical/real-execution discoveries. A successful structural simulation result should be described as a simulation-backed finding with its verification limits, not as experimentally established real-world knowledge.
+
+**Closure evidence:** retain the pilot's explicit identity, timeout, failure, rejection, and provenance behavior; wire a controlled research scheduler/trigger only after startup dependencies are explicit; build candidate generation from actual domain capabilities rather than a fixed two-item list; and report each result with simulation/real-execution provenance and verification level. Add per-domain execution tests and a complete boot-to-discovery-to-persisted-evidence test.
+
+#### Checkpoint 12 disposition
+
+Checkpoint 12 distinguishes four different capability levels. The Agency loop is not activated by the main application and its sandbox fabricates random experiment outcomes (RL-51/RL-52). Artifact 13 ResearchDirector generates and plans hypotheses/experiments but deliberately quarantines execution under R0, so no validated knowledge is produced by that path (RL-53). Its evidence scorer is heuristic and would need redesign before use (RL-54). The canonical 20-domain registry is not bridged into the separate domain ResearchDirector (RL-55). ASC AutonomousDiscovery has a bounded simulation/structural-validation pilot with provenance and persistence paths, but its default candidates and activation are not a 20-domain continuous research system (RL-56). These are source-confirmed findings at the frozen SHA; no runtime execution, statistical validation, full-cycle experiment, or production discovery was tested. Only the audit ledger was updated.
