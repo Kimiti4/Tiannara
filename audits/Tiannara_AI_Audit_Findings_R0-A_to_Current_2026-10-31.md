@@ -1471,3 +1471,75 @@ These safeguards should be preserved. The findings below concern bypassable publ
 - ToolForge currently builds templates/placeholders and does not enforce actual human approval.
 
 **Checkpoint 18 self-improvement disposition:** RL-115–RL-120 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. Continue with security/governance and cross-system authority before proposing any remediation.
+
+### Checkpoint 18 continuation — constitutional security and governance (initial source pass)
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** root Council, human approval, policy/constitution repositories and CEL service control. Source inspection only; no runtime tests or application changes.
+
+#### Positive control observations
+
+- Council's authorization path re-evaluates a human-approved decision against policy and RuleEngine rather than treating the approval record alone as authorization.
+- `Authorization.permitted?/1` grants only `:approved`; conditional grants have a separate evidence-condition check.
+- Council's AuditLog has a hash chain, DETS sync, corruption detection and an explicit degraded mode that rejects new appends.
+- CEL Kernel restart/halt paths consult Council and use strict authorization predicates.
+
+These are meaningful safeguards, but the inspected mutation and identity paths still contain bypasses.
+
+#### RL-121 — Human approvals and emergency lifting trust caller-supplied human identifiers
+
+**Status: Source-confirmed.** `HumanApprovalQueue.approve/3` and `reject/3` accept a caller-supplied `human_id`, record it as the decision-maker and do not authenticate the principal, check a role/credential, verify a signed session or consult an identity provider. `Council.invoke_emergency/2` similarly trusts its supplied actor. More critically, `Council.lift_emergency/1` clears an active emergency for any supplied `human_id` without verifying that the caller is an authorized human.
+
+**Impact:** the audit record can identify an unverified string/atom as a human approver or emergency lifter. The human-final-authority boundary is not established by the existence of an approval queue or actor field.
+
+**Closure evidence:** derive principal identity from an authenticated session/token that callers cannot self-assert; enforce role/authority and multi-factor/second-person policy for sensitive actions; bind approval to exact payload hash and policy version; require authenticated human authority to lift emergency; test spoofed IDs and unauthorized callers.
+
+#### RL-122 — Council PolicyRegistry policy mutation is not authorization-gated or schema-validated
+
+**Status: Source-confirmed.** `PolicyRegistry.register_policy/1` writes the supplied policy directly into the in-memory policy map, including replacing an existing policy with the same ID. `disable_policy/1` disables any registered policy. Neither operation calls Council authorization, requires human approval, validates the policy schema/priority/action/conditions or records a durable policy-version receipt. If no policy matches, `evaluate/2` returns `{:default_approve, nil}` and delegates to RuleEngine.
+
+**Impact:** policy definitions governing human approval and simulation requirements can be changed or disabled through direct service APIs without a demonstrated constitutional amendment/authorization process. The fallback RuleEngine remains a safeguard, but it does not replace the missing governance controls over policy lifecycle.
+
+**Closure evidence:** make policy registry mutation Council-authorized and auditable; freeze non-overridable baseline policies; validate policy schemas and conflict/priority rules; require versioned signed policy artifacts; test policy overwrite, disable, wildcard and default paths.
+
+#### RL-123 — ConstitutionRepository exposes direct commit/rollback without Council authorization and ignores write results
+
+**Status: Source-confirmed.** `ConstitutionRepository.commit/3` writes the supplied constitution directly to DETS and updates `current_version` without validating an approved amendment, checking actor authority, verifying immutable constitutional constraints or checking the result of `:dets.insert/2`. `rollback/2` changes the current-version pointer for any existing version based on a caller-supplied actor, without Council authorization or a corresponding AuditLog append in the handler.
+
+**Impact:** callers can mutate the canonical constitution pointer through direct APIs without the normal governance path. A failed DETS write can also be followed by a success-shaped response and an updated in-memory current version.
+
+**Closure evidence:** make commit/rollback private to a Council-governed amendment service; require verified ratification and immutable-core checks; check DETS insert/sync results before acknowledgement; append a durable audit event atomically; test direct unauthorized calls, failed writes, rollback and restart consistency.
+
+#### RL-124 — AmendmentEngine's simulation/evaluation are heuristic labels and approval is not authenticated or committed to the canonical repository
+
+**Status: Source-confirmed.** `AmendmentEngine.run_simulation/2` assigns risk from the count of affected principles and whether any proposed change has type `:invariant`; it does not simulate the proposed constitutional changes against runtime behavior. `evaluate_against_principles/2` marks affected principles `:strengthened` and all others `:unaffected` without evaluating the content of the changes. `approve/2` accepts any caller-supplied `human_id` after the amendment reaches `:awaiting_human`; it updates only the AmendmentEngine's in-memory constitution and amendment state. The inspected path does not commit the new constitution through `ConstitutionRepository`.
+
+**Impact:** the amendment flow can report simulated/evaluated/approved states without a substantive simulation, semantic constitutional review, authenticated human ratification or canonical persisted constitution update.
+
+**Closure evidence:** require actual before/after principle evaluation and adversarial simulation; authenticate ratifiers and enforce quorum/role requirements; bind approvals to the exact proposed constitution hash; commit through the canonical repository only after ratification and verified durable write; test restart and repository readback.
+
+#### RL-125 — CEL Kernel restart_service ignores the supplied actor in the Council authorization payload
+
+**Status: Source-confirmed.** `CEL.Kernel.restart_service/2` accepts `actor` but calls `Council.authorize(:architectural_change, %{action: :restart, service: id}, nil)`; the actor is omitted from the payload and no ExecutionContext is passed. The policy and approval queue therefore bind to the action/service payload, not the identity of the caller requesting the restart.
+
+**Impact:** an approval for a particular service restart is not tied to the requesting principal. Combined with the unauthenticated approval API, the authorization receipt cannot prove who requested or approved the operation.
+
+**Closure evidence:** construct ExecutionContext from authenticated identity; include actor, purpose, target, evidence and request correlation in the authorization payload; bind approval to that exact context; reject missing or mismatched principals; test cross-actor approval reuse.
+
+#### RL-126 — CEL ServiceRegistry mutators can change the boot/service graph without Council authorization
+
+**Status: Source-confirmed.** `ServiceRegistry.register/1`, `deprecate/1` and `replace/2` directly mutate the service-spec map in the GenServer. The handlers do not consult Council, validate a signed service manifest, enforce immutable critical-service ownership or append an audit event. `replace/2` also marks the old ID deprecated and inserts the new spec without first validating the replacement or confirming the old ID exists.
+
+**Impact:** the service boot order, dependency graph and module selected for a service ID can be changed through direct registry APIs without a demonstrated architectural-change authorization. This is a control-plane and supply-chain trust boundary.
+
+**Closure evidence:** require Council approval for service graph changes; validate module identity, dependency closure, criticality, capabilities and version; preserve immutable signed manifests and change history; atomically validate replacements; test unauthorized mutation and malformed dependency graphs.
+
+#### 18.10 Security and governance disposition
+
+- Council has stronger authorization/evidence structure than the earlier executive and runtime CIS paths, but human identity is not authenticated at the approval/emergency APIs.
+- Policy and service registries expose direct mutation paths without Council authorization.
+- The canonical constitution repository exposes direct commit/rollback methods that bypass ratification and ignore persistence results.
+- The amendment engine's simulation/evaluation are heuristic summaries, not substantive constitutional simulation, and its approval state is not shown committed to the canonical repository.
+- CEL Kernel uses Council on service restart/halt, but restart authorization omits the supplied actor.
+
+**Checkpoint 18 security/governance disposition:** RL-121–RL-126 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. The next step is a cross-system authority graph: identify every public effect/mutation API, its authenticated principal, Council gate, evidence receipt, durable audit record and actual effect provider.
