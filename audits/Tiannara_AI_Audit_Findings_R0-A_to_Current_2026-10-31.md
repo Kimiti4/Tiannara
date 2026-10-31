@@ -513,3 +513,36 @@ The source trace confirms unsafe termination ordering, non-fail-fast spawn admis
 #### Checkpoint 8 disposition
 
 The source confirms that lifecycle accounting is volatile, memory release is unacknowledged, GC accounting is simulated, snapshots are placeholders rather than authoritative state, and replay readiness/finalization is not a durable acknowledged lifecycle. These findings increase the priority of the existing RL-31/RL-32 termination/spawn work: fixing call ordering alone will not provide trustworthy resource or recovery semantics. All findings remain open pending implementation and runtime verification. Only the audit ledger was updated.
+
+
+### Resource lifecycle evidence checkpoint 9 — cross-component identity and lifecycle ownership
+
+**Audit target:** immutable application SHA `e71bc230a8d38f3a0108012685ae1a052d195b00`. Read-only source trace of `multi_world/world_supervisor.ex`, `world_registry.ex`, `multi_world/resource_quota.ex`, `multi_world/memory_manager.ex`, `multi_world/world_freeze.ex`, `multi_world/deterministic_replay.ex`, `world_fork_engine.ex`, `world_registry_supervisor.ex`, and `application.ex`. No source code was changed and no runtime tests were run.
+
+#### RL-39 — WorldForkEngine child creation cannot preserve the requested child identity and can leave an orphan registry entry
+
+**Status: Source-confirmed; runtime outcome untested.** `WorldForkEngine.create_child_world/2` generates `child_world_id = "W-#{UUID.uuid4()}"`, embeds it in `child_config.id`, and passes the config to `WorldRegistry.create_world/2`. But `WorldRegistry.handle_call({:create_world, ...})` unconditionally generates a new `"W-#{UUID.uuid4()}"` and does not use `config.id`. The fork engine then pattern-matches the returned ID against the originally generated ID (`{:ok, ^child_world_id}`). Those independently generated UUIDs cannot ordinarily match. The registry has already inserted and counted the new world before the match fails, so the fork path can return an error while leaving an active registry record that was never attached to a runtime child. The identity invariant is broken at the registry boundary.
+
+**Impact:** fork results, registry metadata, lineage, and actual runtime process identity can diverge. Registry active counts can include worlds that were not successfully started; the source path has no rollback for the inserted record.
+
+**Closure evidence:** have the registry allocate the canonical ID and pass that exact ID to all subsequent operations, or validate/reserve a caller-supplied ID atomically. Make creation transactional across registry insertion, quota admission, memory reservation, and process start; on any failure, roll back only successfully acquired resources and mark no world active. Add an end-to-end fork test asserting returned ID = registry ID = process config ID = quota key = memory key, plus injected failures after every stage.
+
+#### RL-40 — Registry-created worlds and MultiWorld-spawned worlds use incompatible identity namespaces and independent lifecycle paths
+
+**Status: Source-confirmed.** `WorldRegistry.create_world/2` generates IDs of form `W-<UUID>` and maintains its own `worlds`, `lineage`, and `active_count`. Independently, `MultiWorld.WorldSupervisor.spawn_world/1` generates `world_<millisecond>_<random>`, reserves quota under that second ID, allocates memory under it, starts replay under it, and uses it as the child-process config ID. The inspected creation path does not register the spawned process in `WorldRegistry`, and registry creation does not reserve quota/memory or start a process. The two mechanisms therefore do not share a canonical world identity or one authoritative lifecycle transaction.
+
+**Impact:** separate components can disagree about whether a world exists, is active, is counted, or has a live process. A world created through one API is not necessarily addressable through the other APIs; status and capacity reports are not a unified inventory. This is an architectural/source finding, not a measured production incident.
+
+**Closure evidence:** define one world-creation entry point and one canonical ID contract; connect registry metadata, lineage, process PID/monitor, quota reservation, memory reservation, freeze/replay, and termination to that identity. Expose a reconciliation report that compares all components and fails closed on mismatches. Test create/fork/spawn/kill/restart paths and assert each component's view converges to the same world state.
+
+#### RL-41 — Per-world fork orchestration attempts to start a globally named WorldSupervisor as if it were an independent child
+
+**Status: Source-confirmed design conflict; exact runtime error untested.** `WorldSupervisor.start_link/1` starts its GenServer with the global registered name `TiannaraRuntime.MultiWorld.WorldSupervisor`. `WorldForkEngine.spawn_world_supervisor/1` attempts to start that same module under `TiannaraRuntime.WorldRuntimeSupervisor` for a world config. If this path is reached while the global supervisor is already running, another instance cannot register under the same name; additionally, the global supervisor owns its own named DynamicSupervisor and a map of child PIDs rather than being a per-world process. The call also logs a start failure but returns `:ok` from `create_child_world/2`'s caller path, since `spawn_world_supervisor/1`'s return value is ignored.
+
+**Impact:** per-world fork startup cannot reliably create an independent supervisor tree, and even a child-start failure can be reported by the fork path as success if the preceding registry-ID pattern were corrected. This compounds RL-39/RL-40; it is not proof that this code path currently succeeds, because RL-39's ID mismatch normally prevents reaching it.
+
+**Closure evidence:** separate the singleton multi-world coordinator from a per-world worker/supervision subtree; avoid registering every per-world supervisor under one global name; propagate every child-start result and roll back registry/lineage changes on failure. Test two simultaneous worlds and a fork while the coordinator is already running.
+
+#### Checkpoint 9 disposition
+
+Checkpoint 9 confirms that cross-component identity is not yet a single enforced invariant: registry creation and runtime spawn generate different ID forms, fork creation ignores the caller's proposed ID and pattern-matches against a second generated UUID, and fork orchestration attempts to instantiate a globally named coordinator as a per-world child. These findings are source-confirmed at the frozen SHA. Runtime confirmation, regression tests, and remediation remain outstanding. Earlier RL-11 invalid GenServer cast callback contracts and RL-28 repeated termination accounting remain open and materially affect any future lifecycle test; they were not duplicated as new findings here. Only the audit ledger was updated.
