@@ -899,3 +899,12 @@ The Council and WorldMutationEngine contain meaningful controls, and the AuditLo
 The frozen commit has substantial passing CI evidence: root and runtime suites pass, audit verifier tests pass, and normalized certificate hashes match on Linux/macOS. The audit-log recovery suite includes genuine storage corruption, lock contention, forced process death, restart and chain-verification tests. These are positive results and should be retained.
 
 However, the quarantine job has four observed failures; six tests remain excluded from the required runtime gate; Checkpoint 15's direct constitutional bypasses are not covered by dedicated tests; the CI workflows do not provide a 72-hour live-world soak or integrated resource/lifecycle fault campaign; and compilation still emits integration warnings. Thus **Checkpoint 16 is a partial verification pass, not a release certification pass**. No application code was changed; only this audit ledger was updated.
+
+
+#### RL-76 — Cross-platform hash verification uses a different OTP baseline from the required runtime suite
+
+**Status: Workflow configuration confirmed.** The required Elixir CI workflow sets OTP 28 for the root compile and `tiannara_runtime` suite. The cross-platform verification workflow sets OTP 27 for both Linux and macOS evidence generation. Therefore the matching certificate hashes prove normalized artifact equality across those two OS runners under OTP 27; they do not prove cross-platform equivalence under the OTP 28 runtime test baseline.
+
+**Impact:** the two successful workflows cover different Erlang/OTP environments. A platform-specific or OTP-version-specific behavior in the actual runtime is not excluded by the hash comparison.
+
+**Closure evidence:** run the relevant deterministic evidence and runtime compatibility checks on both Linux and macOS under the same pinned OTP 28 / Elixir 1.18 toolchain used by the required runtime suite, and bind the resulting artifacts to the exact commit and toolchain manifest.
