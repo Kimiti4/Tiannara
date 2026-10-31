@@ -1543,3 +1543,102 @@ These are meaningful safeguards, but the inspected mutation and identity paths s
 - CEL Kernel uses Council on service restart/halt, but restart authorization omits the supplied actor.
 
 **Checkpoint 18 security/governance disposition:** RL-121–RL-126 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. The next step is a cross-system authority graph: identify every public effect/mutation API, its authenticated principal, Council gate, evidence receipt, durable audit record and actual effect provider.
+
+### Checkpoint 18.11 — provisional cross-system authority and ownership graph
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Purpose:** reconcile the executive, cognitive, immune, research, mathematics, self-improvement and governance source passes into one provisional control/ownership map. This is a source-declared graph, not a runtime-observed process graph.
+
+```text
+ROOT TIANNARA APPLICATION (root lib/)
+│
+├─ Council.Supervisor  [constitutional authority]
+│  ├─ AuditLog
+│  ├─ ConstitutionRepository
+│  ├─ PolicyRegistry
+│  ├─ HumanApprovalQueue → HumanApprovalResumer → Council re-evaluation
+│  ├─ AmendmentEngine
+│  ├─ ConstitutionalMonitor
+│  └─ Council
+│
+├─ CEL.Kernel  [service boot/control plane]
+│  ├─ DynamicSupervisor for CEL services
+│  └─ ServiceRegistry / BootSequencer
+│      └─ service graph mutation APIs require separate governance review
+│
+├─ Executive.Supervisor  [executive coordination]
+│  ├─ EventStore
+│  ├─ EventBus
+│  ├─ ExecutiveMemory
+│  └─ Coordinator
+│
+├─ ExecutiveCognitiveRuntime  [ECR loop]
+│  ├─ Blackboard / WorkingMemory / ContextManager / Attention
+│  ├─ ReflectionEngine / ExecutiveCycle / Heartbeat
+│  └─ heartbeat telemetry also advances Omega.AgencyLoop
+│
+├─ OmegaRuntime
+│  ├─ RuntimeHealthAggregator
+│  ├─ ConstitutionalComplianceMonitor
+│  ├─ Observatory
+│  └─ AgencyLoop
+│
+├─ ResearchDirector  [root research pipeline]
+│  ├─ HypothesisRanker / ExperimentPlanner / ResearchQueue
+│  ├─ EvidenceScorer / KnowledgeIntegrator
+│  └─ Pipeline (R0 experiment quarantine)
+│
+├─ CIS.Supervisor  [root CIS supervisor]
+│  ├─ empty CISRegistry
+│  ├─ CollapsePredictor
+│  ├─ ImmuneDecisionEngine
+│  └─ RegulationExecutor
+│
+└─ ConstitutionalAutonomy / ToolForge
+   ├─ Ω.4 proposal/validation/simulation/deployment/rollback
+   └─ tool generation and review request plumbing
+
+
+SEPARATE RUNTIME APPLICATION (tiannara_runtime/lib/)
+│
+└─ TiannaraRuntime.Application
+   └─ outer Supervisor (:one_for_one)
+      ├─ StartupSupervisor (:rest_for_one)
+      │  ├─ ConstitutionalPersistenceLayer
+      │  ├─ Omega
+      │  ├─ COP
+      │  ├─ Endpoint
+      │  ├─ RootSupervisor
+      │  └─ DiscoveryRunner
+      │
+      ├─ CIS.Supervisor (GenServer arbitration kernel)
+      ├─ MultiWorld.KillSwitch
+      ├─ MultiWorld.WorldSupervisor
+      ├─ CIS.ExecutionController
+      ├─ Resources.QuotaGovernor
+      ├─ Memory.LineageCompression
+      └─ Causal.GCK
+
+   AEO.Supervisor (contains runtime diversity/collapse/recovery stubs)
+   └─ not in the inspected Application/RootSupervisor boot graph
+```
+
+#### Authority and integration seams
+
+1. **Constitutional decision vs. executive execution:** Council is the root constitutional decision authority, but the root Executive Coordinator uses its own simple consensus path and does not demonstrate Council authorization for each submitted command (RL-77/RL-78). CEL Kernel restart/halt is Council-gated, but service registry mutation and actor binding remain gaps (RL-122/RL-125/RL-126).
+2. **Emergency and override authority:** root CivilizationKernel caller-supplied human override/rollback paths bypass Council authorization and validation (RL-82); Council emergency lifting and human approvals do not authenticate the claimed human identity (RL-121).
+3. **Cognitive orchestration:** ECR and Omega AgencyLoop are separate phase machines triggered by the same heartbeat and writing shared memory/blackboard state (RL-91). Their phase success is not equivalent to completed research, execution or learning (RL-79/RL-92).
+4. **Research and knowledge authority:** root ResearchDirector quarantines experiments, which is a positive control, but KnowledgeIntegrator can report success without durable memory persistence (RL-101). Runtime Phase 16.1 ETS research stores have no demonstrated supervised owner (RL-103).
+5. **Immune and kill authority:** root CIS is separate from runtime CIS arbitration. Runtime kill operations pass through CIS ExecutionController for the dedicated kill path, but the generic execute path defaults to normal when CIS is absent (RL-99). Runtime diversity/collapse/recovery workers are not active in the inspected boot graph (RL-100).
+6. **Mathematical verification authority:** the root ProofKernel is bounded and explicit about its limits; the runtime MathematicsRuntime has metadata-only verification/replay and expression completion paths (RL-108/RL-109). Its output must not be accepted as a certificate without real computation and independent checking.
+7. **Self-improvement authority:** normal Ω.4 orchestration is blocked because no real simulation provider exists, but direct SimulationManager/DeploymentPipeline APIs can create synthetic simulation/deployment states (RL-115/RL-116). The separate dry-run pipeline's independent-verification flag is caller-controlled (RL-117).
+8. **Persistence and evidence authority:** root EventStore/EventBus/ExecutiveMemory and CEL ExecutiveMemory are distinct; runtime Omega ExecutiveMemory and CPL add more stores. No canonical cross-tree event/decision transaction or reconciliation contract has been demonstrated (RL-81/RL-87/RL-90/RL-101/RL-103/RL-111).
+
+#### Provisional architecture conclusions
+
+- The repository contains multiple separately supervised applications/control planes; names and documentation do not establish a shared authority contract.
+- The highest-risk gaps are not simply missing algorithms: they are authorization bypasses, false success/verification, unowned or volatile state, unverified human identity, and unclear execution/persistence receipts.
+- The architecture should be reconciled around explicit authority boundaries and evidence contracts before module consolidation. Preserve the root Council as constitutional authority; preserve human control over constitutional/self-modification decisions; do not let runtime CIS, CEL, Ω, or D15-like subsystems silently assume Council authority.
+- No implementation change is authorized by this audit. Remediation should be sequenced only after the remaining caller graph and cross-system tests establish the actual production paths.
+
+**Checkpoint 18.11 disposition:** provisional source-declared ownership graph recorded. The audit is not complete: remaining work includes exact caller/effect tracing for all public mutation APIs, immunity-to-kill end-to-end behavior, discovery experiment execution/replication/archaeology, full mathematical campaign-to-runtime binding, and verification of all security boundaries.
