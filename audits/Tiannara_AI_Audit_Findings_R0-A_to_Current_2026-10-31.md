@@ -908,3 +908,85 @@ However, the quarantine job has four observed failures; six tests remain exclude
 **Impact:** the two successful workflows cover different Erlang/OTP environments. A platform-specific or OTP-version-specific behavior in the actual runtime is not excluded by the hash comparison.
 
 **Closure evidence:** run the relevant deterministic evidence and runtime compatibility checks on both Linux and macOS under the same pinned OTP 28 / Elixir 1.18 toolchain used by the required runtime suite, and bind the resulting artifacts to the exact commit and toolchain manifest.
+
+
+### Checkpoint 17 — Remediation reconciliation and runtime audit strategy
+
+**Audit scope:** Tiannara AI only. ESAP remains deferred. Application baseline remains the immutable source commit `e71bc230a8d38f3a0108012685ae1a052d195b00`; the audit ledger itself is maintained on `audit/consolidated-findings-r0a-2026-10-31`. This checkpoint changes no application source and does not claim any finding has been remediated.
+
+#### 17.1 Consolidated remediation order
+
+The register is to be remediated by shared root cause and dependency, not as isolated tickets:
+
+1. **P0 — Authority, governance and security:** RL-66–RL-71 and RL-73. Establish authenticated principals, immutable ISR ownership, D15 non-write authority by construction, signed candidate-bound grants, atomic durable constitutional changes, quorum/human approval, audit-failure fail-closed behavior, and complete ACL/OAVL/CEL enforcement at every sensitive sink.
+2. **P0 — Canonical execution and lifecycle:** RL-01–RL-15 and RL-28–RL-49, plus RL-74. Establish one world identity and lifecycle authority; transactional quota/memory admission; acknowledged child startup, termination and cleanup; idempotent reconciliation; durable manager recovery; measured resource accounting; and explicit boot dependencies.
+3. **P0 — Truthful state and operational outcomes:** RL-14, RL-33 and RL-61–RL-65. Authoritative state transitions and event publication must be real; operational APIs must distinguish simulated/demo data from live state; authorization, command delivery, observed effect and reconciliation must be separate result states.
+4. **P1 — Persistence, snapshot and replay:** RL-04, RL-06, RL-37–RL-46 and RL-60. Implement full-state capture, schema-safe import, world identity validation, durable atomic storage, startup recovery, event application and state-hash verification.
+5. **P1 — Research and discovery:** RL-50–RL-56 and CAP-02. Connect scheduled execution to the actual discovery/research pipeline; replace random/synthetic experiment outcomes with protocol execution and measured results; require falsification, independent validation, reproducibility, calibrated uncertainty and provenance.
+6. **P1 — Civilization history and archaeology:** RL-57–RL-60 and CAP-03. Define persistent world/civilization epochs, institutions, infrastructure, materials, artifacts, site/stratum coordinates and evidence links; then prove excavation and reconstruction across successive worlds.
+7. **P1 — Verification infrastructure:** RL-72–RL-76. Resolve and re-admit quarantined failures, classify/fix compiler warnings, add adversarial governance and lifecycle fault tests, run a commit-bound 72-hour live-world soak, and align Linux/macOS toolchains.
+8. **P2 — Capability/domain completeness:** R0-B-03, ARCH-01–02 and CAP-01. Revalidate all claimed capabilities against reachable production paths, independent tests and explicit unsupported behavior.
+
+**Dependency rule:** do not enable broader autonomous research, self-modification or self-improvement execution before authority controls, lifecycle transactionality, durable evidence and truthful operational reporting are established. A passing downstream test cannot compensate for an unverified upstream authority or state boundary.
+
+#### 17.2 Runtime directory inventory at the frozen baseline
+
+The recursive Git tree for `tiannara_runtime/` at the immutable baseline was retrieved and parsed. The tree response was not truncated.
+
+- **17,627 tree entries**: 17,229 files and 398 directories.
+- **14,145 JSON files**, predominantly under `data/` and `priv/`; these are not 14,145 independent source modules and must not be audited as if they were.
+- **1,578 Markdown files**, including design, implementation, completion and audit reports. These are claims/specifications to compare against executable source, not proof of implementation.
+- **1,461 code files**: 1,241 `.ex`, 206 `.exs`, 12 `.rs`, and 2 `.py`.
+- **1,240 files under `lib/`** and **171 code files under `test/`**.
+- Largest source clusters include `world_model` (175 files), `cognitive` (161), `sentinel` (89), `opc` (86), `civilization` (61), `os` (58), `meta` (42), `oed` (33), `mathematics` (29), and `autonomous_research` (26).
+
+These counts are inventory evidence only. They do not imply all files are compiled, reachable, production-used, or owned by the same runtime application. The directory has mixed namespaces (`tiannara_runtime`, `tiannara`, `world_model`, plus data, generated evidence and documentation), so path names alone are not a reliable architecture map.
+
+#### 17.3 Efficient audit method for the large runtime tree
+
+Use a layered, evidence-first audit rather than reading every file sequentially:
+
+**A. Freeze and inventory**
+- Pin the exact candidate SHA and record tree SHA, toolchain, app roots and build configuration.
+- Classify every tree entry as executable source, test, configuration, generated/data artifact, migration, documentation, native code or build output.
+- Build a source manifest with path, module, source hash, owning OTP application/supervisor, declared dependencies, test references and status.
+- Separate tracked historical/generated JSON from runtime persistence stores; determine whether each file is fixture, seed, artifact, checkpoint or active input.
+
+**B. Build the execution and ownership graph**
+- Start at `mix.exs`, application callback(s), config, supervisors and child specifications.
+- Trace each requested system from public entry point/API or message ingress through callers, supervisors, dependencies and effect sinks.
+- Record module ownership, startup reachability, configuration/readiness, message/data contracts, persistence and failure behavior.
+- Search both callers and callees. A module existing, compiling or having tests does not establish production reachability.
+- Use targeted searches and dependency clusters to reduce the review set; fetch complete source for the modules on each critical path. Do not use filename or documentation claims as closure evidence.
+
+**C. Audit each subsystem with one common evidence template**
+For every module and capability, record: intended responsibility; actual implementation; entry points; callers; startup status; data contracts; state ownership; external effects; authorization gates; persistence; error/timeout/retry behavior; concurrency and restart semantics; tests; CI evidence; unsupported/placeholder paths; and unresolved dependencies.
+
+**D. Verify in increasing cost**
+1. Static source and call-graph tracing.
+2. Unit tests for invariants and error branches.
+3. Integration tests through the real supervisor/application graph.
+4. Adversarial authorization, fault injection, restart and recovery.
+5. Live multi-system scenarios and long-duration soak.
+6. Independent review of exact-commit artifacts.
+
+Every claim is classified as **verified**, **partially verified**, **source-only**, **specified-only**, **unreachable/unwired**, **placeholder/simulated**, **unsupported/fail-closed**, or **unknown**. No simulated evidence satisfies a runtime gate.
+
+#### 17.4 Planned subsystem audit sequence
+
+The next audit program will cover the user's requested systems, grouped by shared dependencies:
+
+1. **Executive management and control plane** — executive decision/command lifecycle, priorities, delegation, memory, observability, orchestration and human override.
+2. **Cognitive architecture and intelligence** — perception/input, attention, working/long-term memory, world models, reasoning, planning, decision-making, metacognition, communication and uncertainty.
+3. **Immunity and resilience** — anomaly/threat detection, containment, quarantine, recovery, fault tolerance, immune memory, false-positive/negative behavior and authority boundaries.
+4. **Research, discovery and scientific auditing** — hypothesis lifecycle, experiment design/execution, evidence scoring, falsification, replication, knowledge integration, provenance and discovery certification.
+5. **Mathematics and computational science** — declared mathematical domains, algorithms, numerical stability, solver correctness, property tests, performance and unsupported/theatrical functions.
+6. **Self-modification and self-improvement** — candidate generation, isolated evaluation, independent verification, constitutional authorization, approval, deployment, rollback and post-deployment monitoring.
+7. **Security and governance** — identity, authentication, authorization, ACL/OAVL/CEL, secrets, trust boundaries, audit logs, supply chain, sandboxing and D15/ISR invariants.
+8. **Cross-system intelligence integration** — prove that the above systems exchange authoritative, provenance-bearing data and coordinate through real runtime paths rather than parallel, unconnected implementations.
+
+The sequence is dependency-aware, not a claim that each group is independent. Security/governance controls are traced across every group, and shared executive, cognitive, memory and event infrastructure is audited once as a common dependency before relying on it downstream.
+
+#### Checkpoint 17 disposition
+
+**Reconciliation complete; implementation not started.** The existing findings are organized into dependency-ordered remediation workstreams. A reproducible tree inventory establishes that the runtime directory is large but tractable when separated into source, tests, documentation and generated data. The next phase should begin with a source manifest and boot/ownership graph, then audit the executive-management/control plane as the first subsystem. No application findings are closed by this checkpoint.
