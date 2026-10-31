@@ -595,3 +595,44 @@ Checkpoint 9 confirms that cross-component identity is not yet a single enforced
 #### Checkpoint 10 disposition
 
 Checkpoint 10 confirms that the current source does not provide a trustworthy snapshot/restore/replay recovery contract: snapshots contain placeholder state and restoration does not mutate the world (RL-37); imported JSON maps are incompatible with atom-key access (RL-42); snapshot IDs and target ownership are insufficiently guarded (RL-43); stopping recording removes the replay/export source (RL-44); replay only returns events rather than applying them (RL-45); and persisted recovery is not automatic (RL-46). These are source-confirmed findings at the frozen SHA. Runtime behavior, crash reproduction, recovery round trips, and regression tests remain outstanding. Only the audit ledger was updated.
+
+
+### Resource lifecycle evidence checkpoint 11 — boot graph, supervision, and activation
+
+**Audit target:** immutable application SHA `e71bc230a8d38f3a0108012685ae1a052d195b00`. Read-only source inspection of `TiannaraRuntime.Application`, `TiannaraRuntime.StartupSupervisor`, `TiannaraRuntime.RootSupervisor`, `TiannaraRuntime.BootPolicy`, `TiannaraRuntime.WorldRegistrySupervisor`, `TiannaraRuntime.WorldSupervisor`, `WorldFreeze`, `DeterministicReplay`, and `DiscoveryRunner`. No application source was modified and no runtime tests were run.
+
+#### RL-47 — Multi-world registry supervisor is not wired into the inspected runtime boot graph
+
+**Status: Source-confirmed in the inspected startup definitions.** `TiannaraRuntime.WorldRegistrySupervisor` defines children for `WorldRegistry` and `WorldRuntimeSupervisor`, but it is absent from the child lists in `TiannaraRuntime.Application`, `TiannaraRuntime.StartupSupervisor`, and `TiannaraRuntime.RootSupervisor` at the audit SHA. The runtime application explicitly adds `WorldSupervisor`, but does not add `WorldRegistrySupervisor` in the same list.
+
+**Impact:** the registry and runtime DynamicSupervisor documented by the Phase 5A architecture are not guaranteed to be running as part of these declared boot graphs. Registry-dependent code can therefore encounter missing-process/registry conditions unless another, separately invoked startup path provisions them. Documentation of a supervisor module is not proof it is activated.
+
+**Closure evidence:** identify one canonical application owner for the multi-world subsystem, include the registry and its required children in that supervised tree, and test a clean full application boot by asserting the registered processes and child tree—not merely module loadability.
+
+#### RL-48 — WorldSupervisor starts its DynamicSupervisor inside GenServer initialization rather than as an explicit supervisor child
+
+**Status: Source-confirmed.** `TiannaraRuntime.MultiWorld.WorldSupervisor.init/1` calls `DynamicSupervisor.start_link/2` and stores the returned PID in GenServer state. The DynamicSupervisor is linked to the GenServer but is not declared as a child in the application supervisor tree. A coordinator restart consequently does not preserve the coordinator's in-memory `worlds` map; the nested DynamicSupervisor's lifecycle is coupled to that GenServer rather than represented as a separately supervised sibling/child contract.
+
+**Impact:** restarting the coordinator can terminate its linked DynamicSupervisor and its worlds, while a restart of the coordinator alone does not reconstruct world-to-PID tracking or reconcile quota, memory, registry, freeze, and replay state. The existing `:one_for_one` application-level strategy does not itself supply that recovery protocol.
+
+**Closure evidence:** model the coordinator and world DynamicSupervisor in an explicit supervision tree with intentional restart semantics; monitor/reconcile world processes and resource reservations after restarts; test coordinator crash, DynamicSupervisor crash, and whole-subtree restart with multiple live worlds.
+
+#### RL-49 — WorldSupervisor is activated without its required multi-world service dependencies being explicitly activated alongside it
+
+**Status: Source-confirmed in the inspected boot lists.** `TiannaraRuntime.Application` adds `WorldSupervisor` as an optional child, but its declared children do not add `ResourceQuota`, `MemoryManager`, `WorldFreeze`, or `DeterministicReplay`. `TiannaraRuntime.RootSupervisor` lists only Infrastructure, Execution, Ecology, and (depending on profile) Constraint/Meta authority supervisors; it contains no multi-world lifecycle service child. Yet `WorldSupervisor.spawn_world/1`, `get_status/0`, `freeze_world/1`, and termination paths call those named services. `BootPolicy.optional_child/2` checks whether a module can be loaded; it does not check that its runtime dependencies are started.
+
+**Impact:** a successful boot of the coordinator does not establish that its spawn, status, freeze, replay, or cleanup APIs can run. Missing registered GenServers can cause exits such as `:noproc`; `Process.whereis/1` guards in some cleanup paths merely skip operations and do not restore a coherent lifecycle. This is a source-level activation gap; no runtime failure is claimed as reproduced.
+
+**Closure evidence:** declare dependencies and startup ordering in one supervisor tree; distinguish optional module availability from required service readiness; fail boot or expose an explicit degraded capability when mandatory dependencies are absent. Add clean-boot integration tests invoking each advertised lifecycle API.
+
+#### RL-50 — DiscoveryRunner's scheduled cycles record synthetic research artifacts rather than executing the autonomous experiment pipeline
+
+**Status: Source-confirmed; runtime behavior not tested.** `TiannaraRuntime.StartupSupervisor` includes `TiannaraRuntime.DiscoveryRunner` as a child, so this runner is activated by that boot path. Its `handle_info(:discovery_cycle, ...)` describes challenge execution as simulated and calls `record_observation/1`, `record_hypothesis/1`, and `record_experiment/1`, then increments `cycle_count`. In the inspected cycle handler it does not call `Tiannara.ASC.AutonomousDiscovery.run_discovery_cycle/1` or `Tiannara.Agency.ResearchDirector.investigate/2`, nor does it invoke a domain simulator/validator and gate a discovery on experimental evidence. Separately, the autonomous-discovery module is not a child of the inspected runtime boot graph.
+
+**Impact:** a running timer and increasing cycle count can be mistaken for autonomous scientific research, while the scientific execution/validation pipeline remains a separate, unproven path. This does not invalidate the existence of research code; it means the scheduled runner's activity is not evidence that real hypotheses were experimentally tested or discoveries established.
+
+**Closure evidence:** wire a bounded research-cycle worker to the intended hypothesis → experiment → simulation → independent validation → provenance/persistence pipeline; record explicit unavailable/rejected/timeout outcomes without success-shaped artifacts; and test that a cycle's persisted discovery can be traced to actual execution and validation evidence.
+
+#### Checkpoint 11 disposition
+
+Checkpoint 11 finds a split activation model: the runtime application starts the multi-world coordinator without explicitly starting its registry, quota, memory, snapshot, and replay dependencies; the separate startup supervisor starts the DiscoveryRunner, whose timed cycles record simulated artifacts rather than calling the autonomous discovery pipeline. The world coordinator also owns a linked DynamicSupervisor outside an explicit supervisor child tree. These are source-confirmed boot-graph findings at the frozen SHA; startup integration, process-crash behavior, and end-to-end research execution remain untested. Only the audit ledger was updated.
