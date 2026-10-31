@@ -990,3 +990,87 @@ The sequence is dependency-aware, not a claim that each group is independent. Se
 #### Checkpoint 17 disposition
 
 **Reconciliation complete; implementation not started.** The existing findings are organized into dependency-ordered remediation workstreams. A reproducible tree inventory establishes that the runtime directory is large but tractable when separated into source, tests, documentation and generated data. The next phase should begin with a source manifest and boot/ownership graph, then audit the executive-management/control plane as the first subsystem. No application findings are closed by this checkpoint.
+
+
+### Checkpoint 18 — Runtime System Atlas and executive-management audit (initial pass)
+
+**Scope and baseline:** The audit includes the tracked repository-root `lib/` tree corresponding to the user's `Tiannara-MindCache-Prosthetic\\lib` path, in addition to `tiannara_runtime/`. The source inspected is pinned to `e71bc230a8d38f3a0108012685ae1a052d195b00`. The connected repository provides tracked source; it does not prove that the user's current local Windows working tree has no uncommitted or divergent files. Local-only differences remain uninspected until a local archive/upload or commit is supplied. No application source was modified and no runtime tests were run in this checkpoint.
+
+#### 18.1 Repository-root `lib/` inventory and overlap
+
+At the frozen baseline, the repository-root `lib/` contains 1,660 tracked files, 1,656 of which are code files. Major module clusters include `lib/tiannara/asc` (267), `os` (220), `sentinel` (65), `discovery` (51), `forecasting` (51), `cel` (50), `omega` (48), `rea` (43), `executive` (31), `audit` (19), `research` (15), `self_improvement` (10), `memory` (8), and `math` (6). These are path counts, not proof of reachability or capability.
+
+The root `lib/` and `tiannara_runtime/lib/` have distinct namespace families and separate application/runtime concepts. Treat them as separate ownership domains until application startup, dependencies, shared state and adapters prove otherwise. In particular, do not assume that an identically named executive, memory, research, security or world subsystem is the same implementation.
+
+#### 18.2 Executive management execution path
+
+The root `Tiannara.Application` child list includes `Tiannara.Executive.Supervisor` and `Tiannara.Executive.Cognitive.ExecutiveCognitiveRuntime`. The Executive supervisor starts EventStore, EventBus, ExecutiveMemory and Coordinator as separate `one_for_one` children. The ECR supervisor starts Blackboard, WorkingMemory, ContextManager, AttentionScheduler, ReflectionEngine, ExecutiveCycle and HeartbeatEngine. This establishes declared boot wiring in source; it does not by itself prove successful production startup or readiness.
+
+#### RL-77 — Executive coordinator reports successful execution without checking the command result
+
+**Status: Source-confirmed; runtime reproduction not performed.** `Tiannara.Executive.Coordinator.handle_call({:submit, ...})` uses `Consensus.evaluate(cmd, :simple)`, approves the command, calls `execute_command/1`, discards the returned value, increments `metrics.executed`, publishes `command.executed` with `result: :ok`, and replies `:ok`. The plan stored in state is the approved command; it is not changed to `:executed` or `:failed`. The execution helper can return errors for unknown actions or from ExecutiveMemory operations.
+
+**Impact:** callers and metrics can be told an action executed when the underlying memory operation failed or returned an error. Status may remain `:approved` despite the reported execution event. This is a direct command-outcome truthfulness defect.
+
+**Closure evidence:** preserve the actual execution result; transition the command to executed only on verified success and failed otherwise; publish outcome matching the real result; test every action's success/failure path and status/metric consistency.
+
+#### RL-78 — Executive coordinator hardcodes permissive single-validator consensus for every submitted command
+
+**Status: Source-confirmed.** The only submission path invokes `Consensus.evaluate(cmd, :simple)` regardless of action or command metadata. `simple_consensus/1` approves all actions except `:gc`, `:compact` and `:rebuild`. The majority, constitutional and emergency modes are not selected by the coordinator's submit path. `get_validators/0` defaults to a single validator that always returns `:approve` when no validators are configured.
+
+**Impact:** the existence of multiple consensus modes does not mean they govern command execution. Ordinary memory mutations receive unconditional approval under the default validator configuration, with no demonstrated principal authentication or policy-specific authorization in this path. Destructive operations are rejected in simple mode rather than being routed to the required stronger approval process.
+
+**Closure evidence:** derive required authorization mode from a trusted policy for each command; fail closed if validator identities/configuration are absent; authenticate approvers; bind approvals to command and candidate hashes; test spoofing, absent validators, denial, timeout and approval threshold behavior.
+
+#### RL-79 — ECR cognitive cycle advances and reports phase success without demonstrating phase work
+
+**Status: Source-confirmed.** `ExecutiveCycle.execute_phase/1` returns `:ok` for every phase in the normal paths. `:investigate` silently returns `:ok` when Sentinel or ResearchDirector are absent; `:execute` explicitly only posts a pending marker and does not execute a plan; `:validate` checks whether blackboard entries have `status == :executed` and records a boolean, without independently validating an execution receipt; `:observe` substitutes a synthetic nominal system-health observation when Sentinel is absent. The cycle increments phase/cycle counters and emits status telemetry from the returned `:ok`.
+
+**Impact:** cycle completion and successful phase telemetry can be mistaken for actual observation, investigation, execution and validation. The code is partly transparent about the execution provider being absent, but the aggregate cycle status remains success-shaped and fallback observation resembles live health.
+
+**Closure evidence:** use typed phase outcomes (completed, skipped, unavailable, failed, simulated); propagate dependency absence and operation errors; require authenticated execution receipts and independent validation; never classify fallback/mock observations as production signals; test each missing-dependency and failure path.
+
+#### RL-80 — ECR health endpoint hardcodes healthy status
+
+**Status: Source-confirmed.** `ExecutiveCognitiveRuntime.health/0` returns `status: :healthy` unconditionally while collecting uptime, cycle count, last reflection and attention count. It does not derive health from child supervisor state, heartbeat freshness, phase failures, cognitive dependency readiness or degraded state.
+
+**Impact:** Sentinel and Omega health aggregation can receive a healthy result even when ECR children are missing, stale or repeatedly failing. This undermines operational monitoring and any governance or self-improvement decision based on health.
+
+**Closure evidence:** derive health from live child probes, heartbeat age, cycle progress, phase failure/skipped counts and dependency readiness; expose unknown/degraded/unavailable states; test child crash, stale heartbeat and dependency loss.
+
+#### RL-81 — Executive EventStore is not the event sink for the ExecutiveMemory/Coordinator event path
+
+**Status: Source-confirmed for inspected modules; global caller inventory remains open.** The Executive supervisor starts EventStore and EventBus. ExecutiveMemory writes/deletes publish events to EventBus; Coordinator publishes command outcomes to EventBus. Neither inspected path appends those events to EventStore, and EventBus only delivers messages to volatile subscribers. EventStore is separately appendable and has some external callers, but the core executive memory/command events are not shown as durably journaled.
+
+**Impact:** the advertised append-only executive event history does not cover core executive writes and command outcomes through the inspected execution path. Restart or subscriber absence can lose these events even though EventStore is running.
+
+**Closure evidence:** define one authoritative event transaction/outbox path; persist required events before acknowledging state mutation; make append failure visible and fail closed where auditability is required; verify restart replay, ordering, duplicate handling and corruption recovery. Complete caller inventory before claiming EventStore has no other uses.
+
+#### RL-82 — CivilizationKernel exposes unauthenticated state bypass and rollback paths
+
+**Status: Source-confirmed.** `TiannaraOS.CivilizationKernel.human_override/1` accepts a caller-supplied map and directly installs it without identity authentication, Council grant, human approval verification or normal resource/tenant validation. `rollback/1` similarly installs a caller-supplied target state, preserving only the prior memory field and appending an in-memory audit event; no authenticated authorization or state validation is performed. `validate_state/1` returns `:ok` for any non-`TiannaraOS.State` value, and `validate_security_profile/1` returns `:ok` for non-map inputs.
+
+**Impact:** the public GenServer APIs provide bypass paths around the kernel's own claimed canonical-state invariants. The bypass is explicit in comments, but caller identity and human authority are not established in the inspected functions. The permissive fallback validation also allows malformed/noncanonical values to pass the validator.
+
+**Closure evidence:** require authenticated, signed and scoped human/Council authorization for override and rollback; validate exact canonical state type/schema and all invariants; bind rollback to a verified checkpoint and audit record; reject malformed security-profile inputs; test direct API calls, forged actors, invalid tenant/resource states and audit failure.
+
+#### RL-83 — ExecutiveMemory can erase degraded recovery status during startup
+
+**Status: Source-confirmed; exact failure reproduction not performed.** In `ExecutiveMemory.startup/1`, if `Recovery.startup_recovery/1` returns an error, the code attempts to open the store and sets the local status to `:degraded`. Later in the same startup function, after warming ETS and running a deep check, it unconditionally calls `State.activate(state)`, which changes status to `:active` regardless of the earlier degraded status or whether the deep check marked corruption.
+
+**Impact:** startup may expose an unrecovered or newly opened store as active after a recovery failure. This can cause dependent executive/research systems to treat incomplete or potentially empty state as authoritative.
+
+**Closure evidence:** preserve degraded/corrupt status until explicit integrity and recovery gates pass; never convert recovery failure into active readiness; distinguish fresh-empty initialization from failed recovery of existing data; test corrupted/unopenable files and deep-check failure through the full startup path.
+
+#### 18.3 Initial executive subsystem disposition
+
+- **Executive supervision:** source-declared in the root application; runtime readiness not tested here.
+- **Executive command coordination:** source-level outcome and authorization defects identified (RL-77–78).
+- **Executive memory:** DETS/ETS persistence and recovery mechanisms exist, but the startup status defect and core event-journal gap require remediation/verification (RL-81, RL-83).
+- **Executive cognitive runtime:** a scheduled eight-phase loop exists, but some phases are placeholders/skips and health is hardcoded (RL-79–80).
+- **Civilization kernel:** canonical state substrate exists, but direct override/rollback and permissive type validation are release-blocking security/governance concerns (RL-82).
+- **Local Windows workspace:** tracked repository source was inspected; local uncommitted/divergent files are not verified.
+
+#### Checkpoint 18 disposition
+
+**Initial source audit complete for the executive-management/control-plane slice; broader runtime atlas and the remaining requested subsystems are not complete.** RL-77–RL-83 are source-level findings, not runtime-reproduced defects. No application code was modified and no tests were executed. Continue with a full caller/ownership graph and then audit the remaining executive services, CEL/Ω control plane, immunity, cognition, research, mathematics, self-modification and security as separate dependency-linked slices.
