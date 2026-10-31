@@ -1191,3 +1191,65 @@ The root `Tiannara.Application` child list includes `Tiannara.Executive.Supervis
 - This is an initial cognitive slice, not a complete audit of perception, memory consolidation, world-model reasoning, planning, metacognition or language/dialogue.
 
 **Checkpoint 18 cognitive disposition:** RL-91–RL-94 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. Continue the cognitive caller/ownership graph before moving to immunity and research/discovery.
+
+### Checkpoint 18 continuation — immunity and resilience (initial source pass)
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** root `Tiannara.CIS` and runtime `TiannaraRuntime.CIS` / kill-control components. Source inspection only; no runtime tests or application changes.
+
+#### RL-95 — Root CIS has no demonstrated event-driven immune observation loop
+
+**Status: Source-confirmed for the inspected supervisor and registry.** Root `Tiannara.CIS.Supervisor` starts `CISRegistry`, `CollapsePredictor`, `ImmuneDecisionEngine` and `RegulationExecutor`. However, `CISRegistry.init/1` starts an empty child list; it does not register or monitor immune responses. The inspected root CIS supervisor exposes no event subscription or routing API, and no link is established between predictor output, decision evaluation and response execution in these modules.
+
+**Impact:** the presence of a supervised CIS process tree does not establish a continuously observing, event-driven immune system. A caller can manually invoke individual functions, but an autonomous detection → decision → containment → recovery path is not demonstrated.
+
+**Closure evidence:** define authenticated event ingress and canonical threat/incident records; connect observation, risk assessment, decision and response through one supervised workflow; demonstrate end-to-end fault injection and verify that real production incidents are detected and contained.
+
+#### RL-96 — Root CIS regulation execution is log-only
+
+**Status: Source-confirmed.** `Tiannara.CIS.RegulationExecutor.execute/2` logs the requested action, appends it to an in-memory `executed_actions` list and returns `:ok`. It does not invoke a quarantine, isolation, resource restriction, rollback, restart or recovery provider. The `ImmuneDecisionEngine` only maps severity greater than 0.7 to the symbolic response `:quarantine`, otherwise `:monitor`; no enforcement bridge from that response to a real quarantine operation is present in the inspected modules.
+
+**Impact:** an immune response can be represented as executed even though only a log/state update occurred. This is not evidence of containment or recovery.
+
+**Closure evidence:** return typed proposal/authorized/delivered/applied/verified outcomes; connect actions to real effect providers behind governance authorization; require postcondition evidence and test that unavailable providers never produce an applied/success result.
+
+#### RL-97 — Root collapse-risk calculation substitutes optimistic telemetry defaults
+
+**Status: Source-confirmed.** `Tiannara.CIS.CollapsePredictor.gather_live_telemetry/0` queries three health functions, but then injects `memory_pressure: 0.0` and `dets_health: true` rather than measuring those conditions. `validate_telemetry/1` requires only the three health keys, so those defaults are accepted as if they were observed telemetry. Risk weights are fixed constants.
+
+**Impact:** memory pressure and DETS degradation can be absent from the risk calculation while the output still carries an evidence count and numeric risk score. A computed score is not a complete or calibrated collapse assessment.
+
+**Closure evidence:** gather memory/DETS status from authoritative live sources; distinguish measured, inferred, defaulted and unavailable fields; reject or downgrade incomplete telemetry; calibrate weights against retained incident/outcome data; test missing, stale, malformed and contradictory observations.
+
+#### RL-98 — Runtime CIS arbitration defaults to approval without identity- or evidence-bound authorization
+
+**Status: Source-confirmed.** `TiannaraRuntime.CIS.Supervisor` is a GenServer arbitration kernel, distinct from the root `Tiannara.CIS.Supervisor` OTP supervisor. Its public `set_safety_mode/1` changes global safety mode without an actor, authenticated principal, Council grant or approval record. The decision function approves most combinations by default; for example, `:normal` mode with `:critical` severity returns `:approve`, and world suspension is approved for every mode except `:lockdown`. Decisions are recorded in a bounded in-memory list and emitted to Logger, not shown as durable, signed authorization evidence.
+
+**Impact:** the API's existence and decision log do not establish constitutional authorization. Any caller able to reach the GenServer API can change the global mode, and most unspecified cases resolve to approval. A restart also loses the in-memory arbitration history and safety mode.
+
+**Closure evidence:** bind every request to authenticated actor, target, operation, reason, evidence and policy version; require explicit policy outcomes with fail-closed defaults; protect safety-mode changes with Council/human authorization; persist tamper-evident decision receipts; test forged actors, malformed severity, missing evidence, restart and lockdown invariants.
+
+#### RL-99 — Generic runtime ExecutionController path fails open when CIS is absent
+
+**Status: Source-confirmed.** In `TiannaraRuntime.CIS.ExecutionController.handle_call({:execute, ...})`, an absent CIS process is mapped to `safety_mode = :normal`; the request then returns `:ok` and increments execution count. This differs from the module's kill path, which calls `CIS.Supervisor.authorize_kill/3` and will fail if the arbitration process is unavailable.
+
+**Impact:** the generic public execution API can authorize an operation when the CIS kernel is missing. The fail-closed behavior documented for the kill path does not extend to the generic execution path.
+
+**Closure evidence:** route every effectful operation through an explicit authorization result; treat missing CIS/Council/policy services as unavailable and deny; separate non-effectful validation from effectful execution; test missing-process and dependency-restart scenarios.
+
+#### RL-100 — Runtime diversity/collapse/recovery workers are inert and outside the declared boot graph
+
+**Status: Source-confirmed.** `TiannaraRuntime.CIS.DiversityRegulator`, `CollapseDetector` and `RecoveryOrchestrator` are defined in `tiannara_runtime/lib/tiannara_runtime/supervisors.ex`; their `init/1` functions only initialize counters and they expose no monitoring, detection or intervention APIs in the inspected definitions. They are children of `TiannaraRuntime.AEO.Supervisor`, but the runtime `RootSupervisor` child graph and `TiannaraRuntime.Application` child list inspected at the frozen SHA do not start `AEO.Supervisor`. The separately started `TiannaraRuntime.CIS.Supervisor` is the arbitration GenServer, not this AEO child supervisor.
+
+**Impact:** documentation and module names can suggest active immune monitoring/recovery, but these workers are inert and their owning supervisor is not part of the declared runtime boot path. The similarly named CIS components also have different ownership and responsibilities across the two trees.
+
+**Closure evidence:** choose one canonical runtime immune architecture; wire its supervisor into the actual application graph with explicit required/optional semantics; implement and test real monitoring, detection and recovery behaviors; expose readiness proving each worker is alive and processing real signals.
+
+#### 18.6 Immunity and resilience disposition
+
+- Root CIS has a grounded-input risk predictor but incomplete telemetry, symbolic response decisions and a log-only executor; an autonomous containment/recovery loop is not demonstrated.
+- Runtime CIS arbitration is a separate GenServer authority with permissive defaults and no authenticated decision context in the inspected API.
+- Runtime diversity/collapse/recovery workers are inert in the inspected source and their AEO supervisor is not part of the declared boot graph.
+- Kill delivery and false `:executed` outcomes remain covered by RL-14 and the runtime execution findings; do not treat this initial CIS pass as a complete kill-chain certification.
+
+**Checkpoint 18 immunity disposition:** RL-95–RL-100 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. Continue into research/discovery and then mathematics, self-modification/self-improvement and security/governance, while preserving the cross-tree ownership distinctions.
