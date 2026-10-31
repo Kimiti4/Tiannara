@@ -546,3 +546,52 @@ The source confirms that lifecycle accounting is volatile, memory release is una
 #### Checkpoint 9 disposition
 
 Checkpoint 9 confirms that cross-component identity is not yet a single enforced invariant: registry creation and runtime spawn generate different ID forms, fork creation ignores the caller's proposed ID and pattern-matches against a second generated UUID, and fork orchestration attempts to instantiate a globally named coordinator as a per-world child. These findings are source-confirmed at the frozen SHA. Runtime confirmation, regression tests, and remediation remain outstanding. Earlier RL-11 invalid GenServer cast callback contracts and RL-28 repeated termination accounting remain open and materially affect any future lifecycle test; they were not duplicated as new findings here. Only the audit ledger was updated.
+
+
+### Resource lifecycle evidence checkpoint 10 — snapshots, persistence, replay, and recovery
+
+**Audit target:** immutable application SHA `e71bc230a8d38f3a0108012685ae1a052d195b00`. Read-only inspection of `multi_world/world_freeze.ex`, `multi_world/deterministic_replay.ex`, `multi_world/world_supervisor.ex`, `multi_world/memory_manager.ex`, and `multi_world/resource_quota.ex`. No application source was modified and no runtime tests were run. Existing RL-34, RL-37, and RL-38 remain open; the findings below record distinct persistence and recovery consequences rather than closing or duplicating those findings.
+
+#### RL-42 — Snapshot import is not compatible with downstream atom-key access
+
+**Status: Source-confirmed; runtime crash not reproduced.** `WorldFreeze.import_snapshot/1` parses JSON with `Jason.decode/1`, which yields string-keyed maps, then stores that decoded map directly in `frozen_worlds`. Later paths such as `get_snapshot_info/1` access `snapshot.world_id`, `snapshot.created_at`, and `snapshot.metadata`; `list_snapshots/1` accesses `snapshot.created_at` and `snapshot.metadata`; and `restore_snapshot/2` passes decoded `snapshot.state` to `restore_world_state/2`, which accesses `state_data.agents` and `state_data.coalitions`. Those atom-key field accesses are incompatible with the string-keyed imported JSON object. The restore helper is also only logging, not applying state (RL-37).
+
+**Impact:** an imported snapshot cannot be treated as a reliable round-trip artifact; metadata/list/restore operations can raise on missing atom keys and crash the GenServer instead of returning a typed error.
+
+**Closure evidence:** define and validate a versioned snapshot schema, normalize keys at the import boundary, return typed errors for invalid/mismatched payloads, and test create → export → fresh manager → import → list/info → restore with the actual world state compared byte-for-byte or by canonical state hash.
+
+#### RL-43 — Snapshot identity is timestamp-based and target-world ownership is not checked
+
+**Status: Source-confirmed.** Snapshot IDs are generated as `snap_<world_id>_<millisecond timestamp>`; the map write replaces an existing value at the same key. The restore handler checks only whether the snapshot ID exists and does not verify that the snapshot's recorded `world_id` matches the requested target `world_id`. It then returns `:ok` after invoking the non-restoring helper.
+
+**Impact:** snapshots created within the same millisecond for one world can overwrite each other, and the API does not enforce ownership/compatibility between a snapshot and target world. Because restoration is currently a no-op, a successful return is not evidence of rollback.
+
+**Closure evidence:** use collision-resistant IDs, bind snapshot to canonical world identity and schema/version, reject mismatched targets, and test concurrent/rapid snapshot creation plus cross-world restore attempts. Return success only after the target state is confirmed restored.
+
+#### RL-44 — Stopping a recording destroys the active replay/export source
+
+**Status: Source-confirmed.** `stop_recording/1` removes the recording from `recording_worlds` via `Map.pop/2` and returns only event count, duration, and seed. Both `start_replay/1` and `export_recording/2` subsequently look up the recording in that same map, so the normal stop operation leaves neither API able to retrieve that recording unless it was exported beforehand or recreated/imported separately.
+
+**Impact:** the expected record → stop → replay/export workflow is not supported by the source implementation. The metadata returned at stop is insufficient to reconstruct the event history.
+
+**Closure evidence:** separate active recording state from finalized immutable recordings; make stop atomically finalize and retain the recording or return a durable artifact/reference. Test record → stop → export → import → replay, including empty and maximum-length recordings.
+
+#### RL-45 — Replay advances a cursor but does not apply events to a world
+
+**Status: Source-confirmed.** `step_replay/1` retrieves the next event and returns it to the caller while incrementing `current_step`; the inspected implementation does not dispatch that event to the target world process, re-run world transition logic, verify expected state hashes, or compare resulting state against the original. The module documentation's deterministic replay guarantee is therefore not established by this implementation alone.
+
+**Impact:** this is an event-log reader/cursor, not yet evidence of deterministic world reconstruction. Identical outcomes, timing fidelity, and state equivalence remain unproven.
+
+**Closure evidence:** define the replay execution contract, apply each event through the same authoritative transition path used by live execution, control/record all nondeterministic inputs, and compare per-step/final canonical state hashes against a known run. Include divergence detection and tests across process restart.
+
+#### RL-46 — Snapshot and recording persistence is optional export, not automatic durable recovery
+
+**Status: Source-confirmed.** Both modules initialize their snapshot/recording maps empty in `init/1`. Their ordinary create/start paths store data only in GenServer memory. File export is a separate explicit operation, and the inspected code has no automatic journal/checkpoint or startup recovery path for these maps. The same volatile-state concern applies to quota/memory managers already recorded in RL-34.
+
+**Impact:** restarting a manager loses in-memory snapshots, snapshot history, active recordings, and replay state unless an external caller separately exported and re-imported artifacts. No automatic consistency protocol reconciles restored world processes with these managers.
+
+**Closure evidence:** specify the durability boundary and recovery owner; persist finalized snapshots/recordings and required active metadata transactionally; implement startup validation/reconciliation; test manager-only restart and whole-application restart with checks that IDs, histories, seeds, events, and state hashes remain consistent.
+
+#### Checkpoint 10 disposition
+
+Checkpoint 10 confirms that the current source does not provide a trustworthy snapshot/restore/replay recovery contract: snapshots contain placeholder state and restoration does not mutate the world (RL-37); imported JSON maps are incompatible with atom-key access (RL-42); snapshot IDs and target ownership are insufficiently guarded (RL-43); stopping recording removes the replay/export source (RL-44); replay only returns events rather than applying them (RL-45); and persisted recovery is not automatic (RL-46). These are source-confirmed findings at the frozen SHA. Runtime behavior, crash reproduction, recovery round trips, and regression tests remain outstanding. Only the audit ledger was updated.
