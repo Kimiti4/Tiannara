@@ -431,3 +431,36 @@ The repository also contains archaeological stratum data files and numerous arch
 #### Investigation disposition before checkpoint 7
 
 This investigation was intentionally performed after checkpoint 6 and before checkpoint 7. It did not change the frozen source or execute tests. Current answer: **the architecture includes research/hypothesis/experiment/discovery paths, but their autonomous scientific reliability and live-world integration remain uncertified; the site-excavation function is explicitly fail-closed, and no end-to-end excavation of previous simulated civilizations is proven.** The audit should carry these as open capability findings, not treat the earlier archaeology design reports as runtime proof.
+
+
+### Resource lifecycle evidence checkpoint 7 — termination dispatch and spawn-admission rollback
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`. The following paths were fetched at that exact SHA: `tiannara_runtime/lib/tiannara_runtime/multi_world/world_supervisor.ex`, `resource_quota.ex`, `memory_manager.ex`, `world_registry.ex`, and `world_simulation_loop.ex`. This is a read-only source trace; no runtime tests or fault injection were run. The autonomous-research/archaeology investigation remains a separate pre-checkpoint-7 capability finding.
+
+#### RL-31 — Termination reports completion and releases accounting without observing process-down
+
+**Status: Source-confirmed at the frozen SHA; runtime outcome untested.** In `MultiWorld.WorldSupervisor.terminate_world_process/3`, the supervisor requests a pre-termination snapshot and stops replay, removes the world PID from its `worlds` map via `take_world_pid/2`, sends `:shutdown` if a PID was present, then asynchronously notifies `ResourceQuota` and requests memory release. It does not monitor or await a `:DOWN` signal before releasing accounting and logging “terminated and resources released.” The path also proceeds with quota notification and the completion log when no PID was found.
+
+**Impact:** A delayed, trapped, ineffective, or otherwise incomplete termination can be represented as complete while the process or associated state still exists. This reinforces RL-29/RL-30 but is recorded as the concrete common cleanup ordering in the normal termination helper. It does not prove an orphan was observed at runtime.
+
+**Closure evidence:** make termination a result-bearing state machine; retain the PID and reservation while termination is pending; monitor and confirm process-down; await replay-stop and memory/quota reconciliation or record explicit failures; make repeated requests idempotent; emit terminal success only after the required postconditions are observed. Fault-inject missing PID, delayed shutdown, child crash, replay failure, quota restart, and memory-manager restart.
+
+#### RL-32 — Spawn admission failures do not stop the spawn transaction
+
+**Status: Source-confirmed at the frozen SHA.** In `MultiWorld.WorldSupervisor.spawn_world/1`, the `request_world_spawn/1` error branch logs and evaluates `{:error, reason}` but does not return from the function. Execution continues to memory allocation and then replay initialization and child startup. The memory-allocation error branch likewise requests asynchronous quota termination and evaluates an error tuple without halting the enclosing function, so execution can continue into replay setup and child startup. This is the concrete control-flow basis of RL-01/RL-02, now traced together as one failed-transaction path; those original findings remain open and are not replaced.
+
+**Impact:** A rejected spawn can continue side effects and start a child without successful quota/memory admission. Rollback is also not transactional: replay initialization has no acknowledgement in this path, and failure cleanup uses asynchronous accounting operations.
+
+**Closure evidence:** rewrite admission as a fail-fast transaction with explicit stages and compensating rollback; require positive acknowledgements for quota, memory, replay readiness, and child startup; ensure every failure halts forward progress and rolls back only resources actually acquired. Test each injected failure and assert no child, replay session, quota reservation, or memory reservation remains.
+
+#### RL-33 — Simulation loop silently substitutes default results when world state cannot be resolved
+
+**Status: Source-confirmed at the frozen SHA; runtime consequence untested.** In `WorldSimulationLoop.execute_cal_step/1` and `execute_cis_step/2`, a missing registry entry or missing state-manager child returns a default CAL/CIS result instead of surfacing a lifecycle/integration error. The tick then continues through state-update/logging helpers and snapshot storage; the state-update and publish helpers shown in this file only emit debug messages. A missing supervisor is logged by snapshot storage, but it does not turn the tick into a failed lifecycle outcome.
+
+**Impact:** A world tick can appear to progress while the authoritative world tree or state manager is unavailable, masking a broken registry/supervisor connection and producing default-valued snapshots. This is not evidence that every tick follows that path, nor that snapshots are durable.
+
+**Closure evidence:** distinguish unavailable world/state from a legitimate empty result; return a typed failure and mark the tick unhealthy without advancing success counters; bind world identity to the exact supervisor/state-manager PID; add tests for registry absence, missing child, supervisor restart, and recovery, asserting no fabricated-success snapshot is persisted.
+
+#### Checkpoint 7 disposition
+
+The source trace confirms unsafe termination ordering, non-fail-fast spawn admission, and silent default-result fallback in the simulation loop. These are source-level findings only; runtime fault injection remains outstanding. RL-01/RL-02 and RL-28/RL-30 remain open. The frozen application source was not changed. Only this audit ledger is updated.
