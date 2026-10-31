@@ -1253,3 +1253,77 @@ The root `Tiannara.Application` child list includes `Tiannara.Executive.Supervis
 - Kill delivery and false `:executed` outcomes remain covered by RL-14 and the runtime execution findings; do not treat this initial CIS pass as a complete kill-chain certification.
 
 **Checkpoint 18 immunity disposition:** RL-95–RL-100 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. Continue into research/discovery and then mathematics, self-modification/self-improvement and security/governance, while preserving the cross-tree ownership distinctions.
+
+### Checkpoint 18 continuation — research, hypothesis and discovery (initial source pass)
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** root ResearchDirector/KnowledgeIntegrator and selected runtime Phase 16.1 research modules. Source inspection only; no runtime tests or application changes.
+
+#### Positive control observation — root ResearchDirector quarantines unexecuted experiments
+
+The root `Tiannara.Research.ResearchDirector.Pipeline` explicitly records that R0 quarantine is active. Its advance path generates hypotheses and experiment plans, but when an experiment reaches the next stage it calls `quarantine_experiment/1` and emits `:quarantined_by_R0`; it does not fabricate and persist an experiment result. Preserve this truthful refusal until a real execution provider and evidence path are certified. This positive control does not close the independent findings below.
+
+#### RL-101 — KnowledgeIntegrator reports integration success when Executive Memory persistence is absent or fails
+
+**Status: Source-confirmed.** `KnowledgeIntegrator.handle_call({:integrate, ...})` calls `persist_to_executive_memory/1`, then emits integration telemetry and replies `:ok`. The persistence helper itself returns `:ok` when ExecutiveMemory is not running and catches all exceptions/exits from `ExecutiveMemory.put/3`, also returning `:ok`. The in-memory knowledge list and integrated counter are advanced regardless.
+
+**Impact:** a validated finding can be reported as integrated even though no durable Executive Memory record was written. The current `:real_execution` and confidence checks do not establish successful persistence.
+
+**Closure evidence:** propagate a durable write receipt; distinguish accepted, persisted, unavailable and failed; do not increment integrated counters or publish success before the authoritative store confirms the write; test absent store, write error, crash and readback.
+
+#### RL-102 — ResearchDirector health endpoint hardcodes healthy status
+
+**Status: Source-confirmed.** `Tiannara.Research.ResearchDirector.health/0` returns `status: :healthy` unconditionally while separately reading queue, ranker, planner, scorer and integrator counters. It does not derive health from child readiness, worker availability, quarantine/error rates or pipeline progress.
+
+**Impact:** monitoring can classify the research subsystem as healthy when a required child is unavailable or the pipeline is stalled. Counts do not constitute readiness.
+
+**Closure evidence:** probe every supervised child and its functional readiness; expose degraded/unknown states, queue age, stalled work, quarantine and persistence errors; test child loss and pipeline stagnation.
+
+#### RL-103 — Phase 16.1 “Supervisor” is a caller-owned ETS initializer, not an OTP supervisor
+
+**Status: Source-confirmed.** `TiannaraRuntime.AutonomousResearch.Phase16_1.Supervisor` does not use `Supervisor`, start a process or own a supervision tree. `init_all_tables/0` creates public named ETS tables in the calling process. The Phase 16.1 modules also create their tables lazily from their own API calls. ETS tables are owned by the process that creates them, so their lifetime is coupled to whichever caller happens to initialize them; the tables are public and therefore do not provide write isolation.
+
+**Impact:** research state can disappear when a transient table-owning caller exits, and multiple callers can race to initialize or mutate shared tables. The module name and table list do not establish durable or supervised research state.
+
+**Closure evidence:** use one long-lived supervised table owner or a durable store; define table ownership, access controls, restart/recovery and schema migration; test owner crash, concurrent initialization, process restart and persisted readback.
+
+#### RL-104 — Runtime HypothesisEngine generates generic statements and fixed confidence rather than evidence-derived hypotheses
+
+**Status: Source-confirmed.** `HypothesisEngine.create_hypothesis/3` ignores its `context` argument. `build_hypothesis/3` derives the ID from canonicalized evidence, but sets the statement to a generic string based only on a short question-ID prefix and fixes `confidence` and `uncertainty` at `0.5`. Validation only checks for hypothesis ID, question ID and a binary statement; it does not validate evidential support, falsifiability, uncertainty calibration or the evidence references.
+
+**Impact:** the artifact is content-addressed to input evidence but its scientific claim is not actually derived from that evidence. A structurally valid hypothesis record must not be treated as a scientifically formed or calibrated hypothesis.
+
+**Closure evidence:** generate a claim that explicitly references observations and context; require testable predictions and falsification criteria; validate evidence IDs and provenance; calculate uncertainty from a defined method; test contradictory, empty and insufficient evidence.
+
+#### RL-105 — Runtime ResearchPlanner emits generic programs with no experiment plans
+
+**Status: Source-confirmed.** `ResearchPlanner.build_program/1` creates a generic description from the question ID, emits one generic objective and a default statistical/evidence/stopping contract, and sets `"experiments" => []`. Its timestamp is fixed at `2000-01-01T00:00:00Z`. The deterministic ID is based only on the question ID, not the full research inputs or constraints.
+
+**Impact:** the output is a static research-program template, not a plan derived from the evidence gap, hypothesis, domain, constraints or experiment design. Different research contexts for the same question ID can map to the same program ID.
+
+**Closure evidence:** construct plans from validated question/hypothesis/evidence-gap and resource inputs; include concrete experiment references and dependencies; bind IDs to canonical complete inputs; distinguish template generation from executable research planning.
+
+#### RL-106 — Runtime TheoryEngine returns new theories without registering them
+
+**Status: Source-confirmed.** `TheoryEngine.create_theory/3` initializes the ETS table and builds a theory map, but returns it without inserting it into `:theories`. The module's `lookup_theory/1` and `list_theories/0` read only that table. A newly created theory therefore cannot be found through the module's own lookup/list APIs unless a separate uninspected caller inserts it.
+
+**Impact:** the public create API suggests stateful theory creation while the record is not registered in the theory store. Subsequent proposal/supersession workflows cannot rely on that API as the canonical theory write.
+
+**Closure evidence:** make create an acknowledged store operation or rename it to a pure builder; test create → lookup → list → restart/recovery and ensure hash/provenance invariants.
+
+#### RL-107 — Runtime discovery-lineage replay returns a replay-shaped result without verifying stored lineage
+
+**Status: Source-confirmed.** `DiscoveryLineage.replay_lineage/2` calls `rebuild_lineage_entry/2`, which hashes the supplied artifact ID and inputs and returns a map with `"replayed" => true`. It does not load the original lineage entry, compare input hashes, verify parent/output hashes or compare the reconstructed artifact to a stored certified artifact.
+
+**Impact:** the returned `replayed: true` flag means only that a new minimal map was constructed; it does not prove deterministic replay or lineage integrity. This can be mistaken for scientific reproducibility evidence.
+
+**Closure evidence:** load the original immutable lineage; verify every input, parent and output hash; compare reconstructed artifact hashes; return explicit verified/diverged/unavailable outcomes; test modified inputs, missing parents and tampered lineage.
+
+#### 18.7 Research and discovery disposition
+
+- The root ResearchDirector's R0 quarantine is a useful truthfulness safeguard: it plans and then quarantines experiments rather than fabricating outcomes.
+- The root KnowledgeIntegrator can still report success without durable persistence, and ResearchDirector health is not a readiness measurement.
+- Runtime Phase 16.1 contains useful research data-model scaffolding, but the inspected hypothesis, planner, theory and lineage implementations do not yet establish evidence-grounded hypothesis formation, executable experiment planning, theory registration or verified replay.
+- This is an initial slice. It does not complete the audit of the separate Discovery pipeline, real experiment execution providers, falsification/replication, archaeology, or the full evidence-certification chain.
+
+**Checkpoint 18 research disposition:** RL-101–RL-107 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. Continue by tracing actual discovery/experiment execution and evidence certification before moving to mathematics and self-modification/self-improvement.
