@@ -464,3 +464,52 @@ This investigation was intentionally performed after checkpoint 6 and before che
 #### Checkpoint 7 disposition
 
 The source trace confirms unsafe termination ordering, non-fail-fast spawn admission, and silent default-result fallback in the simulation loop. These are source-level findings only; runtime fault injection remains outstanding. RL-01/RL-02 and RL-28/RL-30 remain open. The frozen application source was not changed. Only this audit ledger is updated.
+
+
+### Resource lifecycle evidence checkpoint 8 — manager state, replay readiness, and snapshot truthfulness
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`. Source files fetched at this exact SHA: `memory_manager.ex`, `resource_quota.ex`, `deterministic_replay.ex`, and `world_freeze.ex`. No application source was modified and no runtime tests were run. These findings establish implementation-level gaps; failure/restart outcomes still require executable tests.
+
+#### RL-34 — Resource accounting is volatile and has no demonstrated reconciliation after manager restart
+
+**Status: Source-confirmed; restart behavior inferred from implementation, not runtime-tested.** Both `MemoryManager` and `ResourceQuota` keep allocations/reservations in GenServer in-memory maps initialized empty by `init/1`. The inspected modules do not load a durable reservation journal or reconcile their state against the actual active world processes on startup. If a manager restarts while worlds survive, its counters can reset without evidence that those worlds stopped or their reservations were rebuilt.
+
+**Impact:** Admission decisions can be made from incomplete accounting after a manager restart. This is a potential quota bypass / resource overcommit scenario, not an observed production incident.
+
+**Closure evidence:** either supervise managers so a restart safely terminates dependent worlds before admission resumes, or persist reservation state and reconcile it against monitored live world identities before accepting new spawns. Test manager restart with active worlds, stale reservations, duplicate recovery, and manager restart during termination.
+
+#### RL-35 — Memory release is asynchronous and reports no completion to its caller
+
+**Status: Source-confirmed.** `MemoryManager.release_memory/2` uses `GenServer.cast/2`; callers cannot observe whether the release was processed. The handler clamps usage at zero but writes a zero-valued entry rather than deleting the reservation. The supervisor's termination path can therefore log completion before the accounting update is applied.
+
+**Impact:** Cleanup cannot currently use the release call itself as a completion barrier. Retained zero entries may also make world-count/status metrics misleading.
+
+**Closure evidence:** use a result-bearing release operation with validation, idempotency, and an acknowledgement; remove completed reservations; verify total memory equals the sum of active reservations after every lifecycle transition.
+
+#### RL-36 — Garbage-collection accounting is simulated rather than tied to actual reclaimed memory
+
+**Status: Source-confirmed.** `MemoryManager.handle_cast({:trigger_gc, ...})` reduces its tracked usage by a fixed estimated fraction (30%); emergency GC subtracts 50% from every world's tracked usage. The source comments explicitly describe this as simulated reduction and do not demonstrate an actual BEAM/process garbage-collection measurement or memory reclamation result.
+
+**Impact:** The manager can report lower memory consumption without evidence that physical/runtime memory was freed. Subsequent admission and pressure decisions may be based on fictional capacity.
+
+**Closure evidence:** distinguish estimates from measured values; obtain supported per-process/runtime memory measurements and invoke real GC only where appropriate; never reduce reserved capacity solely because an assumed percentage was freed. Test against actual process memory measurements and preserve uncertainty.
+
+#### RL-37 — Snapshot creation does not capture authoritative world state
+
+**Status: Source-confirmed.** `WorldFreeze.capture_world_state/1` explicitly returns a placeholder map with empty agents, coalitions, and event log, empty CAL/CIS parameters, and `random_seed: 0`; its comments say querying the world's GenServer is future work. `create_snapshot/2` stores that structure and returns a snapshot ID as if creation succeeded. `restore_world_state/2` only logs the lengths of agents and coalitions; it does not send restored state to a world process. Snapshot restore returns `:ok` after invoking that placeholder helper.
+
+**Impact:** The exposed API can produce and restore snapshot-shaped data without preserving or restoring the actual world. Such snapshots must not be treated as valid recovery points or archaeological/historical evidence.
+
+**Closure evidence:** define a versioned snapshot contract, capture an atomic authoritative state from the exact world process, validate completeness/checksums, persist it, restore through an acknowledged world-state API, and verify restored state by round-trip comparison. Missing world/state must return an error, not an empty snapshot.
+
+#### RL-38 — Replay startup is asynchronous and the replay source is removed on stop
+
+**Status: Source-confirmed.** `DeterministicReplay.start_recording/2` sends a cast and returns immediately, so `spawn_world/1` can proceed without acknowledgement that recording was initialized. The recording is stored only in the GenServer's in-memory `recording_worlds` map. `stop_recording/1` removes that map entry and returns only event count, duration, and seed; `start_replay/1` reads from the active-recording map, so the normal stop path removes the source that the replay-start function looks up. Export/import are separate file operations and are not automatically part of stop.
+
+**Impact:** A world may start before recording readiness is confirmed; recording state is lost on manager restart; and a stopped recording cannot be replayed through the shown normal in-memory path unless it is re-imported or other code reconstructs it. The documented deterministic-replay guarantee is not established by this implementation alone.
+
+**Closure evidence:** make recording initialization synchronous and result-bearing; finalize recordings into a durable immutable artifact; separate active sessions from finalized recordings; verify event ordering, seed/input completeness, restart recovery, and replay equivalence with end-to-end tests. Label replay as unsupported until these gates pass.
+
+#### Checkpoint 8 disposition
+
+The source confirms that lifecycle accounting is volatile, memory release is unacknowledged, GC accounting is simulated, snapshots are placeholders rather than authoritative state, and replay readiness/finalization is not a durable acknowledged lifecycle. These findings increase the priority of the existing RL-31/RL-32 termination/spawn work: fixing call ordering alone will not provide trustworthy resource or recovery semantics. All findings remain open pending implementation and runtime verification. Only the audit ledger was updated.
