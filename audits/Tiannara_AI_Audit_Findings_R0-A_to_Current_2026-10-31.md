@@ -1145,3 +1145,49 @@ The root `Tiannara.Application` child list includes `Tiannara.Executive.Supervis
 - These findings increase the priority of a canonical executive/control-plane architecture, but do not justify merging modules or moving ownership before the dependency and caller graph is complete.
 
 **Checkpoint 18 continuation disposition:** RL-84–RL-90 are open source-level findings at the frozen SHA. No application code was modified and no tests were run. Continue the caller/ownership graph before remediation; then proceed through cognition/intelligence, immunity, research/discovery, mathematics, self-modification/self-improvement and security/governance.
+
+### Checkpoint 18 continuation — cognitive architecture and intelligence (initial source pass)
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** Root ECR/Ω cognitive loops and the `tiannara_runtime/lib/tiannara_runtime/cognitive/` package. Source inspection only; no runtime tests or application changes.
+
+#### RL-91 — Two root cognitive loops advance from the same heartbeat without a unified phase authority
+
+**Status: Source-confirmed.** `Tiannara.Executive.Cognitive.HeartbeatEngine` emits the `[:tiannara, :ecr, :heartbeat]` telemetry event and directly casts `ExecutiveCycle.advance/0`. Separately, `Tiannara.Omega.AgencyLoop` attaches to that same telemetry event and advances its own six-phase sequence. Both loops use the same `ExecutiveBlackboard` and `WorkingMemory`, but maintain separate phase indices, histories and completion counters. The root application starts ECR and `Tiannara.Omega.OmegaRuntime`, whose child list includes AgencyLoop.
+
+**Impact:** cognitive processing can be advanced by two independent state machines on each heartbeat, with interleaved writes to shared working memory and blackboard. There is no explicit arbitration, transaction boundary or canonical phase owner in the inspected path. This creates ambiguity about which loop owns observation, investigation, learning and improvement state.
+
+**Closure evidence:** define one canonical cognitive orchestration authority or document and enforce a strict parent/child contract between the loops; sequence shared-state mutations; attach correlation/cycle IDs; test ordering, duplicate work, concurrent heartbeat and restart behavior.
+
+#### RL-92 — Root cognitive interpretation and reflection are explicitly mock/template outputs
+
+**Status: Source-confirmed.** `ContextManager.build_context/1` groups observations by type and assigns fixed urgency values by category; it emits a hard-coded `confidence: 0.85`, a `"Mock interpretation"` assumption and a statement that true causal relationships are not established. `ReflectionEngine.perform_reflection/0` returns a fixed list of assumptions, contradictions (always empty), bottlenecks, missing knowledge and next experiments with fixed `confidence: 0.7`; it does not derive those fields from the current cycle's evidence or prior outcomes.
+
+**Impact:** these modules provide useful scaffolding and candidly label some limitations, but they do not yet establish evidence-grounded interpretation, contradiction detection, causal reasoning or adaptive self-reflection. Their numeric confidence fields are constants, not calibrated estimates.
+
+**Closure evidence:** derive interpretations and reflections from identified observations, hypotheses and outcomes; preserve source references and uncertainty; implement contradiction/falsification checks; calibrate confidence against held-out outcomes; ensure mock/template mode is explicitly typed and cannot satisfy production cognition gates.
+
+#### RL-93 — Runtime mission transition validation does not perform the transition, while direct status mutation bypasses it
+
+**Status: Source-confirmed.** `TiannaraRuntime.Cognitive.Engines.MissionController.transition/3` checks the current status and allowed transition, but returns only `:ok` and does not return an updated mission. The separate `set_status/2` function changes the mission status to any supplied value without consulting the allowed-transition map.
+
+**Impact:** callers cannot use the nominal transition function to atomically apply a valid lifecycle transition, while the direct setter can bypass the lifecycle rules. The two public APIs therefore do not provide one reliable mission state machine.
+
+**Closure evidence:** make transition return the updated immutable mission (or persist an acknowledged transition); remove/restrict arbitrary status mutation; validate all state transitions through one function; test every allowed and forbidden edge and verify the resulting mission fingerprint/state.
+
+#### RL-94 — Runtime cognitive policy engine is a policy list, not an enforcing decision gate
+
+**Status: Source-confirmed for the inspected module.** `TiannaraRuntime.Cognitive.Decision.PolicyEngine.register_policy/2` appends a policy without invoking its separately defined `validate_policy/1`. `get_policies/2` only filters by scope. The module has no decision-evaluation or enforcement function that evaluates the declared constraints against a candidate, risk assessment, evidence or execution request. The inspected runtime `RootSupervisor` graph also does not declare a dedicated cognitive supervisor or cognitive decision service.
+
+**Impact:** the existence of default policy maps and a policy registry does not establish constitutional policy enforcement in the runtime cognitive path. Policies can be malformed or remain inert unless another caller independently implements enforcement.
+
+**Closure evidence:** define a single policy-evaluation contract; validate and version policies on registration; evaluate every decision/execution candidate against the applicable policy set; bind approvals to evidence and candidate fingerprints; prove deny/allow/conditional behavior through the actual runtime call graph and adversarial tests.
+
+#### 18.5 Cognitive architecture disposition
+
+- Root ECR and Ω AgencyLoop are both started and share cognitive state surfaces, but no single phase authority or coordination contract has been demonstrated.
+- Root interpretation/reflection currently contain explicit mock/template behavior; do not classify them as evidence-grounded cognition.
+- The runtime cognitive package contains versioned structs and helper engines, but its mission transition and policy enforcement contracts are incomplete in the inspected modules.
+- This is an initial cognitive slice, not a complete audit of perception, memory consolidation, world-model reasoning, planning, metacognition or language/dialogue.
+
+**Checkpoint 18 cognitive disposition:** RL-91–RL-94 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. Continue the cognitive caller/ownership graph before moving to immunity and research/discovery.
