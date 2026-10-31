@@ -193,7 +193,7 @@ The audit remains read-only and open. The new findings strengthen the concern fr
 | RL-12 | Memory release asynchronous without acknowledgement | Source-confirmed; completion unproven | Result-bearing release or explicit acknowledgement and postcondition tests |
 | RL-13 | Memory allocation/release amounts not validated | Source-confirmed at `e71bc230...` | Reject negative/non-integer values without changing accounting |
 | RL-14 | Kill reports `:executed` even if delivery fails; killed registry reflects command result | Source-confirmed at `e71bc230...` | Separate authorization/delivery/termination/reconciliation outcomes |
-| RL-15 | Lifecycle test coverage gap for quota/memory/spawn rollback and reconciliation | Exact-SHA test-tree gap; runtime untested | Dedicated failure-injection and resource-reconciliation integration matrix |
+| RL-15 | Lifecycle test coverage gap for quota/memory/spawn rollback and reconciliation | Exact-SHA test-tree gap; runtime untested | Dedicated failure-injection and resource-reconciliation integration matrix |\n| RL-16 | Freeze reports success without confirming world pause | Source-confirmed at `e71bc230...` | Acknowledged pause protocol and missing/dead/timeout tests |\n| RL-17 | Emergency kill bypasses replay stop and memory release | Source-confirmed at `e71bc230...` | Shared idempotent cleanup path and post-kill reconciliation tests |\n| RL-18 | Termination reports completion before process-down/cleanup acknowledgement | Source-confirmed at `e71bc230...` | Await process-down and result-bearing resource cleanup before terminal success |
 
 ## 8. Recommended remediation order
 
@@ -224,3 +224,42 @@ Do not mark a finding fixed solely because a patch exists or a later branch cont
 **Audit remains open. Production readiness is not established.** Immediate risks are non-transactional spawn, invalid GenServer callbacks in replay/quota/memory managers, asynchronous unacknowledged release, unvalidated memory amounts, placeholder snapshot capture, a kill-result vocabulary that can overstate completion, and unproven cleanup reconciliation. The checkpoint 2 source review does not substitute for runtime execution. R0-A/R0-B and architecture findings also require exact-SHA closure evidence.
 
 **No repository source code was changed by this audit record.** Checkpoint 2 adds audit evidence only. This is an audit ledger, not a source patch or certification report.
+
+
+### Resource lifecycle evidence checkpoint 3 — spawn orchestration, supervision, freeze semantics
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Mode:** Read-only. Source files were fetched at the exact SHA; the recursive Git tree was inspected. No runtime execution was performed. No source changes were made.
+
+#### RL-16 — Freeze returns success without confirming that the world paused
+
+**Status: Source-confirmed.** In `tiannara_runtime/lib/tiannara_runtime/multi_world/world_freeze.ex`, the `handle_call({:freeze, ...})` path calls `capture_world_state/1`, sends a `:pause` message to the registered WorldSupervisor, and immediately replies `:ok`. The notification helper uses asynchronous `send/2`; there is no acknowledgement from the world process that it received the message or entered a paused state. The supervisor's `:pause` handler also only forwards a message to a PID found in its map and does not report whether a PID existed or whether the child paused.
+
+**Impact:** Callers can receive a successful freeze result even when the target world is absent, untracked, or has not yet paused. The placeholder capture already tracked in RL-06 compounds this: neither a real snapshot nor a confirmed pause is established.
+
+**Closure criterion:** Validate world existence and ownership, request pause through a result-bearing protocol, await an explicit paused acknowledgement with timeout, and return success only after the required postconditions are observed. Test missing world, dead PID, timeout, and concurrent freeze/unfreeze.
+
+#### RL-17 — Emergency kill path bypasses replay and memory cleanup
+
+**Status: Source-confirmed.** In `tiannara_runtime/lib/tiannara_runtime/multi_world/world_supervisor.ex`, the `handle_info({:kill_world, ...})` path removes the PID from `state.worlds`, sends `Process.exit(world_pid, :kill)` when a PID exists, calls `notify_quota_termination/2`, and returns. Unlike `terminate_world_process/3`, this path does not call `DeterministicReplay.stop_recording/1` or query/release the world's MemoryManager reservation. It also does not await process termination or resource reconciliation.
+
+**Impact:** A world killed through this message path can leave replay state active and memory accounting reserved, while the PID is removed from the supervisor's local tracking map. This is a concrete divergence between two termination paths, not merely a general concern about duplicated authorities.
+
+**Closure criterion:** Route emergency kill through the same authoritative idempotent cleanup state machine, with an explicit emergency termination action but shared replay stop, memory release, quota reconciliation, observed process-down, and final-state verification. Add tests asserting every resource registry after emergency kill.
+
+#### RL-18 — Termination reports completion before process-down and cleanup completion
+
+**Status: Source-confirmed.** In `terminate_world_process/3`, the supervisor sends `Process.exit(world_pid, :shutdown)`, then requests quota termination and issues an asynchronous memory release cast, and finally logs that the world is terminated and resources released. The code does not monitor/await a `:DOWN` signal before the completion log, and the memory release API has no acknowledgement (RL-12). The emergency-kill path likewise sends an exit signal without waiting for process-down.
+
+**Impact:** The log and caller-visible lifecycle can advance to “terminated/resources released” while the child may still be shutting down and memory accounting may not yet have changed. This creates a false completion boundary for operators and downstream orchestration.
+
+**Closure criterion:** Separate termination-requested, process-down-observed, and cleanup-reconciled states. Await monitor confirmation and result-bearing cleanup acknowledgements before publishing terminal success. Exercise slow shutdown, unresponsive child, manager failure, and duplicate termination.
+
+#### Checkpoint 3 disposition
+
+The exact-SHA tree contains no `TiannaraRuntime.MultiWorld.WorldProcess` implementation or `world_process.ex` file under the runtime tree, despite the spawn tuple referencing that module. The previously recorded RL-03 remains unresolved; this checkpoint does not infer that a similarly named world component elsewhere implements the required child contract.
+
+The spawn orchestration in `spawn_world/1` also visibly continues after quota/memory error branches rather than enclosing subsequent work in success-only control flow; this is already recorded as RL-01 and RL-02 and is not duplicated as a new finding.
+
+No runtime claims are made. The findings above are source-confirmed only at the stated SHA.
+
