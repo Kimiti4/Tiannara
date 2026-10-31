@@ -194,6 +194,9 @@ The audit remains read-only and open. The new findings strengthen the concern fr
 | RL-13 | Memory allocation/release amounts not validated | Source-confirmed at `e71bc230...` | Reject negative/non-integer values without changing accounting |
 | RL-14 | Kill reports `:executed` even if delivery fails; killed registry reflects command result | Source-confirmed at `e71bc230...` | Separate authorization/delivery/termination/reconciliation outcomes |
 | RL-15 | Lifecycle test coverage gap for quota/memory/spawn rollback and reconciliation | Exact-SHA test-tree gap; runtime untested | Dedicated failure-injection and resource-reconciliation integration matrix |\n| RL-16 | Freeze reports success without confirming world pause | Source-confirmed at `e71bc230...` | Acknowledged pause protocol and missing/dead/timeout tests |\n| RL-17 | Emergency kill bypasses replay stop and memory release | Source-confirmed at `e71bc230...` | Shared idempotent cleanup path and post-kill reconciliation tests |\n| RL-18 | Termination reports completion before process-down/cleanup acknowledgement | Source-confirmed at `e71bc230...` | Await process-down and result-bearing resource cleanup before terminal success |
+| RL-19 | WorldRegistry name collision between metadata GenServer and Elixir Registry call sites | Source-confirmed at `e71bc230...` | Separate names, boot both services, verify registration and lookup |
+| RL-20 | WorldRegistrySupervisor absent from inspected application boot graph | Source-confirmed at `e71bc230...` | Wire into canonical boot graph and prove boot-level world lifecycle |
+| RL-21 | Per-world simulation loop starts stopped with no activation in tree startup | Source-confirmed at `e71bc230...`; external activation unresolved | Explicit activation contract and tick/pause/resume/termination tests |
 
 ## 8. Recommended remediation order
 
@@ -263,3 +266,36 @@ The spawn orchestration in `spawn_world/1` also visibly continues after quota/me
 
 No runtime claims are made. The findings above are source-confirmed only at the stated SHA.
 
+
+
+### Resource lifecycle evidence checkpoint 4 — supervision tree and registry ownership
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`. Read-only source inspection; no runtime execution.
+
+#### RL-19 — WorldRegistry name collision between metadata GenServer and Elixir Registry
+
+**Status: Source-confirmed.** `world_registry.ex` defines `TiannaraRuntime.WorldRegistry` as a named GenServer holding world metadata. However, `WorldSupervisor.via_tuple/1` and `WorldSimulationLoop` use `Registry` APIs with that same name, which require an Elixir Registry process. `WorldRegistrySupervisor` starts the metadata GenServer under that name, not an Elixir Registry. The Infrastructure layer starts `Tiannara.Registry`, a different name. These services cannot safely share the same registered name.
+
+**Impact:** World supervisor registration and lookup do not have a coherent Registry owner. The metadata GenServer cannot serve as an Elixir Registry.
+
+**Closure:** Give the metadata service and process Registry distinct names, start each exactly once, route each API to the correct owner, and test registration/lookup, duplicate IDs, and restart.
+
+#### RL-20 — WorldRegistrySupervisor is absent from the inspected application boot graph
+
+**Status: Source-confirmed.** The audited `Application` child list does not include `WorldRegistrySupervisor`. The `StartupSupervisor` starts `RootSupervisor`; the inspected `RootSupervisor` composes Infrastructure, Execution, Ecology, Constraint, and Meta layers, none of which includes `WorldRegistrySupervisor`. Infrastructure starts `Tiannara.Registry`, not the world registry supervisor or a Registry named `TiannaraRuntime.WorldRegistry`.
+
+**Impact:** The declared metadata registry and `WorldRuntimeSupervisor` are not established by the inspected application boot graph. Module definitions and child specs do not prove runtime availability.
+
+**Closure:** Wire the required services into the canonical boot graph and prove boot-level world registration, lookup, and stop through the production path.
+
+#### RL-21 — Per-world simulation loop starts stopped; activation is not part of tree startup
+
+**Status: Source-confirmed for the reviewed tree; external activation unresolved.** `WorldSupervisor.init/1` includes `WorldSimulationLoop`, but its `init/1` sets `running: false`. Ticks are scheduled only after `start_simulation/1` casts `:start_simulation`. The inspected supervisor does not activate it or include an activation handshake.
+
+**Impact:** A started supervision tree can remain inert even though its simulation-loop child is alive.
+
+**Closure:** Make activation an explicit result-bearing part of world creation, then test tick progression, pause, resume, and termination.
+
+#### Checkpoint 4 disposition
+
+The per-world `WorldSupervisor` tree is separate from `MultiWorld.WorldSupervisor`, which attempts to start `TiannaraRuntime.MultiWorld.WorldProcess`; that implementation remains unresolved at this SHA (RL-03). No bridge between the two paths was established. Although the per-world tree declares `:one_for_all`, no runtime fault-injection evidence was collected to prove restart behavior, state recovery, registry re-registration, or simulation-loop resumption.
