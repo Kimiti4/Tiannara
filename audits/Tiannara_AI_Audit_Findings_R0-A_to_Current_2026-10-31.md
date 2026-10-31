@@ -1401,3 +1401,73 @@ The root tree includes bounded, candidly scoped mathematics: `ProofKernel` expli
 - Certification reports and passing campaign declarations are not substitutes for verifying that campaigns exercise the real mathematical execution path.
 
 **Checkpoint 18 mathematics disposition:** RL-108–RL-114 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. Continue with self-modification/self-improvement and then the security/governance cross-cut before consolidating the full architecture atlas.
+
+### Checkpoint 18 continuation — self-improvement and self-modification (initial source pass)
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** root Ω.4 ConstitutionalAutonomy, deployment/rollback, separate SelfImprovement dry-run pipeline, and ToolForge. Source inspection only; no runtime tests or application changes.
+
+#### Positive control observations
+
+- `ConstitutionalAutonomy.Orchestrator` refuses to run its full cycle unless real execution is enabled and a real simulation provider exists; `real_simulation_provider?/0` currently returns `false`. This prevents its normal orchestrator path from reaching simulated deployment.
+- `RollbackEngine.rollback/2` truthfully returns `{:error, :rollback_unavailable}` rather than fabricating a successful rollback.
+- The separate `Tiannara.SelfImprovement.Pipeline` defaults deployment to disabled and requires explicit gate results; protected-core changes additionally require an independent-verification gate. The real-code sandbox backends copy the baseline into a temporary workspace and run build/test/benchmark commands there.
+
+These safeguards should be preserved. The findings below concern bypassable public paths and the integrity of gate evidence.
+
+#### RL-115 — DeploymentPipeline can mark arbitrary input as deployed without validation or simulation proof
+
+**Status: Source-confirmed.** `DeploymentPipeline.deploy/1` accepts any map and does not require a validated proposal, a passing simulation verdict, a certificate, or an authenticated approval. If `simulation[:proposal]` is absent, it defaults to an empty map and `human_required` becomes false; `proceed_with_deployment/3` then moves the record to `:monitoring`. The handler increments `total_deployed` at initiation. The orchestrator's hardcoded no-provider gate does not prevent direct calls to this public API.
+
+**Impact:** callers can create deployment records and increment the deployed counter without a verified improvement artifact or the full constitutional workflow. The current path records lifecycle metadata; it does not prove code was deployed.
+
+**Closure evidence:** make deployment consume an immutable, signed/certified simulation artifact and validated proposal ID; verify all required gates and approvals inside the deployment authority itself; distinguish initiated, applied, monitored, promoted and rolled back; deny arbitrary maps and direct bypass calls.
+
+#### RL-116 — SimulationManager manufactures improvement measurements from random baselines and a formula
+
+**Status: Source-confirmed.** `SimulationManager.measure_baseline/1` creates latency and throughput using `:rand.uniform/0`, uses a random error rate, and measures only current VM memory. `simulate_improvement/2` derives proposed metrics by multiplying baseline values by `expected_impact`; it does not apply a patch, run an isolated system, or benchmark the changed implementation. It then labels a ratio above 1.05 statistically significant without a sampling distribution or statistical test.
+
+**Impact:** direct callers can receive plausible-looking but synthetic performance evidence. The normal ConstitutionalAutonomy orchestrator is currently blocked by `real_simulation_provider?/0 == false`, but the public SimulationManager API itself is not a real simulation provider.
+
+**Closure evidence:** require a real isolated sandbox/build/test/benchmark provider; preserve raw samples and environment metadata; use statistical comparison only when sample sizes and assumptions justify it; label synthetic estimates as estimates and make them ineligible for deployment.
+
+#### RL-117 — SelfImprovement dry-run can self-assert independent verification through a caller-controlled boolean
+
+**Status: Source-confirmed.** `DryRun.execute/2` reads `config.independent_verification`; when truthy, `build_gate_results/6` creates an `independent_verification` GateResult with source `:external_auditor`. The protected-core sandbox pre-check and constitutional review also trust this boolean. `Pipeline.independent_verified?/1` accepts any non-nil source other than `:self_improvement`; it does not verify a signature, auditor identity, external receipt or evidence binding.
+
+**Impact:** a caller-controlled boolean can be converted into an apparently external verification attestation. The protected-core boundary is therefore not independently authenticated by the inspected implementation.
+
+**Closure evidence:** accept only a signed verification receipt from a configured independent verifier; bind it to the exact patch hash, baseline hash, target set and test results; verify signer authorization and expiry; never derive external provenance from a boolean or caller-supplied source label.
+
+#### RL-118 — Protected-core target detection relies on exact labels rather than canonical target identity
+
+**Status: Source-confirmed.** `ProtectedCore.touches_protected?/1` checks whether any supplied target is exactly one of `:authorization`, `:constitutional`, `:audit` or `:safety`. The inspected gate does not canonicalize file paths, module names, aliases or nested subsystem identities before checking. `DryRun` passes `patch.targets` directly into this equality check.
+
+**Impact:** a protected file/module can be represented by a different string, path or alias and fail to match the protected labels. Whether a particular patch can exploit this depends on the upstream target contract, which remains to be traced.
+
+**Closure evidence:** resolve patch targets to canonical repository paths and module ownership; classify protected paths from a separately governed manifest; reject unknown/unresolved targets; test aliases, path variants, nested modules and mixed target lists.
+
+#### RL-119 — ToolForge's human-review step is not an approval gate and generated tools are mostly placeholders
+
+**Status: Source-confirmed.** `ToolForgeEngine.request_human_review/2` constructs a HAI ReviewRequest but does not submit it to a review router or await a decision; it returns `:ok` after construction and rescues every exception to `:ok`. The pipeline therefore logs that human review passed regardless of whether HAI is available or a human approved. In `ToolBuilder`, generated Elixir tools implement `do_execute/1` as an explicit `:not_implemented` error, while generated Python tools return a fixed status/input echo rather than a specification-derived implementation.
+
+**Impact:** a generated artifact can pass ToolForge's validation and be described as human-reviewed even though no approval occurred and the tool's core behavior is not implemented. Build success must not be conflated with operational capability.
+
+**Closure evidence:** integrate with an authenticated HAI review workflow and require a durable decision receipt; distinguish generated, built, tested, approved and deployed states; generate implementations from verified specifications; run real behavioral, security and integration tests before promotion.
+
+#### RL-120 — Deployment monitoring state has no observed deployment or automatic rollback mechanism
+
+**Status: Source-confirmed.** `DeploymentPipeline.proceed_with_deployment/3` creates a checkpoint ID, sets timestamps and moves the deployment to `:monitoring`; it does not apply a code/configuration change, start a monitoring process or schedule a promotion/rollback decision. The `monitoring_until` field is metadata only in the inspected module. The separate RollbackEngine explicitly reports rollback unavailable.
+
+**Impact:** a deployment can remain labelled `:monitoring` without a verified deployment substrate, actual health observation or automatic rollback. The pipeline's monitoring stage is currently a record state, not demonstrated operational monitoring.
+
+**Closure evidence:** connect to a real deployment provider and checkpoint store; require deployment receipts; run health/performance monitoring against defined thresholds; trigger and verify rollback against the actual checkpoint; distinguish unavailable rollback from rollback-ready.
+
+#### 18.9 Self-improvement disposition
+
+- The normal Ω.4 orchestrator is safely blocked from full-cycle simulation/deployment because no real simulation provider is configured.
+- The separate dry-run pipeline has a useful real sandbox abstraction and explicit protected-core intent, but caller-supplied independent-verification metadata can satisfy the gate without an authenticated external receipt.
+- Direct DeploymentPipeline and SimulationManager APIs bypass the orchestrator's no-provider guard and can produce synthetic simulation/deployment records.
+- ToolForge currently builds templates/placeholders and does not enforce actual human approval.
+
+**Checkpoint 18 self-improvement disposition:** RL-115–RL-120 remain open source-level findings at the frozen SHA. No code was changed and no tests were run. Continue with security/governance and cross-system authority before proposing any remediation.
