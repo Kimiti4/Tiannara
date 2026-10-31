@@ -693,3 +693,44 @@ Checkpoint 11 finds a split activation model: the runtime application starts the
 #### Checkpoint 12 disposition
 
 Checkpoint 12 distinguishes four different capability levels. The Agency loop is not activated by the main application and its sandbox fabricates random experiment outcomes (RL-51/RL-52). Artifact 13 ResearchDirector generates and plans hypotheses/experiments but deliberately quarantines execution under R0, so no validated knowledge is produced by that path (RL-53). Its evidence scorer is heuristic and would need redesign before use (RL-54). The canonical 20-domain registry is not bridged into the separate domain ResearchDirector (RL-55). ASC AutonomousDiscovery has a bounded simulation/structural-validation pilot with provenance and persistence paths, but its default candidates and activation are not a 20-domain continuous research system (RL-56). These are source-confirmed findings at the frozen SHA; no runtime execution, statistical validation, full-cycle experiment, or production discovery was tested. Only the audit ledger was updated.
+
+
+### Resource lifecycle evidence checkpoint 13 — civilization history, durable material remains, discovery, and excavation
+
+**Audit target:** immutable application SHA `e71bc230a8d38f3a0108012685ae1a052d195b00`. Read-only source inspection of the archaeological modules, REA evolutionary-ruin model and registry, SOPL law archaeology, Sentinel civilizational epistemology archive, Phase 22 civilizational ontology specification, and multi-world state/timeline runtime. No application source was modified and no runtime tests were run.
+
+#### RL-57 — Civilizational ontology and archaeological reconstruction are specified but explicitly have no runtime implementation
+
+**Status: Source-confirmed.** `tiannara_runtime/priv/certification/phase22/CIVILIZATIONAL_ONTOLOGY_ARCHITECTURE.md` defines a rich hierarchy from Universe/Planet/Civilization through Institution, Infrastructure, Program, Project, Process, Capability, Artifact, Observation, and Evidence. It describes civilization identity, epoch, population, knowledge state, energy profile, infrastructure, material resources, technology, culture, and provenance. Its acceptance criteria include replayable ontology evolution and archaeological reconstruction. Crucially, the specification itself states: **“No runtime implementation exists.”**
+
+**Impact:** this is a design target, not evidence that simulated civilizations currently create durable settlements, buildings, infrastructure, tools, material culture, or artifact-bearing sites. The desired civilizational substrate is not established by the ontology document.
+
+**Closure evidence:** implement the ontology as runtime entities with stable identity and explicit relations; connect civilization actions and world transitions to versioned artifact/observation/evidence records; demonstrate that the resulting state is actually simulated, persisted, replayed, and queryable. Keep the specification status distinct from implementation status.
+
+#### RL-58 — The implemented “archaeology” registries preserve evolutionary software ruins, not excavatable civilizational sites
+
+**Status: Source-confirmed.** `Tiannara.REA.EvolutionaryRuin` represents a collapsed evolutionary organism using organism identity/type, fitness, collapse reason, pressure vector, epoch, ancestry depth, and optional trait-fossil metadata. `Tiannara.REA.ArchaeologyRegistry` stores these records in a GenServer list initialized empty and capped at 10,000 entries; the inspected implementation has no durable storage, site coordinates, geological/material strata, artifact inventory, excavation process, or independent explorer-discovery interface. `Tiannara.SOPL.LawArchaeology` separately stores failed law-genome records in an in-memory list. These are useful evolutionary/failure-history mechanisms, but they are not physical archaeology.
+
+**Impact:** a later simulated civilization cannot, through these inspected interfaces, locate a buried settlement, inspect stratigraphy, excavate an object, associate it with a context, or reconstruct the originating civilization from material remains. A stored software/evolutionary ruin must not be counted as a discovered archaeological site.
+
+**Closure evidence:** introduce a distinct civilizational archaeology domain: persistent site/stratum/deposit/artifact models; spatial and temporal context; preservation/degradation and disturbance; excavation observations and chain of custody; and provenance back to originating world/civilization/epoch/events. Connect discovery to exploration rather than direct access to the archive. Preserve REA/SOPL evolutionary archaeology as a separate capability.
+
+#### RL-59 — Civilizational collapse archive is volatile and its recorded outcome contains hardcoded values
+
+**Status: Source-confirmed.** `Tiannara.Sentinel.EpistemologyArchive` records civilization collapse in a GenServer list initialized empty. On collapse it retrieves the civilization's known discoveries, but constructs an `EconomicOutcome` with fixed values including `prediction_accuracy: 0.1`, `acm_survival_rate: 0.0`, `disease_resistance: 0.0`, `fitness_score: 0.0`, `continuity_score: 1.0`, `age: 100`, and zero energy/compute values. It then computes a collapse signature and stores an `EpistemologyRecord`. The archive's inspected code has no durable journal or world-history reconstruction path.
+
+**Impact:** there is a civilizational collapse/epistemic memory concept, but its record is not a complete, evidence-derived account of the civilization's historical life. Several recorded metrics are assigned constants rather than measured from a historical trajectory, and the in-memory archive does not establish survival across process restart. It cannot substitute for a material archaeological record.
+
+**Closure evidence:** source every collapse field from recorded civilization state and event history; explicitly mark unavailable fields UNKNOWN rather than filling constants; preserve immutable event/record provenance and durable storage; and verify reconstruction from the archived event sequence after restart.
+
+#### RL-60 — Per-world runtime timeline is bounded volatile telemetry, not a durable civilization history
+
+**Status: Source-confirmed.** `TiannaraRuntime.WorldMemoryStore` initializes each world's snapshots as an empty list, retains at most 10,000 entries, and stores them only in GenServer memory. The inspected `WorldSimulationLoop` appends a small snapshot containing CAL result, CIS result, and an Erlang unique integer timestamp; it does not capture a complete world transition, civilization/institution/infrastructure/artifact state, historical event chain, or archaeology deposit. The loop's `update_world_state/3` and `publish_events/3` helpers only log in the inspected implementation. This compounds the earlier WorldFreeze finding RL-37: its capture helper returns empty agents/coalitions/event log and default parameters, while restore only logs counts.
+
+**Impact:** the presence of an append-only in-process snapshot API does not establish deep-time historical persistence. On process restart, the inspected store's history is reinitialized; after 10,000 entries, older snapshots are dropped. The stored CAL/CIS result samples do not contain the material/cultural evidence required for later independent excavation. No cross-restart or cross-world historical survival guarantee is established.
+
+**Closure evidence:** create an authoritative, durable, append-only world event/history journal with stable event IDs, world/civilization/epoch identity, causal links, and schema/version metadata; persist full relevant state transitions or verifiable state deltas; define retention/archive policy without silent loss; and test restart recovery, long-horizon history, and later-world access under explicit permissions.
+
+#### Checkpoint 13 disposition
+
+The inspected code does not establish the requested civilization-to-civilization archaeological lifecycle. There is an explicit civilizational ontology specification, but it says runtime implementation does not exist (RL-57). Existing archaeology is primarily evolutionary/software failure archival rather than physical site discovery and excavation (RL-58). The civilizational collapse archive is volatile and uses hardcoded outcome fields (RL-59). The multi-world timeline stores bounded in-memory CAL/CIS snapshots rather than durable civilization history or material remains (RL-60). The previously inspected FossilExcavator and SemanticReconstructor remain fail-closed as recorded in the earlier audit. These are source-confirmed findings at the frozen SHA; no runtime archaeology experiment, cross-world discovery, excavation, or persistence test was performed. Only the audit ledger was updated.
