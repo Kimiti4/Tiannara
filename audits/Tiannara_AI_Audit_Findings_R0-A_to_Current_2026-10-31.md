@@ -783,3 +783,60 @@ The inspected code does not establish the requested civilization-to-civilization
 #### Checkpoint 14 disposition
 
 The integration review finds that the core application and runtime are separate boot graphs with no demonstrated unified lifecycle contract in the inspected entry points (RL-61). The runtime world tick's state-update and event-publication stages are logging placeholders, while missing-state fallbacks can still allow ticks to proceed (RL-62; see also RL-33). The observatory can replace backend failures with synthetic world, timeline, prediction, causal, and calibration data, and can apply local mock interventions (RL-63). Its runtime status and boot endpoints also contain hardcoded service/boot success claims (RL-64). Finally, CIS authorization is not equivalent to delivery or confirmed effect, yet the kill/resource paths can return `:executed` without either (RL-65). Together these findings mean that a successful-looking tick, dashboard, status response, or governance action is not sufficient evidence of a fully integrated operational capability. These findings are source-confirmed at the frozen SHA; no runtime integration, outage, intervention, or kill-delivery tests were performed. Only the audit ledger was updated.
+
+
+### Checkpoint 15 — Governance, security and constitutional enforcement
+
+**Baseline:** application source inspected at immutable commit `e71bc230a8d38f3a0108012685ae1a052d195b00`. This checkpoint is source inspection only; no runtime tests, authorization bypass attempts, process-restart tests, or adversarial governance campaigns were executed.
+
+#### RL-66 — Constitution repository exposes unauthenticated commit and rollback operations
+
+**Status: Source-confirmed.** `Tiannara.Council.ConstitutionRepository.commit/3` forwards caller-supplied constitution, amendment ID and actor directly to its GenServer. The commit handler inserts the supplied version into DETS and changes `current_version`; it does not call Council authorization, verify a completed amendment/human approval, check hard invariants, validate a signature, or check the result of `:dets.insert/2`. `rollback/2` changes the active version after only checking that the target version exists; its actor is recorded in telemetry/logging but is not authorized. The repository's DETS persistence is real, but persistence is not an authorization boundary.
+
+**Impact:** any code path with access to these public APIs can bypass the intended amendment/human-governance process. Constitutional immutability is therefore a policy/design property, not a demonstrated runtime access-control invariant.
+
+**Closure evidence:** make repository writes accept only a verified, single-use Council-issued amendment authorization bound to the exact old/new constitution hashes and version; verify the human approver's identity and authority; enforce immutable hard-invariant set preservation; fail on storage errors; and adversarially test direct commit/rollback attempts without valid grants.
+
+#### RL-67 — AmendmentEngine approval is not a durable constitutional commit and its approval identity is unverified
+
+**Status: Source-confirmed.** `Tiannara.Council.AmendmentEngine.approve/2` accepts a caller-supplied `human_id` when the amendment reaches `:awaiting_human`. The handler does not authenticate that identity or ask the Council to authorize the approval. It calls `apply_amendment/2`, which only bumps the version, then updates the AmendmentEngine's in-memory `constitution` field. It does not commit through `ConstitutionRepository`. Amendment records and their workflow state are also held in the GenServer's in-memory maps. Its simulation derives a risk score from affected-principle count/invariant flags, and its evaluation marks affected principles strengthened and all others unaffected; neither is independent verification of the proposed semantic changes.
+
+**Impact:** the amendment engine can return an approved, version-bumped constitution that is neither the repository's active constitution nor a durable amendment record. A string passed as `human_id` is not proof of a human identity or authority.
+
+**Closure evidence:** unify amendment and repository state into one atomic transaction; persist proposal, evidence, votes, approver identity and final constitution hash; authenticate approvers and enforce role/quorum policy; independently verify actual proposed changes against immutable invariants; and test restart/reconciliation and unauthorized approval.
+
+#### RL-68 — Human approval queue is volatile and audit failure does not block approval state changes
+
+**Status: Source-confirmed.** `HumanApprovalQueue.init/1` initializes `queue` and `history` as empty maps/lists. Enqueue, approve and reject mutate only this process state. These handlers call `AuditLog.append/3` but ignore its return value. The approve handler removes the request from the pending queue and places it in in-memory history before invoking the resumer; the resumer result is not used to determine the approval handler's reply. The queue has no inspected durable journal/recovery path.
+
+**Impact:** pending requests and approval history can disappear on process restart, and a human approval/rejection can be acknowledged even when the audit log refuses the corresponding record. Approval state and its audit evidence can diverge.
+
+**Closure evidence:** persist requests and decisions transactionally with durable audit evidence; reject or remain pending when audit storage is unavailable; use idempotent resume acknowledgements; authenticate the human principal and bind approval to a canonical payload digest, policy version and expiry; and test crash/restart at every transition.
+
+#### RL-69 — Council emergency invocation and lifting accept caller-asserted identity and ignore audit failures
+
+**Status: Source-confirmed.** `Tiannara.Council.invoke_emergency/2` and `lift_emergency/1` pass actor/human ID values to the GenServer. The inspected handlers change the in-memory emergency flag without authenticating the caller's identity or checking an authorization grant. Both handlers ignore the result of `AuditLog.append/3`; lifting an emergency can return `:ok` even if the audit append fails. Emergency state is initialized inactive in Council process memory, with no inspected durable recovery record.
+
+**Impact:** the code does not establish that only an authorized human can lift emergency lockdown, nor that invocation/lifting is durably recorded. A Council restart can lose the active emergency state unless another mechanism restores it.
+
+**Closure evidence:** require authenticated, role-scoped, signed emergency commands; separate machine-triggered invocation from human-authorized lifting; persist emergency state and audit event atomically; fail closed on audit/persistence failure; and verify restart behavior and unauthorized-lift denial.
+
+#### RL-70 — Self-improvement gate records are caller-supplied booleans, not independently verified attestations
+
+**Status: Source-confirmed.** `Tiannara.SelfImprovement.Pipeline.request_deployment/3` checks that required entries are `GateResult{passed: true}` and that protected-core independent verification has a non-nil source other than `:self_improvement`. It does not itself validate signatures, issuer identity, evidence references, artifact/candidate hashes, gate freshness, or revocation. The dry-run constructs gate results from local booleans and invokes the pipeline with `deployment_enabled: true`, while explicitly describing the outcome as authorization-only and never executing deployment. Thus the pipeline contract is a useful fail-closed gate shape, but its public API does not establish provenance/authenticity of gate claims.
+
+**Impact:** a caller able to construct gate structs can satisfy the pipeline's predicates without supplying independently verifiable evidence. This does not demonstrate an active deployment bypass in the inspected dry-run, but it means the gate API alone is not a security-grade attestation boundary.
+
+**Closure evidence:** accept signed attestations issued by registered independent verifiers; bind every attestation to the exact candidate tree/hash, test harness, policy version, time window and evidence bundle; verify issuer authorization and revocation at consumption; require a separate deployment gateway to consume a single-use grant; and test forged, stale, substituted and self-issued attestations.
+
+#### RL-71 — ACL/OAVL and D15/ISR authority boundaries remain unproven as universal execution controls
+
+**Status: Coverage not established; no positive claim of bypass is made.** The frozen-source searches surfaced OAVL implementations in separate Python and Elixir namespaces and a range of Council/CEL governance components, but did not establish one mandatory ACL/OAVL decision point covering every sensitive execution path. The inspected `WorldMutationEngine` has a concrete Council authorization gate; other paths reviewed in earlier checkpoints (including CIS termination and operational APIs) do not consistently prove delivery/effect or share that exact gate. Targeted repository searches for D15/ISR mutation guards did not locate a source-level enforcement path at this baseline. Therefore the required property that D15 cannot mutate ISR or upstream authority is **not demonstrated**, rather than proven false.
+
+**Impact:** separate governance components and policy documents cannot establish universal enforcement without a traceable call graph from every sensitive entry point to an authenticated, authoritative decision and an effect-bound grant. D15's authority ceiling remains a release-blocking unknown.
+
+**Closure evidence:** produce a complete sensitive-operation inventory and call graph; identify the canonical ACL/OAVL interfaces and prove all execution sinks are gated; establish an immutable ISR owner and deny all D15 write paths by construction; then run negative tests against direct API, internal message, restart, replay, privileged actor and emergency paths. Missing or ambiguous authorization must remain UNKNOWN/deny.
+
+#### Checkpoint 15 disposition
+
+The Council and WorldMutationEngine contain meaningful controls, and the AuditLog implements a real DETS-backed hash chain with integrity verification. However, the constitutional repository and amendment engine expose divergent mutation paths; human approvals and emergency state are not durably/authentically enforced in the inspected handlers; audit append failures are ignored by several governance callers; and self-improvement gate structs do not prove independent attestation authenticity. ACL/OAVL universal coverage and D15/ISR non-mutation remain unproven. **Checkpoint 15 is not a governance certification pass.** Findings RL-66–RL-71 are source-level observations at the frozen baseline; no runtime or adversarial tests were run. Only the audit ledger is updated.
