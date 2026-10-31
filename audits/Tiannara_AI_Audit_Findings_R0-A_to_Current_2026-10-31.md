@@ -1,6 +1,6 @@
 # Tiannara AI — Consolidated Audit Findings
 
-**Coverage:** R0-A through resource-lifecycle checkpoint 5 (restart, crash recovery, persistence, registry reconciliation)  
+**Coverage:** R0-A through Checkpoint 18 continuation (executive management, runtime ownership, recovery and persistence integration)  
 **Prepared:** 2026-10-31  
 **Scope:** Tiannara AI only. ESAP is deferred until Tiannara AI audit, remediation, verification, and refinement are closed.  
 **Audit posture:** Evidence-led and read-only. This record consolidates findings available in the audit context; it does not claim unresolved items were re-tested or closed.
@@ -1074,3 +1074,74 @@ The root `Tiannara.Application` child list includes `Tiannara.Executive.Supervis
 #### Checkpoint 18 disposition
 
 **Initial source audit complete for the executive-management/control-plane slice; broader runtime atlas and the remaining requested subsystems are not complete.** RL-77–RL-83 are source-level findings, not runtime-reproduced defects. No application code was modified and no tests were executed. Continue with a full caller/ownership graph and then audit the remaining executive services, CEL/Ω control plane, immunity, cognition, research, mathematics, self-modification and security as separate dependency-linked slices.
+
+
+### Checkpoint 18 continuation — executive and runtime ownership reconciliation
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Mode:** Read-only source inspection of both repository-root `lib/` and `tiannara_runtime/lib/`. Findings are source-confirmed at the pinned SHA; no runtime reproduction or test execution was performed. No application source was changed.
+
+#### RL-84 — Resurrection marks the runtime as running after failed or incomplete recovery
+
+**Status: Source-confirmed.** In `TiannaraRuntime.OS.Persistence.ResurrectionEngine`, `restore_queues/0` and `restore_runtime_state/0` are placeholder functions that log and return `true`; they do not restore queues or runtime state. The resurrection report sets `certified` from `recovery_report.hash_verification_passed` alone, so the certification predicate does not require successful restoration of queues or runtime state. In `TiannaraRuntime.Startup.run_resurrection/0`, the result is reduced to a boolean, but `mark_running/0` is called unconditionally after the attempt, including when `resurrect/0` returns an error.
+
+**Impact:** a failed or incomplete recovery can be followed by a persistent `running` marker. The next boot may therefore lose the distinction between a successfully recovered runtime and one that merely attempted recovery. The recovery report also overstates restoration because its restoration fields are currently placeholder success values.
+
+**Closure evidence:** implement real queue/runtime restoration with verifiable postconditions; certify only when hash verification and every required restore/replay check pass; do not mark running until recovery certification and startup readiness both pass; test corrupt chains, missing checkpoints, partial restore, failed writes and repeated crash/restart.
+
+#### RL-85 — Runtime application has two competing supervision ownership boundaries
+
+**Status: Source-confirmed.** `TiannaraRuntime.StartupSupervisor` describes itself as the single source of truth and owns CPL, Omega, COP, Endpoint, RootSupervisor and DiscoveryRunner under `:rest_for_one`. However, `TiannaraRuntime.Application.start/2` adds CIS.Supervisor, MultiWorld.KillSwitch, MultiWorld.WorldSupervisor, CIS.ExecutionController, Resources.QuotaGovernor, Memory.LineageCompression and Causal.GCK as additional children of the outer `TiannaraRuntime.Supervisor` under `:one_for_one`. Those children are not descendants of StartupSupervisor and are not covered by its restart ordering or status map.
+
+**Impact:** the source contains separate lifecycle authorities for the core runtime and important safety/control-plane components. A failure/restart of one branch does not necessarily restart or reconcile dependent siblings in the other branch. The comment describing dependency order is not, by itself, a supervision dependency.
+
+**Closure evidence:** define one authoritative ownership graph; place dependent safety/control-plane children under the appropriate supervisor or encode explicit dependency/reconciliation behavior; test kill-chain ordering, sibling failure, supervisor restart and full application recovery.
+
+#### RL-86 — Optional child admission can leave safety/control-plane capabilities absent without failing startup
+
+**Status: Source-confirmed.** The runtime application uses `BootPolicy.optional_child/1` for the CIS supervisor, KillSwitch, WorldSupervisor, ExecutionController, QuotaGovernor, LineageCompression and GCK. `optional_child/2` returns an empty child list when a module is not loaded. The StartupSupervisor status/all-running checks cover CPL, Omega, COP and RootSupervisor, not these additional children; the separate application supervisor does not expose a complete readiness contract for them in the inspected code.
+
+**Impact:** a successful application start or a positive StartupSupervisor status does not establish that the safety, kill-delivery, resource-governance and causal components are present. Optionality is not equivalent to a certified degraded mode.
+
+**Closure evidence:** classify each child as required, explicitly optional, or feature-gated; make missing required safety dependencies fail boot; expose per-child readiness and dependency status; test missing-module and failed-start cases and ensure system status cannot report full readiness.
+
+#### RL-87 — Three executive-memory implementations have no demonstrated shared authority or reconciliation contract
+
+**Status: Source-confirmed for the inspected modules; full caller inventory remains open.** The root tree contains `Tiannara.Executive.ExecutiveMemory` (under the Executive supervisor), `Tiannara.CEL.ExecutiveMemory` (a separate DETS-backed decision/mission history service), and the runtime tree contains `TiannaraRuntime.Omega.ExecutiveMemory` (an in-memory map with local ETF snapshots and CPL checkpoints). They expose different APIs and persistence formats. The inspected startup and caller paths do not establish a common canonical record identity, transaction boundary, conflict policy, event ordering or reconciliation process between these stores.
+
+**Impact:** executive decisions, operational memory and runtime continuity may be represented in multiple stores without a proven consistency model. This can produce divergent histories or misleading claims of durable, unified executive memory.
+
+**Closure evidence:** designate the authoritative store for each data class; define stable IDs, schemas, provenance and transaction/outbox contracts; specify replication/reconciliation and conflict handling; prove restart/replay and cross-store consistency with integration tests. Do not merge the stores merely because their names are similar.
+
+#### RL-88 — CEL Executive health and constitutional score are fixed success-shaped values
+
+**Status: Source-confirmed.** `Tiannara.CEL.Executive.handle_call(:healthy, ...)` always returns `true`. Its constitutional-score handler returns fixed health/alignment/transparency/explainability/evidence/oversight values rather than deriving them from live dependencies, decision records, audit results or readiness. The objective-definition handler updates local state and sends a decision record to CEL ExecutiveMemory without checking a durable receipt.
+
+**Impact:** the CEL executive can appear healthy and highly aligned without evidence that its memory dependency, audit path or objective state is operational. Static scores must not be consumed as measured governance evidence.
+
+**Closure evidence:** derive health and scores from live probes and evidence-backed measurements; propagate unavailable/degraded/error states; require durable record acknowledgement for objectives; test dependency failure, stale evidence and audit-store failure.
+
+#### RL-89 — CEL ExecutiveMemory acknowledges asynchronous writes before durable success is known
+
+**Status: Source-confirmed.** `Tiannara.CEL.ExecutiveMemory.record_decision/2` and `record_mission_outcome/2` use `GenServer.cast/2`, so callers receive no persistence result. The cast handler calls `:dets.insert/2` but ignores its return value and then returns `{:noreply, state}`. The public callers can therefore continue without knowing whether the record was durably accepted.
+
+**Impact:** objective/mission flows may report success while their decision or outcome history was not persisted. This weakens the audit and continuity guarantees expected of executive memory.
+
+**Closure evidence:** use a result-bearing synchronous write or durable outbox/acknowledgement protocol; check and propagate DETS errors; test write failure, process crash, restart readback and duplicate/idempotent record handling.
+
+#### RL-90 — CPL returns success when event or checkpoint persistence fails
+
+**Status: Source-confirmed.** In `TiannaraRuntime.OS.Persistence.ConstitutionalPersistenceLayer`, event and checkpoint handlers call `persist_event/2` and `persist_checkpoint/2`, then reply with success regardless of the persistence result. Both helpers rescue write/encoding errors, log a warning and return normally rather than propagating an error. The in-memory event/checkpoint state can therefore advance while disk persistence has failed.
+
+**Impact:** callers and Omega readiness services may receive successful event/checkpoint acknowledgements that represent only in-memory acceptance. A subsequent process/node restart can lose acknowledged evidence, breaking the event-chain and recovery guarantees.
+
+**Closure evidence:** make persistence helpers return tagged results; update authoritative state and acknowledge only after successful durable write (or use a proven WAL/outbox transaction); propagate failures into health and failure observatory; test filesystem errors, partial writes, crash between write and acknowledgement, replay and hash-chain verification.
+
+#### 18.4 Cross-tree executive-management disposition
+
+- Root CEL Executive, CEL ExecutiveMemory, Executive Coordinator/Memory and runtime Omega ExecutiveMemory/CPL are separate state and control surfaces. A canonical cross-tree authority contract has not been demonstrated.
+- Runtime boot currently has an outer application supervisor plus a nested StartupSupervisor, with important control-plane children outside the latter's restart/status boundary.
+- Recovery and persistence paths contain success-shaped outcomes that are not equivalent to verified durable restoration.
+- These findings increase the priority of a canonical executive/control-plane architecture, but do not justify merging modules or moving ownership before the dependency and caller graph is complete.
+
+**Checkpoint 18 continuation disposition:** RL-84–RL-90 are open source-level findings at the frozen SHA. No application code was modified and no tests were run. Continue the caller/ownership graph before remediation; then proceed through cognition/intelligence, immunity, research/discovery, mathematics, self-modification/self-improvement and security/governance.
