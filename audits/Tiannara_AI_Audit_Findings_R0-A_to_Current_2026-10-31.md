@@ -840,3 +840,62 @@ The integration review finds that the core application and runtime are separate 
 #### Checkpoint 15 disposition
 
 The Council and WorldMutationEngine contain meaningful controls, and the AuditLog implements a real DETS-backed hash chain with integrity verification. However, the constitutional repository and amendment engine expose divergent mutation paths; human approvals and emergency state are not durably/authentically enforced in the inspected handlers; audit append failures are ignored by several governance callers; and self-improvement gate structs do not prove independent attestation authenticity. ACL/OAVL universal coverage and D15/ISR non-mutation remain unproven. **Checkpoint 15 is not a governance certification pass.** Findings RL-66–RL-71 are source-level observations at the frozen baseline; no runtime or adversarial tests were run. Only the audit ledger is updated.
+
+
+### Checkpoint 16 — Build, test, fault-injection and soak verification
+
+**Baseline:** immutable application commit `e71bc230a8d38f3a0108012685ae1a052d195b00`. Inspected GitHub Actions runs attached to this exact SHA, including fresh runs created 2026-10-31. Evidence comes from completed workflow/job records and decoded job logs. No local shell, repository checkout, or new tests were run in this checkpoint; the results below are CI executions that already occurred against the frozen commit.
+
+#### Executed CI evidence
+
+**Elixir CI run:** [41176699464](https://github.com/Kimiti4/Tiannara/actions/runs/41176699464) — completed with overall success.
+
+- Root compile job: `mix compile --force` succeeded; `mix run -e ":ok"` succeeded.
+- Test-placement check: passed.
+- Root suite: `mix test --max-failures 25` passed; **2,524 tests, 79 properties, 0 failures, 2 skipped**, duration 291.5 seconds.
+- Required `tiannara_runtime` suite: `mix test --exclude quarantine` passed; **1,863 tests, 40 properties, 0 failures, 6 excluded**, duration 44.6 seconds.
+- Discovery lineage regression: **11 tests, 0 failures**.
+- `tiannara_audit` verifier suite: **13 tests, 0 failures**.
+- Quarantined `tiannara_runtime` suite: informational/non-blocking job failed; details recorded under RL-72.
+
+**Cross-platform verification run:** [41176699508](https://github.com/Kimiti4/Tiannara/actions/runs/41176699508) — Linux, macOS and compare jobs all completed successfully. Both platforms emitted canonical certificate SHA-256 `4564a4b6014253837f47d8db870ba17bc7770a243cd62cdb086ceb6519faa955`. The workflow explicitly removes selected timestamp fields and sorts JSON keys before hashing. It also ran the archaeological reconstruction, mutation-testing and independent-audit scripts as workflow steps. This demonstrates reproducibility of that normalized evidence artifact, not deterministic live-world simulation or complete behavioral equivalence.
+
+**Compilation caveat:** the compile job succeeded with numerous warnings, including references to undefined/unavailable functions or modules (examples in logs include `Tiannara.EventBus.publish/3`, `TiannaraOS.LifecycleRegistry.track_entity/4`, and `Tiannara.ASC.CMissions.OracleAE003.check/3`), clauses that can never match, incompatible types and missing `@impl` annotations. A successful compiler exit is not a warning-free or fully linked runtime certification.
+
+#### RL-72 — Quarantined runtime tests fail while the required suite remains green
+
+**Status: CI-confirmed.** The required runtime job excludes six tagged tests and passes. The separate `continue-on-error: true` quarantine job executed those tests and failed with **4 failures** (40 properties, 1,863 tests in the ExUnit run, 1,897 excluded). Failure evidence in the 2026-10-31 job log includes: passive mode changed its state fingerprint while OLEF periodic rebalancing ran; reactivity observed constraint load unchanged at `0.0 -> 0.0`; and two Omega robustness tests failed to obtain a privately owned CPL process because the named process was already started. The tracked inventory classifies these as service/isolation or exploratory/product findings and explains why they are excluded.
+
+**Impact:** the green required suite is a valid statement about the non-quarantined set only. Passive-mode mutation and non-reactive constraint telemetry remain unresolved product behavior; persistence test isolation remains unresolved. `continue-on-error` deliberately prevents these failures from blocking the overall workflow.
+
+**Closure evidence:** resolve the product behaviors and process ownership/isolation defects; re-admit each test to the required suite; demonstrate that no known safety/behavioral defect is hidden by quarantine; and keep the required gate green without retries or masking.
+
+#### RL-73 — CI does not test the newly identified constitutional write and authority bypasses
+
+**Status: Coverage gap confirmed by repository test inventory and targeted test search.** The root required suite includes Council approval reachability, human approval resumption, conditional grants, policy precedence, audit-log durability/recovery and related authorization tests. The frozen test tree contains no identified dedicated tests for direct `ConstitutionRepository.commit/3` or `rollback/2` authorization bypass, forged `human_id`/emergency lift, approval queue restart durability, audit-append failure propagation from the queue/emergency handlers, or forged/stale `GateResult` attestation acceptance. Targeted repository searches for those test cases returned no matching test files. The full root suite passing therefore does not close RL-66–RL-70.
+
+**Impact:** important constitutional controls have positive-path tests, but the specific bypasses and persistence/error paths discovered in Checkpoint 15 are not demonstrated as denied under execution. Passing adjacent Council tests cannot be substituted for negative tests at the repository and privileged API boundaries.
+
+**Closure evidence:** add adversarial tests for each RL-66–RL-70 path, including direct public API calls, forged actors, stale/substituted approvals, audit storage outage, process restart and exact candidate-hash attestation; verify expected denial and durable evidence.
+
+#### RL-74 — CI contains no long-duration world/runtime soak or integrated lifecycle fault campaign
+
+**Status: CI configuration and test inventory confirmed.** The inspected workflows run bounded compile/test jobs (45–60 minute timeouts) and cross-platform evidence generation. No workflow starts a multi-world runtime and sustains it for a 72-hour soak, nor performs an integrated fault campaign across world spawn, quota reservation, memory allocation, termination acknowledgement, snapshot restoration, replay, supervisor restart and recovery. The existing root `test/tiannara/soak/recovery_test.exs` validates isolated checkpoint-store recovery and time accounting using controlled test fixtures; it does not run a live world system for 72 hours. The quarantined runtime tests also expose unresolved isolation/reactivity behaviors.
+
+**Impact:** CI proves bounded suites execute and pass under their declared exclusions, but does not prove long-run resource stability, lifecycle transactionality, persistence/replay fidelity, or recovery under real supervisor/resource failures. The historical soak-duration notes from other runs are not a substitute for reproducible, commit-bound soak evidence at this baseline.
+
+**Closure evidence:** implement a commit-bound soak workflow with an explicit duration and heartbeat, durable checkpoint/evidence artifacts, resource and mailbox metrics, restart/recovery accounting, fault injection at each lifecycle boundary, and hard failure thresholds. Do not count unvalidated wall-clock time as validated soak time.
+
+#### RL-75 — Compilation succeeds with unresolved static integration warnings
+
+**Status: CI-confirmed.** The root project compiles successfully in the required CI job, but the same log contains warnings for undefined/unavailable module functions, impossible pattern clauses, incompatible types, unused code and missing GenServer callback annotations. Examples include `Tiannara.EventBus.publish/3`, `TiannaraOS.LifecycleRegistry.track_entity/4`, and `Tiannara.ASC.CMissions.OracleAE003.check/3`. The current workflow does not treat these warnings as errors; its separate `compile.profile` alias requests warnings-as-errors but is not the CI compile command inspected here.
+
+**Impact:** a successful compile proves the compiler emitted the project, not that all integration references resolve or that all branches are reachable. Warnings such as undefined function calls may become runtime failures when the affected paths execute; impossible clauses can conceal broken error handling.
+
+**Closure evidence:** classify every warning by module/path and reachability; repair or explicitly justify each one; enable warnings-as-errors for the certified build profile; and execute tests through every formerly warning-bearing path.
+
+#### Checkpoint 16 disposition
+
+The frozen commit has substantial passing CI evidence: root and runtime suites pass, audit verifier tests pass, and normalized certificate hashes match on Linux/macOS. The audit-log recovery suite includes genuine storage corruption, lock contention, forced process death, restart and chain-verification tests. These are positive results and should be retained.
+
+However, the quarantine job has four observed failures; six tests remain excluded from the required runtime gate; Checkpoint 15's direct constitutional bypasses are not covered by dedicated tests; the CI workflows do not provide a 72-hour live-world soak or integrated resource/lifecycle fault campaign; and compilation still emits integration warnings. Thus **Checkpoint 16 is a partial verification pass, not a release certification pass**. No application code was changed; only this audit ledger was updated.
