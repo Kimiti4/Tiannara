@@ -3608,3 +3608,100 @@ The audit establishes the following required separation of duties:
 - ToolForge remains in scope for both system-awareness and cybersecurity/self-modification threat analysis.
 
 **Next checkpoint:** 18.40 — trace actual startup ownership, callers and enforcement paths for Sentinel, immune coordination, incident response, Council authorization, self-improvement, repair, OAVL and audit/verification. Determine which components are live, dormant, duplicated, bypassable or disconnected before designing any replacement.
+
+
+## Checkpoint 18.40 — Integration and authority tracing
+
+**Frozen application source:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Ledger branch:** `audit/consolidated-findings-r0a-2026-10-31`  
+**Method:** Exact-file source inspection and repository code-search for startup registration, callers and enforcement paths across root `lib/` and `tiannara_runtime/lib/`. No runtime tests, exploit attempts or source modifications. This is static callsite/startup evidence; it does not claim a complete runtime security assessment.
+
+### 18.40.1 Startup and monitoring integration
+
+- Root `Tiannara.Application.core_children/0` starts `Tiannara.Council.Supervisor`, `Tiannara.Sentinel.Supervisor`, `Tiannara.Sentinel.SentinelRuntime`, `Tiannara.Autonomy.ConstitutionalAutonomy` and `Tiannara.Omega.OmegaRuntime`.
+- `Tiannara.Sentinel.Supervisor` supervises `AnomalyDetector` and `ImmuneCoordinator`.
+- `Tiannara.Sentinel.SentinelRuntime` separately supervises ObservationBuffer, PatternDetector, AnomalyClassifier, PriorityEngine and ObservationScheduler.
+- The live `SentinelBridge.build_heartbeat_opts/1` is wired into `Tiannara.Omega.Supervisor`, which starts `Sentinel.Heartbeat.Server` and the Ω event/agency pipeline. However, the root `Tiannara.Application` starts `OmegaRuntime`, not `Omega.Supervisor`. `Tiannara.Omega.Supervisor` has a separate `Tiannara.Omega.Application` entry point and is also started by scripts/tests. The root application's child list therefore does not establish that this heartbeat bridge and its terminal GovernanceGate are active in the same production tree.
+- The source shows multiple monitoring architectures, but their relationship, duplicate coverage, event routing and common security authority are not established.
+
+### 18.40.2 Council and authorization enforcement
+
+Positive evidence:
+- Council is a root-supervised service. Its `authorize/3` path consults PolicyRegistry and RuleEngine; the latter checks hard invariants including human final authority, no self-amendment and audit-log immutability.
+- CEL Kernel's `restart_service/2` and `halt/2` explicitly consult `Council.authorize/3` and use strict grant predicates.
+- `TiannaraOS.Governance.CapabilityChecker` checks institutional domain authority, capability and active status; `verify_actor_authorization/4` additionally checks that an actor is a listed member.
+
+Negative enforcement evidence:
+- `Council.lift_emergency/1` accepts a caller-supplied `human_id`; the handler records that value but performs no identity, credential, signature, quorum or independent approval check before clearing emergency state.
+- `ConstitutionRepository.commit/3` and `rollback/2` are direct GenServer APIs. Their handlers write/select the active constitution version without invoking Council authorization, actor verification, quorum or human approval.
+- `PolicyRegistry.register_policy/1` and `disable_policy/1` directly mutate the live policy map without an authorization check in their handlers.
+- The CapabilityChecker is a separate capability API; the inspected Council, ConstitutionRepository and PolicyRegistry mutation handlers do not call it. The inspected CEL kernel uses Council for restart/halt, but its public `transition/1` handler changes executive runtime state using only a transition-validity check.
+- These are local in-node APIs, not proof of an externally reachable remote exploit. They do establish that the source does not enforce the same identity/effect-bound authorization boundary at these mutation endpoints.
+
+### 18.40.3 Self-modification and ToolForge
+
+- Repository code search found one production source caller of `SelfModificationGovernor.authorize_patch/1`: `Tiannara.ASC.Civilization.Specialists.Auditor.audit/2`. The governor checks a small path-prefix denylist and otherwise returns `:allow`; it receives only a target path, not actor identity, exact patch digest, requested effects or Council grant.
+- ToolForge's engine runs design → build → minimal non-empty/name validation → `request_human_review/2`. That function constructs `Tiannara.HAI.Domain.ReviewRequest`, ignores its return value and returns `:ok`; exceptions are rescued and also return `:ok`. The engine consequently treats request construction as "Human review passed" and returns the generated tool.
+- The ToolForge path inspected does not call Council, CapabilityChecker, OAVL or SelfModificationGovernor. `ToolBuilder.build_to_disk/2` exposes a direct file-writing API; no production caller was found in code search. Generated tools are not automatically deployed by the inspected engine (`tools_deployed` is initialized but not incremented in the inspected paths).
+- Root startup gates ToolForge behind `asc_enabled?/0`, but feature-flag gating is not per-artifact authorization or execution isolation.
+
+### 18.40.4 Audit and evidence integrity
+
+- Council AuditLog implements DETS persistence, SHA-256 previous-entry chaining, chain verification and periodic Merkle-root calculation. This is a meaningful integrity mechanism.
+- AuditLog explicitly enters degraded mode when storage cannot be opened/recovered; appends then return `{:error, :storage_degraded}`.
+- The Council emergency handler ignores the result of `AuditLog.append/3` and still returns `:ok` after activating emergency state. CEL Kernel's `log_to_council/2` catches failures and returns `:ok`. Thus durable audit success is not a mandatory precondition for these recorded operations.
+- No independent external anchoring or separately administered integrity monitor for the Council log was established by this checkpoint.
+
+### 18.40.5 OAVL and ACL scope
+
+- The Elixir `Tiannara.OAVL.DiscoveryVerifier` explicitly describes itself as a discovery-coherence scorer, not an effect authorization gate; it returns the original discovery unchanged.
+- The Python `tiannara_core/defense/oavl.py` combines a policy check and alignment scorer with keyword-based cross-ontology/stabilizer heuristics. It is a text/concept evaluation path, not demonstrated runtime process, filesystem, network, credential or deployment enforcement.
+- The institutional CapabilityChecker is a real local check, but its presence does not demonstrate universal mediation of the above mutation and execution APIs.
+- Therefore neither OAVL nor ACL can currently be credited as a universal security reference monitor for Tiannara's consequential effects.
+
+### 18.40.6 New findings
+
+**RL-350 — Sentinel heartbeat integration is not established in the root application boot path.**  
+The root application starts Sentinel.Supervisor and SentinelRuntime, but the SentinelBridge-backed Heartbeat.Server is a child of the separate Omega.Supervisor. Root startup starts OmegaRuntime instead. The distinct Omega application entry point and script/test startup paths do not prove that the heartbeat/agency/GovernanceGate tree is active alongside the root application in production. Multiple monitoring paths exist, but a single verified end-to-end security event path is not established.
+
+**RL-351 — Council authority can be bypassed at direct governance mutation endpoints.**  
+The emergency-lift handler trusts a supplied human identifier without authenticating it. ConstitutionRepository commit/rollback and PolicyRegistry register/disable handlers perform state mutation without Council authorization or CapabilityChecker actor verification. These local APIs provide mutation paths outside the intended governance gate. This finding concerns source-level enforcement boundaries; remote exploitability and deployment exposure remain unassessed.
+
+**RL-352 — CEL Kernel exposes an executive state-transition API without Council authorization.**  
+`transition/1` accepts a requested state and checks only `RuntimeStates.valid_transition?/2`; unlike restart and halt, it does not consult Council. The effect is limited to the kernel's recorded runtime state in the inspected handler, but it is still an ungoverned executive control surface.
+
+**RL-353 — ToolForge's human-review step is not an approval gate.**  
+The inspected ToolForge pipeline constructs a ReviewRequest but does not enqueue it, await a human decision, verify a grant or bind approval to the generated artifact. It returns `:ok` even when request construction raises. ToolForge does not invoke Council or SelfModificationGovernor in the inspected path. Generated-tool build success must not be interpreted as approval or deployment authorization.
+
+**RL-354 — SelfModificationGovernor is not a system-wide self-modification enforcement point.**  
+The only source caller found is the ASC Auditor. The governor accepts only a target path and uses a limited string-prefix denylist; ToolForge and the inspected direct disk-writing API do not call it. It cannot currently be credited with mediating every self-modification or generated-code effect.
+
+**RL-355 — Durable audit evidence is not mandatory for all consequential governance operations.**  
+AuditLog fails closed for its own append when degraded, but Council emergency activation ignores append failure and CEL Kernel logging catches failures. Thus an operation can report success without a durable audit record. Hash chaining is useful but does not, by itself, prevent privileged mutation of the log store or provide independent external anchoring.
+
+**RL-356 — OAVL and institutional ACL are not demonstrated as universal runtime effect guards.**  
+The inspected OAVL implementations evaluate discovery/concept coherence; neither is shown mediating process, filesystem, network, credential, policy-store or deployment effects. CapabilityChecker provides useful institution/domain/capability checks, but the inspected Council mutation and ToolForge execution paths do not invoke it. Universal enforcement remains unproven.
+
+### 18.40.7 Direct answer to the critical test
+
+| Threat question | Source-backed answer at this checkpoint |
+|---|---|
+| Can a subsystem disable or bypass Sentinel? | No general production exploit was executed. Monitoring is split across independently started trees; the source does not establish a protected, independently watched Sentinel root or universal authorization on monitor-control APIs. |
+| Can a subsystem bypass Council? | **Yes, at specific local API boundaries:** constitution commit/rollback, policy register/disable and emergency lift do not authenticate/authorize the caller in their inspected handlers. |
+| Can a subsystem manipulate CEL's understanding? | CEL's earlier registry/system-awareness limitations remain open. This checkpoint also finds an ungoverned runtime-state transition API. Whole-system inventory integrity and independent observation are not established. |
+| Can a subsystem alter its own code without independent authorization? | ToolForge's reviewed path does not invoke Council or SelfModificationGovernor, and its human-review helper returns success without obtaining approval. This establishes an unsafe source-level gate, not proof that an arbitrary actor can deploy code in a live environment. |
+| Can it suppress or falsify audit evidence? | AuditLog has hash-chain checks, but audit failure does not block all consequential operations; external anchoring and independent protection of the log store are not established. |
+
+### 18.40.8 Disposition
+
+- New findings: **RL-350–RL-356**.
+- Findings closed: **0**.
+- Source modifications: **0**.
+- Runtime tests or exploit attempts: **not performed**.
+- Root application startup: Council, Sentinel.Supervisor, SentinelRuntime and OmegaRuntime are statically registered.
+- SentinelBridge heartbeat tree: separate Omega.Supervisor entry point; production co-start not established.
+- Council: meaningful authorization machinery exists, but direct mutation APIs lack consistent caller authentication and authorization.
+- ToolForge: build pipeline is present; human review is not an enforced approval gate in the inspected path.
+- AuditLog: cryptographic chain verification exists, but durable audit success is not required by all inspected operations.
+
+**Next checkpoint:** 18.41 — trace incident response and containment callers, self-improvement pipeline exact-artifact/evidence handling, protected-core checks, independent verifier trust, and repair/rollback effect execution. Then trace all production callsites that can write files, alter policy/constitution, start/stop processes, deploy generated code or change runtime authority. Keep every finding open until exact effect-path evidence proves remediation.
