@@ -2421,3 +2421,97 @@ The registry metadata is an intended service contract, not proof that every adve
 **Impact:** Workflow lifecycle and evidence history can be permanently removed without demonstrated archival continuity, weakening auditability and reproducibility.
 
 **Checkpoint disposition:** 14 findings added (RL-194–RL-207). No finding is closed. No remediation was performed. Continue the CEL audit with remaining registered services and cross-service lifecycle/caller reconciliation; ToolForge remains a distinct later workstream.
+
+
+## Checkpoint 18.25 — CEL observability, policy, prediction and digital-twin audit
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** ExecutiveMetrics, RuntimePolicyEngine, ExecutiveStateManager, DecisionPredictor, ExecutiveDigitalTwin.  
+**Method/status:** Static source inspection only. No runtime tests, prediction backtests, simulation validation, policy enforcement tests or persistence fault injection were run.
+
+### RL-208 — ExecutiveMetrics mission-outcome ingestion discards the derived KPI data
+**Severity:** MEDIUM  
+**Evidence:** `ExecutiveMetrics.handle_cast({:mission_outcome,...})` derives mission KPI values and attempts to record them in ExecutiveMemory, but returns the unchanged state. Those values do not update KPI aggregates, history, calibration, or mission outcome counters in this service.  
+**Impact:** The public ingestion API can accept mission outcomes without those outcomes contributing to the metrics it exposes; consumers may mistake an event write attempt for integrated KPI accounting.
+
+### RL-209 — ExecutiveMetrics uses default-success rates for missing or empty denominators
+**Severity:** HIGH  
+**Evidence:** `calc_rate(nil, _)`, `calc_rate(_, nil)` and `calc_rate(_, 0)` all return `1.0`. The collector obtains workflow/scheduler/priority/state data through calls that rescue failures and substitute empty maps or nil, so unavailable measurements can flow into apparently successful rates. `constitutional_score/0` also defaults missing success/recovery rates to 1.0.  
+**Impact:** Missing telemetry, service unavailability and zero observations can be represented as perfect success/recovery, creating false confidence in executive KPIs and constitutional alignment.
+
+### RL-210 — ExecutiveMetrics does not persist its KPI history or alerts as service state
+**Severity:** MEDIUM  
+**Evidence:** KPI maps, history and alerts are held only in GenServer state; history is capped at 50 samples. Event recording is best-effort and rescued. Initialization starts with empty history/alerts and no replay/reload path.  
+**Impact:** Restart loses the trend/alert state used by dashboards and decision-makers; attempted event logging is not demonstrated as a durable reconstruction mechanism.
+
+### RL-211 — RuntimePolicyEngine policy changes are volatile and not authorization-gated
+**Severity:** CRITICAL  
+**Evidence:** `RuntimePolicyEngine.init/1` initializes `policies: %{}`; put/disable handlers mutate this map only. `put_policy/1` accepts a RuntimePolicy struct without checking actor authority, signed approval, immutable policy version lineage, or a Council authorization decision. `disable_policy/2` accepts an actor term and records it as metadata without authenticating it. The audit helper rescues errors and returns `:ok`.  
+**Impact:** Policies disappear on restart and policy activation/deactivation can be performed through public service calls without a demonstrated governance or durable audit gate. This is not a production-grade policy authority.
+
+### RL-212 — RuntimePolicyEngine permits permissive decisions when no policy matches
+**Severity:** CRITICAL  
+**Evidence:** `handle_call({:evaluate,...})` returns `{:allowed, %{reason: "no_matching_policy"}}` when no active policy matches. The inspected evaluator has no mandatory baseline policy, deny-by-default mode, completeness check, or indication that the policy set is unavailable/incomplete.  
+**Impact:** Missing, expired, unregistered or nonmatching policy coverage defaults to allow. This is unsafe for a runtime enforcement boundary where unknown policy state must not be treated as permission.
+
+### RL-213 — RuntimePolicyEngine selects one matching policy without conflict resolution or cumulative constraints
+**Severity:** HIGH  
+**Evidence:** Applicable policies are sorted by priority and only the first is used. The inspected path does not detect equal-priority conflicts, combine restrictive constraints, enforce a mandatory deny override, or prove that priority ordering is ratified.  
+**Impact:** Conflicting policy outcomes can be silently hidden by ordering; a permissive high-priority policy can supersede a restrictive lower-priority policy without a demonstrated constitutional conflict rule.
+
+### RL-214 — ExecutiveStateManager publishes snapshots without durable versioned snapshot records
+**Severity:** HIGH  
+**Evidence:** The manager generates random snapshot IDs and holds the current snapshot/counter in process state. It publishes a subset to EventBus and calls ExecutiveMemory.record_event, but does not persist the complete ExecutiveState snapshot as a versioned durable artifact in the inspected code. Publication and recording return values are not checked before state advances.  
+**Impact:** The full snapshot used for governance/diagnostics cannot be reconstructed from the manager's current state after restart; successful generation counters do not prove that the complete snapshot was durably stored or delivered.
+
+### RL-215 — ExecutiveStateManager converts unavailable critical services into zero/empty values
+**Severity:** HIGH  
+**Evidence:** Snapshot getters rescue failures and substitute values such as zero active missions/workflows, empty capability/resource maps, zero queue depth and zero human reviews. `calculate_snapshot_confidence/1` only checks whether three service-health keys exist and subtracts a fixed 0.2 per missing key; it does not account for the many other getters that may have failed or for stale/unknown values.  
+**Impact:** Service outages and query errors can appear as a healthy empty system. Snapshot confidence and aggregate state are not a complete representation of source coverage or freshness.
+
+### RL-216 — ExecutiveStateManager emits a hard-coded policy version and placeholder knowledge-ingestion rate
+**Severity:** MEDIUM  
+**Evidence:** `build_snapshot/1` assigns `policy_version: "1.0.0"` rather than querying the active policy set; `get_knowledge_ingestion_rate/0` always returns `0.0`.  
+**Impact:** Snapshot fields do not reliably describe current runtime policy or knowledge-ingestion activity and must not be interpreted as measured operational state.
+
+### RL-217 — DecisionPredictor mission forecasts use no historical mission evidence and a fixed prior
+**Severity:** CRITICAL  
+**Evidence:** `find_similar_missions/1` always returns `[]`; `compute_base_success_rate([])` returns a fixed `0.7`. The mission prediction handler therefore has no historical sample and computes uncertainty as 1.0, while still returning a numeric predicted success rate and confidence interval.  
+**Impact:** A forecast can look quantitative without any retrieved comparable mission outcomes. The fixed prior is not a learned or evidence-derived base rate.
+
+### RL-218 — DecisionPredictor resource and overload forecasts are synthetic rather than measurement-backed
+**Severity:** CRITICAL  
+**Evidence:** `check_resource_availability/1` always returns `%{sufficient: true, bottlenecks: []}`. `query_historical_load/2` generates an artificial linear sequence based on the requested horizon rather than querying measured service history. Resource exhaustion also falls back to hard-coded pool and zero allocation values when ResourceManager calls fail.  
+**Impact:** Mission feasibility can be overstated and overload forecasts can report trends unsupported by observations. Resource availability and forecast output are not safe admission evidence.
+
+### RL-219 — DecisionPredictor dependency-failure and experiment recommendations are fixed examples
+**Severity:** HIGH  
+**Evidence:** `predict_dependency_failures` returns two fixed inferred dependency records; `recommend_experiments` returns a fixed list with hard-coded information-gain/cost/duration values. Telemetry events are received but `handle_info({:telemetry_event,...})` discards them; prediction history and accurate-prediction counters are not updated in the inspected handlers.  
+**Impact:** These APIs present example-shaped data as predictions/recommendations without an evidence-generation pipeline or observed outcome feedback.
+
+### RL-220 — DecisionPredictor risk assessment uses a narrow resource-cost heuristic
+**Severity:** HIGH  
+**Evidence:** `compute_predictive_risk/2` uses only `payload.resource_cost`, defaults missing cost to zero and divides by a fixed 1000 threshold. The risk result is combined with Council RuleEngine confidence using fixed 0.6/0.4 weights.  
+**Impact:** Missing resource-cost data is treated as zero predictive risk; other material risk dimensions are not represented by this predictor calculation. The resulting overall score is not a validated general risk estimate.
+
+### RL-221 — ExecutiveDigitalTwin simulation is stochastic and depends on unvalidated synthetic predictions
+**Severity:** CRITICAL  
+**Evidence:** `run_simulation/4` obtains a prediction through DecisionPredictor and uses `:rand.uniform()` to determine whether each step succeeds. DecisionPredictor's inspected mission predictor has no historical mission data and uses synthetic resource/capability inputs (RL-217–219). Unknown prediction is recorded as a step outcome of `:unknown` while simulation proceeds to later steps.  
+**Impact:** Identical strategy inputs can produce different simulation outcomes; simulation success is not deterministic/reproducible evidence and is downstream of unvalidated forecasts. Unknown steps do not necessarily block a favorable final report.
+
+### RL-222 — ExecutiveDigitalTwin does not execute or validate strategy step semantics in its sandbox
+**Severity:** CRITICAL  
+**Evidence:** The simulation loop does not invoke a step implementation or validate a step contract; it asks DecisionPredictor for a prediction. `deduct/2` ignores the prediction and adds a fixed 0.05 to every resource value (capped at 1.0). No actual resource model, state transition semantics, invariants, or measured execution outcomes are applied.  
+**Impact:** The twin is a probabilistic scenario generator, not a demonstrated faithful digital twin of the live executive system or strategy execution environment.
+
+### RL-223 — ExecutiveDigitalTwin does not enforce sandbox isolation or validate simulation inputs
+**Severity:** HIGH  
+**Evidence:** The sandbox is a local map initialized from current ResourceManager/CapabilityGraph reads, with hard-coded fallback data if those calls fail. The inspected simulation handler does not validate strategy schema, step count/type, recovery plan structure or provenance before processing; `run_simulation/4` has a step-count cap but no independent sandbox process or side-effect isolation mechanism.  
+**Impact:** The module's state-isolation claim is not established by an enforced isolation boundary; malformed or untrusted inputs and unavailable source services can produce misleading reports.
+
+### RL-224 — ExecutiveDigitalTwin labels simulation reports validated without independent validation
+**Severity:** HIGH  
+**Evidence:** The service exposes `validated_simulations` in its state and computes constitutional evidence quality from that counter, but the inspected simulation/counterfactual handlers only increment `total_simulations`; no independent validator, ground-truth comparison, or validation counter update exists in this module.  
+**Impact:** The advertised validated-simulation metric has no demonstrated producer and cannot substantiate simulation fidelity.
+
+**Checkpoint disposition:** 17 findings added (RL-208–RL-224). No finding is closed. No remediation was performed. Next: reconcile the complete CEL registry against implemented modules, runtime callers, actual supervision/startup, declared dependencies, and production evidence; then proceed through any remaining registered services before starting ToolForge as a separate audit stream.
