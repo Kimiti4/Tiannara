@@ -2521,7 +2521,7 @@ The registry metadata is an intended service contract, not proof that every adve
 
 **Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
 **Scope:** `ServiceRegistry.canonical_services/0`, each inspected service's `dependencies/0`, BootSequencer dependency behavior and registry health-check declarations.  
-**Method/status:** Static source reconciliation. No boot execution or module-start matrix was run. The canonical registry contains 33 non-deprecated service specifications in the inspected baseline.
+**Method/status:** Static source reconciliation. No boot execution or module-start matrix was run. The canonical registry contains 34 non-deprecated service specifications in the inspected baseline.
 
 ### RL-225 — Registry dependency graph diverges from service-declared dependencies
 **Severity:** CRITICAL  
@@ -2994,3 +2994,44 @@ The registry metadata is an intended service contract, not proof that every adve
 **Impact:** A module's mere loadability/export surface is counted as a healthy running subsystem, which conflates code presence with operational readiness.
 
 **Checkpoint disposition:** 9 findings added (RL-301–RL-309). No finding is closed. No remediation was performed. Continue with final cross-system CEL caller, supervision, storage and authority reconciliation, then build a complete per-service readiness classification. ToolForge remains deferred.
+
+
+## Checkpoint 18.32 — Discovery pipeline analyzer and provider registration audit
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** GapAnalyzer, ContradictionAnalyzer, DiscoveryPrioritizer and Discovery.Steps.ProviderSeeder.  
+**Method/status:** Static source inspection only. No live discovery cycle, provider registration test, resource-budget execution test or contradiction corpus benchmark was run.
+
+### RL-310 — GapAnalyzer defaults missing integrity inputs to optimistic values
+**Severity:** HIGH  
+**Evidence:** `analyze/1` reads contradiction rate defaulting to 0.0, evidence quality defaulting to 1.0, stale theory rate defaulting to 0.0 and provenance completeness defaulting to 1.0. Missing report fields therefore create no corresponding knowledge gaps.  
+**Impact:** Incomplete/unavailable integrity reports can be interpreted as clean evidence conditions rather than unknown coverage, suppressing research work that should be triggered by uncertainty.
+
+### RL-311 — ContradictionAnalyzer assigns impact from a fixed classification table
+**Severity:** MEDIUM  
+**Evidence:** Direct/inferred/contextual contradictions receive fixed impacts 0.9/0.6/0.4; unknown impact is a simple entity-count multiplier. The analyzer does not inspect consequence severity, evidence quality, affected dependency graph or uncertainty.  
+**Impact:** Ranking is a heuristic ordering, not an evidence-calibrated measure of contradiction impact.
+
+### RL-312 — DiscoveryPrioritizer's budget filter is advisory and does not reserve or verify resources
+**Severity:** HIGH  
+**Evidence:** `filter_by_budget/2` sums caller-provided `estimated_cost.compute` and `time_hours` fields and filters the list. It does not consult ResourceManager, reserve capacity, validate cost estimates, or reconcile actual usage. Empty budget means no budget filter at all.  
+**Impact:** The prioritizer can return work that exceeds real resource capacity; it is not a resource admission controller.
+
+### RL-313 — DiscoveryPrioritizer diversity enforcement relies on caller-provided causal-model metadata
+**Severity:** MEDIUM  
+**Evidence:** Monoculture and diversity checks group hypotheses by `metadata.causal_model`, defaulting missing values to `:unknown`. They do not independently identify model equivalence or semantic similarity.  
+**Impact:** Diversity metrics can be manipulated by metadata labels and do not establish genuinely independent causal approaches.
+
+### RL-314 — ProviderSeeder registration success does not establish provider execution compatibility
+**Severity:** HIGH  
+**Evidence:** ProviderSeeder registers two capability atoms and declares a provides edge. It does not execute either provider or validate input/output contracts at registration; the capability graph's provider score uses the previously recorded heuristic/fallback scoring (RL-185).  
+**Impact:** A successful registration indicates graph metadata was accepted, not that the provider is callable, correct, or suitable for a specific workload.
+
+### RL-315 — DiscoverySupervisor and DiscoveryEngine do not own one durable end-to-end discovery record
+**Severity:** HIGH  
+**Evidence:** DiscoverySupervisor supervises DiscoveryEngine, DiscoveryScheduler and DiscoveryMetrics, but their operational state is separate and in-memory. Scheduler active workflows, Engine discovery records/evidence and Metrics counters do not share a durable transaction or recovery journal.  
+**Impact:** A discovery may exist in one process's state while workflow tracking or metrics are lost in another; restart cannot reconstruct one authoritative discovery lifecycle from these services.
+
+**Registry count correction:** A direct count of `%{id: ..., module: ...}` entries in `ServiceRegistry.canonical_services/0` returns **34**, not 33. Checkpoint 18.26's count statement has been corrected in this ledger. The 34th entry is not an additional service discovered later; the earlier count was an arithmetic error.
+
+**Checkpoint disposition:** 6 findings added (RL-310–RL-315). No finding is closed. No remediation was performed. Next: complete the final registered-service coverage map and reconcile all system writers/callers and readiness evidence. CEL is not yet certified production-ready; ToolForge remains deferred.
