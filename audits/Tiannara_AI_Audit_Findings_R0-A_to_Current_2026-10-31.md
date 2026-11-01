@@ -3281,3 +3281,116 @@ The inspected `handle_call({:replay, offset}, ...)` returns `{:ok, %{replayed_fr
 - ToolForge remains part of Tiannara AI's full audit scope and must be audited before overall closure.
   
 **Next checkpoint:** 18.37 — supervisor/startup ownership reconciliation for every graph, event bus, event store and synchronizer identified here; prove which implementations are actually started, duplicated, dormant or orphaned, and map each to its callers and dependencies.
+
+
+## Checkpoint 18.37 — Supervisor and startup ownership reconciliation
+
+**Frozen application source:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Static inspection of root and `tiannara_runtime` application entrypoints, supervision trees, boot configuration, CEL Kernel and registry. No application source changes, runtime boots, process inspection or fault-injection tests were performed.
+
+### 18.37.1 Application boundary
+
+| Property | Root `:tiannara` application | `:tiannara_runtime` application |
+|---|---|---|
+| OTP entrypoint | `Tiannara.Application` | `TiannaraRuntime.Application` |
+| Top-level supervisor | `Tiannara.Application` | `TiannaraRuntime.Supervisor` |
+| Main startup path | core children + loop children + optional ASC children; then CEL Kernel boot | StartupSupervisor + additional optional/required runtime children |
+| Main runtime orchestration | CEL Kernel + DynamicSupervisor + 34-service registry | StartupSupervisor → RootSupervisor with Infrastructure/Execution/Ecology/Constraint/Meta layers |
+| World runtime | root CEL world services and root graph | MultiWorld WorldSupervisor / WorldRegistrySupervisor and Ecology.UniverseSupervisor |
+| Event infrastructures | CEL Services EventBus/EventStore, Executive EventBus/EventStore, Runtime EventBus, CEL EventBus and ASC EventBus | Runtime EventBus/Registry, Omega SentinelEventBus, MultiWorld EventStore and NATS |
+| Application dependency | root mix.exs declares local `forward_provenance`; no direct dependency on `:tiannara_runtime` was found in the inspected dependency list | runtime mix.exs declares local `../forward_provenance`; no direct dependency on root `:tiannara` was found in the inspected dependency list |
+| Co-start proof | Source entrypoint exists | Source entrypoint exists; whether production deploy launches both applications/nodes together is UNKNOWN |
+
+### 18.37.2 Root application startup ownership
+
+1. `Tiannara.Application.start/2` starts `core_children ++ loop_children ++ asc_children(asc_enabled?)` under a one-for-one supervisor.
+2. CEL Kernel is a direct root child. It creates a named DynamicSupervisor, `Tiannara.CEL.ServiceSupervisor`.
+3. After root supervisor startup, `Tiannara.Application` invokes CEL Kernel boot. In production it does so inside `Task.start/1`; the root application can return successfully while CEL boot is still running or has failed.
+4. CEL Kernel asks BootSequencer to start registry services dynamically. The 34 registry services are not ordinary static root children; they are children of the CEL DynamicSupervisor, with `restart: :temporary`.
+5. DiscoverySupervisor is started manually after a successful CEL boot, outside the root application's declared static child list. The source checks for an existing registered process, but the start call is not itself a child spec of the root supervisor.
+6. `Tiannara.Executive.Supervisor` is separately a root child and starts Executive.EventStore, Executive.EventBus, ExecutiveMemory and Coordinator. These are distinct modules from the CEL Services EventStore/EventBus services started dynamically by CEL Kernel.
+7. Root config sets `asc.enabled: true`. Therefore the root application's `asc_children(true)` includes ASC.Core.Supervisor, engineering/reality/civilization supervisors, ASC.Supervisor and ToolForge.ToolForgeSupervisor. ToolForge is not a separate application; it is a root Tiannara child in this configuration. PhaseΩ also conditionally registers ToolForge for its own subsystem boot sequence.
+
+### 18.37.3 Runtime application startup ownership
+
+1. `TiannaraRuntime.Application` starts `TiannaraRuntime.StartupSupervisor` and then adds optional children including CIS.Supervisor, MultiWorld.KillSwitch, MultiWorld.WorldSupervisor, CIS.ExecutionController, QuotaGovernor, LineageCompression and GCK.
+2. StartupSupervisor starts CPL, Omega.Supervisor, COP/Observatory, RuntimeWeb.Endpoint, RootSupervisor and DiscoveryRunner under `:rest_for_one`.
+3. RootSupervisor starts Infrastructure, Execution, Ecology, and (for stable/research profiles) Constraint and Meta authority supervisors, also under `:rest_for_one`.
+4. Runtime config sets boot_profile to `:stable`, so Constraint and Meta are included by default.
+5. Infrastructure starts Phoenix.PubSub, registries, SharedMemory, NATS.Supervisor and optional telemetry. Execution starts OPC.CoreSupervisor and optional OPC.Supervisor. Ecology starts UniverseSupervisor plus optional OLEF/OCM/RRG supervisors.
+6. The separate WorldRegistrySupervisor exists and defines WorldRegistry plus a DynamicSupervisor, but it is not among the direct children in the inspected Runtime.Application list or RootSupervisor's five authority layers. Its live start ownership is therefore **not established** by the inspected startup path.
+7. MultiWorld.WorldSupervisor is started as a child in Runtime.Application, but it is the supervisor for per-world children; its own source defines a per-world named supervisor and is not the same as the root WorldRegistrySupervisor.
+8. Runtime EventBus is not directly started by Runtime.Application's top-level child list. Runtime Infrastructure starts a duplicate-key Registry used by Tiannara.EventBus, while `Tiannara.Runtime.EventBus` is started only when `Tiannara.Runtime.Supervisor` is explicitly started with a suitable caller. The inspected root runtime startup does not establish that this optional supervisor is started.
+9. Omega.Supervisor does start a distinct `TiannaraRuntime.Omega.SentinelEventBus` and its own monitoring/audit services. It is a local in-VM event bus with bounded in-memory history and a CPL mirror, not the CEL Services EventBus.
+
+### 18.37.4 Startup and ownership findings
+
+**RL-331 — Tiannara root and runtime remain separately bootable OTP applications without a proven unified deployment contract.**  
+The root and runtime each define their own Mix application entrypoint, root supervisor and dependency set. Neither inspected mix dependency list directly depends on the other application. The source does not prove whether deployment starts both, one, or distinct nodes, nor does it define a versioned inter-application ownership/health contract for canonical world state. This reinforces RL-157/RL-158. Static source-confirmed; deployment topology UNKNOWN.
+
+**RL-332 — Runtime StartupSupervisor is not the sole top-level owner of runtime children.**  
+Runtime.Application starts StartupSupervisor and then appends MultiWorld.KillSwitch, MultiWorld.WorldSupervisor, CIS.ExecutionController, QuotaGovernor, LineageCompression and GCK as siblings under TiannaraRuntime.Supervisor. This contradicts the StartupSupervisor documentation that all system startup must go through it and creates two top-level ownership layers. Static source-confirmed; runtime duplicate child IDs/process conflicts not tested.
+
+**RL-333 — Root CEL service children use temporary restart semantics and are not restarted by their DynamicSupervisor after crash.**  
+CEL Kernel creates DynamicSupervisor children with `restart: :temporary`. A service crash therefore does not automatically restart that child. Kernel's PID map is populated from the boot report and is not shown monitoring/reconciling subsequent service death. This reinforces RL-301/RL-305. Static source-confirmed; process-kill test not run.
+
+**RL-334 — DiscoverySupervisor is manually started outside the root supervision tree.**  
+The root application invokes DiscoverySupervisor.start_link/1 from the asynchronous CEL boot task after successful boot. This process is not represented as a child of Tiannara.Application or CEL ServiceSupervisor in the inspected path. A failure of that process does not have a demonstrated parent restart policy. This supplements RL-273 and RL-301. Static source-confirmed; restart behavior not tested.
+
+**RL-335 — Multiple distinct executive/event-store owners are deliberately started within the root app, but no shared history contract is established.**  
+Root application starts Executive.Supervisor (Executive.EventStore/EventBus) while CEL Kernel separately starts CEL Services.EventStore/EventBus. Both are named, separately stateful service families with different APIs and persistence behavior. Their coexistence is source-confirmed; whether a strict adapter/partition contract prevents split-brain histories is UNKNOWN. This supplements RL-328.
+
+**RL-336 — Runtime WorldRegistrySupervisor has no established parent in the inspected production startup graph.**  
+The module defines WorldRegistry and WorldRuntimeSupervisor, but the inspected Runtime.Application and RootSupervisor child graphs do not include it. Runtime MultiWorld.WorldSupervisor is separately started. Consequently, the claimed registry-backed world lifecycle is not proven to be the active owner. Static source-confirmed for the inspected child graphs; dynamic/manual start paths remain UNKNOWN.
+
+**RL-337 — Root PhaseΩ and root OTP supervision both participate in ToolForge startup/registration.**  
+With root config ASC enabled, ToolForge.ToolForgeSupervisor is included in ASC children and is also conditionally registered with PhaseΩ BootSequencer. The source comment says PhaseΩ registration is intended to adopt already-running subsystems, but the exact behavior of both paths and whether they always resolve to one PID is not runtime-proven. This creates a potential duplicate-start/ownership ambiguity for a critical Tiannara subsystem. ToolForge remains in Tiannara AI scope. Static source-confirmed dual startup/registration paths; duplicate process outcome UNKNOWN.
+
+**RL-338 — Runtime event bus implementations have different and incomplete startup ownership.**  
+Runtime Infrastructure starts Tiannara.EventRegistry, but not Tiannara.Runtime.EventBus. Omega.Supervisor starts Omega.SentinelEventBus. TiannaraRuntime.EventBus relies on the Registry path, while Tiannara.Runtime.EventBus has its own GenServer and is only started by its optional Runtime.Supervisor. These are distinct APIs with different persistence and subscriber semantics. No single runtime bus owner or complete publisher/subscriber routing contract is established. Static source-confirmed; runtime traffic mapping UNKNOWN.
+
+### 18.37.5 Active, optional, dormant and unknown classification
+
+| Component | Source startup classification | What can be asserted |
+|---|---|---|
+| Root CEL Kernel | Root child | Starts with root application; 34 services boot asynchronously in production |
+| CEL EventStore/EventBus | CEL dynamic children | Intended to start during CEL boot; actual live process status not observed |
+| Executive EventStore/EventBus | Executive.Supervisor children | Included in root static supervision tree |
+| Root World.UnifiedRealityGraph | CEL dynamic child | Intended to start during CEL boot; live process status UNKNOWN |
+| Root Graph.UnifiedRealityGraph | No parent established in inspected root child graph | Startup ownership UNKNOWN |
+| Root Runtime.Supervisor / Runtime.EventBus | Explicitly parameterized optional supervisor | Not established as a child in root app's inspected child graph |
+| DiscoverySupervisor | Manually started after CEL boot | Not under an inspected permanent supervisor |
+| Runtime StartupSupervisor | Runtime.Application child | Included in runtime top-level tree |
+| Runtime RootSupervisor | StartupSupervisor child | Included; stable profile includes five authority layers |
+| Runtime Omega.SentinelEventBus | Omega.Supervisor child | Included under runtime startup |
+| Runtime EventBus (Registry broadcast) | Requires Tiannara.EventRegistry | Registry starts; bus module itself is not a process |
+| Runtime MultiWorld.WorldSupervisor | Runtime.Application sibling | Included as a child; per-world spawn activity not established |
+| Runtime WorldRegistrySupervisor | No parent found in inspected startup graph | Active ownership UNKNOWN |
+| Runtime MultiWorld.EventStore | No direct parent established in inspected startup graph | Process/ETS ownership UNKNOWN; Omega audit explicitly checks whether it exists |
+| ToolForge.ToolForgeSupervisor | Root ASC child when ASC enabled; PhaseΩ subsystem registration too | Startup intent confirmed; actual PID ownership/duplicate behavior UNKNOWN |
+
+### 18.37.6 Runtime verification plan — not executed
+
+| ID | Experiment | Required evidence |
+|---|---|---|
+| R37-01 | Start root app alone and runtime app alone in isolated BEAM nodes | Exact registered process inventory, application tree and readiness report for each |
+| R37-02 | Start both using intended production deployment | One authoritative owner per canonical state store, graph, bus and world lifecycle; no name collisions or split ownership |
+| R37-03 | Kill each CEL service process | Supervisor restart or explicit fail-closed degradation, refreshed PID map and readiness revocation |
+| R37-04 | Kill DiscoverySupervisor | Defined restart/disable policy, no silently stale discovery health |
+| R37-05 | Inspect actual runtime child trees for WorldRegistrySupervisor, MultiWorld.EventStore, Runtime.Supervisor and Graph.UnifiedRealityGraph | Prove active/dormant/orphan status and identify manual/dynamic callers |
+| R37-06 | Trace root and runtime event topics end-to-end | Publisher → bus → store → subscriber → durable consequence, with acknowledgements and offsets |
+| R37-07 | Start root with ASC enabled and observe ToolForge | Exactly one supervised ToolForge PID; PhaseΩ adopts rather than duplicates; crash recovery works |
+| R37-08 | Crash Runtime.RootSupervisor children under rest_for_one | Correct dependent restart order and preserved durable state |
+| R37-09 | Compare registry service declarations to actual booted processes and executable capability probes | No service reports ready solely because a process exists or a module is loadable |
+
+### 18.37.7 Checkpoint disposition
+
+- New findings: **RL-331–RL-338**.
+- Findings closed: **0**.
+- Application source modifications: **0**.
+- Runtime verification: **not performed**.
+- Root and runtime startup trees are source-confirmed to be separate. Actual deployment co-start and process ownership remain UNKNOWN.
+- The source confirms startup intent for ToolForge within the root Tiannara application; its actual runtime PID ownership and duplicate-start behavior remain to be verified.
+- ToolForge is not excluded or deferred from the Tiannara AI final audit; the specific ToolForge implementation audit remains outstanding.
+
+**Next checkpoint:** 18.38 — targeted lifecycle contract audit for root/runtime world owners, service process registration and dynamic child reconciliation; determine whether the two application trees can safely co-exist and identify the single canonical world lifecycle owner before any remediation.
