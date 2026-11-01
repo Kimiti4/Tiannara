@@ -3795,3 +3795,59 @@ ASC Adoption checks exact scope, machine evidence and required human authorizati
 - Incident response and rollback: not established as operational system-wide containment and recovery.
 
 **Next checkpoint:** 18.42 — security boundary and tamper-resistance audit. Trace the complete root startup and service registry for Phase4, Omega and ASC; inspect MintRegistry ownership and persistence, human identity authentication, DeploymentGateway's terminal state mutation, adoption rollback correctness, and all host-side file/process/network effects. Specifically test by static reasoning and then isolated tests whether path traversal, symlink traversal, stale grants, registry restart, process restart or audit-store failure can bypass the intended boundaries. Do not run destructive tests against the working repository.
+
+
+## Checkpoint 18.42 — Security boundary and tamper-resistance audit
+
+**Frozen source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Audit ledger branch:** `audit/consolidated-findings-r0a-2026-10-31`  
+**Method:** source inspection and call-path tracing only. No source files were modified; no destructive or live exploit tests were run.
+
+### 18.42.1 Findings that materially strengthen the current picture
+
+- `Tiannara.Omega.MintRegistry` implements a durable event file for mint, bind and consume records and reconstructs state at process startup. Its client API refuses when the named GenServer is unavailable, and its documented corrupt-file behavior is fail-closed (previous grants become unavailable rather than being admitted). It also records effect binding and checks registry/struct agreement.
+- MintRegistry's minter check restricts registration to an allowlist of originating modules based on the in-node call stack. The source explicitly describes this as an in-node trusted-code boundary, not a cryptographic capability. A compromised allowlisted module or sufficiently privileged code in the same BEAM node remains outside this protection.
+- `ExecutionGovernance.begin/2` checks grant status and expiry, requires registry registration, binds the grant to a canonical effect identity, claims a node-local ETS effect key and consumes the grant before execution. Its audit helper treats failed or unexpected audit append results as errors.
+- `DeploymentGateway` has a distinct candidate deployment transition and checks candidate status, certification shape, non-empty lineage, grant/candidate match, expiry, identity/grant human-ID match, candidate content hash, durable registry registration, effect binding, one-shot consumption and audit append. This is materially stronger than a simple approval flag.
+- These are implemented mechanisms in source, not proof that all production paths start them, that all sinks use them, or that the durable storage is protected from a compromised host/process.
+
+### 18.42.2 New findings
+
+**RL-362 — Human identity authentication accepts any non-empty string as a credential.**  
+In `AuthenticatedHumanIdentity.authenticate/3`, the inspected credential validator accepts any non-empty binary; it does not compare the credential to an account-specific secret, verify a password hash against an identity store, validate a signature, or call an external identity provider. `authenticated?/1` checks only that `authenticated_at` is non-nil. Therefore the struct's name and timestamp do not establish proof that the claimed human actually authenticated. DeploymentGateway's identity/grant ID comparison is useful but depends on this weak identity constructor. This is source-confirmed; no runtime impersonation test was run.
+
+**RL-363 — Durable authorization records are not demonstrated to be tamper-resistant against host-level or same-node compromise.**  
+MintRegistry appends size-prefixed records and rebuilds in-memory state on restart, which provides persistence and replay-state continuity. The inspected code and module contract do not establish cryptographic signatures/MACs over each record, an independently protected external anchor, restrictive filesystem ownership/permissions, or detection of a validly encoded file being rewritten by a process with write access. Hash-chained Council AuditLog is a separate mechanism and is not, by itself, proof that the MintRegistry file cannot be altered. Status: integrity protection and host permissions remain unverified, not a claim that arbitrary file rewriting was successfully exploited.
+
+**RL-364 — DeploymentGateway's public ETS mutex is not a security boundary.**  
+The gateway creates a named public ETS lock table and serializes its local check/commit section using insert-new. Public ETS access permits other processes in the same node to alter or delete lock rows. The MintRegistry's serialized one-shot consume remains an independent and stronger at-most-once guard, so the mutex exposure alone does not prove duplicate deployment is possible; it does mean the mutex must not be treated as tamper-proof protection. Multi-node/distributed deployment semantics and restart behavior were not runtime-tested.
+
+**RL-365 — Sandbox path traversal remains a confirmed host-side write boundary defect; symlink resistance is also unproven.**  
+Both Local and Container backends write `Path.join(env.workdir, rel_path)` after creating parent directories, without canonicalizing the destination and checking containment beneath the workdir. The write happens on the host before container execution. Traversal segments can escape the intended workspace. The code also does not reject symlinked path components or demonstrate no-follow/descriptor-relative safe writes; symlink-based escape therefore remains a high-priority unverified variant. No exploit was executed.
+
+**RL-366 — Real execution is not equivalent to successful certification or deployment.**  
+`RealExecution.execute/1` records the sandbox verdict, then performs its audit gate and calls `maybe_deploy/3`; the return value from `maybe_deploy/3` is not used to determine the returned success-shaped execution result in the inspected branch. The returned map contains verification and sandbox data but does not clearly distinguish “evaluation completed” from “deployment committed” at its top level. Consumers must not interpret a successful execution response as proof that deployment succeeded. Exact sink behavior requires a follow-up caller/contract audit.
+
+**RL-367 — Registry and audit restart/failure guarantees are only partially established.**  
+MintRegistry source documents append-and-replay persistence and fail-closed behavior when unavailable/corrupt, while ExecutionGovernance and DeploymentGateway fail closed on audit append errors. However, this checkpoint did not run process-restart, power-loss/partial-write, registry-corruption, audit-store failure, or cross-node concurrency tests. It also did not establish that the registry/audit files are on durable storage with protected permissions or that all consequential operations route through these fail-closed APIs. These properties remain UNKNOWN until tested against a disposable isolated environment.
+
+### 18.42.3 Boundary and coverage disposition
+
+- **Strongest verified-by-source route:** Phase4 ExecutionGovernance + MintRegistry + Omega DeploymentGateway.
+- **Identity root of trust:** not established; RL-362 is open.
+- **MintRegistry persistence:** append/replay design present; tamper resistance and crash durability not independently tested (RL-363, RL-367).
+- **Deployment terminal transition:** Candidate exposes a gateway-specific deploy transition; source indicates this route for that candidate type, but universal deployment-sink exclusivity across the whole repository has not been proven.
+- **Sandbox:** real evaluation exists, but host-side traversal is a source-confirmed defect; symlink defenses and OS/container isolation remain incomplete/unverified (RL-365).
+- **Generic self-modification / ToolForge / repair paths:** previous findings RL-353, RL-354, RL-359, RL-360 remain open; no universal shared enforcement root is established.
+- **Root startup/service ownership:** application starts core supervisors and conditionally adds ASC children, but this checkpoint did not establish every Phase4/Omega executor is supervised and used by every production caller.
+- **Audit failure:** specific governed paths contain fail-closed audit checks, but prior findings RL-351 and RL-355 remain open for other APIs that bypass authorization or ignore audit failures.
+
+### 18.42.4 Status
+
+- New findings: **RL-362–RL-367**.
+- Findings closed: **0**.
+- Source modifications: **0**.
+- Runtime tests, exploit attempts, restart tests and fault injection: **not performed**.
+- No production-readiness claim is made.
+
+**Next checkpoint:** 18.43 — trace all deployment and file/process/network effect sinks against the actual startup graph; enumerate direct candidate state mutations and every `File.write`/`System.cmd`/deployment path; then design non-destructive tests in a disposable checkout for identity forgery, traversal/symlink containment, registry restart/corruption, audit-store failure and concurrent grant consumption. Keep the frozen source baseline unchanged and record every result here.
