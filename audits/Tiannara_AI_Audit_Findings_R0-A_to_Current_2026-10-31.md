@@ -3196,3 +3196,88 @@ Kernel passes BootSequencer a resource-check callback that unconditionally retur
 - ToolForge remains an integral Tiannara AI subsystem and must receive its own detailed audit before Tiannara AI's overall audit can be closed; it is not excluded from the final readiness decision.
 
 **Next checkpoint:** 18.36 — exhaustive writer/subscriber/caller inventory across both Tiannara root application and `tiannara_runtime`, including direct graph writes, alternate EventBus implementations, and unregistered/orphan service paths.
+
+
+## Checkpoint 18.36 — Root/runtime writer, event-bus and caller inventory
+
+**Frozen application source:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Inspected the frozen commit tree and source for high-risk graph, event, synchronization, snapshot, versioning, ontology and runtime files. GitHub code-search results from the repository's current default branch were not used as proof for this frozen baseline; conclusions below are tied to files fetched at the frozen SHA. This is a bounded static inventory, not a claim that every callsite in the 2,896 Elixir files has been exhaustively enumerated. No runtime tests or source modifications were performed.
+
+### 18.36.1 Canonical and competing graph/state writers
+
+| Writer / path | Observed operation | Governance / evidence route | Disposition |
+|---|---|---|---|
+| `Tiannara.World.UnifiedWorldModel` | Calls `WorldMutationEngine.mutate/3`, then `Tiannara.World.UnifiedRealityGraph` for create/update/refute/relationship/delete paths | Council/machine grant through mutation engine on supported paths; mutation record precedes graph write | Governed path exists but is not atomic; RL-319 |
+| `Tiannara.World.SnapshotManager` restore | Recreates entities by directly calling `UnifiedRealityGraph.add_entity/1` | No WorldMutationEngine/Council call in the restore write path | Direct writer; snapshot restoration bypasses the governed mutation gateway |
+| `Tiannara.World.VersionManager` rollback | Calls `UnifiedRealityGraph.add_entity/1` with stored snapshot; rescues/catches and suppresses write errors | No WorldMutationEngine/Council call in rollback write path | Direct writer; rollback can report completion while graph restoration failed |
+| `Tiannara.World.RealityCoordinator` migration/conflict resolution | At least one source-wins path inserts graph entity before calling WorldMutationEngine; other migration paths record mutation after graph write | Ordering differs from canonical UWM path | Direct write precedes authorization/history record on observed path |
+| `Tiannara.World.WorldIntegrationCoordinator` | Uses WorldMutationEngine for sync/conflict bookkeeping; exact downstream graph mutation delegated through source adapters and requires adapter-specific inventory | Not all adapter writes inspected | Partial; adapter write authority remains unknown |
+| `Tiannara.Graph.UnifiedRealityGraph` | Separate GenServer with `add_node/3`, `add_edge/4`, `ingest_edge/5` APIs and its own graph state | Independent of `Tiannara.World.UnifiedRealityGraph`; no common governed mutation boundary established in this file | Competing graph/history surface; relationship to canonical world state unproven |
+| `Tiannara.Runtime.WorldStateManager` (runtime app) | PID-addressed GenServer accepts asynchronous CAL/CIS state updates and metric updates | No root WorldMutationEngine, Council or canonical world commit call in these handlers | Separate mutable runtime state; canonical ownership and synchronization contract unproven |
+| `Tiannara.World.OntologyManager` | Maintains concept/mapping state; some merge/split/retire paths call WorldMutationEngine, while define/map paths update its own state | Governance use is operation-dependent; local state is separate from graph mutation | Separate ontology state owner; consistency with canonical world remains unproven (RL-289–293) |
+
+### 18.36.2 Event-bus and event-store implementation inventory
+
+The frozen tree contains multiple independently implemented event paths:
+
+| Implementation | API / delivery shape | Persistence / subscriber semantics | Status |
+|---|---|---|---|
+| `Tiannara.CEL.Services.EventBus` | Topic publish/subscribe, replay, DLQ | Appends to `Tiannara.CEL.Services.EventStore`; subscriber registry is process memory; sends to PIDs | Primary CEL bus inspected in 18.35; durable consumer acknowledgements not established |
+| `Tiannara.CEL.EventBus` | `ingest_event/2` via cast; health/constitutional handlers | Separate GenServer; not shown as a facade over CEL.Services.EventBus | Distinct bus; live publisher/subscriber topology unknown |
+| `Tiannara.Executive.EventBus` | Typed event publish via call; PID/type subscriptions | In-memory subscriber list and dead-letter list; monitors subscribers | Separate delivery path; not the CEL topic bus |
+| `Tiannara.Runtime.EventBus` | Server-addressed publish cast and subscribe call | In-memory event history/subscriber set | Separate, volatile bus |
+| `Tiannara.ASC.Core.EventBus` | Registry topic subscribe and direct process sends | Local Registry delivery; no durable store in module | Separate process-local bus |
+| `Tiannara.EventBus` in `tiannara_runtime` | Registry subscribe and broadcast API | Telemetry plus Registry delivery; distinct runtime namespace | Separate runtime bus; relationship to root CEL bus not proven |
+| `Tiannara.CEL.Services.EventBusSafe` | Rescue wrapper around CEL.Services.EventBus | Does not provide independent storage/delivery guarantees | Facade, not a separate durable bus |
+| `Tiannara.Executive.EventStore` | Separate executive append API | Earlier audit found /tmp-backed best-effort behavior and no proof of canonical world history | Not interchangeable with CEL EventStore |
+| `Tiannara.Runtime.MultiWorld.Events.EventStore` | ETS insert, timestamp/event ID ordering, count cast | ETS-owned runtime event data; no shared CEL event sequence | Separate volatile runtime store |
+
+**Subscriber examples confirmed at the frozen source:** WorldStateSynchronizer subscribes to world entity/relationship, discovery, experiment, simulation, mission and engineering topics; ConflictDetector subscribes to world entity create/update; KnowledgeCoordinator subscribes to discovery/experiment completion and entity updates; VersionManager subscribes to world.mutation.executed; PriorityEngine and Phase4 research/experiment services subscribe to workflow events. This is a sample of actual subscriber code, not a complete subscriber census.
+
+### 18.36.3 Synchronization, restore and replay findings
+
+**RL-325 — Snapshot restore bypasses the governed world mutation path.**  
+SnapshotManager restores snapshot entities by invoking UnifiedRealityGraph.add_entity/1 directly. The inspected restore path does not call WorldMutationEngine or Council authorization for each restored entity and does not establish a single authorized restore transaction. This bypasses the governance and mutation-history boundary identified in RL-319/RL-323. Static source-confirmed; restore authorization behavior not runtime-tested.
+
+**RL-326 — Version rollback is a second direct canonical graph writer and suppresses restore failures.**  
+VersionManager rollback writes the target snapshot directly through UnifiedRealityGraph.add_entity/1 and rescues/catches failures as :ok in the inspected block. It does not route the graph write through WorldMutationEngine. This means rollback can fail to restore the graph while the caller proceeds without a surfaced error. Static source-confirmed; failure injection not run.
+
+**RL-327 — RealityCoordinator performs graph mutation before its governed mutation record on a source-wins path.**  
+The observed conflict-resolution path inserts the incoming entity through UnifiedRealityGraph.add_entity/1 and only afterwards calls WorldMutationEngine.mutate/3. A rejected/failed authorization or mutation record can therefore leave a graph write without its corresponding governed mutation record. This is a separate ordering defect from the UWM mutation-before-graph path (RL-319). Static source-confirmed; no runtime test.
+
+**RL-328 — Tiannara contains parallel graph and event histories without a proven reconciliation contract.**  
+The frozen root tree contains both `Tiannara.World.UnifiedRealityGraph` and `Tiannara.Graph.UnifiedRealityGraph`, plus independent CEL, Executive, Runtime and ASC event-bus implementations and multiple event stores. The modules expose separate state/delivery mechanisms. No inspected source establishes a single canonical event sequence, graph authority, or mandatory adapter/reconciliation path across all these surfaces. This overlaps earlier root/runtime split findings RL-157–164 and the canonical-history findings RL-168/RL-300, but records the concrete parallel implementations found in this checkpoint. Static source-confirmed existence; runtime co-start/traffic relationship UNKNOWN.
+
+**RL-329 — WorldStateSynchronizer replay API does not replay events or rebuild state.**  
+The inspected `handle_call({:replay, offset}, ...)` returns `{:ok, %{replayed_from: offset}}` without reading EventStore, applying events, or verifying a reconstructed state root. Its event subscriptions therefore do not establish a functioning durable recovery mechanism. Static source-confirmed; no runtime replay attempted.
+
+**RL-330 — Runtime world-state updates are a separate asynchronous state mutation surface.**  
+`tiannara_runtime/lib/tiannara_runtime/world_state_manager.ex` exposes PID-addressed `GenServer.cast` updates for CAL state, CIS state and metrics. The inspected module does not bind these updates to root canonical world commits, event offsets, actor authorization, or a durable replay record. This reinforces the two-world-lifecycle and asynchronous-acknowledgement findings RL-157–164. Static source-confirmed for this module; upstream/downstream adapter inventory remains open.
+
+### 18.36.4 Caller and subscriber census limitations
+
+1. The frozen source tree contains 2,896 Elixir source/test files in the root and runtime library directories; this checkpoint inspected targeted files and a bounded set of call paths, not every possible dynamic invocation, macro-generated call, adapter callback or Python caller.
+2. GitHub's code-search connector searches the repository default branch, not the supplied historical SHA. Search results from that service were therefore excluded from frozen-baseline proof. The source conclusions here use exact-SHA file fetches and tree paths.
+3. Direct writer examples are now confirmed for SnapshotManager, VersionManager and RealityCoordinator. A complete callsite inventory across every root/runtime writer remains open.
+4. Event subscriber examples are confirmed, but a full topic-to-publisher-to-subscriber table and process ownership/co-start proof remain open.
+5. Runtime event bus and event store implementations are not assumed to be active merely because their modules exist. Which supervisors start them, whether they share topics, and whether traffic crosses app boundaries are UNKNOWN pending runtime inspection.
+
+### 18.36.5 Required next verification
+
+- Enumerate exact-SHA direct writer callsites for every graph API and state-mutating adapter, including dynamic calls and Python bridges.
+- Map each event topic to all publishers, subscribers, bus module, event store, delivery acknowledgement and consumer consequence.
+- Inspect root and runtime supervision trees/configuration to determine which parallel buses, stores and graph owners actually start together.
+- Inject authorization rejection and graph/storage failure into snapshot restore, version rollback and RealityCoordinator migration; assert no ungoverned side effects.
+- Prove synchronizer replay by killing consumers, restarting from durable offsets and comparing reconstructed state hashes to committed snapshots.
+- Establish whether legacy Graph.UnifiedRealityGraph and runtime WorldStateManager are live dependencies, compatibility layers, test-only modules, or orphaned paths using startup references and runtime traces.
+
+### 18.36.6 Checkpoint disposition
+
+- New findings: **RL-325–RL-330**.
+- Findings closed: **0**.
+- Application source modifications: **0**.
+- Runtime verification: **not performed**.
+- Direct writers and multiple independent buses are source-confirmed; complete callsite/subscriber census and live ownership remain open.
+- ToolForge remains part of Tiannara AI's full audit scope and must be audited before overall closure.
+  
+**Next checkpoint:** 18.37 — supervisor/startup ownership reconciliation for every graph, event bus, event store and synchronizer identified here; prove which implementations are actually started, duplicated, dormant or orphaned, and map each to its callers and dependencies.
