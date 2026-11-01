@@ -2787,3 +2787,87 @@ The registry metadata is an intended service contract, not proof that every adve
 **Impact:** The supervisor can report healthy when children are alive but operationally unable to perform discovery or preserve evidence.
 
 **Checkpoint disposition:** 18 findings added (RL-256–RL-273). No finding is closed. No remediation was performed. Continue with DiscoveryScheduler's complete stage implementations, discovery step providers, discovery certification/quality/provenance components and remaining registered world/knowledge modules; then complete the CEL-wide runtime/caller/readiness matrix before ToolForge.
+
+
+## Checkpoint 18.29 — Discovery step providers, hypothesis generation, certification and lineage validation
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** Discovery ExperimentStep/ValidationStep, HypothesisGenerator, EvidenceIntegrator, DiscoveryCertifier, StatisticalValidator, ReplicationPlanner, EvidenceAuditor, DiscoveryQualityAssessor and its detectors, DiscoveryLineage.  
+**Method/status:** Static source inspection only. No statistical simulation/calibration, independent replication, step-provider execution, lineage tampering test or certification test suite was run.
+
+### RL-274 — Discovery hypothesis generation is template substitution, not evidence-driven hypothesis construction
+**Severity:** HIGH  
+**Evidence:** `HypothesisGenerator.generate/2` selects fixed per-domain string templates and substitutes the KnowledgeGap description. Hypothesis records are created with empty evidence and predictions, zero confidence, and no derived variables, operational definitions, predicted observations, competing models or falsification protocol.  
+**Impact:** The generator provides candidate wording but does not establish autonomous scientific hypothesis generation or evidence-grounded model construction.
+
+### RL-275 — Discovery ExperimentStep interprets two stored values as a general experiment
+**Severity:** HIGH  
+**Evidence:** `Discovery.Steps.ExperimentStep.execute/2` reads two entity attribute values and calculates absolute numeric difference (or 0/1 equality for non-numeric values). It classifies divergence above tolerance as `:confirmed` and divergence within tolerance as `:refuted`; it does not execute an experimental intervention, control variables, collect instrument measurements, or compare against a preregistered prediction.  
+**Impact:** The step is a two-value comparison primitive, not a general experiment executor. Its outcome labels can be misinterpreted as hypothesis confirmation/refutation without a defined experimental model.
+
+### RL-276 — Discovery ExperimentStep converts missing observations into inconclusive output without failing source integrity
+**Severity:** HIGH  
+**Evidence:** `read_value/1` returns nil on missing entity, missing value, lookup error or exception; `compute_divergence/2` then returns nil and the step emits an inconclusive evidence record. The step still returns `{:ok, ...}` and publishes evidence events.  
+**Impact:** Missing or unavailable observation sources can be represented as a successful step with inconclusive evidence, without a structured source-coverage failure or explicit distinction between missing data and a genuine inconclusive measurement.
+
+### RL-277 — Discovery ValidationStep performs threshold classification, not independent validation
+**Severity:** CRITICAL  
+**Evidence:** `ValidationStep.execute/2` reads an upstream evidence map and checks whether its outcome is decisive and confidence exceeds a caller-provided/default threshold. It does not rerun the experiment, inspect raw measurements, verify provenance/signatures, perform replication, or independently recompute the result. Missing evidence produces an `:inconclusive` output inside a successful `{:ok,...}` step result.  
+**Impact:** A confidence threshold is treated as validation. The step does not provide independent scientific verification and can promote upstream claims without validating their source.
+
+### RL-278 — Discovery ValidationStep does not enforce a trusted evidence schema or promotion policy
+**Severity:** HIGH  
+**Evidence:** The step accepts any map and trusts supplied `:outcome` and `:confidence` fields; `promotion_threshold` is caller-controlled and defaults to 0.5. It does not verify evidence identity, lineage hash, source, experiment authorization, replication count, or a ratified threshold.  
+**Impact:** Callers can influence whether evidence is labelled promotable by choosing the payload and threshold; the validation outcome is not a governed certification decision.
+
+### RL-279 — Discovery EvidenceIntegrator integration path does not validate incoming result records
+**Severity:** HIGH  
+**Evidence:** `DiscoveryEngine.route_evidence/2` converts terms into DiscoveryResult structs and calls `EvidenceIntegrator.integrate/2`; it does not call `validate_evidence/1` or `validate_result/1`. The integrator groups and aggregates fields directly.  
+**Impact:** Malformed, incomplete or semantically invalid result records can enter discovery evidence aggregation without the module's own validation API being applied.
+
+### RL-280 — Discovery evidence aggregation does not establish independent source authenticity or experimental independence
+**Severity:** HIGH  
+**Evidence:** `EvidenceIntegrator.integrate/2` groups by experiment ID, concatenates evidence terms and sums confidence deltas. `evaluate_evidence/2` classifies based on supplied outcome/delta. No source authentication, evidence deduplication, correlation analysis or experiment execution proof is performed.  
+**Impact:** Aggregated outcomes and confidence changes can reflect duplicated/correlated or unauthenticated input rather than independent observations.
+
+### RL-281 — StatisticalValidator's p-value and power are heuristic scores, not statistical tests
+**Severity:** CRITICAL  
+**Evidence:** `compute_p_value/1` derives p from the fraction of `:confirmed` outcomes and discovery confidence (`max(0.001, 1.0 - consistency * confidence)`). `compute_power/2` uses a fixed exponential function of evidence count and heuristic effect size. No null distribution, test statistic, sampling model, variance assumptions, preregistered test or sample-size design is used.  
+**Impact:** Certification can report statistical significance and sufficient power without a statistically valid inferential test. A numeric p-value/power from this implementation must not be treated as scientific statistical evidence.
+
+### RL-282 — ReplicationPlanner counts evidence labels rather than completed independent replications
+**Severity:** CRITICAL  
+**Evidence:** `plan/1` generates proposed replication descriptions; it does not dispatch or execute them. `sufficiently_replicated?/1` counts evidence records containing an item with `type: :replication`, without verifying distinct experiment IDs, independent data/source, different methodology, or completed replication workflows. Certification then reports replication_count as a hard-coded 2 when this boolean passes.  
+**Impact:** Two caller-labelled replication evidence items can satisfy the replication gate without two independent completed replications.
+
+### RL-283 — DiscoveryCertifier can certify using heuristic statistical and replication evidence
+**Severity:** CRITICAL  
+**Evidence:** `DiscoveryCertifier.validate/1` combines the StatisticalValidator heuristic, ReplicationPlanner boolean, EvidenceAuditor score and QA score. It treats statistical significance/power and replication sufficiency as authoritative inputs; it does not require a separately authenticated execution/replication registry or an external statistical validation artifact.  
+**Impact:** A discovery may receive `:certified` based on heuristic p-value/power and evidence labels rather than verified independent experimental replication and valid statistical inference.
+
+### RL-284 — DiscoveryCertifier assigns long certification expiry without ongoing evidence refresh
+**Severity:** HIGH  
+**Evidence:** Certified discoveries receive a fixed five-year expiry and provisional discoveries one year. The inspected certifier does not define a periodic recertification mechanism tied to new evidence, source changes, retractions or model drift.  
+**Impact:** Certification can remain represented as valid for years despite changing evidence or later refutation, absent an external expiry/revocation mechanism.
+
+### RL-285 — EvidenceAuditor's source-diversity and independence checks trust caller-supplied labels
+**Severity:** HIGH  
+**Evidence:** Source diversity counts unique `source` values in evidence maps; independence counts unique experiment IDs. It does not authenticate sources, identify common upstream datasets/actors, verify actual separate execution, or detect shared instrumentation/analysis.  
+**Impact:** Different labels/IDs can be counted as independent evidence without proving source diversity or independence.
+
+### RL-286 — DiscoveryQualityAssessor's quality checks are structural heuristics, not proof of scientific validity
+**Severity:** HIGH  
+**Evidence:** Completeness checks whether pipeline lists are nonempty; falsifiability checks a boolean field; reproducibility checks whether criteria fields are populated. Confirmation-bias, circular-reasoning and anomaly detectors inspect a narrow set of map fields and metadata.  
+**Impact:** A discovery can receive high QA scores from populated fields and self-declared flags without verified experimental design, execution, preregistration, raw data, replication or independent review.
+
+### RL-287 — DiscoveryLineage integrity hash is not a content-bound tamper-evident chain
+**Severity:** HIGH  
+**Evidence:** `calculate_integrity_hash/1` hashes only each lineage event name and inspected timestamp joined into a string. It does not bind event payloads, evidence hashes, parent hash, actor identity, signatures or canonical discovery state. `verify_integrity/1` checks nonempty lineage, terminal event and timestamp ordering only.  
+**Impact:** Material changes to discovery content/evidence can leave the lineage hash unchanged; the integrity result does not establish tamper-evident provenance.
+
+### RL-288 — Discovery certification is not persisted as a durable signed artifact by KnowledgeCoordinator
+**Severity:** HIGH  
+**Evidence:** KnowledgeCoordinator invokes DiscoveryCertifier, records a best-effort ExecutiveMemory decision and publishes an event, but does not store the complete ValidationReport/Certification with immutable input hashes, validator version, evidence manifest, signature or revocation lineage.  
+**Impact:** A certification response is not demonstrated as a durable, independently verifiable certificate bound to the exact discovery and evidence snapshot.
+
+**Checkpoint disposition:** 15 findings added (RL-274–RL-288). No finding is closed. No remediation was performed. Continue the remaining registered service audit (world graph/model/mutation/provenance/version/snapshot/replay and knowledge/evidence services not already covered), then perform caller and boot-path reconciliation. ToolForge remains deferred until CEL is fully audited.
