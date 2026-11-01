@@ -3035,3 +3035,27 @@ The registry metadata is an intended service contract, not proof that every adve
 **Registry count correction:** A direct count of `%{id: ..., module: ...}` entries in `ServiceRegistry.canonical_services/0` returns **34**, not 33. Checkpoint 18.26's count statement has been corrected in this ledger. The 34th entry is not an additional service discovered later; the earlier count was an arithmetic error.
 
 **Checkpoint disposition:** 6 findings added (RL-310–RL-315). No finding is closed. No remediation was performed. Next: complete the final registered-service coverage map and reconcile all system writers/callers and readiness evidence. CEL is not yet certified production-ready; ToolForge remains deferred.
+
+
+## Checkpoint 18.33 — Constitutional scoring and kernel state-machine enforcement
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** ConstitutionalScorePipeline, ExecutiveService.Base, ConstitutionalScore, RuntimeStates and Kernel boot-state transitions.  
+**Method/status:** Static source inspection only. No telemetry replay, score calibration, transition-state test or boot sequence execution was performed.
+
+### RL-316 — ConstitutionalScorePipeline treats empty observation windows as healthy
+**Severity:** HIGH  
+**Evidence:** `aggregate_window([], service_id)` returns `health: 1.0` and neutral 0.5 dimensions. The pipeline's own `health/0` unconditionally returns `:healthy`; it does not distinguish no observations, stale observations, missing telemetry or failed collection. The pipeline state is volatile and initialized with no windows.  
+**Impact:** Absence of score evidence can be presented as healthy service status; a score record does not prove the service was observed or assessed.
+
+### RL-317 — ConstitutionalScorePipeline maps unrelated telemetry into synthetic neutral scores
+**Severity:** HIGH  
+**Evidence:** Only `[:tiannara, :executive, :constitutional]` extracts supplied score dimensions. All other attached telemetry events (EventBus publish, memory record, mission complete) fall through to fixed 0.5 alignment/transparency/evidence values. The aggregate assigns health 1.0, explainability as alignment × 0.9 and human oversight 0.6 regardless of observation evidence.  
+**Impact:** A service's score window can reflect generic telemetry volume rather than actual constitutional performance, evidence quality or human oversight. The aggregate is not an independent measurement of those dimensions.
+
+### RL-318 — Kernel boot bypasses RuntimeStates transition validation
+**Severity:** HIGH  
+**Evidence:** Public `transition/1` checks `RuntimeStates.valid_transition?/2`, but the boot handler uses private `transition_state/2` directly with `status_to_state/1`. RuntimeStates declares `:booting` may transition only to `:initializing`, `:emergency` or `:shutdown`; a successful boot maps directly to `:operational`, and degraded boot maps to `:recovery`. Neither is an allowed direct transition from `:booting`.  
+**Impact:** The formal runtime state machine is not enforced on the principal boot path; recorded transition history can contain transitions that the declared state machine rejects.
+
+**Checkpoint disposition:** 3 findings added (RL-316–RL-318). No finding is closed. No remediation was performed. Registry count remains 34. Next: compile the service-by-service readiness matrix, trace remaining cross-service callers and authority boundaries, and identify the runtime evidence required to close each finding. ToolForge remains deferred until the Tiannara AI/CEL audit is complete.
