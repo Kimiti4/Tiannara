@@ -1843,3 +1843,52 @@ RL-127–RL-135 remain open. The presence of an arbitration path is not proof of
 - The runtime world-process implementation is not present at the inspected `tiannara_runtime/lib/tiannara_runtime/multi_world/world_process.ex` path at this exact SHA. A similarly named current/default-branch file is not evidence for the frozen baseline. The bridge between runtime world execution and root graph/mutation storage remains unresolved.
 
 **Checkpoint 18.14 disposition:** RL-146–RL-152 remain open source-level findings. No runtime behavior was executed in this pass. The next target is the exact-SHA boot/ownership graph and all world-state/event writers, to establish which process actually owns the live simulation state and whether any production path bridges it to the root durable mutation records.
+
+
+### Checkpoint 18.15 — exact-baseline runtime ownership and event-writer bridge
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Exact-SHA inspection of runtime simulation loop, per-world supervisor, state manager, memory store, event processor, ecology world/universe servers, and root application/world mutation interfaces. Repository search results from later default-branch revisions were not treated as frozen-baseline proof. No application files modified; no runtime tests executed.
+
+#### RL-153 — Simulation ticks do not commit canonical world mutations
+
+**Status: Source-confirmed at the inspected runtime path.** `tiannara_runtime/lib/tiannara_runtime/world_simulation_loop.ex` executes CAL/CIS steps and updates `TiannaraRuntime.WorldStateManager`, but `update_world_state/3` and `publish_events/3` only emit debug log messages. Its `store_memory_snapshot/3` sends CAL/CIS result maps and a unique integer timestamp to `WorldMemoryStore`; it does not capture a complete world state or mutation-log position. The inspected loop does not call `Tiannara.World.WorldMutationEngine`, `Tiannara.World.UnifiedWorldModel`, or `Tiannara.Graph.UnifiedRealityGraph`.
+
+**Impact:** A successful tick is not evidence that canonical entity/relationship state was changed, durably recorded, or can be reconstructed. Runtime CAL/CIS state and root-world mutations can diverge without a shared commit boundary.
+
+**Closure evidence:** define the canonical state owner and a single mutation/effect contract; route actual state transitions through it; bind each committed transition to ordered event ID, world ID, parent/version, mutation-log offset and resulting state root; inject failures between state update, event append and acknowledgement; verify restart recovery and replay.
+
+#### RL-154 — World event processor is not the simulation loop's event writer, and its timeline is volatile
+
+**Status: Source-confirmed at the inspected paths.** `TiannaraRuntime.WorldEventProcessor` exposes casts for CAL, CIS, state, snapshot and world events and attempts NATS publication. The inspected `WorldSimulationLoop` calls none of those APIs; its event publisher is logging only. Separately, `TiannaraRuntime.WorldMemoryStore` keeps snapshots in GenServer state, starts with an empty list on initialization, and trims history to 10,000 entries. The inspected store has no durable backing or restart-recovery path.
+
+**Impact:** The existence of NATS publishing functions and an append-named memory API does not establish that actual world mutations enter an authoritative, durable, ordered archive. A runtime process/supervisor restart loses the in-memory snapshot timeline.
+
+**Closure evidence:** demonstrate real production call sites from each mutation writer to a durable append-only archive; check publication/append results rather than using fire-and-forget casts as commit evidence; record sequence numbers, hashes and schema versions; test process/node restart, duplicate delivery, gaps, corrupt frames and replay against known state roots.
+
+#### RL-155 — Runtime state ownership is split across incompatible world representations
+
+**Status: Source-confirmed architecture gap in inspected components.** The per-world runtime supervisor owns a `WorldStateManager` containing CAL state, CIS state, metrics and configuration, plus a separate volatile `WorldMemoryStore`. The ecology path (`Tiannara.WorldServer` and `Tiannara.UniverseServer`) separately holds civilization maps, ecological fields, entropy, drift and tick counters; its visible dynamics include identity resource evolution, random entropy and a fixed drift vector. The root `Tiannara.World.UnifiedWorldModel` and DETS-backed `WorldMutationEngine` form another state/mutation path. The runtime and root have separate application entry modules (`TiannaraRuntime.Application` and `Tiannara.Application`); the inspected runtime tick has no bridge to the root mutation APIs.
+
+**Impact:** No single inspected owner contains the complete live world (agents/civilizations, environment, simulation clock, CAL/CIS decisions and canonical entity relationships) together with a durable mutation history. Snapshotting any one of these representations alone cannot prove complete-world recovery or archaeological reconstruction.
+
+**Closure evidence:** publish a responsibility/ownership matrix for every state field and writer; choose one canonical world identity and state schema; define adapters for subsystem-specific projections without making them competing authorities; prove that all live writers produce ordered canonical events and that derived views can be rebuilt from the archive.
+
+#### RL-156 — Archaeological history cannot yet be sourced from the live runtime event path
+
+**Status: Source-confirmed consequence of RL-144–RL-155 at the inspected paths.** The archaeology functions previously inspected fail closed when no archaeology simulation is available (RL-144). The runtime tick does not commit canonical mutations (RL-153), the event processor is not called by that loop (RL-154), and its per-world snapshot history is volatile. The root mutation log, in-memory graph and executive event store are not shown to be a complete, ordered archive of runtime-world evolution (RL-146–RL-152).
+
+**Impact:** There is no demonstrated, end-to-end source artifact from which a later world could independently excavate an extinct world and reproduce its agents, events, discoveries, institutions, technologies and uncertainty/provenance. Do not replace the current fail-closed archaeology response with simulated success scores.
+
+**Closure evidence:** first establish a durable canonical world-history archive and export manifest; then demonstrate extinction finalization, later-world discovery without access to the original process, independent reconstruction in isolation, artifact/stratigraphic provenance, contradiction handling and state-root/replay verification.
+
+#### Checkpoint 18.15 disposition
+
+- The missing `world_process.ex` path remains unresolved at the frozen SHA; later default-branch search hits do not prove that implementation exists at the audited commit.
+- The most concrete runtime state owner found in the inspected Phase 5A path is `WorldStateManager` for CAL/CIS/metrics, not a complete world model. The ecology path owns a different, separately volatile representation.
+- The inspected simulation loop's state-update and event-publish helpers are logging placeholders; its snapshot records CAL/CIS outputs rather than full canonical world state.
+- Root `WorldMutationEngine` is a useful governed, DETS-backed mutation record source, but it is not wired into the inspected runtime tick and is not atomic with the root graph effect (RL-146–RL-147).
+- A canonical archaeological archive cannot be selected by choosing one existing snapshot API: runtime snapshots are volatile/incomplete, root snapshots do not attest to full state (RL-148), and temporal/replay engines do not currently reconstruct history (RL-150–RL-151).
+- No runtime tests were executed in this checkpoint. These are source-level findings, not claims about behavior beyond the inspected paths.
+
+**Checkpoint 18.15 disposition:** RL-153–RL-156 remain open. Next step: complete the exact-baseline writer/caller inventory and application-startup reachability map, then define a single canonical world-history archive contract before any implementation or remediation is authorized.
