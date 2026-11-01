@@ -3113,3 +3113,86 @@ The registry metadata is an intended service contract, not proof that every adve
 5. No source changes or remediation were performed. No finding was closed. Runtime verification remains outstanding.
 
 **Next checkpoint:** CEL cross-service caller and authority reconciliation. Trace all state writers, event publishers/subscribers, evidence producers/consumers, Council authorization calls, service boot owners, and duplicate/competing runtime paths. Produce a capability-to-caller-to-enforcement-to-evidence matrix and a runtime verification plan. Only after those are reconciled should the Tiannara AI audit be considered complete and ToolForge begin as its own lifecycle audit.
+
+
+## Checkpoint 18.35 — Cross-service caller and authority reconciliation
+
+**Frozen application source:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Read-only static source inspection of the frozen commit. No application source was changed. No runtime boot, integration test, fault injection, or soak was run in this checkpoint.
+
+### 18.35.1 Cross-service capability-to-caller-to-enforcement-to-evidence matrix
+
+| Capability / boundary | Source-confirmed caller or producer | Enforcement actually observed | Evidence / result | Audit disposition |
+|---|---|---|---|---|
+| Canonical entity create | `UnifiedWorldModel.create_entity/1` → `WorldMutationEngine.mutate/3` → `UnifiedRealityGraph.add_entity/1` | Council decision and machine-authorization wrapping/consumption occur in WorldMutationEngine for this path | Mutation record, graph write, optional provenance record, EventBus event | **PARTIAL**: these are sequential writes, not one atomic commit; graph failure can follow a successful mutation record |
+| Entity update/refutation/stage transition | UnifiedWorldModel handlers call WorldMutationEngine then directly update graph and publish | Council gate is invoked through mutation engine, but graph update result is ignored in update/refute/stage paths | Mutation ID and event attempted; no shared transaction/commit receipt | **PARTIAL**: audit record may say executed while canonical graph update fails |
+| Entity deletion | UnifiedWorldModel.delete_entity/2 | Explicit machine authorization presence/status/expiry/scope/effect binding checks and one-shot consume; then graph deletion | Audit record and event attempted after graph mutation | **PARTIAL**: graph removal and audit/event are not one atomic transaction; no runtime proof |
+| Other graph writers | Public UnifiedRealityGraph add/remove APIs; ontology/reality integration paths identified in caller search | Graph API itself validates basic shape but does not enforce Council authorization or mutation-engine mediation | In-memory graph mutation log only | **NOT CLOSED**: complete writer inventory and every direct caller still require exact-commit callsite enumeration |
+| World mutation history | WorldMutationEngine | Council.authorize(:world_mutation), decision check, machine grant mint/bind/verify/consume, DETS mutation record | DETS mutation record plus ExecutiveMemory/EventBus/audit attempts | **PARTIAL**: authorization and effect binding exist on this route; record is inserted before graph state changes and audit failure can return error after insertion |
+| Event publication | UnifiedWorldModel, WorldMutationEngine, ProvenanceEngine, KnowledgeCoordinator and other services | EventBus appends through EventStore before attempting delivery | EventStore offset; optional DLQ on backpressure delivery failure | **PARTIAL**: callers frequently ignore publish return values; ordinary delivery uses asynchronous send and cannot establish consumer processing |
+| Event subscriptions | KnowledgeCoordinator subscribes to discovery.completed, experiment.completed, world.entity.updated | Subscriber PID map is in-memory; no durable consumer offsets or acknowledgement protocol observed | Event messages delivered to process mailbox | **NOT CERTIFIED**: restart/replay/duplicate handling and complete subscriber inventory unverified |
+| Provenance creation | UnifiedWorldModel conditionally calls ProvenanceEngine.record_provenance/1 | No independent authentication or immutability enforcement observed at record boundary | In-memory record and telemetry/event attempts | **NOT CERTIFIED**: record result is ignored by entity creation path; overwrite/restart concerns remain (RL-294–297) |
+| Evidence validation | KnowledgeCoordinator calls EvidenceValidator.validate_entity_evidence/1 after evidence fusion | Validator reconstructs lineage and checks evidence-count/shape criteria; no demonstrated authenticity or independent replication gate | Validation return exists but caller does not enforce it before returning successful fusion | **NOT CERTIFIED**: validation is not a mandatory certification boundary |
+| Discovery certification | KnowledgeCoordinator.certify_discovery/1 calls DiscoveryCertifier.certified?/1 and validate/1 | Heuristic statistical/replication/evidence/quality scoring; no Council authorization or signed certification sink established | Validation report and discovery.certified event | **NOT CERTIFIED**: certification can be emitted from computed report without verified experimental execution or independently authenticated evidence |
+| Council authorization | WorldMutationEngine world mutation route; ResourceManager for requests over 50%; Kernel restart/halt routes | WorldMutationEngine rejects requires_human/rejected decisions and verifies bound machine grant; ResourceManager bypasses Council for requests at or below 50%; Kernel restart passes nil context and omits supplied actor from authorization payload | Council Authorization struct and AuditLog attempts | **PARTIAL**: governance is route-specific, not a universal state-writer guard; actor/context binding is inconsistent |
+| Human approval | Council HumanApprovalQueue / resume path | Council source describes re-evaluation after human grant, but not all state-changing APIs are proven to require it | Approval queue and audit records | **UNKNOWN / PARTIAL**: no end-to-end human identity/signature-to-effect proof for all high-impact operations |
+| Resource allocation | ResourceManager.allocate/2; WorkflowEngine references ResourceManager | Council gate only above 50% of configured capacity; below threshold direct allocation; capacities are hard-coded; release is asynchronous cast | In-memory allocation/reservation maps and telemetry | **NOT CERTIFIED**: no physical/runtime capacity attestation, durable reservation, or end-to-end allocation receipt |
+| Service boot | Kernel.boot/0 → BootSequencer.boot/4 → ServiceRegistry.boot_order/0 | Health, constitutional score and resource callbacks are invoked; Kernel supplies resource callback that always returns :sufficient | Boot report and tracked PIDs | **NOT CERTIFIED**: resource gate is non-operative; registry dependency ordering and module dependency declarations can diverge (RL-178–179, RL-225–231) |
+| Service restart/recovery | Kernel.restart_service/2 → do_restart/2 | Council authorization, but supplied actor is not bound; restarted service is started without rerunning readiness gates | New PID and audit attempt | **NOT CERTIFIED**: process start is not readiness/recovery proof (RL-303–306) |
+
+### 18.35.2 New cross-service findings
+
+**RL-319 — Canonical graph writes are not transactionally coupled to mutation authorization/history.**  
+At the frozen source, UnifiedWorldModel calls WorldMutationEngine before applying the corresponding UnifiedRealityGraph mutation. For create, a successful mutation record is followed by graph insertion; for update/refute/stage transitions, graph mutation results are not checked before the handler reports success. The mutation engine records status :executed before the graph write occurs. This permits mutation history, graph state, provenance and event state to diverge. This reinforces, but does not replace, RL-146, RL-153 and RL-168. **Static source-confirmed; runtime failure injection not run.**
+
+**RL-320 — EventBus publication is not an end-to-end delivery or processing guarantee.**  
+EventBus appends the event to EventStore before delivery. In the default non-backpressure mode it sends messages asynchronously and returns success without checking recipient liveness or processing. The DLQ path is conditional on backpressure delivery failure; replay returns :ok after attempting sends and does not establish consumer acknowledgement. EventStore append success therefore proves durable enqueue only, not subscriber processing. **Static source-confirmed; delivery/restart behavior not runtime-tested.**
+
+**RL-321 — Provenance and evidence validation are not mandatory write/certification gates.**  
+UnifiedWorldModel conditionally invokes ProvenanceEngine.record_provenance/1 after graph insertion and does not enforce its result before returning entity creation success. KnowledgeCoordinator invokes EvidenceValidator after evidence fusion but does not use the validation result to reject, quarantine or prevent successful fusion. This compounds RL-241, RL-250 and RL-294–297. **Static source-confirmed.**
+
+**RL-322 — Discovery certification output is not bound to verified execution or Council-approved promotion.**  
+KnowledgeCoordinator invokes DiscoveryCertifier against the supplied Discovery struct and emits discovery.certified using the calculated result. DiscoveryCertifier derives its report from the struct's experiments/evidence and heuristic validator components; this call path does not itself retrieve authoritative experiment execution records, verify signed evidence lineage, or obtain Council authorization for a consequential promotion. Existing weaknesses RL-259–260 and RL-274–288 therefore cross the service boundary into the certification consumer. **Static source-confirmed; no real discovery was certified in this checkpoint.**
+
+**RL-323 — Council enforcement is selective rather than universal across state-changing services.**  
+WorldMutationEngine applies a substantial Council/machine-authorization gate, but UnifiedRealityGraph exposes direct mutation APIs without an equivalent gate at the graph boundary. ResourceManager only calls Council.authorize when a request exceeds 50% of its configured capacity. Thus a caller able to reach a direct writer or make a smaller allocation does not traverse the same authorization boundary. The exact complete set of direct graph writers remains to be enumerated. **Static source-confirmed for the observed APIs and threshold; exhaustive caller inventory remains open.**
+
+**RL-324 — Service boot's resource-readiness evidence is synthetic, not measured.**  
+Kernel passes BootSequencer a resource-check callback that unconditionally returns :sufficient. ResourceManager itself uses fixed capacity values and its health callback returns :healthy independently of its ready flag. Consequently, the boot report's resource gate cannot demonstrate that actual resource capacity is available or that ResourceManager is operationally ready. **Static source-confirmed; runtime resource exhaustion was not tested.**
+
+### 18.35.3 Reconciled authority and evidence boundaries
+
+1. **Council authorization is not the same as canonical state ownership.** Council can decide whether an operation is permitted; it does not provide the atomic world-state commit, durable event sequence, or replay authority.
+2. **WorldMutationEngine is a governed mutation-recording path, not yet a proven universal world-state gateway.** Direct graph APIs and other world/runtime writers mean its mutation log cannot currently be treated as the complete world history.
+3. **EventStore is not proof of event consumption.** An append offset proves the event was accepted by the store; it does not prove all intended subscribers processed it or committed their consequences.
+4. **Provenance presence is not provenance verification.** A caller-supplied provenance map, in-memory record, or evidence count does not establish source authenticity, independence, reproducibility, or complete lineage.
+5. **A certification report is not execution evidence.** Certification must be linked to immutable experiment inputs, actual runner outputs, independent validation/replication, evidence hashes, authority decision, and a durable revocation/expiry record.
+6. **Service registration is not operational readiness.** A registered capability and successful process start do not establish usable dependencies, actual resource availability, recovery behavior, or a functioning caller path.
+
+### 18.35.4 Runtime verification plan — not executed
+
+| Verification ID | Required experiment | Required pass evidence |
+|---|---|---|
+| R35-01 Writer inventory | Enumerate every caller of UnifiedRealityGraph add/remove entity/relationship and every CanonicalWorldState writer across root app and runtime app | Complete callsite inventory tied to exact commit; each writer either routes through governed mutation gateway or has an explicit reviewed authority contract |
+| R35-02 Mutation/graph atomicity | Inject graph write failure after Council authorization and mutation-record insertion for create/update/refute/delete/relationship | No false :executed record; no split state; recovery/reconciliation proves one committed outcome |
+| R35-03 Authorization bypass | Attempt direct graph writes and direct service API mutations with absent, invalid, expired, replayed and wrong-target authority | All unauthorized effects refused; no graph/history/event side effects |
+| R35-04 Event delivery | Kill subscriber before send, during processing and after processing-before-ack; restart and replay; force EventStore and DLQ failures | Stable event IDs/offsets, idempotent consumer effects, durable acknowledgements, observable retry/DLQ terminal states, no silent loss/duplicate effect |
+| R35-05 Provenance gate | Submit missing, forged, overwritten, cyclic, incomplete and unavailable provenance; force ProvenanceEngine failure | Invalid lineage cannot be treated as validated or promoted; durable provenance receipt is bound to entity version/hash |
+| R35-06 Evidence/certification | Submit fabricated experiment structs, missing runner output, correlated sources, duplicate evidence and failed replication; compare against genuine independently reproduced run | Certification fails closed unless source authenticity, execution identity, independent evidence and validation are verified |
+| R35-07 Human/Council authority | Exercise every high-impact operation with no approval, pending approval, wrong human, stale approval, policy rejection and valid approval | Signed actor identity, exact effect binding, one-shot authorization, policy re-evaluation, durable audit and enforced consequence |
+| R35-08 Resource accounting | Concurrent allocations at below/above threshold; overcommit; crash between allocate/use/release; stale reservation | Measured capacity, atomic reservation, bounded overcommit, lease/recovery semantics and complete accounting |
+| R35-09 Boot/dependency readiness | Inject missing/degraded dependencies, resource shortage, cycle, failed health/score check, duplicate start and service crash during boot | No dependent starts on unmet prerequisite; no synthetic resource pass; accurate readiness and complete PID/ownership tracking |
+| R35-10 Recovery and replay | Restart each stateful service and the whole root/runtime system from persisted state and event offsets | Reconstructed state root matches committed history; no reliance on volatile maps or telemetry as canonical recovery source |
+
+### 18.35.5 Checkpoint disposition
+
+- Cross-service source inspection has confirmed several boundaries are implemented only partially and several declarations overstate the guarantee provided by the caller path.
+- New findings added: **RL-319–RL-324**.
+- Findings closed: **0**.
+- Application source changes: **0**.
+- Runtime verification: **not performed**.
+- The capability-to-caller-to-enforcement-to-evidence matrix is a source-based reconciliation, not a certification of runtime behavior.
+- The complete direct-writer and subscriber inventories remain open. Root/runtime duplicate ownership and full service recovery remain open.
+- ToolForge remains an integral Tiannara AI subsystem and must receive its own detailed audit before Tiannara AI's overall audit can be closed; it is not excluded from the final readiness decision.
+
+**Next checkpoint:** 18.36 — exhaustive writer/subscriber/caller inventory across both Tiannara root application and `tiannara_runtime`, including direct graph writes, alternate EventBus implementations, and unregistered/orphan service paths.
