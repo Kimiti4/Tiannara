@@ -3705,3 +3705,93 @@ The inspected OAVL implementations evaluate discovery/concept coherence; neither
 - AuditLog: cryptographic chain verification exists, but durable audit success is not required by all inspected operations.
 
 **Next checkpoint:** 18.41 — trace incident response and containment callers, self-improvement pipeline exact-artifact/evidence handling, protected-core checks, independent verifier trust, and repair/rollback effect execution. Then trace all production callsites that can write files, alter policy/constitution, start/stop processes, deploy generated code or change runtime authority. Keep every finding open until exact effect-path evidence proves remediation.
+
+
+## Checkpoint 18.41 — Incident response, recovery and self-modification execution
+
+**Frozen application source:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Exact-file inspection of incident response, rollback, self-improvement, sandbox backends, Phase-4 real execution, deployment gateway, adoption and repair components; repository-wide caller searches. No runtime tests, exploit attempts or source modifications.
+
+### 18.41.1 Incident response and recovery
+
+- Root `Tiannara.Application` starts `ASC.Reality.Supervisor` only when `asc_enabled?/0` is true. That supervisor starts `IncidentResponseEngine` and `RollbackEngine`; therefore these services are not guaranteed to run in the default ASC-disabled configuration.
+- `IncidentResponseEngine.report_anomaly/3` is a public cast API. Its handler records an alert in process memory, classifies a fixed set of anomaly atoms and calls `RollbackEngine.rollback/1` for critical alerts. Repository code search did not surface a production caller of `report_anomaly/3`; source-level invocation from Sentinel or the root security event path is not established.
+- `RollbackEngine.create_snapshot/1` captures only deployment ID, timestamp and a version timestamp; its declared artefacts are labels (`:runtime_config`, `:active_connections`, `:data_state`), not captured bytes or restorable state. Snapshots and rollback history are in-memory.
+- `RollbackEngine.rollback/2` selects a snapshot and appends a record with `status: :completed` and `restored_artefacts`; it does not restore files, configuration, connections or data.
+- `Reality.Director.rollback/1` updates deployment status to `:rolled_back` even though the rollback engine result may be an error or a success-shaped record without restored effects.
+- The separate `Tiannara.Autonomy.RollbackEngine` path was already recorded in the prior remediation inventory as explicitly unavailable; it must not be confused with the Reality rollback module.
+
+### 18.41.2 Self-improvement pipeline and real sandbox capabilities
+
+The earlier inventory requires refinement: a real-code sandbox infrastructure does exist.
+
+- `SelfImprovement.Sandbox.RealHarness` copies a baseline, applies a code patch, runs build/tests/benchmark commands and tears down the environment.
+- `Sandbox.Backend.Local` runs real subprocesses in a temporary copied worktree with timeouts. It is not an OS security boundary; subprocesses run with the host user's privileges.
+- `Sandbox.Backend.Container` runs commands in Docker/Podman with `--network none` by default, CPU and memory limits, and a wall-clock timeout. This is stronger isolation than the abstract state-transform Harness, but the inspected command does not establish a read-only root filesystem, dropped capabilities, non-root identity, PID limits, seccomp/AppArmor profile or protection of the host-side patch-application phase.
+- `Sandbox.Backend.CI` is an injectable remote-CI contract, not proof of a configured CI provider.
+- The backends are invoked by dry-run APIs (`SelfImprovement.DryRun`, `Omega.DryRun`) and tests. Repository search did not establish a supervised production self-improvement executor invoking RealHarness and then a deployment sink.
+- The generic `SelfImprovement.Pipeline` remains an authorization contract: it accepts caller-supplied GateResult structs, checks their `passed` fields and a non-self-improvement source label for protected-core verification, and returns `:deployment_authorized` when explicitly enabled. It does not execute a patch or authenticate/bind the supplied gate evidence to the patch digest.
+
+### 18.41.3 A stronger, separate Phase-4 governed execution path
+
+A significant positive discovery is `Tiannara.Phase4.RealExecution` and `Omega.DeploymentGateway`.
+
+- `Phase4.RealExecution.execute/1` requires `real_execution_enabled: true`, an Authorization struct, a configured backend/baseline/patch/specification, and admission through `Phase4.ExecutionGovernance.begin/2`.
+- ExecutionGovernance derives a canonical effect identity, checks grant status and expiry, checks durable MintRegistry registration and binding, atomically claims/consumes a one-shot grant and records a fail-closed Council AuditLog edge.
+- The real execution path fingerprints the patch term into the canonical effect descriptor, runs RealHarness and records execution/provenance information.
+- Optional deployment is routed through `Omega.DeploymentGateway.deploy/6`. The gateway checks candidate approval, certification, lineage, grant, authenticated identity, candidate immutability, durable mint registration, effect binding, single-use consumption and a fail-closed audit append before transitioning the candidate to deployed.
+- `Phase4.ExperimentOrchestrator.submit_experiment/1` delegates to RealExecution when the feature flag is enabled. The inspected source does not establish that this orchestrator is registered in the root application's supervised production tree; its caller/startup path needs a separate closure check.
+- This is meaningful evidence of a stronger governed effect path. It does not make the generic SelfImprovement.Pipeline, ToolForge or every other file/deployment sink inherit those protections automatically.
+
+### 18.41.4 Controlled adoption path
+
+`ASC.Adoption.Adopter` is another meaningful, bounded mechanism:
+
+- Requires a machine evidence record with `verdict: :accept_eligible` and candidate on the declared front.
+- Requires a human authorization artifact with exact mission, candidate, branch, decision, date and human fields.
+- Requires execution from `main`, checks the branch and exact declared diff scope, snapshots files and creates a rollback tag before applying the selected branch files.
+- Runs compile, scoped tests and a boot smoke; on validation failure it invokes rollback.
+- This is a manually invoked, narrowly scoped adoption workflow, not universal runtime self-modification governance. The authorization file is structurally validated but the inspected parser does not cryptographically authenticate the named human or signed approval artifact.
+
+### 18.41.5 Repair paths
+
+- `ASC.Repair.Pipeline` now explicitly returns `{:error, :unavailable}` for root-cause analysis, patch generation, sandbox validation, canary release and production rollout. This is honest fail-closed behavior, not a false claim of repair success.
+- `ASC.Crucible.Repairer` remains a separate path. Its pattern match uses random selection; repair success/regression are randomly sampled and the patch result is a synthetic `"patched_artifact"` string. It records telemetry/observations and can register a repair pattern, but the inspected apply path does not modify the supplied artifact.
+- `RepairReuseEngine` and campaign callers exist, but no evidence from this checkpoint establishes a secure production chain from diagnosis through patch generation, isolated execution, approval, deployment and verified recovery.
+
+### 18.41.6 New findings
+
+**RL-357 — Incident-response alert ingestion is not connected to the monitored security event path.**  
+The Reality IncidentResponseEngine exposes `report_anomaly/3`, but repository caller search did not surface a production caller from Sentinel, CEL or another root security event path. It is also supervised only when ASC is enabled. The engine's in-memory alert handling and critical rollback trigger therefore do not establish a continuously active, system-wide incident response service.
+
+**RL-358 — Reality rollback reports completion without restoring captured system state.**  
+The snapshot stores only metadata and artefact labels; rollback writes a `:completed` history record without restoring actual deployment files, configuration, connections or data. Reality.Director can mark a deployment `:rolled_back` without validating restoration. This is a false recovery signal, not a usable recovery mechanism.
+
+**RL-359 — Real sandbox backends exist, but patch application is not confined to the sandbox directory.**  
+Both Local and Container backends apply `CodePatch.files` by joining caller-supplied relative paths to the host temporary workdir and writing them without canonicalizing the result or checking that the resolved path remains beneath the workdir. A path containing traversal segments can therefore escape the intended workspace during the host-side patch-application step; this occurs before containerized build/test execution. The Local backend also runs arbitrary commands as the host user. The Container backend has useful network/resource controls but does not protect the host patch-application step. Treat untrusted generated patches as unsafe until path containment and stronger isolation are enforced.
+
+**RL-360 — Real self-improvement evaluation is disconnected from general deployment authorization.**  
+RealHarness and Local/Container backends are real evaluation capabilities, but their general self-improvement callers are dry-run paths. The generic Pipeline accepts unverified caller-supplied GateResult structs and does not execute or deploy the exact evaluated artifact. Phase4.RealExecution/ExecutionGovernance/DeploymentGateway provide a stronger, separate governed execution route, but the inspected code does not make that route mandatory for all self-modification sinks. The system therefore has two materially different assurance levels rather than one universal change-control path.
+
+**RL-361 — Two-key adoption validates human approval fields but does not authenticate the human artifact.**  
+ASC Adoption checks exact scope, machine evidence and required human authorization fields, and performs compile/test/boot validation with rollback. However, the inspected Gate parser treats the `HUMAN` field as text and does not verify a cryptographic signature, authenticated identity or independently issued approval token. This is a useful procedural gate but not cryptographic proof of human authorization.
+
+### 18.41.7 Revision to earlier findings
+
+- **RL-348 is refined, not closed.** The abstract Harness is not arbitrary-code isolation, but RealHarness plus Local and Container backends do provide real code evaluation, with the Container backend applying meaningful network and resource controls. RL-359 records the newly identified host-side patch path escape and remaining isolation gaps. Neither backend has been runtime-tested in this checkpoint.
+- **RL-347 remains open.** Phase4 ExecutionGovernance demonstrates stronger exact-effect-bound grant handling in a separate execution path, but it does not authenticate the generic SelfImprovement Pipeline's caller-supplied gate attestations.
+- **RL-345 remains open.** The Reality rollback engine is explicitly non-restorative. The separate Autonomy rollback path reports unavailable rather than fabricating restoration.
+- No findings were closed.
+
+### 18.41.8 Disposition
+
+- New findings: **RL-357–RL-361**.
+- Findings closed: **0**.
+- Source modifications: **0**.
+- Runtime tests and exploit attempts: **not performed**.
+- Real sandbox: implemented; production self-improvement integration not established.
+- Strong effect-bound deployment gateway: implemented in the separate Phase-4/Omega path; universal adoption not established.
+- Two-key adoption: implemented as a manual bounded workflow; cryptographic human identity proof not established.
+- Incident response and rollback: not established as operational system-wide containment and recovery.
+
+**Next checkpoint:** 18.42 — security boundary and tamper-resistance audit. Trace the complete root startup and service registry for Phase4, Omega and ASC; inspect MintRegistry ownership and persistence, human identity authentication, DeploymentGateway's terminal state mutation, adoption rollback correctness, and all host-side file/process/network effects. Specifically test by static reasoning and then isolated tests whether path traversal, symlink traversal, stale grants, registry restart, process restart or audit-store failure can bypass the intended boundaries. Do not run destructive tests against the working repository.
