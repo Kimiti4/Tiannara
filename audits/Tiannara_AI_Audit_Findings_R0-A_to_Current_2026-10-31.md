@@ -2239,3 +2239,42 @@ The registry metadata is an intended service contract, not proof that every adve
 - The inventory is not a certification list. Every service still requires implementation, caller, data ownership, health honesty, constitutional evidence, resource, restart, and failure-path inspection.
 - No tests were run and no application source was changed.
 - Continue with the critical executive substrate first: ExecutiveMemory, EventStore, EventBus, CapabilityGraph, ResourceManager, IdentityTrustManager, PriorityEngine and ExecutiveScheduler. Then audit world/research/mission services and the remaining registry entries. ToolForge remains a separate priority workstream after CEL's service inventory has been reconciled.
+
+
+### Checkpoint 18.22 — CEL critical substrate: ExecutiveMemory and EventStore
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Exact-SHA inspection of ExecutiveMemory, EventStore, CapabilityGraph, ResourceManager, IdentityTrustManager, PriorityEngine and ExecutiveScheduler. This pass concentrated on ExecutiveMemory/EventStore code paths; remaining services are not certified by this checkpoint. No tests were run and no source was changed.
+
+#### RL-180 — ExecutiveMemory's declared CEL dependency omits its EventStore prerequisite
+
+**Status: Source-confirmed.** The ServiceRegistry entry for `:executive_memory` declares `depends_on: []`. The ExecutiveMemory module's own `dependencies/0` declares `[:event_store]`, and its `record/3` handler calls `EventStore.append/2`. Because the kernel boots according to ServiceRegistry metadata, not the module's separate dependency declaration, the boot graph does not enforce this prerequisite.
+
+**Impact:** CEL can start ExecutiveMemory before EventStore. The memory service may appear booted while its primary record operation cannot yet succeed. The mismatch also means two competing dependency declarations exist, with no demonstrated consistency check.
+
+**Closure evidence:** establish one authoritative dependency source or mechanically validate registry metadata against each service module; test boot order and startup failure when EventStore is unavailable; require readiness only after the dependency is operational.
+
+#### RL-181 — ExecutiveMemory's volatile fallback does not provide a working record path
+
+**Status: Source-confirmed by code path.** On DETS open failure, ExecutiveMemory creates a new ETS table and stores its reference in state, marking the backend degraded. However, the record handler unconditionally calls `store_index/2`, which unconditionally invokes `:dets.insert(@table_name, ...)`; it does not use the ETS reference or branch on `state.backend`. The EventStore append occurs before this index write. Thus the fallback backend does not implement the record path it advertises; an ETS fallback record attempt can fail after the event has already been appended to EventStore.
+
+**Additional health inconsistency:** ExecutiveMemory's `health/0` checks `:dets.info(@table_name)` even when init selected ETS fallback, while its `constitutional_score/0` returns fixed 1.0 values rather than deriving the score from the degraded backend state.
+
+**Impact:** The fallback can create split outcomes (durable EventStore append followed by memory-index failure/process crash), and the reported constitutional score can claim perfect health despite fallback degradation. A recovery path is not established.
+
+**Closure evidence:** either remove the fallback and fail startup closed, or implement a fully tested backend abstraction for record/index/lineage/snapshot/recovery; make health and constitutional scoring reflect actual backend state; inject DETS failures and prove no partial-success or false-health result.
+
+#### RL-182 — CEL EventStore pruning deletes historical events without a demonstrated archival handoff
+
+**Status: Source-confirmed for the EventStore implementation.** `EventStore.prune/0` computes a cutoff from `Application.get_env(:tiannara, :dets_event_retention_hours, 168)` and deletes every stored event whose timestamp is older than that cutoff. The inspected pruning path deletes DETS keys directly; it does not first require a verified immutable archive, snapshot checkpoint, replay-equivalence proof or downstream retention receipt.
+
+**Impact:** The store cannot be treated as a permanent canonical history source while its ordinary retention path deletes older records without a demonstrated archival contract. Any world/research/governance history placed here could become unrecoverable after pruning unless a separate archive path is proven.
+
+**Closure evidence:** distinguish operational event retention from immutable canonical history; require archive-before-delete with content hashes, sequence/offset continuity, verified restore and audit receipts; test retention expiry, archive failure, interrupted pruning and replay across archive boundaries.
+
+#### Checkpoint 18.22 disposition
+
+- ExecutiveMemory has a registry/module dependency mismatch, an unusable DETS-to-ETS fallback record path, and health/constitutional reporting that does not faithfully represent fallback degradation.
+- EventStore has an explicit 168-hour default pruning policy and no archive-before-delete requirement in the inspected prune path. It is therefore not suitable as the sole permanent history authority as currently evidenced.
+- RL-180–RL-182 added. CapabilityGraph, ResourceManager, IdentityTrustManager, PriorityEngine and ExecutiveScheduler were discovered and partially inspected, but remain open for deeper caller/effect, persistence, security, fairness, and failure-path audits.
+- No tests or runtime boot were performed; these are source-confirmed findings, not runtime verification.
