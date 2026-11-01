@@ -3920,3 +3920,43 @@ These tests have **not** been run. The expected outcomes above are acceptance cr
 - Important qualification: source search/call-map evidence indicates the gateway has no production callers, but complete deployment-sink exclusivity and full runtime reachability are still not proven. Treat unknown paths as UNKNOWN, not PASS.
 
 **Next checkpoint:** 18.44 — execute the safe tests from §18.43.4 in an isolated disposable checkout, beginning with identity forgery and traversal/symlink containment, then registry restart/corruption, audit-store failure and concurrent consumption. Record commands, exact test fixture paths, actual outputs and cleanup evidence here. If execution environment access is unavailable, retain these as unexecuted test specifications and do not label them passed.
+
+
+## Checkpoint 18.44 — safe-test execution readiness and static validation
+
+**Frozen source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Audit ledger branch:** `audit/consolidated-findings-r0a-2026-10-31`  
+**Mode:** read-only source inspection; no source changes.
+
+### 18.44.1 Execution environment check
+
+The available GitHub connector can read repository files and update the audit ledger, but it does not provide a repository shell or test runner. The attached execution container has no Tiannara checkout at the inspected locations, and its filesystem check found no local `Tiannara` directory. No repository clone or dependency installation was performed. Consequently, I could not safely execute `mix test`, run a disposable-checkout exploit test, or perform fault injection in this turn. **All runtime tests remain NOT RUN; no test is marked passed or failed.**
+
+### 18.44.2 Static validation against frozen source
+
+1. **Identity forgery — confirmed source weakness remains.** `AuthenticatedHumanIdentity.authenticate/3` accepts any non-empty binary as a credential, stores its SHA-256 digest, and stamps the current time. There is no verifier, trusted identity-provider/session check, or comparison against a stored credential in this module. `authenticated?/1` checks only whether `authenticated_at` is non-nil. A digest of caller-supplied text proves neither credential validity nor human identity. This supports RL-362; it is static source evidence, not an executed forgery test.
+2. **Traversal and symlink containment — confirmed source weakness remains.** Both `Sandbox.Backend.Local.apply_patch/2` and `Sandbox.Backend.Container.apply_patch/2` form output paths using `Path.join(env.workdir, rel_path)`, create the parent directory, then write the content. The reviewed path does not canonicalize and enforce containment beneath `env.workdir` before the write, nor does it establish symlink-safe resolution. Containerized build/test execution does not protect this host-side write. This supports RL-365; no sentinel, traversal, or symlink test was executed.
+3. **MintRegistry durability — design is present; durability not empirically validated.** The source documents an append-only event file, state reconstruction at startup, serialized GenServer transitions, and fail-closed behavior for an unavailable registry. The reviewed code routes calls through a registered GenServer and maps call exits to `:registry_unavailable`. These source claims do not establish restart recovery, partial-write handling, corruption alerting, filesystem permissions, or concurrent behavior without runtime tests.
+4. **Test-path discovery limitation.** GitHub code search did not return a directly matching identity test or MintRegistry test from the search queries used. This does not establish that no such tests exist: code search is not a complete test inventory, and no checkout-wide test listing was possible.
+
+### 18.44.3 Safe execution handoff
+
+Run only in a fresh disposable checkout pinned to the frozen source commit, after dependencies and the expected Elixir/OTP toolchain are available:
+
+- Record `git rev-parse HEAD`, Elixir/OTP versions, `git status --short`, and the exact test command/output.
+- Locate existing tests first with `rg -n 'AuthenticatedHumanIdentity|MintRegistry|apply_patch|Sandbox.Backend.(Local|Container)' test`.
+- Add temporary test-only fixtures or tests on a separate disposable worktree; do not change production source during this audit checkpoint.
+- For traversal and symlink tests, create a unique temporary baseline, sandbox workdir, and sentinel outside the sandbox root but still inside the test-owned temporary directory. Assert rejection and unchanged sentinel contents; clean up in an `after` block.
+- For registry restart/corruption/concurrency tests, configure a unique temporary `dets_base_path` or explicit test path, never the default registry location. Verify all processes stop and temporary files are removed.
+- Preserve raw outputs and classify each case as PASS, FAIL, BLOCKED, or NOT RUN. A source-level prediction is not a test result.
+
+### 18.44.4 Status
+
+- New findings: **none**; this checkpoint validated previously recorded findings rather than expanding the finding register.
+- Findings closed: **0**.
+- Source modifications: **0**.
+- Runtime tests, exploit attempts, registry fault injection and concurrency tests: **NOT RUN** (no local checkout/test-runner available).
+- Static confirmation: RL-362 identity verification weakness; RL-365 host-side patch path containment weakness.
+- Open evidence gap: restart, corruption, audit failure, concurrency and result-semantics behaviors remain unverified at runtime.
+
+**Next checkpoint:** 18.45 — continue the consequential-effect sink inventory from the frozen source: enumerate direct filesystem writes, subprocess launches, Git/worktree operations, network/service calls and physical-action adapters; map each sink to its caller, input trust, authorization gate, audit outcome and rollback semantics. Keep this source-only unless a safe isolated test runner becomes available. UNKNOWN remains UNKNOWN, not PASS.
