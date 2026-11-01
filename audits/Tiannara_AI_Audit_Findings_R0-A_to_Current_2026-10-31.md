@@ -4024,3 +4024,60 @@ This ordering is a recommendation; no remediation was applied in this checkpoint
 - The inventory is partial. UNKNOWN remains UNKNOWN, not PASS.
 
 **Next checkpoint:** 18.46 — expand the sink inventory using module-by-module source traversal from `lib/` and `tiannara_runtime/lib/`, focusing on write-capable repository/workspace APIs, generated-code writers, subprocess wrappers, and network/hardware adapters. Trace public entry points and production callers for RL-371/RL-372 before proposing source changes. Keep audit and remediation separate until a deliberate remediation batch is authorized.
+
+
+## Checkpoint 18.46 — expanded write/subprocess sink inventory and caller reachability
+
+**Frozen source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Ledger branch:** `audit/consolidated-findings-r0a-2026-10-31`  
+**Mode:** read-only source inspection. No source modifications, runtime tests, exploits, subprocesses or hardware actions were performed.  
+**Coverage:** targeted source traversal plus GitHub code-search results; not a complete whole-repository inventory. Code search is partial and appears to index the current default branch for results, so all code-level assertions below were checked by fetching source at the frozen ref.
+
+### 18.46.1 RL-371 and RL-372 caller/reachability follow-up
+
+**RepositoryTwin (RL-371):**
+- Frozen-source functions confirmed: legacy `create_twin/4` writes each supplied `file_name` using `Path.join(twin_path, file_name)`; stateful `create_twin/4` passes artifact maps to `write_artifacts_to_disk/2`, which similarly joins supplied keys to the twin path; `commit_changes/4` joins caller-supplied update keys to `twin.path` and writes them before updating simulated commit metadata.
+- Code search found direct examples in `test/tiannara/os/repository_twin_world_test.exs` and `test/tiannara/os/tool_ecology_test.exs`. These demonstrate test use, not production reachability. The available code-search results did not establish a complete production caller map.
+- **Assessment:** RL-371 remains open. Missing containment is confirmed in the reviewed functions; actual traversal/symlink exploitation, caller trust, and runtime impact remain unverified. There is no basis to call this safe because the abstraction is named a “twin”; the functions perform real host filesystem writes.
+
+**PhysicalDeploymentManager (RL-372):**
+- Public `approve/3` and `execute/2` APIs directly send messages to the registered GenServer. The approval handler accepts the supplied approver value and stores it without identity verification, as previously recorded.
+- The execute handler permits calls when the deployment stage is one of `:simulated`, `:dry_run`, `:supervised`, or `:autonomous` and the emergency-stop flag is not active. The inspected handler does not itself require a verified approval object or authenticate the caller. Stage advancement has a separate state machine, but the exact complete transition path and production adapter configuration have not been proven here.
+- Search found a deployment test that calls `advance/1`, `approve/3`, and `execute/2`; this establishes test coverage/use, not production reachability. The default adapter remains simulated in the reviewed module; no physical action was performed.
+- **Assessment:** RL-372 remains open. Do not infer that a real hardware adapter is active. Before enabling one, bind authenticated approval to the exact plan/design digest and enforce authorization at the consequential execution boundary, not only in a caller convention.
+
+### 18.46.2 Additional filesystem and subprocess sinks observed
+
+| Sink | Source-confirmed behavior | Risk / required follow-up |
+|---|---|---|
+| `Tiannara.ToolForge.ToolBuilder.handle_call({:build_to_disk, spec, output_dir}, ...)` | Writes generated source and test files using `Path.join(output_dir, filename)`, mkdirs parents, and writes contents. Generated source keys include `spec.name`; the test path is joined under `output_dir/test`. | Validate generated names and canonical final paths beneath the designated output root, including symlinks. Trace who can submit `spec` and choose `output_dir`. The reviewed path lacks an explicit containment check. |
+| `TiannaraRuntime.OS.Persistence.ExperimentJournal` | Builds journal path as `Path.join([storage_path, "experiments", "#{experiment_id}.journal.json"])`; public APIs accept `experiment_id`, and persistence writes serialized journal content to the derived path. | New RL-373: experiment ID is used as a path component without visible validation/canonical containment in the reviewed functions. Traversal could redirect a journal write outside the intended experiments directory if the ID is attacker-controlled and path semantics permit it. Caller reachability and exploitability are unverified. |
+| `TiannaraRuntime.OS.Persistence.ResurrectionEngine` | Writes `clean` / `running` markers beneath configured CPL storage; several recovery/statistics helpers read JSON files and default some missing/error metrics to zero or 100% success. | Storage path is configuration-derived, not shown as arbitrary request input here. Error-default metrics can conceal missing/corrupt evidence; inspect full recovery flow and caller assumptions before treating reported metrics as verified recovery. |
+| `TiannaraRuntime.OS.Resurrection.ExperimentJournal` | Exposes in-memory journal lifecycle and computes hashes; this inspected module is distinct from the persistence journal. | Do not conflate a hash in memory with durable, authenticated provenance. Continue tracing its serialization/callers and whether a canonical persistence layer is used. |
+| `ASC.CMissions.Runner` | Writes fixed internal hypothesis patch files to a supplied worktree path and runs `mix test` and benchmark commands with `System.cmd`. | Fixed filenames reduce direct filename injection in the reviewed clauses, but the worktree root and caller permissions/cleanup still require traceability. Exceptions between worktree creation and cleanup may leave temporary worktrees; no execution test was run. |
+| `ASC.Adoption.Adopter` | Executes Git branch, diff, tag, checkout and revision commands; copies snapshot files; writes a temporary boot-smoke script; runs compile, scoped tests and boot smoke; writes an adoption record. | Reconfirms RL-361 and the high-impact adoption path. Continue validating the provenance of authorization/evidence artifacts, scope path normalization, failure rollback and concurrent invocations. |
+| `TiannaraRuntime` certification / Mix tasks | Search results include `System.cmd("elixirc", ...)` in a validation Mix task and a certification runner invoking test commands. | Treat as developer/certification execution paths unless production caller evidence says otherwise; command execution is not itself proof of production exploitability. |
+
+### 18.46.3 New finding
+
+#### RL-373 — experiment journal persistence derives a filesystem path from an unvalidated experiment ID
+
+**Evidence:** At the frozen source baseline, `TiannaraRuntime.OS.Persistence.ExperimentJournal` constructs the journal path using the configured CPL storage path, the `experiments` directory, and the caller-supplied `experiment_id` interpolated into a filename ending in `.journal.json`. Its persistence helper creates the parent directory and writes the serialized journal. The reviewed code does not show validation of the ID as a single safe path component or canonical containment of the final target beneath the experiments directory.
+
+**Potential impact:** If an untrusted caller can supply an ID containing traversal components, a journal persistence operation may write outside the intended journal directory, within the runtime process's filesystem permissions. Whether path normalization, caller validation elsewhere, or access restrictions prevent exploitation is not established by this local source review.
+
+**Status/confidence:** Source-confirmed path construction and write; exploitability and caller trust/reachability are **not runtime verified**. No exploit was attempted. **Open.**
+
+**Closure criteria:** trace all callers and ID sources; reject separators, traversal and platform-specific path forms before I/O; resolve/check final path containment and account for symlink races; add isolated tests with an outside sentinel that must remain unchanged; verify rejection occurs before parent creation/write.
+
+### 18.46.4 Scope and findings disposition
+
+- New finding: **RL-373**.
+- Findings closed: **0**.
+- Source modifications: **0**.
+- Runtime tests, traversal attempts, subprocess execution and hardware actions: **NOT RUN**.
+- Frozen source baseline unchanged: `e71bc230a8d38f3a0108012685ae1a052d195b00`.
+- The inventory remains partial; search misses are not evidence that a sink or caller does not exist.
+- Existing RL-365, RL-361, RL-368, RL-371 and RL-372 remain open. ToolBuilder output containment is an additional review target but is not assigned a separate finding in this checkpoint pending caller/trust-boundary analysis.
+
+**Next checkpoint:** 18.47 — trace callers and input provenance for ToolBuilder, persistent ExperimentJournal, RepositoryTwin, and PhysicalDeploymentManager; inspect exact path/name validation and startup/configuration wiring in both `lib/` and `tiannara_runtime/lib/`. Then consolidate overlapping filesystem-containment findings and prepare a test matrix for the first remediation batch. Do not modify source until remediation is explicitly authorized; UNKNOWN remains UNKNOWN, not PASS.
