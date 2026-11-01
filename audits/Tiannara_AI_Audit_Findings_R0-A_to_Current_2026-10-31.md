@@ -2195,3 +2195,47 @@ The source distinguishes governance authority from technical execution ownership
 - No tests, application runtime boot, integration runs or source changes were performed. This checkpoint is source inspection only.
 
 **Checkpoint 18.20 disposition:** CEL and ToolForge are now explicit priority audit targets. Next, continue CEL's service-by-service dependency/capability/health/score audit and ToolForge's specification-to-code, compiler/test, sandbox, artifact-integrity, authorization and lifecycle audit. Keep both read-only until the full evidence map and remediation order are approved.
+
+
+### Checkpoint 18.21 — CEL registry inventory and boot dependency integrity
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Exact-SHA source inspection of CEL ServiceRegistry, BootSequencer, Kernel, ExecutiveMemory, EventStore, EventBus, ConstitutionalScorePipeline and UnifiedRealityGraph. This is a read-only source audit; no test execution or source changes.
+
+#### CEL inventory baseline
+
+The exact-baseline `ServiceRegistry.canonical_services/0` declares 33 service entries, including executive memory and event storage, event bus, constitutional score pipeline, capability graph, resource manager, identity/trust manager, priority engine, executive scheduler, metrics, runtime policy, world graph/mutation/provenance/model/version/ontology/snapshot/replay, conflict services, knowledge/evidence/epistemic services, research/experiment/discovery services, mission director, workflow engine, executive state manager, decision predictor and executive digital twin.
+
+The registry metadata is an intended service contract, not proof that every advertised capability is implemented, independently tested, connected to callers, or operational. The audit will validate those separately, service by service.
+
+#### RL-178 — CEL boot can proceed past a failed noncritical dependency
+
+**Status: Source-confirmed.** `BootSequencer.boot/4` determines dependency eligibility using `not Enum.any?(spec.depends_on, &(&1 in failed_crit))`. The `failed_crit` accumulator is updated only by `handle_failed/6`, while `handle_degraded/6` records a degraded service but leaves `failed_crit` unchanged. Thus, if a dependency is noncritical and fails to start or fails a gate, a dependent service can still be attempted even though the prerequisite is not running. The registry includes dependent services whose prerequisites include high/medium criticality services (for example, `:executive_scheduler` depends on high-criticality `:resource_manager`).
+
+**Impact:** A dependent service may start and potentially be counted as healthy despite a required service being absent. The resulting boot report does not establish dependency-complete readiness.
+
+**Closure evidence:** maintain explicit per-service terminal outcomes and gate each dependent on every declared prerequisite reaching an allowed operational state; define whether degraded dependencies are ever acceptable per service; test failure of each dependency class and assert dependents are skipped or explicitly degraded, never silently booted as ready.
+
+#### RL-179 — CEL dependency sorting does not fail boot explicitly on cycles or unresolved dependencies
+
+**Status: Source-confirmed.** `ServiceRegistry.topological_sort/1` and `do_sort/4` log an error and return the accumulated partial order when no remaining service has an empty dependency list. The function does not return an error tuple or invalid-graph marker to BootSequencer. A cycle or dependency on an ID absent from the registry therefore yields a partial list; BootSequencer receives that list as its boot order and does not independently validate that all active registry entries were included.
+
+**Impact:** Invalid registry topology can be converted into an apparently usable partial boot plan. Depending on which services were omitted, boot may report ready/degraded based only on the subset it attempted, rather than declaring the service graph invalid.
+
+**Closure evidence:** validate the complete active graph before starting any child; reject unknown dependency IDs, cycles, duplicate IDs and inconsistent requires/provides declarations; return structured graph errors and refuse boot; test self-cycles, multi-node cycles, missing IDs, deprecated dependencies and disconnected components.
+
+#### Service-level evidence notes (not yet final findings)
+
+- `ExecutiveMemory` opens DETS at a relative path and falls back to public volatile ETS if DETS open fails, emitting a degraded telemetry event. Its record path appends to the CEL EventStore and then updates an index. This requires deeper examination of fallback semantics, index rebuild/recovery, snapshot consistency and lineage correctness.
+- CEL `EventStore` rejects append while degraded and uses DETS for append/read. Its `healthy?` handler checks degraded state and DETS table availability. Retention/pruning and offset behavior require further examination before treating it as canonical world history.
+- CEL `EventBus` persists event payloads through EventStore and stores failed-delivery events in a DETS DLQ. Its `:healthy` handler returns `true` unconditionally; the registry health MFA is `health/0`, so the precise wrapper/health mapping must be reconciled against the module's exported API and BootSequencer's health interpretation. No conclusion of end-to-end delivery correctness is made yet.
+- `ConstitutionalScorePipeline` stores rolling score windows in process memory. Its fallback extraction assigns neutral 0.5 values to unrecognized telemetry events; an empty window returns a score with health 1.0 and several 0.5 dimensions. This is an analytics stream, not independent evidence of every service's constitutional compliance.
+- `UnifiedRealityGraph` keeps its graph in an in-memory `:digraph`; its `historical_state/1` handler ignores the supplied timestamp and returns current counts. This is consistent with earlier world-persistence findings and is not evidence of historical reconstruction.
+
+#### Checkpoint 18.21 disposition
+
+- Registry inventory baseline: 33 services declared.
+- RL-178 and RL-179 added.
+- The inventory is not a certification list. Every service still requires implementation, caller, data ownership, health honesty, constitutional evidence, resource, restart, and failure-path inspection.
+- No tests were run and no application source was changed.
+- Continue with the critical executive substrate first: ExecutiveMemory, EventStore, EventBus, CapabilityGraph, ResourceManager, IdentityTrustManager, PriorityEngine and ExecutiveScheduler. Then audit world/research/mission services and the remaining registry entries. ToolForge remains a separate priority workstream after CEL's service inventory has been reconciled.
