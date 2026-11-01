@@ -3509,3 +3509,102 @@ The audit recommends specifying a first-class CEL-owned **System Atlas** and **S
 - The next checkpoint must inspect the existing codebase for equivalent system inventory, architecture graph, self-diagnosis, repair orchestration and verification components before proposing any new implementation or duplicating existing work.
 
 **Next checkpoint:** 18.39 — repository-wide discovery of existing system-atlas, introspection, coherence, self-diagnosis, repair-planning and verification capabilities; map them to CEL callers and evidence, then determine the smallest gap-closing architecture.
+
+
+## Checkpoint 18.39 — Existing system awareness, cybersecurity, governance and self-modification inventory
+
+**Frozen application source:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Recursive Git tree inventory (26,142 files; tree response not truncated), filtered source paths under root `lib/` and `tiannara_runtime/lib/`, followed by exact-file inspection of selected CEL, Sentinel, ASC immunity/incident response, repair, Council and self-improvement modules. This is a targeted source audit, not a full implementation/callsite audit of all 5,148 broadly named paths. No runtime execution or source modification.
+
+### 18.39.1 Architectural responsibility model
+
+CEL and related governance/execution/audit/security systems collectively need four continuous responsibilities:
+
+- **System awareness and coherence:** know all applications, components, interfaces, dependencies, state authorities, runtime instances, policy boundaries and evidence paths; detect drift, disconnection, incoherence and missing capability.
+- **Cybersecurity and system immunity:** prevent compromise; detect malicious/unauthorized activity, exploitation, tampering, privilege escalation, data exfiltration and integrity failures; preserve forensic evidence; contain/quarantine affected components; recover safely and verify.
+- **Governed self-modification:** observe improvement opportunities, diagnose root causes, formulate proposals, generate bounded changes, test in isolation, verify adversarially and independently, obtain approval, execute through controlled effects, monitor canary/rollout, rollback and preserve full lineage.
+- **Independent assurance:** verify that the security/governance/repair mechanisms themselves remain intact and cannot silently suppress alerts, rewrite policy, falsify evidence, disable monitoring or alter their own authority.
+
+These are system responsibilities, not a claim that one CEL process should own every security decision or hold unrestricted privileges. Separate enforcement and verification authorities are required.
+
+### 18.39.2 Existing source components discovered
+
+The frozen tree contains substantial candidate systems. Their names and documentation do not establish production readiness or integration.
+
+| Area | Existing source candidates | Initial evidence-based assessment |
+|---|---|---|
+| CEL executive/capability awareness | `Tiannara.CEL.Kernel`, Kernel.ServiceRegistry, CEL.CapabilityRegistry, CEL.Services.CapabilityGraph | Executive service registry and capability/provider/mission graph exist. Scope remains narrower than whole-repository/system/runtime awareness (RL-339–341). |
+| Security observation and anomaly detection | `Tiannara.Sentinel.AnomalyDetector`, telemetry anomaly detectors, Sentinel monitors, ASC Agency Sentinel | Sentinel anomaly detector accepts telemetry but the inspected concrete detector clauses cover only three named subsystem/signal combinations (MSCL pressure, GRCC diversity, CTL consistency); unmatched signals return `:none`. This is not evidence of broad cyber threat detection. |
+| Immune coordination | `Tiannara.Sentinel.ImmuneCoordinator`, `Tiannara.ASC.Immunity.EpistemicThreat`, `Tiannara.ASC.SelfModel.SystemicRiskScanner` | Threat/risk data structures and macro-risk scanner exist. ImmuneCoordinator's inspected shadow test uses a random score; observe-only returns 1.0; live intervention and quarantine functions only log and return `:ok`. Not an operational containment mechanism. |
+| Incident response and rollback | `Tiannara.ASC.Reality.IncidentResponseEngine`, `RollbackEngine` | Incident engine tracks deployment monitors/alerts in process memory and calls rollback for critical alerts. RollbackEngine's snapshot/history are in-memory; rollback records completion but inspected code does not restore captured runtime state (capture contains only deployment ID/time/version). |
+| Self-modification governance | `Tiannara.ASC.Governance.SelfModificationGovernor` | File-prefix denylist protects a few namespaces; otherwise returns `:allow`. Not a comprehensive path canonicalization, identity/effect-bound authorization, immutable protected-surface inventory or Council approval workflow. |
+| Self-improvement pipeline | `Tiannara.SelfImprovement.Pipeline`, Proposal, GateResult, ProtectedCore | Pipeline defines stages and requires tests, benchmark, adversarial validation, constitutional review and human approval; protected-core change requires an independent verification GateResult from a non-self-improvement source. Deployment disabled by default. This is a useful policy/model contract, not evidence of a connected production change pipeline. |
+| Sandbox | `Tiannara.SelfImprovement.Sandbox.Harness` | Applies a supplied function to a copied baseline state and runs supplied assertions/benchmark. It does not itself demonstrate OS/container isolation, arbitrary repository patch application, dependency/network isolation, resource limits or execution of the real generated code artifact. |
+| Repair | `Tiannara.ASC.Crucible.Repairer`, RepairReuseEngine, ASC.Repair.Pipeline | Repair ecosystem and pattern reuse exist. Repairer source includes random 40% pattern matching, probabilistic repair outcomes, synthetic patched-artifact result and deploy path; ASC.Repair.Pipeline explicitly returns unavailable for root-cause analysis, patch generation, sandbox validation, canary and production rollout. Existing fail-closed unavailability is preferable to false success, but no complete production repair path is established. |
+| Governance and authorization | `Tiannara.Council.Authorization`, Council, AuditLog, HumanApprovalQueue, Omega authority/effect components | Meaningful authorization and governed-effect primitives exist. The previously recorded cross-system findings still apply: enforcement is selective and no universal end-to-end gate is established. |
+| Independent audit and verification | `Tiannara.Sentinel.Verification`, audit modules, OAVL, Omega verification and authority verifiers | Multiple verification/audit components exist. Their full independence, coverage, deployment wiring and ability to audit their own enforcement plane remain to be proven. |
+| System self-model and risk | `Tiannara.ASC.SelfModel.CivilizationGraph`, SystemicRiskScanner; architecture/dependency registries and graphs | Self-model and macro-risk scanning exist, but the inspected scanner consumes a supplied CivilisationGraph and its epistemic blindspot check is explicitly a placeholder. No proof it continuously derives a complete live system model. |
+| Tool creation and evolution | ToolForge, ASC evolution, repair ecology, capability evolution | These remain within Tiannara scope. ToolForge's known findings RL-174–177 remain open; its generated tool execution, review, registration, deployment and security boundaries must be included in the complete map. |
+
+### 18.39.3 New findings
+
+**RL-343 — Sentinel's inspected anomaly detector is not a general cybersecurity detection system.**  
+The source documents telemetry anomaly detection across subsystems, but the concrete `detect_anomaly/3` clauses inspected cover only three hard-coded signal patterns and all other inputs return `:none`. The separate observation-vs-prediction detector is statistical deviation analysis, not by itself detection of authentication abuse, exploit attempts, malicious code, privilege escalation, secret access, data exfiltration, supply-chain compromise or tampering. A complete cybersecurity sensor/telemetry/threat-model coverage map is not established. Static source-confirmed for this module; other security detectors require separate audit.
+
+**RL-344 — Sentinel ImmuneCoordinator's apparent shadow validation and quarantine do not perform real containment.**  
+The inspected implementation creates a shadow ID string, uses a random confidence score (or 1.0 for `:observe_only`), and its live intervention/quarantine helpers only log and return `:ok`. A high score triggers a nominal live-intervention log; a low score triggers a nominal quarantine log. No actual isolation, access revocation, process/network containment, forensic capture or post-containment verification is implemented in this path. Static source-confirmed.
+
+**RL-345 — Incident rollback is not demonstrated to restore the affected system.**  
+IncidentResponseEngine triggers RollbackEngine on critical anomaly, but RollbackEngine's inspected snapshot is an in-memory map with minimal metadata; rollback selects a snapshot and appends a `:completed` record without applying restored artifacts or state. Thus a reported rollback completion is not proof of recovery. This is separate from earlier snapshot/history findings and needs integration/runtime proof. Static source-confirmed.
+
+**RL-346 — SelfModificationGovernor's path-prefix denylist is not a sufficient protected-core authorization boundary.**  
+The governor protects only a short list of path prefixes and returns `:allow` for other paths. The inspected function does not canonicalize paths, resolve symlinks, normalize traversal, classify transitive effects, bind actor/authorization to an exact patch digest, consult Council, or require independent verification. Its protected list also differs in representation/scope from SelfImprovement.ProtectedCore's subsystem atoms. It cannot serve as the sole authorization boundary for self-modification. Static source-confirmed.
+
+**RL-347 — SelfImprovement pipeline gate results are caller-supplied data, not independently authenticated attestations.**  
+Pipeline.request_deployment/3 accepts a proposal and arbitrary gate_results map; it checks struct fields such as `%GateResult{passed: true}` and a non-nil independent-verification source not equal to `:self_improvement`. The inspected contract does not verify signatures, verifier identity/trust, artifact digest, test-run identity, freshness, scope, replay protection or that evidence actually corresponds to the exact patch being deployed. Human approval is likewise represented as a gate result in this function. The deployment flag defaults false, which is a safe default, but the gate representation alone does not establish a secure approval/evidence chain. Static source-confirmed.
+
+**RL-348 — SelfImprovement.Sandbox is a pure state-transform harness, not a demonstrated isolated code-execution sandbox.**  
+The harness applies a supplied function to a baseline state and runs supplied assertions and a benchmark. The inspected path does not create an OS/container boundary or demonstrate filesystem, process, network, credential, resource and syscall restrictions for untrusted generated code. It also does not itself bind results to a repository patch/build artifact. It must not be treated as sufficient containment for arbitrary self-modifying code. Static source-confirmed for this harness.
+
+**RL-349 — Existing repair components do not establish an end-to-end safe production self-repair pipeline.**  
+ASC.Repair.Pipeline explicitly fails closed as unavailable for root-cause analysis, patch generation, sandbox validation, canary release and production rollout. The separate Repairer contains random pattern matching and probabilistic/synthetic repair/deployment outcomes. Therefore neither can be credited as an end-to-end evidence-backed production repair route from the inspected source. Static source-confirmed for these paths; other repair routes require caller and runtime audit.
+
+### 18.39.4 Security and self-modification target architecture
+
+The audit establishes the following required separation of duties:
+
+1. **CEL System Atlas and Coherence Engine:** system inventory, connection map, drift/coherence analysis, security asset/dependency map and orchestration of findings.
+2. **Security enforcement plane:** identity, authentication, authorization, least privilege, secrets management, secure configuration, input validation, dependency/supply-chain controls, network/process isolation, integrity protection and policy enforcement at every consequential effect.
+3. **Sentinel detection plane:** host/application/API/network/dependency/build/runtime telemetry, behavior baselines, threat intelligence where available, anomaly and rule/signature detection, tamper detection and alert correlation.
+4. **Immune/incident response plane:** preserve evidence first where safe, classify/contain/quarantine, revoke credentials/tokens, isolate affected workloads, protect canonical state, recover from verified clean checkpoints and validate restoration. Destructive or broad actions must be bounded and governed.
+5. **Council/governance plane:** immutable policy/constitution, actor identity, exact effect-bound grants, approval thresholds, two-person or independent approval for critical changes, revocation and audit logging.
+6. **Self-modification execution plane:** proposal → exact patch digest → dependency/impact analysis → isolated build/test → adversarial/security tests → independent verification → constitutional/Council review → human approval where required → one-shot authorized deployment → canary → continuous monitoring → rollback/recovery.
+7. **Independent audit plane:** verifier separate from generator/executor; inspect authorization, exact artifact, build provenance, test evidence, runtime effects, policy integrity and post-change system atlas. No self-certification of protected controls.
+8. **Meta-security and meta-governance:** monitor the monitors, authorization registries, audit logs, policy stores, signing keys, update mechanisms and recovery paths. Security controls must have protected roots of trust and independently observable tamper signals.
+
+### 18.39.5 Non-negotiable self-modification and cyber-safety invariants
+
+- Constitution, Council supremacy, ACL/OAVL/CEL authority boundaries and protected audit/security roots cannot be rewritten by the subsystem they constrain.
+- Generated code cannot possess deployment authority merely because it can generate or test a candidate.
+- Every executable change is bound to exact source/patch/build hashes and a one-time, scope-limited authorization.
+- Approval cannot be replayed, transferred to a different artifact, widened in scope or reused after expiry/revocation.
+- Tests and verification must be independent of the generator and execution path for protected or high-impact changes.
+- Runtime enforcement must re-check authorization at the terminal effect, not only at proposal time.
+- Unknown, missing, stale or contradictory security evidence means UNKNOWN/blocked for high-impact operations, never PASS.
+- Incident containment must preserve forensics and avoid destroying the only valid recovery source.
+- CEL/Sentinel/repair systems cannot disable or suppress their own watchdog, audit, alert, authorization or rollback mechanisms.
+- Self-improvement is permitted within bounded authority; changes to governance, security roots, identity, canonical state or self-modification controls require independent authority and human/Council governance.
+- All repairs are followed by a whole-system coherence and security rescan.
+
+### 18.39.6 Checkpoint disposition
+
+- New findings: **RL-343–RL-349**.
+- Findings closed: **0**.
+- Existing candidate systems found: extensive Sentinel, ASC immunity, incident response, Council, OAVL, self-improvement, sandbox, repair, audit and verification modules.
+- Production cybersecurity capability: **not established** by this targeted inspection.
+- Production self-modification capability: **not established**; a fail-closed self-improvement contract exists, but evidence binding, isolated execution, deployment integration and independent verification require deeper audit.
+- Runtime/security tests: not performed.
+- Source modifications: 0.
+- ToolForge remains in scope for both system-awareness and cybersecurity/self-modification threat analysis.
+
+**Next checkpoint:** 18.40 — trace actual startup ownership, callers and enforcement paths for Sentinel, immune coordination, incident response, Council authorization, self-improvement, repair, OAVL and audit/verification. Determine which components are live, dormant, duplicated, bypassable or disconnected before designing any replacement.
