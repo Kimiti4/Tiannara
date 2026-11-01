@@ -3960,3 +3960,67 @@ Run only in a fresh disposable checkout pinned to the frozen source commit, afte
 - Open evidence gap: restart, corruption, audit failure, concurrency and result-semantics behaviors remain unverified at runtime.
 
 **Next checkpoint:** 18.45 — continue the consequential-effect sink inventory from the frozen source: enumerate direct filesystem writes, subprocess launches, Git/worktree operations, network/service calls and physical-action adapters; map each sink to its caller, input trust, authorization gate, audit outcome and rollback semantics. Keep this source-only unless a safe isolated test runner becomes available. UNKNOWN remains UNKNOWN, not PASS.
+
+
+## Checkpoint 18.45 — consequential-effect sink inventory (partial)
+
+**Frozen source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Audit mode:** read-only source review; no source modifications or runtime execution.  
+**Coverage qualification:** this is a targeted sink inventory based on fetched files and code-search results, not a complete repository-wide enumeration. Search-index misses do not prove absence.
+
+### 18.45.1 Sink inventory
+
+| Sink / subsystem | Observed effect | Gate and evidence | Risk / remaining proof |
+|---|---|---|---|
+| `Sandbox.Backend.Local.apply_patch/2` | Writes caller-provided patch files into a host temporary worktree; diff mode launches host `patch` | No canonical containment check is visible before the file writes; host commands run under the current OS user | RL-365 remains open. Traversal/symlink behavior and caller reachability need isolated tests and caller mapping. |
+| `Sandbox.Backend.Container.apply_patch/2` | Performs the same host-side writes before container build/test execution | Container limits apply to commands run inside the container, not the preceding host write | RL-365 remains open; container selection alone is not a boundary for patch application. |
+| `ASC.CMissions.Runner` | Creates/destroys worktrees, writes fixed hypothesis patches, runs `mix test` and benchmark subprocesses, writes benchmark output | Hypothesis IDs and target filenames shown here are fixed internal values; test/benchmark subprocesses are executed with the current host user's privileges | No new finding from the fixed paths in this reviewed section. Confirm caller access, worktree cleanup on every exceptional path, and whether subprocesses can reach untrusted code before treating as a hardened sandbox. |
+| `ASC.Adoption.Adopter` | Runs Git branch/tag/diff/checkout operations, snapshots files, applies branch files to the current production worktree, runs compile/tests/boot smoke, and writes adoption record | Checks a machine evidence artifact, human authorization artifact fields, branch, declared diff scope, and post-change validation; prior RL-361 records that human artifact identity is not cryptographically authenticated | High-impact path, deliberately separated from generic self-improvement. Continue checking authorization authenticity, path normalization/containment, concurrent invocations, tag collision, and rollback completeness. |
+| `ASC.Reality.PhysicalDeploymentManager` + `SimulatedAdapter` | Calls adapter `execute_action/1`; current default adapter records action in GenServer memory and returns `result: :success` | Stage and emergency-stop checks exist, but the adapter is explicitly simulated; `approve/3` records a caller-supplied `approver` value without verifying identity in the reviewed function | RL-370 remains open. New RL-372 records the unverified approval identity. No physical hardware action was performed. |
+| `TiannaraOS.RepositoryTwin.create_twin/4` | Writes artifact/file-map entries beneath a generated scratch path | The reviewed writer uses `Path.join(twin_path, file_name)`, creates parent directories, then writes; no canonical containment validation is visible in this function | New RL-371: file names supplied through the API can potentially escape the intended repository-twin directory via traversal or symlink-sensitive paths. Actual exploitability depends on caller reachability, path semantics and filesystem state; no test was run. |
+| `TiannaraOS.RepositoryTwin.commit_changes/4` | Writes each supplied file update under `twin.path` before updating in-memory simulated commit metadata | Same join-and-write pattern; no containment validation is visible in the reviewed function | Included under RL-371. This is a simulated repository abstraction, but the writes are real host filesystem effects and must not be assumed harmless merely because Git behavior is simulated. |
+| `Omega.DeploymentGateway` | Records candidate deployment state and audit event after grant/candidate/effect checks | Strong local checks are described in source; earlier call-map evidence indicates zero production callers | RL-368 remains open: gate quality does not establish that every production deployment path is routed through it. |
+| `BaseReality.Workspace` | Writes generated schematic/blueprint files to configured workspace | Filename sanitization and exclusive creation were noted in Checkpoint 18.43; API reports write-only, not source-control commit | Confirm workspace root canonicalization, symlink behavior and caller-supplied workspace trust before asserting containment. |
+| Other filesystem, subprocess, network and hardware sinks | Not exhaustively enumerated in this checkpoint | GitHub search produced only partial matches; source fetches covered selected modules | Inventory remains incomplete. No claim is made that all sinks have been found or that unreviewed sinks are safe. |
+
+### 18.45.2 New findings
+
+#### RL-371 — RepositoryTwin file writes do not establish containment beneath the generated twin root
+
+**Evidence:** At the frozen source baseline, `TiannaraOS.RepositoryTwin.create_twin/4` and `commit_changes/4` construct write targets with `Path.join(twin_path, file_name)` or `Path.join(twin.path, file_name)`, create parent directories, and write the supplied content. The reviewed code does not resolve and verify the final path remains within the intended twin root before writing.
+
+**Impact:** If an untrusted caller can control file names or updates, path traversal may turn a simulated repository operation into writes elsewhere accessible to the Tiannara OS process. Symlink interactions also need separate validation. The `scratch/` naming convention is not itself a security boundary.
+
+**Confidence/status:** Source-confirmed missing containment check in the reviewed write paths; exploitability and external reachability are **not runtime verified**. No traversal attempt was made. **Open.**
+
+**Required evidence for closure:** isolated tests for parent traversal and symlink escape; sentinel files outside the twin root remain byte-identical; invalid paths are rejected before any write; callers and trust boundaries are traced; tests include platform-specific path behavior.
+
+#### RL-372 — Physical deployment approval records an unverified approver value
+
+**Evidence:** `Tiannara.ASC.Reality.PhysicalDeploymentManager.handle_call({:approve, id, approver, note}, ...)` accepts the supplied `approver` value and records it with `decision: :approved` and a timestamp when the deployment is at `:pending_approval`. The reviewed handler does not authenticate the approver or validate a signed/verified approval artifact. This is distinct from the module's default simulated adapter: the approval-state weakness exists in the manager's authorization record regardless of whether a real adapter is later configured.
+
+**Impact:** A caller that can invoke this GenServer API may be able to create an approval record using an arbitrary identity string. Whether an untrusted external caller can reach the API and whether a real adapter can be selected in production are not established here. The API's local stage check does not establish human identity or authorization.
+
+**Confidence/status:** Source-confirmed absence of identity verification in the reviewed handler; reachable exploitability and production hardware configuration are **not verified**. No approval or hardware action was executed. **Open.**
+
+**Required evidence for closure:** bind approval to the authenticated identity mechanism and a deployment-specific, integrity-protected approval artifact; enforce approver authorization and separation of duties; reject empty, forged and mismatched identities; verify approval binds to the exact design/plan digest; test concurrent approval, emergency-stop and stage-transition behavior with a simulated adapter only.
+
+### 18.45.3 Remediation ordering recommendation
+
+1. **Priority 0 — containment and identity boundaries:** fix RL-365 and RL-371 path containment, RL-362 credential verification, and RL-372 physical approval authentication before enabling any untrusted patch or real hardware adapter.
+2. **Priority 1 — governance completeness:** resolve RL-368 deployment-gateway reachability/exclusivity, RL-361 adoption artifact authenticity, and RL-357/RL-358 incident/rollback limitations.
+3. **Priority 2 — evidence and resilience:** execute registry restart/corruption/concurrency tests, audit-store failure tests, cleanup/failure-path tests, and result-semantics tests in an isolated checkout.
+4. **After each remediation batch:** add regression tests, run the relevant tests and broader suite, inspect the exact diff, verify the audit record and rollback path, then repeat the sink audit for bypasses. Do not mark a finding closed from code changes alone.
+
+This ordering is a recommendation; no remediation was applied in this checkpoint.
+
+### 18.45.4 Status
+
+- New findings: **RL-371–RL-372**.
+- Findings closed: **0**.
+- Source modifications: **0**.
+- Runtime tests, exploit attempts, subprocess execution and hardware actions: **NOT RUN**.
+- Frozen source commit remains unchanged: `e71bc230a8d38f3a0108012685ae1a052d195b00`.
+- The inventory is partial. UNKNOWN remains UNKNOWN, not PASS.
+
+**Next checkpoint:** 18.46 — expand the sink inventory using module-by-module source traversal from `lib/` and `tiannara_runtime/lib/`, focusing on write-capable repository/workspace APIs, generated-code writers, subprocess wrappers, and network/hardware adapters. Trace public entry points and production callers for RL-371/RL-372 before proposing source changes. Keep audit and remediation separate until a deliberate remediation batch is authorized.
