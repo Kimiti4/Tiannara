@@ -3394,3 +3394,118 @@ Runtime Infrastructure starts Tiannara.EventRegistry, but not Tiannara.Runtime.E
 - ToolForge is not excluded or deferred from the Tiannara AI final audit; the specific ToolForge implementation audit remains outstanding.
 
 **Next checkpoint:** 18.38 — targeted lifecycle contract audit for root/runtime world owners, service process registration and dynamic child reconciliation; determine whether the two application trees can safely co-exist and identify the single canonical world lifecycle owner before any remediation.
+
+
+## Checkpoint 18.38 — CEL whole-system awareness and coherence capability
+
+**Frozen application source:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Static source inspection of CEL Kernel, ServiceRegistry, CapabilityGraph, RuntimePolicyEngine, EventBus and application startup. Targeted expected system-inventory/introspection/coherence modules were also checked by exact path; the queried paths were absent. This is not a complete repository-wide symbol search and does not prove that no equivalent functionality exists elsewhere. No runtime tests or source modifications were performed.
+
+### 18.38.1 Required CEL whole-system model
+
+CEL's intended system awareness must extend beyond the 34 registered executive services. The authoritative inventory needs to cover:
+
+1. **Applications and deployment units:** root `:tiannara`, `:tiannara_runtime`, dependencies, release profiles, nodes, environment/configuration and application start order.
+2. **Processes and ownership:** supervisors, child specs, registered names, dynamic children, restart strategy, health/readiness, lifecycle and process ownership.
+3. **Code and capabilities:** modules, public APIs, callbacks, actual executable implementations, contracts, versions, feature flags and declared vs implemented capability.
+4. **Connections:** caller/callee edges, event publishers/subscribers, topics, API routes, adapters, queues, storage access and cross-application bridges.
+5. **State authority:** canonical world/entity owners, graph writers, event logs, snapshots, caches, replicas, derived state and recovery/replay ownership.
+6. **Governance:** Council authorization, human approval, actor/effect binding, ACL/ABAC, policy enforcement, constitutional constraints and immutable audit evidence.
+7. **Evidence and operations:** tests, CI/build artifacts, runtime traces, execution receipts, health observations, failure history, recovery drills and provenance.
+8. **Coherence constraints:** single-writer rules, dependency compatibility, interface/schema compatibility, event contract compatibility, no orphan capabilities, no duplicate authorities, no cycles, no silent no-op adapters and no missing enforcement/evidence paths.
+
+Each inventory edge must carry source/version, observed time, evidence type, confidence/status and verification method. Static declarations, build-time discovery, runtime observation and tested behavior must remain distinct. An absent observation must be UNKNOWN, not interpreted as absence or health.
+
+### 18.38.2 Existing CEL capability vs requirement
+
+| Required function | Source-confirmed implementation | Gap |
+|---|---|---|
+| Enumerate CEL executive services | ServiceRegistry.all/discover returns the canonical in-memory registry set; 34 services in this baseline | Covers only declared registry entries, not the whole repository, root app, runtime app, adapters, stores or unregistered services |
+| Discover service capabilities | Each registered spec declares `provides`, `requires`, `depends_on`, module and health/score callbacks | Declarations are not reconciled with public APIs, actual callers, executable behavior or runtime traffic |
+| Dependency ordering | ServiceRegistry.boot_order sorts registered service specs | Prior findings RL-178–179: unresolved/cyclic dependencies can yield incomplete ordering; does not cover all application/supervisor/API/data dependencies |
+| Capability graph | CapabilityGraph maintains a graph of capability/provider relationships and runs redundancy checks | It is not shown ingesting the complete source tree, both application supervision graphs, API/event/store edges, governance or evidence graph |
+| Runtime process awareness | Kernel records service PIDs from boot report and checks process names for registry modules | Snapshot of boot PIDs; no demonstrated continuous whole-node process/supervisor inventory, crash reconciliation or runtime connection tracing |
+| Health and constitutional readiness | Kernel calls each registered service's configured health and score callbacks | Process health can be superficial; score callbacks can be synthetic; resource callback is hard-coded :sufficient (RL-324) |
+| Cross-system coherence detection | No exact-path system-wide introspector/coherence analyzer was found in targeted checks | No proven complete coherence scan, drift detection, orphan detection or cross-app reconciliation engine |
+| Autonomous repair orchestration | Kernel supports Council-authorized restart; RuntimePolicyEngine supports policy evaluation | Restart is not architectural repair; no demonstrated evidence-backed plan/patch/test/rollback pipeline for arbitrary disconnected systems |
+| Repair authorization | Council is consulted on selected operations; human review and authority defects recorded elsewhere | No universal action classification, exact effect-bound grant, signed approval and post-change independent verification across all repairs |
+| Persistent system knowledge | ExecutiveMemory/EventStore and CapabilityGraph exist | No proven durable, versioned, complete system atlas linked to source commit, runtime topology and test/evidence lineage |
+
+### 18.38.3 New findings
+
+**RL-339 — CEL's service discovery is registry-scoped, not whole-system discovery.**  
+At the frozen source, ServiceRegistry initializes from a fixed canonical_services/0 list and discover/0 returns the active non-deprecated entries from that in-memory map. Kernel boot and readiness operate on these service specs. The API does not itself enumerate all loaded modules, OTP applications, supervisor trees, public APIs, event consumers, storage owners, routes, adapters or runtime callers. This means CEL cannot derive complete Tiannara system awareness from this registry alone. Static source-confirmed. Other discovery mechanisms elsewhere in the repository have not been exhaustively ruled out.
+
+**RL-340 — Capability declarations are not reconciled against executable implementation and observed connections.**  
+Service specs carry provides/requires/dependency declarations, while module callbacks report capabilities and dependencies. The inspected boot path checks health and constitutional score but does not verify that every provided capability has a real implementation, every required capability has a connected provider, or each declared connection has a functioning caller/consumer and evidence receipt. Existing findings RL-174–176, RL-232, RL-245, RL-257 and RL-314 demonstrate concrete examples of declaration/implementation/caller gaps. Static source-confirmed for the inspected registry/kernel path; full-repository alternatives UNKNOWN.
+
+**RL-341 — CapabilityGraph is not established as Tiannara's authoritative system architecture graph.**  
+CapabilityGraph is a CEL service with a capability/provider graph and redundancy checks, but no inspected integration proves that it ingests the full root/runtime application topology, supervisor ownership, all code/API/event/data edges, canonical state writers, governance boundaries and verification evidence. Its current existence therefore cannot be treated as proof that CEL understands the entire system. Static source inspection; complete dynamic ingestion paths remain UNKNOWN.
+
+**RL-342 — CEL has no demonstrated closed-loop system coherence repair capability.**  
+The inspected Kernel supports boot, state transition, restart and halt; RuntimePolicyEngine evaluates stored policies; CapabilityGraph reports capability relationships. These pieces do not form a demonstrated pipeline that discovers a discrepancy, establishes evidence/root cause, proposes a governed change, obtains required approval, applies the exact authorized change, runs independent tests, verifies runtime connection and records rollback/recovery evidence. Restarting a process or registering a provider is not proof of architectural repair. Static source inspection; equivalent orchestration elsewhere not exhaustively ruled out.
+
+### 18.38.4 Required architecture: System Atlas + Coherence Engine
+
+The audit recommends specifying a first-class CEL-owned **System Atlas** and **System Coherence Engine**. This is a design requirement, not a claim that these components already exist.
+
+**System Atlas — continuously reconciled system model**
+- Immutable/versioned inventory snapshots keyed to exact source commit, build/release and runtime instance.
+- Nodes for applications, modules, services, processes, APIs, capabilities, stores, world owners, policies, tests and evidence.
+- Typed edges for imports, calls, dependencies, supervision, publication/subscription, reads/writes, authorization, provenance, build artifacts and runtime execution.
+- Each edge records declared/source-derived/runtime-observed/test-verified provenance separately.
+- Ownership and authority metadata: canonical owner, permitted writers, approvers, consumers, recovery source and data classification.
+- Incremental source/build/runtime ingestion plus periodic full reconciliation.
+- Unknown, stale, contradictory and unobserved states represented explicitly; never auto-promoted to healthy or connected.
+
+**System Coherence Engine — continuous discrepancy analysis**
+- Detect missing provider/consumer, dead API, unhandled event, unused/orphan module, duplicate service, duplicate canonical writer, incompatible schema/version, circular dependency, stale registry, false readiness, missing provenance, ungoverned mutation, untested adapter, failed recovery and unsupported capability.
+- Rank findings by constitutional risk, state authority, criticality, blast radius and evidence strength.
+- Generate a traceable repair proposal with affected graph nodes/edges, root cause, exact files/contracts, prerequisites, tests, migration/rollback and residual risk.
+- Require Council/human approval for protected architecture, authority, canonical state, security, governance and self-modification changes.
+- Apply only the approved bounded change through controlled execution; verify exact changed artifacts and independent tests; compare before/after atlas; rollback on failed postconditions.
+- Record immutable finding → authorization → change → build/test → runtime verification → acceptance evidence.
+- Re-scan after each repair and continue until no known discrepancy remains; unknown areas remain explicitly unresolved.
+
+**Authority boundary:** CEL may continuously discover, analyze, prioritize and prepare repairs. It may automatically perform only explicitly pre-authorized, low-risk reversible operations within bounded policy. It must not alter the Constitution, Council authority, ACL/OAVL/CEL enforcement, canonical world ownership, human approval rules, or its own upstream authority. No repair may certify itself solely on its own generated evidence.
+
+### 18.38.5 Minimum capability acceptance criteria
+
+| ID | Acceptance requirement | Pass evidence |
+|---|---|---|
+| SA-01 | Enumerate both OTP applications, all configured apps, supervisors and children | Complete source + runtime inventory with unknowns and profile distinctions |
+| SA-02 | Inventory all code modules, public entrypoints and executable capabilities | Exact-commit module/API map; implementation probes and test references |
+| SA-03 | Map all dependencies and actual caller/callee edges | Static call graph plus runtime traces; declared-vs-observed discrepancy report |
+| SA-04 | Map event paths end-to-end | Topic publishers, bus, store, subscribers, acknowledgements and resulting state |
+| SA-05 | Map every canonical state store and writer | One authority owner per state aggregate; every writer and recovery path identified |
+| SA-06 | Map governance and evidence boundaries | Every consequential action linked to actor, policy, approval, evidence and audit receipt |
+| SA-07 | Detect incoherence and missing connections | Seeded known defects reliably detected with no false PASS on unknown evidence |
+| SA-08 | Generate repair plans | Reproducible plan with root cause, impact, exact changes, tests and rollback |
+| SA-09 | Enforce approval and execution boundary | Unauthorized, stale, replayed or out-of-scope approvals refuse without side effects |
+| SA-10 | Independently verify repairs | Separate verifier proves build, tests, live connection and postconditions |
+| SA-11 | Preserve system knowledge over time | Versioned atlas, drift history, finding lifecycle, immutable evidence and reproducible query |
+| SA-12 | Operate continuously and recover | Scheduled/incremental scans, event-triggered reconciliation, crash recovery, stale-scan detection and resource budgets |
+
+### 18.38.6 Runtime verification plan — not executed
+
+1. Seed the atlas from the exact frozen source tree and both Mix projects; compare inventory against supervisor trees and registry declarations.
+2. Introduce controlled test fixtures: an unregistered module, orphan provider, missing consumer, duplicate writer, unused event topic, schema mismatch, stale service PID and a no-op implementation. Confirm each is detected and classified correctly.
+3. Start root and runtime applications separately and together; compare observed processes/edges to the source-derived atlas.
+4. Kill a registered service and remove a subscriber; verify the atlas marks runtime connection/readiness stale or failed rather than still connected.
+5. Change a capability declaration without implementation and implementation without declaration; verify drift detection.
+6. Submit repair proposals with no approval, wrong actor, stale approval and changed effect; prove refusal.
+7. Approve a bounded reversible test repair; verify exact artifact binding, isolated build/tests, independent runtime verification, post-repair rescan and rollback on induced failure.
+8. Measure completeness, false-positive/false-negative rates, scan freshness, scan duration, resource cost and evidence reproducibility.
+
+### 18.38.7 Checkpoint disposition
+
+- New findings: **RL-339–RL-342**.
+- Findings closed: **0**.
+- Application source modifications: **0**.
+- Runtime verification: **not performed**.
+- The existing CEL registry and CapabilityGraph provide a foundation, but the inspected implementation does not demonstrate whole-system awareness or closed-loop coherence repair.
+- System Atlas and System Coherence Engine are recorded as required architectural capabilities, not as implemented systems.
+- ToolForge remains part of the Tiannara system inventory and must be represented in the Atlas, including its supervisor, callers, generated-tool execution, review/approval and deployment boundaries.
+- The next checkpoint must inspect the existing codebase for equivalent system inventory, architecture graph, self-diagnosis, repair orchestration and verification components before proposing any new implementation or duplicating existing work.
+
+**Next checkpoint:** 18.39 — repository-wide discovery of existing system-atlas, introspection, coherence, self-diagnosis, repair-planning and verification capabilities; map them to CEL callers and evidence, then determine the smallest gap-closing architecture.
