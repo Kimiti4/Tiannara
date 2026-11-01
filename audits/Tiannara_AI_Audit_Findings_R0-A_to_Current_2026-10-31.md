@@ -1786,3 +1786,60 @@ RL-127–RL-135 remain open. The presence of an arbitration path is not proof of
 - No source changes or runtime tests were performed in this checkpoint.
 
 **Checkpoint 18.13 disposition:** RL-136–RL-145 remain open. The next audit pass should trace the authoritative world process implementation and all state/event writers, then determine whether the root world model, runtime world registry, replay/event stores and archaeological schemas can be joined into one verified world-history archive without conflating their separate ownership boundaries.
+
+### Checkpoint 18.14 — authoritative world state, event ownership and historical persistence
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Exact-baseline source inspection of root world model, reality graph, mutation engine, snapshots, versioning, temporal replay, executive event store and runtime world-process paths. No application files modified; no runtime tests executed.
+
+#### RL-146 — Durable mutation record can diverge from actual world-model effect
+
+**Status: Source-confirmed.** `UnifiedWorldModel.create_entity/1` first records an authorized mutation through `WorldMutationEngine.mutate/3`, then attempts the graph write and only afterwards updates local counters and publishes the entity event. A failed graph write can leave a durable mutation record without a corresponding graph entity. Conversely, the mutation engine inserts the DETS mutation record before audit-receipt verification; if audit verification fails, it returns an error while exposing that the mutation was already recorded.
+
+**Closure evidence:** define explicit prepared/committed/compensating/failed states; reconcile the mutation log, graph, counters, audit receipt and event publication; inject failures after each stage and prove recovery is idempotent.
+
+#### RL-147 — UnifiedRealityGraph is process-memory state, not a durable canonical graph
+
+**Status: Source-confirmed.** `Tiannara.Graph.UnifiedRealityGraph.init/1` creates an in-memory `:digraph`. Node and edge mutations call `ExecutiveMemory.record_event/4` through a helper that rescues exceptions and returns `:ok`; this does not persist the graph itself or prove that all graph mutations were durably recorded. A graph process restart can lose nodes and edges while separate mutation or executive records survive.
+
+**Closure evidence:** establish a durable canonical graph representation or deterministic reconstruction from an authoritative append-only source; verify graph state roots after restart and compare node/edge counts and contents.
+
+#### RL-148 — SnapshotManager snapshot hashes do not attest to complete state
+
+**Status: Source-confirmed.** Root `Tiannara.World.SnapshotManager.take_snapshot/0` records counts and a hash derived from snapshot ID plus entity count, not a canonical serialization of the world state. `create_snapshot/2` captures entities from at most 10,000 queried IDs but does not capture a complete relationship set or bind the snapshot to a mutation-log offset/state root. Snapshot lists are kept in the GenServer's memory and truncated to 24 entries. Restore adds entity records into the graph but does not demonstrate a complete atomic restoration of graph relationships, mutation history, counters and runtime state.
+
+**Closure evidence:** versioned full-state manifests, complete entity/relationship capture, mutation-log position, canonical state hash, durable artifact storage, integrity validation and isolated round-trip restoration.
+
+#### RL-149 — VersionManager versions, branches and tags are volatile and can falsely imply rollback success
+
+**Status: Source-confirmed.** `Tiannara.World.VersionManager.init/1` explicitly initializes versions, branches and tags in memory. Version creation writes a decision best-effort but does not durably persist the version record. During rollback, `UnifiedRealityGraph.add_entity/1` failures are rescued/caught and ignored; the handler can still append an in-memory rollback record and return `{:ok, version_number}`. Branch merge also uses a shallow `Map.merge/2` of snapshots without demonstrated conflict detection or complete graph reconciliation.
+
+**Closure evidence:** durable version/branch records, content-addressed snapshots, explicit merge conflicts, result-bearing graph restoration, and postcondition checks proving restored state equals the requested version.
+
+#### RL-150 — TemporalWorldEngine does not reconstruct historical state
+
+**Status: Source-confirmed.** `historical_entity_state/2` requests mutation history with `since: DateTime.utc_now()`, which excludes earlier mutations under the documented time filter. The helper `replay_mutations_for_entity/3` returns only the requested entity ID, timestamp and a `:historical` status; it does not apply the retrieved mutations. `time_travel_query/2` filters current query results by creation time rather than reconstructing entity state at the target timestamp. Counterfactual application marks a generic result as simulated instead of applying the hypothetical mutations, and state comparison returns a fixed empty diff.
+
+**Closure evidence:** select mutations up to the requested timestamp from a durable snapshot/log boundary; apply real mutation semantics in an isolated state; compare the reconstructed state root against known checkpoints; test update/delete/relation changes, boundary timestamps and invalid history.
+
+#### RL-151 — ReplayEngine explicitly refuses replay because its executable mutation source is unconfigured
+
+**Status: Source-confirmed.** Root `Tiannara.World.ReplayEngine.handle_call({:replay, ...})` returns `{:error, :replay_source_unavailable}` and logs that no executable mutation source is configured. The capability metadata advertises deterministic replay and state recovery, but the operational path refuses to perform them.
+
+**Closure evidence:** connect the replay engine to the canonical mutation source, execute mutations against an isolated world model, verify event ordering and final state root, and ensure mismatched/corrupt artifacts fail closed.
+
+#### RL-152 — Executive EventStore durability and integrity are overstated
+
+**Status: Source-confirmed.** `Tiannara.Executive.EventStore` defaults to `/tmp/tiannara_executive_events.log`. Its append handler frames the event and calls `IO.binwrite/2` but ignores the write result, increments the count and replies `:ok`. It does not explicitly sync the file before acknowledgement. The reader silently stops parsing when it encounters a truncated or malformed trailing frame, with no corruption status returned to the caller. This store is for executive events and is not shown to be the authoritative store for every world mutation.
+
+**Closure evidence:** use an appropriate durable path and defined sync policy; check write/sync results before acknowledgement; detect and report corrupt/truncated frames; retain sequence and integrity metadata; prove restart recovery and establish which world-event writers are required to use this store.
+
+#### Checkpoint 18.14 disposition
+
+- The root mutation engine provides useful authorization and DETS-backed mutation records, but its records and the graph effects are not one atomic commit.
+- UnifiedRealityGraph is in-memory; SnapshotManager does not capture or hash a complete canonical state; VersionManager is in-memory and can report rollback success after swallowed graph errors.
+- TemporalWorldEngine is not a functioning historical reconstruction engine at this baseline, and ReplayEngine explicitly refuses replay because its source is unavailable.
+- Executive EventStore writes framed events to a temporary-path file by default, ignores append write results, and does not report trailing-frame corruption.
+- The runtime world-process implementation is not present at the inspected `tiannara_runtime/lib/tiannara_runtime/multi_world/world_process.ex` path at this exact SHA. A similarly named current/default-branch file is not evidence for the frozen baseline. The bridge between runtime world execution and root graph/mutation storage remains unresolved.
+
+**Checkpoint 18.14 disposition:** RL-146–RL-152 remain open source-level findings. No runtime behavior was executed in this pass. The next target is the exact-SHA boot/ownership graph and all world-state/event writers, to establish which process actually owns the live simulation state and whether any production path bridges it to the root durable mutation records.
