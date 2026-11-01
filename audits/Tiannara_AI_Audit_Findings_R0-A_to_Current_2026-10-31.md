@@ -2040,3 +2040,74 @@ RL-127–RL-135 remain open. The presence of an arbitration path is not proof of
 - RL-159–RL-167 remain open. No runtime tests, integration tests, or production boot were performed.
 
 **Checkpoint 18.18 disposition:** The caller inventory does not identify an existing component that can be promoted as the canonical complete-world history without design work. Next step: specify the canonical event/commit contract and ownership matrix first, then map each identified writer to it before authorizing remediation.
+
+
+### Checkpoint 18.19 — canonical world-event contract and ownership matrix
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Purpose:** Specify the minimum canonical event/commit contract and test it against the existing writers before any source remediation.  
+**Method:** Exact-SHA inspection of `WorldMutationEngine`, `UnifiedWorldModel`, root `Tiannara.Executive.EventStore`, root `SnapshotManager`, Phase 5A `WorldSimulationLoop`, ecology `WorldServer`, Phase 16.1 `DiscoveryArchaeology`, `DeterministicReplay`, and Phase 5E `EventStore`. No tests executed; no application source files modified.
+
+#### Contract decision (audit proposal, not yet implemented or ratified)
+
+The audit does **not** designate any existing event store as the canonical world-history source. The minimum contract for a future canonical writer is:
+
+1. **Stable event identity:** globally unique `event_id`; separate `world_id`, `universe_id`, `civilization_id`, `agent_id` and artifact/discovery identifiers when applicable. Identity fields must not be inferred from wall-clock milliseconds.
+2. **Explicit ordering:** monotonic per-world `sequence` allocated at the commit boundary; wall-clock time and monotonic runtime time are supplementary metadata, not ordering authorities.
+3. **Typed transition envelope:** `schema_version`, `event_type`, `aggregate_type`, `aggregate_id`, `operation_id`, `causation_id`, `correlation_id`, actor/subsystem, authorization/provenance reference, payload, previous-state version/root and resulting-state version/root.
+4. **Commit semantics:** a state transition is considered committed only when its canonical event and state effect have a recoverable relationship. The implementation must define atomic transaction or an explicit write-ahead/outbox/reconciliation protocol; it must never report success while silently losing either side.
+5. **Durability and recovery:** acknowledged writes survive process restart; startup detects truncated/corrupt frames, validates checksums/sequence continuity, and reports recovery/degradation rather than silently treating a partial log as complete.
+6. **Idempotency and concurrency:** stable operation/idempotency key; duplicate retry cannot apply the same mutation twice; concurrent writers cannot reuse sequence numbers or produce ambiguous order.
+7. **Evidence integrity:** event payloads are canonicalized before hashing; state roots are computed over the relevant complete canonical state, not snapshot ID plus entity count. Hashes establish integrity only if the covered data and algorithm are explicit.
+8. **Replay contract:** replay consumes the committed canonical event sequence from a declared checkpoint and verifies resulting state roots. A seed, lifecycle session, telemetry record, snapshot of CAL/CIS outputs, or replay-shaped API alone is not replay evidence.
+9. **Separation of concerns:** canonical world-state events, operational/security telemetry, transport notifications, derived research artifacts and snapshots remain distinct streams or clearly typed projections. Telemetry must not be mistaken for state-transition history.
+10. **Ownership and completeness:** every writer of world, ecology, civilization, agent, research-discovery and archaeology state is listed in a writer registry and must either commit canonical events or explicitly declare itself non-authoritative/derived.
+
+#### Writer-ownership matrix at the frozen baseline
+
+| Writer/subsystem | Existing write behavior | Contract gap / required disposition |
+|---|---|---|
+| `WorldMutationEngine` | Stores mutation records in DETS with mutation ID, type/spec/context, authorization references, timestamp, status and rollback data. | Strongest identified root mutation ledger, but not sufficient by itself: record insertion precedes verified audit receipt; the caller can receive an audit error while the mutation record remains. It does not prove atomicity with the actual graph/entity effect. |
+| `UnifiedWorldModel` + `UnifiedRealityGraph` | Calls mutation engine, then applies entity changes to an in-memory graph and updates process-local counters/events. | State effect and mutation record are separate writes; graph failure after ledger insertion can leave a record without the corresponding entity. Must be governed by commit/recovery semantics and full-state version/root. |
+| Root `Tiannara.Executive.EventStore` | Framed binary log with synchronous GenServer call; defaults to `/tmp/tiannara_executive_events.log`; `IO.binwrite/2` result is ignored and count advances without explicit sync. | A candidate for executive event history only after durability/error handling and scope/ownership are proved. It is not shown to be the canonical source for all world mutations. |
+| Phase 5A `WorldSimulationLoop` + `WorldStateManager` | Tick uses CAL/CIS results and asynchronous state casts; event helper only logs; memory store gets result-map snapshots. | No demonstrated canonical world-state commit or event publication at tick boundary. Must not report simulation progress as committed historical state until a state/effect/event contract exists. |
+| Ecology `WorldServer` / `CivilizationServer` | Independent in-memory ecology/civilization process state; world tick evolves entropy/drift and sends casts to civilization processes. | Separate writer path not connected in inspected source to root mutation ledger, canonical graph or Phase 5A recorder. Must be migrated or explicitly bridged with versioned events. |
+| Phase 5A `WorldMemoryStore` | In-memory list of CAL/CIS result snapshots. | Derived operational snapshot cache, not canonical event log or durable state checkpoint. |
+| Phase 5A `WorldEventProcessor` | Asynchronous NATS publishing API; no tick-to-publisher call chain found. | Transport projection only; delivery acknowledgement/retry and canonical persistence cannot be delegated implicitly to this process. |
+| Phase 5A `DeterministicReplay` | In-memory recording sessions/events; session started/stopped by lifecycle; no live `record_event/4` producer found in inspected paths. | Replay adapter, not authoritative persistence. Must consume committed canonical events and persist/export validated recording artifacts. |
+| Phase 5E `MultiWorld.Events.EventStore` | ETS telemetry; located production caller is immune-risk assessment. | Keep as operational telemetry if needed; not the canonical mutation log. |
+| Phase 16.1 `DiscoveryArchaeology` | Pure function returns a hash-derived archaeology ID and metadata map. | Metadata construction does not persist evidence, link source artifacts, verify a discovery lineage, or create a replayable archaeological record. Must emit a derived artifact referencing immutable source event/artifact IDs and provenance. |
+| Snapshot/restore | Root snapshot manager captures entity snapshots but uses a hash based on snapshot ID plus entity count; runtime freeze/snapshot paths are volatile or partial (RL-136–RL-148). | Snapshot must name canonical sequence/checkpoint and hash complete serialized state; restore must verify root and reconcile graph, relationships, counters and mutation offset. |
+
+#### RL-168 — Root mutation records and semantic state effects do not share a demonstrated atomic commit
+
+**Status: Source-confirmed.** `UnifiedWorldModel.create_entity/1` calls `WorldMutationEngine.mutate/3` before `UnifiedRealityGraph.add_entity/1`. The mutation engine inserts its DETS record, then calls the audit verification path; if audit receipt verification fails, it returns an error that includes `mutation_recorded: true`. A subsequent graph failure can also leave the mutation record present while the entity operation returns an error.
+
+**Impact:** Callers can observe an unsuccessful operation even though a mutation record exists, and a recorded mutation does not alone prove the intended state effect committed. This makes naïve replay of mutation records unsafe without outcome/status reconciliation.
+
+**Closure evidence:** specify transaction/WAL/outbox semantics, distinguish proposed/authorized/committed/failed/compensated states, and test failures between each persistence/effect/audit boundary plus crash/restart recovery.
+
+#### RL-169 — Root Executive EventStore is not proven to be a durable canonical world log
+
+**Status: Source-confirmed.** The store defaults to a file under `/tmp`, ignores the return value of `IO.binwrite/2`, increments its count and returns `:ok` without an explicit sync/durability acknowledgement, and silently returns parsed events from a reader that stops at malformed/truncated frames (previously recorded as RL-152). The audited source does not establish that all world-state writers append to it.
+
+**Impact:** A successful append response is not sufficient evidence that a complete event is durably recoverable, and its current scope does not make it a universal world-history source.
+
+**Closure evidence:** choose an explicit durable storage location and durability level, check write/sync errors, surface corrupt-tail recovery state, verify event counts against parsed frames, and prove writer coverage before assigning canonical authority.
+
+#### RL-170 — Discovery archaeology metadata is not a persisted, provenance-linked discovery record
+
+**Status: Source-confirmed for the inspected Phase 16.1 module.** `DiscoveryArchaeology.record/2` canonicalizes a supplied context, hashes its JSON to derive an archaeology ID, and returns a map. The inspected function does not persist that map or validate links to immutable observation, hypothesis, experiment, theory or source-world event artifacts.
+
+**Impact:** A deterministic identifier and metadata shape do not prove that the discovery can be independently traced or reconstructed from the source world's durable evidence.
+
+**Closure evidence:** persist a versioned archaeology artifact with immutable source artifact/event IDs, hashes, method/version, uncertainty and derivation lineage; validate source availability and replay/reconstruction evidence independently.
+
+#### Checkpoint 18.19 disposition
+
+- The proposed contract is a design gate for later remediation, not a claim that the contract already exists or has been accepted as architecture.
+- The existing root mutation ledger, root Executive EventStore, Phase 5A memory/event/replay components, Phase 5E telemetry store and archaeology metadata function have different scopes and failure semantics. None is currently demonstrated as the complete canonical history across the inspected world writers.
+- RL-168–RL-170 are added; RL-159–RL-167 and all prior findings remain open unless separately closed with evidence.
+- No tests, integration runs, runtime boot or application source edits were performed.
+
+**Checkpoint 18.19 disposition:** Do not begin broad remediation yet. Next checkpoint should validate this proposed contract against the authoritative constitutional/governance constraints and startup/runtime ownership, then convert it into a versioned ADR and a per-writer conformance/test matrix. Only after approval should implementation be planned.
