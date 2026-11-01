@@ -1892,3 +1892,34 @@ RL-127–RL-135 remain open. The presence of an arbitration path is not proof of
 - No runtime tests were executed in this checkpoint. These are source-level findings, not claims about behavior beyond the inspected paths.
 
 **Checkpoint 18.15 disposition:** RL-153–RL-156 remain open. Next step: complete the exact-baseline writer/caller inventory and application-startup reachability map, then define a single canonical world-history archive contract before any implementation or remediation is authorized.
+
+
+### Checkpoint 18.16 — boot reachability and deployable application boundaries
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Exact-SHA inspection of both Mix project definitions, the runtime StartupSupervisor/RootSupervisor and authority-layer child lists, and the root Tiannara application child list. No runtime tests executed; no source files modified.
+
+#### RL-157 — Root Tiannara and Tiannara Runtime are separate OTP application roots without a declared application dependency bridge
+
+**Status: Source-confirmed project configuration.** Root `mix.exs` declares application `:tiannara`, starts `Tiannara.Application`, and assembles a `tiannara` release. `tiannara_runtime/mix.exs` separately declares application `:tiannara_runtime`, starts `TiannaraRuntime.Application`, and has its own dependency list and runtime release configuration. The runtime project's listed local path dependency is `../forward_provenance`, not the root Tiannara Mix application. The inspected configurations do not declare the root application as a dependency of the runtime application or establish that both application supervisors always run together in the same node.
+
+**Impact:** Cross-project references in source or matching module names do not prove shared-process reachability, common boot order, or that the root mutation/graph services exist when runtime code executes. A deployment may boot one application without the other unless an external release/orchestration contract explicitly starts and verifies both.
+
+**Closure evidence:** document and test the supported release topology; assert required applications and service registrations at boot; verify all required root mutation, memory and graph services are live before runtime worlds are admitted; exercise the actual production release entrypoint and restart/failure paths. If they are intended to be separate services, specify and test a versioned transport contract instead of relying on in-process calls.
+
+#### RL-158 — Per-world Phase 5A simulation loop is not established as the canonical live-world driver
+
+**Status: Source-confirmed boot-path limitation.** The runtime application's top-level child list starts `TiannaraRuntime.MultiWorld.WorldSupervisor`, which is a manager for dynamically spawned worlds; the per-world supervisor that contains `WorldSimulationLoop` is created by the world-spawn path, not by merely starting the manager. The separate runtime RootSupervisor's Ecology layer starts `Tiannara.UniverseSupervisor`, and the ecology universe seeds its own `Tiannara.WorldServer` instances and civilizations. The inspected runtime startup path therefore contains two different world lifecycles: dynamically spawned Phase 5A worlds and the ecology universe's own worlds. No inspected boot code makes the latter's live state the input/output of the Phase 5A loop or the root `UnifiedWorldModel`.
+
+**Impact:** It is not yet established which path is the intended authoritative simulation for autonomous world evolution, whether the Phase 5A loop is active for any production world by default, or whether ecological worlds receive the same safety, event, persistence and archaeology guarantees.
+
+**Closure evidence:** map every boot child and dynamic spawn call to an actual running world process; instrument world IDs and owner PIDs across lifecycle paths; demonstrate one canonical tick through agent/civilization state transition, governed mutation, durable event append and replay; explicitly classify any legacy or experimental world path as non-authoritative or migrate it behind the canonical contract.
+
+#### Checkpoint 18.16 disposition
+
+- The exact baseline contains two Mix application definitions and two application entry modules. The inspected config alone does not prove both applications run in one production release or node.
+- Runtime StartupSupervisor/RootSupervisor establishes a boot hierarchy for runtime layers, but the per-world Phase 5A loop is only inside dynamically spawned per-world supervisors; starting the world manager does not itself prove a Phase 5A world exists.
+- The Ecology layer starts a separate universe/world path, making live-world ownership and the canonical simulation driver unresolved.
+- RL-157–RL-158 remain open. No tests or production release boot were executed in this checkpoint.
+
+**Checkpoint 18.16 disposition:** Continue with a source-level caller inventory for world spawning, agent/civilization mutation, event publication, and startup registration at the frozen SHA. Do not begin source remediation until the intended canonical runtime path and cross-application deployment contract are explicit.
