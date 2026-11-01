@@ -2559,3 +2559,132 @@ The registry metadata is an intended service contract, not proof that every adve
 **Impact:** Runtime registry changes disappear on restart; the system cannot demonstrate a durable, auditable history of which service inventory and dependency graph governed a particular boot.
 
 **Checkpoint disposition:** 7 findings added (RL-225–RL-231). No finding is closed. No remediation was performed. This checkpoint completes the initial 33-entry CEL registry reconciliation at the declaration/boot-contract level only; it does not certify that all 33 service implementations, callers, startup paths and runtime behavior have been exhaustively audited. Continue by auditing the remaining world, knowledge, evidence, research and discovery services individually, then reconcile CEL end-to-end before beginning ToolForge.
+
+
+## Checkpoint 18.27 — Knowledge coordination, conflict resolution, evidence and epistemic integrity
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** ConflictResolutionEngine, ConflictDetector, KnowledgeCoordinator, KnowledgeFlowEngine, KnowledgeEvolutionEngine, EvidenceValidator, EpistemicIntegrityService.  
+**Method/status:** Static source inspection only. No runtime event-flow tests, evidence authenticity tests, conflict-resolution exercises, or scheduled evolution runs were performed.
+
+### RL-232 — ConflictDetector's entity event path is a no-op
+**Severity:** HIGH  
+**Evidence:** Both `world.entity.created` and `world.entity.updated` handlers call `detect_conflicts_for_entity/1`; that function unconditionally returns `[]`.  
+**Impact:** The advertised immediate per-entity contradiction/duplicate/ontology/confidence detection does not occur through those event handlers. Only the separate periodic/manual full sweep can detect the limited cases implemented there.
+
+### RL-233 — ConflictDetector's logical contradiction detection only recognizes pre-existing refutation edges
+**Severity:** HIGH  
+**Evidence:** `detect_logical_contradictions/1` enumerates knowledge entities and looks for outgoing relationships of type `:refutes`; it does not independently reason over propositions, predicates, evidence or semantic incompatibility. The detector's event path does not derive new contradictions.  
+**Impact:** The capability name overstates the implementation: it detects explicit refutation links, not general logical contradictions.
+
+### RL-234 — ConflictDetector can report successful detection when conflict persistence fails
+**Severity:** HIGH  
+**Evidence:** The periodic `:detect_all` path catches exits from ConflictResolutionEngine.record_conflict/1 but still increments `total_conflicts_detected` and `unresolved_conflicts` by the number found. Event handlers do not consistently catch or reconcile failed writes.  
+**Impact:** Detection counters can report conflicts that were never durably recorded or escalated. Detection and persisted conflict state are not transactionally reconciled.
+
+### RL-235 — ConflictResolutionEngine can close a conflict while human review is only pending
+**Severity:** CRITICAL  
+**Evidence:** `apply_resolution(conflict, :request_human_review)` enqueues a HumanApprovalQueue item and returns a resolution record with `resolved_by: :human_pending`; the caller then unconditionally changes the conflict status to `:resolved`. No approval decision is retrieved or verified.  
+**Impact:** A conflict requiring human arbitration can be represented as resolved before a human has reviewed or decided it. This undermines human authority and epistemic conflict governance.
+
+### RL-236 — ConflictResolutionEngine conflict resolution can partially commit world and conflict state
+**Severity:** CRITICAL  
+**Evidence:** `record_conflict` writes the DETS conflict record before creating the contradiction entity; failure to create the entity returns an error but leaves the conflict record. On resolution, the service updates the DETS record and then calls UnifiedWorldModel.update_entity, ExecutiveMemory.record_decision and EventBus.publish without checking their results.  
+**Impact:** Conflict status, contradiction entity, audit history and events can diverge. A resolved conflict may have no corresponding world-state mutation or durable decision evidence.
+
+### RL-237 — ConflictResolutionEngine conflict detection treats missing entities as a measurement discrepancy
+**Severity:** HIGH  
+**Evidence:** `detect_conflict/2` maps any failure to retrieve either entity into `{:ok, %{conflict_type: :measurement_discrepancy,...}}`. When both entities exist, same-domain or missing-domain pairs are also classified as measurement discrepancies without comparing measurements.  
+**Impact:** Missing entities and unexamined entity pairs can be presented as detected measurement conflicts; the result is not evidence of an actual discrepancy.
+
+### RL-238 — ConflictResolutionEngine confidence-weighted resolution is advisory and does not resolve or mutate the conflict
+**Severity:** HIGH  
+**Evidence:** `resolve_entities/3` with `:confidence_weighted` returns a winner/loser proposal but does not update/refute entities, persist a resolution, or change conflict status. The `:merge` branch defaults missing entity confidence to 0.5, uses the maximum confidence rather than evidence fusion, and pattern-matches successful entity creation.  
+**Impact:** API semantics do not clearly distinguish a proposed resolution from a committed one; merge can fabricate confidence and may crash on a failed create.
+
+### RL-239 — ConflictResolutionEngine retention pruning deletes resolved conflict records without archive proof
+**Severity:** HIGH  
+**Evidence:** `prune/0` deletes resolved DETS records older than the retention cutoff directly. It does not require an immutable archive receipt, replay proof, or confirmation that associated world entities and decision records remain retrievable.  
+**Impact:** Conflict history can be removed without demonstrated audit continuity.
+
+### RL-240 — KnowledgeCoordinator duplicate detection is not implemented
+**Severity:** HIGH  
+**Evidence:** `find_similar_entities/1` unconditionally returns `:unique`. The ingestion path therefore never searches for semantic or structural duplicates and always attempts a new entity when invoked.  
+**Impact:** The advertised duplicate elimination/evidence fusion behavior is not implemented in the ingestion path; duplicate knowledge can proliferate.
+
+### RL-241 — KnowledgeCoordinator evidence fusion accepts unverified evidence and caller-controlled weights
+**Severity:** CRITICAL  
+**Evidence:** `fuse_evidence_internal/3` averages `confidence` fields supplied in evidence terms and combines that average with caller-supplied `weight`; it clamps the result but does not authenticate sources, verify signatures, validate evidence schema, deduplicate evidence, establish independence, or prevent correlated/repeated evidence from increasing confidence. It ignores the result of UnifiedWorldModel.update_entity and EvidenceValidator.validate_entity_evidence.  
+**Impact:** Repeated, correlated, fabricated or caller-weighted evidence can raise confidence without demonstrated evidentiary independence or successful persistence/validation.
+
+### RL-242 — KnowledgeCoordinator permits high-impact promotion using caller-supplied boolean approval
+**Severity:** CRITICAL  
+**Evidence:** Promotion to principle/generalized understanding/scientific discovery proceeds when `context.human_approved == true` or impact level defaults to `:low`. The service does not verify an approval record, reviewer identity, signature, approval scope, artifact hash or Council decision.  
+**Impact:** A caller can self-assert human approval or omit impact metadata to pass the high-impact promotion gate.
+
+### RL-243 — KnowledgeCoordinator validation orchestration does not itself verify the validation outcome
+**Severity:** HIGH  
+**Evidence:** `validate_knowledge/2` constructs a WorkflowEngine workflow with a Validation step and returns the workflow ID when WorkflowEngine accepts it. It does not await or consume the eventual validation result, bind a validated evidence artifact to the entity, or update a validated-knowledge count on successful completion.  
+**Impact:** Workflow admission can be mistaken for completed knowledge validation; the coordinator does not establish the validation postcondition.
+
+### RL-244 — KnowledgeCoordinator statistics and certification evidence are not durable or reconciled
+**Severity:** MEDIUM  
+**Evidence:** Knowledge item/validated/pending/principle counters are in-memory and initialized to zero. Ingestion increments total items, but there is no demonstrated durable reconstruction or consistent validated counter update. Discovery certification records a decision/event best-effort and returns the certifier report without persisting a versioned certification artifact in this service.  
+**Impact:** Coordinator metrics reset on restart and do not provide a reliable inventory of accepted, validated or certified knowledge.
+
+### RL-245 — KnowledgeFlowEngine reports propagation success for destinations that are not actually updated
+**Severity:** CRITICAL  
+**Evidence:** `propagate_to_domain/2` returns `{:ok, :executive_memory}`, `{:ok, :unified_world_model}` and `{:ok, :governance}` without performing a write or governance operation. Other destination branches call EventBus.publish but ignore its return value and then return success. The CCI impact and engineering application outputs are fixed examples.  
+**Impact:** Propagation ledger can claim targets were reached when no operation occurred or publication failed. Cross-domain knowledge delivery metrics are not evidence of actual integration.
+
+### RL-246 — KnowledgeFlowEngine propagation ledger and counters are volatile
+**Severity:** HIGH  
+**Evidence:** `propagation_ledger`, total and propagated counters are held in GenServer state and initialized empty; no durable reload/reconciliation is present.  
+**Impact:** Restart erases propagation history and makes stagnation detection and coverage metrics incomplete.
+
+### RL-247 — KnowledgeEvolutionEngine scheduled evolution functions are no-ops
+**Severity:** CRITICAL  
+**Evidence:** `decay_stale_knowledge/0`, `promote_emerging_patterns/0` and `merge_duplicates/0` all return `:ok` without performing work. The periodic and manual evolve paths nevertheless increment `evolutions_processed`.  
+**Impact:** The service reports completed evolution cycles without aging, confidence decay, pattern promotion or duplicate merging.
+
+### RL-248 — KnowledgeEvolutionEngine promotes entities using arbitrary supplied evidence and fixed confidence increments
+**Severity:** HIGH  
+**Evidence:** `promote_entity/2` accepts any `new_evidence` term, advances exactly one stage and adds 0.1 to confidence without invoking EvidenceValidator, checking evidence quality/independence, or requiring stage-specific criteria. It ignores the result of UnifiedWorldModel.update_entity before returning success.  
+**Impact:** Knowledge maturity and confidence can be increased without evidence-backed stage criteria or confirmed world-state persistence.
+
+### RL-249 — KnowledgeEvolutionEngine retirement acknowledges refutation without checking mutation result
+**Severity:** HIGH  
+**Evidence:** `retire_entity/2` calls UnifiedWorldModel.refute_entity/2 and records a decision, but ignores the mutation result and returns `:ok`; counters are incremented regardless.  
+**Impact:** The service can report knowledge retired when the canonical entity was not successfully refuted.
+
+### RL-250 — EvidenceValidator does not validate evidence authenticity or independence
+**Severity:** CRITICAL  
+**Evidence:** `validate_entity_evidence_internal/1` reconstructs lineage and counts evidence terms. For high-confidence entities it only rejects zero evidence; it does not verify source identity, signatures, source reliability, timestamp integrity, independence, experiment execution, raw data, reproducibility or falsification. The declared `@min_evidence_for_high_confidence 2` is not used in the decision.  
+**Impact:** A high-confidence entity with one arbitrary evidence item can pass this check; the validator establishes evidence presence, not evidence validity.
+
+### RL-251 — EvidenceValidator treats missing provenance as acceptable for lower-confidence entities
+**Severity:** HIGH  
+**Evidence:** When ProvenanceEngine reconstruction fails, entities below the 0.8 threshold return `{:ok, :valid}`.  
+**Impact:** The service's broad provenance-verification claim is not enforced for all entities; missing provenance can be silently treated as valid rather than unknown/invalid.
+
+### RL-252 — EvidenceValidator violation state is volatile and scheduled validation can crash on query failure
+**Severity:** HIGH  
+**Evidence:** Active violations and validation counters exist only in GenServer state. The sweep pattern-matches `{:ok, result} = WorldQueryEngine.find(...)` and scheduled handler destructures the result of `handle_call/3`; query errors or unexpected return shapes can crash the service.  
+**Impact:** Restart loses unresolved violation records; a world-query failure can terminate validation rather than producing an explicit degraded/unknown result.
+
+### RL-253 — EpistemicIntegrityService assigns ideal integrity scores to empty datasets
+**Severity:** HIGH  
+**Evidence:** Empty knowledge-entity sets yield evidence quality 1.0; empty world sets yield provenance completeness 1.0; no active theories yield stale-theory rate 0.0. Initial state uses the same ideal defaults before any check has run.  
+**Impact:** No observations can be represented as perfect epistemic integrity instead of unknown/no-data, creating false assurance.
+
+### RL-254 — EpistemicIntegrityService checks only bounded samples and does not expose truncation
+**Severity:** HIGH  
+**Evidence:** Entity and theory queries use limits of 10,000 and 100,000 without pagination or a completeness indicator. Completeness and quality ratios are calculated over returned results only.  
+**Impact:** Large knowledge bases can be partially sampled while reports appear to describe the full corpus; integrity metrics may miss violations beyond the query limit.
+
+### RL-255 — EpistemicIntegrityService report generation is not fail-safe or durably versioned
+**Severity:** HIGH  
+**Evidence:** `run_integrity_check/0` pattern-matches expected success from ConflictDetector.stats and WorldQueryEngine.find; no error-to-unknown handling exists. State is volatile and ExecutiveMemory.record_decision result is ignored.  
+**Impact:** Query errors can crash the service; completed reports are not shown to be durably versioned or independently reproducible.
+
+**Checkpoint disposition:** 24 findings added (RL-232–RL-255). No finding is closed. No remediation was performed. Continue with AutonomousResearchEngine, ExperimentOrchestrator and DiscoverySupervisor, then reconcile all CEL service callers, startup, governance and evidence flow.
