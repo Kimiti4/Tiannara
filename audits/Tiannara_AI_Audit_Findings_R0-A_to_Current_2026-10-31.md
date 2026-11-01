@@ -2278,3 +2278,67 @@ The registry metadata is an intended service contract, not proof that every adve
 - EventStore has an explicit 168-hour default pruning policy and no archive-before-delete requirement in the inspected prune path. It is therefore not suitable as the sole permanent history authority as currently evidenced.
 - RL-180–RL-182 added. CapabilityGraph, ResourceManager, IdentityTrustManager, PriorityEngine and ExecutiveScheduler were discovered and partially inspected, but remain open for deeper caller/effect, persistence, security, fairness, and failure-path audits.
 - No tests or runtime boot were performed; these are source-confirmed findings, not runtime verification.
+
+
+## Checkpoint 18.23 — CEL critical service execution, trust, resource and scheduling audit
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** `CapabilityGraph`, `ResourceManager`, `IdentityTrustManager`, `PriorityEngine`, `ExecutiveScheduler`, plus PriorityEngine outcome-signal and learning-model implementations.  
+**Method/status:** Static source inspection. No runtime boot, tests, fault injection, or production resource measurements were performed in this checkpoint. Findings below are source-confirmed behaviors or limitations; production runtime impact remains to be verified.
+
+### RL-183 — CapabilityGraph is volatile and not a canonical capability authority
+**Severity:** HIGH  
+**Evidence:** `lib/tiannara/cel/services/capability_graph.ex` constructs an in-memory protected `:digraph` during `init/1`, seeds a fixed subsystem/capability set, and stores metadata/deprecation state in the GenServer state. No durable graph reload or authoritative reconciliation with the service registry is present in the inspected module.  
+**Impact:** Capability registrations, graph relationships, deprecations and derived topology are lost on process restart unless an external reconstruction mechanism exists; none was demonstrated in the inspected service. This is not yet a durable, authoritative capability inventory.
+
+### RL-184 — CapabilityGraph accepts incomplete and cyclic relationships while recording mutations best-effort
+**Severity:** HIGH  
+**Evidence:** `add_edge_internal/4` calls `ensure_vertex/2` for both endpoints, creating absent vertices rather than requiring registered capability/subsystem/mission entities. `handle_call({:add_edge,...})` detects a dependency cycle after insertion, emits a warning/event, increments a counter, but does not reject or roll back the edge. `record_mutation/3` rescues exceptions and returns `:ok`, so failed ExecutiveMemory audit writes do not prevent graph mutation.  
+**Impact:** The graph can contain relationships to undeclared entities and known cyclic dependencies; an apparently successful mutation need not have durable audit evidence. Consumers cannot treat graph validity or audit completeness as enforced invariants.
+
+### RL-185 — CapabilityGraph provider ranking uses fallback and fixed scoring inputs
+**Severity:** MEDIUM  
+**Evidence:** `compute_provider_score/2` uses IdentityTrustManager trust where available, but substitutes `0.8` on unknown identity, error or process exit; remaining score contributions are constants `0.7` and `0.9`. `find_optimal_provider/1` rejects candidates based on whether the *capability ID* is in the deprecated set, rather than checking each provider's own operational/deprecation state.  
+**Impact:** A provider can receive a favorable ranking without verified identity/trust data, and the ranking does not establish measured load, execution history or current capability health. Deprecation filtering is not aligned with provider status.
+
+### RL-186 — ResourceManager capacity and reservation accounting do not enforce real quotas
+**Severity:** CRITICAL  
+**Evidence:** `lib/tiannara/cel/services/resource_manager.ex` initializes fixed totals (CPU 100, memory 65,536 MB, GPU 8, storage 10,000 GB); `init_pools/0` returns an empty map. `compute_available/1` adds the 20% sustainability reserve to remaining capacity instead of withholding it. `do_allocate/3` adds each request to aggregate allocation but stores only one reservation per service ID, overwriting any prior reservation. The not-ready retry path recursively calls `handle_call({:allocate, nil, nil},...)`, losing the original service ID and request.  
+**Impact:** Capacity is not tied to measured host resources; available capacity can exceed the configured total; repeated allocations can desynchronise reservation and aggregate accounting; retry after deferred initialization cannot correctly replay the request. The manager cannot currently be trusted as an enforcement-grade quota authority.
+
+### RL-187 — ResourceManager release is unauthenticated, asynchronous and not tied to actual job lifecycle
+**Severity:** HIGH  
+**Evidence:** Public `release/2` sends a cast with caller-supplied resource amounts. The handler subtracts those amounts (clamped at zero) and deletes the entire service reservation, without matching the release to the recorded reservation or an allocation identifier. No caller identity, authorization, allocation token, or idempotency key is checked.  
+**Impact:** A caller can release resources not associated with its allocation or erase a reservation while leaving other allocations accounted inconsistently. Cast semantics provide no synchronous confirmation that resources were released.
+
+### RL-188 — IdentityTrustManager uses volatile identities and non-governed trust mutations
+**Severity:** CRITICAL  
+**Evidence:** `lib/tiannara/cel/services/identity_trust_manager.ex` initializes a small identity map in memory with credentials hashed from literal strings such as `kernel_secret`, `registry_secret`, `memory_secret` and `bus_secret`. Registration returns a hash derived from a generated secret, but identities are not persisted. `report_violation/2` and `report_success/1` are public casts that alter trust without authenticated actor, signed evidence, authorization, bounds validation or durable audit in the inspected handlers. `authorize_action/2` checks capability membership and trust >= 0.3; it does not verify a presented credential.  
+**Impact:** Identity and trust state are not restart-durable; initial credentials are predictable from source; trust can be changed through unverified reports; authorization is a capability/trust lookup, not demonstrated credential-backed authentication. Credential hashing alone does not establish secure credential lifecycle or authorization.
+
+### RL-189 — PriorityEngine learning is volatile and part of its event-ingestion path uses synthetic labels
+**Severity:** HIGH  
+**Evidence:** `lib/tiannara/cel/services/priority_engine.ex` initializes weights and signal/calibration buffers in process state with no durable checkpoint/reload in the inspected module. For EventBus workflow topics, `handle_info({:event,...})` constructs fixed feature vectors `[0.5,0.5,0.5,...]` and fixed target scores `0.8`/ `0.2` based only on event type. `Priority.OutcomeSignal.composite_score/3` also embeds a fixed outcome score and fixed baseline contribution. `LearningModel.calibration_score/2` returns `1.0` for an empty calibration set. Learning-event persistence is best-effort and swallows errors.  
+**Impact:** A subset of model updates is trained against constructed labels rather than independently verified workflow outcomes; a perfect empty-window calibration result is misleading; model state can reset on restart. Current metrics do not establish calibrated, independently validated priority predictions.
+
+### RL-190 — ExecutiveScheduler does not implement priority ordering or guaranteed fairness
+**Severity:** HIGH  
+**Evidence:** `lib/tiannara/cel/services/executive_scheduler.ex` inserts jobs into `:queue` and `request_next` always dequeues the oldest item. Aging updates `effective_priority` but does not reorder the queue. `starved_missions` is incremented per aged job on every aging cycle and is not reset when jobs progress or complete.  
+**Impact:** PriorityEngine output and aging do not determine dispatch order; repeated counting can inflate starvation metrics. Priority-aware scheduling and fairness guarantees are not established.
+
+### RL-191 — ExecutiveScheduler drops resource allocations on completion and preemption
+**Severity:** CRITICAL  
+**Evidence:** `submit_work/3` calls `ResourceManager.allocate/2`. The completion cast removes the running-job entry and emits an event but never calls `ResourceManager.release/2`. The preemption handler removes a running or queued job but neither releases its allocation nor demonstrates cancellation/termination of the worker executing it.  
+**Impact:** Resource reservations can remain allocated after work ends or is preempted; workers may continue executing after scheduler state says a job was preempted. This can cause capacity leakage and divergence between scheduler, worker and resource-manager state.
+
+### RL-192 — ExecutiveScheduler execution and recovery state is volatile and completion is unacknowledged
+**Severity:** HIGH  
+**Evidence:** Queue, running-job map, counters and timestamps live only in GenServer state. `complete_job/2` is a cast, and unknown job IDs are silently ignored. The inspected service has no durable job journal, worker lease/heartbeat, crash recovery, retry/resume protocol, or completion acknowledgement.  
+**Impact:** A scheduler restart loses queued/running work state; callers cannot establish that a completion was accepted; worker loss and partial execution are not reconciled.
+
+### RL-193 — ExecutiveScheduler does not validate work contracts before resource admission
+**Severity:** HIGH  
+**Evidence:** `submit_work/3` reads `:resources` from `work_spec`, then passes the entire `work_spec` to `PriorityEngine.calculate_priority/1`, whose public API accepts a `CivilizationalEvent` struct. The inspected handler has no explicit schema/type validation, mission authorization, capability/provider verification, or admission transaction tying resource allocation to successful queue insertion.  
+**Impact:** Invalid work shapes can cause runtime failure after resource allocation, leaving reservations behind; the boundary does not demonstrate authenticated, typed, transactionally admitted work.
+
+**Checkpoint disposition:** 11 findings added (RL-183–RL-193). No finding is closed. No remediation was performed. Continue CEL audit with MissionDirector and WorkflowEngine, then reconcile the remaining CEL service inventory before beginning the separate ToolForge lifecycle workstream.
