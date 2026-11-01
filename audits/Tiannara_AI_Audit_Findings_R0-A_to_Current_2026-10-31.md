@@ -1923,3 +1923,69 @@ RL-127–RL-135 remain open. The presence of an arbitration path is not proof of
 - RL-157–RL-158 remain open. No tests or production release boot were executed in this checkpoint.
 
 **Checkpoint 18.16 disposition:** Continue with a source-level caller inventory for world spawning, agent/civilization mutation, event publication, and startup registration at the frozen SHA. Do not begin source remediation until the intended canonical runtime path and cross-application deployment contract are explicit.
+
+
+### Checkpoint 18.17 — exact-baseline world-writer and lifecycle caller inventory
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Exact-SHA source inspection of `MultiWorld.WorldSupervisor`, per-world `WorldSupervisor`, `WorldSimulationLoop`, `WorldStateManager`, `WorldEventProcessor`, `WorldMemoryStore`, `DeterministicReplay`, `WorldForkEngine`, `MultiWorld.Events.EventStore`, `StartupSupervisor`, `UniverseSupervisor`, `UniverseServer`, `WorldServer`, and root `WorldMutationEngine`. No tests executed; no application source files modified.
+
+#### RL-159 — Multi-world spawn rejection does not fail closed
+
+**Status: Source-confirmed.** In `tiannara_runtime/lib/tiannara_runtime/multi_world/world_supervisor.ex`, `spawn_world/1` matches the quota result and logs an error when it receives `{:error, reason}`, but then continues to memory allocation, recording initialization and child creation. The memory-allocation case similarly logs rejection, requests quota termination and returns an error tuple from the case expression, but its value is ignored by the enclosing function, which continues. Only the later child-start result controls the final return.
+
+**Impact:** Quota or memory-allocation rejection is not a reliable gate on world creation. A caller may receive a successful spawn result despite a preceding safeguard rejection; the attempted quota cleanup is asynchronous and does not itself prove that subsequent work stopped.
+
+**Closure evidence:** restructure spawn as a fail-fast `with`/explicit state machine; prove no recording or child start occurs after either rejection; test quota and allocation failures independently and together; verify reservation rollback and absence of leaked quota/memory accounting after every failure.
+
+#### RL-160 — CAL/CIS state changes are asynchronous and are not committed with a tick record
+
+**Status: Source-confirmed.** `WorldSimulationLoop.execute_cal_step/1` and `execute_cis_step/2` issue `WorldStateManager.update_cal_state/2`, `update_cis_state/2` and `update_metrics/2` casts, then continue. The manager merges those maps in separate GenServer callbacks. The tick does not await acknowledgements or capture an atomic before/after world state. Its snapshot records the returned CAL/CIS result maps with an Erlang unique integer timestamp, rather than the confirmed post-update manager state.
+
+**Impact:** A snapshot or downstream observer can run without proof that all state casts were applied; partial tick effects are possible if a process fails between updates. The timestamp is not a durable sequence number or mutation-log offset.
+
+**Closure evidence:** make a tick a bounded transaction/command with explicit world ID and sequence; return acknowledgements for state effects; append a durable event with before/after state roots and effect outcomes; inject process failures between effects and prove deterministic recovery.
+
+#### RL-161 — Event processor and deterministic recorder are not connected to the real Phase 5A tick
+
+**Status: Source-confirmed at inspected caller.** `WorldSimulationLoop.publish_events/3` only logs. It does not invoke any `WorldEventProcessor.publish_*/2` or `publish_world_event/3` API, nor `MultiWorld.DeterministicReplay.record_event/4`. The per-world supervisor starts an event processor, but starting that child does not connect it to the loop. The tick does append CAL/CIS result snapshots to `WorldMemoryStore`, but this store is separate from the event processor and replay recorder.
+
+**Impact:** The advertised NATS event stream and deterministic replay APIs are not evidence that real CAL/CIS state transitions are captured. A world may tick without an event that can reproduce the transition.
+
+**Closure evidence:** test production call-chain reachability from each state-changing operation to the canonical event append; require event acknowledgement before reporting a committed tick; verify event ordering and payload completeness against observed state transitions.
+
+#### RL-162 — Phase 5E EventStore is volatile, with collision-prone event identity
+
+**Status: Source-confirmed.** `TiannaraRuntime.MultiWorld.Events.EventStore` creates a named public ETS ordered set during GenServer initialization and writes records keyed by `{timestamp, event_id, event}`. Its ID is formed from world ID and millisecond timestamp. The store has no durable backing or restart recovery in the inspected module; reinitializing the owning process recreates the table. Two events for the same world within one millisecond can produce the same ETS key and overwrite one another. Its documentation describes lifecycle/security telemetry (spawn, risk, regulation, freeze, termination), not a complete stream of all world mutations.
+
+**Impact:** It cannot serve as the canonical archaeological record; events may disappear on restart or collide, and the covered event domain is not complete-world history.
+
+**Closure evidence:** use durable append-only storage with monotonic per-world sequence and globally unique event IDs; check write/fsync outcomes; add checksummed frames/schema versions, restart recovery and corruption tests; explicitly distinguish operational telemetry from canonical mutation history.
+
+#### RL-163 — World fork registration and child-process creation are not one checked lifecycle operation
+
+**Status: Source-confirmed.** In `WorldForkEngine.create_child_world/2`, the child world is registered through `WorldRegistry.create_world/2`; after successful registration, `spawn_world_supervisor/1` is called but its return value is ignored, then `WorldRegistry.add_child/2` is called and the fork returns `{:ok, child_world_id}`. Thus a failed supervisor start can leave a registered child and parent lineage entry while the caller is told the fork succeeded. The fork event is published later and is not a durable commit receipt.
+
+**Impact:** Registry lineage may contain a child with no running execution process; recovery and archaeological lineage can disagree with the actual live-world population.
+
+**Closure evidence:** use a compensating transaction or durable lifecycle state machine; propagate child-start failure; roll back or mark failed registrations; reconcile registry, supervisor children and event archive after restart; test every partial-failure point.
+
+#### RL-164 — Ecology-world and Phase 5A lifecycle events do not share a demonstrated canonical writer
+
+**Status: Source-confirmed integration gap.** `UniverseServer` seeds `WorldServer` processes and civilizations; `WorldServer` mutates its own in-memory civilization map and on ticks evolves entropy/drift and sends casts to civilization processes. The inspected `WorldServer` tick and `spawn_civ` handlers do not call the root `WorldMutationEngine`, `UnifiedWorldModel`, `UnifiedRealityGraph`, Phase 5A `WorldEventProcessor`, or Phase 5E `EventStore`. In contrast, root-world callers such as `UnifiedWorldModel` and `OntologyManager` do invoke `WorldMutationEngine` for their own entity/ontology operations. These are different write domains, not a single canonical history.
+
+**Impact:** Root semantic entities and ecology-world/civilization evolution are not shown to form one complete replayable timeline. A later-world archaeology process cannot reliably infer ecology-world state from the root mutation log alone.
+
+**Closure evidence:** define canonical IDs and typed event schemas for world/civilization/agent state; enumerate every state writer and require it to emit the same durable event contract; prove that root semantic projections and ecology projections can be rebuilt independently from the canonical log without hidden in-memory state.
+
+#### Checkpoint 18.17 disposition
+
+- Spawn safeguards currently fail open at the control-flow level (RL-159).
+- Tick effects are asynchronous and lack a single acknowledged commit boundary (RL-160).
+- The Phase 5A loop does not call the event processor or deterministic replay recorder (RL-161).
+- Phase 5E EventStore is an in-memory operational event table, not a durable complete-world archive (RL-162).
+- World-fork registration can outlive a failed child start while returning success (RL-163).
+- Ecology-world/civilization writes do not share a demonstrated canonical writer with the root mutation ledger (RL-164).
+- These are source-level conclusions from the listed exact-baseline modules. No runtime test, integration test, or production boot was performed.
+
+**Checkpoint 18.17 disposition:** RL-159–RL-164 remain open. Next checkpoint should inventory all production callers of `WorldMutationEngine`, `WorldMemoryStore`, `WorldEventProcessor`, `DeterministicReplay`, and Phase 5E `EventStore`, separating real mutation writers from test/example/telemetry callers. Only then define the canonical event contract and remediation order.
