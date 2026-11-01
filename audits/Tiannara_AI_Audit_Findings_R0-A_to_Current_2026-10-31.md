@@ -2111,3 +2111,87 @@ The audit does **not** designate any existing event store as the canonical world
 - No tests, integration runs, runtime boot or application source edits were performed.
 
 **Checkpoint 18.19 disposition:** Do not begin broad remediation yet. Next checkpoint should validate this proposed contract against the authoritative constitutional/governance constraints and startup/runtime ownership, then convert it into a versioned ADR and a per-writer conformance/test matrix. Only after approval should implementation be planned.
+
+
+### Checkpoint 18.20 — constitutional authority, CEL executive readiness, and ToolForge execution boundary
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Exact-SHA reads of `lib/tiannara/application.ex`, CEL Kernel, BootSequencer, ServiceRegistry, Council, ToolForge ToolBuilder/Engine/Supervisor and CEL design/governance material. Current-default-branch search results were used only to discover paths; conclusions below use exact-baseline source. This is a read-only source audit; no test execution or application-source edits were performed.
+
+#### Constitutional authority and canonical ownership
+
+The source distinguishes governance authority from technical execution ownership:
+
+- `Tiannara.Council` owns the runtime authorization API and evaluates declarative policy plus the constitutional RuleEngine. Hard-invariant violations can withdraw an apparent policy approval.
+- CEL Kernel calls Council authorization for service restart and kernel halt. The halt path requires a full permitted authorization; restart also accepts a conditional grant when its predicates are satisfied.
+- The reviewed Council/CEL paths establish an authorization authority, not a canonical world-state writer. They do not designate the root mutation engine, executive event store, Phase 5A world state, or ecology state as the universal world-history owner.
+- The CEL design transcript `cel.md` expressly warns that it is a design transcript, not implementation evidence, and that many described capabilities are not implemented. Its proposed architecture therefore cannot be treated as ratification of the canonical event contract from Checkpoint 18.19.
+
+**Disposition:** Constitutional approval and event/state ownership must remain separate concepts. The proposed canonical world-event contract remains an audit proposal pending an explicit, versioned constitutional/architectural decision and a named technical owner. No current component is promoted to canonical authority by this checkpoint.
+
+#### RL-171 — Production application startup does not synchronously gate readiness on CEL boot
+
+**Status: Source-confirmed.** `Tiannara.Application.start/2` starts the root supervision tree, then in production invokes the CEL boot function through `Task.start/1`. The root application returns `{:ok, pid}` without waiting for the CEL boot report. CEL boot errors are logged; a returned report with `:degraded` or `:failed` is logged and does not cause the root application start to fail. The synchronous boot branch is restricted to test mode.
+
+**Impact:** A process supervisor can report application startup success while the executive kernel is still booting or has failed/degraded. Consumers that begin work before checking CEL runtime state can operate without the executive services that are supposed to coordinate them. Logging a failed boot is not a readiness gate.
+
+**Closure evidence:** define root readiness semantics and an explicit startup barrier/health contract; test delayed boot, critical-service failure, degraded noncritical service, CEL process crash, and dependent API/worker admission. Demonstrate that the deployment/readiness signal cannot become healthy before required CEL services are ready.
+
+#### RL-172 — CEL ServiceRegistry mutation APIs do not enforce Council authorization or durable governance evidence
+
+**Status: Source-confirmed for the reviewed API path.** `ServiceRegistry.register/1`, `deprecate/1`, and `replace/2` are public GenServer-call APIs. Their handlers mutate the in-memory registry directly; the inspected handlers do not call Council authorization, validate a signed/ratified registry change, or persist an audit-backed registry version. `replace/2` marks the old entry deprecated and inserts the new entry without validating the old ID or the new specification's dependency/identity integrity.
+
+**Impact:** The registry that defines CEL's service inventory and boot order can be changed through an API path that does not demonstrate the constitutional authorization boundary. The registry is also process-local, so its mutation history is not a durable, replayable governance record. This finding concerns the mutation APIs reviewed; it does not assert that every caller or deployment environment can reach them remotely.
+
+**Closure evidence:** enumerate all registry mutation callers and threat boundaries; enforce Council authorization for high-impact changes; validate schemas, IDs, dependencies and cycles; persist versioned signed change records; test denied changes, replay, restart recovery, tampering and concurrent updates.
+
+#### RL-173 — CEL's boot resource gate is supplied as an unconditional success callback
+
+**Status: Source-confirmed.** CEL Kernel calls `BootSequencer.boot/4` with a resource checker that returns `:sufficient` for every service. The BootSequencer does invoke the resource gate, but the production caller does not supply an observed resource assessment.
+
+**Impact:** The presence of a resource gate in the boot sequence does not establish resource admission. Services can pass this gate without measured CPU, memory, disk, process-count or configured capacity evidence. This weakens the meaning of a CEL `:ready` report.
+
+**Closure evidence:** connect a bounded, observable resource assessment with thresholds and freshness; fail closed on missing/invalid measurements; test pressure, measurement failure, capacity exhaustion and recovery. Do not substitute a constant callback for runtime evidence.
+
+#### RL-174 — ToolForge-generated Elixir tools contain a non-implemented execution body
+
+**Status: Source-confirmed.** The Elixir source template generated by `ToolBuilder` defines `do_execute/1` as returning `{:error, {:not_implemented, input}}`. The generated wrapper nevertheless increments its execution counter after calling that function and wraps the return value in `{:ok, result}`; the generated test only asserts `{:ok, _}`, so it accepts the nested not-implemented error as a successful execution response.
+
+**Impact:** A generated tool can pass its generated smoke test while its actual capability is absent. Its health/execution counters can imply activity without proving successful work. A build artifact is not an executable capability.
+
+**Closure evidence:** generated implementation must be derived from a typed specification and provide real side effects or explicit `:unavailable`; generated tests must assert semantic postconditions and failure behavior, not merely wrapper shape; independent execution must verify output and side effects against the specification.
+
+#### RL-175 — ToolForge Python template returns an implementation-shaped placeholder
+
+**Status: Source-confirmed.** The generated Python template's `do_execute` is explicitly marked TODO and returns a dictionary with status `implemented` plus the original input. The generated HTTP execution route treats that returned dictionary as a successful result and increments its execution counter.
+
+**Impact:** The Python output can report an implementation-shaped success without performing the requested operation. This is a false capability signal and is more dangerous than an explicit unavailable response because downstream consumers may trust the result.
+
+**Closure evidence:** remove success-shaped placeholders; return an explicit unavailable/error until a real implementation is generated, independently built and semantically verified; test that the output cannot claim success without a specified observable effect.
+
+#### RL-176 — ToolForge human review is recorded as passed without waiting for or checking an approval
+
+**Status: Source-confirmed.** In `ToolForgeEngine.request_human_review/2`, the code constructs a `HAI.Domain.ReviewRequest` but discards the result and returns `:ok`. If request construction raises, the rescue branch also returns `:ok`. The pipeline then logs “Human review passed” and returns the generated tool as `{:ok, tool}`. The inspected path does not retrieve an approval decision, bind it to the exact artifact hash, or verify reviewer identity/authority.
+
+**Impact:** The human-review step is not an approval gate. ToolForge can label a generated artifact reviewed/passed when request creation failed or when no human decision was obtained. This conflicts with the requirement that humans retain authority over high-impact system changes.
+
+**Closure evidence:** create a durable pending review bound to exact artifact/spec hashes; return pending rather than success until an authorized human decision is verified; enforce expiry, reviewer identity, decision scope and revocation; test missing queue, failed request, rejection, stale approval and artifact substitution.
+
+#### RL-177 — ToolForge pipeline has no demonstrated deployment or runtime-registration stage
+
+**Status: Source-confirmed for the inspected ToolForge implementation.** `ToolForgeEngine` tracks `tools_built` and `tools_deployed`, but its pipeline ends after source generation, shallow nonempty/name validation and the ineffective review step. The engine increments the built counter and retains the generated artifact; no deployment/activation/registration call appears in the inspected pipeline. The generated build instructions ask an operator to add the module to a supervision tree. The supervisor starts only ToolBuilder and ToolForgeEngine.
+
+**Impact:** A successful `engineer_tool/1` response means a generated artifact was produced, not that it compiled, passed independent tests, was safely deployed, became reachable, or can be rolled back. The `tools_deployed` statistic is not evidence of an operational deployment.
+
+**Closure evidence:** define explicit artifact lifecycle states (designed, generated, compiled, tested, independently verified, human-approved, staged, deployed, health-verified, rollback-capable); persist each transition with artifact digest and provenance; require isolated execution and resource/network controls; prove activation, failure rollback and post-deployment behavior. Until then ToolForge must report build-only capability.
+
+#### Checkpoint 18.20 disposition
+
+- Council is the constitutional authorization mechanism in the reviewed runtime paths; it is not the technical owner of canonical world history.
+- The CEL boot pipeline has meaningful fail-closed constitutional-score and health logic, but production startup is asynchronous and its resource checker is unconditionally sufficient. A root application start is therefore not proof of CEL readiness.
+- The ServiceRegistry's public mutation handlers do not demonstrate authorization, validation or durable governance history.
+- ToolForge's generated Elixir/Python execution templates do not implement the described tool behavior; the human-review step does not wait for approval; the pipeline does not demonstrate deployment or activation.
+- RL-171–RL-177 are added. All earlier findings remain open unless independently closed with exact-candidate evidence.
+- No tests, application runtime boot, integration runs or source changes were performed. This checkpoint is source inspection only.
+
+**Checkpoint 18.20 disposition:** CEL and ToolForge are now explicit priority audit targets. Next, continue CEL's service-by-service dependency/capability/health/score audit and ToolForge's specification-to-code, compiler/test, sandbox, artifact-integrity, authorization and lifecycle audit. Keep both read-only until the full evidence map and remediation order are approved.
