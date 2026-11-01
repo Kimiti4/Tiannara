@@ -2871,3 +2871,72 @@ The registry metadata is an intended service contract, not proof that every adve
 **Impact:** A certification response is not demonstrated as a durable, independently verifiable certificate bound to the exact discovery and evidence snapshot.
 
 **Checkpoint disposition:** 15 findings added (RL-274–RL-288). No finding is closed. No remediation was performed. Continue the remaining registered service audit (world graph/model/mutation/provenance/version/snapshot/replay and knowledge/evidence services not already covered), then perform caller and boot-path reconciliation. ToolForge remains deferred until CEL is fully audited.
+
+
+## Checkpoint 18.30 — Ontology, provenance and world-query service audit
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** OntologyManager, ProvenanceEngine, WorldQueryEngine and CanonicalWorldState schema.  
+**Method/status:** Static source inspection only. No DETS restart test, mutation failure injection, schema property test, query completeness test or provenance forgery test was run.
+
+### RL-289 — OntologyManager opens durable storage but does not restore concepts or mappings into memory
+**Severity:** CRITICAL  
+**Evidence:** On successful DETS open, `init/1` initializes `concepts: %{}`, `mappings: %{}` and all counters to zero. It does not traverse/load existing `:concept` and `:mapping` records. All read APIs use the in-memory maps.  
+**Impact:** Concepts/mappings written to DETS become invisible to active_concepts, semantic_lineage, cross_domain_mappings and merge/split/retire operations after restart. The service has a persistence file but does not recover its operational ontology state.
+
+### RL-290 — OntologyManager acknowledges mutations without checking durable or canonical world writes
+**Severity:** CRITICAL  
+**Evidence:** Define/merge/split/retire handlers ignore return values from DETS writes, UnifiedWorldModel operations, WorldMutationEngine.mutate, ExecutiveMemory.record_decision and EventBus.publish. Multi-record operations write several DETS records sequentially without transaction/rollback.  
+**Impact:** Ontology state, canonical world state, mutation history, audit records and events can diverge while the API returns success. Partial merge/split operations can leave inconsistent concept graphs.
+
+### RL-291 — OntologyManager concept definition and mapping accept unverified caller-supplied semantics
+**Severity:** HIGH  
+**Evidence:** `define_concept/1` stores caller-provided name/domain/definition/parent IDs/provenance without schema validation or verifying parent existence. `map_concepts/3` does not verify either concept exists and accepts caller-supplied mapping type, confidence, evidence and provenance without validation.  
+**Impact:** Invalid concepts, dangling parent references and mappings to nonexistent concepts can be recorded as valid ontology state. Confidence/provenance are declarations rather than verified evidence.
+
+### RL-292 — OntologyManager concept merges and splits mutate ontology without a governed approval gate
+**Severity:** HIGH  
+**Evidence:** Merge/split/retire handlers directly mutate DETS and call WorldMutationEngine; no Council authorization, human approval, signed change proposal, impact assessment or immutable approval reference is checked in the inspected handlers.  
+**Impact:** Structural changes to Tiannara's concept ontology are not shown to be subject to the project's required governance boundary.
+
+### RL-293 — OntologyManager merge/split/retire can lose cross-store consistency
+**Severity:** HIGH  
+**Evidence:** Merge creates merged concept and deprecates both sources in DETS before the world mutation call; split writes all child concepts and deprecates source before mutation; retire writes the retired record before mutation. Mutation results are ignored, and merge/split/retire do not update or verify corresponding canonical world entities consistently.  
+**Impact:** The DETS ontology and canonical world graph can disagree about active concepts, lineage and successor relationships.
+
+### RL-294 — ProvenanceEngine is volatile despite advertising persistent lineage tracking
+**Severity:** CRITICAL  
+**Evidence:** `ProvenanceEngine.init/1` initializes `records: %{}`; record/reconstruct/verify operate only on that map. No DETS/database reload or durable provenance record is present. ExecutiveMemory/EventBus calls are side effects, not used to reconstruct records.  
+**Impact:** Provenance records disappear on restart, so evidence lineage and confidence paths are not a durable source of truth.
+
+### RL-295 — ProvenanceEngine record operation accepts unverified provenance and overwrites prior entity lineage
+**Severity:** CRITICAL  
+**Evidence:** `record_provenance/1` accepts caller-supplied entity ID, origin, contributors, evidence, confidence, uncertainty and owner without schema validation, source authentication, signatures or immutable versioning. `Map.put(state.records, entity_id, record)` replaces any previous record for that entity.  
+**Impact:** Callers can overwrite lineage and evidence history or introduce fabricated contributor/evidence references. Provenance is mutable self-reported metadata, not a tamper-evident evidence chain.
+
+### RL-296 — ProvenanceEngine verification checks only field presence and a one-sided confidence bound
+**Severity:** HIGH  
+**Evidence:** `verify_provenance/1` checks required keys and flags only when confidence + uncertainty > 1.01; it does not reject negative/out-of-range values, require sum near 1.0, resolve contributor existence, detect cycles, authenticate source records or verify content hashes/signatures.  
+**Impact:** A provenance record can be labelled complete despite invalid numeric values, missing contributors or tampered evidence.
+
+### RL-297 — ProvenanceEngine statistics read a nonexistent state field
+**Severity:** MEDIUM  
+**Evidence:** Initialization stores `total: 0`, while `:stats` returns `state.total_records`; that key is absent.  
+**Impact:** The stats handler can raise a KeyError rather than returning a valid service report; health/constitutional scoring based on this service is not reliable.
+
+### RL-298 — WorldQueryEngine silently truncates search and provides an incomplete total
+**Severity:** HIGH  
+**Evidence:** `search/2` calls `find(limit: 1000)`, filters that bounded result in memory and returns the number of matches in that truncated subset as `total_matches`. `find/1` queries the graph with `limit + offset`, then drops offset and returns `total: length(ids)`, which is not a total corpus count when results are limited.  
+**Impact:** Search and query consumers can treat a partial page as a complete result set and receive misleading totals; no pagination cursor or completeness indicator is provided.
+
+### RL-299 — WorldQueryEngine prediction/explanation outputs use fixed heuristics rather than validated causal evidence
+**Severity:** MEDIUM  
+**Evidence:** `predict/2` assigns impact using fixed entity-type constants multiplied by confidence and ignores the requested change_type in the impact calculation. `explain/1` falls back to "default prior" text when provenance is absent.  
+**Impact:** These outputs are heuristic summaries, not calibrated predictions or complete causal explanations; consumers must not treat them as independent evidence.
+
+### RL-300 — CanonicalWorldState schema is not shown to be enforced by every world write path
+**Severity:** HIGH  
+**Evidence:** CanonicalWorldState defines required fields, domain/type constraints and confidence/provenance checks, but the inspected schema module itself only exposes `validate_entity/1`; no universal write-boundary enforcement was demonstrated in the inspected OntologyManager, KnowledgeCoordinator, ProvenanceEngine or world mutation call paths. Several of those services construct entity maps and call downstream create/update functions while ignoring their results.  
+**Impact:** A declared canonical schema does not guarantee every entity entering the world model satisfies it. End-to-end enforcement must be verified at the single canonical mutation boundary and across all writers.
+
+**Checkpoint disposition:** 12 findings added (RL-289–RL-300). No finding is closed. No remediation was performed. Next: finish the remaining registry/world-service writer audit and perform caller-to-authority reconciliation; then compile the full CEL production-readiness matrix.
