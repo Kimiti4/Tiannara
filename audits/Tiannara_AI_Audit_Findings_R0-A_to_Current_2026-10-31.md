@@ -1989,3 +1989,54 @@ RL-127–RL-135 remain open. The presence of an arbitration path is not proof of
 - These are source-level conclusions from the listed exact-baseline modules. No runtime test, integration test, or production boot was performed.
 
 **Checkpoint 18.17 disposition:** RL-159–RL-164 remain open. Next checkpoint should inventory all production callers of `WorldMutationEngine`, `WorldMemoryStore`, `WorldEventProcessor`, `DeterministicReplay`, and Phase 5E `EventStore`, separating real mutation writers from test/example/telemetry callers. Only then define the canonical event contract and remediation order.
+
+
+### Checkpoint 18.18 — exact-baseline caller reachability and event-writer classification
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Method:** Repeated repository code-search plus exact-SHA fetches of the five target modules and their identified caller paths. Search results on the current default branch were treated as discovery only; conclusions below are grounded in source fetched at the frozen SHA. No tests executed; no application source files modified.
+
+#### Caller inventory
+
+| Component | Caller(s) observed at the frozen baseline | Classification |
+|---|---|---|
+| Root `Tiannara.World.WorldMutationEngine` | `UnifiedWorldModel`, `OntologyManager`, `ConflictResolver`, `RealityCoordinator`, `WorldIntegrationCoordinator` | Actual root semantic-entity, ontology, graph-integration and conflict-resolution mutation paths. No call from the inspected Phase 5A tick or ecology `WorldServer` path. |
+| `TiannaraRuntime.WorldMemoryStore` | `WorldSimulationLoop.store_memory_snapshot/3` | Actual Phase 5A tick caller, but appends only CAL/CIS result maps, by asynchronous cast, into volatile per-process state. |
+| `TiannaraRuntime.WorldEventProcessor` | No production caller found for its five `publish_*` APIs in the repository search; per-world supervisor starts the process | API/process is present, but the inspected simulation loop's `publish_events/3` only logs. No verified production call from the tick to these event APIs. Search coverage is not proof that no indirect/reflection-based caller exists; none was found in the inspected call paths. |
+| `TiannaraRuntime.MultiWorld.DeterministicReplay` | `MultiWorld.WorldSupervisor` calls `start_recording/2` on spawn and `stop_recording/1` during termination; no production `record_event/4` call found | Lifecycle opens/closes recording sessions, but the inspected real tick does not feed events to the recorder. Examples/documentation contain event-recording calls, not evidence of live production capture. |
+| `TiannaraRuntime.MultiWorld.Events.EventStore` | `TiannaraRuntime.Cortex.ImmuneCortex.assess_risk` calls `record_event/2`; remaining matches are its own documentation and status/usage documentation | Operational immune-risk telemetry caller, not a general world-mutation writer. The store's own source uses in-memory ETS and millisecond world-scoped IDs as described in RL-162. |
+
+#### RL-165 — DeterministicReplay recording sessions have no verified live event producer
+
+**Status: Source-confirmed for inspected production paths.** The multi-world spawn path starts a recording session and termination attempts to stop it. However, repository code search found no production call to `TiannaraRuntime.MultiWorld.DeterministicReplay.record_event/4`; the matches were documentation/examples. The actual Phase 5A tick does not call it, and its `publish_events/3` helper only logs. The recorder's internal GenServer state is not itself a durable world-history archive.
+
+**Impact:** Starting a recording session is not evidence that world evolution was recorded. Replay/fidelity claims cannot be based on the lifecycle calls alone; a session may contain no authoritative transition stream.
+
+**Closure evidence:** identify the real canonical state-transition writer; route every committed transition through the recorder/archive with acknowledged sequence and state-root linkage; test a nontrivial live world, stop/restart, export/import, and independently replay to the same state root.
+
+#### RL-166 — WorldEventProcessor is started but no live tick-to-publisher call chain was found
+
+**Status: Source-confirmed for inspected paths.** `WorldEventProcessor` defines asynchronous cast APIs for CAL, CIS, state, snapshot and generic world events. The per-world supervisor starts the process, but the Phase 5A loop's event helper only emits a debug log and does not invoke those APIs. Repository search found no call sites for the five publishing APIs at the audited source baseline.
+
+**Impact:** Process existence and NATS-publishing code do not prove that real world transitions enter the event stream. Even if another subsystem publishes telemetry, the inspected loop does not establish complete or acknowledged tick-event delivery.
+
+**Closure evidence:** add explicit production wiring from each committed transition to a defined event API; make event delivery outcome observable; test event payload completeness, ordering, broker-unavailable behavior, retries and duplicate handling. Keep event transport separate from the durable canonical archive.
+
+#### RL-167 — Phase 5E EventStore is currently used as immune-risk telemetry, not as the world-history writer
+
+**Status: Source-confirmed caller classification.** At the frozen source baseline, the production caller located for `TiannaraRuntime.MultiWorld.Events.EventStore.record_event/2` is `Cortex.ImmuneCortex`, which records `:world_risk_assessed` and associated assessment metadata. Other search hits are module documentation or usage/status documents. The module writes directly to an ETS table and increments a counter asynchronously; it does not demonstrate a unified stream of world-state transitions.
+
+**Impact:** Its presence can support a narrow risk-assessment telemetry use case, but cannot substantiate a complete history of agent/civilization changes, discoveries, mutations, or extinct-world state. This reinforces RL-162; it does not close or supersede it.
+
+**Closure evidence:** retain a separately scoped telemetry stream if useful, but define a canonical durable event writer with explicit event taxonomy and require every world-state writer to commit to it. Prove coverage through a writer-to-event matrix and replay/restore tests.
+
+#### Checkpoint 18.18 disposition
+
+- The root mutation engine has real callers, but the located callers are root semantic/ontology/integration operations; the Phase 5A tick and ecology-world writers remain outside that path in the inspected baseline (RL-164, RL-165–RL-167).
+- The Phase 5A tick calls `WorldMemoryStore` for result-map snapshots, not `WorldEventProcessor` or `DeterministicReplay.record_event/4`.
+- The deterministic recorder is opened/closed by lifecycle code, but no live production event producer was found; recording-session creation alone is not replay evidence.
+- Phase 5E EventStore's located runtime use is immune-risk telemetry, not a canonical mutation archive.
+- Search-based absence claims are limited to repository search and inspected call paths; no claim is made that every possible indirect caller has been exhaustively ruled out.
+- RL-159–RL-167 remain open. No runtime tests, integration tests, or production boot were performed.
+
+**Checkpoint 18.18 disposition:** The caller inventory does not identify an existing component that can be promoted as the canonical complete-world history without design work. Next step: specify the canonical event/commit contract and ownership matrix first, then map each identified writer to it before authorizing remediation.
