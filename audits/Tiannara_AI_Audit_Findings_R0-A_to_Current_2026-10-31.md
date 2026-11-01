@@ -3851,3 +3851,72 @@ MintRegistry source documents append-and-replay persistence and fail-closed beha
 - No production-readiness claim is made.
 
 **Next checkpoint:** 18.43 — trace all deployment and file/process/network effect sinks against the actual startup graph; enumerate direct candidate state mutations and every `File.write`/`System.cmd`/deployment path; then design non-destructive tests in a disposable checkout for identity forgery, traversal/symlink containment, registry restart/corruption, audit-store failure and concurrent grant consumption. Keep the frozen source baseline unchanged and record every result here.
+
+
+## Checkpoint 18.43 — Consequential effect-sink and production-call-graph audit
+
+**Frozen source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Ledger branch:** `audit/consolidated-findings-r0a-2026-10-31`  
+**Scope:** trace deployment, candidate-state, filesystem and process-execution sinks and map isolated tests. Source inspection only; no runtime/exploit tests or source modifications.
+
+### 18.43.1 Production reachability: the strongest gateway is not proven to be the live deployment path
+
+- `Omega.DeploymentGateway.deploy/6` calls `Candidate.deploy_transition/1`, which is the candidate module's only transition from `:approved` to `:deployed`. Generic `Candidate.transition/2` does not permit that transition.
+- Repository call-map/search evidence identifies gateway use in adversarial verification scenarios and reports **zero production callers**. This means the gateway's strong checks are not evidence of a production deployment path being protected; it may be a well-designed but test-only enforcement boundary.
+- `Phase4.ExperimentOrchestrator.submit_experiment/1` delegates to `RealExecution.execute/1` only when the real-execution flag is enabled, but service registration or supervision alone does not prove any production caller submits real experiments. A live end-to-end deployment chain remains unproven.
+- `ASC.Adoption.Adopter.adopt/1` is reachable through the explicit Mix task `mix asc.adopt`; this is a bounded manual adoption path, distinct from the generic ToolForge/self-improvement paths.
+- `Tiannara.BaseReality.Workspace.write_blueprints/2` writes validated synthesis artifacts to a configured workspace using sanitized filenames and exclusive file creation, and returns `source_control: :not_committed`. Its compatibility function `commit_blueprints/2` delegates to the same write-only behavior. This path is not itself a production deployment/commit sink.
+
+### 18.43.2 New findings
+
+**RL-368 — DeploymentGateway's production exclusivity is not established; current call-map evidence says it has zero production callers.**  
+Candidate's `:approved → :deployed` transition is structurally restricted to `deploy_transition/1`, and the gateway has meaningful checks. But repository call-map evidence locates its callers in adversarial test scenarios only, with no production callers. Thus source supports a test-enforced transition boundary, not a demonstrated operational deployment gateway. The exact full-repository search at the frozen baseline and runtime caller telemetry remain follow-up verification.
+
+**RL-369 — Multiple effectful subsystems coexist outside the Omega candidate-deployment state machine.**  
+The repository contains separate file-writing and process-execution paths, including sandbox backend patch writes and `System.cmd` build/test commands, ASC adoption's Git/compile/test operations, worktree management, and physical-deployment orchestration. These may be legitimate, bounded workflows, but they are not all equivalent to `Candidate.deploy_transition/1` and cannot be secured merely by proving that one gateway owns that candidate status transition. A sink-by-sink authority map is required; the generic “single mandatory deployment path” claim is too broad unless scoped to that candidate type and that transition.
+
+**RL-370 — Physical deployment manager defaults to a simulated adapter that reports actions as successful without physical actuation.**  
+`Tiannara.ASC.Reality.PhysicalDeploymentManager` defaults to `SimulatedAdapter`. The adapter records the requested action in in-memory state and returns `result: :success`; it does not establish real hardware execution. Any consumer treating this result as physical deployment evidence would overstate the observed effect. This is a source-level semantic/evidence boundary finding, not a claim that real hardware was actuated.
+
+### 18.43.3 Consequential sink inventory (partial; do not treat as exhaustive)
+
+| Sink/path | Observed effect | Current assurance |
+|---|---|---|
+| `Sandbox.Backend.Local.apply_patch/2` | Host-side writes into temporary workdir; optional `patch` subprocess | Traversal containment absent; arbitrary configured commands run as host user (RL-359) |
+| `Sandbox.Backend.Container.apply_patch/2` | Host-side writes before container build/test | Container network/resource controls do not protect the host-side patch write (RL-359) |
+| Sandbox build/test/benchmark | `System.cmd` via backend | Local process is not OS-isolated; container isolation hardening not fully established |
+| `ASC.Adoption.Adopter` | Git checkout/diff/snapshot/tag/file replacement, compile/tests/boot smoke, rollback on failure | Manual exact-scope workflow; human artifact authentication remains open (RL-361) |
+| `Omega.DeploymentGateway` | Candidate state transition and deployment record; audit append | Strong local checks, but production reachability/exclusivity not established (RL-368) |
+| `Phase4.RealExecution` | RealHarness execution, execution ledger/provenance, optional gateway call | Feature-flagged; caller and deployment-result semantics need follow-up (RL-366) |
+| `BaseReality.Workspace` | Writes generated schematic artifacts to configured workspace | Exclusive file creation and sanitized filename; artifact writing only, not source-control commit |
+| `ASC.Reality.PhysicalDeploymentManager` + `SimulatedAdapter` | In-memory action record and success-shaped result | Simulation must not be treated as physical effect (RL-370) |
+| `ASC.Reality.IncidentResponseEngine` / rollback | In-memory anomaly/rollback bookkeeping | Operational event connection and restorative rollback remain open (RL-357, RL-358) |
+| Other `System.cmd`, `File.write`, worktree, script and registry call sites | Build, tests, Git operations, reports, logs, registries and generated artifacts | Repository-wide inventory remains incomplete; classify by caller, input trust, privilege and authority before closure |
+
+### 18.43.4 Isolated test plan — designed, not executed
+
+Use a disposable checkout and dedicated temporary root; never point destructive tests at the working repository, real user home, production registry/audit files, or real deployment targets.
+
+1. **Identity forgery:** call `authenticate/3` with a non-empty arbitrary string and a chosen human ID; record whether an identity is accepted. Then try fabricated structs and mismatched human IDs at the gateway. Expected security requirement: only a verifiable credential/session from a trusted identity authority may establish authentication; structs/timestamps alone must not.
+2. **Traversal containment:** use a temporary baseline and a patch filename containing parent-directory traversal. Place a sentinel file outside the sandbox root and assert its bytes remain unchanged; assert the backend rejects the patch before writing. Run separately for Local and Container backends because patch application is host-side.
+3. **Symlink traversal:** create a symlink inside the temporary workdir that points to another file beneath the test-owned temporary root; patch through the symlink and verify the outside sentinel is unchanged. Skip safely if symlink creation is unsupported. This is distinct from parent-segment traversal.
+4. **MintRegistry restart:** use a unique test-only `dets_base_path`; mint, bind and consume a grant, stop/restart the registry, and assert status, binding, decision reference and consumed state are preserved. Never use the default/shared registry path.
+5. **Registry corruption/partial record:** on a disposable copy, truncate or alter the registry file; restart and assert no prior grant becomes authorized. Check whether corruption is distinguishable from a genuinely empty registry and whether it raises an observable alert.
+6. **Audit-store failure:** configure a test-only audit path that cannot be opened/appended; attempt each governed consequential operation and assert no success/commit is reported. Also test the previously identified unguarded Council/CEL APIs separately.
+7. **Concurrent consume/deploy:** issue N concurrent consume attempts against one test grant; require exactly one success. Separately test gateway concurrency, lock-holder death, registry restart, and cross-node behavior only where distributed execution is supported.
+8. **Result semantics:** make the sandbox pass while the optional deployment path fails; assert the returned result clearly says “evaluation succeeded, deployment failed/not attempted,” never implying a deployment commit.
+9. **Simulated physical action:** invoke a test action through SimulatedAdapter and assert evidence explicitly labels it simulated and cannot satisfy a real-world completion gate.
+10. **Audit trail and cleanup:** each test records exact source commit, test input hash, expected result, observed result and cleanup confirmation; all temp paths are unique and removed only after assertions.
+
+These tests have **not** been run. The expected outcomes above are acceptance criteria, not observed results.
+
+### 18.43.5 Status and carry-forward
+
+- New findings: **RL-368–RL-370**.
+- Findings closed: **0**.
+- Source modifications: **0**.
+- Runtime tests, exploit attempts, fault injection and hardware actions: **not performed**.
+- Confirmed code facts: identity accepts any non-empty binary; Local/Container patch writes lack path containment; candidate deploy transition is restricted to the gateway function; BaseReality workspace is write-only; physical manager defaults to simulated adapter.
+- Important qualification: source search/call-map evidence indicates the gateway has no production callers, but complete deployment-sink exclusivity and full runtime reachability are still not proven. Treat unknown paths as UNKNOWN, not PASS.
+
+**Next checkpoint:** 18.44 — execute the safe tests from §18.43.4 in an isolated disposable checkout, beginning with identity forgery and traversal/symlink containment, then registry restart/corruption, audit-store failure and concurrent consumption. Record commands, exact test fixture paths, actual outputs and cleanup evidence here. If execution environment access is unavailable, retain these as unexecuted test specifications and do not label them passed.
