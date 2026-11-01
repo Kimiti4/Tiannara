@@ -2515,3 +2515,47 @@ The registry metadata is an intended service contract, not proof that every adve
 **Impact:** The advertised validated-simulation metric has no demonstrated producer and cannot substantiate simulation fidelity.
 
 **Checkpoint disposition:** 17 findings added (RL-208–RL-224). No finding is closed. No remediation was performed. Next: reconcile the complete CEL registry against implemented modules, runtime callers, actual supervision/startup, declared dependencies, and production evidence; then proceed through any remaining registered services before starting ToolForge as a separate audit stream.
+
+
+## Checkpoint 18.26 — CEL registry, declared dependency and boot-contract reconciliation
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** `ServiceRegistry.canonical_services/0`, each inspected service's `dependencies/0`, BootSequencer dependency behavior and registry health-check declarations.  
+**Method/status:** Static source reconciliation. No boot execution or module-start matrix was run. The canonical registry contains 33 non-deprecated service specifications in the inspected baseline.
+
+### RL-225 — Registry dependency graph diverges from service-declared dependencies
+**Severity:** CRITICAL  
+**Evidence:** The registry's `depends_on` entries do not consistently match each service module's `dependencies/0`. Examples: MissionDirector module declares `:workflow_engine` but registry omits it; WorkflowEngine module declares `:event_store`, `:executive_digital_twin` and `:identity_trust_manager` in addition to other dependencies, while registry omits those and does not include the twin/trust edge; ExecutiveStateManager module declares `:event_store` but registry omits it; DecisionPredictor module declares `:identity_trust_manager` but registry omits it; ExecutiveDigitalTwin module declares `:decision_predictor` but registry instead declares `:executive_scheduler` and omits its actual predictor edge.  
+**Impact:** Boot order and dependency-failure propagation are computed from a graph that does not represent the dependencies declared by the services themselves. Services can be started before required dependencies, and a dependency failure can fail to block a dependent. The registry cannot currently be treated as a correct executable dependency authority.
+
+### RL-226 — Active registry includes explicitly unvalidated Phase 4 services
+**Severity:** HIGH  
+**Evidence:** The registry labels Tier 5 as "Phase 4 design specs (not yet validated)" but registers AutonomousResearchEngine and ExperimentOrchestrator with `deprecated: false`; DiscoverySupervisor is also active. Boot order/discover exclude only deprecated entries, not unvalidated or not-yet-certified services.  
+**Impact:** Design-stage research/experiment services are eligible for normal boot and discovery despite the registry's own unvalidated designation. No explicit certification/readiness state prevents their capabilities from being presented as active.
+
+### RL-227 — Registry health checks are not consistently aligned with the service's authoritative health API
+**Severity:** HIGH  
+**Evidence:** EventBus exposes both `healthy?/0` (a GenServer query) and `health/0` (process-presence check). The registry health_check is `{EventBus, :health, []}`, while the EventBus `:healthy` handler returns true unconditionally (previously noted in Checkpoint 18.21). This does not evaluate its degraded/persistence/delivery state. Other inspected service health functions frequently return healthy solely when the process is registered.  
+**Impact:** Boot health gates can pass services whose underlying storage, event delivery or degraded state is unhealthy. Process liveness is being used as a proxy for service correctness.
+
+### RL-228 — Service capability declarations are not tied to verified executable probes
+**Severity:** HIGH  
+**Evidence:** Registry `provides`/module `capabilities/0` are descriptive atom lists. BootSequencer's capability gate only rejects modules explicitly marked with `__tiannara_stub__/0`; its independent corroboration probe treats most advertised capabilities as `:unverified` and only has a specialized probe for `:deterministic_replay`. A service can therefore pass the capability gate without every advertised capability being exercised.  
+**Impact:** Capability declarations can be counted as available despite no proof that their advertised operations are callable, correctly wired, or semantically effective. Registry capability coverage is not an executable capability certification.
+
+### RL-229 — BootSequencer's dependency gate does not independently validate the dependency graph per service
+**Severity:** HIGH  
+**Evidence:** `run_gates/5` invokes `run_gate(:dependency, ..., fn -> :pass end)`; actual dependency handling is a separate `deps_ok` check against `failed_critical` before the gate sequence. That check uses registry `depends_on` only and considers only failed-critical services; it does not verify prerequisite process liveness/health at the moment of dependent startup, nor compare registry dependencies with module declarations. Degraded prerequisites are not added to `failed_critical` (RL-178).  
+**Impact:** A recorded dependency gate pass does not establish that actual dependencies are running and healthy. The boot report can overstate dependency integrity.
+
+### RL-230 — ServiceRegistry accepts structurally invalid service specifications
+**Severity:** HIGH  
+**Evidence:** `register/1` checks only whether the ID already exists before inserting the supplied term; it does not validate required keys/types, module loading, health/score MFA exports, dependency existence, capability schema, criticality or version. `replace/2` does not check that the old ID exists and can insert a new spec while creating/overwriting state entries without validation.  
+**Impact:** Runtime registry mutation can introduce malformed or unbootable specs and broken dependency graphs. This compounds RL-172's missing governance/durable authorization: the registry is neither structurally validated nor governed at the mutation boundary.
+
+### RL-231 — Registry mutation and boot inventory are volatile
+**Severity:** HIGH  
+**Evidence:** ServiceRegistry initializes from `canonical_services/0` on every start and holds runtime register/deprecate/replace changes only in GenServer state. No durable versioned registry snapshot or replay/reconciliation path is present in the inspected module.  
+**Impact:** Runtime registry changes disappear on restart; the system cannot demonstrate a durable, auditable history of which service inventory and dependency graph governed a particular boot.
+
+**Checkpoint disposition:** 7 findings added (RL-225–RL-231). No finding is closed. No remediation was performed. This checkpoint completes the initial 33-entry CEL registry reconciliation at the declaration/boot-contract level only; it does not certify that all 33 service implementations, callers, startup paths and runtime behavior have been exhaustively audited. Continue by auditing the remaining world, knowledge, evidence, research and discovery services individually, then reconcile CEL end-to-end before beginning ToolForge.
