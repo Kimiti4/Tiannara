@@ -1642,3 +1642,147 @@ SEPARATE RUNTIME APPLICATION (tiannara_runtime/lib/)
 - No implementation change is authorized by this audit. Remediation should be sequenced only after the remaining caller graph and cross-system tests establish the actual production paths.
 
 **Checkpoint 18.11 disposition:** provisional source-declared ownership graph recorded. The audit is not complete: remaining work includes exact caller/effect tracing for all public mutation APIs, immunity-to-kill end-to-end behavior, discovery experiment execution/replication/archaeology, full mathematical campaign-to-runtime binding, and verification of all security boundaries.
+
+### Checkpoint 18.12 — runtime authority and effect tracing
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Mode:** Read-only source trace across `CIS.Supervisor`, `ExecutionController`, `KillSwitch`, `WorldSupervisor`, and quota systems. No application files modified.
+
+#### RL-127 — Execution is reported despite failed delivery or unconfirmed termination
+
+**Status: Source-confirmed.** The execution path reports an operation as executed even when command delivery fails or process termination has not been observed. Message delivery, process exit and completed cleanup are distinct states.
+
+**Closure evidence:** expose separate authorization, delivery, termination-observation and reconciliation outcomes; test unavailable targets and failed delivery.
+
+#### RL-128 — Emergency shutdown acknowledgement does not perform shutdown
+
+**Status: Source-confirmed.** Emergency shutdown returns `:initiated`, but the inspected handler performs no shutdown action.
+
+**Closure evidence:** bind acknowledgement to an actual shutdown request and verify the resulting runtime state and process population.
+
+#### RL-129 — Public world termination bypasses documented CIS authorization
+
+**Status: Source-confirmed.** Public termination APIs provide a route around the documented CIS authorization path.
+
+**Closure evidence:** inventory every termination entry point; enforce one authorization boundary and test direct API bypass attempts.
+
+#### RL-130 — World spawning continues after quota or memory allocation rejection
+
+**Status: Source-confirmed.** Error branches log and return error tuples locally but do not halt the enclosing spawn function. Subsequent initialization and child-start operations can continue without successful reservations.
+
+**Closure evidence:** prove quota and memory admission are mandatory gates and every partial allocation is rolled back.
+
+#### RL-131 — ResourceQuota cast handlers return invalid GenServer callback tuples
+
+**Status: Source-confirmed.** The inspected cast handlers return `{:ok, state}`-shaped values rather than `{:noreply, state}`.
+
+**Closure evidence:** correct callback contracts and exercise every cast branch while asserting the process remains alive and state is reconciled.
+
+#### RL-132 — Integration tests do not exercise authorization through actual world-process exit
+
+**Status: Coverage gap confirmed.** The test described as a complete kill flow invokes generic `ExecutionController.execute/4`, which does not exercise the dedicated CIS authorization and delivery functions. Its passing result cannot certify the production kill chain.
+
+**Closure evidence:** start a real world through the production spawn path, issue an authorized termination, observe process exit, and verify all registries and resource accounting.
+
+#### RL-133 — CIS arbitration is fixed severity/mode mapping, not evidence-based operation policy
+
+**Status: Source-confirmed.** The inspected arbitration is a fixed severity/mode table; it does not demonstrate evidence-grounded, operation-specific policy evaluation.
+
+**Closure evidence:** bind each operation to policy, evidence, actor, target, context and a traceable authorization decision; test contradictory and insufficient evidence.
+
+#### RL-134 — Root CIS decisions are not connected to verified enforcement
+
+**Status: Source-confirmed.** Root `ImmuneDecisionEngine` can produce `:quarantine` or `:monitor`, but the root `RegulationExecutor` records the requested action without demonstrating that the corresponding regulatory effect occurred.
+
+**Closure evidence:** require an effect provider, result-bearing acknowledgement and independent observation of the regulated state.
+
+#### RL-135 — Runtime immune responses lack a grounded signal-to-effect evidence chain
+
+**Status: Source-confirmed.** The runtime collapse predictor uses a random risk value rather than deriving risk from the supplied snapshot. The immune engine maps incoming signals to fixed regulation commands, and the executor sends casts without requiring confirmation of the resulting state.
+
+**Closure evidence:** derive risk from validated observations; retain signal, features, decision, policy, command, effect receipt and observed postcondition; test false signals and failed enforcement.
+
+#### Checkpoint 18.12 disposition
+
+RL-127–RL-135 remain open. The presence of an arbitration path is not proof of authorized effect, and a success-shaped response is not proof of process termination or completed resource reconciliation.
+
+### Checkpoint 18.13 — world lifecycle, persistence and archaeological continuity
+
+**Audit target:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Repository:** `Kimiti4/Tiannara`  
+**Mode:** Immutable source inspection through GitHub at the exact baseline. No application source modifications and no runtime tests in this checkpoint.
+
+#### RL-136 — WorldFreeze snapshots are volatile and do not capture actual world state
+
+**Status: Source-confirmed.** In `tiannara_runtime/lib/tiannara_runtime/multi_world/world_freeze.ex`, `capture_world_state/1` explicitly describes querying the world's GenServer as future work and returns placeholder agents, coalitions, CIS/CAL parameters, event history and RNG state. Snapshot history and snapshot payloads are stored in the GenServer's in-memory maps.
+
+**Impact:** a snapshot can be returned and listed without representing the actual world or surviving WorldFreeze process loss.
+
+**Closure evidence:** capture from the authoritative world owner; persist a versioned complete state artifact; verify hashes and schema; restart the runtime and prove exact round-trip recovery.
+
+#### RL-137 — Snapshot restoration does not restore the world
+
+**Status: Source-confirmed.** `restore_world_state/2` only logs agent and coalition counts. It does not send state to the world process or reconstruct a running world. Snapshot import similarly decodes JSON into in-memory storage without establishing a durable archive or authenticated identity.
+
+**Closure evidence:** restore into an isolated world, compare canonical state roots and event positions, and prove failed/partial restores cannot be reported as successful.
+
+#### RL-138 — WorldRegistry lineage and extinction records are volatile
+
+**Status: Source-confirmed.** `tiannara_runtime/lib/tiannara_runtime/world_registry.ex` stores world metadata, parent-to-child lineage and counters in GenServer state only. Termination marks a world `:extinct`; no durable historical record or restart reconstruction is implemented in the inspected module. `list_worlds/0` returns active worlds only.
+
+**Impact:** process restart can erase the registry's world identities and lineage; extinction is not an independently addressable historical archive.
+
+**Closure evidence:** durable append-only world catalogue and lineage records, restart reconstruction, immutable identity, and queries that include extinct worlds.
+
+#### RL-139 — WorldRegistry accepts missing parents and can corrupt active counts on repeated extinction
+
+**Status: Source-confirmed.** `create_world/2` does not validate that a supplied parent exists; `get_generation/2` silently returns zero for an unknown parent. `terminate_world/1` decrements `active_count` whenever the world record exists, without requiring its prior status to be active. Repeated termination can therefore decrement the count more than once.
+
+**Closure evidence:** enforce parent foreign-key and status invariants; make extinction idempotent; derive or reconcile counters from authoritative records; test missing parents and repeated termination.
+
+#### RL-140 — WorldForkEngine child identity is inconsistent with WorldRegistry identity
+
+**Status: Source-confirmed.** `tiannara_runtime/lib/tiannara_runtime/world_fork_engine.ex` generates a child ID, then calls `WorldRegistry.create_world/2`, which independently generates another UUID. The caller pattern-matches the registry result against the first ID. The inspected code therefore cannot establish a consistent child identity and can fail at the case match.
+
+**Closure evidence:** allocate the canonical ID once and pass it through registry, supervisor, process, event and lineage records; assert identity equality end-to-end.
+
+#### RL-141 — Fork success can be reported when child supervisor startup fails
+
+**Status: Source-confirmed.** `WorldForkEngine.create_child_world/2` ignores the result of `spawn_world_supervisor/1` and proceeds to add the child to lineage and return success. A failed supervisor start can therefore leave a registry/lineage record for a child that is not running.
+
+**Closure evidence:** propagate startup errors; atomically roll back registry and lineage changes; verify a live child process and resource reservations before returning success.
+
+#### RL-142 — Fork cloning does not demonstrate a complete live-world state clone
+
+**Status: Source-confirmed.** `deep_clone_state/1` copies only `cal_state`, `cis_state`, `coalitions`, `entropy` and `coherence` from the registry metadata. The inspected path does not obtain a consistent snapshot from the authoritative live parent process or preserve complete agent, event, RNG and persistence state.
+
+**Closure evidence:** freeze or otherwise obtain a consistent parent snapshot; clone the canonical state artifact; record parent snapshot hash and mutation delta; test deterministic divergence and parent immutability.
+
+#### RL-143 — Extinction is not coupled to durable final-state archival
+
+**Status: Source-confirmed at the inspected paths.** WorldRegistry extinction only changes metadata status. The MultiWorld termination path attempts a pre-termination WorldFreeze snapshot, but that snapshot is placeholder and volatile (RL-136); stopping deterministic recording removes the active recording from in-memory state, while export is a separate explicit operation. No atomic finalization protocol binds final state, event history, lineage, termination reason and resource reconciliation into a durable historical record.
+
+**Closure evidence:** require a finalization transaction or recoverable staged protocol that seals final snapshot, event-log root, lineage, termination metadata and resource receipts before marking a world archived/extinct.
+
+#### RL-144 — Archaeological reconstruction of prior simulated civilizations is unavailable
+
+**Status: Source-confirmed.** Root `lib/tiannara/archaeology/archaeology.ex` implements FossilExcavator, SemanticReconstructor, EpochCompressor and IdentityPreserver as explicit fail-closed functions returning `{:error, :archaeology_simulation_unavailable}`. This is an honest refusal, not an implemented excavation capability. `SCIENTIFIC_ARCHAEOLOGY.md` specifies a reconstruction procedure but states that an independent long-horizon replay bundle is absent. The runtime archaeology audit's one-record/9-artifact coverage does not establish prior-world excavation.
+
+**Impact:** no demonstrated end-to-end path allows a later world to discover and reconstruct the artifacts, institutions, technologies, observations and knowledge of an extinct world.
+
+**Closure evidence:** create immutable world-history archives and a canonical archaeological index; demonstrate discovery by a later world without direct access to the extinct world's process; verify artifact provenance, stratigraphic context, evidence hashes, reconstruction uncertainty, contradictory evidence and reproducible findings.
+
+#### RL-145 — Historical archaeology specifications and executable runtime archives are not connected
+
+**Status: Source-confirmed gap.** `DISCOVERY_ARCHAEOLOGY.md` reports a validation kernel that reconstructs state from immutable map/list artifacts and explicitly leaves end-to-end archaeology across legacy registries pending a canonical export adapter. `SCIENTIFIC_ARCHAEOLOGY.md` requires manifests, hashes, schema versions, replay and state-root comparisons, but no independent long-horizon archaeological replay bundle is present. The runtime snapshot and registry implementations inspected above do not supply that durable artifact chain.
+
+**Closure evidence:** connect live world event/state writers to canonical archival exports; independently ingest and reconstruct those exports; verify ordering, lineage, evidence roots and state roots across restart and long-horizon replay.
+
+#### Checkpoint 18.13 — positive controls and disposition
+
+- The root archaeology functions now fail closed instead of returning fabricated recovery scores. Preserve this behavior until real recovery substrate exists.
+- `SCIENTIFIC_ARCHAEOLOGY.md` and `DISCOVERY_ARCHAEOLOGY.md` contain useful integrity and reconstruction specifications, but they are not evidence that the live multi-world runtime produces the required archives.
+- WorldRegistry's extinct status, WorldFreeze's snapshot API and DeterministicReplay's export API are not equivalent to a durable historical archive.
+- No source changes or runtime tests were performed in this checkpoint.
+
+**Checkpoint 18.13 disposition:** RL-136–RL-145 remain open. The next audit pass should trace the authoritative world process implementation and all state/event writers, then determine whether the root world model, runtime world registry, replay/event stores and archaeological schemas can be joined into one verified world-history archive without conflating their separate ownership boundaries.
