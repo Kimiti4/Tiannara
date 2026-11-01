@@ -2940,3 +2940,57 @@ The registry metadata is an intended service contract, not proof that every adve
 **Impact:** A declared canonical schema does not guarantee every entity entering the world model satisfies it. End-to-end enforcement must be verified at the single canonical mutation boundary and across all writers.
 
 **Checkpoint disposition:** 12 findings added (RL-289–RL-300). No finding is closed. No remediation was performed. Next: finish the remaining registry/world-service writer audit and perform caller-to-authority reconciliation; then compile the full CEL production-readiness matrix.
+
+
+## Checkpoint 18.31 — CEL runtime boot, process ownership and recovery integration
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** `Tiannara.CEL.Kernel`, `BootSequencer`, `Tiannara.Application`, `ControlCenter` integration and dynamic service lifecycle.  
+**Method/status:** Static source inspection only. No application boot, child crash, repeated boot, restart authorization or shutdown exercise was run.
+
+### RL-301 — CEL service children are temporary and are not automatically restarted after a crash
+**Severity:** CRITICAL  
+**Evidence:** Kernel `start_service/2` creates every registry child with `restart: :temporary` under DynamicSupervisor. The inspected Kernel has no automatic monitor/restart loop for unexpected service process exits; restart is an explicit `restart_service/2` call.  
+**Impact:** A CEL service crash removes that service from the running system and it remains down until a separately authorized manual restart. One-for-one DynamicSupervisor strategy does not restart temporary children.
+
+### RL-302 — BootSequencer leaves services running when health/constitution/capability/resource gates fail
+**Severity:** CRITICAL  
+**Evidence:** Kernel starter launches the service before BootSequencer runs health, constitutional, capability and resource gates. On a gate failure, BootSequencer records failed/degraded status but does not terminate the started child. Kernel `record_pids/2` only records entries whose final status is `:ok`; failed/degraded children are not added to the tracked service PID map.  
+**Impact:** A service that fails its boot gate can remain alive and operationally untracked. It may continue handling calls despite not passing readiness, and Kernel halt/restart operations may not manage it.
+
+### RL-303 — Kernel manual restart does not rerun boot readiness gates
+**Severity:** HIGH  
+**Evidence:** `do_restart/2` terminates the tracked old PID and invokes `start_service/2`, then logs success and updates the PID map. It does not rerun health, constitutional score, capability, resource or dependency gates.  
+**Impact:** A restarted service is treated as restarted successfully based on child startup alone; the system does not establish that it has returned to a boot-ready state.
+
+### RL-304 — Kernel restart authorization does not bind the supplied actor to the Council request
+**Severity:** HIGH  
+**Evidence:** `handle_call({:restart_service, id, actor},...)` calls `Council.authorize(:architectural_change, %{action: :restart, service: id}, nil)`; the supplied `actor` is not included in the authorization request.  
+**Impact:** The restart API's actor argument is not bound to the authorization decision in the inspected path. Attribution and principal-specific authorization cannot be established from this call.
+
+### RL-305 — Kernel boot report and process registry omit started-but-degraded/failed children
+**Severity:** HIGH  
+**Evidence:** BootSequencer's service result can be `:degraded` or `:failed` after the starter has already returned a PID. Kernel `record_pids/2` only records `:ok` results and does not retain the PID for those other statuses.  
+**Impact:** Kernel's service_pid inventory does not represent every child it actually started; service lifecycle management and post-boot reconciliation are incomplete.
+
+### RL-306 — Kernel halt only terminates tracked service PIDs
+**Severity:** HIGH  
+**Evidence:** `handle_call({:halt,...})` iterates `state.service_pids` and terminates those children. Started-but-untracked children from failed/degraded boot gates (RL-302/305) are not included.  
+**Impact:** A requested executive shutdown can leave CEL service processes running after Kernel transitions to shutdown.
+
+### RL-307 — Application root readiness is independent of production CEL readiness
+**Severity:** HIGH  
+**Evidence:** In production, Application.start/2 launches `boot_fn` through `Task.start/1` and immediately returns `{:ok, pid}` for the root supervisor. The task logs CEL boot errors but does not propagate them to application startup status. This overlaps RL-171 but is retained here as the runtime-readiness consequence.  
+**Impact:** External process supervision/readiness checks can observe the Tiannara application as started while CEL is still booting, degraded or failed.
+
+### RL-308 — ControlCenter constitutional audit inputs are hard-coded rather than collected from live governance evidence
+**Severity:** HIGH  
+**Evidence:** `ControlCenter.run_constitutional_audit/1` constructs `system_state` with fixed values including hidden uncertainty 0, mandatory reviews completed/required 0, lineage violations 0, safety violations 0, coupling violations 0, evolutions deployed 0, evolution validations 0 and objective alignment 0.9. It then passes this map to ConstitutionalAuditor.audit/1.  
+**Impact:** The resulting audit can report compliance from synthetic/default inputs rather than a measured inventory of actual reviews, lineage, safety, coupling and evolution evidence. It cannot independently certify CEL readiness.
+
+### RL-309 — ControlCenter treats module-only registration as healthy
+**Severity:** MEDIUM  
+**Evidence:** `start_subsystem/2` returns `{:ok, :module_only}` for modules without start_link/1; `subsystem_alive?/1` unconditionally returns true for `pid: :module_only`.  
+**Impact:** A module's mere loadability/export surface is counted as a healthy running subsystem, which conflates code presence with operational readiness.
+
+**Checkpoint disposition:** 9 findings added (RL-301–RL-309). No finding is closed. No remediation was performed. Continue with final cross-system CEL caller, supervision, storage and authority reconciliation, then build a complete per-service readiness classification. ToolForge remains deferred.
