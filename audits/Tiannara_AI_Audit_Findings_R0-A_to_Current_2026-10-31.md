@@ -3059,3 +3059,57 @@ The registry metadata is an intended service contract, not proof that every adve
 **Impact:** The formal runtime state machine is not enforced on the principal boot path; recorded transition history can contain transitions that the declared state machine rejects.
 
 **Checkpoint disposition:** 3 findings added (RL-316–RL-318). No finding is closed. No remediation was performed. Registry count remains 34. Next: compile the service-by-service readiness matrix, trace remaining cross-service callers and authority boundaries, and identify the runtime evidence required to close each finding. ToolForge remains deferred until the Tiannara AI/CEL audit is complete.
+
+
+## Checkpoint 18.34 — CEL 34-service source-readiness matrix (provisional)
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Registry inventory:** 34 non-deprecated specifications.  
+**Method/status:** Consolidated from static source findings in Checkpoints 18.20–18.33 and earlier world/runtime checkpoints. This is a source-readiness classification, not a runtime certification. No service is marked production-ready from this audit because runtime boot, load, fault, persistence recovery, security and end-to-end evidence gates have not been executed as part of this checkpoint.
+
+| Registry service | Source-readiness classification | Main blocking evidence |
+|---|---|---|
+| ExecutiveMemory | NOT READY | DETS-to-ETS fallback record path is broken; event dependency metadata mismatch; score/health inconsistency (RL-180/181) |
+| EventStore | NOT READY | Retention deletes history without archive handoff; separate competing event stores/canonical history unresolved (RL-182 and earlier world-event findings) |
+| EventBus | NOT READY | Health can report healthy unconditionally; delivery/persistence truth not established (Checkpoint 18.21) |
+| ConstitutionalScorePipeline | NOT READY | Volatile windows; empty window reports healthy; generic telemetry maps to synthetic scores (RL-316/317) |
+| CapabilityGraph | NOT READY | Volatile graph; cycles accepted; mutation audit best-effort; provider scores use fallback/fixed inputs (RL-183–185) |
+| ResourceManager | NOT READY | Hard-coded capacity; incorrect reserve; inconsistent reservations; unauthenticated asynchronous release (RL-186/187) |
+| IdentityTrustManager | NOT READY | Volatile identities; source-derived credentials; unverified trust mutation; authorization does not verify credentials (RL-188) |
+| PriorityEngine | NOT READY | Volatile model; synthetic training labels; empty calibration can be perfect (RL-189) |
+| ExecutiveScheduler | NOT READY | FIFO dispatch; no guaranteed fairness; resource release and worker cancellation/recovery incomplete (RL-190–193) |
+| ExecutiveMetrics | NOT READY | Mission outcome ingestion does not update metrics; missing/empty data can produce perfect rates; volatile history (RL-208–210) |
+| RuntimePolicyEngine | NOT READY | Volatile unauthenticated policy mutation; no-match defaults to allow; no conflict resolution (RL-211–213) |
+| UnifiedRealityGraph | NOT READY | In-memory graph and historical timestamp query defect; canonical world history not established (RL-146–152, RL-168–170) |
+| WorldMutationEngine | NOT READY | Mutation/state/event split-commit and canonical commit semantics unresolved (RL-146–153, RL-168–170) |
+| ProvenanceEngine | NOT READY | In-memory mutable records; weak verification; broken stats field (RL-294–297) |
+| UnifiedWorldModel | NOT READY | In-memory graph coupling and non-atomic mutation/state persistence; event failures can be swallowed (RL-146–153, RL-168–170) |
+| VersionManager | NOT READY | In-memory/shallow merge and rollback failures suppressed (RL-146–152) |
+| OntologyManager | NOT READY | DETS records not reloaded; mutation writes unchecked; no governance gate (RL-289–293) |
+| SnapshotManager | NOT READY | Snapshot hash does not cover full state; restore can be partial (RL-146–152) |
+| ReplayEngine | NOT READY | Deterministic replay unavailable/not proven; no canonical committed event source (RL-146–152, RL-165–170) |
+| ConflictResolutionEngine | NOT READY | Human-pending can be marked resolved; multi-store partial commits; false conflict classifications (RL-235–239) |
+| ConflictDetector | NOT READY | Entity event detection no-op; logical detection limited to existing refutation edges; persistence failures distort counters (RL-232–234) |
+| KnowledgeCoordinator | NOT READY | Duplicate detection no-op; evidence fusion trusts supplied confidence; caller boolean can satisfy human approval (RL-240–244) |
+| KnowledgeFlowEngine | NOT READY | No-op destinations recorded as successful; delivery results ignored; volatile ledger (RL-245/246) |
+| KnowledgeEvolutionEngine | NOT READY | Scheduled evolution routines are no-ops; promotion uses fixed confidence increment (RL-247–249) |
+| EvidenceValidator | NOT READY | Evidence presence is mistaken for authenticity/independence; missing provenance can pass for lower confidence (RL-250–252) |
+| EpistemicIntegrityService | NOT READY | Empty corpus receives ideal scores; bounded queries; failures not converted to unknown (RL-253–255) |
+| AutonomousResearchEngine | NOT READY | Generic hypotheses; default workflow steps unavailable; completion payload treated as evidence; volatile lifecycle (RL-256–259) |
+| ExperimentOrchestrator | NOT READY | Public path bypasses declared gates; failed sandbox verdict can count as completed; volatile records (RL-260–266) |
+| DiscoverySupervisor | NOT READY | Child process presence treated as operational health; children lack shared durable lifecycle (RL-267/273/315) |
+| MissionDirector | NOT READY | Mission-store failure does not fail startup; evidence-presence validation; caller-authored impact; persistence unchecked (RL-194–198) |
+| WorkflowEngine | NOT READY | Workflow recovery does not restore live state; start acknowledged despite persistence failure; step execution and compensation incomplete (RL-199–207) |
+| ExecutiveStateManager | NOT READY | Snapshots not fully durable; missing services become zero/empty; placeholder policy/ingestion fields (RL-214–216) |
+| DecisionPredictor | NOT READY | Fixed prior; synthetic load history; resource availability always true; fixed predictions/recommendations (RL-217–220) |
+| ExecutiveDigitalTwin | NOT READY | Randomized outcomes; synthetic predictors; no step semantics; no independent fidelity validation (RL-221–224) |
+
+### Overall CEL source-audit disposition
+
+1. **34/34 registry entries** are represented in this source-readiness matrix.
+2. **0/34 are certified production-ready** by this audit.
+3. The most critical shared blockers are: no proven canonical durable world-event/commit authority; inconsistent service dependency graph; untrusted evidence and identity paths; ungoverned policy/ontology/knowledge transitions; resource and scheduler lifecycle divergence; research/experiment certification based on weak or synthetic evidence; and boot/recovery paths that can report or leave services in an unready state.
+4. The matrix does not imply every subordinate module, caller, or external integration has been exhaustively inspected. Discovery subcomponents and cross-service call paths remain open audit work.
+5. No source changes or remediation were performed. No finding was closed. Runtime verification remains outstanding.
+
+**Next checkpoint:** CEL cross-service caller and authority reconciliation. Trace all state writers, event publishers/subscribers, evidence producers/consumers, Council authorization calls, service boot owners, and duplicate/competing runtime paths. Produce a capability-to-caller-to-enforcement-to-evidence matrix and a runtime verification plan. Only after those are reconciled should the Tiannara AI audit be considered complete and ToolForge begin as its own lifecycle audit.
