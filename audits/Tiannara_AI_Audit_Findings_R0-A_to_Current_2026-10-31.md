@@ -2688,3 +2688,102 @@ The registry metadata is an intended service contract, not proof that every adve
 **Impact:** Query errors can crash the service; completed reports are not shown to be durably versioned or independently reproducible.
 
 **Checkpoint disposition:** 24 findings added (RL-232–RL-255). No finding is closed. No remediation was performed. Continue with AutonomousResearchEngine, ExperimentOrchestrator and DiscoverySupervisor, then reconcile all CEL service callers, startup, governance and evidence flow.
+
+
+## Checkpoint 18.28 — Autonomous research, experiment orchestration and discovery subsystem
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** AutonomousResearchEngine, ExperimentOrchestrator, RealExecution, RealHarness, DiscoverySupervisor, DiscoveryEngine, DiscoveryScheduler, DiscoveryMetrics and the Observation/Experiment/Validation workflow steps.  
+**Method/status:** Static source inspection only. No sandbox execution, discovery cycle, real experiment, authorization-grant integration test, or persistence/recovery test was run.
+
+### RL-256 — AutonomousResearchEngine generates generic hypothesis templates rather than evidence-derived hypotheses
+**Severity:** CRITICAL  
+**Evidence:** `generate_hypotheses/2` maps recommendation types to fixed generic statements (e.g. a targeted experiment, replication experiment, or new observational test). It does not derive variables, competing hypotheses, predicted outcomes, controls, falsification criteria or a testable model from source evidence.  
+**Impact:** The advertised autonomous hypothesis-generation capability is not demonstrated as a research reasoning pipeline; it creates templated prompts for downstream workflow dispatch.
+
+### RL-257 — AutonomousResearchEngine dispatches workflow steps whose real providers are explicitly unavailable
+**Severity:** CRITICAL  
+**Evidence:** Its validation workflow uses `Tiannara.CEL.Workflow.Steps.Observation`, `Experiment` and `Validation`. At the frozen baseline, each step's `execute/2` explicitly returns `{:error, {:unavailable, :real_step_provider_not_wired}}`.  
+**Impact:** The default autonomous research path cannot perform the advertised observation, experiment or validation work through these steps. A workflow being created/dispatched is not evidence of research execution.
+
+### RL-258 — AutonomousResearchEngine program and hypothesis lifecycle is volatile and incompletely closed
+**Severity:** HIGH  
+**Evidence:** Active programs, hypotheses, workflow IDs and counters live only in GenServer state; no durable reload/reconciliation is present. Completion updates a program status but does not remove it from `active_programs`; a program with failed workflow dispatches can remain active without a terminal failure.  
+**Impact:** Restart loses research lifecycle state, completed programs can consume the concurrency limit indefinitely, and failed/undispatched validation can leave programs unresolved.
+
+### RL-259 — AutonomousResearchEngine ingests workflow completion as research evidence without verifying the workflow result
+**Severity:** CRITICAL  
+**Evidence:** Completion handling reads caller/event payload `outcome_evidence` and `final_confidence`, builds an experimental-result entity and calls KnowledgeCoordinator.ingest_discovery/1. It does not independently retrieve the workflow's persisted step results, verify that real observation/experiment/validation occurred, or verify evidence provenance before ingestion; the ingestion result is ignored.  
+**Impact:** Event payload claims can be promoted into knowledge without an independently verified execution record. A completion event alone is treated as sufficient evidence of a completed validation program.
+
+### RL-260 — ExperimentOrchestrator's public submission path bypasses its declared experiment lifecycle gates
+**Severity:** HIGH  
+**Evidence:** `submit_experiment/1` checks `real_execution_enabled` then directly calls `RealExecution.execute/1`. The handler does not invoke the module's `check_concurrent_limit/1`, `check_constitutional_gate/2`, resource estimation/admission, environment selection, experiment-entity creation, or workflow-dispatch lifecycle. These helper paths are separate from the public real-execution gateway.  
+**Impact:** The advertised concurrency, resource-aware scheduling and constitutional gating capabilities are not demonstrated on the actual public submission path. The real-execution grant gate remains present, but it is not equivalent to all declared orchestration controls.
+
+### RL-261 — RealExecution returns an accepted execution result even when RealHarness verdict is failure
+**Severity:** CRITICAL  
+**Evidence:** RealHarness returns `{:ok, %Result{verdict: {:fail, ...}}` when tests fail or benchmark regression occurs. RealExecution's `{:ok, sandbox_result}` branch builds verification and proceeds to return `{:ok, ...}` without requiring `verification.verdict == :pass`.  
+**Impact:** A failed test/benchmark run can be represented by the public execution API as a successful execution call. Callers must inspect the nested verdict; the top-level success tuple is not a pass/certification signal.
+
+### RL-262 — RealExecution can report success after execution-ledger persistence failure
+**Severity:** HIGH  
+**Evidence:** `record_execution/3` rescues filesystem/JSON errors, logs them and returns normally. The caller ignores the return value from `close_execution/...`; lifecycle close failure is only logged. Executive EventStore append is best-effort.  
+**Impact:** The execution path can return success without a confirmed durable execution ledger append or terminal provenance lifecycle record, contrary to the module's stated always-persistent ledger contract.
+
+### RL-263 — RealExecution substitutes unknown provenance when canonical provenance construction fails
+**Severity:** HIGH  
+**Evidence:** `build_provenance/2` returns `Provenance.unknown(...)` if Provenance.build fails, but the caller does not reject that result before returning the execution as successful.  
+**Impact:** An execution can be returned without a valid canonical `:real_execution` provenance record; the presence of a provenance-shaped value is not proof of valid lineage.
+
+### RL-264 — ExperimentOrchestrator stores real execution records only in volatile process state
+**Severity:** HIGH  
+**Evidence:** The real submission handler writes a completed experiment map into `state.experiments` and increments counters; no DETS/database reload, durable experiment record, or recovery scan is present in the inspected module.  
+**Impact:** Experiment history, results and counts disappear on process restart even though RealExecution may have a separate execution ledger. The orchestrator cannot reconstruct its own lifecycle from that ledger in the inspected path.
+
+### RL-265 — ExperimentOrchestrator result aggregation assumes fields not present in its real-execution result shape
+**Severity:** HIGH  
+**Evidence:** The public real-execution path stores `result: %{execution_id: ..., verification: ...}` and `eig: nil`. `aggregate_results/1` expects result fields `confidence` and `findings`, and reads EIG as a numeric value; absent confidence/findings default to zero/empty.  
+**Impact:** Aggregation of records created through the actual public submission path discards verification details and reports zero confidence/EIG rather than aggregating the real sandbox evidence.
+
+### RL-266 — ExperimentOrchestrator does not require a passing verification verdict before marking an experiment completed
+**Severity:** CRITICAL  
+**Evidence:** On any `{:ok, %{execution_id: ..., verification: verification}}` from RealExecution, the handler sets status `:completed` and increments completed_experiments. RL-261 establishes that RealExecution returns `:ok` even when the nested RealHarness verdict is `{:fail, ...}`.  
+**Impact:** Failed tests or benchmark regressions can be counted as completed experiments and exposed as successful lifecycle outcomes.
+
+### RL-267 — DiscoveryEngine stores discoveries and evidence only in volatile memory
+**Severity:** HIGH  
+**Evidence:** DiscoveryEngine initializes `discoveries: %{}`, `active_workflows: %{}` and stats in GenServer state; create/route evidence mutate only this state. No durable persistence or restart reconstruction is present in the inspected engine.  
+**Impact:** Discovery objects, evidence collections and workflow associations are lost on restart; the discovery engine cannot provide durable discovery lineage from its own store.
+
+### RL-268 — DiscoveryEngine route_evidence reports an integrity result without enforcing it
+**Severity:** HIGH  
+**Evidence:** `route_evidence/2` integrates supplied results, adds them to the discovery, calls DiscoveryLineage.verify_integrity(updated), and returns the integrity value. It does not reject or quarantine the updated discovery when integrity verification fails.  
+**Impact:** Evidence can be retained/routed despite a failed lineage integrity check; integrity is diagnostic output rather than a mandatory gate.
+
+### RL-269 — DiscoveryScheduler uses bounded live-world scans and converts source failures into empty evidence
+**Severity:** HIGH  
+**Evidence:** `fetch_world_entities/0` limits graph scan to 500 entities and returns `[]` if UnifiedRealityGraph is absent, query fails, or retrieval errors occur. Integrity report converts an empty entity list into all-zero/empty measures; active-conflict report marks analysis incomplete but does not fail the cycle.  
+**Impact:** Partial or unavailable world data can be treated as an empty discovery surface. The scheduler does not demonstrate full-corpus coverage or a hard stop when source coverage is unavailable.
+
+### RL-270 — DiscoveryScheduler's cycle completion and dispatch counters do not establish successful experiment execution
+**Severity:** HIGH  
+**Evidence:** The scheduler increments `total_experiments_executed` by `length(dispatched)` where dispatched entries are workflow IDs accepted by WorkflowEngine. It runs a DiscoveryQualityAssessor and logs non-pass recommendations, but does not gate cycle completion or undo dispatch for failed QA.  
+**Impact:** Workflow admission is counted as experiment execution; quality failures are warnings rather than enforced certification barriers.
+
+### RL-271 — DiscoveryScheduler marks workflow dispatch separately from real experiment execution and does not prove an execution backend
+**Severity:** HIGH  
+**Evidence:** The scheduler dispatches ExperimentStep and ValidationStep workflows. The inspected default CEL Observation/Experiment/Validation steps explicitly return unavailable; discovery-specific ExperimentStep/ValidationStep are separate modules and require their own provider/runtime verification. The scheduler's accepted workflow ID is treated as dispatch success.  
+**Impact:** Discovery workflow dispatch is not proof that the selected experiment ran against a real instrument/sandbox or that validation was performed. Discovery-specific steps must be audited independently before any execution claim.
+
+### RL-272 — DiscoveryMetrics uses volatile counters and misleading no-data health defaults
+**Severity:** MEDIUM  
+**Evidence:** All metrics are in-memory and reset on init. `get_health_score` sets completion rate to 1.0 when no discoveries were initiated; summary uses zero completion rate but still assigns success rate 0.5 when there are no outcomes.  
+**Impact:** Restart erases discovery metrics, and health score can appear favorable with no discovery activity or outcome evidence.
+
+### RL-273 — DiscoverySupervisor health reflects child process presence, not child operational readiness
+**Severity:** HIGH  
+**Evidence:** `health/0` checks only whether DiscoveryEngine, DiscoveryScheduler and DiscoveryMetrics processes are registered. It does not call each child's own health/constitutional score or verify dependencies, event subscriptions, persistence, provider availability or discovery-cycle success.  
+**Impact:** The supervisor can report healthy when children are alive but operationally unable to perform discovery or preserve evidence.
+
+**Checkpoint disposition:** 18 findings added (RL-256–RL-273). No finding is closed. No remediation was performed. Continue with DiscoveryScheduler's complete stage implementations, discovery step providers, discovery certification/quality/provenance components and remaining registered world/knowledge modules; then complete the CEL-wide runtime/caller/readiness matrix before ToolForge.
