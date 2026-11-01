@@ -2342,3 +2342,82 @@ The registry metadata is an intended service contract, not proof that every adve
 **Impact:** Invalid work shapes can cause runtime failure after resource allocation, leaving reservations behind; the boundary does not demonstrate authenticated, typed, transactionally admitted work.
 
 **Checkpoint disposition:** 11 findings added (RL-183–RL-193). No finding is closed. No remediation was performed. Continue CEL audit with MissionDirector and WorkflowEngine, then reconcile the remaining CEL service inventory before beginning the separate ToolForge lifecycle workstream.
+
+
+## Checkpoint 18.24 — MissionDirector and WorkflowEngine lifecycle audit
+
+**Source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Scope:** `lib/tiannara/cel/services/mission_director.ex`, `lib/tiannara/cel/services/workflow_engine.ex`, workflow outcome telemetry and orchestration call paths.  
+**Method/status:** Static source inspection only. No runtime tests, crash recovery exercise, persistence-failure injection, or governance-path execution was performed.
+
+### RL-194 — MissionDirector starts after mission-store initialization failure
+**Severity:** CRITICAL  
+**Evidence:** `MissionDirector.init/1` logs an error if `:dets.open_file/2` fails but still returns `{:ok, %{total_missions: 0, missions_by_status: %{}}}`. Subsequent mission operations call `:dets.insert/2`, `:dets.lookup/2` and `:dets.traverse/2` directly without checking that the table is open or that the operation succeeded.  
+**Impact:** The service can be considered started while its mission persistence substrate is unavailable; later calls may fail/crash rather than returning an explicit degraded/not-ready result. This is fail-open startup behavior for mission state.
+
+### RL-195 — MissionDirector persistence and transition audit are best-effort, not transactional
+**Severity:** HIGH  
+**Evidence:** `persist_mission/1` returns the raw `:dets.insert/2` result, but callers such as create/add-program/add-objective/launch/validation/completion do not check it before returning success. `record_transition/3` rescues all errors and returns `:ok`; event publication does likewise. Mission data, transition evidence and emitted events are not committed atomically.  
+**Impact:** A caller can receive a successful mission/program/objective/workflow/validation/completion response without durable mission state or corresponding audit evidence. Partial updates and silent audit loss are possible.
+
+### RL-196 — MissionDirector validation accepts presence, not verified evidence
+**Severity:** CRITICAL  
+**Evidence:** `submit_validation/2` only checks `length(evidence) >= 1`, then appends the supplied terms and sets the objective status to `:validated`. The inspected handler does not validate evidence schema, source identity, signatures, provenance, experiment linkage, independent review, reproducibility, falsification status, or constitutional approval.  
+**Impact:** Arbitrary nonempty caller-provided data can advance an objective to validated. The state transition is not proof that a scientific claim or deliverable passed a verification gate.
+
+### RL-197 — MissionDirector completion assessment is caller-authored and assessor identity is unverified
+**Severity:** HIGH  
+**Evidence:** `complete_mission/3` constructs the ImpactAssessment directly from caller-supplied numeric fields and assessor term. The gate only counts objectives still `:in_progress` or `:pending`; it does not verify the assessor's identity/authority, assessment evidence, metric derivation, or independent impact measurement.  
+**Impact:** Mission completion and reported impact can be asserted without a demonstrated trusted assessor or evidence-backed impact calculation.
+
+### RL-198 — MissionDirector status statistics are not reconstructed from durable mission records
+**Severity:** MEDIUM  
+**Evidence:** On initialization the service sets total/status counts to zero without traversing existing DETS mission records. `:stats` returns this in-memory state; several mutations such as add-program/objective do not update the counts.  
+**Impact:** After restart or state transitions, mission counts and status metrics can disagree with persisted mission records; the metrics are not authoritative lifecycle evidence.
+
+### RL-199 — WorkflowEngine does not restore persisted workflow state into its live state map
+**Severity:** CRITICAL  
+**Evidence:** On successful DETS open, `init/1` calls `recover_interrupted_workflows/0` only to log the returned list length, then initializes `workflows: %{}` and counters to zero. The recovery helper scans running workflows, writes a failed copy, but returns the original running workflow value from its map callback. Other persisted paused/terminal workflows are not loaded into the GenServer map in the inspected initialization path.  
+**Impact:** The DETS file is not used to reconstruct the service's operational workflow state. Existing workflow IDs may be unavailable through get/status/active APIs after restart; interrupted workflows are not restored as actionable or reconciled with resource ownership.
+
+### RL-200 — WorkflowEngine acknowledges start and lifecycle transitions without requiring persistence success
+**Severity:** CRITICAL  
+**Evidence:** `do_start_workflow/2` calls `persist_workflow/1` but ignores its return value, then records events, updates in-memory state and replies `{:ok, workflow_id}`. Pause, resume, cancel, checkpoint, step-success, failure and completion paths likewise invoke persistence without consistently checking the result before advancing state or acknowledging the caller. Persistence retries can eventually give up while retaining only in-memory state.  
+**Impact:** The engine can report accepted/advanced/completed work that is not durably recorded. A crash can erase acknowledged state and make external orchestration inconsistent with actual execution.
+
+### RL-201 — WorkflowEngine's advertised Council-gated high-impact execution is not demonstrated
+**Severity:** HIGH  
+**Evidence:** The high-impact path calls `ExecutiveDigitalTwin.simulate_strategy/1` and rejects a simulation recommendation of `:reject`; otherwise it attaches simulation evidence and starts the workflow. The inspected `handle_call({:start,...})` path does not request a Council authorization decision or verify a ratified policy/approval artifact before dispatch.  
+**Impact:** Simulation advice is treated as the high-impact gate in this path; it does not establish the separately advertised Council-gated authorization boundary.
+
+### RL-202 — CapabilityGraph provider discovery does not delegate execution to the selected provider
+**Severity:** HIGH  
+**Evidence:** `execute_step/2` calls `CapabilityGraph.find_optimal_provider/1` and receives a provider ID, but then invokes `step.module.execute(step.input, workflow.context)` directly. The provider ID is used only for success/failure trust reporting; no provider dispatch, authenticated provider invocation, or provider-result verification is present in this execution function.  
+**Impact:** Capability selection is advisory/telemetry in the inspected path, not actual provider delegation. The workflow can execute a local step module while reporting a selected provider as the execution provider.
+
+### RL-203 — Workflow step execution blocks the WorkflowEngine GenServer and has no enforced step timeout
+**Severity:** HIGH  
+**Evidence:** `handle_info({:advance_workflow,...})` calls `execute_next_step/2`, which directly calls `execute_step/2` and then `step.module.execute/2` in the GenServer process. The inspected path has no isolated worker, monitored task, deadline, cancellation token, or bounded execution timeout.  
+**Impact:** A slow or hung step blocks workflow control calls, pause/cancel requests, other workflow advances and recovery handling. Failure containment and responsiveness are not established.
+
+### RL-204 — WorkflowEngine crash recovery marks interrupted workflows failed without reconciling resources or compensation
+**Severity:** CRITICAL  
+**Evidence:** `recover_interrupted_workflows/0` changes a running workflow to failed and attempts to persist it, but does not invoke saga compensation or `release_resources/1`. It returns the original workflow value rather than the recovered value. The init caller does not load either form into the live workflow map.  
+**Impact:** Interrupted workflows can retain resource allocations, leave external side effects uncompensated and disappear from operational state. The recovery routine does not establish a reconciled post-crash lifecycle.
+
+### RL-205 — WorkflowEngine saga compensation records failures but does not enforce successful rollback
+**Severity:** HIGH  
+**Evidence:** `compensate_completed_steps/2` logs compensation failures and records `:compensation_failed` entries, but still returns `{:ok, workflow_with_log}`. Cancellation/failure paths then set terminal status to `:cancelled` or `:failed` and release resources without requiring every compensation to succeed or retaining an explicit unresolved-compensation state that blocks downstream completion.  
+**Impact:** A workflow can be labelled cancelled/failed after incomplete compensation without a verified stable postcondition. The advertised saga rollback guarantee is not enforced.
+
+### RL-206 — Workflow resource allocation is not scoped to a unique workflow reservation
+**Severity:** HIGH  
+**Evidence:** `do_start_workflow/2` allocates using the constant service key `:workflow_engine`, and `release_resources/1` releases under the same key. The ResourceManager stores one reservation per service ID (RL-186/187), while multiple workflows can be active concurrently.  
+**Impact:** Concurrent workflows share/overwrite one reservation identity; releasing one workflow can release the aggregate reservation for others, while allocations can be lost or leaked. Workflow-level resource ownership is not represented.
+
+### RL-207 — Workflow retention pruning deletes terminal records without a demonstrated archival receipt
+**Severity:** HIGH  
+**Evidence:** `prune/0` deletes terminal workflow DETS records older than the configured retention cutoff directly. The inspected function does not require an immutable archive, checkpoint, replay equivalence proof or downstream retention receipt before deletion.  
+**Impact:** Workflow lifecycle and evidence history can be permanently removed without demonstrated archival continuity, weakening auditability and reproducibility.
+
+**Checkpoint disposition:** 14 findings added (RL-194–RL-207). No finding is closed. No remediation was performed. Continue the CEL audit with remaining registered services and cross-service lifecycle/caller reconciliation; ToolForge remains a distinct later workstream.
