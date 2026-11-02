@@ -4426,3 +4426,20 @@ The inspected research components do not themselves establish a verifiable missi
 **Disposition:** RL-383, RL-384, and RL-385 added OPEN. RL-377 through RL-382 remain OPEN; no findings closed. Source modifications: 0. Runtime tests and live endpoint checks: NOT RUN.
 
 **Next checkpoint 18.55:** resolve the route target/controller implementation from the frozen tree; inspect Observatory startup supervision and Kardashev engine consumers; locate Phase 25 modules by repository tree/search rather than guessed paths; trace CapabilityGraph callers and ExecutiveMemory mutation durability; continue mapping CEL whole-system inventory evidence.
+
+
+### Checkpoint 18.55 — route dispatch and CEL graph audit
+
+**Scope:** frozen baseline `e71bc230a8d38f3a0108012685ae1a052d195b00`; source inspection only, no build, tests, or live HTTP request.
+
+**RL-386 OPEN — Kardashev route dispatch unresolved.** The router maps `/api/v1/civilization/kardashev` to `CILController.kardashev_status`. The expected `cil_controller.ex` path returns 404 at this ref; indexed search locates `kardashev_status/2` in `StatusController`, which calls ObservationBus status/projection functions. This is evidence of a route/handler mismatch, but not proof of runtime failure: another module definition or route compilation behavior was not ruled out. Inspect full module declarations and verify with a build and route request before claiming the endpoint works.
+
+**RL-387 OPEN — CapabilityGraph can acknowledge mutations after audit-record failure.** `lib/tiannara/cel/services/capability_graph.ex` implements `record_mutation/3` by calling `ExecutiveMemory.record_event/2` inside `try/rescue`, returning `:ok` on rescue. Mutation handlers can then return successful results without confirming the audit event. Governance-sensitive changes therefore lack guaranteed audit correspondence. Surface persistence failures and fail closed or use a durable outbox before acknowledging; test memory outages, write errors, restart and replay.
+
+**CEL integration — partial, not comprehensive.** `Tiannara.CEL.Services.ExecutiveStateManager` consumes `CapabilityGraph.stats/0` for capability totals and single-point-of-failure counts. This confirms a summary consumer, not system-wide reconciliation across source, runtime, build, supervision, data feeds and governance. Graph statistics and `healthy: true` do not establish inventory completeness; no denominator or unknown-edge coverage proof was found in inspected code.
+
+**Kardashev follow-up.** `ObservationBus.CIL.Civilization.KardashevEngine.init/1` seeds fixed energy values, current level, growth rate and projections, then timestamps the state. Status returns this in-memory state; projection ETA uses a simple fixed-rate formula. No measurement ingestion, provenance or freshness validation appears in this module. RL-383 remains OPEN.
+
+**Disposition:** RL-386 and RL-387 added OPEN; RL-377 through RL-385 remain OPEN; no findings closed. Source modifications: 0. Runtime validation NOT RUN.
+
+**Next checkpoint 18.56:** find all CILController definitions and route/build wiring; trace Kardashev supervision and input writers; inspect ExecutiveMemory persistence contracts and graph mutation callers; look for CEL reconciliation joining source inventory, builds, supervision and runtime evidence.
