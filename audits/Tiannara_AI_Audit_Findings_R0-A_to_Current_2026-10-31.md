@@ -4133,3 +4133,51 @@ The source contains several components intended to measure or counter diversity;
 - Source modifications: **0**.
 - Runtime tests, exploit attempts, subprocess execution and hardware actions: **NOT RUN**.
 - Next checkpoint: **18.48** — trace actual callers and enforcement effects for `HypothesisDiversityEngine`, `MetaScienceEngine`, `EpistemicDiversityTracker`, CIS/domain diversity, and research candidate selection/adoption. In parallel, continue the filesystem entry-point map and verify route authentication/mounting for physical deployment. Do not claim anti-monoculture prevention from score computation or documentation alone.
+
+
+### Checkpoint 18.48 — independent error detection, correction, and anti-doubling-down controls
+
+**Scope and method:** Read-only source inspection at frozen source baseline `e71bc230a8d38f3a0108012685ae1a052d195b00`. This checkpoint follows the actual caller/effect path for epistemic diversity, meta-science, research ranking/scoring/integration, and physical-deployment route exposure. No source files were changed. No runtime tests, exploits, subprocesses, or hardware actions were performed.
+
+#### 18.48.1 — What currently addresses a single agent doubling down
+
+The closest existing components are complementary, not a single proven independent correction system:
+
+- `Tiannara.Research.HypothesisRanker` (`lib/tiannara/research/hypothesis_ranker.ex`, source blob `3e9e18387b5a4bf7e7f36ac7043598df94a38364`) creates hypotheses from priorities and ranks supplied hypotheses by EIG, feasibility, and urgency. It stores generated hypotheses in process state. The inspected rank path does not itself compare a claim against an independent verifier or force a disconfirming test before ranking/adoption.
+- `Tiannara.Research.EvidenceScorer` (`lib/tiannara/research/evidence_scorer.ex`, blob `ef57427f20416888dd8ed37b0f24f9486d39545e`) computes a confidence score from observations. The current source assigns reproducibility by observation count (0.2/0.5/0.8), consistency as 0.75 for any nonempty observation set, and effect size from mean observation value divided by 100. `falsification_attempted` is inferred from presence of `experiment[:failure_criteria]`, not proof that an adversarial test actually ran. This scoring path is therefore not sufficient evidence of independent factual verification.
+- `Tiannara.Research.KnowledgeIntegrator` (`lib/tiannara/research/knowledge_integrator.ex`, blob `41a8718241e4cb682184a24c11729baa244591a9`) rejects non-`:real_execution` evidence and evidence below 0.7 confidence before integration. That is a useful execution-mode/threshold gate, but the inspected gate trusts the supplied evidence structure and confidence value; it does not independently recalculate whether the claim survived falsification or contradiction analysis.
+- `Tiannara.Discovery.Advanced.HypothesisDiversityEngine` (`lib/tiannara/discovery/advanced/hypothesis_diversity_engine.ex`, blob `fbd336dbdb58a3895b58d785522947931c9e0300`) computes causal, prediction, novelty/abstraction and prior-diversity metrics and emits recommendations. Its direct source does not enforce candidate inclusion, preserve minority hypotheses, or block selection when diversity is low.
+- `Tiannara.ASC.MetaScienceEngine` (`lib/tiannara/asc/meta_science_engine.ex`, blob `9434dcd8fe8b2c8948479a565465af48346bd71b`) detects low hypothesis diversity and unusually high confirmation rates and recommends cross-domain/analogical hypotheses and disconfirming evidence. Its `apply_improvements/1` publishes high-priority recommendations to `meta_science.improvements`; it does not directly enforce a research hold or prove that the receiving pipeline changes its candidate set. Its diversity calculation is based on supplied `hypothesis_types`, with no types defaulting to 0.5, so missing data can appear moderately diverse.
+- `Tiannara.Sentinel.Observatories.EpistemicDiversityTracker` (`tiannara_runtime/lib/tiannara/sentinel/observatories/epistemic_diversity_tracker.ex`, blob `00bc66b1b5f38a92b505564b2207467067086e48`) records action counts in volatile GenServer state and computes normalized Shannon entropy. The benchmark (`.../validation/consensus_benchmark.ex`, blob `34065eb841e6e954f19f159a56f9a47d09664a80`) reports `monoculture_detection_rate: 1.0` as an assumption and `adversarial_suite_pass_rate: consensus_accuracy` as a proxy; those fields are not measured proof of detection or adversarial success. Health reporting (`.../observatories/core/health_report.ex`, blob `328c65d62aa8546b24eb3a03116f5433274ad537`) includes a literal placeholder `disagreement_archives: 0 >= 100`, which always fails. The reliability tracker uses the diversity modifier in its weight calculation, but that is a metric adjustment rather than a mandatory claim-correction gate.
+- Existing tests cover diversity score ranges, one constructed comparison between two hypothesis sets, and MetaScience recommendation generation. They do not prove an end-to-end scenario in which a wrong agent claim is contradicted, independently re-tested, prevented from being reinforced, corrected, and removed or downgraded in downstream memory.
+
+#### 18.48.2 — Finding RL-374: independent epistemic correction is not an enforced end-to-end gate
+
+**Status:** OPEN — source-confirmed design gap; production-wide reachability and runtime exploitability not tested.
+
+**Evidence:** The reviewed components expose scores, candidate rankings, recommendations and threshold-based knowledge integration. The inspected paths do not establish an obligatory independent verifier, a mandatory contradiction/disconfirmation stage, a calibrated evidence-based confidence update, or a universal block on re-promoting a claim that has failed independent testing. The evidence scorer's current heuristic values and the benchmark's explicit proxy/assumption fields make it unsafe to treat their outputs alone as certification.
+
+**Risk:** A mistaken hypothesis can be ranked, evaluated using weak or correlated evidence, assigned an overconfident score, and potentially reintegrated without a demonstrably independent challenge. An agent can repeat its own rationale and count repetition as support. A consensus of agents that share assumptions, data, code, or model lineage can reinforce the same error rather than independently validate it.
+
+**Required control design (proposed; not implemented in this audit):**
+1. Treat every consequential claim as a versioned, provenance-carrying claim with explicit assumptions, evidence, uncertainty, falsification conditions, and dependencies.
+2. Require a genuinely separate challenge path to attempt disconfirmation: independently derive alternatives, seek counterevidence, check source provenance, test edge cases, and reproduce the result where feasible. Independence must be measured by method/data/lineage, not just a different agent ID.
+3. Separate proposal, challenge, evidence adjudication, and memory integration. The proposing agent must not be the sole judge of its own claim.
+4. Update confidence from evidence quality and calibrated outcomes; missing, correlated, synthetic, stale, or unverifiable evidence must not count as independent confirmation. UNKNOWN must remain UNKNOWN.
+5. On material contradiction, automatically mark the claim disputed, freeze confidence escalation and consequential downstream actions, preserve dissenting hypotheses, and queue re-test. Do not silently overwrite history.
+6. Require explicit resolution before restoring a disputed claim to trusted memory. Preserve prior versions, provenance and reasoned decision trail; use human authorization for consequential policy or self-modification changes.
+7. Test against adversarial cases: confident false claim, repeated self-citation, correlated agents, cherry-picked evidence, contradictory observations, missing provenance, verifier failure, and a claim that remains unresolved. Verify both false-positive and false-negative behavior.
+8. Make CEL able to inspect the complete claim→evidence→verifier→decision→memory lineage and detect disconnected or bypassed controls, while CEL itself remains governed by the constitution and human-authority boundary.
+
+**Closure criteria:** Caller and supervisor map complete; independent verifier and mandatory enforcement points identified; tests demonstrate that contradiction blocks confidence escalation/integration and consequential execution; recovery/reconsideration is auditable; no simulated or self-reported pass can satisfy real evidence gates; relevant test suite actually run and results attached.
+
+#### 18.48.3 — Physical deployment route cross-check
+
+At the frozen baseline, `lib/tiannara/web/router.ex` (blob `917c749e023ff86d59200798b93dfe4bfd9c11f0`) mounts `POST /api/v1/reality/physical`, `POST /api/v1/reality/physical/:id/advance`, `POST /api/v1/reality/physical/:id/approve`, and `POST /api/v1/reality/physical/:id/abort` in the `:api` pipeline, which visibly contains only `accepts(["json"])`. No authentication/authorization plug appears in that pipeline. This confirms route mounting and the absence of auth plugs in the inspected router pipeline; deployment environment, upstream proxy controls and other middleware were not verified. Keep RL-372 open: request-supplied approver identity and physical action controls need authenticated, authorized, plan-digest-bound approvals at the execution boundary before any real adapter can be considered safe.
+
+#### 18.48.4 Disposition and next work
+
+- New finding: **RL-374 — independent epistemic correction is not an enforced end-to-end gate** (OPEN).
+- RL-365, RL-371, RL-372 and RL-373 remain open; no findings closed.
+- Source modifications: **0**. Runtime tests/exploit attempts/subprocesses/hardware actions: **NOT RUN**.
+- Checkpoint 18.49 should trace the actual discovery candidate-selection and knowledge-re-evaluation paths (including scheduler and memory consumers), confirm whether disputed/rejected claims can be reintroduced, and map any existing contradiction-analysis components to enforcement points. Keep the proposed correction loop separate from implementation until the audit identifies its real integration boundaries.
