@@ -4081,3 +4081,55 @@ This ordering is a recommendation; no remediation was applied in this checkpoint
 - Existing RL-365, RL-361, RL-368, RL-371 and RL-372 remain open. ToolBuilder output containment is an additional review target but is not assigned a separate finding in this checkpoint pending caller/trust-boundary analysis.
 
 **Next checkpoint:** 18.47 — trace callers and input provenance for ToolBuilder, persistent ExperimentJournal, RepositoryTwin, and PhysicalDeploymentManager; inspect exact path/name validation and startup/configuration wiring in both `lib/` and `tiannara_runtime/lib/`. Then consolidate overlapping filesystem-containment findings and prepare a test matrix for the first remediation batch. Do not modify source until remediation is explicitly authorized; UNKNOWN remains UNKNOWN, not PASS.
+
+
+## Checkpoint 18.47 — caller provenance, public entry points, and algorithmic monoculture controls
+
+**Frozen source baseline:** `e71bc230a8d38f3a0108012685ae1a052d195b00`  
+**Mode:** read-only source inspection. No source changes, runtime tests, path exploits, subprocesses or physical actions were performed.  
+**Coverage note:** exact source files were fetched at the frozen ref. Repository code search is partial and does not establish absence of callers.
+
+### 18.47.1 RL-373 — experiment journal input provenance
+
+- `TiannaraRuntime.OS.Persistence.ExperimentJournal` exposes `create_journal/3`, `record_stage/5`, `set_checkpoint/1`, `complete/2`, `fail/2`, and `get_resume_stage/1` using an `experiment_id` argument. The private `journal_file_path/1` interpolates that ID into a filename beneath the configured CPL storage directory's `experiments` subdirectory; `persist_journal/1` creates parents and writes the file.
+- The code-search pass found the module's own definitions but did not establish a complete production caller map. A separate in-memory module, `TiannaraRuntime.OS.Resurrection.ExperimentJournal`, exists; it must not be mistaken for proof that the persistence module's path construction is safe.
+- **Disposition:** RL-373 remains open. Input provenance, caller trust and exploitation are unknown. Require explicit identifier validation and final-path containment plus isolated traversal/symlink tests.
+
+### 18.47.2 ToolBuilder output and generated-code boundary
+
+- `Tiannara.ToolForge.ToolBuilder.build_to_disk/2` is a public function accepting a `ToolSpecification` and caller-selected `output_dir`. The server writes each generated source/test filename with `Path.join`, creates parent directories, and writes content. The reviewed code contains no explicit final-path containment or symlink-safe write check.
+- Code search did not establish a production caller for `build_to_disk/2`; this is **not** evidence that no caller exists. It is a write-capable API whose caller permissions and output-root trust boundary remain to be traced.
+- No new numbered finding assigned in this checkpoint. Keep it as an open containment review target alongside RL-365/RL-371/RL-373 until caller and filename validation evidence is gathered.
+
+### 18.47.3 Physical deployment approval is reachable through a web-controller method
+
+- At the frozen ref, `Tiannara.Web.CRAVChallengeController.physical_plan/2` forwards a request-derived design to `PhysicalDeploymentManager.plan/1`; `physical_approve/2` derives `approver` and `note` from request parameters and forwards the selected action to approve/reject/abort/emergency-stop; `physical_advance/2` forwards an ID to `advance/1`. This establishes a controller-level entry point in source, but does **not** establish that the route is mounted, exposed externally, or protected/unprotected by authentication middleware.
+- Combined with RL-372, the handler records a supplied approver value without authenticating it. Do not treat a request parameter as proof of human approval. Before a real adapter can be enabled, authenticate the requester, authorize the specific action, bind signed approval to the exact design/plan digest, enforce the approval invariant at execution time, and verify route middleware/configuration. No hardware action was performed.
+
+### 18.47.4 Algorithmic monoculture — system map and evidence boundary
+
+The source contains several components intended to measure or counter diversity; no single one is yet proven to be an end-to-end, system-wide monoculture control:
+
+1. **`Tiannara.Discovery.Advanced.HypothesisDiversityEngine`** — the most directly relevant source module for *hypothesis monoculture*. It computes causal, prediction, abstraction and prior diversity scores, combines them, and emits recommendations when selected dimensions fall below thresholds. This is a measurement/recommendation surface; the reviewed code alone does not prove that recommendations are enforced by every research pipeline.
+2. **`Tiannara.ASC.MetaScienceEngine`** — computes a hypothesis-diversity score and emits a bottleneck/recommendation when it falls below 0.4, including cross-domain and analogical generation. This indicates a research-process feedback mechanism, not proof that diverse hypotheses are actually generated or retained.
+3. **`Tiannara.Sentinel.Observatories.EpistemicDiversityTracker`** in `tiannara_runtime/lib` — exposes per-observatory and mesh diversity-index/modifier calls. Its collection coverage, scoring semantics, consumers, alerting, and authority to block monoculture-causing changes remain to be traced.
+4. **CIS / Domain Cortex / GRCC-related constraints** — existing architecture and audit artifacts describe domain-diversity and monoculture checks. Documentation and test/gauntlet names are not runtime proof; verify exact implementation, production wiring, thresholds, and whether a low-diversity signal changes selection/adoption behavior.
+5. **Research selection and knowledge integration** — these are critical downstream controls: diversity must influence candidate generation, experiment selection, evidence review, knowledge integration, and adoption. A score alone cannot prevent convergence if downstream ranking, shared objectives, common priors, or approval policy continue to select one dominant approach.
+
+**Audit conclusion:** If asking which system *deals with algorithmic monoculture*, the closest direct owner in the reviewed source is `HypothesisDiversityEngine`, supported by `MetaScienceEngine` and the runtime `EpistemicDiversityTracker`; CIS/domain-diversity controls are additional intended guardrails. This is a distributed responsibility, not yet demonstrated as one enforced end-to-end control. The audit must trace callers and action effects before assigning a “prevents monoculture” status.
+
+**Minimum acceptance criteria for an effective anti-monoculture system:**
+- Measure diversity across algorithm families, causal assumptions, representations, objectives, data/provenance, and research methods—not just domain labels.
+- Detect concentration/collapse over time and identify correlated/shared lineage among nominally different candidates.
+- Actively generate or admit genuinely different alternatives when diversity falls, then evaluate them with comparable evidence.
+- Preserve minority hypotheses and local/domain-specific approaches until fair testing; do not force consensus just to increase a scalar score.
+- Prevent a single shared metric, model, prior, or governance path from silently dominating every candidate.
+- Keep immutable evidence and human-governed policy changes; test that low-diversity conditions trigger the expected action and that cosmetic diversity cannot pass.
+
+### 18.47.5 Disposition
+
+- New findings: none in this checkpoint; RL-373 and RL-365/RL-371/RL-372 remain open.
+- Findings closed: **0**.
+- Source modifications: **0**.
+- Runtime tests, exploit attempts, subprocess execution and hardware actions: **NOT RUN**.
+- Next checkpoint: **18.48** — trace actual callers and enforcement effects for `HypothesisDiversityEngine`, `MetaScienceEngine`, `EpistemicDiversityTracker`, CIS/domain diversity, and research candidate selection/adoption. In parallel, continue the filesystem entry-point map and verify route authentication/mounting for physical deployment. Do not claim anti-monoculture prevention from score computation or documentation alone.
