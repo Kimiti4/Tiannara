@@ -4181,3 +4181,47 @@ At the frozen baseline, `lib/tiannara/web/router.ex` (blob `917c749e023ff86d5920
 - RL-365, RL-371, RL-372 and RL-373 remain open; no findings closed.
 - Source modifications: **0**. Runtime tests/exploit attempts/subprocesses/hardware actions: **NOT RUN**.
 - Checkpoint 18.49 should trace the actual discovery candidate-selection and knowledge-re-evaluation paths (including scheduler and memory consumers), confirm whether disputed/rejected claims can be reintroduced, and map any existing contradiction-analysis components to enforcement points. Keep the proposed correction loop separate from implementation until the audit identifies its real integration boundaries.
+
+
+### Checkpoint 18.49 — rejected-claim re-entry, discovery selection, and memory re-evaluation
+
+**Scope and method:** Read-only inspection of discovery selection, contradiction analysis, research queue/quarantine, knowledge integration, and memory re-evaluation at frozen source baseline `e71bc230a8d38f3a0108012685ae1a052d195b00`. Search excerpts are treated as discovery aids only; the cited implementation files were fetched at the frozen ref. No code changes or runtime tests were performed.
+
+#### 18.49.1 — Discovery diversity is partially enforced, but does not establish epistemic correctness
+
+- `lib/tiannara/discovery/discovery_prioritizer.ex` (blob `75ccb7be0eacef1c453ca03d9c73096fc2ad688e`) does more than merely warn: `rank_with_diversity/1` sorts discoveries and runs `enforce_diversity/1`, with caps of three per domain and two per causal model. `DiscoveryScheduler.run_cycle/1` calls this ranking and selects up to three discoveries for dispatch. This is a real bounded diversity mechanism on that scheduler path.
+- The guard is narrow: it constrains domain and `metadata[:causal_model]` counts, not evidence-source independence, shared assumptions, model lineage, data leakage, objective diversity, or whether the claim is correct. Missing causal-model metadata collapses to `:unknown`, which can cause unrelated unknowns to be grouped together. `detect_monoculture/1` reports warnings; it does not itself prove that all system-wide candidate paths use the same selection gate.
+- `DiscoveryScheduler` uses `ContradictionAnalyzer` to turn active conflicts into research gaps, then generates hypotheses/predictions/experiments and dispatches selected workflows. This routes detected conflicts into follow-up research; it does not, in the inspected path, mark the underlying claim disputed in all knowledge stores or block that claim from other downstream use.
+- `lib/tiannara/discovery/contradiction_analyzer.ex` (blob `528739ec970a7944250fcec4b50cbc545a1ea060`) assigns type from simple fields and fixed impact values (direct 0.9, inferred 0.6, contextual 0.4; unknown based on entity count). It ranks conflicts heuristically; this is not a proof of logical inconsistency or an independent resolution verdict.
+
+#### 18.49.2 — Research quarantine helps, but rejected-claim re-entry and re-evaluation are not closed
+
+- `lib/tiannara/research/research_director.ex` at the frozen baseline logs “R0 quarantine active” and, when its queue reaches an experiment, records a quarantine event instead of persisting a fabricated result. This is a concrete guard on that legacy pipeline's experiment-result path.
+- The same pipeline's ingest path generates and ranks hypotheses and enqueues them. The quarantine handler does not by itself establish a system-wide prohibition on other experiment paths or other consumers integrating results. Treat this as a path-specific safeguard, not universal protection.
+- `lib/tiannara/research/knowledge_integrator.ex` (blob `41a8718241e4cb682184a24c11729baa244591a9`) rejects integration unless the caller supplies `execution_mode: :real_execution` and confidence is at least 0.7. However, it trusts the supplied evidence map and confidence rather than independently recomputing evidence validity, and its `persist_to_executive_memory/1` catches and suppresses failures. The knowledge item records `re_evaluation_due` seven days later, but this module exposes no due-item query or scheduled re-evaluation handler in the inspected file. A due timestamp is not proof that re-evaluation happens.
+- `KnowledgeIntegrator` keeps its own knowledge in GenServer memory and writes a copy to ExecutiveMemory when available. The inspected `real_knowledge/1` accessor filters only that process-local list by quarantine flag and execution mode. It is not a global query over every memory, world-model, research, or runtime store.
+- The frozen source's `DiscoveryScheduler` handles completed workflows as `:supported` when the workflow outcome is `:success`, otherwise `:inconclusive`; confidence delta uses the confidence values found in step evidence, and defaults to +0.1 when a supported outcome has no confidence values. That fallback and outcome mapping deserve tests: success is not automatically the same as independently verified truth. No evidence here establishes a universal reverse update that demotes or retracts previously integrated knowledge when a later contradiction appears.
+
+#### 18.49.3 — Finding RL-375: contradiction handling does not universally invalidate and re-evaluate downstream claims
+
+**Status:** OPEN — source-confirmed integration gap; full production call graph and runtime behavior remain unverified.
+
+**Evidence:** Contradictions can become discovery gaps; diversity selection constrains a subset of scheduler candidates; the ResearchDirector quarantine blocks its own legacy fabricated-result path; and KnowledgeIntegrator applies execution-mode/confidence checks. The inspected sources do not connect these into a mandatory end-to-end lifecycle that marks an affected claim disputed, freezes consequential use, triggers independent re-evaluation, propagates a corrected status to all dependent memories, and prevents stale/rejected versions from being promoted again.
+
+**Risk:** A claim may be contradicted in one subsystem while another store or consumer continues using its prior status. It may be rediscovered and promoted based on a separate evidence path, or its re-evaluation deadline may pass without any visible re-evaluation. This is a plausible architecture risk; no runtime re-entry exploit was performed.
+
+**Required controls (proposed, not implemented):**
+1. Introduce a canonical claim identity/version and a system-wide status transition contract: proposed → supported / disputed / rejected / superseded, with append-only provenance.
+2. When a material contradiction is recorded, publish a typed event keyed to claim/version and dependency lineage; all memory, world-model, research-ranking, and consequential-action consumers must either acknowledge the new state or fail closed.
+3. Block confidence increases, trusted-memory promotion, and consequential action while a material contradiction is unresolved. Preserve alternative hypotheses and the original evidence rather than overwriting history.
+4. Make re-evaluation operational: due-item scheduler, independently sourced new evidence, version-aware recalculation, stale-claim warnings, failure/timeout states, and auditable completion records. A timestamp alone is insufficient.
+5. Require provenance-backed verification at the integration boundary, not just caller-supplied `execution_mode` and confidence. A claimed real execution must be bound to an authenticated run record and exact evidence digest.
+6. Test: contradiction after prior integration; conflict propagates to each consumer; rejected claim cannot be re-promoted without new qualifying evidence; missing verifier or memory write fails closed; duplicate/out-of-order events remain idempotent; expiry and scheduler downtime are visible; unrelated claims remain unaffected.
+
+#### 18.49.4 — Disposition
+
+- New finding: **RL-375 — contradiction handling does not universally invalidate and re-evaluate downstream claims** (OPEN).
+- RL-374 remains OPEN: independent epistemic correction is not enforced end-to-end.
+- RL-365, RL-371, RL-372, RL-373 remain OPEN; no findings closed.
+- Source modifications: **0**. Runtime tests, re-entry exploits, subprocesses, and hardware actions: **NOT RUN**.
+- Checkpoint 18.50: trace all consumers of the canonical contradiction/evidence events and ExecutiveMemory knowledge records; determine which components can still read or act on disputed/stale knowledge, and whether the proposed claim lifecycle can be enforced without bypassing constitutional and human-approval boundaries.
