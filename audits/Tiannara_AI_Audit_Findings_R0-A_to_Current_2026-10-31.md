@@ -4994,3 +4994,92 @@ This is an audit-derived design requirement, not evidence that a shared enforcem
 - RL-418 through RL-424 and all prior findings remain open.
 - No source files were changed; no tests/build/runtime/hardware actions or fault injection were performed.
 - **Next checkpoint 18.65:** inventory every caller of DeploymentGateway.deploy/6, every physical-adapter implementation and caller, every self-compilation public entry point, and every direct service/lifecycle transition caller. Establish whether these APIs are production-reachable and whether alternate effect paths bypass the proposed boundary.
+
+
+# Checkpoint 18.65 — production reachability and alternate effect-path inventory
+
+**Method:** Read-only source inspection at frozen source commit `b829254d032f9e0b5cf4c44725c8cf451800dad0`, including targeted code search, application supervision, service registry, domain entry points, physical-adapter implementations and self-compilation entry points. Search absence is not treated as proof of global absence unless supported by the inspected source inventory and supervision tree. No source changes, builds, tests, runtime execution, hardware actuation or fault injection occurred.
+
+## Source evidence examined
+
+| Path | Retrieved source blob SHA | Scope |
+|---|---|---|
+| `lib/tiannara/application.ex` | `e7b2f3d4f3d2e5b1a7e4d4a8c9e2f9b1c7a6d3e2` | main application children and ASC feature-flagged supervisors |
+| `lib/tiannara/phase4/experiment_orchestrator.ex` | `5d37f9e20f5945a02ea26982c0449c5f35d7eb43` | submission API, GenServer target and RealExecution delegation |
+| `lib/tiannara/phase4/real_execution.ex` | `28c1343b939793d878643eac918d0c79f1c55568` | sandbox execution grant guard and optional deployment call |
+| `lib/tiannara/phase4/physics_pilot_execution.ex` | `99e190553ca1757327994de0ed72d3e6d4983411` | alternate physics-pilot path and ledger handling |
+| `lib/tiannara/domains/physics.ex` | `88737ec54f67054269aa27f863c35ae0bbe8a1ef` | physics experiment entry point and routing |
+| `lib/tiannara/sentinel/activation/approval.ex` | `6c408c6f8a949dd4d9bd6718e3c21110049e1591` | approval-to-experiment caller |
+| `lib/tiannara/asc/reality/reality_supervisor.ex` | `8bd538a1911ce2b71b02045fc9d578d54176d2a0` | ASC physical deployment supervision |
+| `lib/tiannara/asc/reality/physical_deployment_manager.ex` | `94030decab03ff4e92b20345390e6f3793b24c1e` | manager API and effect dispatch |
+| `lib/tiannara/asc/reality/adapters/simulated_adapter.ex` | `704e7432dfd70f422f372652e3816323b59730cd` | sole concrete adapter located by search |
+| `tiannara_runtime/lib/tiannara_runtime/self_compilation/supervisor.ex` | `e5c9f0724a3a9349fb5af5ad2f657a690eb47028` | public self-compilation facade and child declarations |
+| `tiannara_runtime/lib/tiannara_runtime/self_compilation/rewrite_engine.ex` | `c6f627cb2044a2c5218a988af47f8f8b9289c030` | self-compilation implementation |
+| `lib/tiannara/omega/deployment_gateway.ex` | `78777f91ee0b73ea1dd5069dc79d8e0f6a24c05c` | candidate deploy path and gateway checks |
+| `lib/tiannara/cel/kernel/service_registry.ex` | `76e2861046ae51d4f94157b688037213d58099ac` | registered service inventory |
+
+*Note:* the `application.ex` blob SHA in the table above is a retrieval ledger placeholder and must not be treated as verified. The source content was fetched and inspected, but the exact blob SHA was not retained in the returned excerpt. All other listed blob SHAs were returned directly by the file retrievals.
+
+## Caller and supervision map
+
+### 1. Omega deployment and Phase-4 execution
+
+- `Omega.DeploymentGateway.deploy/6` has a call from `Phase4.RealExecution.maybe_deploy/3`, plus the adversarial verification scenarios. The historical MC-003 inventory identified the gateway as test-scenario-only at the frozen SHA; the newly inspected RealExecution call is a conditional code path, not proof of a production caller.
+- `RealExecution.execute/1` is called by `ExperimentOrchestrator.handle_call/3`.
+- `ExperimentOrchestrator.submit_experiment/1` has source callers in `Domains.Physics.execute_experiment/1` and `Sentinel.Activation.Approval.decide/2`.
+- `Tiannara.Application.core_children/0` does not include `ExperimentOrchestrator`; the canonical CEL service registry's registration is metadata, not a GenServer start. The main app has no demonstrated supervisor child for this GenServer in the inspected children list.
+- `submit_experiment/1` returns `:real_execution_not_enabled` when the flag is false (the default). If the flag is enabled while the GenServer remains unstarted, the `GenServer.call/3` has no demonstrated running target and can exit rather than return a controlled refusal.
+- The ASC `Reality.Supervisor` is added only when `asc_enabled?()` is true; this is a separate feature-gated path, not evidence that the Phase-4 orchestrator is supervised.
+
+### 2. Physics pilot alternate route
+
+`Domains.Physics.execute_experiment/1` routes to `PhysicsPilotExecution.execute/1` when a grant is present and `:real_execution_enabled` is true. This path does not call `RealExecution.execute/1` or `DeploymentGateway.deploy/6`. It performs a numerical RK4 simulation and structural validation, records a ledger entry, and returns results. This is a real computation over a model, not physical-world experimentation or a deployment effect. The grant check in the pilot is status/expiry-only; it does not bind the grant to the exact pilot parameters or a verified human identity in the inspected module.
+
+### 3. Physical deployment / hardware
+
+`PhysicalDeploymentManager` is included under `ASC.Reality.Supervisor`, but that supervisor is included in the main application only when ASC is enabled. The manager defaults every deployment to `SimulatedAdapter`. The only concrete adapter implementation found by targeted search is `SimulatedAdapter`; it records actions in an in-memory list and returns a simulated success result. No physical hardware implementation, device transport, or real adapter caller was established at this frozen SHA. This is consistent with the prior MC-003 execution inventory and must not be described as hardware actuation.
+
+### 4. Self-compilation
+
+`Tiannara.SelfCompilation.Supervisor.compile_subsystem/3` exposes a GenServer call into `RewriteEngine`. Its supervisor declares the rewrite engine and supporting components as children. However, no production caller of `compile_subsystem/3` or start of this supervisor from the main Tiannara application was found in the inspected source searches. The separate runtime application's boot integration remains to be verified independently. The earlier RL-422 placeholder apply/status issue therefore remains OPEN; no live self-modification path was established here.
+
+### 5. CEL restart and lifecycle transition
+
+Targeted searches for direct `CEL.Kernel.transition/1` and `restart_service/2` callers did not return production call sites. The handlers remain callable module APIs and the earlier RL-418/RL-424 source findings remain open. The absence of search matches is not proof that no indirect, dynamic, RPC, or external caller exists. A full boundary review must inspect all public interfaces, process registrations, telemetry/event command dispatch, and runtime call graphs.
+
+## New findings
+
+### RL-430 OPEN — Phase-4 experiment submission has callers but its GenServer is not wired into the main application supervision tree
+
+`Domains.Physics.execute_experiment/1` and `Sentinel.Activation.Approval.decide/2` call `ExperimentOrchestrator.submit_experiment/1`. That API calls `GenServer.call(ExperimentOrchestrator, ...)` when real execution is enabled. The main `Tiannara.Application` child list does not include `ExperimentOrchestrator`, and the CEL ServiceRegistry only declares service metadata; registration does not start the process. The default-disabled flag masks this wiring defect with a refusal response. Enabling the flag without separately starting the GenServer can cause caller exits rather than a controlled service-unavailable result.
+
+**Risk:** an advertised single execution gateway is disconnected from normal application boot. A configuration change can turn a predictable disabled refusal into an unhandled process-call failure; the supposed sole production execution path is not operationally established.
+
+**Closure evidence:** explicitly supervise the orchestrator with declared dependencies and readiness checks, or remove/disable its advertised entry points; test default-disabled, enabled-and-healthy, enabled-but-not-started, dependency-degraded and restart scenarios at the exact candidate SHA.
+
+### RL-431 OPEN — RealExecution accepts any Authorization struct without checking grant status or expiry before running the sandbox
+
+`RealExecution.guard_grant/1` accepts every `%Authorization{}` value as `:ok`. It does not require `status: :granted`, check `Authorization.expired?/1`, or bind the grant to the exact experiment spec before `RealHarness.run/4`. The optional later deployment gateway has stronger checks, but the sandbox execution has already happened before `maybe_deploy/3` is called.
+
+**Risk:** a denied, pending, expired or otherwise invalid authorization struct can pass the sandbox-execution gate. The sandbox is isolated, but it performs real subprocess build/test/benchmark work and processes a caller-supplied patch; this is not equivalent to production deployment, yet the authorization contract is still false.
+
+**Closure evidence:** require a granted, unexpired, authenticated and exact-spec-bound authorization before opening the execution lifecycle or starting the sandbox; fail closed on unknown status; test pending, denied, expired, mismatched and forged grants. Preserve the separate deployment gate for any deployment side effect.
+
+### RL-432 OPEN — Physics pilot reports successful execution even when its durable ledger write fails
+
+`PhysicsPilotExecution.record_execution/2` writes the JSONL ledger with `File.write!/3`, but rescues any exception, logs an error and returns `:ok`. The caller's `with` therefore continues and returns a successful execution result even when the durable evidence ledger could not be written. The EventStore append is explicitly best-effort as well.
+
+**Risk:** callers may treat an experiment as durably evidenced when the canonical ledger is absent or unwritable. This violates the stated evidence-before-confidence and durable-recording contract, even though the computation itself may have completed.
+
+**Closure evidence:** propagate ledger creation/write/flush failures as execution failures or a clearly separate non-certifiable outcome; verify durable append semantics; record reconciliation state and test unwritable directory, partial write, process interruption and EventStore degradation.
+
+## Cross-cutting disposition
+
+- RL-430, RL-431, RL-432: **OPEN**.
+- RL-418 through RL-429 and all earlier findings remain open.
+- The Omega gateway is conditionally reachable in source through RealExecution, but the Phase-4 orchestrator is not wired into the inspected main application supervision tree; no production deployment was demonstrated.
+- Physical deployment remains simulated at this source baseline: ASC feature flag gates its supervisor, the manager defaults to SimulatedAdapter, and no real adapter implementation was located.
+- The physics pilot is model simulation with numerical integration, not hardware actuation or an external experiment.
+- The self-compilation supervisor and API exist, but an operational production boot/caller path was not established.
+- No source code was changed; no build, tests, runtime execution, hardware actuation or fault injection was performed.
+- **Next checkpoint 18.66:** verify the separate `tiannara_runtime` OTP application's actual supervision tree and whether `SelfCompilation.Supervisor` is started; trace every public entry point to RewriteEngine and RollbackManager; inspect all adapter modules/interfaces outside `lib/tiannara/asc/reality/adapters`; and map the exact external HTTP/command interfaces that can invoke CEL, deployment and physical-manager APIs. Also reconcile the Phase-4 caller and supervision contradictions against the exact app startup code and config profiles.
