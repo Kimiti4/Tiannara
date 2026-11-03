@@ -5004,7 +5004,7 @@ This is an audit-derived design requirement, not evidence that a shared enforcem
 
 | Path | Retrieved source blob SHA | Scope |
 |---|---|---|
-| `lib/tiannara/application.ex` | `e7b2f3d4f3d2e5b1a7e4d4a8c9e2f9b1c7a6d3e2` | main application children and ASC feature-flagged supervisors |
+| `lib/tiannara/application.ex` | *blob SHA not retained in retrieval output* | main application children and ASC feature-flagged supervisors |
 | `lib/tiannara/phase4/experiment_orchestrator.ex` | `5d37f9e20f5945a02ea26982c0449c5f35d7eb43` | submission API, GenServer target and RealExecution delegation |
 | `lib/tiannara/phase4/real_execution.ex` | `28c1343b939793d878643eac918d0c79f1c55568` | sandbox execution grant guard and optional deployment call |
 | `lib/tiannara/phase4/physics_pilot_execution.ex` | `99e190553ca1757327994de0ed72d3e6d4983411` | alternate physics-pilot path and ledger handling |
@@ -5018,7 +5018,7 @@ This is an audit-derived design requirement, not evidence that a shared enforcem
 | `lib/tiannara/omega/deployment_gateway.ex` | `78777f91ee0b73ea1dd5069dc79d8e0f6a24c05c` | candidate deploy path and gateway checks |
 | `lib/tiannara/cel/kernel/service_registry.ex` | `76e2861046ae51d4f94157b688037213d58099ac` | registered service inventory |
 
-*Note:* the `application.ex` blob SHA in the table above is a retrieval ledger placeholder and must not be treated as verified. The source content was fetched and inspected, but the exact blob SHA was not retained in the returned excerpt. All other listed blob SHAs were returned directly by the file retrievals.
+*Evidence limitation:* the exact blob SHA for `application.ex` was not retained in the retrieval output, so no SHA is asserted for that row. Its fetched source content was inspected. All other listed blob SHAs were returned directly by the file retrievals.
 
 ## Caller and supervision map
 
