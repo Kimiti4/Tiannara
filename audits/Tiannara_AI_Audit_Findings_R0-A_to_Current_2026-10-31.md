@@ -5083,3 +5083,69 @@ Targeted searches for direct `CEL.Kernel.transition/1` and `restart_service/2` c
 - The self-compilation supervisor and API exist, but an operational production boot/caller path was not established.
 - No source code was changed; no build, tests, runtime execution, hardware actuation or fault injection was performed.
 - **Next checkpoint 18.66:** verify the separate `tiannara_runtime` OTP application's actual supervision tree and whether `SelfCompilation.Supervisor` is started; trace every public entry point to RewriteEngine and RollbackManager; inspect all adapter modules/interfaces outside `lib/tiannara/asc/reality/adapters`; and map the exact external HTTP/command interfaces that can invoke CEL, deployment and physical-manager APIs. Also reconcile the Phase-4 caller and supervision contradictions against the exact app startup code and config profiles.
+
+
+## Checkpoint 18.66 — runtime boot graph, self-modification reachability, and external physical-control API
+
+**Inspection basis:** frozen source commit `b829254d032f9e0b5cf4c44725c8cf451800dad0`. Read-only GitHub source inspection. No source edits, build, tests, live HTTP requests, runtime boot, hardware connection, or actuation were performed.
+
+### Source files and blob identities inspected
+
+- `tiannara_runtime/lib/tiannara_runtime/application.ex` — `02a079abe2c1092b74686e1b11e95265d09ea25f`
+- `tiannara_runtime/lib/tiannara_runtime/startup_supervisor.ex` — `eaaec6cd69c57486984625f5f033cd05691ab98b`
+- `tiannara_runtime/lib/tiannara_runtime/runtime_layers/supervisors.ex` — `54b0be85fc5e5b616acdc39e09d785e5e976e1a8`
+- `tiannara_runtime/lib/tiannara_runtime/self_compilation/supervisor.ex` — `e5c9f0724a3a9349fb5af5ad2f657a690eb47028`
+- `tiannara_runtime/lib/tiannara_runtime/self_compilation/rewrite_engine.ex` — `c6f627cb2044a2c5218a988af47f8f8b9289c030`
+- `tiannara_runtime/lib/tiannara_runtime/ccr/ccr_bridge.ex` — `091d49bbcf43784412f316daa7ab63988ebe590d`
+- `lib/tiannara/web/router.ex` — `917c749e023ff86d59200798b93dfe4bfd9c11f0`
+- `lib/tiannara/web/crav_challenge_controller.ex` — `403b7177633cbb187d7388df86dc5bd02eb40046`
+- `lib/tiannara/asc/reality/physical_adapter.ex` — `735b1b95103750704df235afa1c92b02ff0d18f2`
+- `lib/tiannara/asc/reality/physical_deployment_manager.ex` — `94030decab03ff4e92b20345390e6f3793b24c1e`
+- `lib/tiannara/asc/reality/adapters/simulated_adapter.ex` — `704e7432dfd70f422f372652e3816323b59730cd`
+- `lib/tiannara/asc/reality/reality_supervisor.ex` — `8bd538a1911ce2b71b02045fc9d578d54176d2a0`
+- `lib/tiannara/phase4/experiment_orchestrator.ex` — `5d37f9e20f5945a02ea26982c0449c5f35d7eb43`
+
+### Findings
+
+#### RL-433 — Self-compilation supervisor is absent from the runtime's declared boot graph
+**Status: OPEN**
+
+The runtime Mix application starts `TiannaraRuntime.Application`, which starts `TiannaraRuntime.StartupSupervisor`; that starts `TiannaraRuntime.RootSupervisor`. The root's stable profile starts Infrastructure, Execution, Ecology, Constraint and Meta supervisors. Its research profile adds NDE/TWP/OSL experimental supervisors. Neither profile includes `Tiannara.SelfCompilation.Supervisor`. The separate supervisor declares RewriteEngine, RuleExtractor, RuleMutator, SafetyValidator, MetaOntologyGuard, VersionTracker, RollbackManager, AdaptiveLearner and PerformanceMonitor children, but its `start_link/1` is not called by the inspected boot graph. Its public APIs use named GenServer calls and therefore are not operationally backed merely because their modules compile.
+
+CCR Bridge also contains a fallback that reports `{:ok, :rollback_simulated}` when its expected self-compilation RollbackManager is absent. The inspected runtime tree does not start that manager under the referenced name. This can turn a missing rollback capability into a success-shaped result.
+
+**Closure evidence:** explicitly wire the approved self-modification subsystem into a governed boot profile or remove/disable the misleading callable APIs; verify exact module-name consistency; make missing rollback a hard unavailable/failure state; prove startup, liveness, authorized invocation, real target mutation, durable versioning, rollback and recovery with fault-injection tests. No self-modification should become active without Constitutional Council policy and required human approval.
+
+#### RL-434 — Physical-deployment mutation endpoints have no visible authentication/authorization boundary
+**Status: OPEN — HIGH PRIORITY SECURITY**
+
+The Phoenix router places `/api/v1/reality/physical` GET and POST routes in a pipeline that only declares JSON acceptance. The controller's corresponding handlers directly call PhysicalDeploymentManager. In particular, POST handlers expose plan, advance, approve/reject, abort and emergency-stop operations. The approve handler accepts the `approver` identity from request parameters and defaults it to the literal `human-operator`; the manager stores that supplied string as the approver. The inspected router/controller path contains no authentication plug, principal extraction, authorization decision, Council-grant validation, or binding between an authenticated actor and the requested deployment effect.
+
+This is a source-level finding about the visible route/controller path, not proof that an upstream reverse proxy or deployment environment supplies no protection. Such external controls were not available in this source inspection and must not be assumed. If the application is reachable without a separately enforced trusted gateway, an unauthenticated caller may be able to forge approval identity and invoke deployment lifecycle operations.
+
+**Closure evidence:** enforce authentication at the application boundary; derive principal identity from a verified credential/session rather than request parameters; require role/attribute authorization and a fresh, single-use Council grant bound to deployment ID, exact action, parameters and adapter; require durable audit before effects; add negative HTTP integration tests for anonymous, forged-identity, unauthorized, replayed and mismatched-effect requests. Emergency stop should remain separately available through a narrowly scoped, authenticated safety path with independently verified behavior.
+
+#### RL-435 — Hardware adapter abstraction currently has only a simulated implementation in the inspected ASC adapter package
+**Status: OPEN**
+
+The PhysicalAdapter behaviour specifies capabilities, status, execute_action and emergency_stop. The PhysicalDeploymentManager defaults to SimulatedAdapter; the inspected Reality.Supervisor starts that simulated adapter and the manager. The concrete adapter's execute_action only appends the action to an in-memory list and returns a success-shaped simulated result. Repository code search for implementations of the PhysicalAdapter behaviour found the SimulatedAdapter implementation; no concrete physical device adapter was identified in the inspected results. This does not prove no hardware integration exists elsewhere in the repository or outside it.
+
+**Closure evidence:** inventory all hardware/robotics/device integration modules and transport interfaces across root `lib`, `tiannara_runtime/lib` and other declared audit boundaries; identify actual device drivers, protocol clients, safety interlocks, telemetry provenance and deployment configuration; otherwise classify physical execution as unsupported and fail closed. Require hardware-in-the-loop evidence before any physical capability claim.
+
+### Additional reconciliation
+
+- `TiannaraRuntime.RootSupervisor` does include an Execution supervisor, which starts required `Tiannara.OPC.CoreSupervisor` and optional `Tiannara.OPC.Supervisor`; that does not start the separate self-compilation supervisor.
+- The separate runtime OTP application is wired through `mix.exs` to `TiannaraRuntime.Application`. This corrects the earlier uncertainty about whether the separate runtime has an application entry point; it does not establish that all declared subsystems are started or healthy.
+- The Phase-4 orchestrator source calls `RealExecution.execute/1`, but the inspected main `Tiannara.Application.core_children/0` does not directly include the orchestrator. Search results found registration metadata but no `start_link` call site. The prior finding RL-430 remains open.
+- The physical deployment API exposes lifecycle operations but does not itself demonstrate hardware actuation: the configured default adapter is simulated and stores results in memory.
+- The router's browser pipeline has CSRF/security-header plugs; these are not substitutes for API authentication/authorization. The JSON API pipeline shown here contains only content negotiation.
+- Source searches are not exhaustive proof against dynamic dispatch, runtime injection, reverse-proxy enforcement or external hardware services.
+
+### Cross-cutting disposition
+
+- RL-433, RL-434 and RL-435: **OPEN**.
+- RL-430 through RL-432 and all earlier findings remain open.
+- Do not mark self-modification, physical actuation, rollback, or human approval as operational based on module declarations or simulated success responses.
+- No source code was changed; no build, tests, runtime execution, live API requests, hardware actuation or fault injection was performed.
+
+**Next checkpoint 18.67:** inspect the remaining Tiannara web controllers and endpoint configuration for authentication, authorization, CORS, rate limiting and trusted-proxy assumptions; trace every physical-manager action and all adapter/robotics integrations across the full repository; inspect CEL service registration versus actual process ownership; and map the Phase-4 orchestrator's registration/start lifecycle and configuration gates.
