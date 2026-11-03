@@ -5278,3 +5278,66 @@ The ASC PhysicalDeploymentManager remains separate. Its default adapter is Simul
 - No source code was changed; no builds, tests, runtime execution, live HTTP requests, deployment/proxy inspection or hardware actuation were performed.
 
 **Next checkpoint 18.69:** inspect the remaining Phoenix controller mutation handlers and their downstream service effects; trace the full Python auth dependency/decorator coverage for mutating routers and tenant ownership; inspect repository manifests/configuration and any external hardware bridge packages for concrete ROS/ROS2, serial, CAN, Modbus, MQTT or vendor-driver implementations. Keep deployment topology and physical capability UNKNOWN until directly evidenced.
+
+
+## Checkpoint 18.69 — controller effects, API tenant isolation and CEL audit status
+
+**Inspection basis:** frozen source commit `b829254d032f9e0b5cf4c44725c8cf451800dad0`. Read-only inspection; no runtime or deployment assumptions are promoted to facts.
+
+### Additional source review
+
+- `lib/tiannara/web/router.ex` — `917c749e023ff86d59200798b93dfe4bfd9c11f0`
+- `lib/tiannara/web/crav_challenge_controller.ex` — `403b7177633cbb187d7388df86dc5bd02eb40046`
+- `tiannara_api/main.py` — `f8883a9d4fbd3b329e52a8e7a73e5d3ab5145500`
+- `tiannara_api/gateway/main.py` — `663ea5cc3607a33a26625024aaecaae9c2d5f2bb`
+- `tiannara_api/routes/workflows.py` — `b4f729165779a752961bff9ac6bc52ff0a69e5d6`
+- `tiannara_api/routes/automations.py` — `bd27bfabaf00ffbd19cba630dae599dc96bc256e`
+- `tiannara_api/routes/evolution.py` — `0356076fee06de0ff7b4fd36ee407f3d32992141`
+- `tiannara_api/routes/meta_ecology.py` — `89e7794a77f8c242d96960bd205480f2357e2364`
+- `certification/TIANNARA_PHASE16_EXECUTION_AUDIT.md` and `certification/remediation/MC003-A0-EXECUTION-INVENTORY.md` were discovered as relevant prior execution-audit records; their claims are design/audit artifacts and were not treated as proof of current runtime behavior.
+
+### RL-440 — Workflow and automation resources lack visible tenant ownership enforcement
+**Status: OPEN — TENANT ISOLATION / AUTHORIZATION**
+
+The workflow router's endpoints use a tier decorator, but its list handler explicitly contains a TODO to filter by JWT user ID; the inspected handlers store objects in module-global in-memory dictionaries and fetch/update/delete by resource ID without checking that the resource belongs to the authenticated user. Automation handlers follow the same global-dictionary pattern and do not visibly compare resource ownership to the authenticated principal. Tier authentication can establish a user and subscription level, but it does not itself establish ownership of a specific workflow or automation. If these routers are exposed to multiple users, knowledge of an identifier may permit cross-tenant read or mutation; reachability and exploitability were not tested.
+
+**Closure evidence:** persist owner/tenant IDs on every resource; scope list/get/update/delete/execute queries to the verified principal and tenant; enforce ownership again at execution boundaries; deny by default; add multi-tenant tests for ID guessing, cross-tenant mutation, workflow execution, automation trigger/toggle, and missing principal.
+
+### RL-441 — Phoenix boot/readiness responses can assert readiness without checking the represented subsystems
+**Status: OPEN — OBSERVABILITY / OPERATIONAL SAFETY**
+
+The inspected `CRAVChallengeController.boot_status/2` constructs a fixed list of phases with every phase marked `complete` and returns status `ready`; it does not query the actual environment, infrastructure, runtime, API, frontend or health phase before asserting those values. The `runtime_status/2` handler does check a limited list of ports/modules, but that is not what `boot_status/2` uses. Consequently, the boot-status endpoint's positive state is a static response, not evidence that CEL, constitutional governance, downstream services, Python API, or hardware interfaces are ready. This finding is about the endpoint's evidentiary quality; it does not imply that every subsystem is down.
+
+**Closure evidence:** derive readiness from live, bounded checks with explicit UNKNOWN/DEGRADED/READY states; tie critical dependencies to actual CEL boot reports and governance gates; avoid defaulting missing checks to complete; add tests for absent, delayed, failed and degraded dependencies; keep process liveness distinct from application readiness and physical readiness.
+
+### Controller effect trace and route disposition
+
+The Phoenix router uses an API pipeline containing only JSON acceptance; it has no visible authentication/authorization plug. Controller handlers for challenge execution dispatch named challenge functions, while soak-test, atlas, launch/abort and campaign routes are registered as POST mutations. The physical deployment plan/advance/approve/abort routes call the physical deployment manager and remain the subset tracked under RL-434. This pass did not establish an upstream proxy, network policy or deployment topology, so the findings remain source-level exposure risks rather than confirmed externally reachable vulnerabilities.
+
+### CEL audit completion assessment
+
+**The CEL audit is not complete.** Checkpoints 18.60–18.69 have accumulated meaningful findings and corrections, but this is an ongoing, bounded source audit rather than a completed whole-system certification. The canonical service registry and boot sequencer are not a complete inventory of all running components, and static source inspection does not establish deployed behavior. Outstanding work includes, at minimum:
+
+1. Finish the CEL service inventory and reconcile registry, boot sequence, supervisor trees, dynamically started children, actual call sites, health/liveness, and undeclared services.
+2. Trace all authority-bearing transitions and effect paths end-to-end: constitutional authority, Council decisions, human approval, grant binding/expiry/replay, actor identity, audit-before-effect, durable audit failure, and rollback.
+3. Close the security boundary review across Phoenix, both FastAPI apps, WebSockets, gateway/proxy configuration, service-to-service identity, and tenant ownership.
+4. Complete hardware inventory across all repository roots/packages and transport/configuration boundaries; distinguish simulation, software model, hardware-in-the-loop and real device evidence.
+5. Review research/discovery claims and evidence lineage so that proposed, simulated, inferred, executed and independently reproduced discoveries cannot be conflated.
+6. Verify self-modification and self-improvement paths against the user's governance requirements: Council authority remains superior to CEL; human approval for improvements; immutable constitution/hash-chain audit; no self-authorized mutation of upstream authority.
+7. Execute an evidence plan in an appropriate environment: static checks, unit/integration/security tests, boot failure injection, API negative tests, soak/restart tests, and hardware-in-the-loop only where actual hardware and safe controls exist. Record each as NOT RUN until evidence is captured.
+8. Reconcile every open finding against a fix commit and reproducible closure evidence. Updating the report or finding a source path is not closure.
+
+### Recommended sequence
+
+- **Immediate:** address RL-434/RL-438/RL-439 and RL-436 (route auth, telemetry trust, CORS and principal propagation), then RL-440 (tenant ownership) and RL-441 (false readiness claims). Do not expose mutation endpoints until an effective boundary is verified.
+- **Next audit phase:** resume CEL-wide inventory and authority/effect trace, beginning with service discovery completeness and dynamic child lifecycle, then Council-to-effect authorization and audit durability.
+- **Parallel workstream:** hardware/transport inventory and research-evidence provenance; do not infer physical capability from simulated adapters or design documents.
+- **Exit gate:** declare CEL audit complete only after the scope/inventory is reconciled, all findings have dispositions, high-risk controls have reproducible verification, unresolved items are explicitly accepted or blocked, and runtime/hardware claims have matching evidence. This checkpoint does not meet that gate.
+
+### Disposition
+
+- RL-440 and RL-441: **OPEN**.
+- RL-434 through RL-439 remain **OPEN** as applicable; no finding is closed by this inspection.
+- No source code was changed; no tests, builds, live HTTP requests, deployment inspection, fault injection or hardware actuation were performed.
+
+**Next checkpoint 18.70:** start the CEL-wide service/authority reconciliation, compare registry and boot order with static supervisor trees and call-site references, then trace the highest-risk Council authorization and audit-before-effect paths. Keep the report append-only and treat unresolved evidence as UNKNOWN.
