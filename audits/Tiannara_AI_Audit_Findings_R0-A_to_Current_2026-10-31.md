@@ -5384,3 +5384,42 @@ The main OTP application has a substantial static child list, while CEL separate
 - No source code was changed. No tests/builds/runtime/HTTP/security/fault-injection/physical-device checks were run.
 
 **Next checkpoint 18.71:** continue the inventory across PhaseOmega and runtime supervisor trees, reconcile the three registries against actual processes and call sites; then audit AEO end-to-end plan validation and runtime submission, followed by Meta-SOPL-to-CIS/SafetyCortex authority and acknowledgement. Keep the remaining AEO/Meta-SOPL/GRCC/ASC/REA work explicitly open.
+
+
+## Checkpoint 18.71 — PhaseΩ boot-verification semantics and AEO/Meta-SOPL/GRCC/ASC/REA follow-through
+
+**Inspection basis:** frozen source commit `b829254d032f9e0b5cf4c44725c8cf451800dad0`. This is source inspection only. No tests, builds, runtime boot, live services or empirical experiments were executed.
+
+### PhaseΩ integration findings
+
+Reviewed `lib/tiannara/phase_omega/activator.ex`, `boot_sequencer.ex`, `subsystem_registry.ex`, `runtime_verifier.ex`, and the runtime authority supervisors.
+
+**RL-450 — OPEN — PhaseΩ boot health probes can report success without evaluating the probe result.** In `BootSequencer.verify_health/2`, the configured `{module, function, args}` is invoked but its return value is discarded; any non-raising return (including `false`, `{:error, reason}`, or a degraded marker) becomes `:ok`. In the `:already_started` branch, the result of `verify_health/2` is itself discarded and the subsystem is returned as successfully started. Consequently, configured health probes do not currently establish health according to their result contract. **Closure:** define an explicit accepted health-result algebra; reject false/error/unknown results; propagate health failures from the already-started branch; add tests for true/false/error/raise/exit and pre-existing unhealthy processes.
+
+**RL-451 — OPEN — PhaseΩ boot reports success to its caller even when individual subsystem boots fail.** `BootSequencer.do_boot/1` records failed subsystems, attempts rollback, and marks phase `:degraded`, but the GenServer `:boot` handler unconditionally replies `:ok`. `Activator.bootstrap/0` treats `:ok` as “All dark subsystems booted successfully” and proceeds to runtime verification/dependency reporting. This makes the caller-facing result inconsistent with the internal results and can overstate successful activation. **Closure:** return a structured result with per-subsystem outcomes and an explicit overall status; have the activator distinguish ready/degraded/failed; prevent a success log or dependent activation on partial failure; test one failed critical and one failed noncritical subsystem.
+
+The registry's `RuntimeVerifier` also treats absent PID/health responders as `:skip`; overall status is degraded only if no check fails. This is more honest than an automatic pass in some cases, but it means a module-loaded record with no PID can still avoid a hard failure. The policy for required process liveness must be explicit by subsystem type/criticality.
+
+### Cross-substrate reconciliation
+
+**AEO:** The base `Tiannara.AEO` module remains placeholder-backed: fixed execution-graph placeholder and fixed submission acknowledgement. A forecasting adapter calls `submit_to_runtime/1`, but wraps its result in another `{:ok, ...}` tuple, so the adapter's declared `{:ok, term()} | {:error, term()}` contract may produce a nested success tuple. This is a contract/integration concern; no runtime consumer test was run. RL-445 remains OPEN. Closure must include a real command/plan dispatch, result correlation and failure propagation, and contract tests at the adapter boundary.
+
+**Meta-SOPL:** The independent `tiannara_runtime` root supervisor includes `Meta.Supervisor` under the `:stable` and `:research` profiles; `Meta.Supervisor` starts `RateModulationSupervisor`. This establishes a source-level startup path in that runtime profile, correcting any implication that Meta-SOPL has no supervisor path. However, the governor still uses random drift rather than measured telemetry and casts to SafetyCortex without acknowledgement. RL-446 remains OPEN.
+
+**GRCC:** The empty `Tiannara.GRCC.StateGeneratorSupervisor` is intentionally placed under `Tiannara.OPC.CoreSupervisor`; its own module comment says world/civilization state is supervised separately by `TiannaraRuntime.Ecology.Supervisor` via `Tiannara.UniverseSupervisor`. Therefore, the empty child list alone does **not** establish that GRCC is unwired or absent. RL-447 is **REVISED**: the remaining question is whether the intended lineage/token/state-generation modules and interfaces are connected to this split execution/ecology ownership, not whether this supervisor must itself own children. Do not close until the ownership map and call/event paths are traced.
+
+**ASC:** `Tiannara.ASC.Core.Metrics.global_health/0` averages five phase-health values and substitutes `0.5` whenever a phase has no health observation. This is a fabricated midpoint for missing evidence, not a measured neutral health. RL-448 remains OPEN.
+
+**REA:** The Stage A script explicitly describes itself as simulated traversal and uses mocked niche classification/weights. The Stage B script generates a random in-memory graph and a fixed archetype panel, then performs actual traversal over that synthetic graph. It is valid as a synthetic computational exercise, but not evidence about an independently observed biological/ecological system. Both scripts invoke their validation functions at file load. RL-449 remains OPEN; evidence classification must be preserved at the experiment-result boundary.
+
+### Status and next work
+
+- RL-450 and RL-451: **OPEN**.
+- RL-445, RL-446, RL-448, RL-449: **OPEN**.
+- RL-447: **OPEN, scope corrected**; empty supervisor is intentional according to source comments, but GRCC's split ownership and real call paths remain unverified.
+- CEL and PhaseΩ inventories remain unreconciled; this checkpoint did not test runtime process discovery or activation.
+- AEO, Meta-SOPL, GRCC, ASC and REA remain only partially audited. Additional dedicated reviews are still required for governance authority, persistence, data lineage, external interfaces, tests and runtime evidence.
+
+**Next checkpoint 18.72:** trace PhaseΩ health/boot contracts into the actual callers and compare its registry against the runtime root supervisor and CEL registry; then trace GRCC's actual lineage/state-generation modules across Execution/Ecology and Meta-SOPL's telemetry source/constraint acceptance. Continue the AEO execution boundary and REA evidence registry review.
+
+No source code was changed. No tests/builds/runtime/HTTP/fault-injection/physical-device checks were run.
