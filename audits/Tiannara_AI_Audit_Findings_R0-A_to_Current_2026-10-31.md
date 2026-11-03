@@ -4699,3 +4699,88 @@ The physical deployment unit and property tests exercise the staged lifecycle wi
 3. Inspect the GPU bridge source and prove whether it reaches an actual accelerator API or only schedules CPU-side/simulated work.
 4. Inspect the robotics/control modules for sensor ingestion, state estimation, control loops, actuator command generation, feedback, watchdogs and emergency-stop wiring.
 5. Define a hardware-in-loop verification plan with simulated, bench, fault-injection and independently reviewed safety stages. Do not connect or actuate real equipment until safety gates and human authorization are demonstrated.
+
+
+# Checkpoint 18.62 — Council authorization, human approval, emergency authority, and audit durability
+
+**Scope:** Council policy/rule evaluation, authorization predicates, human-approval queue and resumer, emergency invoke/lift, audit-log append durability, and the authorization hand-off to execution.
+**Method:** Read-only source inspection on the audit branch. This checkpoint did not execute runtime tests, build the project, perform fault injection, or prove a complete repository-wide call graph. Source hashes below identify the exact files inspected; they are not a claim that all files came from one frozen source commit.
+
+## Source evidence examined
+
+| Path | Retrieved source blob SHA | Relevant scope |
+|---|---|---|
+| `lib/tiannara/council/council.ex` | `26564ecd3e4b67aecb27948c591dfb294fae9dcd` | authorization dispatch, emergency invoke/lift, human resumption |
+| `lib/tiannara/council/authorization.ex` | `b323caf37dff786953fc183b6ab5b151c42c6c92` | full and conditional grant predicates |
+| `lib/tiannara/council/human_approval_queue.ex` | `7b54511eec3c41881d34f5abbd6029593b3a9165` | approval identity, queue/history, exact-payload lookup |
+| `lib/tiannara/council/human_approval_resumer.ex` | `f0f994aa03bd218c53f4436842ce8767965f2bda` | asynchronous resumption |
+| `lib/tiannara/council/audit_log.ex` | `eb0ac2760008adba5d9ab1ffab75f01c9983c6dc` | DETS append and sync result handling |
+| `lib/tiannara/cel/kernel.ex` | `31823da23d55a3686ac6e393f562e2acd28bbf55` | representative authorization consumption at kernel lifecycle boundary |
+
+## Findings
+
+### RL-411 OPEN — Emergency invocation and lifting lack an authorization gate and fail-closed audit prerequisite
+
+`Council.invoke_emergency(actor, reason)` accepts caller-provided actor/reason and sets emergency state after calling `AuditLog.append/3`; the append result is ignored. `Council.lift_emergency(human_id)` similarly accepts a caller-provided identifier, logs an event without checking the result, and clears emergency state. Neither inspected handler verifies the actor's authority or requires a separate authenticated human authorization before changing state.
+
+**Risk:** a caller able to reach these APIs may assert an identity, invoke emergency mode, or lift it without demonstrated authorization; the state transition can be acknowledged while its audit event was not durably recorded. This finding is about the inspected API path; authentication at an external caller boundary was not established.
+
+**Closure evidence:** authenticated principal/role checks at the authoritative boundary; constitutional policy for invoke and lift; independent/dual approval where required; audit append success required before state transition; tests for forged identity, unauthorized lift, and audit-store degradation.
+
+### RL-412 OPEN — Human approval records caller-supplied identity without authentication in the queue API
+
+`HumanApprovalQueue.approve(request_id, human_id, notes)` records the supplied `human_id` as `decided_by` and appends a log entry, but the inspected queue module does not authenticate that identity or validate an approval credential. The reject path has the same caller-supplied identity shape. The queue and its history are held in GenServer memory in the inspected implementation.
+
+**Risk:** the recorded name alone is not proof that an authorized human approved the request; queue state and approval history can also be lost on process/application restart unless another durable recovery path exists. External authentication and persistence/recovery were not proven by this file inspection.
+
+**Closure evidence:** authenticated human principal from a trusted identity boundary, authorization scoped to the request, durable approval record bound to the exact request/payload hash, and restart/recovery tests.
+
+### RL-413 OPEN — Public human-resumption API does not validate the referenced approval record
+
+`Council.resume_human_approval(request_id, decision_type, payload)` evaluates the supplied decision and includes `request_id` in an audit event, but the function itself does not fetch the request, verify its status is approved, compare its stored decision type/payload, or bind the resulting authorization to the approval's authenticated actor. The supervised resumer does fetch an approved queue record before calling it; however, the Council function is publicly callable as an exported module function.
+
+**Risk:** a consumer that trusts this API's returned `Authorization` as proof of human approval could bypass the queue's approval-state checks. This source finding does not claim that arbitrary external callers can directly execute an effect; the complete effect-consumer graph remains to be established.
+
+**Closure evidence:** make resumption accept an opaque, validated approval capability or keep the operation behind a single authoritative API that verifies request state, exact payload hash, human identity, and single-use status before returning a grant.
+
+### RL-414 OPEN — Approved human decisions remain reusable and have no demonstrated expiry or one-time consumption
+
+`HumanApprovalQueue.approved_request/2` searches retained history for an approved record matching decision type and exact payload. The inspected code does not consume or invalidate the record when it is returned, and the record has no expiry or nonce field. Council authorization can therefore retrieve the same approved history record again for repeated matching requests.
+
+**Risk:** a previously approved operation may be authorized repeatedly or replayed later if its payload remains identical, even if the approval was intended for a single execution or a limited time window.
+
+**Closure evidence:** explicit scope and expiry, one-time grant consumption, unique nonce/idempotency key, binding to the exact artifact/effect and current constitutional version, and concurrent replay tests.
+
+### RL-415 OPEN — Conditional-grant evidence matching does not require affirmative pass semantics
+
+`Authorization.condition_satisfied?/2` considers a condition satisfied when an evidence map matches the relevant `principle`, `principle_id`, or `check`, provided `passed` is not explicitly `false`. It does not require `passed: true` or inspect the evidence entry's `verdict` for an affirmative result. RuleEngine evidence entries can contain a principle and a verdict without a `passed` field.
+
+**Risk:** a matching evidence entry that is neutral or otherwise not an affirmative pass can satisfy a conditional grant's condition. The structural checks reduce some risks (including non-empty evidence, no listed violations, score threshold, and no required human review), but they do not repair the condition-level ambiguity.
+
+**Closure evidence:** use typed, provenance-bearing condition results with explicit `status: :passed`; fail closed on missing/unknown/neutral evidence; bind each condition to the exact policy and artifact; test missing status, neutral verdict, mismatched check, and explicit failure.
+
+### RL-416 OPEN — Audit append reports success without checking DETS sync outcome
+
+In `AuditLog.handle_call({:append, ...})`, the code handles a successful `:dets.insert/2` and then discards the result of `:dets.sync/1` before replying `{:ok, entry}`. The public append contract therefore can report success without verifying that the sync operation succeeded.
+
+**Risk:** callers that require a durable audit record may proceed on a success response even when the persistence flush failed. This is distinct from callers that ignore an explicit `{:error, ...}` result: here the sync result itself is discarded by the audit-log implementation.
+
+**Closure evidence:** propagate sync failure, do not advance the authoritative chain tip or report success unless the durability contract is met, expose degraded state, and inject insert/sync/storage failures in tests.
+
+### RL-417 OPEN — Human approval returns before resumption and audit completion are confirmed
+
+`HumanApprovalQueue.approve/3` stores the approval and invokes `HumanApprovalResumer.resume/1`, which sends an asynchronous cast. The approval handler then returns `:ok` without waiting for the resumer to produce and record a decision. In the resumer, the return values of `HumanApprovalQueue.record_resume/2` and `AuditLog.append/3` are not checked.
+
+**Risk:** an approval API success response means the approval record was accepted, not that re-evaluation completed, the resulting authorization was recorded, or the resumption audit entry was persisted. Consumers must not treat the approval response alone as a completed or executable grant.
+
+**Closure evidence:** expose distinct states for approved, resumption-pending, evaluated, durably recorded, and executable; propagate failure; reconcile interrupted resumptions after restart; and test queue, Council, and audit-log failure at every transition.
+
+## Cross-cutting disposition
+
+- RL-411 through RL-417: **OPEN**.
+- RL-393 through RL-410 and all earlier findings remain open unless separately closed with exact-candidate evidence.
+- This checkpoint is source inspection only. No source code was changed; no build, test suite, runtime execution, emergency exercise, or audit-storage fault injection was performed.
+- The existing RL-403 concern about mandatory audit of ordinary authorization outcomes remains open and is not treated as closed by this checkpoint.
+- Authorization data structures and policy descriptions are not execution proof. Each effect consumer must be inventoried and shown to validate the grant immediately before the effect, including actor, exact payload/artifact, expiry, replay protection, required conditions, and durable audit outcome.
+
+**Next checkpoint 18.63:** build the caller-to-effect authorization map across CEL, physical deployment/hardware, self-modification, and other consequential execution paths. For each path, establish whether it uses Council, how it consumes full/conditional/human grants, whether the grant is bound to the exact effect and actor, and what happens on Council/audit failure. Continue read-only until implementation is explicitly authorized.
