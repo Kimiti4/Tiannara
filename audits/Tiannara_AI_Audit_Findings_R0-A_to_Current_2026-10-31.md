@@ -5212,3 +5212,69 @@ After the main supervisor starts, the application starts CEL boot using `Task.st
 - No source code was changed; no build, tests, runtime execution, live HTTP requests, hardware actuation or fault injection was performed.
 
 **Next checkpoint 18.68:** inspect the Python FastAPI production entry point and gateway authentication wiring, verify whether the API gateway and Phoenix endpoints share any trust boundary, enumerate the full set of mutating HTTP routes and their guards, and trace hardware integration packages beyond the ASC adapter directory (including ROS, Meta.Hardware and external transport bridges).
+
+
+## Checkpoint 18.68 — Python/Phoenix trust boundaries, mutation routes and hardware integration
+
+**Inspection basis:** frozen source commit `b829254d032f9e0b5cf4c44725c8cf451800dad0`. This checkpoint is source inspection only. It does not establish deployed network topology, reverse-proxy policy or live exploitability.
+
+### Source files inspected
+
+- `tiannara_api/main.py` — `f8883a9d4fbd3b329e52a8e7a73e5d3ab5145500`
+- `tiannara_api/gateway/main.py` — `663ea5cc3607a33a26625024aaecaae9c2d5f2bb`
+- `tiannara_api/gateway/auth.py` — `4620330040d4d81184aaa56e62355d8388a3fdf3`
+- `tiannara_api/middleware/production_auth.py` — `eb14e6001a51215587ef2f01569da3ccd57ef001`
+- `tiannara_api/middleware/jwt_context.py` — `01a17956b0829c2435d2c13544148197d17b90fd`
+- `tiannara_api/middleware/api_key_auth.py` — `e25072eff1fb0707615a90c9ae63a1f8c36d1d78`
+- `tiannara_api/security/auth_deps.py` — `6693bd62981cb8e9b708e73b747875bd20a9abc4`
+- `tiannara_api/middleware/tier_access_control.py` — `bcc962f6e3c53acc1613fda422280e87253c14de`
+- `tiannara_api/routes/meta_ecology.py` — `89e7794a77f8c242d96960bd205480f2357e2364`
+- `tiannara_api/routes/workflows.py` — `b4f729165779a752961bff9ac6bc52ff0a69e5d6`
+- `tiannara_api/routes/automations.py` — `bd27bfabaf00ffbd19cba630dae599dc96bc256e`
+- `tiannara_api/routes/evolution.py` — `0356076fee06de0ff7b4fd36ee407f3d32992141`
+- `lib/tiannara/web/router.ex` — `917c749e023ff86d59200798b93dfe4bfd9c11f0`
+- `lib/tiannara/web/crav_challenge_controller.ex` — `403b7177633cbb187d7388df86dc5bd02eb40046`
+- `lib/tiannara/application.ex` — `1429f81fde9de3c31d4a9dc91b23c5b635670496`
+- `lib/tiannara/meta/hardware/supervisor.ex` — `36065776076735727b21bd6b707a9cdeec85a89e`
+- `lib/tiannara/meta/hardware/horizon_scheduler.ex` — `22707b379cdf75053b165a44940c1133da8c454c`
+- `lib/tiannara/meta/hardware/event_horizon_tensor_core.ex` — `8bdbc2f1c9bef6b831746ca89f20721838c84fe4`
+- `lib/tiannara/meta/hardware/gravitational_shear.ex` — `fa906f86762e7353720f4c58a1b8d877b058b654`
+- `lib/tiannara/meta/hardware/hawking_decoder.ex` — `2d2dc7fbab180f73d62ae12a486ed1623a151662`
+- `lib/tiannara/asc/reality/physical_deployment_manager.ex` — `94030decab03ff4e92b20345390e6f3793b24c1e`
+
+### RL-438 — Meta-Ecology telemetry ingestion and WebSocket stream have no route-level authentication
+**Status: OPEN — INTEGRITY / AVAILABILITY / DATA TRUST**
+
+The production FastAPI app mounts `meta_ecology_router` at `/api/v1/meta-ecology`. `ProductionAuthMiddleware` protects only its explicit prefix list (`/autonomous`, `/memory`, `/modules`, `/discovery`, `/evolution`, `/autonomy`, `/api/v1/core`, `/api/v1/cognitive`, `/api/v1/observatory`, `/api/v1/analyze`). The mounted Meta-Ecology prefix is not in that list. The router's POST `/ingest` overwrites the global telemetry state with the request payload verbatim, and its WebSocket `/stream` accepts a connection and emits that state without authentication or source verification. No route dependency or signature validation is present in the inspected router. This creates a source-level unauthenticated telemetry injection/read path in the FastAPI app; an externally reachable deployment could permit forged telemetry and disclosure of ingested telemetry. Actual reachability depends on deployment routing and network controls, which were not inspected.
+
+**Closure evidence:** authenticate the Elixir-to-Python producer using mutually authenticated transport or signed, replay-protected messages; validate schema, source identity, freshness and sequence; separate producer ingest from user-facing stream authorization; apply explicit auth to both HTTP and WebSocket handshakes; add negative tests for missing, invalid, replayed and cross-tenant messages.
+
+### RL-439 — Phoenix JSON API exposes multiple state-changing operational routes without visible authentication/authorization plugs
+**Status: OPEN — HIGH PRIORITY SECURITY / GOVERNANCE**
+
+The inspected `TiannaraWeb.Router` API pipeline only applies JSON content negotiation. Within that pipeline, state-changing routes include `POST /api/v1/discovery/seed`, `POST /api/v1/interaction`, `POST /api/challenges/run`, `POST /api/crav/soak_test/start`, `POST /api/crav/soak_test/stop`, `POST /api/crav/atlas/generate`, `POST /api/crav/alpha_launch/launch`, `POST /api/crav/alpha_launch/abort`, and `POST /api/crav/campaign/trigger`, in addition to the physical deployment routes already tracked by RL-434. No authentication plug, verified principal assignment, authorization policy or Council grant check appears in the router's `:api` pipeline. The corresponding inspected controller functions directly invoke seeding, soak-test, launch/abort and campaign scheduling operations. This is a source-visible control-plane exposure, not proof that the endpoints are internet reachable or that an upstream gateway does not protect them.
+
+**Closure evidence:** enforce a single verified identity and policy layer at the Phoenix boundary, not merely in an optional proxy; classify read, research, operational and physical effects separately; require explicit actor/effect-bound Council grants and human approval for governed high-impact actions; audit before effects; deny by default; verify with unauthenticated, forged-identity, insufficient-role, stale/replayed-grant and audit-store-failure HTTP tests. Keep emergency-stop narrowly available through a separately designed safety path.
+
+### Python API and gateway trust-boundary reconciliation
+
+The repository contains at least two distinct FastAPI app constructions: `tiannara_api.main:app` (the production entry point inspected here) and `tiannara_api.gateway.main:app`. The gateway app has its own middleware: in production it requires a valid JWT or active API key for all paths except its public-prefix list, which includes `/api/v1/gateway`; it also applies configurable CORS origins. The main app instead uses `ProductionAuthMiddleware` with a narrower protected-prefix allowlist and separate JWT context population. The gateway app's auth middleware is not shown as wrapping or being mounted around the main app in the inspected entry points. No shared ASGI composition or trusted gateway-to-Phoenix identity propagation was established. Thus, the existence of a stronger gateway does not establish that all main-app or Phoenix routes inherit its protection. This remains an architecture/integration gap pending deployment topology and reverse-proxy configuration review.
+
+Positive controls: the main app uses restricted configured CORS origins; `ProductionAuthMiddleware` fails closed for its protected prefixes in production; the evolution router uses `Depends(require_auth)`; workflow and automation routes use tier decorators that require a populated authenticated request state; `require_auth` validates JWT/API key against user records in production. However, tier checks are not a substitute for resource ownership: the inspected workflow handlers explicitly contain a TODO to filter by JWT user ID, and list/get/update/delete operations use global in-memory dictionaries. This is a tenant-isolation concern to track in the SaaS/API audit, not proof that all tier-decorated routes are unauthenticated.
+
+### Hardware integration inventory refinement
+
+The top-level `Tiannara.Application.core_children/0` explicitly starts `Tiannara.Meta.Hardware.Supervisor`; its supervisor starts a Registry, HorizonScheduler and three EventHorizonTensorCore GenServers. This is a real OTP startup path, correcting any implication that Meta.Hardware is merely an unstarted directory. However, the inspected modules describe and implement a computational simulation: EventHorizonTensorCore's moduledoc says it simulates an EHTC; GravitationalShear explicitly describes pure Elixir simulation; payload processing maps numeric values, computes a checksum-like result and calls a parity validator. Comments mention simulated NIF/CUDA offload, but no NIF, CUDA runtime, device driver, ROS client, fieldbus or physical actuator interface is implemented in these inspected files. The supervisor's presence therefore establishes a running software subsystem by design, not physical hardware integration. This reinforces RL-435 and narrows the distinction: Meta.Hardware is an OTP-managed simulated compute subsystem, not evidence of device-control capability.
+
+The ASC PhysicalDeploymentManager remains separate. Its default adapter is SimulatedAdapter, and the previously inspected adapter implementation only records simulated actions. The Phoenix physical routes and manager methods remain subject to RL-434/RL-435. Search for ROS/ROS2, rclpy/rospy, MQTT, Modbus, CAN and serial integration did not yield a verified concrete physical driver in this pass; search non-results are not proof that no such code exists anywhere in the repository.
+
+### Disposition
+
+- RL-438: **OPEN** — unauthenticated Meta-Ecology telemetry ingest and stream in the inspected production FastAPI app.
+- RL-439: **OPEN** — multiple Phoenix mutating operational routes lack visible authentication/authorization in the router pipeline; RL-434 remains the specific physical-control subset.
+- RL-434, RL-435, RL-436 and RL-437 remain **OPEN**.
+- Python main app and gateway are distinct app constructions; a common trusted deployment boundary was not demonstrated.
+- Meta.Hardware is top-level supervised but its inspected processing is explicitly simulated; this is not physical hardware evidence.
+- No source code was changed; no builds, tests, runtime execution, live HTTP requests, deployment/proxy inspection or hardware actuation were performed.
+
+**Next checkpoint 18.69:** inspect the remaining Phoenix controller mutation handlers and their downstream service effects; trace the full Python auth dependency/decorator coverage for mutating routers and tenant ownership; inspect repository manifests/configuration and any external hardware bridge packages for concrete ROS/ROS2, serial, CAN, Modbus, MQTT or vendor-driver implementations. Keep deployment topology and physical capability UNKNOWN until directly evidenced.
