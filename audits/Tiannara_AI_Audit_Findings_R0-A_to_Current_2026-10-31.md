@@ -5423,3 +5423,40 @@ The registry's `RuntimeVerifier` also treats absent PID/health responders as `:s
 **Next checkpoint 18.72:** trace PhaseΩ health/boot contracts into the actual callers and compare its registry against the runtime root supervisor and CEL registry; then trace GRCC's actual lineage/state-generation modules across Execution/Ecology and Meta-SOPL's telemetry source/constraint acceptance. Continue the AEO execution boundary and REA evidence registry review.
 
 No source code was changed. No tests/builds/runtime/HTTP/fault-injection/physical-device checks were run.
+
+
+## Checkpoint 18.72 — PhaseΩ dependency semantics, GRCC split ownership, and forward evidence integration
+
+**Inspection basis:** frozen source commit `b829254d032f9e0b5cf4c44725c8cf451800dad0`. Source-only inspection; no tests, builds, runtime boot, external services or physical systems were exercised.
+
+### New findings
+
+**RL-452 — OPEN — PhaseΩ dependency resolution silently removes dependencies absent from the boot specification and does not reject cycles.** In `BootSequencer.resolve_order/2`, each dependency list is filtered to names present in `specs`. Missing dependencies are therefore removed from the ordering graph rather than treated as a boot blocker. The depth-first sorter returns when it encounters a node already in `visiting`, without returning a cycle error. Although the activator separately logs missing dependencies and cycles from the registry, `check_dependency_graph/0` returns `:ok` regardless, and the boot sequencer resolves only its own specification subset. **Closure:** fail closed for missing required dependencies and cycles; distinguish optional dependencies explicitly; produce a validated DAG before any start; test missing, optional, self-cycle, multi-node cycle and mixed graph cases.
+
+**RL-453 — OPEN — PhaseOmega boot certificates do not attest to the running artifact or successful health evidence.** `generate_certificate/2` hashes subsystem name, current timestamp, and MD5 hashes of the declared dependency and child-name lists. It does not bind source/build identity, runtime instance identity, health-probe evidence, dependency certificate hashes, configuration, or observed child processes. The certificate can therefore be read as a startup-record identifier, but not as a verifiable certificate that the declared subsystem implementation and dependencies were actually healthy. **Closure:** either rename/restrict it to a boot record, or bind a canonical signed evidence envelope containing artifact/build digest, runtime instance, validated dependencies, observed children, health evidence, configuration digest and issuer authority; verify the chain independently.
+
+**RL-454 — OPEN — Forward provenance is explicitly not integrated with runtime producers or evidence consumers.** The frozen `TIA_FORWARD_PROVENANCE_INTEGRATION_STOP.yaml` states that the standalone forward-provenance subsystem is demonstrated separately but runtime integration is absent and unauthorized at that gate. The companion integration reconnaissance records three competing execution-ID generators (forward provenance, OPC ExecutionRuntime, Phase-4 RealExecution), no shared execution identity mapping, no distributed parent/child execution linkage, and no implemented runtime-equivalence event sequence. It also says the integration test plan K–T is not executable until runtime-facing integration exists. This materially limits claims that REA/ASC/Research Director/knowledge promotion/certification currently share a verified provenance chain. The document's historical status and test claims are recorded as source assertions, not independently rerun here. **Closure:** resolve certification authority; implement only approved forward-only producer emission and consumer verification; reconcile identities without rewriting historical records; add runtime tests for retry, partial/timeout/cancelled runs, metric lineage, tampering, stale certificates, cross-runtime identity substitution and distributed parent linkage; keep all historical unknowns unchanged.
+
+### Cross-system trace conclusions
+
+**PhaseOmega:** `RuntimeVerifier.verify_all/0` returns `:ok` after running checks and stores detailed results separately. Per-record checks classify absent PID and absent `healthy?/0` responder as `:skip`; the aggregate becomes `:degraded` if no check fails but at least one is not `:pass`. This is not a direct false PASS, but criticality-specific requirements are not applied in this verifier. A critical subsystem with no PID/responding health interface can remain merely degraded instead of being blocked. Its API also does not return the aggregate result to the activator. This reinforces RL-450/451; it is not separately numbered to avoid duplicating the same boot/readiness defect.
+
+**GRCC:** `GRCC.StateGeneratorSupervisor` has no children and explicitly states it owns token generation/state-machine evolution only, while `UniverseSupervisor` is started separately under `TiannaraRuntime.Ecology.Supervisor`. The inspected supervisor does not itself implement token generation or lineage state machines. The split may be intentional, but the concrete module ownership/call path remains unresolved. RL-447 remains OPEN with corrected scope. The search/inspection performed here did not establish the complete GRCC implementation or its event/data flow.
+
+**Meta-SOPL:** `RateModulationSupervisor` starts `Governor` under the independent runtime root's Meta layer. The governor initializes fixed parameter values, then periodically adds random drift to mutation_rate. It sends `{:meta_adjustment, adjustment}` to SafetyCortex via an asynchronous cast and updates its local state without an acknowledgement or recorded acceptance/rejection. This confirms RL-446 and makes downstream acceptance, bounds enforcement and audit evidence a required follow-up.
+
+**AEO:** Source confirms `translate_intent/1` returns `:execution_graph_placeholder` and `submit_to_runtime/1` returns `{:ok, :submitted_to_runtime}` without dispatch. The D3 adapter wraps the latter in `{:ok, ...}`, yielding nested success if the bridge retains its current tuple return. RL-445 remains OPEN.
+
+**REA/evidence architecture:** The claim registry itself marks several claims PARTIAL/UNKNOWN, UNTESTED or INCONCLUSIVE and explicitly distinguishes analytical/module validation from empirical grounding. The forward-provenance stop document provides an explicit integration boundary: no historical backfill or reinterpretation, and no runtime certificate authority wiring before authority is resolved. Preserve these restrictions. No new empirical discovery claim is certified by this checkpoint.
+
+### Status and next work
+
+- RL-452, RL-453, RL-454: **OPEN**.
+- RL-445, RL-446, RL-448, RL-449, RL-450, RL-451 remain **OPEN**.
+- RL-447 remains **OPEN, corrected scope**.
+- CEL/PhaseOmega/runtime-root inventories remain unreconciled.
+- AEO, Meta-SOPL, GRCC, ASC and REA remain partially audited; this checkpoint is not a substrate completion certificate.
+
+**Next checkpoint 18.73:** reconcile the exact runtime root child tree against the application child tree, PhaseOmega declared specs and CEL service registry; trace GRCC lineage/state producers and consumers; inspect SafetyCortex's handling of MetaAdjustment; and inspect provenance/claim-promotion call sites for any current consumer that treats unverified legacy evidence as certified. Do not integrate or mutate any system as part of this read-only audit.
+
+No source code was changed. No tests/builds/runtime/HTTP/fault-injection/physical-device checks were run.
