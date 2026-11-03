@@ -4784,3 +4784,103 @@ In `AuditLog.handle_call({:append, ...})`, the code handles a successful `:dets.
 - Authorization data structures and policy descriptions are not execution proof. Each effect consumer must be inventoried and shown to validate the grant immediately before the effect, including actor, exact payload/artifact, expiry, replay protection, required conditions, and durable audit outcome.
 
 **Next checkpoint 18.63:** build the caller-to-effect authorization map across CEL, physical deployment/hardware, self-modification, and other consequential execution paths. For each path, establish whether it uses Council, how it consumes full/conditional/human grants, whether the grant is bound to the exact effect and actor, and what happens on Council/audit failure. Continue read-only until implementation is explicitly authorized.
+
+
+# Checkpoint 18.63 — Caller-to-effect authorization map: CEL, physical deployment, self-modification, and deployment replay
+
+**Method:** Read-only source inspection. The audit queried repository code search and retrieved the exact source files listed below. This is a focused caller-to-effect map, not an exhaustive proof that every consequential call site in the repository has been found. No build, test, runtime execution, hardware actuation, or fault injection was performed.
+
+## Source evidence examined
+
+| Path | Retrieved source blob SHA | Relevant scope |
+|---|---|---|
+| `lib/tiannara/cel/kernel.ex` | `fe120d61dcd03a7542b888cf8cce6f1f4e357430` | CEL service restart/halt authorization consumers |
+| `lib/tiannara/asc/reality/physical_deployment_manager.ex` | `94030decab03ff4e92b20345390e6f3793b24c1e` | physical deployment approval, execution, abort, E-stop/resume |
+| `lib/tiannara/asc/reality/physical_adapter.ex` | `735b1b95103750704df235afa1c92b02ff0d18f2` | hardware adapter effect interface |
+| `lib/tiannara/asc/reality/adapters/simulated_adapter.ex` | `704e7432dfd70f422f372652e3816323b59730cd` | simulated action execution and E-stop |
+| `lib/tiannara/asc/reality/safety_verification_engine.ex` | `d68b8bb4ceef4908eba0906dd638d29d0cfc32c8` | safety verification result production |
+| `tiannara_runtime/lib/tiannara_runtime/self_compilation/rewrite_engine.ex` | `c6f627cb2044a2c5218a988af47f8f8b9289c030` | self-compilation validation/application path |
+| `lib/tiannara/omega/deployment_gateway/deployment_registry.ex` | `8894176a43901e5152ff3c0e86817a705d7d7bb8` | authorization-ID replay registry |
+| `lib/tiannara/asc/adoption/adopter.ex` | `e5017c87049d27ea255f386ad427ee0c4bd83e28` | production adoption's two-key preflight and post-validation |
+
+## Caller-to-effect map
+
+| Path | Gate observed | Effect / disposition |
+|---|---|---|
+| CEL `restart_service/2` → terminate/start service | Council authorization, but actor omitted from payload/context; both `:approved` and `:conditional` are accepted without checking conditions | **Conditional grant bypass at this consumer** |
+| CEL `halt/2` → terminate tracked services | Council approval required; actor included in payload, context passed as `nil` | Actor provenance is caller-provided; no structured authenticated execution context is passed |
+| Physical deployment `approve/3` → set approval field | Stage check only; `approver` is caller-supplied | No Council/authentication call visible in this manager |
+| Physical deployment `execute/2` → adapter `execute_action/1` | Stage must be simulated/dry-run/supervised/autonomous; E-stop flag must be false | No fresh Council grant, actor, action-to-grant binding, or durable audit check at the effect boundary |
+| Physical deployment `resume/1` → adapter `clear_estop/0` | Deployment ID exists | No approval/authentication or re-verification gate visible before clearing E-stop |
+| Self-compilation `RewriteEngine` → `SafetyValidator.validate` → `apply_rules` | Local input/stability/validator checks | No Council/human approval call in the inspected path; current `apply_rules/2` returns `:applied` placeholders and does not apply subsystem changes |
+| ASC adoption `Adopter.adopt/1` → checkout changed files on production line | Verified human authorization artifact, mission/candidate/branch agreement, eligibility evidence, exact declared diff scope, rollback snapshot, compile/tests/boot smoke | Stronger explicit gates in this path; however, inspected code does not show Council authorization or authenticated actor binding, and the adopted tag command result is ignored |
+| Omega deployment replay registry | Checks authorization ID against a file | Read failure returns `false` (not already deployed); append returns raw `File.write/3` result, which callers must check; no atomic check-and-record transaction shown in this module |
+
+## Findings
+
+### RL-418 OPEN — CEL restarts accept conditional authorization as if it were unconditional
+
+In `CEL.Kernel.handle_call({:restart_service, id, actor}, ...)`, the Council request is `Council.authorize(:architectural_change, %{action: :restart, service: id}, nil)`: the supplied actor is not included. Both `%Authorization{decision: :approved}` and `%Authorization{decision: :conditional}` take the same `do_restart/2` path. The consumer does not call `Authorization.conditional_grant?/1` or otherwise verify conditions.
+
+**Risk:** a conditional decision can trigger a service restart even when its conditions have not been met; attribution and actor-bound policy are also weakened at this boundary.
+
+**Closure evidence:** accept only `Authorization.permitted?/1` or explicitly validate a conditional grant and its evidence; pass an authenticated `ExecutionContext`; test unmet, unknown, and satisfied conditions at the actual restart handler.
+
+### RL-419 OPEN — Physical deployment effect is not bound to a Council grant or authenticated operator
+
+The physical manager stores the supplied `approver` value as an approval record, advances based on that record, and dispatches `execute_action(action)` based on lifecycle stage and the local E-stop flag. The inspected `approve`, `advance`, and `execute` handlers do not call the Council or verify an authenticated approver. The action passed to the adapter is not shown as bound to a one-use authorization artifact, and the effect handler receives no actor identity.
+
+**Risk:** the lifecycle state is acting as a substitute for an independently authenticated, effect-specific authorization. The stage gate is useful but does not by itself prove who approved the action or that the approved action equals the executed action.
+
+**Closure evidence:** authenticated approval principal; immutable hash of the deployment plan and exact action set; grant bound to plan hash, adapter/device, actor, expiry, and constitution version; fresh authorization check immediately before every effect; durable audit record before dispatch.
+
+### RL-420 OPEN — Physical deployment resume clears E-stop without a demonstrated authorization or safety recheck
+
+`PhysicalDeploymentManager.handle_call({:resume, id}, ...)` calls `deployment.adapter.clear_estop()` and clears `estop_active` when the deployment ID exists. The inspected handler does not require a reason, authenticated actor, independent approval, fresh safety verification, or confirmation that the cause of the stop has been removed.
+
+**Risk:** an emergency stop can be cleared by a caller with access to the manager API without evidence that resumption is safe. This is a source-level control gap; external access controls were not established in this inspection.
+
+**Closure evidence:** stop-cause latch and diagnostic record; authenticated, policy-authorized resume; independent approval for high-risk hardware; re-run safety/interlock checks; verify adapter stop state and audit successful/failed resume attempts.
+
+### RL-421 OPEN — Safety verification engine unconditionally marks every configured constraint as passed
+
+`SafetyVerificationEngine.check_constraint/3` ignores both the constraint and the artifact/parameters and returns `status: :pass`. Consequently, `verify/2` computes `passed: true` and `critical_safe: true` from placeholder results rather than constraint-specific checks. `PhysicalDeploymentManager.plan/1` accepts a verification whose `passed` field is true, and its lifecycle can then advance through the safety-review gate.
+
+**Risk:** the manager's safety gate can provide false assurance and allow a plan to progress without actually checking bounds, side effects, fail-safe mechanisms, monitoring, or privacy constraints.
+
+**Closure evidence:** implement each constraint against the actual artifact, parameters, hardware capabilities and operational limits; represent unknown/unimplemented checks as UNKNOWN/FAIL; add negative tests proving each critical violation blocks planning and advancement.
+
+### RL-422 OPEN — Self-compilation reports success/version advancement without a demonstrated modification or governance approval
+
+The inspected rewrite engine calls its safety validator, then `apply_rules/2`; each supported subsystem branch currently returns the literal `:applied` with comments that the integration is still to be implemented. The caller nevertheless records a new version, increments success statistics, and returns `status: :compiled`. No Council authorization or human-approval gate is present in this inspected path.
+
+**Risk:** status and version records can imply a successful self-modification when the inspected implementation performs no actual subsystem mutation. If real mutation is later wired into this path, the same missing governance hand-off would be a critical control gap.
+
+**Closure evidence:** distinguish validated/proposed/simulated/applied states; only report applied after verifying an actual content/state diff and post-change identity; bind human-approved change artifact and rollback snapshot; enforce constitutional authorization immediately before mutation; prove behavior with before/after hashes and rollback tests.
+
+### RL-423 OPEN — Deployment replay registry fails open when its record file cannot be read
+
+`DeploymentRegistry.already_deployed?/2` returns `false` for any `File.read/1` error, treating unavailable or unreadable replay state as if the authorization ID had not been used. The check and subsequent append are separate operations in the inspected API; no atomic reservation/consume operation is shown.
+
+**Risk:** when replay state is missing, inaccessible, truncated, or concurrently accessed, a previously used authorization may not be recognized, or two callers may pass the check before either records deployment.
+
+**Closure evidence:** fail closed on registry read/parse errors; validate truncated/corrupt records explicitly; use a durable atomic single-use grant reservation/consume operation with concurrency protection; test read failures, corrupt tails, simultaneous attempts, and crash recovery.
+
+### RL-424 OPEN — CEL service lifecycle transition API has no Council authorization check in the inspected handler
+
+The public `CEL.Kernel.transition(new_state)` sends a request to a handler that validates only `RuntimeStates.valid_transition?/2` before changing the kernel runtime state. No actor or Council authorization is passed in that call path.
+
+**Risk:** if this API is reachable by untrusted or insufficiently privileged callers, a caller may request a structurally valid runtime-state transition without a policy decision. The source inspection does not establish whether an external authenticated boundary restricts access.
+
+**Closure evidence:** establish all callers and process/network boundaries; require an authenticated actor and explicit transition policy at the authoritative boundary; test unauthorized but structurally valid transitions and preserve emergency-safe transitions.
+
+## Existing control noted — ASC adoption
+
+The inspected `ASC.Adoption.Adopter` performs explicit authorization-artifact verification, mission/candidate/branch matching, machine-evidence checks, exact diff-scope comparison, rollback snapshot/tag creation, and post-adoption compile/test/boot-smoke validation. This is a stronger control pattern than the direct CEL restart and physical-deployment paths above. It is not treated as proof that every adoption failure path is safe: notably, the result of creating the adopted tag is ignored, and the inspected flow does not establish authenticated human identity or a mandatory durable Council audit event.
+
+## Disposition and next step
+
+- RL-418 through RL-424: **OPEN**.
+- All prior findings remain open unless separately closed with exact-candidate evidence.
+- No source code was modified and no tests or runtime/hardware actions were performed.
+- **Checkpoint 18.64:** audit all callers and consumers of `Authorization`, `conditional_grant?`, deployment registry checks, hardware adapters, and self-modification APIs. Establish whether these focused gaps are isolated or repeated, then define the minimal authoritative enforcement boundary and regression-test matrix before any remediation is attempted.
