@@ -4884,3 +4884,113 @@ The inspected `ASC.Adoption.Adopter` performs explicit authorization-artifact ve
 - All prior findings remain open unless separately closed with exact-candidate evidence.
 - No source code was modified and no tests or runtime/hardware actions were performed.
 - **Checkpoint 18.64:** audit all callers and consumers of `Authorization`, `conditional_grant?`, deployment registry checks, hardware adapters, and self-modification APIs. Establish whether these focused gaps are isolated or repeated, then define the minimal authoritative enforcement boundary and regression-test matrix before any remediation is attempted.
+
+
+# Checkpoint 18.64 — authorization consumer coverage and replay-boundary verification
+
+**Method:** Read-only source inspection at frozen source commit `b829254d032f9e0b5cf4c44725c8cf451800dad0`. No source code was modified; no tests, build, runtime execution, hardware actuation, or fault injection were performed.
+
+## Source evidence
+
+| Path | Retrieved source blob SHA | Scope |
+|---|---|---|
+| `lib/tiannara/omega/deployment_gateway.ex` | `78777f91ee0b73ea1dd5069dc79d8e0f6a24c05c` | candidate deployment gate, identity/grant checks and replay locking |
+| `lib/tiannara/omega/deployment_gateway/deployment_registry.ex` | `8894176a43901e5152ff3c0e86817a705d7d7bb8` | replay record read/write and decoding |
+| `lib/tiannara/omega/human_delivery/authorization.ex` | `beabd8de7b4fe7793d16bb77dd374627627a43e0` | grant lifecycle, candidate/explanation binding and expiry |
+| `lib/tiannara/omega/human_delivery/authenticated_human_identity.ex` | `901bb2022929c3439f683a38403476ad685f9f3f` | identity construction and authentication predicate |
+| `lib/tiannara/cel/kernel.ex` | `fe120d61dcd03a7542b888cf8cce6f1f4e357430` | CEL restart and transition consumers |
+| `lib/tiannara/asc/reality/physical_deployment_manager.ex` | `94030decab03ff4e92b20345390e6f3793b24c1e` | physical approval, execution and E-stop/resume |
+| `tiannara_runtime/lib/tiannara_runtime/self_compilation/rewrite_engine.ex` | `c6f627cb2044a2c5218a988af47f8f8b9289c030` | self-compilation result semantics |
+
+## Positive controls and qualifications
+
+The Omega deployment gateway is materially stronger than the physical deployment manager and CEL restart handler. It checks candidate approval status, certification verdict, non-empty lineage, grant presence, grant-to-proposal match, expiry, identity/grant human-ID agreement, and candidate content hash. It wraps its check/commit sequence in an ETS mutex keyed by registry path, intended to prevent same-node concurrent attempts sharing that path.
+
+The authorization grant has a lifecycle (prepared → pending_authorization → granted), human ID, TTL, explanation ID, and optional candidate content hash. However, a human ID is not proof of an authenticated human. Replay protection is also optional: a nil registry path skips both the already-deployed check and recording.
+
+## Findings
+
+### RL-425 OPEN — Deployment gateway can report success when replay-registry persistence fails
+
+When a registry path is supplied, DeploymentGateway.do_deploy/6 calls DeploymentRegistry.record_deployment/3 but does not pattern-match or propagate its return value. It then returns a successful deployment tuple regardless of whether File.write/3 returned an error.
+
+**Risk:** the caller can receive success while the authorization remains replayable after restart or on a subsequent invocation.
+
+**Closure evidence:** require a successful durable registry commit before returning success; propagate write, directory, flush, and storage failures; test unwritable paths, partial writes, process interruption between effect and record, and restart replay.
+
+### RL-426 OPEN — Authenticated-human identity structs can be forged by direct construction
+
+AuthenticatedHumanIdentity is a public Elixir struct with public fields. Its authenticated?/1 predicate returns true for any instance with a non-nil authenticated_at field. It does not verify a signature, opaque server-issued token, trusted issuer, or registry entry. The inspected authenticate/3 function accepts any non-empty binary credential; no credential validation against an identity provider or stored secret is performed in this module. The deployment gateway trusts this predicate and compares only identity.human_id with grant.human_id.
+
+**Risk:** a caller able to construct the struct can fabricate a matching identity and satisfy the gateway check without passing through authenticate/3. Even that helper establishes non-emptiness, not credential validity against an authority.
+
+**Closure evidence:** use an unforgeable opaque identity capability issued by a trusted authentication boundary; verify issuer/signature/session validity, authentication strength and freshness at the effect boundary; test direct struct forgery and invalid/revoked credentials.
+
+### RL-427 OPEN — Replay protection is optional and the registry fails open on read/parse corruption
+
+The gateway explicitly treats a nil registry_path as success for its replay check and skips recording. With a path, DeploymentRegistry.already_deployed?/2 maps every File.read/1 error to false. Its decoder silently returns an empty list for a truncated trailing record and does not validate each decoded tuple's schema. The ETS mutex serializes only callers sharing the same in-process table/key; it is not a durable cross-node single-use grant mechanism.
+
+**Risk:** deployments that omit the optional path have no replay protection. Missing/unreadable registry state or a corrupt tail can be treated as unused; distributed instances do not share the in-memory mutex. This refines RL-423: the gateway has a same-node critical section, but optionality and storage semantics still fail the durable fail-closed requirement.
+
+**Closure evidence:** make replay protection mandatory for production deployment; use a transactional durable store with atomic unique grant consumption across nodes; fail closed on read, decode, schema and integrity errors; test corruption, missing/unreadable state, concurrent multi-node attempts, restart and crash recovery. RL-423 remains OPEN with this refined scope.
+
+### RL-428 OPEN — Physical deployment API has no effect-specific authorization at dispatch
+
+The complete manager source confirms that approve/3 stores a supplied approver string; advance/1 trusts the stored approved decision; execute/2 dispatches a caller-supplied action when the stage is in the allowed set and E-stop is false; and resume/1 clears adapter E-stop solely when the deployment ID exists. These handlers do not consume an authenticated actor, Council grant, plan/action hash binding, per-action authorization, or fresh safety check.
+
+**Risk:** lifecycle stage is being used as the authorization token. The action chosen at dispatch is not demonstrably bound to the human-approved plan. The resume path can clear the stop latch without showing that the stop cause was resolved.
+
+**Closure evidence:** bind an authenticated principal and one-use Council authorization to the immutable plan and exact action; revalidate policy and safety at dispatch; require an independently authorized resume protocol with stop-cause diagnostics and interlock confirmation; audit every attempt and result durably.
+
+### RL-429 OPEN — Self-compilation success counters describe validation, not an applied change
+
+RewriteEngine validates mutated rules, but apply_rules/2 returns the literal :applied for each supported subsystem and comments state that subsystem integration is pending. The engine then increments version and success counters and returns status: :compiled. No actual subsystem update or before/after state comparison is performed in this path.
+
+This corroborates RL-422 rather than establishing a separate mutation path. Keep RL-422 OPEN; RL-429 is supporting evidence, not an independent exploit finding.
+
+## Enforcement-boundary map
+
+| Consequential path | Observed enforcement | Disposition |
+|---|---|---|
+| Omega candidate deployment | Strong candidate/grant/expiry/content-hash checks; identity predicate forgeable; replay registry optional and write result ignored | Partial; RL-425–427 OPEN |
+| CEL service restart | Conditional decision treated as unconditional; actor omitted | RL-418 OPEN |
+| CEL runtime-state transition | Structural transition validation only | RL-424 OPEN |
+| Physical deployment | Caller-supplied approval identity; stage-only dispatch; E-stop resume without reauthorization | RL-419, RL-420, RL-428 OPEN |
+| Physical safety review | Unconditional pass behavior already recorded | RL-421 OPEN |
+| Runtime self-compilation | Placeholder apply and false compiled/version result | RL-422 / RL-429 OPEN |
+| ASC adoption | Human artifact, evidence, scope, rollback and validation checks; identity/audit/tag-result gaps remain | Positive partial pattern; not certified |
+
+## Minimal authoritative enforcement boundary — design requirement, not implementation
+
+1. **Authenticated principal:** trusted, unforgeable identity with role/authority and fresh authentication evidence.
+2. **Exact effect binding:** immutable target, artifact/plan hash, operation/action, parameters, device/subsystem, environment and constitution/policy version.
+3. **Typed authorization:** distinguish approved, conditional, human-required, denied, deferred and unknown. Conditional grants require explicit affirmative evidence immediately before effect.
+4. **Freshness and single use:** expiry, nonce, revocation, replay prevention and atomic consumption across runtime instances.
+5. **Independent safety gate:** actual constraint checks and hardware interlocks; UNKNOWN or unavailable safety evidence blocks effect.
+6. **Durable audit before effect:** verify durable authorization/effect-intent record before dispatch; record outcome and reconciliation afterward. Audit failure blocks consequential action except explicitly designed emergency-stop behavior.
+7. **Effect adapter boundary:** no alternate route to physical, deployment, lifecycle or self-modification effects; adapters receive validated effect capabilities, not bare actions.
+8. **Human governance:** constitutional authority remains above CEL; high-impact self-modification and life-affecting physical actions require defined human/independent approvals. CEL coordinates and audits but cannot mint constitutional authority.
+
+This is an audit-derived design requirement, not evidence that a shared enforcement service currently exists.
+
+## Regression-test matrix required before remediation closure
+
+| Area | Required cases |
+|---|---|
+| Identity | forged struct; empty/invalid/revoked credential; expired session; wrong human; insufficient role |
+| Decision semantics | approved; conditional with all conditions passed; conditional with missing/unknown/failed condition; human-required; denied; deferred |
+| Binding | wrong candidate hash; wrong proposal; changed parameters; wrong target/device; changed policy/constitution version |
+| Replay/concurrency | same grant twice; simultaneous same-node and multi-node use; registry missing/unreadable/corrupt; partial write; restart; crash between effect and commit |
+| Audit | append/sync failure; storage unavailable; chain discontinuity; outcome-recording failure |
+| Hardware | action outside approved plan; stale interlock; E-stop active; resume without clearance; unknown adapter state; simulated adapter cannot certify physical effect |
+| Self-modification | placeholder adapter; no actual diff; diff outside approved scope; failed post-change verification; rollback failure; missing human approval |
+| CEL | missing/forged actor; unfulfilled conditional grant; unauthorized state transition; restart failure; audit unavailable |
+
+## Disposition
+
+- RL-425, RL-426, RL-427, RL-428: **OPEN**.
+- RL-429 corroborates RL-422; do not count it as an independent exploit finding.
+- RL-423 remains **OPEN**, refined by RL-427: the gateway mutex is a positive partial control, but optional registry use, fail-open reads/decoding, and unchecked persistence prevent a durable replay guarantee.
+- RL-418 through RL-424 and all prior findings remain open.
+- No source files were changed; no tests/build/runtime/hardware actions or fault injection were performed.
+- **Next checkpoint 18.65:** inventory every caller of DeploymentGateway.deploy/6, every physical-adapter implementation and caller, every self-compilation public entry point, and every direct service/lifecycle transition caller. Establish whether these APIs are production-reachable and whether alternate effect paths bypass the proposed boundary.
