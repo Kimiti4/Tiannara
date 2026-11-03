@@ -5149,3 +5149,66 @@ The PhysicalAdapter behaviour specifies capabilities, status, execute_action and
 - No source code was changed; no build, tests, runtime execution, live API requests, hardware actuation or fault injection was performed.
 
 **Next checkpoint 18.67:** inspect the remaining Tiannara web controllers and endpoint configuration for authentication, authorization, CORS, rate limiting and trusted-proxy assumptions; trace every physical-manager action and all adapter/robotics integrations across the full repository; inspect CEL service registration versus actual process ownership; and map the Phase-4 orchestrator's registration/start lifecycle and configuration gates.
+
+
+## Checkpoint 18.67 — API boundary review and CEL boot-path correction
+
+**Inspection basis:** frozen source commit `b829254d032f9e0b5cf4c44725c8cf451800dad0`. Read-only source inspection. No source edits, builds, tests, runtime boot, HTTP requests, or hardware actuation.
+
+### Source files and blob identities inspected
+
+- `lib/tiannara/application.ex` — `1429f81fde9de3c31d4a9dc91b23c5b635670496`
+- `lib/tiannara/web/endpoint.ex` — `33b31db677d896a183e93e4d9def817236ee3be2`
+- `lib/tiannara/web/router.ex` — `917c749e023ff86d59200798b93dfe4bfd9c11f0`
+- `lib/tiannara/web/crav_challenge_controller.ex` — `403b7177633cbb187d7388df86dc5bd02eb40046`
+- `lib/tiannara/cel/kernel.ex` — `fe120d61dcd03a7542b888cf8cce6f1f4e357430`
+- `lib/tiannara/cel/kernel/boot_sequencer.ex` — `f9ebb5a9d096b89f6da0864a357907d5febfd93c`
+- `lib/tiannara/cel/kernel/service_registry.ex` — `76e2861046ae51d4f94157b688037213d58099ac`
+- `lib/tiannara/phase4/experiment_orchestrator.ex` — `5d37f9e20f5945a02ea26982c0449c5f35d7eb43`
+- `lib/tiannara/phase4/real_execution.ex` — `28c1343b939793d878643eac918d0c79f1c55568`
+- `lib/tiannara/asc/reality/reality_supervisor.ex` — `8bd538a1911ce2b71b02045fc9d578d54176d2a0`
+- `lib/tiannara/asc/reality/physical_adapter.ex` — `735b1b95103750704df235afa1c92b02ff0d18f2`
+- `lib/tiannara/asc/reality/adapters/simulated_adapter.ex` — `704e7432dfd70f422f372652e3816323b59730cd`
+- `config/config.exs` — `a27a3c160cfe3d47afad62aacd321ec4183557d4`
+
+### Important correction to checkpoint 18.66 / RL-430
+
+The earlier conclusion that the Phase-4 ExperimentOrchestrator has no boot path was too strong. The main application calls `Tiannara.CEL.Kernel.boot()` after starting the top-level supervisor. The kernel invokes `BootSequencer.boot/4`, which obtains the registry boot order and dynamically starts each registered service using `DynamicSupervisor.start_child/2`. The canonical service registry includes both `AutonomousResearchEngine` and `ExperimentOrchestrator`. Thus, under a successful CEL boot, the orchestrator **does have a dynamic startup path**, even though it is not a static child of `Tiannara.Application`.
+
+RL-430 is therefore corrected: **do not treat absence from the static supervision list as proof that the orchestrator is never started.** Remaining concerns are distinct and still open: production boot is launched through unlinked `Task.start/1` and is asynchronous; DynamicSupervisor children are declared `:temporary`; the orchestrator has no demonstrated production submission caller; and real execution is disabled by default unless `:real_execution_enabled` is explicitly true. No runtime observation was made to establish successful service startup in a deployed environment.
+
+### Findings
+
+#### RL-436 — Main Phoenix endpoint applies wildcard CORS to the entire application, including physical-control API routes
+**Status: OPEN — SECURITY CONFIGURATION**
+
+`TiannaraWeb.Endpoint` applies `CORSPlug` with `origin: "*"` and permits GET, POST, PUT, DELETE, PATCH and OPTIONS for the whole endpoint. The router's `/api/v1/reality/physical` routes include POST operations for planning, advancing, approving/rejecting, aborting and emergency stop. Wildcard CORS does not itself bypass server-side authentication, but it allows browser scripts from arbitrary origins to make cross-origin requests subject to the other browser controls and response-access rules. Combined with RL-434's missing visible API authentication/authorization path, this increases exposure and warrants explicit origin restriction. The endpoint also permits the Authorization header but the inspected router/controller does not consume a verified principal on the physical routes.
+
+**Closure evidence:** replace wildcard CORS with environment-specific trusted origins; separate read-only and mutation route policies; enforce server-side authentication/authorization independently of CORS; test preflight and actual requests from allowed and disallowed origins. Do not treat CORS as an access-control mechanism.
+
+#### RL-437 — CEL boot is asynchronous and detached from successful application startup in production
+**Status: OPEN**
+
+After the main supervisor starts, the application starts CEL boot using `Task.start(boot_fn)` outside test mode. The application returns `{:ok, pid}` without waiting for CEL's boot report or checking its outcome. CEL boot can later fail or report degraded status while the OTP application has already logged and returned successful startup. This creates a gap between application-level “started successfully” and verified operational readiness. It also complicates safe exposure of API operations that depend on dynamically booted services.
+
+**Closure evidence:** expose a readiness state that distinguishes process startup from constitutional/runtime readiness; gate sensitive endpoints and effectful work until required services pass real boot checks; retain and monitor the boot task result; fail deployment readiness on critical boot failures; exercise delayed, failed and degraded boot cases.
+
+### CEL boot and Phase-4 reconciliation
+
+- `Tiannara.Application.start/2` starts the static supervision tree, registers Phase-Ω subsystem metadata, then invokes CEL boot synchronously only in test mode; production uses `Task.start/1`.
+- `Tiannara.CEL.Kernel.boot/0` starts registered services dynamically with child restart policy `:temporary`; this remains subject to RL-395's no-automatic-restart concern.
+- `BootSequencer` starts registry services in topological order; the orchestrator and autonomous research engine are both registered. Registry registration is not itself startup, but the CEL boot caller is.
+- Search of production source still found no caller of `ExperimentOrchestrator.submit_experiment/1`. Dynamic startup therefore does not establish that experiments are actually submitted.
+- `RealExecution.execute/1` requires `:real_execution_enabled` and an Authorization struct; the grant guard still only checks struct shape (RL-431), and the configured default is false.
+- The ASC Reality supervisor starts `SimulatedAdapter` and PhysicalDeploymentManager when ASC is enabled. The inspected PhysicalAdapter implementation inventory still yielded only SimulatedAdapter; no physical hardware driver was identified in this pass.
+- The main endpoint's wildcard CORS is a separate configuration concern from the unauthenticated physical API route path (RL-434); neither finding should be conflated with browser CORS semantics.
+
+### Disposition
+
+- RL-434, RL-436 and RL-437: **OPEN**.
+- RL-435 remains open; adapter search is limited to indexed source matches and is not a mathematical proof of absence across every integration boundary.
+- RL-430 is **corrected as described above**; its static-tree-only rationale is withdrawn. Any separate concerns about async boot, dynamic child restart semantics and absent submission callers remain tracked under RL-395, RL-437 and the Phase-4 integration gap.
+- RL-431 and RL-432 remain open.
+- No source code was changed; no build, tests, runtime execution, live HTTP requests, hardware actuation or fault injection was performed.
+
+**Next checkpoint 18.68:** inspect the Python FastAPI production entry point and gateway authentication wiring, verify whether the API gateway and Phoenix endpoints share any trust boundary, enumerate the full set of mutating HTTP routes and their guards, and trace hardware integration packages beyond the ASC adapter directory (including ROS, Meta.Hardware and external transport bridges).
