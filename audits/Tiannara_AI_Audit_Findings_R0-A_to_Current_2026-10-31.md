@@ -5522,3 +5522,30 @@ Hardware integration remains incomplete in this checkpoint. The earlier source p
 **Next checkpoint 18.75:** trace every consumer of `discovery.certified` and knowledge-promotion events; inspect the complete forward-certificate verifier and its authority/expiry/revocation behavior; trace concrete ASC and Meta.Hardware adapter implementations and all physical deployment entry points; then continue CEL service coverage and AEO/REA contract audits. Preserve the distinction between provisional, certified, simulated, runtime-observed and empirical evidence.
 
 No source code was changed. No tests/builds/runtime/HTTP/NATS/fault-injection/physical-device checks were run.
+
+
+## Checkpoint 18.76 — CEL event semantics, forward certificate verification, and hardware execution accounting
+
+**Basis:** frozen source `b829254d032f9e0b5cf4c44725c8cf451800dad0`. Read-only source inspection/search only. No tests, builds, runtime boot, live API, NATS, fault-injection, or physical-device operations were run. The fetched report branch contained 18.74 but no persisted 18.75 section; this entry records 18.76 without asserting an 18.75 result.
+
+### New findings
+
+**RL-459 — OPEN — Forward-provenance Verifier ACCEPT does not establish affirmative authorization or current certificate state.** `TiannaraOS.Provenance.Verifier.verify/1` checks manifest hashes, source/contract identities, execution linkage, result payload hash, metric recomputation, certificate-to-metric object-hash binding, and presence of required graph edge types. It does not inspect the certificate envelope's `decision` or `authority`, validate edge endpoints/bindings, resolve the immutable record through `CertificateIssuance.resolve/1`, or consult `CertificateLifecycle.current_state/1`. Thus ACCEPT is a bundle integrity/binding verdict, not proof that the decision is affirmative, the issuer is authorized, or the certificate is currently VALID. Separate predicate-local issuance and lifecycle modules do exist: issuance creates immutable VALID records; lifecycle supports VALID/SUSPENDED/UNVERIFIABLE transitions. REVOKED and SUPERSEDED transitions remain explicitly closed; no expiry mechanism was identified in the inspected lifecycle. **Closure:** retain separate integrity and authorization/current-state verdicts; validate decision, issuer, issuance record, lifecycle state and policy before any consumer treats a certificate as currently authoritative; unknown state must remain UNKNOWN/BLOCKED.
+
+**RL-460 — OPEN — One KnowledgeCoordinator promotion event is ignored by KnowledgeFlowEngine due to a stage mismatch.** `promote_to_knowledge/1` publishes `knowledge.promoted` with `stage: :knowledge`. `KnowledgeFlowEngine` handles that topic only for `:pattern`, `:model`, `:principle`, `:generalized_understanding`, or `:scientific_discovery`; `:knowledge` falls through without propagation. The alternate memory-stage path publishes its target stage and may match the filter, but does not repair this path. **Closure:** define a canonical stage enum/event contract and test every promotion API against every emitted stage.
+
+### Cross-system refinements
+
+- **RL-458:** frozen-source search found `discovery.certified` published by KnowledgeCoordinator but no matching subscriber. KnowledgeFlowEngine subscribes to `discovery.published`, not `discovery.certified`. This is a bounded search result, not proof that no external/dynamic consumer exists; the boolean/level ambiguity remains open.
+- **RL-455/RL-454:** `CertificateIssuance` and `CertificateLifecycle` are distinct forward-provenance modules in this snapshot. Issuance has a policy gate, first-writer-wins issuer registry and append-only ledger; lifecycle consumes issuance records and supports VALID/SUSPENDED/UNVERIFIABLE transitions. Revocation/supersession are explicitly closed. These predicate-local modules are not enforced by CEL KnowledgeCoordinator's legacy promotion path, which still lacks forward-certificate checks. This corrects any broad claim that no forward issuance/lifecycle implementation exists; the remaining issue is integration and verifier semantics. No certificate was issued or lifecycle transition run.
+- **RL-428/RL-434/RL-435:** ASC PhysicalDeploymentManager defaults to SimulatedAdapter. That adapter advertises simulated hardware, records actions in memory and returns synthetic success. RealitySupervisor supervises the simulated adapter and manager; RealityDirector routes physical targets to the manager. Phoenix exposes physical plan/advance/approve/abort routes in its JSON API pipeline; the controller takes the approver string from request parameters/default. This reinforces existing findings; no duplicate assigned. No concrete physical driver, HIL test or actuation path established.
+- **Meta.Hardware:** EventHorizonTensorCore explicitly simulates processing. It drains batches, starts asynchronous tasks, ignores Task.Supervisor.start_child return values and increments processed_count at dispatch rather than successful completion; no completion/error acknowledgement is emitted. HorizonScheduler tries alternate cores on backpressure but logs and returns total_saturation when all are full, dropping the payload. This is simulated compute, not hardware execution.
+
+### Status and next work
+
+- **RL-459, RL-460 OPEN; RL-457, RL-458 OPEN; RL-455, RL-456 OPEN.**
+- **RL-445 through RL-454 remain OPEN.** Forward issuance/lifecycle predicates exist locally but CEL promotion integration and current-state verification are not established.
+- CEL-wide service coverage, AEO, ASC, REA, Meta-SOPL and hardware integration audits remain incomplete.
+- No source code was changed; no tests/builds/runtime/HTTP/NATS/fault-injection/security exercises/physical-device checks were run.
+
+**Next checkpoint 18.77:** trace REA causal-lineage and discovery-to-knowledge paths; inspect remaining ASC execution/deployment adapters and Meta.Hardware task-supervisor ownership/failure handling; reconcile forward issuance/lifecycle against KnowledgeCoordinator and external verification surfaces; continue CEL inventory and AEO dispatch contract audit.
