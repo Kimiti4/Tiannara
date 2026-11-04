@@ -5549,3 +5549,44 @@ No source code was changed. No tests/builds/runtime/HTTP/NATS/fault-injection/ph
 - No source code was changed; no tests/builds/runtime/HTTP/NATS/fault-injection/security exercises/physical-device checks were run.
 
 **Next checkpoint 18.77:** trace REA causal-lineage and discovery-to-knowledge paths; inspect remaining ASC execution/deployment adapters and Meta.Hardware task-supervisor ownership/failure handling; reconcile forward issuance/lifecycle against KnowledgeCoordinator and external verification surfaces; continue CEL inventory and AEO dispatch contract audit.
+
+
+## Checkpoint 18.77 — REA lineage/causal path, Meta.Hardware task accounting, ASC adapter boundary, and AEO dispatch
+
+**Basis:** frozen source `b829254d032f9e0b5cf4c44725c8cf451800dad0`. Read-only source inspection/search. No tests, builds, runtime boot, API calls, task execution, or hardware operations were run.
+
+### New finding
+
+**RL-461 — OPEN — Meta.Hardware counts queued payloads as processed when tasks are only dispatched, without observing task start/completion/result.** `EventHorizonTensorCore.handle_info(:process_batch, ...)` drains up to 50 payloads, calls `Task.Supervisor.start_child/2` for each, ignores each return value, and then decrements queue depth and increments `processed_count` by the full batch size. A failed task start therefore still counts as processed; a task that later crashes or returns a parity-validation failure is also not reflected in core state. The worker's `process_tensor/2` return value is not captured or reported to the GenServer. The task supervisor is present in the main application's top-level child list, but that ownership does not supply per-payload completion semantics. **Closure:** distinguish accepted, dispatched, started, succeeded, failed and dropped counts; check task-start results; attach stable payload/task IDs; report completion/error to the owning core; bound in-flight work; and add tests for supervisor unavailable, task-start failure, worker crash, parity failure, duplicate completion and shutdown with in-flight payloads.
+
+### REA and causal-lineage audit
+
+- `REA.Supervisor` declares the LineageRegistry, ArchaeologyRegistry, causal Graph and ChannelMonitor under supervision.
+- The four primary evolutionary organism modules (Civilization, EpistemologySpecies, LawSpecies, MetaGenome) register root identities, mutation descendants, recombination descendants and extinction records with LineageRegistry. This corrects a possible concern from partial search: recombination does register identities; no missing-recombination-registration finding is assigned.
+- `UniversalEvolutionEngine.tick_population/2` archives extinct organisms into ArchaeologyRegistry with causal attribution, runs selection/reproduction, and emits organism signals when `emit_signals/1` exists. `SimulationRunner.run/1` constructs four synthetic populations and ticks the engine; at configured snapshot intervals it records population/fitness/extinction summaries to ChannelMonitor.
+- The causal Graph stores registered channels, queues emitted signals in memory, delivers pressure by target population/epoch and stores bounded per-channel history. ChannelMonitor records epoch population metrics and computes report values from its available observations.
+- This is a real source-level simulation pipeline with explicit identity and causal registries; it is not evidence of validated causal inference about independently observed biological/ecological systems. The previously documented REA Stage A/B synthetic-data boundary (RL-449) remains. No empirical-system evidence or live REA run was produced in this checkpoint.
+
+### AEO and D3 dispatch refinement (RL-445)
+
+- `Tiannara.AEO.translate_intent/1` returns the fixed atom `:execution_graph_placeholder`; `submit_to_runtime/1` returns `{:ok, :submitted_to_runtime}` without calling Runtime or a dispatcher.
+- `Forecasting.Adapters.DecisionImpl.submit_intent/1` wraps that return in `{:ok, ...}`, so the result is nested success-shaped data, not a runtime submission receipt. It does not demonstrate an execution ID, accepted command, runtime queue, policy/effect binding, or completion.
+- The D3 adapter's authorization method does call Council when the Council process exists and returns an explicit unavailable error otherwise; that authorization behavior does not change the inert AEO dispatch implementation.
+- This reinforces RL-445 and does not receive a duplicate ID. The D3 integration documents and diagrams are design/contract descriptions, not evidence that the AEO bridge dispatches.
+
+### ASC adapter boundary refinement
+
+- The inspected `PhysicalAdapter` is a behaviour contract only. Repository search found `SimulatedAdapter` as the concrete implementation in the ASC Reality adapter directory; it advertises `hardware: :simulated` and stores actions in an in-memory GenServer list.
+- `PhysicalDeploymentManager` allows the adapter module to be selected from deployment design data, defaulting to SimulatedAdapter. The contract permits future concrete adapters but no concrete hardware implementation was established by this source search. A caller-selected module is not, by itself, evidence of a supervised, trusted, physically connected or safety-qualified adapter.
+- Existing RL-428/RL-434/RL-435 and 18.76 refinements remain open. No new ASC finding assigned.
+
+### Status and next work
+
+- **RL-461 OPEN.**
+- **RL-459, RL-460, RL-457, RL-458, RL-455, RL-456 remain OPEN.**
+- **RL-445 through RL-454 remain OPEN.** AEO dispatch remains a fixed acknowledgement; REA recombination registration is present and no defect is assigned for that path.
+- REA simulation pipeline is source-connected, but its empirical-science boundary remains; Meta.Hardware is simulation/task-dispatch only; ASC has no established physical adapter.
+- CEL whole-system service coverage and AEO/REA integration audits remain incomplete.
+- No source code changed; no tests/builds/runtime/API/task execution/fault-injection/physical-device checks were run.
+
+**Next checkpoint 18.78:** trace REA causal-channel producers against channel topology and consumers; inspect the complete ChannelMonitor metric derivations and any empirical-data ingestion; verify all Meta.Hardware worker result and shutdown paths; inspect ASC adapter selection trust boundary and physical endpoint authorization; continue CEL service registry versus actual supervisor/boot coverage.
