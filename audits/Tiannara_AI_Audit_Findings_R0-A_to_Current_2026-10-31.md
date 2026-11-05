@@ -5642,3 +5642,46 @@ No source code was changed. No tests/builds/runtime/HTTP/NATS/fault-injection/ph
 - No source code changed; no tests/builds/runtime boot/simulation/API/fault-injection/physical-device operations were run.
 
 **Next checkpoint 18.79:** inspect REA startup/activation call sites and PhaseΩ dependency enforcement in more depth; audit signal producer values and their biological/ecological meaning; inspect all channel topology mutation/evolution paths for preservation of transfer semantics; trace Meta.Hardware scheduler saturation/drop observability and task supervisor shutdown ownership; trace ASC adapter inputs from Phoenix/API controllers through the manager; and continue the CEL canonical-service inventory against actual start_link/health contracts. Assign RL-465+ only for independently supported, non-duplicate findings.
+
+
+## Checkpoint 18.79 — REA signal contract, PhaseΩ health probes, scheduler drops, and ASC physical-plan input trace
+
+**Basis:** frozen source `b829254d032f9e0b5cf4c44725c8cf451800dad0`. Read-only source inspection and bounded repository search. No tests, builds, runtime boot, simulation execution, API calls, fault injection, or physical operations were run.
+
+### New findings
+
+**RL-465 — OPEN — REA producer timestamps violate the Signal epoch contract and crash causal Graph signal ingestion.** `REA.Causal.Signal.t` declares `emitted_epoch: non_neg_integer()`; `Signal.emit/5` also specifies a non-negative integer epoch. However, all four inspected organism producers — `Ecology.Civilization`, `Sentinel.D2.EpistemologySpecies`, `SOPL.LawSpecies`, and `SOPL.MetaGenome` — set the emitted epoch from private `current_epoch/0` functions returning `DateTime.utc_now()`. The Graph's `handle_cast({:emit, sig}, ...)` computes `sig.emitted_epoch + ch.delay` to populate `arrives_at`; adding an integer delay to a DateTime struct raises an arithmetic error. If that is corrected in isolation, the collection path also computes `epoch - sig.emitted_epoch`, where the simulation supplies an integer epoch and the producer supplies DateTime, another incompatible arithmetic operation. The Graph is a supervised GenServer under REA.Supervisor, so a producer cast can crash/restart it and lose its in-memory channel/inflight/history state. This invalidates the assumption that source-level signal producers imply functioning causal delivery. **Closure:** use one canonical integer simulation epoch (passed from the engine into producers) or a separate explicitly typed wall-clock timestamp field; validate at Signal construction; add producer-to-Graph integration tests for all four organism types, delayed arrival, decay, and restart behavior; prove no Graph crash and correct delivered pressure. Do not mix wall-clock timestamps and logical simulation epochs.
+
+**RL-466 — OPEN — PhaseΩ BootSequencer treats any non-raising health probe as healthy, ignoring its result.** `Tiannara.PhaseOmega.BootSequencer.verify_health/2` executes `apply(mod, fun, args)` and then unconditionally returns `:ok`; it only converts exceptions/exits to errors. The `WiringEngine.rea_healthy?/0` probe returns `:ok` when all expected processes are alive and `{:error, "some children not alive"}` otherwise. The sequencer therefore accepts that explicit unhealthy return as a successful probe, transitions the subsystem to healthy, and issues a startup certificate. The already-started supervisor branch also calls `verify_health/2` and then returns success. **Closure:** define a strict health-probe result contract and match only explicit healthy values (e.g. `:ok` or `:healthy`); map error, false, unknown, malformed and unexpected results to failure/degraded according to criticality; preserve the returned evidence in registry health state; test healthy, unhealthy, exception, exit, malformed and already-started paths.
+
+### Signal producer semantic trace
+
+- Civilization emits truth stock, compute capacity, economic output, cohesion, entropy/monoculture metrics and domain aptitude values. These are internal simulation state values, not independently measured civilization-wide observables.
+- Epistemology emits cognitive yield, coherence, and operator success computed as `length(operator_set) * cognitive_yield / 10`; no independent operator execution-success sample is used in this producer.
+- LawSpecies emits adaptive capacity as symmetry stability, reciprocal pathology-count as perturbation survival, and emergent-property count times 0.1 as diversity index.
+- MetaGenome emits last evaluation fitness as resilience, but its diversity and innovation values are fixed binary proxies selected from strategy thresholds/probabilities (0.8/0.2 and 0.9/0.1), not measured population diversity or observed innovation outcomes.
+- These semantic limitations reinforce RL-449's synthetic/proxy evidence boundary. They are not separately numbered in this checkpoint because the timestamp contract failure already prevents reliable ingestion and the proxy semantics require a dedicated follow-up comparing all fitness/pressure units and normalization assumptions.
+
+### PhaseΩ dependency and activation trace refinement
+
+- `PhaseOmega.Activator.bootstrap/0` calls runtime discovery, wiring, dependency checks and the PhaseΩ BootSequencer. Bounded call-site search located the direct invocation in the explicit Mix task `phase_omega_scan`; the normal `Tiannara.Application.start/2` path instead calls its own `register_subsystems/0` and starts CEL Kernel boot asynchronously in production.
+- PhaseΩ `resolve_order/2` filters dependencies to names already present in its local spec set, and `boot_ordered/5` continues through all ordered names without checking whether a dependency previously failed. These behaviors are already represented by RL-393/RL-394 and are not duplicated.
+- `WiringEngine.rea_healthy?/0` is a concrete example of a health probe returning a meaningful error tuple, which PhaseΩ currently discards under RL-466.
+
+### Meta.Hardware saturation and ASC physical-plan input trace
+
+- HorizonScheduler iterates configured HSV IDs and retries on backpressure or other returned errors. When all cores reject, it logs a saturation message and returns `{:error, :total_saturation}`; the inspected scheduler does not persist a drop record, retry queue, dead-letter entry, or metrics counter.
+- EventHorizonTensorCore still drains queue entries before worker outcomes and increments `processed_count` by dispatched batch size; RL-461 remains the controlling finding for lifecycle accounting. This checkpoint did not establish a production caller of `HorizonScheduler.route_payload/1` in the bounded call-site search.
+- ASC RealityDirector constructs the physical design from artifact and rollout params and calls `PhysicalDeploymentManager.plan/1`. The plan contains an adapter module selected by `design[:adapter]` or defaults to SimulatedAdapter. The inspected RealityDirector `physical_design/3` does not itself supply an adapter; caller-provided rollout params are retained in the design but are not converted into a trusted adapter identity there. Existing RL-428/RL-435 and 18.78 adapter trust-boundary refinements remain; no duplicate assigned.
+- No physical controller file at the initially assumed path was found in this frozen snapshot. This does not establish that no API/controller route exists elsewhere; the controller-to-director path remains open for later repository-wide route tracing.
+
+### Status and next work
+
+- **RL-465, RL-466 OPEN.**
+- **RL-462–464 OPEN** from 18.78; REA runtime signal delivery now has an additional contract-level blocker (RL-465).
+- **RL-461 OPEN:** dispatch is still counted as processed before task completion; no durable saturation/drop accounting established.
+- **RL-393/RL-394 remain OPEN:** PhaseΩ dependency omissions and failed-dependency continuation are not duplicated.
+- **RL-449 remains OPEN:** REA outputs are simulation/proxy outputs, not empirical ecological evidence.
+- No source code changed; no tests/builds/runtime boot/simulation/API/fault-injection/physical-device operations were run.
+
+**Next checkpoint 18.80:** trace exact route/controller entry points into RealityDirector and PhysicalDeploymentManager; audit topology evolution (ChannelEvolutionEngine) for atomic Graph updates and transfer-function preservation; inspect all Signal construction call sites and logical epoch propagation; determine whether REA can be booted through any normal production child path beyond PhaseΩ scan; inspect task supervisor restart/shutdown ownership and scheduler drop observability; and compare CEL service health callback semantics against BootSequencer's result handling. Assign RL-467+ only for independently supported, non-duplicate findings.
