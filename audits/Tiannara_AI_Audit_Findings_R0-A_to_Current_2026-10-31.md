@@ -5844,3 +5844,39 @@ No source code was changed. No tests/builds/runtime/HTTP/NATS/fault-injection/ph
 - No production code, runtime configuration or certification state was modified. Only this consolidated audit report is updated.
 
 **Next checkpoint 18.84:** audit the Council constitutional amendment/commit and emergency-lift flows against the hard human-final-authority invariants; trace every direct REA Graph/constitution writer and profile source into a canonical manifest and enforceable authority; and reconcile RealityDirector, PhysicalDeploymentManager, SafetyVerificationEngine, RollbackEngine and the HTTP controller into one evidence-backed physical-deployment lifecycle with exact status semantics and fail-safe stop/rollback postconditions.
+
+
+## Checkpoint 18.84 — Council ratification, REA policy writers, and physical lifecycle
+
+**Date:** 2026-11-06  
+**Basis:** frozen source `b829254d032f9e0b5cf4c44725c8cf451800dad0`. Exact-path source inspection and bounded repository search. No tests, builds, runtime boot, simulation, HTTP requests, fault injection, or physical-device operations were run.
+
+### New findings
+
+**RL-475 — OPEN — REA CausalConstitution.enact/1 can replace all channel protections from an unvalidated profile list.** The public API maps any supplied list into a new constitution and replaces the prior map. It does not verify caller authority, Council approval, profile provenance, a signed evidence digest, or complete topology coverage. Unknown classifications default to `:experimental` (`can_be_deleted: true`); duplicate IDs collapse in `Map.new/1`; an empty list clears all profiles. A caller can therefore downgrade, omit or clear protections. This is distinct from RL-469's missing startup enactment and novel-channel admission bypass. **Closure:** require Council-authorized and human-approved profile transitions; validate a signed profile bundle against the canonical topology digest; reject unknown tiers, duplicate IDs and missing channels; use an atomic versioned transition and test downgrade, empty, malformed, duplicate and unauthorized cases.
+
+**RL-476 — OPEN — REA Graph mutation APIs do not enforce constitutional admission at the graph-owner boundary.** `Graph.register/1` writes or replaces a channel without invoking `CausalConstitution.validate_mutation/2`; `Graph.set_enabled/2` toggles a channel without policy checks; and `Graph.load_topology/1` sequentially writes supplied channels through the same unguarded registration API. Enforcement is caller-dependent. Concrete callers illustrate the gap: ChannelEvolutionEngine validates existing-channel mutations but directly registers novel proposals; ReplacementRegistry registers a replacement before constitutional supersession; topology experiment helpers call load/set-enabled directly. RL-468 and RL-469 record those specific paths; RL-476 records the missing invariant at the state-owning Graph boundary. **Closure:** make every graph write pass one mandatory admission/authority service; isolate experiments in independent Graph instances; reject unknown IDs by default; bind atomic topology changes to profile/provenance digests; test direct calls to every mutator and policy-service failure.
+
+### Council ratification and emergency refinements
+
+- **RL-69 refined:** Council emergency state is initialized inactive and held in GenServer memory. Invocation and lift trust supplied actor IDs and ignore AuditLog append results. No durable emergency-state recovery path was found in this trace; Council restart can therefore lose an active emergency unless an external mechanism restores it.
+- **RL-123 reconfirmed:** ConstitutionRepository.commit/3 still inserts caller-supplied constitution data and advances the current pointer without validating an approved amendment, actor authority, immutable invariants or DETS write success. rollback/2 changes the current pointer from a caller-supplied actor and does not append a Council audit event in its handler. The inspected AmendmentEngine approval path does not call commit/3.
+- **RL-124 refined:** AmendmentEngine initializes its private constitution from Constitution.v1(), not ConstitutionRepository.current(). Its evaluator labels affected principles strengthened without inspecting proposed change content. apply_amendment/2 ignores the amendment and only increments the version; proposed clauses/principles/invariants are not applied. approve/2 accepts a caller-supplied human_id and mutates only in-memory AmendmentEngine state; it does not verify a HumanApprovalQueue approval or persist through ConstitutionRepository. Separately, RuleEngine's no_self_amendment predicate rejects every :constitutional_amendment decision type, without distinguishing a human-ratified amendment from autonomous self-amendment. The direct AmendmentEngine path bypasses that Council decision path instead of implementing the intended human-approval invariant. These refine RL-124; no duplicate amendment finding is assigned.
+- The inspected frozen tree has no dedicated `test/tiannara/council/` test-path suite. This was not a test-execution checkpoint and no runtime conclusion is inferred from test absence.
+
+### Physical deployment reconciliation
+
+- The Phoenix physical router exposes list/detail/adapter reads and plan/advance/approve/abort writes. It does not expose an action-execution route despite the manager's execute/2 API. The plan controller forwards design fields only; no authenticated actor, Council grant, immutable approval digest or trusted hardware adapter is bound there.
+- **RL-474 refined:** RealityDirector's physical branch calls PhysicalDeploymentManager.plan/1 and receives a :planned record, but the director reports :deployed when the pipeline succeeds. The existing integration test asserts both values. No HTTP execution route was found.
+- **RL-345 reconfirmed:** Reality RollbackEngine stores metadata and artifact labels, not restorable configuration/data/connections; its rollback records :completed without applying restoration. RealityDirector marks :rolled_back without requiring verified restoration.
+- **RL-421/RL-435 reconfirmed:** safety constraints return pass without checking the design or device; the only located concrete adapter is SimulatedAdapter and records actions in memory. The stop path does not independently attest a device-safe postcondition.
+- Manager execute/2 accepts an action map during execution-enabled stages without comparing it with the immutable plan or approval record; this remains within RL-428's existing effect-binding scope.
+
+### Status and disposition
+
+- **RL-475 and RL-476 OPEN.**
+- **RL-468–474 OPEN; RL-69, RL-121–124 and RL-412–414 OPEN.**
+- **RL-345, RL-406, RL-421, RL-428, RL-434, RL-435 and RL-439 OPEN.**
+- No findings were closed. No production code, runtime configuration or certification state was modified. Only this consolidated report is updated.
+
+**Next checkpoint 18.85:** reconcile ConstitutionRepository, AmendmentEngine, Council policy and audit storage into one canonical amendment/version lifecycle; trace approval-resumer consumers for request digest, actor, expiry, one-time use and audit-before-effect; and map all REA profile/topology writers to mandatory admission, including experiment isolation and startup readiness.
