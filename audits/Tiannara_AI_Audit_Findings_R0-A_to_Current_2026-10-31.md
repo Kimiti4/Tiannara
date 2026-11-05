@@ -5684,7 +5684,7 @@ No source code was changed. No tests/builds/runtime/HTTP/NATS/fault-injection/ph
 - **RL-449 remains OPEN:** REA outputs are simulation/proxy outputs, not empirical ecological evidence.
 - No source code changed; no tests/builds/runtime boot/simulation/API/fault-injection/physical-device operations were run.
 
-**Next checkpoint 18.80:** trace exact route/controller entry points into RealityDirector and PhysicalDeploymentManager; audit topology evolution (ChannelEvolutionEngine) for atomic Graph updates and transfer-function preservation; inspect all Signal construction call sites and logical epoch propagation; determine whether REA can be booted through any normal production child path beyond PhaseΩ scan; inspect task supervisor restart/shutdown ownership and scheduler drop observability; and compare CEL service health callback semantics against BootSequencer's result handling. Assign RL-467+ only for independently supported, non-duplicate findings.
+**Checkpoint 18.80 scope (completed in the following section):** trace exact route/controller entry points into RealityDirector and PhysicalDeploymentManager; audit topology evolution (ChannelEvolutionEngine) for atomic Graph updates and transfer-function preservation; inspect all Signal construction call sites and logical epoch propagation; determine whether REA can be booted through any normal production child path beyond PhaseΩ scan; inspect task supervisor restart/shutdown ownership and scheduler drop observability; and compare CEL service health callback semantics against BootSequencer's result handling. Assign RL-467+ only for independently supported, non-duplicate findings.
 
 
 ## Checkpoint 18.80 — causal topology mutation integrity and production reachability cross-check
