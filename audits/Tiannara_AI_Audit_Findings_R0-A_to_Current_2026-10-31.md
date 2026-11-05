@@ -5590,3 +5590,55 @@ No source code was changed. No tests/builds/runtime/HTTP/NATS/fault-injection/ph
 - No source code changed; no tests/builds/runtime/API/task execution/fault-injection/physical-device checks were run.
 
 **Next checkpoint 18.78:** trace REA causal-channel producers against channel topology and consumers; inspect the complete ChannelMonitor metric derivations and any empirical-data ingestion; verify all Meta.Hardware worker result and shutdown paths; inspect ASC adapter selection trust boundary and physical endpoint authorization; continue CEL service registry versus actual supervisor/boot coverage.
+
+
+## Checkpoint 18.78 — REA causal topology and measurement, hardware worker lifecycle, ASC adapter trust boundary, and CEL activation coverage
+
+**Basis:** frozen source `b829254d032f9e0b5cf4c44725c8cf451800dad0`. Read-only source inspection and bounded repository search. No tests, builds, runtime boot, simulation execution, API calls, fault injection, or physical operations were run.
+
+### New findings
+
+**RL-462 — OPEN — REA's canonical causal topology is not part of the main application/REA supervisor startup path.** `Tiannara.REA.Supervisor.init/1` starts the Graph and ChannelMonitor but does not load `Tiannara.REA.Causal.Topology.default/0`. The Graph initializes with empty channel maps. The main `Tiannara.Application.core_children/0` inspected for this baseline does not include `Tiannara.REA.Supervisor`, and its `register_subsystems/0` list does not register REA. The separate PhaseΩ `WiringEngine` defines an REA spec, but its `wire_all/0` call is reached through `PhaseOmega.Activator.bootstrap/0`; bounded call-site search found that bootstrap invoked by the explicit `mix phase_omega_scan` task, not by the normal application start path. Canonical topology loading was found in scripts and test/benchmark helpers, not in the REA supervisor or SimulationRunner. Thus the source contains a ten-channel topology and a working source-level graph algorithm, but this pass did not establish that normal application boot starts REA or loads that topology. **Closure:** choose one authoritative production activation path; include REA supervisor in the boot graph with verified dependencies; load and validate a versioned topology as part of REA initialization; expose channel-count/topology hash in readiness; and test production boot from a clean state. This refines RL-456's cross-inventory concern and does not claim the REA subsystem can never be started manually.
+
+**RL-463 — OPEN — Causal Graph ignores each channel's configured transfer function.** The canonical topology configures `Channel.min_signal/1` for civilization-cohesion-to-meta-resilience and `Channel.max_signal/1` for epistemic-success-to-meta-innovation, alongside mean aggregators for other channels. However, `Graph.handle_call({:collect, ...})` always computes `signal_avg = Channel.mean(decayed)`; it never invokes `ch.transfer_fn`. Consequently the configured min/max semantics do not affect delivered pressure, and the resulting graph behavior differs from the declared topology. **Closure:** invoke a validated channel aggregation function (or a closed typed aggregation enum) during delivery; validate its output and failure behavior; add tests showing mean/min/max produce distinct expected results and ensure topology metadata matches executed semantics.
+
+**RL-464 — OPEN — ChannelMonitor labels proxy calculations as causal stabilization/collapse metrics and counts empty channel epochs as samples.** `Graph.collect_pressures/2` creates a history row for every enabled target channel on every collection, even when no signal arrived; in that case the mean is zero and the row still contributes to history length and aligned sample count. `ChannelMonitor.compute_metrics/3` gates on history/snapshot lengths, then aligns these rows with same-epoch population fitness/extinction snapshots. Its `stabilization_effect` is `max(0, variance(low_signal_fitness) - variance(high_signal_fitness))`, not a measured before/after reduction in population variance or an identified causal effect. Its `collapse_correlation` correlates signal with `1.0 - extinctions`; because extinctions is a count, this is not a normalized extinction frequency and can become negative when an epoch has multiple extinctions. The `pressures` argument recorded by `SimulationRunner` is always `%{}` and is not used by these metric calculations. `SimulationRunner` constructs synthetic populations; no empirical ecological/biological ingestion was found in this bounded path search. **Closure:** distinguish observed-signal samples from empty collection epochs; define explicit denominators and time windows; use target-population variance before/after a defined intervention for stabilization; define normalized extinction rates; control for lag/confounders and baselines; label descriptive associations as such; and require independently sourced empirical data before presenting results as real-world ecological evidence.
+
+### REA causal producer and consumer trace
+
+- The four organism modules (Civilization, EpistemologySpecies, LawSpecies, MetaGenome) expose `emit_signals/1`; `UniversalEvolutionEngine.tick_population/2` invokes these for survivors and submits each signal to `Graph.emit/1`.
+- The canonical topology contains ten directed channels among the four synthetic populations. Graph indexes channels by source/target, filters emitted signals by source population and signal type, queues them with configured delay, and collects due signals for the target population on subsequent ticks.
+- Graph delivery applies channel decay and weight, but, per RL-463, uses mean aggregation for every channel. Channel history is generated at collection time, including zero-signal collections.
+- REA.Supervisor supervises the registries, graph and monitor when started. The normal application startup path and explicit PhaseΩ scan path remain distinct; no live boot was performed to establish which path is active in a deployed environment.
+- The pipeline is source-connected as a simulation. It does not establish empirical causal inference, independently measured ecological outcomes, or validated plant/animal preservation interventions. RL-449's synthetic-data boundary remains.
+
+### Meta.Hardware worker result and shutdown refinement
+
+- The inspected EventHorizonTensorCore has no custom `terminate/2`, drain protocol, in-flight task registry, task monitor, or completion message handler. It removes payloads from its queue before task outcomes are known.
+- `Task.Supervisor.start_child/2` results are ignored; worker return values are not reported to the core. The task supervisor is a main-application child, but no per-payload lifecycle protocol is implemented.
+- No graceful queue drain or explicit cancellation/settlement of outstanding tasks is implemented in the core. Supervisor shutdown therefore does not produce a core-level record distinguishing completed, failed, cancelled, or lost work.
+- This further specifies RL-461; no new hardware finding assigned. Processing remains simulated and no NIF/CUDA/physical hardware execution was demonstrated.
+
+### ASC adapter selection trust-boundary refinement
+
+- `PhysicalDeploymentManager.plan/1` assigns `deployment.adapter = Map.get(design, :adapter, SimulatedAdapter)` without a visible allowlist, behaviour validation, capability policy, trusted adapter registry, or proof the selected module is supervised/connected.
+- Later manager paths invoke module functions directly for `capabilities/0`, `status/0`, `execute_action/1`, `emergency_stop/0`, and `clear_estop/0`. The adapter behaviour specifies callbacks but does not itself authenticate or qualify implementations.
+- This strengthens existing RL-428/RL-435 adapter trust and supervision concerns; no duplicate finding assigned. No caller-supplied module was executed and no physical endpoint was contacted.
+
+### CEL registry versus boot coverage refinement
+
+- The canonical CEL ServiceRegistry is a declarative service inventory with module, dependencies, provided/required capabilities, health and constitutional-score callbacks. The CEL BootSequencer starts these service specs under its own DynamicSupervisor; this is a separate inventory from the main application's direct child tree and PhaseΩ subsystem registry.
+- The PhaseΩ WiringEngine defines an REA subsystem spec and dependency graph, but the main application has a separate manually maintained registration list. The explicit Activator bootstrap path performs runtime discovery and wires dark subsystems; bounded call-site search located its invocation in the Mix task `phase_omega_scan`.
+- This confirms the inventories have distinct activation mechanisms and reinforces RL-456. It does not prove that every declared CEL service is absent or inactive; per-service startup and readiness require runtime evidence.
+- Existing BootSequencer semantics remain: dependencies are skipped only when present in `failed_critical`; noncritical degraded dependencies are not equivalent to a healthy prerequisite. This is already covered by RL-394 and is not duplicated.
+
+### Status and next work
+
+- **RL-462, RL-463, RL-464 OPEN.**
+- **RL-461 OPEN** with worker completion, failure accounting and graceful shutdown gaps further specified.
+- **RL-456 refinement:** REA, CEL, main OTP application and PhaseΩ inventories/activation paths remain separate; no single verified production crosswalk is established.
+- **RL-428/RL-435 refinements:** adapter module selection is caller-controlled in the inspected manager path and lacks a visible trusted-adapter qualification boundary.
+- **RL-449 remains OPEN:** REA simulation is not empirical ecological validation.
+- No source code changed; no tests/builds/runtime boot/simulation/API/fault-injection/physical-device operations were run.
+
+**Next checkpoint 18.79:** inspect REA startup/activation call sites and PhaseΩ dependency enforcement in more depth; audit signal producer values and their biological/ecological meaning; inspect all channel topology mutation/evolution paths for preservation of transfer semantics; trace Meta.Hardware scheduler saturation/drop observability and task supervisor shutdown ownership; trace ASC adapter inputs from Phoenix/API controllers through the manager; and continue the CEL canonical-service inventory against actual start_link/health contracts. Assign RL-465+ only for independently supported, non-duplicate findings.
