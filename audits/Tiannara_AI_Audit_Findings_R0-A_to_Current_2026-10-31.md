@@ -6024,3 +6024,54 @@ No new finding ID is assigned in this checkpoint. The newly traced call paths su
 - No privileged sink was confirmed to consume the raw MintRegistry result in the bounded search; no production effect execution or exploit was demonstrated.
 
 **Next checkpoint 18.88:** trace all concrete deployment/effect sinks that accept HumanDelivery or machine authorization artifacts; determine whether any call `record_mint`, `record_bind`, `valid_for_effect?`, `consume`, or rely on struct fields alone. Trace all callers of PhaseΩ boot progress/certificate APIs and whether any deployment gate treats the hash as proof. Audit every direct CausalConstitution `enact`, supersession and mutation call against an authenticated owner and exact channel digest. Assign RL-479+ only for independently demonstrated defects.
+
+
+## Checkpoint 18.88 — end-to-end human grant and real-execution deployment flow
+
+**Date:** 2026-11-07  
+**Source basis:** Repository source snapshot `96e93475f99d6f2ca68660efcafaa9451851533b`. Inspected `omega/human_delivery.ex`, `omega/human_delivery/authorization.ex`, `omega/human_delivery/authenticated_human_identity.ex`, `omega/mint_registry.ex`, `omega/deployment_gateway.ex`, `omega/verification/baseline.ex`, `phase4/real_execution.ex`, and `phase4/execution_governance.ex`; re-traced the direct deployment and execution admission order. Source inspection only; no tests, builds, runtime boot, registry writes, API calls, or physical-device operations were performed.
+
+### RL-479 OPEN — HumanDelivery authorization API does not register its grants in the mandatory durable mint registry
+
+**Source-confirmed behavior:**
+- The ordinary `HumanDelivery.authorize/3` public API sends `{:authorize, authorization_id, identity}` to the HumanDelivery GenServer. Its handler calls `Authorization.human_grant/2`, moves the resulting struct from the pending map into the in-memory granted map, and returns it.
+- That handler does not call `Authorization.record_mint/1` or `MintRegistry.record_mint/2`. It also does not bind the grant to a consequential effect or persist a binding with `MintRegistry.record_bind/3`.
+- `Authorization.bind_effect/2` only returns a modified struct; it does not persist the binding. Durable registration and binding are separate explicit operations.
+- The mandatory `DeploymentGateway.deploy/6` checks registry status and requires a durable registry binding that exactly matches the grant's effect ID. `Phase4.ExecutionGovernance.begin/2` imposes the same registered-and-bound requirement before real experiment execution.
+- `Omega.Verification.Baseline.establish/1` demonstrates a separate manual path: it explicitly calls `MintRegistry.record_mint/1`, binds the grant to the candidate deployment descriptor, then calls `MintRegistry.record_bind/3`.
+
+**Impact and boundary:** A grant returned through the ordinary HumanDelivery authorization handler is not, by itself, admissible to the inspected governed sinks: it has no durable mint record and no durable effect binding. This is a fail-closed integration defect that makes the standard human-approval workflow incomplete unless an external caller performs additional registry operations. It is not evidence of unauthorized deployment; no such deployment was demonstrated.
+
+**Closure evidence:** integrate a single governed grant-issuance/binding workflow with the correct sink-computed effect descriptor; persist the mint and binding atomically or with recoverable state transitions; return a grant only when the durable steps succeed; test the public HumanDelivery API end-to-end through each intended sink, including registry failure and restart cases.
+
+### RL-480 OPEN — Phase4 real-execution admission consumes and binds the grant before its optional deployment path reuses it
+
+**Source-confirmed behavior:**
+- `Phase4.RealExecution.execute/1` calls `ExecutionGovernance.begin/2` before opening/running the sandbox. The governance function validates the grant, computes the canonical `phase4:real_execution` effect identity, binds or verifies the grant against that identity, checks the durable registry binding, and calls `MintRegistry.consume/2` before returning admission.
+- After sandbox completion and execution audit, `RealExecution.execute/1` calls `maybe_deploy/3` when a `deploy` map is supplied. That function passes the same original `spec.grant` to `DeploymentGateway.deploy/6`.
+- The deployment gateway recomputes a different canonical effect identity for a `candidate_deployment`, checks that the registry status is still `:granted`, checks the grant's effect ID against the candidate-deployment identity, and only then attempts consumption.
+- The grant has already been consumed by `ExecutionGovernance.begin/2`. Its effect binding is also to the Phase4 execution descriptor, not the gateway's candidate-deployment descriptor. Therefore the subsequent deployment attempt cannot pass the gateway's registration/effect-binding checks with that same grant.
+
+**Impact and boundary:** The optional deployment branch in this RealExecution flow is structurally unreachable with the same single-use grant used to authorize the experiment. The caller logs the deployment denial and does not propagate it as an execution failure, so a successful experiment result can be returned even though the requested deployment did not occur. This is a workflow correctness defect, not a bypass of the deployment gate.
+
+**Closure evidence:** define whether execution and deployment are one governed effect or two distinct effects. If distinct, require separate grants with separately authenticated human approval and sink-specific durable bindings; if one compound effect, model and verify that compound effect explicitly without reusing a grant already consumed for a different effect. Add an end-to-end test asserting the intended deployment outcome and surfaced status.
+
+### RL-478 impact refinement — unbound registry consumption is not shown to bypass the inspected sinks
+
+- The registry-level defect remains: `MintRegistry.consume/2` accepts a registered-but-unbound grant and records the caller-supplied effect ID as consumed.
+- The two concrete sinks inspected in this checkpoint, `DeploymentGateway.deploy/6` and `ExecutionGovernance.begin/2`, both check for an exact durable registry binding before calling `consume/2`. Thus RL-478 is a registry API invariant defect, but the inspected sink paths do not rely on the unsafe unbound-consumption branch.
+- No additional sink bypass or production exploit was established. Keep RL-478 OPEN for the registry contract and for any uninspected/future consumer; do not describe it as a demonstrated deployment bypass.
+
+### PhaseΩ and CausalConstitution scope
+
+- The PhaseΩ certificate API remains a metadata accessor for the registry's generated hash string; no production privileged consumer was established in this bounded trace. Existing RL-466 remains the concrete health-result defect.
+- `CausalConstitution.enact/1` remains a public GenServer call that replaces the entire in-memory constitution map without an actor, role, Council decision, expected prior digest, or authenticated owner parameter. `validate_mutation/2` still returns `:ok` for unknown channel IDs. These observations reinforce RL-469/RL-475 and the broader direct-mutation authority gap; this checkpoint does not assign a duplicate finding without a newly established caller/effect path.
+
+### Status and disposition
+
+- **RL-479: OPEN. RL-480: OPEN. RL-478 remains OPEN with the impact boundary refined above.**
+- RL-412–417, RL-426, RL-456, RL-462, RL-466, RL-469, RL-475–477 and related authorization/governance findings remain OPEN.
+- No existing finding was closed. No production code, runtime configuration, tests, or certification states were modified. Only this consolidated audit report is updated.
+- No test/build/runtime execution or physical actuation was performed.
+
+**Next checkpoint 18.89:** trace the exact caller and orchestration contract for `Phase4.RealExecution.execute/1` and its `deploy` option; inspect whether any higher-level caller expects deployment success or records it separately; trace all grant issuance call sites to determine which flows are intended to use HumanDelivery versus explicit baseline minting; audit the registry append/recovery semantics and whether partial/corrupt trailing records can resurrect or lose consumed grants; then re-check direct `CausalConstitution.enact/1` and supersession callers for reachable authority paths. Assign RL-481+ only for independently demonstrated defects.
