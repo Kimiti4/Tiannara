@@ -6123,3 +6123,72 @@ No new finding ID is assigned in this checkpoint. The newly traced call paths su
 - No test/build/runtime execution or physical actuation was performed.
 
 **Next checkpoint 18.90:** inspect the remaining MintRegistry/DeploymentRegistry durability and locking assumptions (including file sync, concurrent writers, process ownership and replay across restart); trace the real-execution sandbox backend allowlist and isolation controls rather than relying on the module name `RealHarness`; inspect how candidate certification and lineage are produced and whether the deployment gateway verifies evidence contents or only shapes; then map the remaining normal-boot versus explicit-task REA activation and governance boundaries. Assign RL-482+ only for independently demonstrated defects.
+
+
+## Checkpoint 18.90 — sandbox trust boundary, deployment evidence validation, and registry durability
+
+**Date:** 2026-11-07  
+**Source basis:** Repository source snapshot `96e93475f99d6f2ca68660efcafaa9451851533b`. Inspected `omega/mint_registry.ex`, `omega/deployment_gateway.ex`, `omega/deployment_gateway/deployment_registry.ex`, `phase4/real_execution.ex`, `phase4/execution_governance.ex`, `self_improvement/sandbox/real_harness.ex`, sandbox `backend.ex`, Local/Container/CI backends, `omega/patch_generator/candidate.ex`, `omega/certification_server.ex`, `evidence/provenance.ex`, `application.ex`, `phase_omega/activator.ex`, `phase_omega/wiring_engine.ex` and `rea/supervisor.ex`. Source inspection only; no tests, builds, runtime boot, registry writes, fault injection, or physical-device operations were performed.
+
+### RL-482 OPEN — RealExecution accepts caller-selected backend modules without an enforced trusted-backend policy
+
+**Source-confirmed behavior:**
+- `RealExecution.substrate/1` accepts any atom in `substrate.backend`; it does not restrict the value to the repository's Local, Container or CI backend modules, or consult a governed backend registry/policy.
+- `RealExecution.run_sandbox/1` passes that module directly to `RealHarness.run/5`. RealHarness invokes its `prepare`, `apply_patch`, `build`, `run_tests`, `run_benchmark` and `teardown` callbacks in the Tiannara BEAM node.
+- The canonical execution descriptor includes the selected backend module name, but binding an authorization to a caller-selected module does not establish that the module is trusted or isolated.
+- The CI backend also accepts an injectable client map of functions. The Container backend accepts an injectable runner and configurable engine/image/resource parameters. Those are useful test seams, but the production trust policy for their use is not enforced at this boundary.
+
+**Impact and boundary:** The advertised sandbox boundary is not guaranteed by selecting `RealHarness`. A caller able to submit an authorized execution spec can select another loaded module implementing the backend contract; its callbacks execute in-process and can perform effects outside the sandbox. This is a trust-boundary and isolation-enforcement defect. This inspection does not establish that an unauthenticated external caller can reach `RealExecution.execute/1`, nor that arbitrary module loading is possible.
+
+**Closure evidence:** enforce a closed, Council-governed backend allowlist at the execution boundary; separate production backend configuration from caller-controlled specs; reject injectable runners/clients outside explicitly isolated test mode; bind approval to immutable backend image/digest and isolation policy; test unknown, malicious, test-only and substituted backend modules through the actual orchestration ingress.
+
+### RL-483 OPEN — Local and Container file-map patch application does not confine paths to the sandbox work directory
+
+**Source-confirmed behavior:**
+- Both `Sandbox.Backend.Local.apply_patch/2` and `Sandbox.Backend.Container.apply_patch/2` iterate caller-provided `CodePatch.files` entries and construct destinations with `Path.join(env.workdir, rel_path)`.
+- They do not reject absolute paths, parent-directory traversal segments, or verify that the normalized destination remains beneath the generated work directory.
+- The Local backend writes directly through the host filesystem. The Container backend prepares the same host work directory and applies the file-map patch on the host before starting the container; mounting that directory at `/work` does not confine this earlier host-side write.
+- The Local backend documentation explicitly describes it as a development/single-host backend, not a strong isolation boundary. The Container backend's network and resource restrictions apply to container execution, not these host-side patch writes.
+
+**Impact and boundary:** A crafted file-map path can escape the temporary work directory and overwrite or create files accessible to the Tiannara process account. Therefore the workdir copy and container execution restrictions do not, by themselves, guarantee that patch application is isolated from the host. Exploitability depends on the provenance and control of `CodePatch.files` and the operating-system permissions of the Tiannara process; no live write or exploit was performed.
+
+**Closure evidence:** reject absolute paths and traversal components; canonicalize and verify every destination is beneath the workdir after resolution; prevent symlink escapes (including pre-existing symlinks in copied baselines); use descriptor-relative/no-follow file operations where available; apply patches inside the isolated container rather than on the host; test `../`, absolute paths, nested traversal, symlink escapes, Windows drive/UNC paths and both file-map and diff modes.
+
+### RL-484 OPEN — DeploymentGateway treats certification evidence and lineage as shape checks, not verified candidate-bound evidence
+
+**Source-confirmed behavior:**
+- `DeploymentGateway.check_certification/1` accepts any map with `verdict: :certified` when `evidence` is absent or `nil`; when evidence is a list, the gateway accepts the list without validating its members, provenance, signatures, execution identity, candidate binding, or sufficiency. It rejects only the explicit `:corrupted` sentinel and non-list non-nil values.
+- `DeploymentGateway.check_lineage/1` accepts any non-empty list; it does not validate lineage entries, continuity, provenance, or binding to the candidate.
+- `Candidate.deploy_transition/1` checks only that candidate status is `:approved`. It does not itself verify sandbox/test/certification history or evidence. Its documentation describes an authority boundary, but the gateway's checks must establish the substantive evidence.
+- `RealExecution.build_approved_candidate/2` constructs a fresh candidate whose content contains only the execution ID and advances it through lifecycle statuses by calling `Candidate.transition/2`; this is not itself proof that the supplied certification and lineage were produced from the measured sandbox result.
+- The separate `Omega.CertificationServer` inspected here emits certificates from `:unevaluated` gate results, and `Evidence.Provenance.acceptable_as_evidence?/1` classifies provenance kinds but does not authenticate the underlying execution. Neither supplies the missing candidate-bound verification in this gateway path.
+
+**Impact and boundary:** The gateway's decisive checks can accept a caller-supplied `%{verdict: :certified}` map with no evidence and an arbitrary non-empty lineage list, provided the other gateway checks pass. The checks establish a declared verdict and non-empty container, not that independent evidence supports the verdict for this exact candidate. This is an evidence-integrity and certification-enforcement defect at the deployment boundary. It is not a claim that an actual unauthorized deployment occurred; the separate authorization, identity and MintRegistry checks still apply.
+
+**Closure evidence:** accept a typed, issuer-authenticated certificate reference rather than arbitrary maps; resolve it against a trusted certification registry; verify signature/hash, revocation, evidence provenance, verifier identity, execution ID, candidate content hash and required dimensions; validate lineage as a cryptographically or immutably linked chain bound to the candidate; reject missing evidence and UNKNOWN/unevaluated states; exercise the public gateway with forged, stale, cross-candidate, incomplete and revoked certificates/lineage.
+
+### MintRegistry and DeploymentRegistry durability / concurrency refinement
+
+- `MintRegistry` serializes state transitions through one locally registered GenServer and appends framed terms with `File.write(..., [:append])`. This serializes callers routed to that one process, but the write path does not explicitly sync the file or its containing directory to stable storage. The source therefore supports process-restart persistence, but does not establish power-loss durability.
+- The MintRegistry frame decoder still calls `:erlang.binary_to_term/1` without safe decoding or an explicit frame-size bound; malformed complete terms can crash startup (RL-481). The truncated-tail fallback preserves already decoded complete prefix records.
+- `DeploymentRegistry` is a file-backed module with no GenServer or cross-process lock. `DeploymentGateway` uses an ETS mutex keyed by registry path, but that mutex is local to one BEAM node. It cannot serialize writers on multiple nodes sharing a registry file.
+- `DeploymentRegistry.deployment_status/3` treats any file-read error as `:not_deployed`. Its decoder also calls `:erlang.binary_to_term/1` without safe decoding or size bounds. A corrupt complete frame can raise rather than return a controlled integrity state.
+- Gateway code still ignores the return value of `DeploymentRegistry.record_deployment/4`; the already-recorded RL-425 finding remains the controlling defect for a failed deployment-registry append. This checkpoint does not duplicate it.
+- MintRegistry's single-node GenServer serialization and DeploymentGateway's per-node ETS lock are not evidence of a distributed transaction or multi-node at-most-once guarantee. No shared multi-node deployment was established in this source-only pass.
+
+**Closure evidence:** define and enforce the supported node/storage topology; use a durable transactional store or a single-writer service with explicit ownership; ensure append and directory metadata durability where required; make corruption/read errors an explicit unavailable/integrity-failure state rather than `:not_deployed`; propagate every registry write failure; test process crash, OS/power-loss assumptions, partial writes, concurrent processes and multi-node contention.
+
+### REA activation boundary — no new finding
+
+- The main `Tiannara.Application` child list starts PhaseΩ registries/BootSequencer and calls its own `register_subsystems/0`, but it does not include `Tiannara.REA.Supervisor` among the normal top-level children or the static subsystem registration list.
+- The separate `PhaseOmega.Activator.bootstrap/0` performs runtime discovery and calls `WiringEngine.wire_all/0`; the wiring specification defines REA and its supervisor/children, and its health probe checks process liveness only.
+- The bounded source confirms a separate activation mechanism, not automatic normal-boot REA activation. This reinforces RL-462 and the existing health/evidence findings; no duplicate finding is assigned. The inspected REA health probe still does not establish topology, constitutional profile completeness, or mutation-governance readiness.
+
+### Status and disposition
+
+- **RL-482: OPEN. RL-483: OPEN. RL-484: OPEN.**
+- RL-481 remains OPEN. RL-425 remains the existing deployment-registry write-failure finding. RL-462 and related REA activation findings remain OPEN.
+- No findings were closed. No production code, runtime configuration, tests, or certification states were modified. Only this consolidated audit report is updated.
+- No tests/build/runtime execution, registry writes, fault injection, or physical actuation was performed.
+
+**Next checkpoint 18.91:** trace actual ingress/callers for `RealExecution.execute/1` and backend selection to determine the reachable threat boundary; inspect all other patch application routes for equivalent path confinement gaps; verify certificate issuer/registry and lineage production paths end-to-end; inspect whether the authorization grant is bound to the exact evidence/candidate that the gateway ultimately deploys; and map normal-boot versus explicit-task activation controls for REA and other dark subsystems. Assign RL-485+ only for independently demonstrated defects.
