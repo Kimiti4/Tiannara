@@ -6075,3 +6075,51 @@ No new finding ID is assigned in this checkpoint. The newly traced call paths su
 - No test/build/runtime execution or physical actuation was performed.
 
 **Next checkpoint 18.89:** trace the exact caller and orchestration contract for `Phase4.RealExecution.execute/1` and its `deploy` option; inspect whether any higher-level caller expects deployment success or records it separately; trace all grant issuance call sites to determine which flows are intended to use HumanDelivery versus explicit baseline minting; audit the registry append/recovery semantics and whether partial/corrupt trailing records can resurrect or lose consumed grants; then re-check direct `CausalConstitution.enact/1` and supersession callers for reachable authority paths. Assign RL-481+ only for independently demonstrated defects.
+
+
+## Checkpoint 18.89 — Phase4 orchestration outcome contract, MintRegistry recovery, and REA authority reachability
+
+**Date:** 2026-11-07  
+**Source basis:** Repository source snapshot `96e93475f99d6f2ca68660efcafaa9451851533b`. Inspected `phase4/experiment_orchestrator.ex`, `phase4/real_execution.ex`, `phase4/execution_governance.ex`, `omega/mint_registry.ex`, `omega/deployment_gateway.ex`, `omega/human_delivery/authorization.ex`, `rea/causal/causal_constitution.ex`, `rea/topo/replacement_registry.ex`, and REA-2.75/REA-3 scripts. Source inspection only; no tests, builds, runtime boot, registry writes, API calls, or physical-device operations were performed.
+
+### RL-481 OPEN — MintRegistry does not safely handle a complete corrupt length-prefixed record during recovery
+
+**Source-confirmed behavior:**
+- MintRegistry startup calls `load_state/1`, which reads the entire registry file and invokes `decode_records/1`.
+- For each complete size-prefixed frame, `decode_records/1` directly calls `:erlang.binary_to_term(term)`. There is no rescue/catch around term decoding and no safe-decoding option.
+- A truncated trailing frame is ignored by the fallback clause, but a complete frame whose payload is not a valid Erlang external term can raise during `init/1`. The stated behavior that a corrupt file loads as empty and fails closed is therefore not implemented for this corruption class.
+- The failure occurs before the GenServer can serve `status/1`, `binding/1`, or `consume/2`; the client wrapper then reports registry unavailable. This is fail-closed for authorization, but it can prevent all governed effects that depend on the registry until an operator repairs/restores the file.
+- No test for malformed complete frames or recovery from a corrupt record was located in the bounded search.
+
+**Impact and boundary:** This is a registry availability and recovery defect. No grant resurrection, replay, or unauthorized effect is demonstrated by this parser behavior. The parser's handling of truncated tails is distinct: the fallback returns an empty decoded suffix, preserving already decoded complete prefix records.
+
+**Closure evidence:** decode framed records under explicit size limits and safe term decoding; convert malformed complete frames into a structured corruption state rather than crashing the supervisor; preserve valid prefix records only under an explicit, auditable recovery policy; quarantine the damaged file and require controlled operator recovery where integrity cannot be established; add tests for invalid ETF payloads, truncated headers, truncated payloads, oversized lengths, unknown event tuples, duplicate events and recovery after restart. Do not silently treat a partially trusted journal as a healthy empty registry.
+
+### Phase4 deployment result contract — RL-480 refinement
+
+- `ExperimentOrchestrator.handle_call({:submit_experiment, spec}, ...)` delegates to `RealExecution.execute/1` and marks the experiment `:completed` whenever it receives `{:ok, %{execution_id: ..., verification: ...}}`.
+- `RealExecution.execute/1` invokes `maybe_deploy/3` after the sandbox has completed and the execution audit has succeeded. The helper logs success or denial but returns no deployment outcome to the caller; exceptions are rescued and logged. The outer `{:ok, ...}` result contains experiment ID, execution ID, verification, provenance and sandbox result, but no `deployment_status`.
+- Consequently, a requested deployment can be denied while the orchestrator still records the experiment as completed. Experiment completion is valid as a statement about the sandbox run, but the API contract does not expose that the separately requested deployment failed. This refines RL-480; no separate finding is assigned because it is the same optional deployment path and outcome-propagation defect.
+
+**Closure evidence:** return an explicit deployment result (for example, `:not_requested`, `:deployed`, or `{:denied, reason}`) and persist it separately from experiment verification; define whether deployment failure should fail the overall operation or leave the experiment completed with a separate deployment status; ensure API, telemetry, ledger and UI report the same state.
+
+### Grant issuance and Phase4 callers
+
+- The inspected HumanDelivery GenServer approval handler still does not mint into the durable MintRegistry or bind to a sink-specific effect. The explicit manual mint/bind sequence in `Omega.Verification.Baseline.establish/1` remains a separate path, not an integrated general human approval workflow. RL-479 remains OPEN.
+- The inspected Phase4 `ExperimentOrchestrator` is a concrete caller of `RealExecution.execute/1`; it records the execution verification result but not optional deployment outcome. The separate physics pilot path is documented as simulation and explicitly not a DeploymentGateway/production mutation path in its remediation evidence; it must not be treated as real physical actuation.
+- No further production caller establishing a general HumanDelivery grant issuance path was proven by the bounded repository search. This is a search limitation, not proof no external or dynamic caller exists.
+
+### REA CausalConstitution authority trace
+
+- Direct `CausalConstitution.enact/1` callers found in the bounded search are the REA-2.75 and REA-3 operator scripts. They start local REA processes and enact generated or script-supplied profiles. This establishes operator-script mutation paths, but does not by itself establish a production external caller.
+- The concrete runtime `REA.Topo.ReplacementRegistry.do_promote/2` registers the proposed channel in the global Graph, calls `CausalConstitution.register_supersession/2`, ignores that call's result, then calls `supersede/1`. If supersession fails, the candidate remains registered in Graph. This is already covered by RL-468; no duplicate finding is assigned.
+- `CausalConstitution.enact/1`, `register_supersession/2`, and `supersede/1` remain public GenServer APIs with no actor, authenticated owner, Council grant, expected prior digest or evidence bundle parameter. `validate_mutation/2` continues to accept unknown channel IDs. These are authority-model gaps, but bounded inspection did not prove an externally reachable production caller for every API; RL-469/RL-475 and RL-468 remain the relevant findings.
+
+### Status and disposition
+
+- **RL-481: OPEN. RL-479 and RL-480 remain OPEN. RL-478 remains OPEN.**
+- No findings were closed. Existing REA findings RL-468/RL-469/RL-475–477 remain OPEN.
+- No production code, runtime configuration, tests, or certification states were modified. Only this consolidated audit report is updated.
+- No test/build/runtime execution or physical actuation was performed.
+
+**Next checkpoint 18.90:** inspect the remaining MintRegistry/DeploymentRegistry durability and locking assumptions (including file sync, concurrent writers, process ownership and replay across restart); trace the real-execution sandbox backend allowlist and isolation controls rather than relying on the module name `RealHarness`; inspect how candidate certification and lineage are produced and whether the deployment gateway verifies evidence contents or only shapes; then map the remaining normal-boot versus explicit-task REA activation and governance boundaries. Assign RL-482+ only for independently demonstrated defects.
