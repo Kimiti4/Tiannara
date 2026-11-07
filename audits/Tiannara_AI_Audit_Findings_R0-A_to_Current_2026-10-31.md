@@ -6192,3 +6192,69 @@ No new finding ID is assigned in this checkpoint. The newly traced call paths su
 - No tests/build/runtime execution, registry writes, fault injection, or physical actuation was performed.
 
 **Next checkpoint 18.91:** trace actual ingress/callers for `RealExecution.execute/1` and backend selection to determine the reachable threat boundary; inspect all other patch application routes for equivalent path confinement gaps; verify certificate issuer/registry and lineage production paths end-to-end; inspect whether the authorization grant is bound to the exact evidence/candidate that the gateway ultimately deploys; and map normal-boot versus explicit-task activation controls for REA and other dark subsystems. Assign RL-485+ only for independently demonstrated defects.
+
+
+## Checkpoint 18.91 — execution ingress reachability, sandbox patch paths, and evidence-ledger completion semantics
+
+**Date:** 2026-11-08  
+**Source basis:** Repository source snapshot `96e93475f99d6f2ca68660efcafaa9451851533b`. Inspected `phase4/real_execution.ex`, `phase4/experiment_orchestrator.ex`, `sentinel/activation/approval.ex`, `domains/physics.ex`, `self_improvement/sandbox/real_harness.ex`, Local/Container/CI backends, `omega/deployment_gateway.ex`, `omega/deployment_gateway/deployment_registry.ex`, `omega/patch_generator/candidate.ex`, `omega/certification_server.ex`, `omega/human_delivery/authorization.ex`, `application.ex`, `phase_omega/activator.ex`, and `phase_omega/wiring_engine.ex`; relevant execution and container-backend tests. Source inspection only; no tests, builds, runtime boot, filesystem writes, fault injection, or physical-device operations were performed.
+
+### RL-485 OPEN — RealExecution suppresses execution-ledger persistence failures and can return success without the promised durable record
+
+**Source-confirmed behavior:**
+- After a successful sandbox run, `RealExecution.execute/1` calls `record_execution/3` before the Council execution-audit step and before returning its success tuple.
+- `record_execution/3` creates the configured ledger directory and appends a JSONL record using `File.write/3` with `[:append]`.
+- The entire function is wrapped in a rescue that logs an error and returns normally. It does not propagate a write failure, return a persistence status, retry, or move the execution to an indeterminate/failure state.
+- The caller ignores the return value and continues to `audit_execution/3`; if that succeeds, `execute/1` returns `{:ok, ...}` even if the execution JSONL append failed.
+- The module documentation describes the append-only JSONL ledger as always recorded/durable, while the implementation treats it as best-effort on error. The Executive EventStore append is explicitly best-effort as well.
+- The canonical provenance lifecycle close result is also logged rather than used to gate the successful return, but this checkpoint does not create a second finding for that adjacent outcome handling.
+
+**Impact and boundary:** A completed real sandbox execution can be reported to the caller as successful while the dedicated execution JSONL evidence record is absent. This weakens reproducibility, audit reconstruction and downstream evidence completeness. A successful Council AuditLog append does not prove the separate execution ledger was persisted. No actual disk-full or permission failure was injected; the defect follows from the unconditional rescue and ignored result.
+
+**Closure evidence:** make execution-ledger persistence a typed, checked step; do not return a fully committed execution result until the required durable record is confirmed; if the ledger is unavailable, return an explicit persistence-failure/indeterminate outcome and preserve the execution identity for recovery; define whether Council audit and execution ledger must commit atomically or through an outbox/reconciliation protocol; test permission denial, missing parent, disk-full/write failure, partial append, process crash and restart reconciliation.
+
+### RL-482 reachability refinement — caller-selected backend is a code-level boundary; external arbitrary-backend ingress not established
+
+- `RealExecution.substrate/1` still accepts any atom as `substrate.backend`, and `run_sandbox/1` passes it directly to `RealHarness.run/5`, which invokes its callbacks in the Tiannara BEAM process. The instrumentation test suite deliberately supplies a `FakeBackend` module and demonstrates that the backend interface is dynamically selected.
+- Bounded repository search found the orchestrator as the concrete production caller of `RealExecution.execute/1`. The Sentinel approval helper calls `submit_experiment/1` with proposal metadata but no grant or substrate; the Physics bridge's ordinary conversion similarly produces an experiment spec without the required grant/substrate. Those inspected calls therefore do not establish a successful arbitrary-backend production execution path.
+- No HTTP route exposing arbitrary backend selection was established in this checkpoint. The public Elixir functions and dynamic module dispatch remain an in-process trust boundary, but external reachability and the set of callers able to construct a complete authorized spec remain unproven.
+- Keep RL-482 OPEN as a fail-closed trust-policy requirement for the execution API; do not claim unauthenticated remote code execution or a demonstrated production exploit.
+
+### RL-483 patch-path refinement — host-side path confinement remains absent
+
+- Local and Container backends both apply file-map patches on the host using `Path.join(env.workdir, rel_path)`, followed by directory creation and file writes. Neither checks for traversal segments nor verifies the resolved destination remains beneath the sandbox root.
+- Container execution mounts the prepared workdir read-write at `/work`, but the patch write happens on the host before the container is run. The container's network and resource limits therefore do not constrain the patch-write operation.
+- The CI backend delegates patch application to its injected provider client; no provider-side path safety contract was established by the inspected adapter. This is an evidence gap, not proof the remote provider is vulnerable.
+- Existing tests establish ordinary in-workdir patching and baseline preservation, but the inspected test does not exercise traversal, absolute paths or symlink escapes. No exploit was executed.
+- RL-483 remains OPEN. The next remediation proof must cover both Local and Container host-side writes and establish the remote CI client's independent confinement guarantees.
+
+### RL-484 evidence-chain refinement — issuer output and candidate construction do not close the gateway gap
+
+- The inspected `Omega.CertificationServer` reacts to an experiment-completed event by setting critical gate results `sandbox_validated`, `evidence_present`, and `validation_passed` to `:unevaluated`, then evaluating a certificate. It publishes the certificate and stores it in GenServer memory; the inspected path does not persist it to a trusted durable certificate registry.
+- This is appropriately non-affirmative issuer behavior, but `DeploymentGateway` does not resolve the caller-supplied certification against this issuer's certificate collection or validate issuer, revocation, candidate binding, evidence or required dimensions. Its current acceptance rules remain as recorded in RL-484.
+- `RealExecution.build_approved_candidate/2` constructs a new candidate whose content is only `%{execution_id: execution_id}`, then advances its lifecycle through `:sandboxed`, `:tested`, `:benchmarked`, `:certified`, and `:approved` without recording the measured patch, sandbox result, test report, benchmark comparison, certification reference or a human approval event in the candidate history. This is not independent evidence that those lifecycle claims were performed for that candidate.
+- The caller supplies certification and lineage as fields in the optional `deploy` map. The deployment gateway checks their superficial shape; it does not derive them from the actual sandbox result.
+- These are further concrete examples of RL-484's evidence-substitution gap, not separate findings.
+
+### Grant-to-candidate binding — existing RL-480 remains controlling
+
+- The real-execution admission binds and consumes the grant for the Phase4 real-execution descriptor.
+- The optional deployment path constructs a different candidate and asks DeploymentGateway to authorize a candidate-deployment effect identity. The same grant has already been consumed and is bound to the execution effect, not the deployment effect.
+- The generated candidate's content hash is also derived from the new `%{execution_id: ...}` content, which is not shown to be the content hash approved in the original grant.
+- Therefore the inspected optional deployment path still cannot use the same single-use execution grant as a candidate-deployment grant. This is the already recorded RL-480 workflow mismatch; no duplicate is assigned.
+
+### REA and other dark-subsystem activation boundary — no new finding
+
+- Normal application startup constructs the core and loop child lists and calls `register_subsystems/0`; the inspected list does not start `Tiannara.REA.Supervisor`.
+- `PhaseOmega.Activator.bootstrap/0` separately registers running services, runs auto-discovery, invokes `WiringEngine.wire_all/0`, and calls the BootSequencer. WiringEngine defines REA plus other dark subsystem specs.
+- The REA health probe checks that a list of processes is alive. It does not establish canonical topology, constitutional profile completeness, evidence freshness or mutation authority. This reinforces RL-462 and the prior REA readiness findings.
+- No claim is made that every dark subsystem is absent from all runtime configurations; this is the inspected normal-boot versus explicit-activation boundary.
+
+### Status and disposition
+
+- **RL-485: OPEN. RL-482, RL-483 and RL-484 remain OPEN.**
+- RL-480 remains the controlling finding for execution-grant/deployment-grant mismatch and swallowed deployment outcome. RL-425 remains the controlling finding for DeploymentRegistry write failures.
+- No findings were closed. No production code, runtime configuration, tests, or certification states were modified. Only the consolidated audit report is updated.
+- No tests/build/runtime execution, filesystem fault injection, registry writes, or physical actuation was performed.
+
+**Next checkpoint 18.92:** inspect every production writer/reader of the real-execution JSONL ledger and its reconciliation/replay consumers; trace the provenance lifecycle store and whether a failed terminal event can be silently accepted; inspect the actual Phase4 caller contracts and whether any API or workflow can supply a complete authorized substrate; verify whether any alternate patch/diff application helper bypasses Local/Container safeguards; and trace certification event routing, revocation and durable storage end-to-end. Assign RL-486+ only for independently demonstrated defects.
