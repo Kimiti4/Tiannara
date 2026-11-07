@@ -5974,3 +5974,53 @@ No new finding ID is assigned in this checkpoint. The newly traced call paths su
 - No production code, runtime configuration, tests, or certification states were modified. Only this consolidated audit report is updated.
 
 **Next checkpoint 18.87:** trace every production caller and downstream consumer of `Council.authorize/3`, `HumanApprovalQueue.approved_request/2`, CEL restart/halt, and the Omega HumanDelivery/MintRegistry path; verify whether any consumer executes directly from a recorded resumption; inspect the complete PhaseΩ task/production activation policy and all readiness certificate consumers; and inventory every direct REA Graph/Constitution mutation call site against an owner/authority model. Assign RL-478+ only if a distinct, non-duplicate defect is established.
+
+
+## Checkpoint 18.87 — authorization registry consumption, HumanDelivery integration, and PhaseΩ certificate consumers
+
+**Date:** 2026-11-07  
+**Source basis:** Repository source snapshot `96e93475f99d6f2ca68660efcafaa9451851533b`. Inspected `lib/tiannara/omega/{human_delivery.ex,mint_registry.ex}`, `lib/tiannara/omega/human_delivery/{authorization,authenticated_human_identity}.ex`, PhaseΩ `boot_sequencer.ex`, `subsystem_registry.ex`, `runtime_verifier.ex`, `activator.ex`, the explicit `mix phase_omega_scan` task, REA Graph/Constitution and experiment modules, plus targeted repository searches for mint/bind/consume/effect-validation/certificate consumers. This is source inspection only; no tests, builds, runtime boot, registry mutation, API calls, or physical-device operations were performed.
+
+### RL-478 OPEN — MintRegistry permits consumption of a minted grant that has no recorded effect binding
+
+**Source-confirmed behavior:**
+- `MintRegistry.record_mint/2` records a grant ID as `:granted`; `record_bind/3` separately records a one-shot effect ID.
+- In `handle_call({:consume, authorization_id, effect_id}, ...)`, the registry rejects an unknown ID and an already-consumed ID. It rejects a mismatched effect ID only when `Map.has_key?(state.binds, authorization_id)` is true.
+- When the authorization ID is registered but has no binding, the mismatch condition is false and the handler appends a consume record for the caller-supplied effect ID, then changes the grant status to `:consumed`.
+- The public API accepts `effect_id` as `String.t() | nil`; there is no non-empty effect-ID guard in the public function or handler.
+- This contradicts the registry's documented role as the durable anti-forgery/effect-binding boundary: a grant described as requiring a registry-recorded binding can transition to consumed without any binding having been recorded.
+
+**Impact and boundary:** The registry can record a grant as consumed for an arbitrary supplied effect ID without proving that the grant was bound to that effect. This weakens any sink that relies on `MintRegistry.consume/2` as its authoritative one-use/effect-binding check. The bounded source search did not establish a production privileged sink calling `consume/2`; therefore this finding does **not** claim that the defect has been used to execute a real-world effect or that a production exploit path is confirmed.
+
+**Closure evidence:** require an existing registry binding before consumption; reject nil/empty effect IDs; require exact equality with the recorded binding; make consumption API return the verified bound effect identity rather than accept an arbitrary caller value; test unbound, nil, empty, mismatched, replayed, concurrent, and correctly bound cases. Audit every sink to ensure it validates the durable registry binding and consumes atomically immediately before the effect.
+
+### MintRegistry and HumanDelivery integration trace
+
+- The registry allowlists `Council.MachineAuthorization`, `Omega.HumanDelivery.Authorization`, and `Omega.Verification.Baseline` as minter-origin modules. Its caller check inspects the originating process stack and fails closed if the first non-infrastructure frame cannot be resolved to an allowlisted module. The source comments explicitly describe this as an in-node trusted-module boundary, not cryptographic process authentication.
+- `Authorization.record_mint/1` is the wrapper that calls `MintRegistry.record_mint/2`; `Authorization.bind_effect/2` changes the authorization struct but does not itself persist a registry binding. The durable binding requires the separate `MintRegistry.record_bind/3` API.
+- The HumanDelivery GenServer's `handle_call({:authorize, ...})` calls `Authorization.human_grant/2`, moves the resulting struct from pending to its in-memory granted map, and returns it. That handler does not call `Authorization.record_mint/1`; nor does it record an effect binding or consume the grant. Thus the HumanDelivery approval flow and the durable mint/bind/consume registry are not integrated end-to-end in this handler.
+- The bounded source search for `MintRegistry.consume/2`, `record_bind/3`, `valid_for_effect?/2`, and direct `Authorization.record_mint/1` callers did not establish a production sink using these APIs. This is an integration/evidence limitation, not proof that no dynamic or external caller exists.
+- The typed HumanDelivery authorization entry point requires an `AuthenticatedHumanIdentity` struct, but the identity helper's credential validation and struct-construction limitations remain covered by RL-426. No duplicate finding is assigned.
+
+### PhaseΩ certificate and activation consumer trace
+
+- `BootSequencer.generate_certificate/2` generates a SHA-256 string from subsystem name, timestamp, dependency hash and child hash. It does not sign the certificate with a secret key, include a verified runtime evidence bundle, or provide a corresponding verifier in the BootSequencer module.
+- `BootSequencer.certificate/1` simply reads the stored certificate field from `SubsystemRegistry`; `SubsystemRegistry.list_boot_certificates/0` and `snapshot/0` expose those strings as registry metadata. Targeted source searches did not establish a production privileged-effect consumer that verifies these PhaseΩ boot certificate strings before acting.
+- This certificate mechanism is therefore a boot-record/hash label, not by itself a cryptographically authenticated attestation of subsystem health, capability availability, or constitutional compliance. The earlier RL-466 negative-health-result acceptance remains the more direct boot certification defect; no duplicate certificate finding is assigned.
+- The explicit `mix phase_omega_scan` task remains a distinct activation entry point: it starts the app and calls `PhaseOmega.Activator.bootstrap/0`. The ordinary root application boot does not itself invoke that bootstrap in the inspected path. PhaseΩ readiness/certificate consumers must not be inferred from the presence of registry records alone.
+
+### REA mutation authority inventory refinement
+
+- Direct Graph mutation paths confirmed in this snapshot include `ChannelEvolutionEngine` (existing-channel mutation and direct novel-proposal registration), `ReplacementRegistry` (replacement promotion and original-channel disable), `CriticalityTester` (weight/delay/source rewrites), `NecessityTester` (reset, topology reload and channel disable), `ParallelRunner` (flush/reload for topology variants), and `LongTermValidator` (reset and canonical topology reload).
+- `CausalConstitution.validate_mutation/2` returns `:ok` for channel IDs absent from its profile map; its initial state is an empty profile map. This means the validation API is not an admission check for unknown/new channels. Existing RL-469 and RL-475 remain open.
+- The experiment helpers operate on the same named Graph process used by the REA runtime. No per-experiment Graph identity/lease or isolated state store is passed through these public APIs. Existing RL-476/RL-477 remain open; no duplicate is assigned.
+- The bounded inspection did not establish an authoritative, enforced owner/role policy around every direct Graph and Constitution mutation. This is retained as a coverage limitation rather than a new claim that every caller is externally reachable.
+
+### Status and disposition
+
+- **RL-478: OPEN.**
+- RL-412–417, RL-426, RL-456, RL-462, RL-466, RL-469, RL-475–477 and related Council/CEL authorization findings remain OPEN.
+- No existing finding was closed. No production code, runtime configuration, tests, or certification states were modified. Only this consolidated report is updated.
+- No privileged sink was confirmed to consume the raw MintRegistry result in the bounded search; no production effect execution or exploit was demonstrated.
+
+**Next checkpoint 18.88:** trace all concrete deployment/effect sinks that accept HumanDelivery or machine authorization artifacts; determine whether any call `record_mint`, `record_bind`, `valid_for_effect?`, `consume`, or rely on struct fields alone. Trace all callers of PhaseΩ boot progress/certificate APIs and whether any deployment gate treats the hash as proof. Audit every direct CausalConstitution `enact`, supersession and mutation call against an authenticated owner and exact channel digest. Assign RL-479+ only for independently demonstrated defects.
