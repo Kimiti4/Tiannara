@@ -6258,3 +6258,53 @@ No new finding ID is assigned in this checkpoint. The newly traced call paths su
 - No tests/build/runtime execution, filesystem fault injection, registry writes, or physical actuation was performed.
 
 **Next checkpoint 18.92:** inspect every production writer/reader of the real-execution JSONL ledger and its reconciliation/replay consumers; trace the provenance lifecycle store and whether a failed terminal event can be silently accepted; inspect the actual Phase4 caller contracts and whether any API or workflow can supply a complete authorized substrate; verify whether any alternate patch/diff application helper bypasses Local/Container safeguards; and trace certification event routing, revocation and durable storage end-to-end. Assign RL-486+ only for independently demonstrated defects.
+
+
+## Checkpoint 18.92 — provenance lifecycle closure, identity-ledger durability, and Phase4 evidence reconciliation
+
+**Date:** 2026-11-08  
+**Source basis:** Frozen source snapshot `96e93475f99d6f2ca68660efcafaa9451851533b`. Inspected `phase4/real_execution.ex`, `phase4/experiment_orchestrator.ex`, `phase4/physics_pilot_execution.ex`, `evidence/provenance.ex`, `forward_provenance/lib/producer.ex`, `runtime_contract.ex`, `identity_authority.ex`, `envelope.ex`, `self_improvement/sandbox/real_harness.ex`, Local/Container backends, and `omega/deployment_gateway.ex`. Compared Phase4 RealExecution with the separate PhysicsPilotExecution persistence contract. Source inspection only; no tests, builds, runtime boot, filesystem writes, fault injection, or physical-device operations were performed.
+
+### RL-486 OPEN — RealExecution ignores provenance lifecycle terminal rejection and can still return certifiable real-execution provenance
+
+**Source-confirmed behavior:**
+- `RealExecution.execute/1` calls `close_execution(..., :completed, ...)` after a successful sandbox, but does not inspect its return value.
+- `close_execution/7` calls `Producer.complete/4`. If the RuntimeContract rejects the terminal event (for example, unknown/closed attempt or producer substitution), the helper logs the rejection and returns normally; it does not propagate a failure or an UNKNOWN/indeterminate lifecycle result.
+- The caller then calls `build_provenance/2`. That function independently creates an `Evidence.Provenance` record with `kind: :real_execution` from the execution ID. It does not verify that the forward-provenance lifecycle accepted the terminal event.
+- `Evidence.Provenance.acceptable_as_evidence?/1` accepts any record whose kind is `:real_execution`; it does not check the forward-provenance lifecycle registry or terminal status.
+- The successful return path can therefore return a `:real_execution` provenance record and continue to ledger/audit/success even when the canonical Producer lifecycle rejected completion. The separate lifecycle map is caller-owned and passed through the helper; no durable terminal-state write is performed by `RuntimeContract.accept/2` itself.
+- The dedicated RealExecution JSONL record contains verification data but does not include the provenance record or the Producer terminal result. This limits later reconciliation between the execution ledger and the canonical lifecycle.
+
+**Impact and boundary:** a successful sandbox result can be labelled acceptable `:real_execution` evidence without a successfully closed canonical provenance lifecycle. This is an evidence-integrity and audit-consistency defect, not proof that the sandbox did not run. No terminal rejection was injected during this source-only checkpoint.
+
+**Closure evidence:** make terminal lifecycle acceptance a required checked step before constructing or returning certifiable provenance; preserve rejected/unknown terminal outcomes explicitly; persist and reconcile started/terminal lifecycle records with the execution ledger; bind the provenance record to the accepted terminal envelope/hash; test rejected terminal, duplicate terminal, process crash between start and close, and restart/reconciliation behavior.
+
+### RL-487 OPEN — IdentityAuthority silently accepts mint/claim when its durable replay-ledger append fails
+
+**Source-confirmed behavior:**
+- `IdentityAuthority.mint/2` and `claim/3` first register the identity in the public ETS authority table using atomic `insert_new`.
+- On successful insert, both call `append_ledger/2`; the caller ignores any persistence result because the helper always returns normally.
+- `append_ledger/2` creates the parent directory and appends a canonical JSON line, but rescues every exception and returns `:ok`. A ledger write/permission/disk failure is therefore indistinguishable from a persisted mint/claim to the caller.
+- `IdentityAuthority.restart/1` destroys the ETS table and rebuilds it by replaying the ledger. `replay_ledger/1` also rescues all exceptions and returns normally; unreadable/corrupt/missing ledger content can leave the recreated authority incomplete or empty.
+- The module documentation describes the ETS registry as authoritative for current uniqueness and the ledger as best-effort audit, while the restart documentation calls the ledger the durable cross-node source of truth. Those semantics are not equivalent: an identity acknowledged in ETS but absent from the ledger is not guaranteed to resolve after restart or on another node replaying that ledger.
+
+**Impact and boundary:** a successful mint/claim response does not prove the identity is recoverable from the configured replay ledger. After authority restart or another node's replay, an acknowledged execution ID can become unregistered, breaking provenance joins and lifecycle terminal verification. This is an identity durability/recovery defect; no failed write or restart was induced in this checkpoint.
+
+**Closure evidence:** return typed persistence status from mint/claim; define whether the ledger is mandatory durable authority or a secondary audit sink; if mandatory, fail closed before acknowledging a mint/claim and define atomicity between uniqueness registration and durable append; make replay corruption/unavailability explicit rather than silently returning an incomplete registry; test write denial, disk full, partial line, malformed line, restart and cross-node replay.
+
+### Execution-ledger consumer and Phase4 caller findings — bounded search
+
+- The dedicated `real_execution_ledger_path` writer inspected in this checkpoint is `RealExecution.record_execution/3`; its JSONL record contains execution ID, experiment ID, timestamp and verification. The Executive EventStore is explicitly a best-effort secondary append. No dedicated JSONL replay/reconciliation reader was established by the bounded repository search; absence is not claimed beyond that search.
+- `ExperimentOrchestrator.submit_experiment/1` is the concrete production-facing Phase4 delegation found in the inspected call path. It gates on `:real_execution_enabled`, then delegates to `RealExecution.execute/1`; the caller requires a grant and a complete substrate. Inspected Sentinel/Physics bridge callers do not supply those required fields, so they do not demonstrate a successful fully-authorized backend-selection ingress.
+- `PhysicsPilotExecution` is a separate pilot execution path, not a reader/reconciler for the RealExecution ledger. Its implementation explicitly treats ledger persistence as a checked post-effect step and returns an error on ledger failure. This contrast confirms RL-485's weaker persistence semantics in RealExecution without extending PhysicsPilotExecution's guarantees to the general Phase4 path.
+- The inspected `DeploymentGateway` still does not consult the in-memory `CertificationServer` collection or its `valid_certificate?/2` revocation API. Certificates/revocations in that server are process memory, while the gateway performs its own superficial map/list checks. This is retained as RL-484 evidence-chain refinement, not a duplicate.
+- Local and Container file-map patch paths remain as RL-483. Their diff branch invokes the host `patch -p1 -i` command with the sandbox workdir as its current directory. This checkpoint did not establish the utility's exact traversal/symlink behavior or inspect an independent canonical path guard, so no additional diff-specific exploit claim is made.
+
+### Status and disposition
+
+- **RL-486: OPEN. RL-487: OPEN. RL-485 remains OPEN.**
+- RL-482, RL-483 and RL-484 remain OPEN. RL-425 remains the controlling DeploymentRegistry write-failure finding. RL-480 remains the controlling execution/deployment grant mismatch.
+- No findings were closed. No production code, runtime configuration, tests, or certification states were modified. Only this consolidated audit report was updated.
+- No tests/build/runtime execution, filesystem fault injection, registry writes, or physical actuation was performed.
+
+**Next checkpoint 18.93:** inspect the forward-provenance graph/envelope persistence and any consumer that promotes `:real_execution` records into scientific certification; trace IdentityAuthority startup ordering, ledger-path configuration and replay behavior across app/runtime boundaries; inspect the RealExecution JSONL schema against existing evidence verifiers and migration readers; determine whether certification revocation has any alternate durable authority; and continue bounded tracing of Local/Container diff-patch handling. Assign RL-488+ only for independently demonstrated defects.
