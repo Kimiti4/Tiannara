@@ -6308,3 +6308,44 @@ No new finding ID is assigned in this checkpoint. The newly traced call paths su
 - No tests/build/runtime execution, filesystem fault injection, registry writes, or physical actuation was performed.
 
 **Next checkpoint 18.93:** inspect the forward-provenance graph/envelope persistence and any consumer that promotes `:real_execution` records into scientific certification; trace IdentityAuthority startup ordering, ledger-path configuration and replay behavior across app/runtime boundaries; inspect the RealExecution JSONL schema against existing evidence verifiers and migration readers; determine whether certification revocation has any alternate durable authority; and continue bounded tracing of Local/Container diff-patch handling. Assign RL-488+ only for independently demonstrated defects.
+
+
+## Checkpoint 18.93 — downstream evidence-gate identity validation and forward certificate lifecycle boundary
+
+**Date:** 2026-11-08  
+**Source basis:** Frozen source snapshot `96e93475f99d6f2ca68660efcafaa9451851533b`. Inspected `lib/tiannara/evidence/provenance.ex`, `lib/tiannara/evidence/certification_gate.ex`, `test/tiannara/evidence/r0_test.exs`, `forward_provenance/lib/producer.ex`, `runtime_contract.ex`, `execution.ex`, `metric_lineage.ex`, `certificate_issuance.ex`, `certificate_lifecycle.ex`, `bundle.ex`, `identity_authority.ex`, and root `mix.exs` / `config/config.exs` / `lib/tiannara/application.ex`. Source inspection only; no tests, builds, runtime boot, ledger writes, fault injection, or physical-device operations were performed.
+
+### RL-488 OPEN — downstream scientific evidence predicate accepts a bare real_execution label without execution identity
+
+**Source-confirmed behavior:**
+- `Provenance.build/1` explicitly rejects `:real_execution` without a non-empty `execution_id` (`:real_execution_requires_execution_id`). Its type and documentation describe execution identity as required.
+- The separate `Provenance.acceptable_as_evidence?/1` predicate is implemented as `def acceptable_as_evidence?(%{kind: :real_execution}), do: true`. It does not require an `execution_id`, resolve the ID through `IdentityAuthority`, verify a terminal `completed` lifecycle, or bind the record to an evidence hash.
+- `CertificationGate.evaluate/1` delegates its acceptance decision directly to this predicate. It therefore accepts an artifact carrying only `%{kind: :real_execution}`.
+- The R0 test suite explicitly asserts that this bare map is acceptable in the test named "only real_execution and imported_evidence are acceptable". The gate's positive integration test includes an execution ID, but the lower-level predicate test preserves the weaker behavior.
+- The measurement-integrity design/reconnaissance describes the accepted real-execution form as requiring an execution ID. The executable predicate and its test do not enforce that stated requirement.
+
+**Impact and boundary:** Any caller able to supply an artifact/provenance map directly to this gate can label it `:real_execution` without identifying an execution and receive `{:accepted, artifact}`. This permits an unbound provenance label to pass this particular downstream scientific evidence gate. It does not demonstrate that the separate forward-provenance Stage-6 CertificateIssuance path can issue a certificate from the same bare map: that path has its own bundle, lineage, identity, and policy checks. No fabricated artifact was submitted at runtime in this checkpoint.
+
+**Closure evidence:** require a non-empty execution ID in the predicate; resolve it through the canonical identity authority; verify the corresponding completed terminal record and evidence/result binding before acceptance; ensure the gate distinguishes verified execution provenance from caller-supplied labels; replace the permissive R0 assertion with adversarial tests for missing, empty, unregistered, wrong-producer, failed, partial and lifecycle-unclosed execution IDs.
+
+### Forward provenance persistence and certification boundary — no additional finding
+
+- `RuntimeContract.accept/2` is explicitly a pure function over a caller-owned lifecycle map. `Producer.begin/4` and terminal helpers return normalized records/lifecycle state; they do not themselves persist the execution envelopes. `RuntimeContract.to_envelopes/1` and `to_parent_edge_envelope/2` are documented as emit-only. The independent `Bundle.produce/1` writes a byte-exact evidence bundle when explicitly invoked, but the inspected general `RealExecution.execute/1` path does not invoke that bundle producer or Stage-5 lineage derivation. This reinforces RL-486's lifecycle/evidence integration gap; it is not a second finding.
+- The forward `CertificateIssuance` module is a separate, stricter issuance path: it requires a verified evidence bundle, lineage, candidate/authority checks and explicit policy gates; it records immutable issuance records through its own registry/ledger. It does not make the simpler `Tiannara.Evidence.CertificationGate` predicate equivalent to that independent verifier.
+- `CertificateLifecycle` expressly leaves `VALID -> REVOKED` and revocation predicate P-CERTIFICATE-REVOCATION CLOSED. Its implemented lifecycle transitions include suspend, restore, mark-unverifiable and evidence-recovered, but no revoke transition. Thus the forward-provenance lifecycle does not currently provide certificate revocation. This is a declared capability boundary, not a newly inferred implementation bypass. The separate `Omega.CertificationServer` revocation state remains in-memory and is not consulted by the inspected DeploymentGateway, as already recorded under RL-484.
+- Root `mix.exs` includes `forward_provenance` as a path dependency, but its application declaration has no supervisor callback. The identity registry is lazily created by `IdentityAuthority.ensure_started/1` on first use, rather than being started as a supervised root child. The restart/recovery consequences of this remain within RL-487's identity-ledger durability/replay finding; no additional ID is assigned.
+- Root configuration does not explicitly set `:forward_provenance, :identity_authority_ledger_path` in the inspected `config/config.exs`; the module's default path is used unless supplied by another runtime configuration. Tests set isolated ledger paths explicitly. This is a deployment/configuration item to verify in a live release, not proof that production uses a particular path.
+
+### Sandbox diff-patch boundary — no additional exploit finding
+
+- Local and Container diff paths write the supplied diff to `.sandbox_patch.diff` in the host workdir and invoke `patch -p1 -i` with that directory as current working directory. Container mode does this before container execution, so container filesystem isolation does not protect the patch-application phase.
+- The source inspected here does not add a Tiannara-level canonical destination check around the diff helper. However, the actual path acceptance/rejection behavior of the external `patch` utility depends on its implementation/version and patch header normalization. No traversal/symlink patch was executed, so this checkpoint does not claim a demonstrated diff-path escape. RL-483 remains open for the proven file-map write path and the unresolved diff-helper boundary.
+
+### Status and disposition
+
+- **RL-488: OPEN. RL-486 and RL-487 remain OPEN.**
+- RL-482, RL-483, RL-484 and RL-485 remain OPEN. RL-480, RL-425 and related earlier controlling findings remain unchanged.
+- No findings were closed. No production code, runtime configuration, tests, or certification states were modified. Only the consolidated audit report was updated.
+- No tests/build/runtime execution, ledger writes, filesystem fault injection, or physical actuation was performed.
+
+**Next checkpoint 18.94:** trace the full downstream scientific artifact promotion paths that consume `CertificationGate`; inspect whether any producer constructs or transforms provenance maps outside `Provenance.build/1`; verify the release/runtime configuration of the identity and certificate ledgers; inspect the complete CertificateIssuance append/replay rollback semantics and authority registration; and determine whether an independent signed/revocation authority is wired into actual deployment admission. Continue to keep forward-provenance issuance distinct from the simpler evidence gate. Assign RL-489+ only for independently demonstrated defects.
