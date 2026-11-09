@@ -6349,3 +6349,115 @@ No new finding ID is assigned in this checkpoint. The newly traced call paths su
 - No tests/build/runtime execution, ledger writes, filesystem fault injection, or physical actuation was performed.
 
 **Next checkpoint 18.94:** trace the full downstream scientific artifact promotion paths that consume `CertificationGate`; inspect whether any producer constructs or transforms provenance maps outside `Provenance.build/1`; verify the release/runtime configuration of the identity and certificate ledgers; inspect the complete CertificateIssuance append/replay rollback semantics and authority registration; and determine whether an independent signed/revocation authority is wired into actual deployment admission. Continue to keep forward-provenance issuance distinct from the simpler evidence gate. Assign RL-489+ only for independently demonstrated defects.
+
+
+
+## Checkpoint 18.94 — scientific promotion, ledger durability, and deployment-admission revocation trace
+
+**Date:** 2026-11-09  
+**Source basis:** Frozen source snapshot `96e93475f99d6f2ca68660efcafaa9451851533b`. Exact-path source reads and bounded repository search across the root Tiannara application, `forward_provenance`, knowledge promotion, research integration, certificate issuance/lifecycle, and deployment admission. Read-only source audit. No tests, builds, runtime boot, ledger writes, filesystem fault injection, HTTP deployment, or physical-device operations were performed.
+
+### New findings
+
+#### RL-489 — OPEN — World knowledge promotion can reach high-level stages without canonical scientific evidence or authenticated approval
+
+**Inspected paths:** `lib/tiannara/world/knowledge_coordinator.ex`, `lib/tiannara/world/knowledge_evolution_engine.ex`.
+
+`KnowledgeCoordinator.handle_call({:promote, ...})` permits promotion to `:principle`, `:generalized_understanding` or `:scientific_discovery` when either `context.human_approved` is truthy OR `context.impact_level` equals `:low`. The public API defaults context to `%{}`; consequently, the missing impact level defaults to `:low` and satisfies the branch without an approval record. The handler does not require canonical execution identity, terminal execution verification, a forward-provenance certificate, or an evidence bundle bound to the entity.
+
+There is a separate target-stage mismatch. `KnowledgeEvolutionEngine.promote_entity/2` ignores the requested target in `new_evidence` and advances only one position in its own `@memory_stages` list. The coordinator's `do_promote/3` then writes the requested `target_stage` directly to `UnifiedWorldModel`. A request for a high stage can therefore result in the coordinator storing that requested stage even though the evolution engine performed only one intermediate transition. The engine's transition handler itself does not validate evidence quality, provenance or approval.
+
+**Impact and boundary:** the inspected world-knowledge promotion route is not bound to the canonical scientific evidence and authenticated-approval authorities. Its requested stage and the evolution engine's actual stage transition are not one atomic, mutually verified contract. This is a source-level finding; no promotion request was executed.
+
+**Closure evidence:** one canonical promotion authority; verify the exact artifact version, provenance, execution, result, lineage and required certificate before each stage transition; replace boolean approval with authenticated, payload-bound approval; reject stage jumps; make the evolution engine accept and enforce the exact next stage; atomically commit stage and audit record; adversarially test default context, forged approval, low-impact default, stage skipping, stale versions and failed writes.
+
+#### RL-490 — OPEN — Research KnowledgeIntegrator treats caller-supplied execution mode and confidence as sufficient for real knowledge integration
+
+**Inspected path:** `lib/tiannara/research/knowledge_integrator.ex`.
+
+The `integrate/3` API accepts an `execution_mode` option and defaults it to `:unknown`. Its handler accepts the real-knowledge path when the supplied value equals `:real_execution` and `evidence.confidence >= 0.7`. It does not independently resolve a canonical execution ID, verify a completed terminal record, bind the result/evidence digest to that execution, or invoke the canonical provenance/certification gate.
+
+The resulting knowledge item constructs an evidence chain and lineage from the supplied experiment/evidence structures. Those fields are useful references, but the inspected handler does not independently establish their authenticity or execution binding.
+
+The persistence path is also best-effort: if ExecutiveMemory is unavailable, the function logs and skips persistence; exceptions/throws from the write are caught and ignored. The handler still returns `:ok` and retains the item only in its own GenServer state. That state is initialized empty and no durable replay mechanism is shown in this module.
+
+**Impact and boundary:** this route can classify an item as real knowledge based on caller-provided mode and confidence, without canonical execution verification; it can also report integration success when the ExecutiveMemory write was skipped or failed. No runtime submission or persistence failure was induced.
+
+**Closure evidence:** accept a verified execution/evidence reference rather than an execution-mode label; resolve identity and terminal lifecycle through canonical authorities; verify result/evidence payload binding; make durable persistence acknowledgement part of the success result; reconcile integration state after restart; add negative tests for forged mode, missing/unregistered/failed execution, low confidence, unavailable memory and failed writes.
+
+### Certificate ledger durability and replay findings
+
+#### RL-491 — OPEN — Certificate issuance and lifecycle append helpers can report success when opening the ledger fails
+
+**Inspected paths:** `forward_provenance/lib/certificate_issuance.ex`, `forward_provenance/lib/certificate_lifecycle.ex`.
+
+Both append helpers call `File.open(path, [:append, :utf8], fn io -> ... end)` but ignore the return value of `File.open/3` and then return `:ok`. An open failure may be returned as `{:error, reason}` rather than raised; in that case the helper still reports success. The issuance path inserts the record into ETS before calling this helper and will retain/return the record when the helper returns `:ok`. The lifecycle path likewise treats the append helper's `:ok` as a committed durable transition.
+
+The issuance `register_authority/1` path also inserts the authority into ETS, calls the same append helper, ignores its result, and returns `{:ok, entry}`. Thus the authority can be acknowledged as registered without a corresponding durable authority-registration event.
+
+**Impact and boundary:** the documented append-before-success / rollback-on-persistence-failure contract is not upheld for at least the file-open error path. The in-memory registry can claim an issuance, lifecycle transition or registered authority that the ledger does not contain. This was established by source inspection; no disk failure was induced.
+
+**Closure evidence:** check every `File.open` result and every write/close/sync result; define the durability guarantee (including flush/fsync); do not acknowledge authority registration or state transition before durable commit; roll back all in-memory state on every append failure; test open denial, write denial, disk full, short/partial write, close failure and restart replay.
+
+#### RL-492 — OPEN — Identity, issuance and lifecycle replay can silently expose partially reconstructed registries as available
+
+**Inspected paths:** `forward_provenance/lib/identity_authority.ex`, `forward_provenance/lib/certificate_issuance.ex`, `forward_provenance/lib/certificate_lifecycle.ex`.
+
+Each inspected replay routine broadly rescues errors and returns `:ok`. The identity and issuance routines can stop replay after a malformed line or decoding/field error while leaving already inserted entries in ETS. The lifecycle routine has the same broad rescue around decoding and replay. None of these paths returns a typed replay report establishing that the complete ledger was parsed and validated before the registry is used.
+
+The registries are lazily created by `ensure_started/1` and use named ETS tables created by the calling process; the modules do not establish a supervised long-lived owner in the inspected nested application. The root `mix.exs` includes `forward_provenance` as a path dependency, but the nested `forward_provenance/mix.exs` declares no application supervisor callback. The lazy named tables are therefore not shown to be owned by a supervised process that guarantees their lifetime.
+
+**Impact and boundary:** a replay error can be concealed behind a successful `:ok` return, and table lifetime/recovery depends on the process that first creates the named table. This is a concrete fail-reporting and ownership design defect. It overlaps RL-487's execution-identity recovery concern but extends the same defect class to issuance and lifecycle registries; it is tracked separately because the certificate registries are separate authorities with separate ledgers. No process-exit/replay failure was induced.
+
+**Closure evidence:** introduce supervised registry owners; validate ledger path identity and storage availability at startup; replay into a staging registry; validate every record, sequence, schema, uniqueness and integrity relation; publish the registry only after complete replay; return a structured replay report; reject/quarantine partial histories; test owner-process exit, malformed first/middle/final lines, truncation, missing files, permission errors and cross-node recovery.
+
+### Deployment-admission and revocation enforcement refinement
+
+The frozen `lib/tiannara/omega/deployment_gateway.ex` performs a check that accepts a caller-supplied map matching `%{verdict: :certified}`. Its optional `evidence` field is accepted when absent (`nil`) or when it is a list; the gateway does not resolve a canonical forward certificate ID, issuance record, lifecycle state or revocation state. Its lineage check requires only a non-empty list. The inspected gateway therefore does not establish that the supplied certification is a currently valid, unrevoked certificate from the forward issuance authority.
+
+This strengthens **RL-484**; no duplicate finding is assigned. The separate `Omega.CertificationServer.revoke_certificate/2` changes a certificate flag in GenServer memory, and the inspected gateway does not consult `valid_certificate?/2`. The forward `CertificateLifecycle` explicitly rejects the `revoke` verb and marks P-CERTIFICATE-REVOCATION CLOSED. There is therefore no demonstrated canonical revocation authority wired into this admission path.
+
+**Required closure:** the gateway must resolve the exact certificate ID and immutable issuance record through the canonical certificate authority; verify the current lifecycle/revocation state through a durable authoritative source; bind certificate, lineage, candidate and grant to the same effect; reject unknown, suspended, unverifiable, revoked, superseded or unavailable status; and test every admission ingress, including stale cache and authority outage. A boolean/caller-supplied `:certified` verdict must not satisfy this requirement.
+
+### Deployment ledger configuration refinement
+
+The inspected identity, issuance and lifecycle modules each support an application environment override and otherwise expand a relative default path under the process working directory:
+
+- `data/identity_authority_ledger.jsonl`
+- `data/certificate_issuance_ledger.jsonl`
+- `data/certificate_lifecycle_ledger.jsonl`
+
+The root `config/config.exs` and `config/prod.exs` inspected at this frozen SHA do not explicitly set these three `:forward_provenance` ledger-path keys. The effective path, writable mount, release working directory, backup/restore policy and durability settings in a real deployment remain UNKNOWN. This is a configuration verification requirement, not a claim that production currently writes to a specific path.
+
+### TMSOS — master operating specification established
+
+A new companion document was created:
+
+`audits/Tiannara_Master_System_Operating_Specification.md`
+
+It defines:
+- Evidence-status vocabulary distinguishing intended, implemented, connected, enforced and verified behavior.
+- The target authority hierarchy with human constitutional ratification above Council, CEL and operational systems.
+- An initial operating register for Council, CEL, provenance, identity, execution, evidence, knowledge promotion, certificate issuance/lifecycle, revocation, deployment and persistence systems.
+- The intended scientific artifact lifecycle and mandatory artifact contract.
+- Certificate state separation and deployment-admission requirements.
+- Storage classes, durable write and recovery contracts.
+- Security/approval contracts and a strategy for unifying duplicated authorities without erasing legitimate specialization.
+- Initial hardening priorities and an inventory of major Tiannara systems still requiring mapping.
+
+**TMSOS is version 0.1.0 and intentionally INCOMPLETE.** It is an operating map, not a certification or proof that the target architecture is implemented. A system's intended role is explicitly separated from its source-observed behavior and verified operation.
+
+### Checkpoint 18.94 status and disposition
+
+- **RL-488: OPEN** — bare real-execution provenance accepted without identity.
+- **RL-489: OPEN** — knowledge promotion lacks canonical evidence/approval and has target-stage mismatch.
+- **RL-490: OPEN** — Research KnowledgeIntegrator trusts caller execution-mode label and best-effort persistence.
+- **RL-491: OPEN** — issuance/lifecycle append helpers can return success after file-open failure.
+- **RL-492: OPEN** — replay failures can be swallowed and partial registries exposed; registry ownership is not shown as supervised.
+- **RL-487: OPEN** — identity recovery issue remains; RL-492 adds certificate registry/replay scope.
+- **RL-484: OPEN** — DeploymentGateway does not consult the in-memory revocation API or forward certificate lifecycle authority.
+- RL-486, RL-483 and all other previously open findings remain unchanged. No finding was closed.
+
+**Read-only disposition:** no production source, runtime configuration, tests or certification states were modified. The two audit documents are the only intended changes in this checkpoint. No tests/build/runtime execution, ledger writes, filesystem fault injection, deployment or physical actuation was performed.
+
+**Next checkpoint 18.95:** trace every remaining producer/consumer of the root `CertificationGate` and all direct knowledge-stage writers; map certificate issuance/lifecycle startup and registry ownership across the root release and nested forward-provenance project; trace every deployment-admission ingress and certificate representation; and expand TMSOS ownership/interface maps for Council, CEL, AEO, Meta-SOPL, GRCC, ASC, REA and hardware integration. Do not implement fixes during the read-only pass.
