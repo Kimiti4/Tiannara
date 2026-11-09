@@ -380,3 +380,52 @@ Each entry will be expanded with exact source paths, ownership, call sites, cont
 - This is an initial partial specification. It does not certify the uninspected systems listed in Section 11.
 
 **Next specification revision:** expand the ownership and interface maps for the remaining Council/CEL, AEO, Meta-SOPL, GRCC, ASC, REA, hardware and runtime subsystems, then reconcile their authority and lifecycle contracts against this baseline.
+
+
+## 13. Current-main duplicate-directory and stub map (Checkpoint 18.95)
+
+A supplemental scan was performed against current `main` commit `b829254d032f9e0b5cf4c44725c8cf451800dad0`. This is distinct from the frozen source baseline used by Checkpoint 18.94.
+
+The three audited roots are:
+- `lib/tiannara/`
+- `tiannara_runtime/lib/tiannara/`
+- `tiannara_runtime/lib/tiannara_runtime/`
+
+The recursive tree has 27,948 entries. The three roots contain 1,641 / 254 / 980 files and 263 / 65 / 167 directories respectively. The scan found 97 repeated directory basenames overall and 30 top-level basename collisions. Sixty-six requested system names have multiple directory locations when nested directories are included. These are directory collisions, not proof of duplicate implementations.
+
+The full name-to-path map, file counts, duplicate list and explicit stub/production candidate table are maintained in:
+
+`audits/Tiannara_System_Directory_Duplication_and_Stub_Production_Map.md`
+
+### 13.1 Canonicalization rules
+
+- A matching directory name does not establish a shared system.
+- Same fully qualified module name defined in separate Mix projects is a module collision requiring startup/build-scope analysis.
+- A production candidate is not canonical until consumers and startup ownership are established.
+- A module that returns default data or success-shaped results is a stub even if it is a GenServer or has a supervisor.
+- A supervisor child being alive is not proof of the capability it represents.
+- Duplicate implementations must not be deleted until call sites, state, authority, data migration and rollback are mapped.
+
+### 13.2 Explicit stub risks
+
+Checkpoint 18.95 identified four new open findings:
+- RL-493 — StubRegistry is not wired into normal application startup; stub calls are not established as observable.
+- RL-494 — Stage-6 scientific capital and generation-history operations route through stubs with incompatible return contracts and false-success persistence.
+- RL-495 — ASC Crucible phase resolves to a stub and the pipeline automatically advances on stub success.
+- RL-496 — CTL branch validation consumes a zero-stress stub rather than an authoritative branch record.
+
+The map also identifies partial/dormant stubs in causal traversal, longitudinal memory, pressure monitoring, survivability estimation, graph traversal, ASC protocol and REA theory classification.
+
+### 13.3 Duplicate system owners requiring resolution
+
+A10, CIS, OED and OCM have multiple implementations and/or startup boundaries. The map records their exact source paths, module namespaces and initial startup observations. They must be treated as competing or specialized variants until the next call-site and authority trace determines which variant owns each capability.
+
+IRD, NDE and DFG contain larger core modules alongside supervised auxiliary GenServers that only maintain counters/status. Those auxiliary processes must not be counted as complete operational capabilities.
+
+## 14. Checkpoint 18.95 maintenance rule
+
+The master operating specification now tracks both:
+1. The frozen-source audit baseline and findings history.
+2. Supplemental current-main directory/source inventories with their own exact commit identity.
+
+Do not mix evidence from different commits without labeling the source. No production changes are authorized by this specification. No duplicate directory is to be retired merely because another directory shares its name.
