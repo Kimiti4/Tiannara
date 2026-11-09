@@ -210,7 +210,7 @@ A dash means no directory with that basename was found under the three audited r
 
 ### 3.1 Top-level duplicates across the three roots
 
-The following **29** basenames occur as top-level directories in more than one of the three roots:
+The following **30** basenames occur as top-level directories in more than one of the three roots:
 
 | Directory basename | Locations |
 |---|---|
