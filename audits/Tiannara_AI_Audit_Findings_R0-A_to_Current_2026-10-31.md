@@ -6461,3 +6461,97 @@ It defines:
 **Read-only disposition:** no production source, runtime configuration, tests or certification states were modified. The two audit documents are the only intended changes in this checkpoint. No tests/build/runtime execution, ledger writes, filesystem fault injection, deployment or physical actuation was performed.
 
 **Next checkpoint 18.95:** trace every remaining producer/consumer of the root `CertificationGate` and all direct knowledge-stage writers; map certificate issuance/lifecycle startup and registry ownership across the root release and nested forward-provenance project; trace every deployment-admission ingress and certificate representation; and expand TMSOS ownership/interface maps for Council, CEL, AEO, Meta-SOPL, GRCC, ASC, REA and hardware integration. Do not implement fixes during the read-only pass.
+
+
+## Checkpoint 18.95 — duplicate system directories, explicit stubs and production-path mapping
+
+**Date:** 2026-11-10  
+**Source:** Current `main` branch, commit `b829254d032f9e0b5cf4c44725c8cf451800dad0`; recursive tree `eaafe82e14e0cccccfbdd75a512f387b5564081a`. This is a supplemental current-main inventory; it does not replace the frozen source baseline used for Checkpoint 18.94.  
+**Scope:** `lib/tiannara/`, `tiannara_runtime/lib/tiannara/`, `tiannara_runtime/lib/tiannara_runtime/`. Static source and directory inspection only. No production code, tests, runtime state or configuration was changed.
+
+### Inventory results
+
+- Repository tree: 27,948 entries.
+- Audited roots: 1,641 files / 263 nested directories; 254 files / 65 nested directories; 980 files / 167 nested directories.
+- Top-level directory counts: 119, 29 and 73 respectively.
+- 97 repeated directory basenames occur across the three audited roots; this is a name count, not 97 proven duplicate implementations.
+- 30 basename collisions occur at the top-level across the three roots.
+- 66 requested system names have more than one matching directory location when nested directories are included.
+- Full per-name path/file-count inventory, duplicate table and stub/production map: `audits/Tiannara_System_Directory_Duplication_and_Stub_Production_Map.md`.
+
+### RL-493 — OPEN — StubRegistry is not wired into normal application startup
+
+`Tiannara.Stub.stub_result/3` records calls only when `Process.whereis(Tiannara.StubRegistry)` finds a running registry. The root application child list does not start `Tiannara.StubRegistry`; the runtime application's startup tree does not start it either. Repository search found no `Tiannara.StubRegistry.start_link/1` call site outside the function definition.
+
+As a result, the documented stub call-count and telemetry tracking is not established during normal startup. The stubs can return configured success-shaped defaults without registry recording. The registry is an intended observability mechanism, not a verified operational stub ledger.
+
+**Closure evidence:** supervised startup in the relevant application(s), startup/restart tests, and an integration test proving each stub invocation is recorded and observable. If tracking is intentionally opt-in, document and enforce the opt-in boundary.
+
+### RL-494 — OPEN — Stage-6 scientific accounting and history persistence route through success-shaped stubs
+
+**Inspected paths:** `lib/tiannara/stubs/os_scientific_capital_ledger.ex`, `lib/tiannara/stubs/generation_history.ex`, `lib/tiannara/os/recursive_civilization_runner.ex`, `lib/tiannara/os/kernel/scientific_capital_ledger.ex`, `lib/tiannara/os/kernel/generation_history.ex`, `tiannara_runtime/lib/tiannara_runtime/civilization/economy/scientific_capital_ledger.ex`.
+
+The Stage-6 runner calls `TiannaraOS.ScientificCapitalLedger.calculate_delta/2`, whose stub returns `{:ok, 0}`. The runner then performs numeric addition with `previous_capital + delta_capital`; the tuple return is incompatible with that operation and can raise an arithmetic error.
+
+The runner also calls unqualified `GenerationHistory.calculate_cai/1` and `GenerationHistory.append_to_file/2`. The stub returns `0.0` for CAI and `:ok` for append without writing the history file. Its `new/1` delegates to the real nested constructor, which can make the returned record look legitimate while later operations still use stub behavior.
+
+Substantive implementations exist under `TiannaraOS.Kernel.*`, but the runner does not call those module identities. A third, separate runtime ledger exists under `TiannaraRuntime.Civilization.Economy.*`; it is an in-memory transaction model and is not interchangeable with the kernel's immutable scientific-capital ledger.
+
+**Impact:** the Stage-6 path cannot be treated as verified scientific-capital accounting or durable generation-history persistence. The source-level type mismatch and no-write success return are confirmed; no Stage-6 run was executed.
+
+**Closure evidence:** one canonical ledger and history API; correct module identity and return contracts; durable write acknowledgement; independent replay/conservation checks; a full runner test that proves numeric capital calculation and verifies the exact CSV contents after restart.
+
+### RL-495 — OPEN — ASC pipeline auto-advances after stubbed Crucible phase
+
+**Inspected paths:** `lib/tiannara/stubs/crucible_supervisor.ex`, `lib/tiannara/asc/pipeline/phases.ex`, `lib/tiannara/asc/pipeline/worker.ex`, `lib/tiannara/asc/sub_civ/supervisor.ex`, `lib/tiannara/asc/crucible/`.
+
+`Pipeline.Phases.handler(:crucible)` resolves to `Tiannara.ASC.Crucible.Supervisor`, whose `run/1` returns `{:ok, :stub}`. `ASC.SubCiv.Supervisor` explicitly comments out that supervisor with a TODO. The pipeline worker explicitly treats `{:ok, :stub}` as completion and automatically advances to the next phase.
+
+**Impact:** the ASC project pipeline can move beyond the Crucible phase without performing the intended Crucible validation. Crucible source modules exist, but the pipeline's configured handler is the stub, not a verified production supervisor.
+
+**Closure evidence:** implement and supervise the canonical Crucible service; bind its result to the exact project/build artifact; make missing/stubbed handlers BLOCKED or FAILED; prove no auto-advance on stub result; exercise the full pipeline through real ingress.
+
+### RL-496 — OPEN — CTL branch validation consumes zero-stress stub instead of authoritative branch state
+
+**Inspected paths:** `lib/tiannara/stubs/causal_registry.ex`, `lib/tiannara/ctl/branch_validator.ex`, `lib/tiannara/ctl/causal_registry.ex`.
+
+`Tiannara.Ctl.BranchValidator` aliases `Tiannara.Ctl.CausalRegistry`, which resolves to the explicit stub. Its `get_branch/1` returns `{:ok, %{stress: 0.0}}`. The production-looking file `lib/tiannara/ctl/causal_registry.ex` defines `Tiannara.CTL.CausalRegistry` (different module atom due capitalization) and does not implement the required `get_branch/1`; its active branch count is hardcoded to 10,000.
+
+The validator therefore obtains a zero-stress default rather than authoritative branch state, and its combined-stress predicate passes that record.
+
+**Impact:** branch merge validation is not bound to a real causal branch registry. No merge was executed.
+
+**Closure evidence:** one canonical module/API, authoritative branch record and lineage lookup, verified stress computation, fail-closed missing branch handling, and adversarial tests proving absent/unknown/high-stress branches cannot pass.
+
+### Additional confirmed stub and implementation gaps
+
+- `Tiannara.Meta.CausalDataLayer.Traversal` returns empty nodes/edges; `Tiannara.Meta.Epistemics.LongitudinalMemory` returns a fixed vector. Both are used by `EpistemicShadowGraph`; the only caller of ESG found in this pass was a test, so production reachability remains UNKNOWN.
+- `Tiannara.Sentinel.PressureMonitor` is a function stub, while `TelemetryChannel` checks for a registered process and otherwise returns empty pressure data. A runtime monitor under `Tiannara.Sentinel.Monitors` is a different module.
+- `Tiannara.Twp.SurvivabilityEstimator` returns 0.5; `WavefunctionSolver` uses this value as its decision input. Production caller reachability was not established.
+- `Graph.out_edges/2` returns an empty list; no exact production global `Graph` module was found.
+- `ASC.Interface.Protocol.hybrid/2` and `REA.TheoryNiches.classify_theories/1` are partial stubs within otherwise implemented files.
+
+### Duplicate-system ownership map
+
+The scan found overlapping A10, CIS, OED and OCM implementations, as well as many other duplicate directory names. The directory map records exact paths and file counts. Important observations:
+
+1. **A10:** root and runtime projects define same-named `Tiannara.A10.*` modules with different algorithms. Root A10 includes random sampling/phase values; runtime A10 uses event-count approximations, covariance and phase classification. Root A10 is not in ordinary application core children; Phase Ω activation is exposed through an explicit Mix task. The runtime legacy Governance supervisor is not part of the current runtime RootSupervisor. No sole production owner is established.
+2. **CIS:** four directory locations and multiple supervisors exist. Root application starts `Tiannara.CIS.Supervisor`; runtime application starts `TiannaraRuntime.CIS.Supervisor` and its execution controller; a richer legacy runtime supervisor and a deprecated empty core-stack supervisor also exist. The variants have different authority and safety behavior.
+3. **OED:** root and runtime projects define `Tiannara.OED.Supervisor` separately with different source organization and child sets. A third `Tiannara.Runtime.OED.OED` module refers to Ontological Escape Dynamics, a distinct concept.
+4. **OCM:** root `lib/tiannara/ocm` includes simulated/no-op components; `Tiannara.Stabilization.OCM` has a separate ETS-based voting/consensus service; `TiannaraRuntime.OCM` has vector drift and consensus services under runtime Ecology. These are three distinct APIs and state owners.
+5. **IRD/NDE/DFG:** larger core modules exist, but several supervised auxiliary GenServers only initialize counters and return status. Process startup does not prove the named capability is implemented.
+
+These are architecture/ownership observations, not automatic authorization to delete or merge directories. All consumers and state migrations must be mapped before retirement.
+
+### Checkpoint 18.95 disposition
+
+- RL-493: OPEN.
+- RL-494: OPEN.
+- RL-495: OPEN.
+- RL-496: OPEN.
+- RL-488 through RL-492 remain OPEN.
+- No findings were closed.
+- No production code, tests, runtime configuration or state was modified.
+- No build, test run, runtime boot, physical actuation or deployment was performed.
+
+**Next checkpoint 18.96:** trace every consumer and startup owner for the duplicate systems; inspect all remaining explicit stub modules and success-shaped fallbacks; map root/runtime namespace conflicts; and establish the canonical implementation/adapter/legacy disposition for each system before proposing any consolidation.
