@@ -6673,3 +6673,43 @@ The following entries were recorded in Checkpoints 18.97–19.04 and were absent
 - No production code, tests, runtime configuration or state was modified.
 - No build, test run, runtime boot, deployment, physical actuation or CI run was performed.
 
+
+
+## Checkpoint 19.07 — independent false-success verification
+
+**Date:** 2026-11-10  
+**Report:** `certification/audits/CHECKPOINT_19_07_INDEPENDENT_FALSE_SUCCESS_AND_HUMAN_AUTHORITY_VERIFICATION.md`  
+**Report commit:** `30ae28e98df5855b073cb702089189b0d580357d`
+
+- Independently re-fetched the source bodies for RL-557–RL-563 at the pinned source baseline.
+- RL-558 and RL-562 critical source defects and root startup paths re-confirmed statically.
+- RL-559 ToolForge false human-review acknowledgement re-confirmed; ASC-gated.
+- RL-560 synthetic analytics route and RL-561 placeholder ONNX export re-confirmed in source.
+- RL-563 selected startup-backed status-only children re-confirmed; full child inventory remains incomplete.
+- All RL-557–RL-563 remain OPEN. No dynamic tests, builds, runtime boot, CI, deployment or production changes were performed.
+
+## Checkpoint 19.08 — negative-test design and static evaluation
+
+**Date:** 2026-11-10  
+**Report:** `certification/audits/CHECKPOINT_19_08_NEGATIVE_TEST_DESIGN_HAI_AUTHORITY_AND_CONSTITUTIONAL_EVIDENCE.md`  
+**Report commit:** `51aa263514e3d5eacb69701016a9f372174bceac`
+
+### Negative-case results
+
+| Finding | Static negative case | Expected safe behavior | Source-derived current behavior | Status |
+|---|---|---|---|---|
+| RL-558 | Missing/nil/unknown/malformed impact | Reject or UNKNOWN; never approve | Constructor does not validate; catch-all route approves | OPEN — CRITICAL |
+| RL-558 | Unauthorized/invalid/replayed decision | Reject; preserve lifecycle and actor provenance | Caller identity ignored; decision term and transition not validated | OPEN — CRITICAL |
+| RL-562 | Empty evidence map / omitted fields | UNKNOWN/incomplete; never compliant | Missing fields default to zero/1.0; all checks can pass | OPEN — CRITICAL |
+| RL-562 | Stale/tampered/mismatched/provider-unavailable evidence | UNKNOWN or non-compliant | No evidence signature/freshness/snapshot verification in auditor | OPEN — CRITICAL |
+
+- HAI negative test cases specified: HAI-N01–HAI-N10.
+- Constitutional evidence negative test cases specified: CON-N01–CON-N12.
+- Existing HAI tests cover valid impact levels and ordinary decision calls, but not invalid levels or authenticated reviewer provenance.
+- Existing Phase 4 constitutional tests do not functionally test the ConstitutionalAuditor/ControlCenter evidence path.
+- The empty-map `%{}` → `:compliant` result is a static evaluation of the source defaults, not an executed Elixir test.
+- No new tests were committed or run. No Elixir shell/repository execution or workflow dispatch was available in this checkpoint.
+- No production code, runtime configuration, state, deployment or physical actuation was changed.
+- RL-558 and RL-562 remain OPEN; neither is closed by test design or static evaluation.
+
+**Checkpoint 19.08 final status:** `STATIC_NEGATIVE_CASES_CONFIRMED — EXECUTION NOT RUN`.
