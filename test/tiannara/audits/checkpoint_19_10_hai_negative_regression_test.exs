@@ -26,20 +26,29 @@ defmodule Tiannara.Audits.Checkpoint1910HAINegativeRegressionTest do
     :ok
   end
 
-  test "missing or unrecognized impact cannot be auto-approved" do
-    missing_impact = base_attrs(:low) |> Map.delete(:impact_level)
+  test "missing impact cannot be auto-approved" do
+    attrs = base_attrs(:low) |> Map.delete(:impact_level)
+    result = ReviewRouter.submit_review(attrs)
 
-    for attrs <- [
-          missing_impact,
-          base_attrs(nil),
-          base_attrs(:unrecognized),
-          base_attrs("critical")
-        ] do
-      result = ReviewRouter.submit_review(attrs)
+    refute match?({:ok, %ReviewRequest{status: :approved}}, result)
+  end
 
-      refute match?({:ok, %ReviewRequest{status: :approved}}, result),
-             "invalid or absent impact was auto-approved: #{inspect(attrs[:impact_level])}"
-    end
+  test "nil impact cannot be auto-approved" do
+    result = ReviewRouter.submit_review(base_attrs(nil))
+
+    refute match?({:ok, %ReviewRequest{status: :approved}}, result)
+  end
+
+  test "unknown atom impact cannot be auto-approved" do
+    result = ReviewRouter.submit_review(base_attrs(:unrecognized))
+
+    refute match?({:ok, %ReviewRequest{status: :approved}}, result)
+  end
+
+  test "string impact cannot be auto-approved" do
+    result = ReviewRouter.submit_review(base_attrs("critical"))
+
+    refute match?({:ok, %ReviewRequest{status: :approved}}, result)
   end
 
   test "a caller without reviewer identity cannot resolve a mandatory review" do
