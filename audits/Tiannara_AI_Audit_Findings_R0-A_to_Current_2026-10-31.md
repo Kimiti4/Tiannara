@@ -6731,3 +6731,22 @@ The following entries were recorded in Checkpoints 18.97–19.04 and were absent
 - RL-558 and RL-562 remain CRITICAL / OPEN. A focused local execution sequence and required red-baseline regression matrix are documented in the checkpoint report.
 
 **Checkpoint 19.09 final status:** `EXECUTION_GATE_BLOCKED_REMOTE_RUNNER_UNAVAILABLE`.
+
+
+## Checkpoint 19.10 — HAI and constitutional negative-regression harness
+
+**Date:** 2026-11-11  
+**Report:** `certification/audits/CHECKPOINT_19_10_HAI_AND_CONSTITUTIONAL_NEGATIVE_REGRESSION_HARNESS.md`  
+**Report commit:** `6b030fd4387717c1498c421c91eb8e2b6c27b756`
+
+- Created isolated regression branch `audit/cp19-10-red-baseline` from the 19.09 register commit `be84d1ed2e04f22e7086ee83566edb9eb8c2909e`.
+- Added two test files only; compare-commits confirms exactly two added paths and no production implementation changes. Inspected branch head: `8f03c32ad10fa9ad654f987d30dde1bc9a53df5d`.
+- HAI suite: 7 cases for missing/nil/unknown/string impact, caller without reviewer identity, invalid decision term and conflicting repeated decision.
+- Constitutional suite: 4 cases for empty evidence, partial evidence, zero verification denominator and zero evolution denominator.
+- Re-fetched both test files and verified blob SHAs: HAI `2355ca1f871f39134a77b5176a7ee4e3961862c0`; constitutional `89abde5feb3568ae3c7eb943676eb22f218428d7`.
+- Source-level expected failure modes remain supported by the inspected HAI and ConstitutionalAuditor implementations, but the tests have not been compiled or run. No runtime red baseline is claimed.
+- Combined status returned `statuses: []`; the limited commit-workflow lookup returned `workflow_runs: []`. Neither establishes CI pass/fail.
+- No production code, application configuration, runtime state, deployment or physical actuation was changed.
+- RL-558 and RL-562 remain CRITICAL / OPEN. Test syntax, test discovery, startup and actual assertion outcomes remain UNKNOWN pending execution on a compatible Elixir runner.
+
+**Checkpoint 19.10 final status:** `NEGATIVE_REGRESSION_HARNESS_AUTHORED_EXECUTION_NOT_RUN`.
