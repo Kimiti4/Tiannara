@@ -266,7 +266,7 @@ The branch's `audits/Tiannara_AI_Audit_Findings_R0-A_to_Current_2026-10-31.md` c
 
 **Impact:** a reviewer using the main register alone can miss more than fifty later findings and their status changes. This weakens remediation planning, ownership assignment, closure checks and audit-to-audit traceability.
 
-**Closure evidence:** append the reconciled RL-497–RL-556 index and source report references; establish a checkpoint completion rule that requires the report and main register to update atomically or in one controlled commit; validate continuous ID ranges and cross-links in CI.
+**Resolution evidence:** the R0 register was updated after this report was created, and the current branch copy now indexes RL-497–RL-556 with the 19.05 report reference. The procedural/CI enforcement that would keep future checkpoints synchronized remains unverified.
 
 ---
 
