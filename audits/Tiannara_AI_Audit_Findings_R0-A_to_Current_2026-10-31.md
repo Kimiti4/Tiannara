@@ -6644,4 +6644,32 @@ The following entries were recorded in Checkpoints 18.97–19.04 and were absent
 - No production code, tests, runtime configuration or state was modified.
 - No build, test run, runtime boot, simulation campaign, CI run, physical actuation or deployment was performed.
 - The full implementation-body scan remains OPEN; filename-pattern candidates are not an exhaustive semantic inventory.
+## Checkpoint 19.06 — implementation-body stub and false-success audit
+
+**Date:** 2026-11-10  
+**Source baseline:** `07b1a6b4e9871b297386595982683ee9512b8725`  
+**Tree:** `17d9d632aebcd130e7a5deb46451c44dc9c47524`  
+**Report:** `certification/audits/CHECKPOINT_19_06_EXHAUSTIVE_IMPLEMENTATION_BODY_STUB_AND_FALSE_SUCCESS_AUDIT.md`  
+**Report commit:** `62060a3e4848e6123718dc45239345bbd1338f8f`
+
+### New findings RL-557–RL-563
+
+| ID | Severity | Finding | Status |
+|---|---|---|---|
+| RL-557 | HIGH | Runtime Observatory claims live scientific/engineering/governance metrics while providers and collector return fixed zero/empty/100% values | CONSTANT_PROVIDER / FALSE_LIVE_METRICS |
+| RL-558 | CRITICAL | HAI ReviewRouter auto-approves unrecognized/invalid impact levels through its catch-all route; request construction does not validate the enum | FAIL_OPEN_REVIEW_ROUTING |
+| RL-559 | HIGH | ToolForge treats creation of a discarded ReviewRequest as successful human review and returns :ok even after rescue | FALSE_HUMAN_REVIEW_ACKNOWLEDGEMENT / ASC_GATED |
+| RL-560 | HIGH | Mounted FastAPI customer analytics endpoints return random/sample metrics, insights and predictions and static active-capability declarations | MOUNTED_SYNTHETIC_API_DATA |
+| RL-561 | HIGH | ONNX exporter substitutes an Identity node for the supplied NumPy function; validation can assume 100% accuracy if no original-function oracle is supplied | PARTIAL_EXPORT / VALIDATION_ORACLE_OPTIONAL |
+| RL-562 | CRITICAL | Root ControlCenter builds constitutional-audit evidence from hard-coded zero counts and a fixed objective-alignment score | SYNTHETIC_CONSTITUTIONAL_COMPLIANCE_INPUTS |
+| RL-563 | HIGH | Root-supervised Physics/Stabilization/Topology child processes contain only empty state or status behavior for declared capabilities | STARTUP_BACKED_NOOP_CHILDREN |
+
+### Checkpoint 19.06 disposition
+
+- RL-557–RL-563 added; all remain OPEN.
+- Existing RL-545, RL-546, RL-549, RL-551, RL-552, RL-553, RL-554 and RL-555 remain open; 19.06 provides additional source/body evidence in adjacent surfaces but does not close them.
+- Explicit fail-closed unavailable APIs, abstract base classes and deliberate simulation/test fixtures were not automatically treated as production stubs.
+- The selected source-body scan is broader than 19.05 but remains PARTIAL_EVIDENCE; the 5,587 source-extension inventory is not a claim that 5,587 production bodies were fully inspected.
+- No production code, tests, runtime configuration or state was modified.
+- No build, test run, runtime boot, deployment, physical actuation or CI run was performed.
 
