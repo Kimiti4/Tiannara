@@ -6750,3 +6750,21 @@ The following entries were recorded in Checkpoints 18.97–19.04 and were absent
 - RL-558 and RL-562 remain CRITICAL / OPEN. Test syntax, test discovery, startup and actual assertion outcomes remain UNKNOWN pending execution on a compatible Elixir runner.
 
 **Checkpoint 19.10 final status:** `NEGATIVE_REGRESSION_HARNESS_AUTHORED_EXECUTION_NOT_RUN`.
+
+
+## Checkpoint 19.11 — regression execution attempt and failure classification
+
+**Date:** 2026-11-11  
+**Report:** `certification/audits/CHECKPOINT_19_11_REGRESSION_EXECUTION_ATTEMPT_AND_FAILURE_CLASSIFICATION.md`  
+**Report commit:** `fefe7c8b538daa7b18d7f05ae6eeb5db8e597192`
+
+- Re-fetched and checked the two 19.10 regression test files on `audit/cp19-10-red-baseline`; blob SHAs match the recorded 19.10 report. Branch compare shows the two test files only were added; no production files changed.
+- Reviewed all 11 test cases against the pinned HAI and ConstitutionalAuditor source. The current source logic supports the expected unsafe outcomes, but the results remain source-predicted, not runtime-observed.
+- Attempted runtime discovery: `elixir`, `mix` and `erl` are not present in the active container; no local Tiannara Git worktree was found.
+- Attempted direct remote lookup for the regression branch; `git ls-remote` failed because the container could not resolve `github.com`. This is an environment/network blocker, not a product failure.
+- Combined status returned `statuses: []`; the limited commit-workflow lookup returned `workflow_runs: []`. No verifiable CI pass/fail result, job logs or artifacts were obtained.
+- Test compilation, test discovery, application startup and assertion outcomes remain UNKNOWN / NOT RUN. No test has been labelled PASS or FAIL.
+- No production implementation, runtime configuration/state, deployment or physical actuation was changed.
+- RL-558 and RL-562 remain CRITICAL / OPEN.
+
+**Checkpoint 19.11 final status:** `EXECUTION_BLOCKED_NO_ELIXIR_RUNTIME_OR_REPOSITORY_CHECKOUT`.
