@@ -7021,3 +7021,101 @@ No new permanent RL identifiers were assigned to the Council candidate gaps in t
 - Independent recursive-tree retrieval at the pinned implementation commit returned 28,376 entries (`truncated: false`), not 28,377. The CP19.17 report has been corrected; the 4,533 Elixir source/test file count is unchanged.
 - Added the exact blob identity for `test/tiannara/world/d127_uwm_delete_evaluation_test.exs` (`351613ea584ab202e552b5cb0e0b986b8161693`) to the report's test identity table.
 - Corrected report commit: `6c46d7b3e67a84f83d7ab808cd5809bea182b705`. These are traceability corrections only; source conclusions, RL-564/RL-565 dispositions, and no-test-execution status are unchanged.
+
+## Checkpoint 19.19 — Independent Red-Baseline Verification and Separate RL-564/RL-565 Remediation Specification
+
+**Date:** 2026-11-12  
+**Report:** certification/audits/CHECKPOINT_19_19_INDEPENDENT_RED_BASELINE_VERIFICATION_AND_REMEDIATION_SPECIFICATION.md  
+**Report commit:** `7c4ecd62a923948beb39ec5ea62d15883b3da4a2`  
+**Candidate under verification:** `268d2e9b442a504873a6f4af691a836ead79120b`  
+**Candidate parent / pinned implementation source:** `de231a78db542a6172d7bd1ffd46e8a766deafa4`  
+**Audit branch base:** `57fd903a401075fe280a65ebe37db8108ba312a4`  
+**Status:** RED_BASELINE_INDEPENDENTLY_REPRODUCED — ORACLES_VALIDATED_WITH_WEAKNESSES — SEPARATE_REMEDIATION_SPECIFICATIONS_ISSUED — NO_PRODUCTION_CHANGE
+
+### Candidate and evidence identity
+
+- Candidate `268d2e9b` is tests-only against `de231a78`: 2 files, 610 insertions; `git diff de231a78..268d2e9b -- lib config mix.exs mix.lock` is empty.
+- RL-564 test blob: `91a46eae7f2bc63d112d1f4275cbb5c41ff4c4bc`.
+- RL-565 test blob: `b6ad43f19f8ad154f222fc14ac3a05c0896331fa`.
+- CP19.17 report blob: `451963e0ca3c48a584df76ee28abde2260adebb0` at `6c46d7b3`; local copy verified equal.
+- CP19.17 register blob at the audit-branch base: `d6decc5f211c7167febb64909ffe6b1524e121d9`.
+- Toolchain: Elixir 1.18.4, Erlang/OTP 28, ERTS 16.4.
+- PR #13 remains at `8f03c32ad10fa9ad654f987d30dde1bc9a53df5d` on `remotes/origin/pr-13`; it was not modified, merged, retargeted, or pushed.
+- Tests ran in the separate CP19.18 worktree at `268d2e9b`; documentation was authored in the audit worktree at `57fd903a` on `audit/cp19-19-red-baseline-integrity`.
+
+### Independent runs
+
+| Run | Partition | Seed | Result |
+|---|---|---|---|
+| Full suite A | `cp19_19_baseline_a` | `0` | **18 tests, 12 failures** |
+| Full suite B | `cp19_19_baseline_b` | `123456` | **18 tests, 12 failures** |
+| Controls only | `cp19_19_controls_a` | `0` | **18 tests, 0 failures, 12 excluded** |
+
+Both seeds produced the same twelve failing identities; only execution order differed. The control run excluded the twelve red cases by `location`, not by tag, skip, or environment flag; all six controls executed and passed.
+
+### Red baseline: genuine unsafe successes
+
+The twelve failures are ExUnit assertion failures, not setup, compile, missing-process, or skipped-test failures. The required refusal was replaced by a success:
+
+- RL-565: `R565-01`, `R565-02`, `R565-03`, `R565-04` returned `{:ok, ...}` from machine mint or the delete chain; `R565-08` returned `{:ok, ...}` during an active Council emergency.
+- RL-564: `R564-01` and `R564-07` returned `:ok`; `R564-02`, `R564-03`, `R564-04`, `R564-08a`, and `R564-08b` returned `{:ok, ...}` from Phase4, the governed sink, or the deployment gateway.
+
+The six controls exercised their intended branches: `R564-06` direct non-allowlisted mint (`:minter_not_authorized`), `R564-09` concurrent Phase4 replay (one success; others `:already_consumed`/`:effect_already_executed`), `R565-05` wrong operation (`:decision_type_mismatch`), `R565-06` wrong target (`:effect_id_mismatch`), `R565-07` concurrent delete replay (one success; others `:already_consumed`), and the genuine Council mint/bind control.
+
+### Oracle integrity
+
+The red oracles are valid for the baseline but are not sufficient as closure oracles. Documented weaknesses:
+
+- `R564-02`, `R564-03`, `R564-04`, `R564-08a`, and `R564-08b` accept a broad five-error list, so an unrelated failure could satisfy the assertion.
+- `R564-07` uses the mint-refusal helper around a bind call; a bind failure for the wrong reason could pass.
+- `R565-08` accepts any `{:error, _}`, including setup or registry-unavailability errors.
+- Several cases assert only the return value and omit registry, consume, ETS, sink/audit, candidate, deployment, entity, and relationship postconditions.
+- The UWM oracle depends on `MachineAuthorization.content_hash/1` compared to the struct's own field, which is self-referential and not issuer provenance.
+- The identity used by several human cases is self-asserted; this proves the registry/consumer gap, not human authenticity.
+
+### Additional source-confirmed gaps beyond CP19.18
+
+- Post-bind decision substitution at UWM: the sink recomputes the struct's self-hash and does not compare the registry-anchored `council_decision_ref` to the presented decision.
+- Multiple machine mints from one genuine Council decision: no one-time receipt; `Council.authorize/3` returns a plain struct with no nonce or consumption.
+- Restart/truncation/tamper: registry records are append-only `term_to_binary` with no MAC or hash chain; a truncated tail is silently discarded and a forged record can be loaded as `:granted`.
+- Verified human identity: `AuthenticatedHumanIdentity.authenticate/3` accepts any non-empty credential; RL-426 / RL-479 remain separate.
+- Emergency at the effect boundary: emergency blocks `Council.authorize/3` but not direct `MachineAuthorization.mint/2` or a pre-existing grant presented to UWM.
+- CP19.17 cases `R564-05` (Phase4 sandbox), `R564-10` (restart/corruption), and `R564-11` (standard HumanDelivery issuance) were designed but not implemented.
+- Consumer coverage remains partial: RealExecution, PhysicsPilot, WorldMutationEngine, Omega.Verification.Baseline, and other identified consumers are not covered by the CP19.18 suites.
+
+### Test isolation
+
+- Each run used a fresh `TEST_PARTITION`; `config/test.exs` derives `./test_data/dets/<partition>` and `test_helper.exs` wipes only that root.
+- Per-run partition roots were removed after the runs.
+- Repository-root `cel_memory_v2.dets` and `conflict_resolution_engine.dets` remained outside the per-run root; `cel_memory_v2.dets` was modified during the control-run window. Isolation is therefore partial and `F-ARC-018` remains **OPEN**.
+
+### Separate remediation specifications and trust-chain diagram
+
+- `certification/audits/CP19_19_RL564_REMEDIATION_SPECIFICATION.md` — human trust root. Atomic `human_grant/3` issuance + registration, one-time issuance token stored as a hash, proof-bound one-shot bind, registry-anchored grant/human/identity/explanation/candidate/scope/effect verification, verified-identity dependency, registry MAC/restart/tamper handling, and strengthened oracles. RL-564 closure is conditional on RL-426/RL-479 or an approved identity adapter.
+- `certification/audits/CP19_19_RL565_REMEDIATION_SPECIFICATION.md` — Council trust root. `Council.decide/3` issues a MAC-protected, scoped, expiring, one-time `DecisionReceipt`; `MachineAuthorization.mint/3` verifies and consumes it atomically with grant registration; bind and UWM delete verify the registry-anchored grant/decision digest, scope, and effect; emergency is enforced at decide, mint, and effect boundary.
+- `certification/audits/CP19_19_AUTHORIZATION_TRUST_CHAIN_DIAGRAM.md` — two-root diagram and prohibited shortcuts. Shared registry mechanics are allowed; shared authority, proof types, issuers, and cross-issuer verifiers are prohibited.
+
+### Production remediation acceptance criteria (summary)
+
+- No public API registers a human grant from an ID alone; no public API mints a machine grant from a plain `Council.Authorization` struct.
+- Human issuance and machine mint each produce one-time proofs bound to the exact grant/decision and scope; one issuance/receipt produces at most one valid grant.
+- Every in-scope consumer verifies the registry-anchored grant/decision digest, principal/actor, scope, effect, expiry, and consumption state; no auto-bind; no self-referential hash authority.
+- Post-bind substitution, multi-mint, receipt/proof replay, restart, truncation, and tamper fail closed before consume, sink, audit, candidate transition, or graph deletion.
+- Emergency blocks Council receipt issuance, direct machine mint, and effect-boundary consumption.
+- Closure tests use specific errors and material postconditions; broad error lists and any-error matches are prohibited.
+- Independent verification uses the exact SHA, exact commands, at least two seeds, fresh partitions, and a complete postcondition review. A green broad oracle is not closure proof.
+- `F-ARC-018` is tracked separately; per-run DETS partitions do not close it.
+- PR #13 remains unchanged. RL-564 and RL-565 remain `OPEN` until the evidence is recorded and closure is proposed separately.
+
+### Execution and change boundary
+
+- CP19.19 executed tests only in the disposable CP19.18 worktree. It made no production code, configuration, production registry, deployment, Council authority, or physical-system change.
+- No external HTTP request, live service, real hardware adapter, or physical actuation was used.
+- No CI or runtime certification is claimed; there is no exact CI run for CP19.18/CP19.19.
+- CP19.18 remains tests-only on local branch `test/cp19-18-rl564-rl565-red-baseline`, not pushed or merged.
+- The main repository on `local/pr4` at `60933859f529db68863d6610ff5cf3901f722eb6`, the CP19.18 test worktree, the CP19.17 report/register content, and PR #13 were preserved.
+- Only the four certification documents and this register section are audit artifacts. No finding is closed.
+
+**Checkpoint 19.19 final disposition:** CP19.18 red baseline independently reproduced at seeds 0 and 123456 (18 tests, 12 genuine unsafe-success failures, 6 valid controls); oracle integrity validated with documented weaknesses; separate RL-564 and RL-565 remediation specifications and the two-root trust-chain diagram issued; no production change. RL-564, RL-565, and F-ARC-018 remain `OPEN`.
+
+**Next checkpoint:** 19.20 — RL-565 production remediation implementation (Council receipt, one-time mint, registry provenance, UWM effect-boundary verification, emergency enforcement), followed by a separate RL-564 implementation checkpoint. Each must be independently verified against the CP19.19 acceptance criteria before any closure entry is proposed.
