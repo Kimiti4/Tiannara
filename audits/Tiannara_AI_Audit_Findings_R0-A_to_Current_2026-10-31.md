@@ -6960,3 +6960,59 @@ No new permanent RL identifiers were assigned to the Council candidate gaps in t
 **Checkpoint 19.16 final disposition:** Council/registry/HAI authority boundaries are not certifiable; RL-564 is added HIGH / OPEN; production HAI ingress remains UNKNOWN; no-go for production remediation or certification until the trust boundary and actual effect consumers are corrected and independently verified.
 
 **Next checkpoint:** 19.17 — RL-564 Adversarial Registry-Mint Regression Design and Full Council/Registry Effect-Consumer Closure Matrix.
+
+## Checkpoint 19.17 — RL-564 Adversarial Registry-Mint Regression Design and Full Council/Registry Effect-Consumer Closure Matrix
+
+**Date:** 2026-11-11  
+**Report:** certification/audits/CHECKPOINT_19_17_RL564_ADVERSARIAL_REGISTRY_MINT_REGRESSION_AND_EFFECT_CONSUMER_MATRIX.md  
+**Report commit:** 977a90a1e835f1e71f9f07e4821ffd60937b2e45  
+**Pinned implementation source:** de231a78db542a6172d7bd1ffd46e8a766deafa4  
+**Status:** REGRESSION_DESIGN_COMPLETE — RL-564 REFINED — RL-565 ADDED — CONSUMER_MATRIX_DOCUMENTED — EXECUTION_NOT_RUN
+
+### RL-564 refinement — wrapper-assisted mint can satisfy registry-backed admission
+
+- MintRegistry trusts the stack origin of allowlisted modules. HumanDelivery.Authorization.record_mint/1 accepts only an arbitrary caller-supplied authorization ID; it does not receive or validate a grant, human identity, approved queue record, issuance receipt or Council proof.
+- The R-2 test explicitly asserts that a fresh arbitrary ID passed through this wrapper returns :ok and becomes :granted. D127.6 checks only a forged struct whose ID remains unregistered; it does not first call the wrapper.
+- Phase4.ExecutionGovernance.begin/2 checks HumanDelivery.Authorization struct fields, registry status, binding, effect identity and one-time consumption. It does not independently verify an authenticated human principal or trusted grant-issuer receipt. RealExecution.execute/1 enters this gate before RealHarness; the real_execution_enabled flag defaults false, and no sandbox ran in CP19.17.
+- GovernedEffectSink is a bounded internal EventStore sink; DeploymentGateway transitions a Candidate record and is not proof of live infrastructure deployment. RealExecution's optional DeploymentGateway branch reuses the grant already consumed/bound to a different Phase4 effect; existing RL-480 remains controlling.
+- **RL-564 remains HIGH / OPEN.** No exploit was executed. The source-derived consumer composition and required negative regression cases are in the CP19.17 report.
+
+### New finding RL-565
+
+| ID | Severity | Finding | Status |
+|---|---|---|---|
+| RL-565 | HIGH | MachineAuthorization.mint/2 accepts caller-constructed Council.Authorization structs as Council-issued decisions, allowing the public UnifiedWorldModel.delete_entity/2 sink to accept fabricated machine authority | OPEN |
+
+**Source-confirmed behavior:**
+- Council.Authorization.approved/1 is a public constructor that returns a struct with decision :approved and a non-nil decided_at; callers can supply policy_applied and other fields.
+- MachineAuthorization.mint/2 accepts a Council.Authorization struct based on public permitted?/1 or conditional_grant?/1 predicates and decided_at. It hashes that caller-supplied struct and calls MintRegistry.record_mint/2 from the allowlisted MachineAuthorization module. The digest anchors the caller-supplied struct; it is not proof that Council issued it.
+- The R-2 test itself constructs Authorization.approved(...) and asserts that MachineAuthorization.mint(...) succeeds.
+- UnifiedWorldModel.delete_entity/2 checks machine struct fields, registry status, operation type, decision predicates, content hash, target effect ID, registry binding and consume. Its handler does not call Council.authorize/3 or validate a Council-issued decision receipt before deleting the canonical UnifiedRealityGraph entity and its relationships.
+- The existing D127 UWM deletion helper obtains its decision from Council.authorize before minting. Its D127.6 test mutates an already-minted wrap to a fresh ID and proves it is unregistered; it does not combine a fabricated Authorization.approved struct with the public MachineAuthorization.mint/bind/delete APIs.
+
+**Impact and boundary:** The source-derived in-node sequence is: caller constructs an approved Council.Authorization struct; calls MachineAuthorization.mint with decision_type :delete_entity; binds it to UnifiedWorldModel.effect_descriptor(entity_id); then calls UnifiedWorldModel.delete_entity(entity_id, bound). If the entity and supervised services exist, the inspected sink conditions are satisfiable. This is not an executed exploit, does not establish an external HTTP route and does not claim an unauthenticated remote caller. No entity was deleted in CP19.17.
+
+**Closure evidence:** require an opaque Council-issued, one-time decision receipt/capability binding operation scope, canonical payload/effect digest, decision/evidence, issuing Council identity/version, policy/constitution versions, actor/principal, expiry and nonce. Verify that receipt inside MachineAuthorization.mint/2 and again at the UWM delete sink. Add a negative test using a fabricated struct through mint/bind/delete and assert refusal before registry consume, audit and graph deletion; verify target entity remains.
+
+### Registry and effect-consumer closure matrix
+
+- Registry mint sources inspected: HumanDelivery.Authorization wrapper (RL-564), MachineAuthorization private mint helper (RL-565), and Omega.Verification.Baseline verification helper. Binding consumers include MachineAuthorization.bind_effect and Phase4.ExecutionGovernance; status/binding/consume are used by ExecutionGovernance, GovernedEffectSink, DeploymentGateway, WorldMutationEngine and UnifiedWorldModel.
+- Council.authorize/3 production consumers identified in this pass: CEL.Kernel restart/halt, CEL.Services.ResourceManager high-threshold allocation, WorldMutationEngine, Phase4.ExperimentOrchestrator high/critical experiment gate and Forecasting.DecisionImpl. HumanApprovalResumer calls public Council.resume_human_approval/3 after its queue-status check. Conditional-consumer correctness remains open where a label is accepted without conditional_grant?/1.
+- Council/queue/policy/constitution APIs with no verified effect-bound production caller in this bounded pass include HumanApprovalQueue approve/reject, Council emergency invoke/lift, PolicyRegistry mutation and ConstitutionRepository commit/rollback. Existing RL-412–414 and RL-122/123 remain OPEN.
+- UnifiedWorldModel create/update/refute/relationship/stage handlers call WorldMutationEngine; delete_entity uses a separate machine grant sink and is the new RL-565 path. Snapshot restore, VersionManager rollback and RealityCoordinator source-wins paths remain covered by existing RL-325–327/world-writer findings.
+- AEO.submit_to_runtime validates a planned graph and adapter receipt but does not itself call Council; DecisionImpl.authorize is a separate method and ordering is not enforced by AEO. Phoenix physical deployment remains outside Council/MintRegistry and is covered by RL-434/RL-439/RL-470. ToolForge false review acknowledgement remains RL-559.
+- The matrix is complete for the scoped APIs and concrete source consumers listed in the CP19.17 report, not a proof that no dynamic, injected, plugin or unindexed caller exists.
+
+### Regression design and execution boundary
+
+- RL-564 cases R564-01–R564-11 combine arbitrary-ID wrapper mint, forged grant admission into Phase4, internal sink and candidate gateway, controlled backend callback, unauthorized bind, subject/digest substitution, concurrency, restart and standard HumanDelivery issuance.
+- RL-565 cases R565-01–R565-08 combine fabricated and reconstructed Council decisions, full UWM deletion chain, receipt tampering, wrong scope, wrong target, replay/concurrency and Council emergency.
+- The proposed error labels in the report are target contract names, not current source behavior.
+- Existing positive one-shot, binding, replay and legitimate Council path tests must remain as controls. Test fixtures must isolate DETS, MintRegistry, AuditLog, EventStore, ETS, environment flags and named-process state.
+- No tests were authored or executed, and no compile, root test, CI, runtime boot, API call, registry mutation, simulation, deployment or physical actuation was performed in CP19.17.
+- No production source, tests, configuration, persistent state or governance authority was changed. PR #13 remains the separate CP19.10 two-file draft baseline and was not modified.
+- **Only permanent finding additions/refinements in CP19.17:** RL-564 refined; RL-565 added HIGH / OPEN. No existing finding is closed.
+
+**Checkpoint 19.17 final disposition:** RL-564 regression design complete; full in-scope consumer matrix documented; RL-565 added HIGH / OPEN; test execution not run; no production change.
+
+**Next checkpoint:** 19.18 — implement the isolated CP19.17 adversarial regression suite for RL-564/RL-565 (tests only), execute on Elixir 1.18 / OTP 28 in a disposable checkout, and capture red-baseline evidence.
