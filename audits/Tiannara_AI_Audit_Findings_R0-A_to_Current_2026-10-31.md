@@ -6768,3 +6768,22 @@ The following entries were recorded in Checkpoints 18.97–19.04 and were absent
 - RL-558 and RL-562 remain CRITICAL / OPEN.
 
 **Checkpoint 19.11 final status:** `EXECUTION_BLOCKED_NO_ELIXIR_RUNTIME_OR_REPOSITORY_CHECKOUT`.
+
+
+## Checkpoint 19.12 — executable regression baseline and evidence capture
+
+**Date:** 2026-11-11  
+**Report:** `certification/audits/CHECKPOINT_19_12_EXECUTABLE_REGRESSION_BASELINE_AND_EVIDENCE_CAPTURE.md`  
+**Report commit:** `7ab36229c85651f0e89d0af3da2dbf2eaa44558b`
+
+- Opened draft, unmerged validation PR #13 from `audit/cp19-10-red-baseline` to this audit branch. PR head is `8f03c32ad10fa9ad654f987d30dde1bc9a53df5d`; the diff contains only the two regression test files (11 cases total).
+- Existing Elixir CI workflow triggered: run `42931719446` (run 622). Job `compile` passed `mix deps.get`, `mix compile --force --color` and `MIX_ENV=test mix run -e ":ok"`; `test-placement` passed.
+- Required `tiannara_runtime` suite job `130232472419` completed successfully; log summary: `40 properties, 1863 tests, 0 failures, 6 excluded`.
+- Required `tiannara_audit suite` job `130232472176` passed; lineage-regression job `130232472246` passed.
+- Cross-Platform Verification run `42931719461` completed successfully: Ubuntu job `130231848471`, macOS job `130231848212`, and hash-compare job `130232342044` all passed.
+- Non-blocking `tiannara_runtime quarantine` job `130232472073` failed with four unrelated cases (ColdIgnition perturbation load, passive-mode mutation fingerprint, and two Omega `already_started` cases). Workflow marks this job `continue-on-error: true`; it is not an RL-558/RL-562 result. Required runtime suite separately passed.
+- The root-project `suite` job `130232472167`, which runs `MIX_ENV=test mix test --max-failures 25 --color` and includes the two new test files, was still `in_progress` at report capture. Its completed log/exit code and case-level outcomes remain pending.
+- No production implementation, runtime configuration, deployment or physical actuation was changed. PR #13 remains DRAFT / OPEN / NOT MERGED.
+- RL-558 and RL-562 remain CRITICAL / OPEN. No case-level red-baseline count is claimed until root-suite output confirms whether the new assertions ran and failed for the expected product behaviors.
+
+**Checkpoint 19.12 status:** `EXECUTION_ACTIVE_ROOT_SUITE_RESULT_PENDING`.
