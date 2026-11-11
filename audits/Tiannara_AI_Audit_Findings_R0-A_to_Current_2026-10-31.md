@@ -6965,7 +6965,7 @@ No new permanent RL identifiers were assigned to the Council candidate gaps in t
 
 **Date:** 2026-11-11  
 **Report:** certification/audits/CHECKPOINT_19_17_RL564_ADVERSARIAL_REGISTRY_MINT_REGRESSION_AND_EFFECT_CONSUMER_MATRIX.md  
-**Report commit:** 977a90a1e835f1e71f9f07e4821ffd60937b2e45  
+**Report commit:** 6c46d7b3e67a84f83d7ab808cd5809bea182b705  
 **Pinned implementation source:** de231a78db542a6172d7bd1ffd46e8a766deafa4  
 **Status:** REGRESSION_DESIGN_COMPLETE — RL-564 REFINED — RL-565 ADDED — CONSUMER_MATRIX_DOCUMENTED — EXECUTION_NOT_RUN
 
@@ -7016,3 +7016,8 @@ No new permanent RL identifiers were assigned to the Council candidate gaps in t
 **Checkpoint 19.17 final disposition:** RL-564 regression design complete; full in-scope consumer matrix documented; RL-565 added HIGH / OPEN; test execution not run; no production change.
 
 **Next checkpoint:** 19.18 — implement the isolated CP19.17 adversarial regression suite for RL-564/RL-565 (tests only), execute on Elixir 1.18 / OTP 28 in a disposable checkout, and capture red-baseline evidence.
+### CP19.17 post-commit inventory correction
+
+- Independent recursive-tree retrieval at the pinned implementation commit returned 28,376 entries (`truncated: false`), not 28,377. The CP19.17 report has been corrected; the 4,533 Elixir source/test file count is unchanged.
+- Added the exact blob identity for `test/tiannara/world/d127_uwm_delete_evaluation_test.exs` (`351613ea584ab202e552b5cb0e0b986b8161693`) to the report's test identity table.
+- Corrected report commit: `6c46d7b3e67a84f83d7ab808cd5809bea182b705`. These are traceability corrections only; source conclusions, RL-564/RL-565 dispositions, and no-test-execution status are unchanged.
