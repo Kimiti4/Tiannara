@@ -93,21 +93,29 @@ F-ARC-240 world supervisor not started, F-ARC-241 macOS job cancellation), and 1
 (F-GOV-025). No finding was closed by a code change alone: every closure is bound to a CI run id and a before/after
 test result.
 
-**What Batch 1 did not do:** it did not make the constitutional layer reachable from a launcher (F-ARC-226 / F-ARC-240
-remain), did not implement certificate signing (F-GOV-010), did not build CAE/CAP gate machinery (the specifications
+**What Batch 1 did not do:** it did not make the constitutional layer reachable from a launcher (F-ARC-226
+remains), did not implement certificate signing (F-GOV-010), did not build CAE/CAP gate machinery (the specifications
 are still not in the repository, F-GOV-001), and did not change the CIS arbitration default (D-ARC-015).
 
-## Batch 2 — runtime reachability (provisional; no closure)
+## Batch 2 — runtime reachability (CI-bound at `e71bc230`)
 
-These results are **not** Register 6 closures. They were produced from base `8ff5ec83` plus an uncommitted
-working-tree patch (diff object `6d2cabdd`); there is no `source_code_revision`, no `evidence_record_revision` and no
-CI run yet. They are recorded so the next commit can bind them without re-deriving the result.
+**Source code revision:** `e71bc230a8d38f3a0108012685ae1a052d195b00` (`e71bc230`, `local/pr4`, 2026-10-23). The
+code diff identifier remains `6d2cabdd6a2ba7fc473f3a9dd218cb823db03207`; it is a diff object, not a commit SHA.
+Elixir CI `39944050985` and Cross-Platform Verification `39944050959` both succeeded at `e71bc230`. The required
+root `suite` ran 79 properties / 2,524 tests / 0 failures / 2 skipped; the required runtime suite ran 40 properties /
+1,863 tests / 0 failures / 6 excluded. The non-blocking quarantine job in `39944050985` failed 4 quarantined tests;
+it is not part of the required gate and is not counted as a pass. The local Windows root suite failed 24 tests at the
+same SHA (16 ExecutiveMemory, 5 OrbitEngineering, 1 each Layer65A1/Layer65B/ReplayDeterminism); that is recorded as
+an environment difference, not a pass, and the required CI root suite is the authoritative green result.
+
+In the table, `this docs commit` means the documentation-only commit that records this table; it changes no code, so
+the CI runs at `e71bc230` remain evidence for that source revision.
 
 | Step | source_code_revision | evidence_record_revision | ci_run_id | Finding | Acceptance evidence | Status |
 |---|---|---|---|---|---|---|
-| 2 | uncommitted (`8ff5ec83` + diff `6d2cabdd`) | uncommitted | none | F-ARC-226 boot reachability | Isolated `:minimal` boot (final-source run 7): app start ok, `all_running` true, top supervisor alive, world supervisor alive, endpoint 8004, CIS lockdown denies kill, 27 CPL events confined to scratch | provisional |
-| 3 | uncommitted (`8ff5ec83` + diff `6d2cabdd`) | uncommitted | none | **F-ARC-240** | Kill-switch before: `:executed` but delivery false. After: canonical chain stops two supervised probe worlds, reports both in `killed_worlds`, supervisor survives; unrelated-world survivor and recovery checks pass; isolated regression test 9/9; full runtime suite 1863 tests + 40 properties, 0 failures | `FIXED_PENDING_VERIFICATION` |
-| 4 | uncommitted (`8ff5ec83` + diff `6d2cabdd`) | uncommitted | none | F-ARC-228 / F-ARC-014 / F-ARC-235 | 4222 conflict degrades silently; EventGateway not started; `/health/live` 404; telemetry POST to 8004 hits the runtime router; prod compile fails | open |
-| 5 | uncommitted (`8ff5ec83` + diff `6d2cabdd`) | uncommitted | none | F-ARC-018 / B4 persistence hygiene | CPL, Omega, Mnesia, and identity ledger redirected under `_build/test/tmp`; final full runtime suite (1863 tests, 0 failures) made zero repository writes in those stores. Test isolation is partial mitigation only; configurable Python store paths, merged store ownership, and clean-checkout persistence criteria remain outstanding | `OPEN` |
+| 2 | `e71bc230` | `this docs commit` | `39944050985` @ `e71bc230` | F-ARC-226 boot reachability | Isolated `:minimal` boot (final-source run 7): app start ok, `all_running` true, top supervisor alive, world supervisor alive, endpoint 8004, CIS lockdown denies kill, 27 CPL events confined to scratch. The boot path is still not started by a tracked launcher. | `OPEN` — boot demonstrated; launcher wiring absent |
+| 3 | `e71bc230` | `this docs commit` | `39944050985` @ `e71bc230`; Cross-Platform `39944050959` @ `e71bc230` | **F-ARC-240** | Kill-switch before: `:executed` but delivery false. After: canonical chain stops two supervised probe worlds, reports both in `killed_worlds`, supervisor survives; unrelated-world survivor and recovery checks pass; isolated regression test 9/9. Required runtime suite 40 properties / 1,863 tests / 0 failures / 6 excluded; required root suite 79 properties / 2,524 tests / 0 failures / 2 skipped. Base `8ff5ec83` runtime CI was 1,861 tests, so the +2 are the added survivor and recovery assertions. | **`VERIFIED_CLOSED`** |
+| 4 | `e71bc230` | `this docs commit` | `39944050985` @ `e71bc230` | F-ARC-228 / F-ARC-014 / F-ARC-235 | 4222 conflict degrades silently; EventGateway not started; `/health/live` 404; telemetry POST to 8004 hits the runtime router; prod compile fails | `OPEN` |
+| 5 | `e71bc230` | `this docs commit` | `39944050985` @ `e71bc230` | F-ARC-018 / B4 persistence hygiene | CPL, Omega, Mnesia, and identity ledger redirected under `_build/test/tmp`; the runtime suite made zero repository writes in those stores. The local root suite wrote `data/identity_authority_ledger.jsonl` (23,310 → 24,420 bytes), `data/orbit_*.ndjson` and `tmp/test_executive_memory`; those artifacts are preserved, not committed. Test isolation is partial mitigation only; configurable Python store paths, merged store ownership, and clean-checkout persistence criteria remain outstanding | `OPEN` |
 
 The detailed record is `certification/atlas/batch2/runtime_reachability.md`.

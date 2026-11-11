@@ -44,12 +44,15 @@ Every entry is `OPEN`. A code change alone would not close a finding — closure
 
 ## Batch 2 — reachability: make the runtime application actually start
 
-**Execution record (2026-10-22/23):** `certification/atlas/batch2/runtime_reachability.md`. The isolated safe boot
-and kill-switch chain were demonstrated locally on an uncommitted working tree; the full runtime suite passes (1863
-tests + 40 properties, 0 failures) with CPL/Omega/Mnesia/identity-ledger test isolation. F-ARC-240 is
-`FIXED_PENDING_VERIFICATION`; F-ARC-018/B4 remains `OPEN` because test isolation does not satisfy its broader
-persistence-hygiene criteria. F-ARC-226,
-F-ARC-228, F-ARC-235, F-ARC-014 and F-ARC-229 remain open.
+**Execution record (2026-10-22/23, CI-bound 2026-10-23):** `certification/atlas/batch2/runtime_reachability.md`.
+The isolated safe boot and kill-switch chain were committed as `e71bc230a8d38f3a0108012685ae1a052d195b00`.
+Elixir CI `39944050985` and Cross-Platform Verification `39944050959` succeeded at that SHA: required runtime suite
+40 properties / 1,863 tests / 0 failures / 6 excluded; required root suite 79 properties / 2,524 tests / 0 failures /
+2 skipped. The non-blocking quarantine job failed 4 quarantined tests and is not counted as a pass; the local Windows
+root suite failed 24 tests and is recorded as an environment difference, not a pass. F-ARC-240 is
+`VERIFIED_CLOSED`. F-ARC-018/B4 remains `OPEN` because test isolation does not satisfy its broader
+persistence-hygiene criteria, and the local root suite wrote the identity ledger, `data/orbit_*.ndjson` and
+`tmp/test_executive_memory`. F-ARC-226, F-ARC-228, F-ARC-235, F-ARC-014 and F-ARC-229 remain open.
 
 **Why:** `F-ARC-226` (launcher never starts `:tiannara_runtime`) is the single highest-leverage fix: every "wired" claim inside that application is currently test-time-only wiring. 24 registered capabilities are affected by the cluster that contains it.
 

@@ -6,11 +6,19 @@ other's BEAM and no source trees were merged. This record does not resolve OP-01
 module names.
 
 **Base revision:** `8ff5ec83ce44049d764cca283578b41bb54724c7` (`local/pr4`, 2026-10-22).
-**Code state tested:** base `8ff5ec83` plus the **uncommitted** working-tree changes listed below. There is not yet
-a `source_code_revision` commit for this step. The code diff object is
-`6d2cabdd6a2ba7fc473f3a9dd218cb823db03207` (SHA-256 of the diff file:
-`1D983CC3913C1E8D8CDED9F6DB9A4EB6564A85ACBF2C3F5A8DB86818F16468DE`). The evidence below is therefore
-**provisional** and does not close any finding under the Register 6 rule.
+**Source code revision:** `e71bc230a8d38f3a0108012685ae1a052d195b00` (`e71bc230`, `local/pr4`, 2026-10-23).
+The code diff object is `6d2cabdd6a2ba7fc473f3a9dd218cb823db03207` (SHA-256 of the diff file:
+`1D983CC3913C1E8D8CDED9F6DB9A4EB6564A85ACBF2C3F5A8DB86818F16468DE`); that is a diff identifier, not a
+commit SHA. The local pre-commit runs below were made on the same code tree, and the CI runs are bound to
+`e71bc230`.
+
+**CI binding (2026-10-23):** Elixir CI `39944050985` @ `e71bc230` succeeded: required root `suite` **79
+properties, 2,524 tests, 0 failures, 2 skipped**; required `tiannara_runtime suite (required)` **40 properties,
+1,863 tests, 0 failures, 6 excluded**. Cross-Platform Verification `39944050959` @ `e71bc230` succeeded. The
+explicitly non-blocking `tiannara_runtime quarantine` job in `39944050985` failed 4 quarantined tests (exit 2);
+it is not part of the required gate and is not counted as a pass. The local Windows root suite at `e71bc230`
+failed 24 tests (16 ExecutiveMemory, 5 OrbitEngineering, 1 each Layer65A1/Layer65B/ReplayDeterminism); that is
+recorded as an environment difference, not a pass, and the required CI root suite is green at the same SHA.
 
 ## Code changes exercised
 
@@ -184,13 +192,13 @@ reviewable in git; their text content is unchanged. The SHA-256 values below are
 
 | Finding | Status | Basis |
 |---|---|---|
-| **F-ARC-240** | `FIXED_PENDING_VERIFICATION` — not closed | Kill switch now starts the world supervisor, the delivery callback is live, two supervised children were stopped through the canonical chain, and the isolated regression suite passes (9/0), including an unrelated-world survivor check and a recovery kill. The full runtime suite passes (1863 tests, 0 failures). The changes are uncommitted and have not been run in CI; no exact `source_code_revision` or CI run exists yet. |
+| **F-ARC-240** | `VERIFIED_CLOSED` (2026-10-23) | Kill switch now starts the world supervisor, the delivery callback is live, two supervised children were stopped through the canonical chain, and the isolated regression suite passes (9/0), including an unrelated-world survivor check and a recovery kill. The changes are committed as `e71bc230`; Elixir CI `39944050985` and Cross-Platform `39944050959` passed at that SHA. Required CI root suite: 79 properties, 2,524 tests, 0 failures, 2 skipped. Required runtime suite: 40 properties, 1,863 tests, 0 failures, 6 excluded. Base `8ff5ec83` runtime CI was 1,861 tests, so the +2 are the added unrelated-world survivor and recovery assertions. The local Windows root suite failed 24 tests (environment difference, not a pass); the required CI root suite is green. The non-blocking quarantine job failed 4 quarantined tests and is not evidence. |
 | F-ARC-234 (`WorldProcess` only in Markdown) | OPEN | No `WorldProcess` module was added; the probe uses a supervised test child. Normal world spawning remains unimplemented. |
 | F-ARC-226 (launcher never starts runtime) | OPEN / partially evidenced | The app can be started in an isolated dev boot, but no tracked launcher, release, Compose service or CI boot job starts it. |
 | F-ARC-228 (event transport) | OPEN | NATS listener degrades silently when 4222 is occupied; `EventGateway` is not started and hard-codes `:unavailable`; runtime telemetry to the Python observatory collides on 8004. |
 | F-ARC-235 (ControlCenter) | OPEN / disposition recorded | Root-only authority; Register-7 decision still outstanding. |
 | F-ARC-014 / F-ARC-229 (prod config/release) | OPEN | Runtime prod config is absent; prod compile fails; no release definition or CI artifact. |
-| F-ARC-018 / launch-boundary B4 (persistence and state hygiene) | **OPEN** — test isolation only partial mitigation | `config/test.exs` redirects CPL, Omega, Mnesia, and the identity-authority ledger to `_build/test/tmp`; targeted and final full runtime suites made zero repository writes in those stores. This does **not** satisfy F-ARC-018's broader acceptance criteria: configurable Python store paths, a merged store-ownership map, and clean-checkout persistence requirements remain outstanding. The pre-isolation incident (32 overwritten CPL files, Mnesia logs, `data/omega` snapshot) and the first isolated suite's two identity-ledger appends remain recorded. |
+| F-ARC-018 / launch-boundary B4 (persistence and state hygiene) | **OPEN** — test isolation only partial mitigation | `config/test.exs` redirects CPL, Omega, Mnesia, and the identity-authority ledger to `_build/test/tmp`; targeted and final full runtime suites made zero repository writes in those stores. This does **not** satisfy F-ARC-018's broader acceptance criteria: configurable Python store paths, a merged store-ownership map, and clean-checkout persistence requirements remain outstanding. The pre-isolation incident (32 overwritten CPL files, Mnesia logs, `data/omega` snapshot), the first isolated suite's two identity-ledger appends, and the local root suite's write to `data/identity_authority_ledger.jsonl` (23,310 -> 24,420 bytes; SHA-256 `4D8235B51E242DF83D7F2D29653371E7BB6550E064AE217390362F4BB42F20E8`) plus `data/orbit_*.ndjson` and `tmp/test_executive_memory` remain recorded; those artifacts are preserved and not committed. |
 | F-ARC-227 (observatory mock fallback) | NOT CHECKED | Outside this pass. |
 | F-GOV-025 | OPEN, unchanged | No privileged effect was enabled; the kill test used a temporary supervised probe child only. |
 
