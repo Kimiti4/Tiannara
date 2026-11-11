@@ -28,7 +28,7 @@ Important effect-surface distinctions:
 
 ## 2. Source identity and scope
 
-The recursive tree at the pinned source commit contained 28,377 entries, was not truncated, and contained 4,533 Elixir source/test files. All implementation paths used for positive claims were re-fetched at the pinned source ref. GitHub indexed search is default-branch scoped and was used only to discover candidate call sites; its negative results are not treated as proof of global absence.
+The recursive tree at the pinned source commit contained 28,376 entries, was not truncated, and contained 4,533 Elixir source/test files. All implementation paths used for positive claims were re-fetched at the pinned source ref. GitHub indexed search is default-branch scoped and was used only to discover candidate call sites; its negative results are not treated as proof of global absence.
 
 ### 2.1 Core implementation blob identities
 
@@ -72,6 +72,7 @@ The recursive tree at the pinned source commit contained 28,377 entries, was not
 | test/tiannara/phase4/execution_governance_test.exs | c0cc7ce52b8614eb6e04563da2141a4ddffe2568 |
 | test/tiannara/phase4/real_execution_test.exs | 9283156cb3c03cf979cde6293a4c851f35828f9f |
 | test/tiannara/world/d127_council_path_evaluation_test.exs | 729649f92bdbb6be1839ba042f8e39d7e8f481f0 |
+| test/tiannara/world/d127_uwm_delete_evaluation_test.exs | 351613ea584ab202e552b5cb0e0b986b8161693 |
 | test/tiannara/omega/deployment_gateway_adversarial_test.exs | cc682b6cb1813db9a3ba227a8e5af6139a1bbc4e |
 | test/tiannara/omega/deployment_gateway_registry_test.exs | d26a4bb1243d453c21475e32490d5acb716db76f |
 
@@ -349,3 +350,7 @@ Do not fix these findings by merely moving record_mint/2 to a different allowlis
 RL564_REGRESSION_DESIGN_COMPLETE — FULL_IN_SCOPE_CONSUMER_MATRIX_DOCUMENTED — RL565_ADDED — TEST_EXECUTION_NOT_RUN — NO_PRODUCTION_CHANGE.
 
 **Next checkpoint:** 19.18 — implement the isolated CP19.17 adversarial regression suite for RL-564/RL-565 (tests only), execute on Elixir 1.18 / OTP 28 in a disposable checkout, and capture red-baseline evidence. Production remediation remains a separate authorization decision after the regression behavior is proven.
+
+## 11. Post-commit independent inventory verification
+
+A subsequent exact recursive-tree fetch at the pinned source commit `de231a78db542a6172d7bd1ffd46e8a766deafa4` returned 28,376 entries (`truncated: false`), not 28,377. The source/test extension count remains 4,533 (1,656 `lib/**/*.ex` files and 390 `test/**/*.exs` files are subsets of that total). The D127 UWM delete evaluation test blob SHA is also added to the test identity table above; it was fetched at the same pinned source commit. These corrections affect source-inventory arithmetic and test traceability only, not the RL-564/RL-565 source conclusions or their unexecuted status.
