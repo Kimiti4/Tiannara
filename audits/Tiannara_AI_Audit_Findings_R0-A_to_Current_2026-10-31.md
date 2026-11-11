@@ -6787,3 +6787,61 @@ The following entries were recorded in Checkpoints 18.97–19.04 and were absent
 - RL-558 and RL-562 remain CRITICAL / OPEN. No case-level red-baseline count is claimed until root-suite output confirms whether the new assertions ran and failed for the expected product behaviors.
 
 **Checkpoint 19.12 status:** `EXECUTION_ACTIVE_ROOT_SUITE_RESULT_PENDING`.
+
+
+## Checkpoint 19.13–19.14 — executable red baseline and source-level remediation trace
+
+**Date:** 2026-11-11  
+**Checkpoint 19.13 report:** Root ExUnit result analysis; completed root log inspected.  
+**Checkpoint 19.14 report:** `certification/audits/CHECKPOINT_19_14_SOURCE_LEVEL_FAILURE_TRACE_AND_REMEDIATION_SPECIFICATION.md`  
+**Checkpoint 19.14 report commit:** `6581be5294e882f76918ea39d3e6df82d6c9d26e`  
+**Regression PR:** [#13 — open, DRAFT, unmerged](https://github.com/Kimiti4/Tiannara/pull/13)  
+**Root CI:** [Elixir CI run 42931719446](https://github.com/Kimiti4/Tiannara/actions/runs/42931719446)
+
+### Executable result
+
+- Root `MIX_ENV=test mix test --max-failures 25 --color`: `79 properties, 2535 tests, 11 failures, 2 skipped`; exit code 2.
+- All 11 failures are the 11 new CP19.10 negative-regression cases: RL-558 HAI 7/7 and RL-562 constitutional evidence 4/4. The cases were discovered and failed on the expected product assertions; this is not a compile/setup/test-discovery failure.
+- Required runtime suite: 40 properties, 1,863 tests, 0 failures, 6 excluded.
+- Required audit suite: 13 tests, 0 failures.
+- Lineage regression: 11 tests, 0 failures.
+- Compile, deps retrieval, test environment startup and test-placement guard: PASS.
+- Cross-platform Ubuntu/macOS/hash comparison: PASS on the separate OTP 27 workflow; this is not a second OTP 28 execution.
+- Non-blocking runtime quarantine job: four separate failures (two ColdIgnition, two Omega already_started). Keep these separate from RL-558/RL-562.
+- Root and required-suite job evidence is recorded in the 19.14 checkpoint report and workflow run logs.
+
+### Source trace additions
+
+**RL-558 — CRITICAL / OPEN — executable red baseline confirmed**
+- `lib/tiannara/hai/domain.ex`: `ReviewRequest.new/1` merges caller attributes with `struct/2` without enforcing the declared impact allowlist; caller can also supply server-owned identity/lifecycle fields.
+- `lib/tiannara/hai/review_router.ex`: `determine_routing/1` approves every impact outside its explicit mandatory/recommended lists. `record_decision/3` ignores the GenServer caller, accepts any decision term, has no pending-only transition check, and permits conflicting re-decisions.
+- Additional alternate authority surface: `lib/tiannara/hai/collaboration/interactive_review_manager.ex` accepts a caller-supplied reviewer ID when opening a session; decision handling does not authenticate caller identity or enforce session state/decision enum and can overwrite a closed session. Include it in RL-558 remediation coverage; its behavior was source-traced, not part of the 11 executed tests.
+- Production caller search found no indexed production call to `ReviewRouter.submit_review/1` or `record_decision/3`; the process is started by ControlCenter. This is bounded code-search evidence, not proof of global absence. Canonical production review-path wiring remains UNKNOWN.
+- Autonomy verification checks only `ReviewRequest.mandatory_review?/1`, not an authenticated end-to-end review.
+- RL-558 remains OPEN pending canonical fail-closed ingress, authenticated actor/authorization proof, strict state transitions, replay protection, durable decision records and independent green verification.
+
+**RL-559 — HIGH / OPEN — adjacent bypass re-confirmed**
+- ToolForge `request_human_review/2` constructs and discards a medium-impact ReviewRequest, returns `:ok`, and also returns `:ok` after rescue. The pipeline then logs “Human review passed”. It does not submit to ReviewRouter or obtain reviewer disposition. This remains the separately registered RL-559 finding (ASC-gated); it is not one of the 11 CP19.10 assertion failures.
+
+**RL-562 — CRITICAL / OPEN — executable red baseline confirmed**
+- `lib/tiannara/evolution/constitutional_auditor.ex`: missing fields default to zero/one values, and both zero-denominator ratios resolve to 1.0. Arbitrary maps can produce eight passing checks and `:compliant`; `compliant?/1` inherits this result.
+- `lib/tiannara/control_center.ex`: production audit inputs contain fixed zero violation/review/uncertainty counts and a fixed objective score; health-history length is treated as completed verification evidence. The evidence envelope is synthetic and semantically mismatched.
+- `lib/tiannara/evolution/evolution_engine.ex`: audit input reuses internal evolution/validation counters and fixed zero/score fields. Its compliant branch increments its own counters, creating a self-referential gate rather than independent evidence.
+- `scripts/verify_autonomy.exs` passes hand-authored counts and fixed scores to the auditor; it is a happy-path fixture, not independent constitutional enforcement evidence.
+- RL-562 remains OPEN pending a versioned evidence schema, PASS/FAIL/UNKNOWN checks, verified provenance/freshness/subject binding, zero-denominator UNKNOWN behavior, authoritative providers and exact-candidate independent validation.
+
+### Test-harness qualification
+- Both the existing HAI ReviewRouter test module and new CP19.10 HAI regression module use `:sys.replace_state/2` against the application-owned named ReviewRouter and do not restore the previous state. This is a test isolation defect. It must be corrected with an isolated server or guaranteed state restore; it does not explain away the 7 observed RL-558 product assertion failures.
+- New test files remain on draft PR #13 only; no test fixture change or production remediation was made in 19.14.
+
+### Disposition
+| Finding | Severity | Disposition through 19.14 |
+|---|---|---|
+| RL-558 | CRITICAL | OPEN — 7/7 negative assertions reproduced; alternate manager path traced |
+| RL-559 | HIGH | OPEN — ToolForge false human-review acknowledgement re-confirmed |
+| RL-562 | CRITICAL | OPEN — 4/4 negative assertions reproduced; ControlCenter and EvolutionEngine source paths traced |
+| HAI test singleton state isolation | MEDIUM / test harness | OPEN — isolate or restore global router state |
+
+No production code, tests, runtime configuration, persistent state, deployment, governance authority or physical actuation was changed. PR #13 remains OPEN / DRAFT / NOT MERGED. The full source trace and ordered remediation acceptance gates are in the 19.14 checkpoint report.
+
+**Checkpoint 19.14 final status:** `SOURCE_TRACE_COMPLETE_REMEDIATION_SPECIFICATION_READY_NO_PRODUCTION_CHANGE`.
