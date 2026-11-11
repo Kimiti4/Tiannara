@@ -6845,3 +6845,68 @@ The following entries were recorded in Checkpoints 18.97–19.04 and were absent
 No production code, tests, runtime configuration, persistent state, deployment, governance authority or physical actuation was changed. PR #13 remains OPEN / DRAFT / NOT MERGED. The full source trace and ordered remediation acceptance gates are in the 19.14 checkpoint report.
 
 **Checkpoint 19.14 final status:** `SOURCE_TRACE_COMPLETE_REMEDIATION_SPECIFICATION_READY_NO_PRODUCTION_CHANGE`.
+
+
+## Checkpoint 19.15 — independent remediation plan review and enforcement/call-path coverage
+
+**Date:** 2026-11-11  
+**Report:** `certification/audits/CHECKPOINT_19_15_INDEPENDENT_REMEDIATION_PLAN_REVIEW_AND_CALL_PATH_COVERAGE_MATRIX.md`  
+**Report commit:** `dee86ad5c6d724933a1b972665d143f698a6c31c`  
+**Pinned source head:** `8f03c32ad10fa9ad654f987d30dde1bc9a53df5d`  
+**Validation PR:** [#13 — open, DRAFT, unmerged](https://github.com/Kimiti4/Tiannara/pull/13)  
+**Status:** `REMEDIATION_PLAN_REQUIRES_REVISION_NO_GO_FOR_PRODUCTION_CHANGES`.
+
+### Review decision
+
+The 19.14 remediation direction is sound but not implementation-ready. The Council human-approval path cannot yet be accepted as a trusted HAI authorization provider, and actual production ingress into ReviewRouter/InteractiveReviewManager is not established. No production remediation is authorized by this checkpoint.
+
+### Additional source-confirmed prerequisites
+
+- `HumanApprovalQueue.approve/3` and `reject/3` accept caller-supplied `human_id`; their handlers ignore the GenServer caller and perform no identity/role/capability verification.
+- `Council.resume_human_approval/3` is public and invokes the human-grant re-evaluation path without verifying an approved queue record bound to the request and payload.
+- Queue approval invokes asynchronous resumption and returns before the final Council resumption result is available.
+- HumanApprovalQueue stores queue/history in memory; restart durability is not established.
+- PolicyRegistry exposes register/disable operations without an authorization check. Its default policies do not explicitly cover all five HAI impact levels.
+- Council authorization accepts a nil context. ExecutionContext stores an actor supplied to its constructor; source does not authenticate that actor.
+- AuditLog append returns a degraded-storage error, but Council/Queue call sites ignore some append results. The ordinary authorization path does not append a complete immutable record for every outcome.
+- Therefore an existing hash-chained AuditLog and Council.authorize/3 are not, by themselves, proof of an authenticated, immutable, fail-closed human-approval path.
+
+### Call-path corrections and scope
+
+- Root Application starts OperationsSupervisor, which starts ControlCenter and AutonomousLoop.
+- ControlCenter's subsystem list starts ReviewRouter and InteractiveReviewManager directly. The HAI.HAISupervisor module exists but was not found in the inspected root application or ControlCenter startup path. The prior description of InteractiveReviewManager as separately supervised is corrected; actual HAI supervisor ownership remains unestablished.
+- Indexed code search found no direct production caller for ReviewRouter.submit_review/1, ReviewRouter.record_decision/3, InteractiveReviewManager.open_session/3 or InteractiveReviewManager.record_decision/4. This is bounded search evidence, not proof that dynamic or unindexed callers do not exist. Production HAI ingress remains UNKNOWN.
+- ToolForge is ASC-gated and its request_human_review/2 path still constructs/discards a ReviewRequest and returns :ok; RL-559 remains separately OPEN.
+- ControlCenter's constitutional audit is scheduled and also requested by AutonomousLoop every 12 cycles. The inspected ControlCenter audit path logs/stores its result but does not itself block an executive effect.
+- EvolutionEngine still constructs self-referential evidence from its own counters and fixed values; no independent candidate evidence is established.
+
+### Plan changes required before implementation
+
+1. Map all production API/UI/workflow/ToolForge/Evolution/AEO/physical effect entrypoints.
+2. Establish trusted human identity, reviewer role/scope and Council-bound grants.
+3. Remove the direct human-grant resumption bypass; bind a one-time grant to the exact request, payload digest, policy and constitution versions.
+4. Make audit-log durability and policy mutation fail closed and Council-controlled.
+5. Only then implement the canonical HAI ingress, state machine, supervisor ownership and production wiring.
+6. Keep RL-559 separate and fix ToolForge's false human-review acknowledgement.
+7. Implement typed PASS/FAIL/UNKNOWN evidence contracts and authoritative providers for all eight ConstitutionalAuditor principles.
+8. Gate actual protected effects, not merely periodic audit dashboards or self-referential EvolutionEngine counters.
+9. Add adversarial Council, queue, policy, audit-degradation, HAI, evidence-provider and effect-path tests, including global-state isolation.
+10. Independently verify the exact candidate commit; document-only and compile-only results are insufficient.
+
+### Disposition
+
+| Finding / area | Status at 19.15 |
+|---|---|
+| RL-558 — HAI authority enforcement | CRITICAL / OPEN |
+| RL-559 — ToolForge false human-review acknowledgement | HIGH / OPEN |
+| RL-562 — constitutional evidence integrity | CRITICAL / OPEN |
+| Council human identity/grant path | Candidate additional authority gap; permanent finding assignment pending |
+| Council audit/policy mutation integrity | Candidate additional authority gap; permanent finding assignment pending |
+| HAI startup/production ingress | UNKNOWN / not certified |
+| HAI test singleton state isolation | OPEN / test-harness defect |
+
+No new permanent RL identifiers were assigned to the Council candidate gaps in this checkpoint; these require focused source-level finding review. No production implementation, tests, runtime configuration, persistent state, governance authority, deployment or physical actuation was changed.
+
+**Checkpoint 19.15 final status:** `REMEDIATION_PLAN_REQUIRES_REVISION_NO_GO_FOR_PRODUCTION_CHANGES`.
+
+**Next checkpoint:** 19.16 — Council Human-Approval Trust Boundary and HAI Production Ingress Audit.
