@@ -6910,3 +6910,53 @@ No new permanent RL identifiers were assigned to the Council candidate gaps in t
 **Checkpoint 19.15 final status:** `REMEDIATION_PLAN_REQUIRES_REVISION_NO_GO_FOR_PRODUCTION_CHANGES`.
 
 **Next checkpoint:** 19.16 — Council Human-Approval Trust Boundary and HAI Production Ingress Audit.
+
+## Checkpoint 19.16 — Council Human-Approval Trust Boundary and HAI Production Ingress Audit
+
+**Date:** 2026-11-11  
+**Report:** certification/audits/CHECKPOINT_19_16_COUNCIL_HUMAN_APPROVAL_TRUST_BOUNDARY_AND_HAI_INGRESS_AUDIT.md  
+**Report commit:** 27b00ec40a2cdb9fdeba28c0afd834eb62907e08  
+**Pinned source commit:** de231a78db542a6172d7bd1ffd46e8a766deafa4  
+**Status:** AUTHORITY_BOUNDARY_GAPS_RECONFIRMED — RL-564 ADDED — HAI_INGRESS_NOT_ESTABLISHED — NO_GO_FOR_PRODUCTION_REMEDIATION_OR_CERTIFICATION
+
+### New finding: RL-564
+
+| ID | Severity | Finding | Status |
+|---|---|---|---|
+| RL-564 | HIGH | HumanDelivery.Authorization.record_mint/1 lets callers register arbitrary authorization IDs through an allowlisted minter wrapper | OPEN |
+
+**Source-confirmed behavior:**
+- MintRegistry's R-2 minter allowlist trusts the stack-origin module Tiannara.Omega.HumanDelivery.Authorization.
+- The allowlisted public Authorization.record_mint/1 wrapper accepts only a caller-supplied authorization ID. It does not receive or validate a grant struct, authenticated principal, approved request, issuance receipt or decision digest before registering that ID.
+- test/tiannara/omega/step13_r2_mint_authentication_test.exs explicitly asserts that HumanDelivery.Authorization.record_mint(arbitrary_id) returns :ok and makes MintRegistry.status(arbitrary_id) return :granted; only a repeat registration is rejected.
+- test/tiannara/omega/d127_authorization_attack_test.exs D127.6 checks refusal of an unregistered forged Authorization struct, but does not first register its ID through the public wrapper. That test therefore does not exercise the wrapper-assisted registration path.
+- MintRegistry.record_bind/3 also does not authenticate the calling process at its handler; binding is based on registry status and existing binding state rather than a verified human-approval capability.
+- The separate RL-426 weakness remains relevant: AuthenticatedHumanIdentity.authenticate/3 accepts any non-empty binary as a credential, and authenticated?/1 checks only a non-nil timestamp. This is not duplicated under RL-564.
+
+**Impact and boundary:** A caller able to invoke the public wrapper can cause the durable registry to report a caller-chosen ID as :granted without proving that a corresponding HumanDelivery grant was issued. Combined with the separately open weak-identity and binding checks, source inspection indicates a possible route to satisfy registry-backed sink admission checks with a fabricated grant. This is static attack composition, not an executed exploit. The bounded source review did not establish a normal production caller of GovernedEffectSink.execute/3; the inspected sink writes one internal EventStore topic and is not a universal or physical-world executor. No real-world unauthorized effect is claimed.
+
+**Closure evidence:** remove arbitrary-ID minting or require a one-time opaque issuance capability; bind principal, exact request/payload digest, scope, policy/constitution versions and expiry to the registered grant; authenticate and constrain effect binding; add a negative regression that attempts wrapper-assisted registration, binding and sink admission using a forged grant and verifies rejection before any effect or success-shaped acknowledgement; run on Elixir 1.18 / OTP 28 with isolated registry state.
+
+### Existing findings independently revalidated (no duplicate IDs)
+
+- **RL-122 / RL-123:** PolicyRegistry register/disable and ConstitutionRepository commit/rollback remain direct public mutation APIs without Council-authorized actor checks in their handlers.
+- **RL-412–414:** queue approval still accepts caller-supplied human IDs, stores queue/history in memory, and the public Council.resume_human_approval/3 does not itself verify the approved queue record. The supervised resumer's check exists at one caller, not as a Council API invariant.
+- **RL-426 / RL-479:** the Omega identity helper remains forgeable / non-validating, while ordinary HumanDelivery authorization still does not complete durable mint and binding.
+- **RL-434 / RL-439 / RL-470:** the physical approval endpoint is router-mounted; its API pipeline has no visible authentication plug; request-supplied approver is stored as metadata; unknown decision values fall through to approval. The checked base config enables ASC and production config binds the endpoint to 0.0.0.0, but live deployment/network reachability was not verified.
+- **RL-478 / RL-481:** registry unbound-consume and corrupt-record recovery weaknesses remain open.
+- **RL-558 / RL-559 / RL-562:** HAI invalid-impact/caller identity behavior, ToolForge's false review acknowledgement and synthetic constitutional-audit evidence remain open.
+- The HAI modules are started through ControlCenter, but no HAI route or bounded production caller was established for ReviewRouter or InteractiveReviewManager. Production HAI ingress remains UNKNOWN / NOT ESTABLISHED; this is not treated as proof of global unreachability.
+- The mounted physical API still defaults to SimulatedAdapter in the reviewed manager path; no real hardware adapter, HTTP execute route or physical actuation was established.
+
+### CP19.16 execution and change boundary
+
+- Source and test bodies were inspected on the pinned audit-branch commit; the R-2 and D127.6 test assertions were not executed in CP19.16.
+- No build, test, runtime boot, live HTTP request, registry mutation, deployment or physical actuation was performed.
+- No production code, tests, configuration, persistent runtime state or governance authority was changed.
+- PR #13 remains the separate two-test-file draft regression baseline; it was not modified, merged or retargeted.
+- Only the CP19.16 checkpoint report and this consolidated register entry are audit artifacts.
+- **RL-564 is the only new permanent finding assigned in CP19.16.** Existing findings above remain OPEN; no finding is closed by this review.
+
+**Checkpoint 19.16 final disposition:** Council/registry/HAI authority boundaries are not certifiable; RL-564 is added HIGH / OPEN; production HAI ingress remains UNKNOWN; no-go for production remediation or certification until the trust boundary and actual effect consumers are corrected and independently verified.
+
+**Next checkpoint:** 19.17 — RL-564 Adversarial Registry-Mint Regression Design and Full Council/Registry Effect-Consumer Closure Matrix.
