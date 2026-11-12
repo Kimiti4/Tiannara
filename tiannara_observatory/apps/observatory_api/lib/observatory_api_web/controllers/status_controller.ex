@@ -1,6 +1,39 @@
 defmodule ObservatoryApiWeb.StatusController do
   use ObservatoryApiWeb, :controller
 
+  # ---------------------------------------------------------------------------
+  # Epistemic status
+  #
+  # Placeholder payloads are *simulated*, never observations. Every fabricated
+  # payload carries its status so that a consumer can never mistake a
+  # placeholder for a measurement of the running system (TCP-001 AT-C6.1).
+  # ---------------------------------------------------------------------------
+
+  @epistemic_simulated "simulated"
+  @epistemic_observed "observed"
+  @epistemic_unknown "unknown"
+  @placeholder_note "Illustrative placeholder. Not an observation of the running system."
+
+  defp simulated_section(items) do
+    %{
+      data:
+        Enum.map(items, fn item ->
+          Map.put(item, :epistemic_status, @epistemic_simulated)
+        end),
+      epistemic_status: @epistemic_simulated,
+      source: "placeholder",
+      note: @placeholder_note
+    }
+  end
+
+  defp simulated_payload(payload) do
+    Map.merge(payload, %{
+      epistemic_status: @epistemic_simulated,
+      source: "placeholder",
+      note: @placeholder_note
+    })
+  end
+
   def index(conn, _params) do
     health = %{
       status: "operational",
@@ -32,69 +65,77 @@ defmodule ObservatoryApiWeb.StatusController do
   end
 
   def section_discovery(conn, _params) do
-    json(conn, %{data: [%{name: "Causal Pattern Analysis", description: "Identifying causal structures across domains", status: "active", discoveries: 47},
+    json(conn, simulated_section([%{name: "Causal Pattern Analysis", description: "Identifying causal structures across domains", status: "active", discoveries: 47},
       %{name: "Cross-Domain Synthesis", description: "Connecting insights across knowledge domains", status: "active", discoveries: 23},
-      %{name: "Autonomous Hypothesis Generation", description: "Self-directed scientific inquiry", status: "running", discoveries: 12}]})
+      %{name: "Autonomous Hypothesis Generation", description: "Self-directed scientific inquiry", status: "running", discoveries: 12}]))
   end
   def section_worlds(conn, _params) do
-    json(conn, %{data: [%{name: "Constitutional Simulator", status: "active", agents: 156, events: 12400},
+    json(conn, simulated_section([%{name: "Constitutional Simulator", status: "active", agents: 156, events: 12400},
       %{name: "Causal Sandbox", status: "running", agents: 48, events: 3200},
-      %{name: "Multi-Civilization Arena", status: "planned", agents: 0, events: 0}]})
+      %{name: "Multi-Civilization Arena", status: "planned", agents: 0, events: 0}]))
   end
   def section_observatories(conn, _params) do
-    json(conn, %{data: [%{name: "Constitutional Oversight", status: "operational", coverage: "100%"},
+    json(conn, simulated_section([%{name: "Constitutional Oversight", status: "operational", coverage: "100%"},
       %{name: "Epistemic Observatory", status: "operational", coverage: "87%"},
-      %{name: "Predictive Observatory", status: "operational", coverage: "92%"}]})
+      %{name: "Predictive Observatory", status: "operational", coverage: "92%"}]))
   end
   def section_agents(conn, _params) do
-    json(conn, %{data: [%{name: "Research Director", status: "active", type: "constitutional", tasks: 12},
+    json(conn, simulated_section([%{name: "Research Director", status: "active", type: "constitutional", tasks: 12},
       %{name: "Experiment Manager", status: "active", type: "autonomous", tasks: 8},
-      %{name: "Discovery Coordinator", status: "idle", type: "supervisory", tasks: 0}]})
+      %{name: "Discovery Coordinator", status: "idle", type: "supervisory", tasks: 0}]))
   end
   def section_services(conn, _params) do
-    json(conn, %{data: [%{name: "API Gateway", status: "running", uptime: "24h"}, %{name: "Event Store", status: "running", uptime: "24h"},
+    json(conn, simulated_section([%{name: "API Gateway", status: "running", uptime: "24h"}, %{name: "Event Store", status: "running", uptime: "24h"},
       %{name: "Metrics Engine", status: "running", uptime: "24h"}, %{name: "Replay Store", status: "running", uptime: "24h"},
-      %{name: "Observation Bus", status: "running", uptime: "24h"}]})
+      %{name: "Observation Bus", status: "running", uptime: "24h"}]))
   end
   def section_monitoring(conn, _params) do
-    json(conn, %{data: [%{name: "CPU", value: "23%", status: "normal"}, %{name: "Memory", value: "6.2 GB", status: "normal"},
-      %{name: "Events/sec", value: "142", status: "normal"}, %{name: "Latency p99", value: "12ms", status: "normal"}]})
+    json(conn, simulated_section([%{name: "CPU", value: "23%", status: "normal"}, %{name: "Memory", value: "6.2 GB", status: "normal"},
+      %{name: "Events/sec", value: "142", status: "normal"}, %{name: "Latency p99", value: "12ms", status: "normal"}]))
   end
   def section_logs(conn, _params) do
-    json(conn, %{data: [%{timestamp: "2026-07-23T10:00:00Z", level: "info", message: "System operational"},
+    json(conn, simulated_section([%{timestamp: "2026-07-23T10:00:00Z", level: "info", message: "System operational"},
       %{timestamp: "2026-07-23T09:55:00Z", level: "info", message: "Health check passed"},
-      %{timestamp: "2026-07-23T09:50:00Z", level: "warning", message: "Telemetry latency spike resolved"}]})
+      %{timestamp: "2026-07-23T09:50:00Z", level: "warning", message: "Telemetry latency spike resolved"}]))
   end
   def section_security(conn, _params) do
-    json(conn, %{data: [%{name: "Authentication", status: "enabled", method: "RBAC"}, %{name: "IPC Encryption", status: "enabled"},
-      %{name: "Audit Logging", status: "active", entries: 1247}, %{name: "Access Control", status: "active", policies: 12}]})
+    json(conn, simulated_section([%{name: "Authentication", status: "enabled", method: "RBAC"}, %{name: "IPC Encryption", status: "enabled"},
+      %{name: "Audit Logging", status: "active", entries: 1247}, %{name: "Access Control", status: "active", policies: 12}]))
   end
   def section_cluster(conn, _params) do
-    json(conn, %{data: [%{name: "Local Node", status: "online", role: "primary"}, %{name: "Worker Node 1", status: "standby"},
-      %{name: "Worker Node 2", status: "standby"}]})
+    json(conn, simulated_section([%{name: "Local Node", status: "online", role: "primary"}, %{name: "Worker Node 1", status: "standby"},
+      %{name: "Worker Node 2", status: "standby"}]))
   end
   def section_storage(conn, _params) do
-    json(conn, %{data: [%{name: "Event Store", size: "12.4 GB", status: "healthy"}, %{name: "Metrics", size: "3.2 GB", status: "healthy"},
-      %{name: "Replay Store", size: "8.7 GB", status: "healthy"}]})
+    json(conn, simulated_section([%{name: "Event Store", size: "12.4 GB", status: "healthy"}, %{name: "Metrics", size: "3.2 GB", status: "healthy"},
+      %{name: "Replay Store", size: "8.7 GB", status: "healthy"}]))
   end
   def section_performance(conn, _params) do
-    json(conn, %{data: [%{name: "API Response Time", avg: "8ms", p99: "24ms"}, %{name: "Event Throughput", avg: "142/sec", peak: "890/sec"},
-      %{name: "Query Latency", avg: "15ms", p99: "45ms"}]})
+    json(conn, simulated_section([%{name: "API Response Time", avg: "8ms", p99: "24ms"}, %{name: "Event Throughput", avg: "142/sec", peak: "890/sec"},
+      %{name: "Query Latency", avg: "15ms", p99: "45ms"}]))
   end
 
   def resources(conn, _params) do
-    json(conn, %{
-      cpu: 15 + rem(:rand.uniform(30), 20),
-      ram: 4.2 + :rand.uniform() * 2,
-      gpu: 10 + rem(:rand.uniform(50), 20),
-      storage: 2.1 + :rand.uniform() * 2
-    })
+    json(
+      conn,
+      simulated_payload(%{
+        cpu: 15 + rem(:rand.uniform(30), 20),
+        ram: 4.2 + :rand.uniform() * 2,
+        gpu: 10 + rem(:rand.uniform(50), 20),
+        storage: 2.1 + :rand.uniform() * 2
+      })
+    )
   end
 
   def experiments(conn, %{"status" => status}) do
-    json(conn, %{data: mock_experiments(status), experiments: mock_experiments(status)})
+    items = mock_experiments(status)
+    json(conn, simulated_section(items) |> Map.put(:experiments, items))
   end
-  def experiments(conn, _params), do: json(conn, %{data: mock_experiments("all"), experiments: mock_experiments("all")})
+
+  def experiments(conn, _params) do
+    items = mock_experiments("all")
+    json(conn, simulated_section(items) |> Map.put(:experiments, items))
+  end
 
   def soak_status(conn, _params) do
     status = ObservationBus.Soak.SoakTestEngine.status()
@@ -259,9 +300,15 @@ defmodule ObservatoryApiWeb.StatusController do
       civilization_coordination anomaly_detection paradoxical_policy impossible_ui
       nested_negation tool_use temporal_causal_reasoning adversarial_scientific_review multi_objective_optimization)
     results = Map.new(names, fn n ->
-      {n, %{status: "completed", confidence: 0.6 + :rand.uniform() * 0.35, execution_time_us: :rand.uniform(5000)}}
+      {n,
+       %{
+         status: "completed",
+         confidence: 0.6 + :rand.uniform() * 0.35,
+         execution_time_us: :rand.uniform(5000),
+         epistemic_status: @epistemic_simulated
+       }}
     end)
-    json(conn, %{results: results})
+    json(conn, simulated_payload(%{results: results}))
   end
 
   def interaction(conn, %{"room" => room, "message" => message}) do
@@ -271,8 +318,51 @@ defmodule ObservatoryApiWeb.StatusController do
   end
   def interaction(conn, _params), do: json(conn, %{data: %{message: "Interaction received", response: "OK", timestamp: DateTime.utc_now() |> DateTime.to_iso8601()}})
 
-  defp subsystem_status(_name) do
-    %{status: :operational, last_checked: DateTime.utc_now()}
+  defp subsystem_status(name) do
+    base = %{last_checked: DateTime.utc_now(), epistemic_status: @epistemic_observed}
+
+    case live_process(name) do
+      {:ok, pid} -> Map.merge(base, %{status: :operational, pid: inspect(pid)})
+      :error -> Map.merge(base, %{status: @epistemic_unknown, detail: "process not registered"})
+    end
+  end
+
+  # Each umbrella subsystem registers a supervisor under `<Name>.Supervisor`;
+  # the CIL engines are children of `ObservationBus.Supervisor`.
+  defp live_process(name) do
+    case String.split(name, ".") do
+      ["ObservationBus", "CIL" | rest] ->
+        cil_child(Enum.join(rest, "."))
+
+      [single] ->
+        case Process.whereis(:"#{single}.Supervisor") do
+          nil -> :error
+          pid -> {:ok, pid}
+        end
+
+      _ ->
+        :error
+    end
+  end
+
+  defp cil_child(child) do
+    module = Module.concat(["ObservationBus", "CIL" | String.split(child, ".")])
+
+    case Process.whereis(ObservationBus.Supervisor) do
+      nil ->
+        :error
+
+      supervisor ->
+        found =
+          Enum.find(Supervisor.which_children(supervisor), fn {id, _, _, _} ->
+            id == module
+          end)
+
+        case found do
+          {_, pid, _, _} when is_pid(pid) -> {:ok, pid}
+          _ -> :error
+        end
+    end
   end
 
   defp mock_experiments(status) do

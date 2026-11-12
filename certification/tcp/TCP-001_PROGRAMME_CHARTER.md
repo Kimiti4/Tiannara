@@ -148,8 +148,9 @@ Every future checkpoint record must contain:
 
 **Outcome A + B.** TCP-001 both establishes the programme (B: the completion
 assessment and register are new deliverables) and removes demonstrated blockers
-(B: two capability-8 defects and nine duplicated native boundaries fixed and
-tested; see the Master Completion Assessment §5).
+(A: two capability-8 defects, nine duplicated native boundaries, and a
+control-centre API that served fabricated data as measurements — see the Master
+Completion Assessment §5).
 
 **Disposition:** `IMPLEMENTED_WITH_PARTIAL_EVIDENCE` / `VERIFICATION_BLOCKED`.
 
@@ -157,3 +158,10 @@ No independent verifier was available for TCP-001. The assessment is
 self-attested. RL-565 remains `HIGH / OPEN`; RL-564 and `F-ARC-018` remain
 `OPEN`. No merge, deployment, registry promotion or physical actuation was
 performed.
+
+**Measurement basis.** The assessment was produced by direct repository
+measurement (module and namespace census, hollow-module detection, duplicate
+detection, supervision-tree analysis, call-graph reference counting,
+hardcoding census), corroborated by two independent deep-scan passes over the
+capability surface. Every count in the assessment is reproducible from the
+repository at the stated commit.

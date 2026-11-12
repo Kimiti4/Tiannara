@@ -22,8 +22,66 @@ fact in this assessment.
 | **S2** | Runtime | `tiannara_runtime/lib/` | 1 239 `.ex` files, **1 376 modules**, 192 top-level namespaces | Elixir | `:tiannara_runtime` |
 | **S3** | Cognitive core | `tiannara_core/` | 450 `.py` files across 70+ packages | Python | — |
 | **S4** | API | `tiannara_api/` | 122 `.py` files | Python | — |
-| **S5** | Observatory | `tiannara_observatory/` | 965 `.ex`, 157 `.exs`, 101 `.tsx` | Elixir/Phoenix/LiveView | `:tiannara_observatory` |
+| **S5** | Observatory | `tiannara_observatory/` | umbrella of 10 apps + 1 out-of-umbrella UI: 965 `.ex`, 157 `.exs`, 101 `.tsx` | Elixir/Phoenix/LiveView + Next.js | `:observatory_api` |
 | **S5b** | Cognitive interface companion | `tiannara_pros/`, `tiannara_gui/`, `tiannara_mobile/`, `tiannara_saas/`, `tiannara-desktop/`, `tiannara_internal_dashboard/` | 38 `.py` (pros) + UI stacks | Python + UI | — |
+
+`observatory_ui` is **not** in the umbrella's `apps:` list, so the only real
+control-centre front end is not part of the umbrella build and runs as a
+separate process. `observatory_api` — the app that *is* in the umbrella —
+contains **0 LiveViews and 0 `.heex` templates**; all 27 LiveViews in the
+repository live in `lib/tiannara/web/live/` and use inline `~H` (there is not a
+single `.heex` file anywhere in `lib/`).
+
+### 1.0 Two boot paths, and two disconnected mega-clusters
+
+**Two boot paths.** The OTP tree in `lib/tiannara/application.ex` starts 61
+children. A **second, non-OTP boot path** exists in
+`lib/tiannara/control_center.ex`, which starts 32 modules directly via
+`module.start_link([])`. Several capability modules are reachable only through
+the control centre, not through the supervision tree — so "is it live?" cannot
+be answered by reading `application.ex` alone.
+
+**Two disconnected mega-clusters.** These are not small:
+
+| Cluster | Location | Modules | External references |
+|---------|----------|---------|---------------------|
+| `TiannaraRuntime.Cognitive.*` | `tiannara_runtime/lib/tiannara_runtime/cognitive/` | **161** | none outside the cluster |
+| `TiannaraRuntime.WorldModel.*` | `tiannara_runtime/lib/tiannara_runtime/world_model/` | **175** | none outside the cluster |
+
+Together **336 of the runtime's 1 376 modules (24 %)** have no supervision-tree
+entry and no caller outside their own directory. They are not stubbed — they
+contain real, substantial implementations (counterfactual engines, digital
+twins, prediction and uncertainty engines, causal discovery, model pipelines,
+autonomous research engines). They are simply **never started**.
+
+A third, smaller orphan cluster: `lib/tiannara/forecasting/` (**51 modules**)
+has **no caller outside its own directory**. It contains the repository's
+best-calibrated reasoning — Brier score, log loss, a calibration-error
+metric, hindsight isolation (`Outcome.guard!/2` →
+`{:error, :hindsight_contamination}` when `observed_at < forecast.created_at`),
+evidence-bound outcome resolution, and an 8-status counterfactual ontology
+(`:observed | :hypothetical | :counterfactual | :supported | :weakly_supported |
+:underdetermined | :invalid | :unknown`) — **and the entire forecast →
+outcome → calibration → model-update chain never fires.**
+
+### 1.0.1 The honest-stub pattern is real and should be credited
+
+Roughly 40 modules across both stacks return explicit refusals rather than
+fabrications:
+
+```
+{:error, {:unavailable, :real_step_provider_not_wired}}
+{:error, :simulation_unavailable}
+{:error, :physics_substrate_unavailable}
+{:error, :phase_unavailable}
+```
+
+`lib/tiannara/cel/workflow/steps/experiment.ex` even documents it in its own
+metadata: *"(real executor not wired)"*. `Tiannara.Forecasting` refuses to
+fabricate a uniform base rate (`{:unknown, :base_rate_outcome_mismatch}`).
+This is **fail-closed honesty**, and it is the opposite of the fabricated-data
+defects fixed in §5.5. These modules are honest and non-functional; the
+programme must make them functional, not make them lie.
 
 ### 1.1 Measured duplication between the two Elixir stacks
 
@@ -121,8 +179,16 @@ parallel Python stack in S3. None of them is demonstrated to traverse multiple
 domains end-to-end. The Phase II exit condition — *"end-to-end investigations
 traverse multiple domains coherently"* — has **no test** in the repository.
 
+**Refinement (deep scan).** `TiannaraRuntime.Cognitive.*` — all 161 modules —
+is **disconnected**: it has no supervisor, and no module in it is referenced
+from outside the cluster. `lib/tiannara/cognition.ex` is an 8-line stub. In
+Python the strongest reasoning is `tiannara_core/metacognition/` (18 files,
+including `uncertainty_planning.py` at 26 KB and `epistemic_resilience.py` at
+116 KB), but `tiannara_core/reasoning/unified_reasoner.py` is placeholder-grade
+(*"# Python code generation placeholder"*).
+
 **Missing:** a single cross-domain traversal test; a statement of which stack
-owns reasoning.
+owns reasoning; supervision for the 161-module cognitive cluster.
 
 ### C2 — Autonomous research
 
@@ -154,8 +220,21 @@ research is declared and empty. Similarly
 `world_model/counterfactual/behaviours/` (3): the *behavioural* half of
 prediction and counterfactual reasoning are shells.
 
+**Refinement (deep scan).** The research machinery is not merely fragmented —
+it is **gated off**. `Tiannara.Research.ResearchDirector.Pipeline` *quarantines
+every experiment*, and `Tiannara.CEL.Workflow.Steps.Experiment` and
+`.Validation` both return `{:error, {:unavailable, :real_step_provider_not_wired}}`.
+**No evidence-acquisition step exists in any stack** — there is no external
+source fetching at all, so "find and evaluate evidence" has no implementation.
+`Tiannara.Phase16_1.*` (26 modules, deterministic SHA-256 question IDs) is
+real but unreachable. On the Python side `tiannara_core/discovery/` (8 files)
+works, but `research/explainable_ai.py` and four siblings are auto-generated
+stubs, `autonomous_scientist.py` uses five hardcoded topics, and
+`tiannara_core/api/research_routes.py` has a **broken import**
+(`researches` vs `research`) and is unregistered.
+
 **Missing:** one autonomous research task executed end-to-end with a traceable
-report artefact.
+report artefact; an evidence-acquisition step.
 
 ### C3 — Persistent memory and knowledge
 
@@ -182,8 +261,30 @@ has **no single owner**: confidence and provenance are carried separately by
 `Tiannara.Discovery`, `Tiannara.CRAV`, `Tiannara.OED.Quarantine.SuspendedTheories`
 (S2) and `Tiannara.Meta`.
 
+**Refinement (deep scan).** The *mechanism* for the defining requirement
+exists and is well designed — `Tiannara.Memory.Ladder` (9-rung, evidence-gated),
+`PromotionPipeline`, `IncidentDistiller`, `CoherenceEngine` — and is
+**entirely orphaned: one reference each, their own definition.** Nothing
+running marks knowledge as promoted, and nothing retires it:
+`KnowledgeEvolutionEngine` implements retirement but has no caller of
+`retire_entity/2`. `Tiannara.Memory.Artifact` has a `lineage` field that
+nothing populates, and **no memory store in any stack preserves
+relationships** (people, agents, entities) — the Python
+`autonomy/knowledge_graph.py` that stores relations is itself orphaned.
+
+On the Python side the store is **in-memory only and cleared at the start of
+every analysis** (`DiscoveryEngine.analyze/2` calls `self.store.clear()`);
+`tiannara_core/memory/store.py` calls **six methods that do not exist** on
+`KnowledgeStore`; `hierarchical_memory.py` and
+`hierarchical_memory_reconsolidation.py` (54 KB combined) have **zero imports
+anywhere in the repository**; `mindcache/orchestrator.py` is a demo script
+with a hardcoded three-item `fake_input`. `world_model/subsystem_beliefs.json`
+holds four hardcoded subsystem beliefs dated `2026-06-10` that **no code in
+any stack reads**.
+
 **Missing:** a knowledge lifecycle with an explicit epistemic-status field and
-a single authority for it.
+a single authority for it; relationship preservation; a wired promotion and
+retirement path.
 
 ### C4 — Simulation and experimentation
 
@@ -205,10 +306,30 @@ counterfactual, digital twin, mathematics and multi-world are all materially
 implemented, and S1 and S2 do not duplicate each other here. The weak link is
 the closed loop: **"compare predictions with observed outcomes"**. There is no
 component that takes a prediction, observes the outcome, and updates the
-model's confidence. The `behaviours/` sub-packages that would do this
-(prediction 4, counterfactual 3) are hollow.
+model's confidence.
 
-**Missing:** the prediction→observation→update loop.
+**Refinement (deep scan).** The loop is missing for a sharper reason than
+"nobody wired it up". The pieces are excellent — `Forecasting.Calibration`
+(Brier, log loss, calibration error, resolution, sharpness, a `@min_sample 5`
+guard that distinguishes `INSUFFICIENT_DATA` from `POOR_CALIBRATION`, and a
+*versioned* scoring method so historical scores stay attributable),
+`Forecasting.Outcome` (hindsight isolation), `OutcomeResolution`
+(evidence-bound, sets `status: :resolved_not_certified` and
+`model_update: :requires_independent_review`), `Forecasting.Counterfactual`
+(the 8-status ontology) — and **all 51 modules of `lib/tiannara/forecasting/`
+have no caller outside their own directory**. The chain never fires.
+
+Furthermore, **19 of the 20 canonical domains have no simulator at all**:
+every `lib/tiannara/domains/*.ex` returns `{:ok, []}` from
+`generate_hypotheses/1` and `design_experiments/1`, and `Domains.Cognition`
+returns `{:error, :simulation_unavailable}`. Only `Domains.Physics` has a real
+solver (RK4 ODE via `Calculus.solve_ode/3`, a damped-harmonic-oscillator pilot
+experiment, a SHA-256 config provenance hash, and an energy-bounded
+`structural_validation/3`). `Tiannara.Physics.IRD` is a **total façade**: all
+11 public functions return `{:error, :physics_substrate_unavailable}`.
+
+**Missing:** the prediction→observation→update loop; simulators for 19 of 20
+domains; a reachable counterfactual explorer.
 
 ### C5 — Multi-domain coordination
 
@@ -284,8 +405,33 @@ authority boundaries; the Council's decision receipts and the machine-grant
 provenance chain (CP19.20/21/22) produce exactly that data, and the interface
 must consume it.
 
+**Refinement (deep scan).** The fragmentation is worse than "seven surfaces":
+
+- **The real control centre is out of the umbrella.** The Next.js app
+  `tiannara_observatory/apps/observatory_ui/` has 55 Room components, a
+  CommandPalette and an AlertTicker, but **no `mix.exs`** and is not in the
+  umbrella's `apps:` list — it is a separate process with its own lifecycle.
+  The umbrella app that *is* built (`observatory_api`) is a **JSON API with no
+  UI layer at all** (0 LiveViews, 0 `.heex`).
+- **The genuine Elixir cockpit exists in the main app**, not in the
+  observatory: 27 LiveViews in `lib/tiannara/web/live/` (inline `~H`), of which
+  `MissionControlLive` (21.5 KB) is a real cockpit — DVR, surprise index,
+  knowledge-capital balance sheet, transfer, maturity, interventions and
+  provenance. `Tiannara.CRAVChallengeController` (22.7 KB, 45+ JSON endpoints)
+  is the other serious surface.
+- **The runtime's 12 Observatory screens are supervised but unreachable**: the
+  controller expects `{:ok, x}` while the GenServer returns bare values, so
+  metrics arrive as `{}`, every screen reports `:screen not available`, and
+  the timeline is always empty.
+- **The sidebar served fabricated constants** — `CPU 23%`, `Events/sec 142`,
+  `discoveries: 47`, `Audit Logging entries: 1247`, and fabricated log
+  timestamps. This is fixed in §5.5.
+- Python `tiannara_core/interpretability/` (7 modules) genuinely explains
+  conclusions — and is surfaced by no UI. `tiannara_mobile/` is 6 stub files.
+
 **Missing:** (a) a decision to consolidate on one interface; (b) a rendering
-contract for decision provenance and authority requests.
+contract for decision provenance and authority requests; (c) the tuple-vs-value
+controller contract fix so the runtime screens become reachable.
 
 ### C8 — Constitutional self-development
 
@@ -308,8 +454,36 @@ review, and implement only properly authorised changes."* The RRM path
 proposes and verifies, but the application of an approved proposal is not
 routed through the Council/CEL authority that governs the rest of the system.
 
+**Refinement (deep scan).** The chain is severed at its last link, and the
+severance is precise:
+
+- `Tiannara.Omega.HumanAugmentationDelivery` — the module that would deliver
+  a pending human-authorization request — has **zero callers in `lib/`**. The
+  governance gate holds every improvement pending authorization and never
+  asks.
+- `Tiannara.Omega.GovernedEffectSink` is **test-only**.
+- `Tiannara.Phase4.RealExecution` is behind `real_execution_enabled: false`
+  and requires a human grant that **nothing can mint**.
+- **No producer of `:improvement_proposed` exists.** The event is referenced
+  by four modules; none of them emits it.
+- `Tiannara.Autonomy.Orchestrator.real_simulation_provider?/0` is hardcoded
+  `false`, while `Tiannara.Autonomy.SimulationManager` measures its baselines
+  with `latency_p99_us: 500 + :rand.uniform(200)` — a **random number
+  presented as a measured baseline**.
+
+What *is* real and strong: `Tiannara.SelfImprovement.{Pipeline, Sandbox,
+Harness, RealHarness, Backend.*, DryRun, ProtectedCore}` (15 stages, 5
+mandatory gates, an anti-gaming target block, self-attestation rejection),
+`Omega.DryRun` (contradiction → research → sandbox → certificate → lineage),
+`Phase4.RealExecution` (grant-bound, JSONL ledger, candidate lifecycle),
+`Omega.GovernanceGateServer` (*"can NEVER authorize deployment on its own"*),
+`Council` (23 modules), `CEL.Kernel`, and — on the Python side —
+`tiannara_core/evolution/constitutional_evolution.py` (6 real safety gates, 6
+immutable principles, a rollback stack).
+
 **Missing:** the authority hand-off from an approved proposal to its
-implementation.
+implementation; a producer for `:improvement_proposed`; a real (non-random)
+simulation baseline provider.
 
 ---
 
@@ -332,6 +506,19 @@ capabilities.
 | **F-09** | Generated data committed to the repository | `tiannara_runtime/data/` = 26 020 files, ~300 MB; `tiannara_runtime/priv/certification/` = thousands of phase reports | Medium |
 | **F-10** | Test-suite location divergence | S1 `test/` vs S2 `tiannara_runtime/test/` vs S3 `tiannara_core/tests/` vs S4 `tiannara_api/tests/` vs S5 `tiannara_observatory/test/` | Medium |
 | **F-11** | Top-level document sprawl | 200+ `.md` files at repo root | Low |
+| **F-12** | 336 runtime modules in two clusters are never started | `TiannaraRuntime.Cognitive.*` (161) and `TiannaraRuntime.WorldModel.*` (175) — 24 % of the runtime, zero supervision entries, zero external callers | Critical |
+| **F-13** | The forecast→outcome→calibration→model-update chain never fires | `lib/tiannara/forecasting/` — 51 modules, zero callers outside their own directory | Critical |
+| **F-14** | 19 of the 20 canonical domains have no simulator | every `lib/tiannara/domains/*.ex` returns `{:ok, []}` from `generate_hypotheses/1` and `design_experiments/1`; only `Domains.Physics` has a solver | Critical |
+| **F-15** | The memory promotion/retirement mechanism is orphaned | `Memory.Ladder`, `PromotionPipeline`, `IncidentDistiller`, `CoherenceEngine` — 1 reference each (their own definition); no caller of `KnowledgeEvolutionEngine.retire_entity/2` | Critical |
+| **F-16** | No experiment can execute | `ResearchDirector.Pipeline` quarantines every experiment; `CEL.Workflow.Steps.Experiment` returns `{:error, {:unavailable, :real_step_provider_not_wired}}`; no evidence-acquisition step exists | Critical |
+| **F-17** | Two boot paths | OTP tree `lib/tiannara/application.ex` (61 children) and non-OTP `lib/tiannara/control_center.ex` (32 modules via `module.start_link([])`) | High |
+| **F-18** | Fabricated monitoring data served as measurements | `observatory_api` `StatusController`: 11 `section_*` handlers returning hardcoded literals, `resources/2` returning `:rand.uniform()` values, `challenges_run/2` returning random confidences | Critical |
+| **F-19** | The self-development chain is severed at delivery | `Omega.HumanAugmentationDelivery` has zero `lib/` callers; `GovernedEffectSink` is test-only; `Phase4.RealExecution` is behind `real_execution_enabled: false`; no `:improvement_proposed` producer exists | Critical |
+| **F-20** | A random number is presented as a measured baseline | `Autonomy.SimulationManager` measures `latency_p99_us: 500 + :rand.uniform(200)` while `Autonomy.Orchestrator.real_simulation_provider?/0` is hardcoded `false` | High |
+| **F-21** | The designated control-centre app has no UI layer | `observatory_ui` (55 Room components) has no `mix.exs` and is not in the umbrella `apps:` list; `observatory_api` has 0 LiveViews and 0 `.heex` | High |
+| **F-22** | The runtime Observatory screens are unreachable | controller expects `{:ok, x}` while the GenServer returns bare values → metrics `{}`, screens `:screen not available`, empty timeline | High |
+| **F-23** | Three directories named for capabilities are effectively empty | `world_model/` (no code), `mindcache/` (4 files, demo script with hardcoded `fake_input`), `rust_core/ffi_bindings/src/lib.rs` (5-line `example_function`) | Medium |
+| **F-24** | A supervisor child without a child spec | `EventStore.Writer` given to `EventStore.Supervisor` → `ArgumentError: The module EventStore.Writer was given as a child to a supervisor` | High |
 
 ---
 
@@ -506,9 +693,65 @@ drift check crashed on realistic input. It now compares values by kind.
 | Supervisor structure | `tiannara_runtime/test/simulation/rrm_supervisor_structure_test.exs` | 3 tests, 0 failures |
 | Metamorphosis (pre-existing, migrated) | `tiannara_runtime/test/simulation/rrm_metamorphosis_test.exs` | 2 properties, 0 failures |
 | Regression | `tiannara_runtime/test/{simulation,runtime_layers,kernel}` | **39 tests, 32 properties, 0 failures** (seed 0) |
+| Observatory epistemic status | `tiannara_observatory/apps/observatory_api/test/observatory_api_web/controllers/status_controller_test.exs` | 5 tests — **compiled, not executed** (see below) |
 
 All assertions are exact: no `{:error, _}` or `match?({:error, _})` appears in
 the new suites.
+
+**The observatory test is compiled but not executed, and this is stated plainly
+rather than claimed as a pass.** The umbrella's `observatory_api` application
+fails to start in this environment for two reasons that predate TCP-001: its
+PostgreSQL databases do not exist, and `EventStore.Writer` is given to a
+supervisor without a `child_spec/1` (F-24). The databases were created and
+then dropped again, leaving the environment as found. The test compiles
+against the patched controller; executing it requires F-24 to be fixed first.
+
+### 5.5 F-18 — the control-centre API served fabricated data as measurements (repaired)
+
+`tiannara_observatory/apps/observatory_api/lib/observatory_api_web/controllers/status_controller.ex`
+(31 KB, ~130 endpoints) served **placeholder constants and randomly generated
+numbers as if they were measurements of the running system**:
+
+- **11 `section_*` handlers** returned hardcoded literals — `discoveries: 47`,
+  `CPU "23%"`, `Memory "6.2 GB"`, `Events/sec "142"`, `Latency p99 "12ms"`,
+  `Audit Logging entries: 1247`, `policies: 12`, `API Response Time avg 8ms`,
+  `Event Throughput 142/sec peak 890/sec`, plus fabricated log timestamps
+  (`"2026-07-23T10:00:00Z"`, *"System operational"*).
+- `resources/2` returned `cpu: 15 + rem(:rand.uniform(30), 20)`,
+  `ram: 4.2 + :rand.uniform() * 2`, and so on.
+- `challenges_run/2` returned random confidences and execution times.
+- `subsystem_status/1` ignored its argument and returned
+  `%{status: :operational}` for **every** subsystem, so the health endpoint
+  claimed all 17 subsystems were operational without checking any of them.
+
+A consumer could not distinguish a placeholder from an observation. This
+directly violates C6's requirement to distinguish observed, inferred,
+simulated and unknown state, and AT-C7.1's requirement that the interface show
+*why* a conclusion was reached.
+
+**The fix keeps the API's shape and makes it honest:**
+
+- every fabricated payload now carries `epistemic_status: "simulated"`,
+  `source: "placeholder"` and an explicit note, at both the payload level and
+  on each item;
+- `subsystem_status/1` now performs a **real liveness probe** — it checks the
+  registered `<Name>.Supervisor` for each umbrella subsystem and the
+  `ObservationBus.Supervisor` children for the CIL engines — and reports
+  `status: :operational` with the pid, or `status: "unknown"` with
+  `detail: "process not registered"`, always marked
+  `epistemic_status: "observed"`.
+
+`observatory_api/test/observatory_api_web/controllers/status_controller_test.exs`
+pins the invariant: every placeholder section, the resource endpoint, the
+experiments endpoint and the challenge run must report `simulated`, and the
+health endpoint must report `observed`.
+
+**Environment note.** The observatory umbrella requires six PostgreSQL
+databases that did not exist in this environment. They were created, the test
+harness was then found to fail on a pre-existing `EventStore.Writer` child-spec
+error (F-24), and the databases were dropped again to return the environment to
+its prior state. The status-controller test is therefore **compiled but not
+executed** — see §5.6.
 
 ### 5.6 What TCP-001 did not do
 
@@ -533,6 +776,14 @@ The order is forced by dependencies, not by convenience.
         │ Phase I  Integrity (RL-565, RL-564, F-ARC-018)│  ← continues in parallel
         └──────────────────────────────────────────────┘
                                    │
+        ┌──────────────────────────▼────────────────────┐
+        │ W0  Wire what already exists                 │  F-12..F-16
+        │     336 disconnected runtime modules          │
+        │     51 orphaned forecasting modules           │
+        │     orphaned memory ladder + retirement       │
+        │     no experiment can execute                 │
+        └──────────────────────────┬────────────────────┘
+                                   │  (depends on)
         ┌──────────────────────────▼────────────────────┐
         │ W1  Consolidate the two Elixir stacks         │  F-01
         │     one Sentinel, one OED, one A10, one CIS    │
@@ -575,12 +826,15 @@ The order is forced by dependencies, not by convenience.
         └──────────────────────────────────────────────┘
 ```
 
-**Why W1 precedes everything.** Every capability is currently measured across
-two stacks that can diverge. Consolidating first prevents every subsequent
-work item from being implemented twice. **Why W2 precedes W3.** The
-epistemic-status vocabulary is what lets research, memory, simulation and
-awareness agree on what a datum *is*; retrofitting it later would require
-rewriting every trace.
+**Why W0 precedes everything.** 336 runtime modules and 51 forecasting modules
+contain real, substantial implementations of exactly the capabilities the
+programme intends to build, and none of them is reachable. Building a new
+cognitive core on top of that would be the third attempt at C1. **Why W1
+precedes the rest.** Every capability is currently measured across two stacks
+that can diverge, so consolidating first prevents every subsequent work item
+from being implemented twice. **Why W2 precedes W3.** The epistemic-status
+vocabulary is what lets research, memory, simulation and awareness agree on
+what a datum *is*; retrofitting it later would require rewriting every trace.
 
 ---
 
@@ -614,8 +868,11 @@ implemented.
 | RRM supervisor children that are startable processes | 4 of 7 | 4 of 4 |
 | Equivalence gate | random, never called | deterministic, wired, tested |
 | Drift check on realistic rule sets | raised `ArithmeticError` | type-safe |
+| Control-centre payloads presented as measurements | 14 endpoints | 0 (all marked `simulated`; health is `observed`) |
+| Subsystem health values | hardcoded `:operational` | real liveness probe |
 | Capability acceptance tests defined | 0 | 22 (AT-C1.1 … AT-C8.3) |
-| Registered blockers | 0 | 22 (see the Completion Register) |
+| Structural findings recorded | 0 | 24 (F-01 … F-24) |
+| Registered blockers | 0 | 35 (29 open, 6 resolved) |
 
 **Disposition:** `IMPLEMENTED_WITH_PARTIAL_EVIDENCE` / `VERIFICATION_BLOCKED`.
 Self-attested; no independent verifier. RL-565 `HIGH / OPEN`; RL-564 and
