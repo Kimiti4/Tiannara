@@ -29,20 +29,31 @@ defmodule Tiannara.World.D127UwmDeleteEvaluationTest do
     id
   end
 
-  defp council_decision(mutation_type) do
-    Council.authorize(
-      :world_mutation,
-      %{
-        mutation_type: mutation_type,
-        mutation_spec: %{id: "d127_target"},
-        context: nil,
-        evidence: [%{source: :d127_uwm_evaluation}],
-        actor: :d127_uwm_evaluation,
-        coherent_with_mission: true,
-        degradation_handled: true
-      },
-      nil
-    )
+  defp council_decision(mutation_type, entity_id, decision_type) do
+    scope = %{
+      operation: Atom.to_string(mutation_type),
+      target: %{entity_id: to_string(entity_id)},
+      effect_id: nil
+    }
+
+    case Council.decide(
+           decision_type,
+           %{
+             mutation_type: mutation_type,
+             mutation_spec: %{id: to_string(entity_id)},
+             target: scope.target,
+             scope: scope,
+             context: nil,
+             evidence: [%{source: :d127_uwm_evaluation}],
+             actor: :d127_uwm_evaluation,
+             coherent_with_mission: true,
+             degradation_handled: true
+           },
+           nil
+         ) do
+      {:ok, decision, receipt} -> {decision, receipt, scope}
+      other -> other
+    end
   end
 
   defp mint_for(entity_id, opts \\ []) do
@@ -50,10 +61,10 @@ defmodule Tiannara.World.D127UwmDeleteEvaluationTest do
     decision_type = Keyword.get(opts, :decision_type, :delete_entity)
     ttl = Keyword.get(opts, :ttl, 3600)
 
-    decision = council_decision(mutation_type)
+    {decision, receipt, scope} = council_decision(mutation_type, entity_id, decision_type)
 
     {:ok, authorization} =
-      MachineAuthorization.mint(decision, decision_type: decision_type, ttl: ttl)
+      MachineAuthorization.mint(decision, receipt, decision_type: decision_type, scope: scope, ttl: ttl)
 
     {:ok, bound} =
       MachineAuthorization.bind_effect(
@@ -104,12 +115,23 @@ defmodule Tiannara.World.D127UwmDeleteEvaluationTest do
       refute_entity_exists(id)
     end
 
-    test "D127.3 delegation: authorization minted for another operation class -> :decision_type_mismatch" do
+    test "D127.3 delegation: authorization minted for another operation class cannot bind to a delete effect" do
       id = create_entity("d3")
-      delegated = mint_for(id, mutation_type: :update_entity, decision_type: :update_entity)
 
-      assert UnifiedWorldModel.delete_entity(id, delegated) ==
-               {:error, :decision_type_mismatch}
+      {decision, receipt, scope} = council_decision(:update_entity, id, :update_entity)
+
+      assert {:ok, grant} =
+               MachineAuthorization.mint(decision, receipt,
+                 decision_type: :update_entity,
+                 scope: scope,
+                 ttl: 3600
+               )
+
+      assert {:error, :council_scope_mismatch} =
+               MachineAuthorization.bind_effect(
+                 grant,
+                 UnifiedWorldModel.effect_descriptor(id)
+               )
 
       assert_entity_exists(id)
 
@@ -121,7 +143,8 @@ defmodule Tiannara.World.D127UwmDeleteEvaluationTest do
     test "D127.4 amplification: widened validity, un-expiry, or rewritten decision -> :decision_tampered" do
       id = create_entity("d4")
       auth = mint_for(id)
-      expired = mint_for(id, ttl: -1)
+      expired = mint_for(id, ttl: 1)
+      Process.sleep(2_000)
 
       widened = %MachineAuthorization{auth | ttl: 999_999}
 

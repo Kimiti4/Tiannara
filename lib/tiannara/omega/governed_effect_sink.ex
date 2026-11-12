@@ -182,6 +182,7 @@ defmodule Tiannara.Omega.GovernedEffectSink do
       :consumed -> {:error, :already_consumed}
       :not_registered -> {:error, :authorization_not_registered}
       :registry_unavailable -> {:error, :authorization_registry_unavailable}
+      :registry_corrupt -> {:error, :registry_corrupt}
     end
   end
 
@@ -241,6 +242,9 @@ defmodule Tiannara.Omega.GovernedEffectSink do
 
       :registry_unavailable ->
         {:error, :authorization_registry_unavailable}
+
+      :registry_corrupt ->
+        {:error, :registry_corrupt}
     end
   end
 
@@ -249,6 +253,7 @@ defmodule Tiannara.Omega.GovernedEffectSink do
       :ok -> :ok
       {:error, :already_consumed} -> {:error, :already_consumed}
       {:error, :not_registered} -> {:error, :authorization_not_registered}
+      {:error, :registry_corrupt} -> {:error, :registry_corrupt}
       :registry_unavailable -> {:error, :authorization_registry_unavailable}
     end
   end

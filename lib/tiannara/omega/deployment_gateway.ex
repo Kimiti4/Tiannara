@@ -285,6 +285,7 @@ defmodule Tiannara.Omega.DeploymentGateway do
       :consumed -> {:error, :already_consumed}
       :not_registered -> {:error, :authorization_not_registered}
       :registry_unavailable -> {:error, :authorization_registry_unavailable}
+      :registry_corrupt -> {:error, :registry_corrupt}
     end
   end
 
@@ -316,6 +317,9 @@ defmodule Tiannara.Omega.DeploymentGateway do
 
       :registry_unavailable ->
         {:error, :authorization_registry_unavailable}
+
+      :registry_corrupt ->
+        {:error, :registry_corrupt}
     end
   end
 
@@ -325,6 +329,7 @@ defmodule Tiannara.Omega.DeploymentGateway do
       {:error, :already_consumed} -> {:error, :already_consumed}
       {:error, :not_registered} -> {:error, :authorization_not_registered}
       {:error, :registry_binding_mismatch} -> {:error, :registry_binding_mismatch}
+      {:error, :registry_corrupt} -> {:error, :registry_corrupt}
       :registry_unavailable -> {:error, :authorization_registry_unavailable}
     end
   end

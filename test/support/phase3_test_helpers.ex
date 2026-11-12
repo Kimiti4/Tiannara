@@ -63,12 +63,20 @@ defmodule Tiannara.Test.Phase3Helpers do
   step is refused — tests must never fall back to an ungated delete.
   """
   def mint_delete_authorization(entity_id) do
-    decision =
-      Tiannara.Council.authorize(
-        :world_mutation,
+    scope = %{
+      operation: "delete_entity",
+      target: %{entity_id: to_string(entity_id)},
+      effect_id: nil
+    }
+
+    {:ok, decision, receipt} =
+      Tiannara.Council.decide(
+        :delete_entity,
         %{
           mutation_type: :delete_entity,
-          mutation_spec: %{id: entity_id},
+          mutation_spec: %{id: to_string(entity_id)},
+          target: scope.target,
+          scope: scope,
           context: nil,
           evidence: [%{source: :world_model_test}],
           actor: :phase3_test,
@@ -79,7 +87,10 @@ defmodule Tiannara.Test.Phase3Helpers do
       )
 
     {:ok, authorization} =
-      Tiannara.Council.MachineAuthorization.mint(decision, decision_type: :delete_entity)
+      Tiannara.Council.MachineAuthorization.mint(decision, receipt,
+        decision_type: :delete_entity,
+        scope: scope
+      )
 
     {:ok, bound} =
       Tiannara.Council.MachineAuthorization.bind_effect(

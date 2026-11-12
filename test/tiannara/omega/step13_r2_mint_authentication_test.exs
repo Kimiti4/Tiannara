@@ -1,6 +1,7 @@
 defmodule Tiannara.Omega.Step13R2MintAuthenticationTest do
   use ExUnit.Case, async: false
 
+  alias Tiannara.Council
   alias Tiannara.Council.{Authorization, MachineAuthorization}
   alias Tiannara.Omega.HumanDelivery
   alias Tiannara.Omega.MintRegistry
@@ -44,13 +45,45 @@ defmodule Tiannara.Omega.Step13R2MintAuthenticationTest do
     end
 
     test "machine mints through MachineAuthorization remain permitted" do
-      decision = Authorization.approved(explanation: "step-13 r2 machine path")
+      scope = %{
+        operation: "world_mutation",
+        target: %{id: "step13-r2-machine"},
+        effect_id: nil
+      }
+
+      {:ok, decision, receipt} =
+        Council.decide(
+          :world_mutation,
+          %{
+            mutation_type: :world_mutation,
+            mutation_spec: %{id: "step13-r2-machine"},
+            target: scope.target,
+            scope: scope,
+            evidence: [%{source: :step13_r2}],
+            actor: :step13_r2,
+            coherent_with_mission: true,
+            degradation_handled: true
+          },
+          nil
+        )
 
       assert {:ok, auth} =
-               MachineAuthorization.mint(decision, decision_type: :world_mutation, ttl: 60)
+               MachineAuthorization.mint(decision, receipt,
+                 decision_type: :world_mutation,
+                 scope: scope,
+                 ttl: 60
+               )
 
       assert MintRegistry.status(auth.authorization_id) == :granted
       assert MintRegistry.decision_ref(auth.authorization_id) == auth.council_decision_ref
+      assert MintRegistry.receipt_status(receipt.receipt_id) == :consumed
+    end
+
+    test "a locally constructed approved struct cannot mint without a receipt" do
+      decision = Authorization.approved(explanation: "step-13 r2 forged machine path")
+
+      assert MachineAuthorization.mint(decision, decision_type: :world_mutation, ttl: 60) ==
+               {:error, :council_decision_proof_required}
     end
   end
 end

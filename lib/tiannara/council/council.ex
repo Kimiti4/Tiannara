@@ -3,7 +3,12 @@ defmodule Tiannara.Council do
   require Logger
 
   alias Tiannara.Council.{AuditLog, Authorization, ConstitutionalMonitor,
-                          ConstitutionRepository, ExecutionContext, HumanApprovalQueue, PolicyRegistry, RuleEngine}
+                          ConstitutionRepository, DecisionDigest, DecisionReceipt,
+                          EmergencyState, ExecutionContext, HumanApprovalQueue, PolicyRegistry,
+                          RuleEngine}
+  alias Tiannara.Omega.MintRegistry
+
+  @receipt_ttl_seconds 300
 
   def start_link(_opts), do: GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
 
@@ -14,14 +19,67 @@ defmodule Tiannara.Council do
     GenServer.call(__MODULE__, {:authorize, decision_type, payload, context})
   end
 
+  @doc """
+  Evaluates a Council decision and, when it may authorize a machine effect,
+  issues a MAC-protected one-time `DecisionReceipt` in the same call.
+
+  Returns `{:ok, decision, receipt}` for an approving/conditional decision that
+  may authorize a machine effect, `{:ok, decision, nil}` for a decision that may
+  not (rejected, deferred, requires-human, conditional with unmet conditions),
+  and `{:error, reason}` when issuance itself is refused (emergency, invalid
+  scope, unavailable receipt custody/registry). A caller without a receipt must
+  not attempt a machine mint; `MachineAuthorization.mint/2` fails closed.
+
+  The payload must carry an exact `:scope` (operation + non-empty target) and
+  an identical `:target`; the scope operation must match `:mutation_type` (or
+  the decision type). A broad scope is refused with `:invalid_scope`.
+  """
+  @spec decide(atom(), map(), ExecutionContext.t() | nil) ::
+          {:ok, Authorization.t(), DecisionReceipt.t() | nil} | {:error, term()}
+  def decide(decision_type, payload, context \\ nil) do
+    GenServer.call(__MODULE__, {:decide, decision_type, payload, context}, 30_000)
+  end
+
   def invoke_emergency(actor, reason), do: GenServer.call(__MODULE__, {:emergency, actor, reason})
   def lift_emergency(human_id), do: GenServer.call(__MODULE__, {:lift_emergency, human_id})
   def emergency_state, do: GenServer.call(__MODULE__, :emergency_state)
   def constitutional_health, do: ConstitutionalMonitor.health_report()
 
+  @doc "Current receipt time-to-live in seconds."
+  @spec receipt_ttl_seconds() :: pos_integer()
+  def receipt_ttl_seconds, do: @receipt_ttl_seconds
+
+  @doc """
+  Stable digest of the active policy set. A receipt issued under one policy set
+  is refused after the set changes unless an explicit migration window exists.
+  """
+  @spec policy_version() :: String.t() | nil
+  def policy_version do
+    policies =
+      PolicyRegistry.active_policies()
+      |> Enum.map(fn policy ->
+        {policy.id, policy.priority, policy.action, Enum.sort(policy.conditions)}
+      end)
+      |> Enum.sort()
+
+    DecisionDigest.digest(:council_policy_set, policies)
+  catch
+    _kind, _reason -> nil
+  end
+
+  @doc "Current constitution version bound into a receipt."
+  @spec constitution_version() :: String.t() | nil
+  def constitution_version do
+    ConstitutionRepository.current().version
+  catch
+    _kind, _reason -> nil
+  end
+
   @impl true
   def init(_opts) do
-    state = %{emergency: %{active: false, invoked_by: nil, reason: nil, invoked_at: nil}}
+    emergency = %{active: false, invoked_by: nil, reason: nil, invoked_at: nil}
+    state = %{emergency: emergency, emergency_epoch: 0}
+    EmergencyState.publish(Map.put(emergency, :epoch, 0))
 
     AuditLog.append(:council_runtime_booted, :system, %{
       constitution_version: ConstitutionRepository.current().version
@@ -50,20 +108,67 @@ defmodule Tiannara.Council do
   end
 
   @impl true
+  def handle_call({:decide, decision_type, payload, context}, _from, state) do
+    cond do
+      state.emergency.active and not EmergencyState.decision_allowed?(decision_type) ->
+        AuditLog.append(:council_decision_receipt_refused, :council, %{
+          decision_type: decision_type,
+          reason: :council_emergency_active
+        })
+
+        {:reply, {:error, :council_emergency_active}, state}
+
+      true ->
+        case issue_decision(decision_type, payload, context) do
+          {:ok, auth, receipt} ->
+            try do
+              audit_decision_issued(decision_type, auth, receipt)
+            rescue
+              _ -> :ok
+            catch
+              :exit, _ -> :ok
+            end
+
+            {:reply, {:ok, auth, receipt}, state}
+
+          {:error, reason} ->
+            try do
+              AuditLog.append(:council_decision_receipt_refused, :council, %{
+                decision_type: decision_type,
+                reason: reason
+              })
+            rescue
+              _ -> :ok
+            catch
+              :exit, _ -> :ok
+            end
+
+            {:reply, {:error, reason}, state}
+        end
+    end
+  end
+
+  @impl true
   def handle_call({:emergency, actor, reason}, _from, state) do
     new_emergency = %{active: true, invoked_by: actor, reason: reason, invoked_at: DateTime.utc_now()}
-    AuditLog.append(:emergency_invoked, actor, %{reason: reason})
+    epoch = state.emergency_epoch + 1
+    EmergencyState.publish(Map.put(new_emergency, :epoch, epoch))
+    AuditLog.append(:emergency_invoked, actor, %{reason: reason, epoch: epoch})
     Logger.error("CONSTITUTIONAL EMERGENCY by #{inspect(actor)}: #{reason}")
 
     :telemetry.execute([:tiannara, :council, :emergency, :invoked], %{}, %{actor: actor})
-    {:reply, :ok, %{state | emergency: new_emergency}}
+    {:reply, :ok, %{state | emergency: new_emergency, emergency_epoch: epoch}}
   end
 
   @impl true
   def handle_call({:lift_emergency, human_id}, _from, state) do
     if state.emergency.active do
-      AuditLog.append(:emergency_lifted, human_id, %{prev: state.emergency.invoked_by})
-      {:reply, :ok, %{state | emergency: %{active: false, invoked_by: nil, reason: nil, invoked_at: nil}}}
+      epoch = state.emergency_epoch + 1
+      emergency = %{active: false, invoked_by: nil, reason: nil, invoked_at: nil}
+      EmergencyState.publish(Map.put(emergency, :epoch, epoch))
+      AuditLog.append(:emergency_lifted, human_id, %{prev: state.emergency.invoked_by, epoch: epoch})
+
+      {:reply, :ok, %{state | emergency: emergency, emergency_epoch: epoch}}
     else
       {:reply, {:error, :no_active_emergency}, state}
     end
@@ -71,6 +176,119 @@ defmodule Tiannara.Council do
 
   @impl true
   def handle_call(:emergency_state, _from, state), do: {:reply, state.emergency, state}
+
+  # ------------------------------------------------------- receipt issuance --
+
+  defp issue_decision(decision_type, payload, context) do
+    with {:ok, scope} <- scope_from_payload(payload, decision_type) do
+      auth = evaluate_and_authorize(decision_type, payload, context)
+
+      if Authorization.permitted?(auth) or Authorization.conditional_grant?(auth) do
+        with {:ok, receipt} <- build_receipt(auth, decision_type, scope, payload, context) do
+          {:ok, auth, receipt}
+        end
+      else
+        {:ok, auth, nil}
+      end
+    end
+  end
+
+  defp scope_from_payload(payload, decision_type) when is_map(payload) do
+    scope = Map.get(payload, :scope)
+    target = Map.get(payload, :target)
+    operation = Map.get(payload, :mutation_type, Map.get(payload, :operation, decision_type))
+
+    cond do
+      not DecisionDigest.valid_scope?(scope) ->
+        :error
+
+      not is_map(target) or target != scope.target ->
+        :error
+
+      is_nil(operation) or to_string(operation) != to_string(scope.operation) ->
+        :error
+
+      true ->
+        {:ok, DecisionDigest.normalize_scope!(scope)}
+    end
+  rescue
+    _ -> :error
+  end
+
+  defp scope_from_payload(_payload, _decision_type), do: :error
+
+  defp build_receipt(auth, decision_type, scope, payload, context) do
+    now = DateTime.utc_now()
+
+    base = %DecisionReceipt{
+      receipt_id: "dcr_#{random_hex(16)}",
+      decision_digest: DecisionDigest.decision(auth),
+      decision_type: decision_type,
+      scope_digest: DecisionDigest.scope_digest(scope),
+      actor: decision_actor(context, payload),
+      issued_at: now,
+      expires_at: DateTime.add(now, @receipt_ttl_seconds, :second),
+      nonce: random_hex(32),
+      issuer: DecisionReceipt.issuer(),
+      policy_version: policy_version(),
+      constitution_version: constitution_version(),
+      mac: ""
+    }
+
+    cond do
+      is_nil(base.policy_version) or is_nil(base.constitution_version) ->
+        {:error, :receipt_unavailable}
+
+      true ->
+        with {:ok, signed} <- DecisionReceipt.sign(base),
+             :ok <- record_receipt(signed) do
+          {:ok, signed}
+        end
+    end
+  catch
+    _kind, _reason -> {:error, :receipt_unavailable}
+  end
+
+  defp record_receipt(receipt) do
+    case MintRegistry.record_receipt(receipt) do
+      :ok -> :ok
+      :registry_unavailable -> {:error, :authorization_registry_unavailable}
+      {:error, :registry_corrupt} -> {:error, :registry_corrupt}
+      {:error, _reason} -> {:error, :receipt_unavailable}
+    end
+  end
+
+  defp decision_actor(context, payload) do
+    cond do
+      is_struct(context, ExecutionContext) and not is_nil(context.actor) -> context.actor
+      is_map(context) and not is_nil(Map.get(context, :actor)) -> Map.get(context, :actor)
+      is_map(payload) and not is_nil(Map.get(payload, :actor)) -> Map.get(payload, :actor)
+      true -> :unknown
+    end
+  end
+
+  defp audit_decision_issued(decision_type, auth, %DecisionReceipt{} = receipt) do
+    AuditLog.append(:council_decision_issued, :council, %{
+      decision_type: decision_type,
+      decision: auth.decision,
+      receipt_id: receipt.receipt_id,
+      decision_digest: receipt.decision_digest,
+      scope_digest: receipt.scope_digest,
+      issuer: receipt.issuer,
+      policy_version: receipt.policy_version,
+      constitution_version: receipt.constitution_version,
+      expires_at: receipt.expires_at
+    })
+  end
+
+  defp audit_decision_issued(decision_type, auth, nil) do
+    AuditLog.append(:council_decision_without_receipt, :council, %{
+      decision_type: decision_type,
+      decision: auth.decision
+    })
+  end
+
+  defp random_hex(bytes), do: :crypto.strong_rand_bytes(bytes) |> Base.encode16(case: :lower)
 
   @doc """
   Re-evaluates a parked decision with a human grant applied.

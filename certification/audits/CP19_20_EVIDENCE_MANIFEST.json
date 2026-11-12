@@ -1,0 +1,41 @@
+{
+  "checkpoint": "CP19.20",
+  "remediation": "RL-565",
+  "disposition": "IMPLEMENTED_WITH_PARTIAL_EVIDENCE",
+  "base_commit": "60933859f529db68863d6610ff5cf3901f722eb6",
+  "baseline_commit": "ac39083923e1352eed430d1d880cb6affb8adbf2",
+  "toolchain": {
+    "elixir": "1.18.4",
+    "otp": "28",
+    "erts": "16.4"
+  },
+  "seeds": [0, 123456],
+  "suites": [
+    {
+      "path": "test/tiannara/omega/rl565_council_decision_provenance_adversarial_test.exs",
+      "tests": 19,
+      "failures": 0,
+      "seeds": [0, 123456]
+    },
+    {
+      "path": "test/tiannara/world/d127_uwm_delete_evaluation_test.exs",
+      "tests": 0,
+      "failures": 0,
+      "note": "part of 34-test combined run, 0 failures"
+    }
+  ],
+  "exclusions": [
+    "rl564_registry_issuance_adversarial_test.exs (RL-564 out of scope, remains red baseline)",
+    "F-ARC-018 (per-run DETS partitions do not close it)"
+  ],
+  "artifacts": [
+    "CP19_20_RL565_IMPLEMENTATION_REPORT.md",
+    "CP19_20_RL565_REGRESSION_MATRIX.md",
+    "CP19_20_RL565_CONSUMER_CLOSURE_MATRIX.md",
+    "CP19_20_RL565_PERSISTENCE_AND_RECOVERY_REPORT.md",
+    "CP19_20_EVIDENCE_MANIFEST.json"
+  ],
+  "closure_claimed": false,
+  "rl564_status": "OPEN",
+  "f_arc_018_status": "OPEN"
+}

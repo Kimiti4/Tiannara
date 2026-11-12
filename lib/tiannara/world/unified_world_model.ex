@@ -275,6 +275,7 @@ defmodule Tiannara.World.UnifiedWorldModel do
          :ok <- check_not_expired(authorization),
          :ok <- check_authority(authorization),
          :ok <- check_binding(authorization, entity_id),
+         :ok <- check_provenance(authorization, entity_id),
          false <- MapSet.member?(state.executed_effects, authorization.effect_id),
          {:ok, entity} <- UnifiedRealityGraph.get_entity(entity_id),
          :ok <- consume(authorization) do
@@ -284,7 +285,11 @@ defmodule Tiannara.World.UnifiedWorldModel do
       result = %{
         entity_id: entity_id,
         effect_id: authorization.effect_id,
-        authorization_id: authorization.authorization_id
+        authorization_id: authorization.authorization_id,
+        receipt_id: authorization.receipt_id,
+        decision_digest: authorization.council_decision_ref,
+        scope_digest: authorization.scope_digest,
+        grant_digest: Tiannara.Council.DecisionDigest.machine_grant(authorization)
       }
 
       ent_type = Map.get(entity, :type, :unknown)
@@ -566,6 +571,9 @@ defmodule Tiannara.World.UnifiedWorldModel do
       :registry_unavailable ->
         {:error, :authorization_registry_unavailable}
 
+      :registry_corrupt ->
+        {:error, :registry_corrupt}
+
       other ->
         {:error, {:authorization_registry_error, other}}
     end
@@ -602,6 +610,12 @@ defmodule Tiannara.World.UnifiedWorldModel do
       is_nil(decision.decided_at) ->
         {:error, :decision_invalid}
 
+      not is_binary(authorization.receipt_id) ->
+        {:error, :authorization_provenance_invalid}
+
+      not is_binary(authorization.scope_digest) ->
+        {:error, :authorization_provenance_invalid}
+
       MachineAuthorization.content_hash(authorization) != authorization.content_hash ->
         {:error, :decision_tampered}
 
@@ -622,16 +636,34 @@ defmodule Tiannara.World.UnifiedWorldModel do
         :not_bound -> {:error, :registry_binding_mismatch}
         :not_registered -> {:error, :authorization_not_registered}
         :registry_unavailable -> {:error, :authorization_registry_unavailable}
+        :registry_corrupt -> {:error, :registry_corrupt}
       end
     end
   end
 
   defp check_binding(_authorization, _entity_id), do: {:error, :effect_binding_required}
 
+  # The registry-anchored Council provenance is the authority. Local hashes are
+  # only tamper evidence; this check also re-enforces the emergency gate.
+  defp check_provenance(%MachineAuthorization{} = authorization, entity_id) do
+    descriptor = effect_descriptor(entity_id)
+    scope = %{operation: descriptor.operation, target: descriptor.target}
+
+    case MintRegistry.verify_council_presentation(authorization, authorization.effect_id, scope) do
+      {:ok, _record} -> :ok
+      {:error, reason} -> {:error, reason}
+      :registry_unavailable -> {:error, :authorization_registry_unavailable}
+      :registry_corrupt -> {:error, :registry_corrupt}
+    end
+  end
+
+  defp check_provenance(_authorization, _entity_id), do: {:error, :authorization_provenance_invalid}
+
   defp consume(%MachineAuthorization{authorization_id: id, effect_id: effect_id}) do
     case MintRegistry.consume(id, effect_id) do
       :ok -> :ok
       :registry_unavailable -> {:error, :authorization_registry_unavailable}
+      :registry_corrupt -> {:error, :registry_corrupt}
       {:error, :already_consumed} -> {:error, :already_consumed}
       {:error, :not_registered} -> {:error, :authorization_not_registered}
       {:error, :registry_binding_mismatch} -> {:error, :registry_binding_mismatch}
@@ -643,6 +675,10 @@ defmodule Tiannara.World.UnifiedWorldModel do
     payload = %{
       effect_id: result.effect_id,
       authorization_id: result.authorization_id,
+      receipt_id: result.receipt_id,
+      decision_digest: result.decision_digest,
+      scope_digest: result.scope_digest,
+      grant_digest: result.grant_digest,
       sink: :unified_world_model,
       operation: "delete_entity",
       entity_id: to_string(result.entity_id),
@@ -666,7 +702,10 @@ defmodule Tiannara.World.UnifiedWorldModel do
 
         if Map.get(stored, :action) == :world_entity_deleted and
              Map.get(stored_payload, :effect_id) == result.effect_id and
-             Map.get(stored_payload, :authorization_id) == result.authorization_id do
+             Map.get(stored_payload, :authorization_id) == result.authorization_id and
+             Map.get(stored_payload, :receipt_id) == result.receipt_id and
+             Map.get(stored_payload, :decision_digest) == result.decision_digest and
+             Map.get(stored_payload, :grant_digest) == result.grant_digest do
           :ok
         else
           {:error, :result_identity_mismatch}

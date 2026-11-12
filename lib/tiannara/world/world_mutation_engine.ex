@@ -258,9 +258,14 @@ defmodule Tiannara.World.WorldMutationEngine do
     do: "mut_#{counter}_#{:crypto.strong_rand_bytes(4) |> Base.encode16(case: :lower)}"
 
   defp handle_mutate(type, spec, context, state) do
+    descriptor = effect_descriptor(type, spec)
+    scope = %{operation: descriptor.operation, target: descriptor.target}
+
     payload = %{
       mutation_type: type,
       mutation_spec: spec,
+      target: descriptor.target,
+      scope: scope,
       context: context,
       evidence: independent_evidence(state),
       actor: :world_mutation_engine,
@@ -268,21 +273,31 @@ defmodule Tiannara.World.WorldMutationEngine do
       degradation_handled: state.healthy == true
     }
 
-    auth = Council.authorize(:world_mutation, payload, context)
+    case Council.decide(:world_mutation, payload, context) do
+      {:ok, auth, %Tiannara.Council.DecisionReceipt{} = receipt} ->
+        with :ok <- check_decision(auth),
+             {:ok, bound} <- wrap_council_decision(auth, receipt, descriptor),
+             :ok <- verify_wrap(bound, descriptor),
+             :ok <- consume_wrap(bound),
+             {:ok, mutation_id, ns} <- insert_mutation_record(type, spec, context, bound, state) do
+          publish_if_approved(auth, mutation_id, type, spec, context)
 
-    with :ok <- check_decision(auth),
-         {:ok, bound} <- wrap_council_decision(auth, type, spec),
-         :ok <- verify_wrap(bound),
-         :ok <- consume_wrap(bound),
-         {:ok, mutation_id, ns} <- insert_mutation_record(type, spec, context, bound, state) do
-      publish_if_approved(auth, mutation_id, type, spec, context)
+          case record_and_verify_audit(mutation_id, type, bound) do
+            :ok -> {:reply, {:ok, mutation_id}, ns}
+            {:error, reason} -> {:reply, {:error, reason}, ns}
+          end
+        else
+          {:error, reason} -> {:reply, {:error, reason}, state}
+        end
 
-      case record_and_verify_audit(mutation_id, type, bound) do
-        :ok -> {:reply, {:ok, mutation_id}, ns}
-        {:error, reason} -> {:reply, {:error, reason}, ns}
-      end
-    else
-      {:error, reason} -> {:reply, {:error, reason}, state}
+      {:ok, auth, nil} ->
+        case check_decision(auth) do
+          :ok -> {:reply, {:error, :council_decision_proof_required}, state}
+          {:error, reason} -> {:reply, {:error, reason}, state}
+        end
+
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
     end
   end
 
@@ -339,11 +354,12 @@ defmodule Tiannara.World.WorldMutationEngine do
       %{source: :council_audit_log, check: :not_degraded, passed: false, error: {kind, reason}}
   end
 
-  defp wrap_council_decision(auth, type, spec) do
-    descriptor = effect_descriptor(type, spec)
+  defp wrap_council_decision(auth, receipt, descriptor) do
+    scope = %{operation: descriptor.operation, target: descriptor.target}
 
-    case MachineAuthorization.mint(auth,
+    case MachineAuthorization.mint(auth, receipt,
            decision_type: :world_mutation,
+           scope: scope,
            ttl: @mutation_ttl_seconds
          ) do
       {:ok, wrap} ->
@@ -355,14 +371,19 @@ defmodule Tiannara.World.WorldMutationEngine do
       {:error, :authorization_registry_unavailable} ->
         {:error, :authorization_registry_unavailable}
 
+      {:error, :registry_corrupt} ->
+        {:error, :registry_corrupt}
+
       {:error, reason} ->
         {:error, {:authorization_mint_failed, reason}}
     end
   end
 
-  defp verify_wrap(%MachineAuthorization{} = wrap) do
-    case MintRegistry.status(wrap.authorization_id) do
-      :granted ->
+  defp verify_wrap(%MachineAuthorization{} = wrap, descriptor) do
+    scope = %{operation: descriptor.operation, target: descriptor.target}
+
+    case MintRegistry.verify_council_presentation(wrap, wrap.effect_id, scope) do
+      {:ok, _record} ->
         cond do
           MachineAuthorization.expired?(wrap) ->
             {:error, :authorization_expired}
@@ -374,20 +395,25 @@ defmodule Tiannara.World.WorldMutationEngine do
             :ok
         end
 
+      {:error, reason} ->
+        {:error, reason}
+
       :registry_unavailable ->
         {:error, :authorization_registry_unavailable}
 
-      other ->
-        {:error, {:authorization_not_granted, other}}
+      :registry_corrupt ->
+        {:error, :registry_corrupt}
     end
   end
 
-  defp verify_wrap(_wrap), do: {:error, :invalid_authorization}
+  defp verify_wrap(_wrap, _descriptor), do: {:error, :invalid_authorization}
 
   defp consume_wrap(%MachineAuthorization{authorization_id: id, effect_id: effect_id}) do
     case MintRegistry.consume(id, effect_id) do
       :ok -> :ok
       :registry_unavailable -> {:error, :authorization_registry_unavailable}
+      :registry_corrupt -> {:error, :registry_corrupt}
+      {:error, :council_emergency_active} -> {:error, :council_emergency_active}
       {:error, reason} -> {:error, {:authorization_consume_failed, reason}}
     end
   end
@@ -453,6 +479,10 @@ defmodule Tiannara.World.WorldMutationEngine do
       mutation_id: mutation_id,
       effect_id: bound.effect_id,
       authorization_id: bound.authorization_id,
+      receipt_id: bound.receipt_id,
+      decision_digest: bound.council_decision_ref,
+      scope_digest: bound.scope_digest,
+      grant_digest: Tiannara.Council.DecisionDigest.machine_grant(bound),
       sink: :world_mutation_engine,
       operation: Atom.to_string(type),
       recorded_at: DateTime.utc_now()
@@ -476,7 +506,11 @@ defmodule Tiannara.World.WorldMutationEngine do
         if Map.get(stored, :action) == :world_mutation_executed and
              Map.get(stored_payload, :effect_id) == bound.effect_id and
              Map.get(stored_payload, :authorization_id) == bound.authorization_id and
-             Map.get(stored_payload, :mutation_id) == mutation_id do
+             Map.get(stored_payload, :mutation_id) == mutation_id and
+             Map.get(stored_payload, :receipt_id) == bound.receipt_id and
+             Map.get(stored_payload, :decision_digest) == bound.council_decision_ref and
+             Map.get(stored_payload, :grant_digest) ==
+               Tiannara.Council.DecisionDigest.machine_grant(bound) do
           :ok
         else
           {:error, :result_identity_mismatch}

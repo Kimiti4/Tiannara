@@ -19,20 +19,31 @@ defmodule Tiannara.World.UwmDeleteGovernanceTest do
     id
   end
 
-  defp council_decision(mutation_type) do
-    Council.authorize(
-      :world_mutation,
-      %{
-        mutation_type: mutation_type,
-        mutation_spec: %{id: "governance_target"},
-        context: nil,
-        evidence: [%{source: :uwm_governance_test}],
-        actor: :uwm_governance_test,
-        coherent_with_mission: true,
-        degradation_handled: true
-      },
-      nil
-    )
+  defp council_decision(mutation_type, entity_id, decision_type) do
+    scope = %{
+      operation: Atom.to_string(mutation_type),
+      target: %{entity_id: to_string(entity_id)},
+      effect_id: nil
+    }
+
+    case Council.decide(
+           decision_type,
+           %{
+             mutation_type: mutation_type,
+             mutation_spec: %{id: to_string(entity_id)},
+             target: scope.target,
+             scope: scope,
+             context: nil,
+             evidence: [%{source: :uwm_governance_test}],
+             actor: :uwm_governance_test,
+             coherent_with_mission: true,
+             degradation_handled: true
+           },
+           nil
+         ) do
+      {:ok, decision, receipt} -> {decision, receipt, scope}
+      other -> other
+    end
   end
 
   defp mint_for(entity_id, opts \\ []) do
@@ -40,10 +51,14 @@ defmodule Tiannara.World.UwmDeleteGovernanceTest do
     decision_type = Keyword.get(opts, :decision_type, :delete_entity)
     ttl = Keyword.get(opts, :ttl, 3600)
 
-    decision = council_decision(mutation_type)
+    {decision, receipt, scope} = council_decision(mutation_type, entity_id, decision_type)
 
     {:ok, authorization} =
-      MachineAuthorization.mint(decision, decision_type: decision_type, ttl: ttl)
+      MachineAuthorization.mint(decision, receipt,
+        decision_type: decision_type,
+        scope: scope,
+        ttl: ttl
+      )
 
     {:ok, bound} =
       MachineAuthorization.bind_effect(
@@ -95,7 +110,8 @@ defmodule Tiannara.World.UwmDeleteGovernanceTest do
   describe "G3 sink-side expiry (M4)" do
     test "expired machine decision -> :authorization_expired without consumption" do
       id = create_entity("g3")
-      auth = mint_for(id, ttl: -1)
+      auth = mint_for(id, ttl: 1)
+      Process.sleep(2_000)
       assert MachineAuthorization.expired?(auth)
 
       assert UnifiedWorldModel.delete_entity(id, auth) ==
@@ -107,12 +123,23 @@ defmodule Tiannara.World.UwmDeleteGovernanceTest do
   end
 
   describe "G4 machine authority verification" do
-    test "authorization minted for another operation class -> :decision_type_mismatch" do
+    test "authorization minted for another operation class cannot bind to a delete effect" do
       id = create_entity("g4")
-      auth = mint_for(id, mutation_type: :update_entity, decision_type: :update_entity)
 
-      assert UnifiedWorldModel.delete_entity(id, auth) ==
-               {:error, :decision_type_mismatch}
+      {decision, receipt, scope} = council_decision(:update_entity, id, :update_entity)
+
+      assert {:ok, grant} =
+               MachineAuthorization.mint(decision, receipt,
+                 decision_type: :update_entity,
+                 scope: scope,
+                 ttl: 3600
+               )
+
+      assert {:error, :council_scope_mismatch} =
+               MachineAuthorization.bind_effect(
+                 grant,
+                 UnifiedWorldModel.effect_descriptor(id)
+               )
 
       assert_entity_exists(id)
     end
@@ -132,15 +159,23 @@ defmodule Tiannara.World.UwmDeleteGovernanceTest do
       rejected =
         Authorization.rejected(explanation: "test rejection", policy_applied: :test_policy)
 
-      assert MachineAuthorization.mint(rejected, decision_type: :delete_entity) ==
-               {:error, :decision_not_permitted}
+      scope = %{operation: "delete_entity", target: %{entity_id: "g4"}, effect_id: nil}
+      receipt = Tiannara.Test.AuthorityFixtures.issue_test_receipt(rejected, scope)
+
+      assert MachineAuthorization.mint(rejected, receipt,
+               decision_type: :delete_entity,
+               scope: scope
+             ) == {:error, :decision_not_permitted}
     end
   end
 
   describe "G5 one-shot binding (M3)" do
     test "unbound authorization -> :effect_binding_required" do
       id = create_entity("g5")
-      {:ok, unbound} = MachineAuthorization.mint(council_decision(:delete_entity), decision_type: :delete_entity)
+      {decision, receipt, scope} = council_decision(:delete_entity, id, :delete_entity)
+
+      {:ok, unbound} =
+        MachineAuthorization.mint(decision, receipt, decision_type: :delete_entity, scope: scope)
 
       assert UnifiedWorldModel.delete_entity(id, unbound) ==
                {:error, :effect_binding_required}

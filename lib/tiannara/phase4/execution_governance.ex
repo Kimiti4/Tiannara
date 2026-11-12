@@ -117,6 +117,7 @@ defmodule Tiannara.Phase4.ExecutionGovernance do
       :consumed -> {:error, :already_consumed}
       :not_registered -> {:error, :authorization_not_registered}
       :registry_unavailable -> {:error, :authorization_registry_unavailable}
+      :registry_corrupt -> {:error, :registry_corrupt}
     end
   end
 
@@ -160,6 +161,7 @@ defmodule Tiannara.Phase4.ExecutionGovernance do
       :not_bound -> {:error, :registry_binding_mismatch}
       :not_registered -> {:error, :authorization_not_registered}
       :registry_unavailable -> {:error, :authorization_registry_unavailable}
+      :registry_corrupt -> {:error, :registry_corrupt}
     end
   end
 
@@ -217,6 +219,9 @@ defmodule Tiannara.Phase4.ExecutionGovernance do
 
         {:error, :registry_binding_mismatch} ->
           {:error, :registry_binding_mismatch}
+
+        {:error, :registry_corrupt} ->
+          {:error, :registry_corrupt}
 
         :registry_unavailable ->
           {:error, :authorization_registry_unavailable}

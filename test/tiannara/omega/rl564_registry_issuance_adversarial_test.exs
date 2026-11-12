@@ -84,19 +84,30 @@ defmodule Tiannara.Omega.RL564RegistryIssuanceAdversarialTest do
   end
 
   defp council_decision(mutation_type) do
-    Council.authorize(
-      :world_mutation,
-      %{
-        mutation_type: mutation_type,
-        mutation_spec: %{id: "rl564_target"},
-        context: nil,
-        evidence: [%{source: :rl564_adversarial}],
-        actor: :rl564_adversarial,
-        coherent_with_mission: true,
-        degradation_handled: true
-      },
-      nil
-    )
+    scope = %{
+      operation: Atom.to_string(mutation_type),
+      target: %{entity_id: "rl564_target"},
+      effect_id: nil
+    }
+
+    {:ok, decision, receipt} =
+      Council.decide(
+        mutation_type,
+        %{
+          mutation_type: mutation_type,
+          mutation_spec: %{id: "rl564_target"},
+          target: scope.target,
+          scope: scope,
+          context: nil,
+          evidence: [%{source: :rl564_adversarial}],
+          actor: :rl564_adversarial,
+          coherent_with_mission: true,
+          degradation_handled: true
+        },
+        nil
+      )
+
+    {decision, receipt, scope}
   end
 
   defp approved_candidate do
@@ -226,10 +237,14 @@ defmodule Tiannara.Omega.RL564RegistryIssuanceAdversarialTest do
     end
 
     test "R564-07: a non-issuer cannot bind an existing minted authorization" do
-      decision = council_decision(:delete_entity)
+      {decision, receipt, scope} = council_decision(:delete_entity)
 
       assert {:ok, auth} =
-               MachineAuthorization.mint(decision, decision_type: :delete_entity, ttl: 3600)
+               MachineAuthorization.mint(decision, receipt,
+                 decision_type: :delete_entity,
+                 scope: scope,
+                 ttl: 3600
+               )
 
       descriptor = UnifiedWorldModel.effect_descriptor(unique_id("rl564-bind-target"))
       {:ok, effect_id} = EffectIdentity.effect_id(descriptor)

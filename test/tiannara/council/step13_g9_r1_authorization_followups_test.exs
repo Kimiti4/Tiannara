@@ -1,6 +1,7 @@
 defmodule Tiannara.Council.Step13G9R1AuthorizationFollowupsTest do
   use ExUnit.Case, async: false
 
+  alias Tiannara.Council
   alias Tiannara.Council.{Authorization, MachineAuthorization, RuleEngine}
   alias Tiannara.Omega.HumanDelivery
   alias Tiannara.Omega.MintRegistry
@@ -130,10 +131,43 @@ defmodule Tiannara.Council.Step13G9R1AuthorizationFollowupsTest do
     end
   end
 
+  defp genuine_mint(opts \\ []) do
+    scope =
+      Keyword.get(opts, :scope, %{
+        operation: "world_mutation",
+        target: %{id: "step13-g9-r1"},
+        effect_id: nil
+      })
+
+    mutation_type = Keyword.get(opts, :mutation_type, :world_mutation)
+
+    {:ok, decision, receipt} =
+      Council.decide(
+        :world_mutation,
+        %{
+          mutation_type: mutation_type,
+          mutation_spec: %{id: "step13-g9-r1"},
+          target: scope.target,
+          scope: scope,
+          context: nil,
+          evidence: [%{source: :step13_g9_r1}],
+          actor: :step13_g9_r1,
+          coherent_with_mission: true,
+          degradation_handled: true
+        },
+        nil
+      )
+
+    MachineAuthorization.mint(decision, receipt,
+      decision_type: :world_mutation,
+      scope: scope,
+      ttl: Keyword.get(opts, :ttl, 600)
+    )
+  end
+
   describe "R-1 M2 council_decision_ref anchoring" do
     test "a machine mint anchors the decision digest in the registry" do
-      {:ok, auth} =
-        MachineAuthorization.mint(machine_decision(), decision_type: :world_mutation, ttl: 600)
+      {:ok, auth} = genuine_mint()
 
       assert is_binary(auth.council_decision_ref)
       assert byte_size(auth.council_decision_ref) == 64
@@ -142,43 +176,33 @@ defmodule Tiannara.Council.Step13G9R1AuthorizationFollowupsTest do
     end
 
     test "content_hash pins council_decision_ref" do
-      {:ok, auth} =
-        MachineAuthorization.mint(machine_decision(), decision_type: :world_mutation, ttl: 600)
+      {:ok, auth} = genuine_mint()
 
       tampered = %{auth | council_decision_ref: String.duplicate("0", 64)}
       assert MachineAuthorization.content_hash(tampered) != tampered.content_hash
     end
 
-    test "a presented ref that disagrees with the registry anchor is refused at bind" do
-      {:ok, auth} =
-        MachineAuthorization.mint(machine_decision(), decision_type: :world_mutation, ttl: 600)
+    test "the legacy human bind path refuses a machine record regardless of presented ref" do
+      {:ok, auth} = genuine_mint()
 
-      forged = String.duplicate("f", 64)
-
-      assert {:error, :council_decision_mismatch} =
+      assert {:error, :authorization_provenance_invalid} =
                MintRegistry.record_bind(auth.authorization_id, "effect-v1-c4ref",
-                 council_decision_ref: forged
+                 council_decision_ref: String.duplicate("f", 64)
+               )
+
+      assert {:error, :authorization_provenance_invalid} =
+               MintRegistry.record_bind(auth.authorization_id, "effect-v1-c4ref",
+                 council_decision_ref: nil
                )
 
       assert MintRegistry.binding(auth.authorization_id) == :not_bound
     end
 
-    test "stripping the ref from the presented struct cannot pass the registry comparison" do
-      {:ok, auth} =
-        MachineAuthorization.mint(machine_decision(), decision_type: :world_mutation, ttl: 600)
-
-      assert {:error, :council_decision_mismatch} =
-               MintRegistry.record_bind(auth.authorization_id, "effect-v1-c4stripped",
-                 council_decision_ref: nil
-               )
-    end
-
-    test "an unanchored registration refuses an anchored machine struct at bind" do
+    test "an unanchored human registration refuses an anchored machine ref at bind" do
       unanchored = :"step13-unanchored-#{System.unique_integer([:positive])}"
       :ok = HumanDelivery.Authorization.record_mint(unanchored)
 
-      {:ok, auth} =
-        MachineAuthorization.mint(machine_decision(), decision_type: :world_mutation, ttl: 600)
+      {:ok, auth} = genuine_mint()
 
       assert {:error, :council_decision_mismatch} =
                MintRegistry.record_bind(unanchored, auth.effect_id || "effect-v1-unanchored",
@@ -187,9 +211,6 @@ defmodule Tiannara.Council.Step13G9R1AuthorizationFollowupsTest do
     end
 
     test "an anchored mint binds cleanly with its own ref" do
-      {:ok, auth} =
-        MachineAuthorization.mint(machine_decision(), decision_type: :world_mutation, ttl: 600)
-
       descriptor = %{
         principal: "test.step13",
         authority_scope: "test",
@@ -201,6 +222,12 @@ defmodule Tiannara.Council.Step13G9R1AuthorizationFollowupsTest do
         semantic_version: "1",
         identity_version: "v1"
       }
+
+      {:ok, auth} =
+        genuine_mint(
+          scope: %{operation: "probe", target: descriptor.target, effect_id: nil},
+          mutation_type: :probe
+        )
 
       {:ok, bound} = MachineAuthorization.bind_effect(auth, descriptor)
       assert is_binary(bound.effect_id)

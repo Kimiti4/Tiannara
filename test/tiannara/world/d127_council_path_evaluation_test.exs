@@ -87,10 +87,9 @@ defmodule Tiannara.World.D127CouncilPathEvaluationTest do
       try do
         forged = %{actor: :council_overlord, authority: :root, bypasses_human_authority: false}
 
-        assert {:error, {:constitutional_rejection, explanation}} =
+        assert {:error, :council_emergency_active} =
                  WorldMutationEngine.mutate(:create_entity, mut_spec("d3"), forged)
 
-        assert explanation =~ "emergency"
       after
         :ok = Council.lift_emergency(:d127_council_path)
       end
@@ -148,12 +147,17 @@ defmodule Tiannara.World.D127CouncilPathEvaluationTest do
 
       refute effect_a == effect_b
 
-      decision =
-        Council.authorize(
-          :world_mutation,
+      descriptor_a = WorldMutationEngine.effect_descriptor(:create_entity, spec_a)
+      scope_a = %{operation: descriptor_a.operation, target: descriptor_a.target}
+
+      {:ok, decision, receipt} =
+        Council.decide(
+          :create_entity,
           %{
             mutation_type: :create_entity,
             mutation_spec: spec_a,
+            target: scope_a.target,
+            scope: scope_a,
             context: nil,
             evidence: [%{source: :d127_council_path}],
             actor: :d127_council_path,
@@ -163,7 +167,11 @@ defmodule Tiannara.World.D127CouncilPathEvaluationTest do
           nil
         )
 
-      {:ok, fresh} = MachineAuthorization.mint(decision, decision_type: :world_mutation)
+      {:ok, fresh} =
+        MachineAuthorization.mint(decision, receipt,
+          decision_type: :create_entity,
+          scope: scope_a
+        )
 
       {:ok, bound_a} =
         MachineAuthorization.bind_effect(

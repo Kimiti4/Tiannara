@@ -104,44 +104,76 @@ defmodule Tiannara.Council.ConditionalGrantMechanismTest do
   end
 
   describe "machine authorization minting" do
-    test "a conditional decision with an unmet condition cannot be minted" do
-      auth = conditional(%{evidence: [%{principle: :transparency, verdict: :neutral}]})
+    test "mint/2 fails closed: a decision struct is not proof of Council issuance" do
+      assert MachineAuthorization.mint(conditional(),
+               decision_type: :world_mutation,
+               ttl: 600
+             ) == {:error, :council_decision_proof_required}
 
-      assert {:error, :decision_not_permitted} =
-               MachineAuthorization.mint(auth, decision_type: :world_mutation, ttl: 600)
+      approved = decision(%{decision: :approved, evidence: [%{principle: :safety, verdict: :neutral}]})
+
+      assert MachineAuthorization.mint(approved, decision_type: :world_mutation, ttl: 600) ==
+               {:error, :council_decision_proof_required}
     end
 
-    test "a conditional decision with satisfied conditions can still be minted" do
+    test "a signed receipt for a conditional decision with an unmet condition is refused at mint" do
+      auth = conditional(%{evidence: [%{principle: :transparency, verdict: :neutral}]})
+
+      scope = %{
+        operation: "world_mutation",
+        target: %{id: "conditional_grant"},
+        effect_id: nil
+      }
+
+      receipt = Tiannara.Test.AuthorityFixtures.issue_test_receipt(auth, scope, %{
+        decision_type: :world_mutation
+      })
+
+      assert MachineAuthorization.mint(auth, receipt,
+               decision_type: :world_mutation,
+               scope: scope,
+               ttl: 600
+             ) == {:error, :decision_not_permitted}
+    end
+
+    test "a genuine Council decision with satisfied conditions can be minted" do
+      scope = %{
+        operation: "world_mutation",
+        target: %{id: "conditional_grant"},
+        effect_id: nil
+      }
+
+      {:ok, auth, receipt} =
+        Council.decide(
+          :world_mutation,
+          %{
+            mutation_type: :world_mutation,
+            mutation_spec: %{id: "conditional_grant"},
+            target: scope.target,
+            scope: scope,
+            evidence: [%{principle: :safety, verdict: :neutral}],
+            actor: :conditional_grant_test,
+            coherent_with_mission: true,
+            degradation_handled: true
+          },
+          nil
+        )
+
+      assert auth.decision in [:approved, :conditional]
+      assert Authorization.permitted?(auth) or Authorization.conditional_grant?(auth)
+
       assert {:ok, minted} =
-               MachineAuthorization.mint(conditional(),
+               MachineAuthorization.mint(auth, receipt,
                  decision_type: :world_mutation,
+                 scope: scope,
                  ttl: 600
                )
 
       assert is_binary(minted.council_decision_ref)
+      assert MintRegistry.receipt_status(receipt.receipt_id) == :consumed
     end
 
-    test "an approved decision can still be minted" do
-      auth =
-        decision(%{
-          decision: :approved,
-          confidence: 1.0,
-          constitutional_score: 1.0,
-          violated_principles: [],
-          required_human_review: false,
-          explanation: "approved under test",
-          evidence: [%{principle: :safety, verdict: :neutral}],
-          decided_at: DateTime.utc_now(),
-          policy_applied: :rule_engine
-        })
-
-      assert {:ok, minted} =
-               MachineAuthorization.mint(auth, decision_type: :world_mutation, ttl: 600)
-
-      assert is_binary(minted.council_decision_ref)
-    end
-
-    test "a decision awaiting human review cannot be minted" do
+    test "a signed receipt for a decision awaiting human review is refused at mint" do
       auth =
         decision(%{
           decision: :requires_human,
@@ -155,8 +187,21 @@ defmodule Tiannara.Council.ConditionalGrantMechanismTest do
           policy_applied: :rule_engine
         })
 
-      assert {:error, :decision_not_permitted} =
-               MachineAuthorization.mint(auth, decision_type: :world_mutation, ttl: 600)
+      scope = %{
+        operation: "world_mutation",
+        target: %{id: "conditional_grant"},
+        effect_id: nil
+      }
+
+      receipt = Tiannara.Test.AuthorityFixtures.issue_test_receipt(auth, scope, %{
+        decision_type: :world_mutation
+      })
+
+      assert MachineAuthorization.mint(auth, receipt,
+               decision_type: :world_mutation,
+               scope: scope,
+               ttl: 600
+             ) == {:error, :decision_not_permitted}
     end
   end
 

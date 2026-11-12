@@ -16,6 +16,15 @@ config :logger, level: :warning
 # Phase 3.5: Enable synchronous CEL boot so World services are available
 config :tiannara, :test_mode, true
 
+# CP19.20 (RL-565): per-run authority keys. These are test-only random keys;
+# production provisioning is a deployment requirement and no key is checked
+# into the repository. `:allow_test_receipt_signing` exists only so adversarial
+# fixtures (expired/stale/forged-authority receipts) can be signed in tests;
+# production defaults to false because this file is not loaded there.
+config :tiannara, :council_receipt_key, :crypto.strong_rand_bytes(32)
+config :tiannara, :mint_registry_integrity_key, :crypto.strong_rand_bytes(32)
+config :tiannara, :allow_test_receipt_signing, true
+
 # LLMGateway: fixture responses in tests (no network). See llm_gateway.ex.
 config :tiannara, :llm_mock, true
 
