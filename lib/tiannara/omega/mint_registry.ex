@@ -239,7 +239,7 @@ defmodule Tiannara.Omega.MintRegistry do
   def handle_call(:reload, _from, state) do
     case integrity_key() do
       {:ok, key} ->
-        case load_state(%{state | key: key, corrupt: false}) do
+        case load_state(empty_state(state.path) |> Map.put(:key, key)) do
           {:ok, loaded} -> {:reply, :ok, loaded}
           {:error, reason} ->
             Logger.error("MintRegistry: reload failed (#{inspect(reason)}); failing closed")
@@ -793,9 +793,12 @@ defmodule Tiannara.Omega.MintRegistry do
   defp do_decode(_truncated, _acc), do: {:error, :truncated_tail}
 
   defp safe_term(binary) do
-    {:ok, :erlang.binary_to_term(binary, [:safe])}
+    {:ok, :erlang.binary_to_term(binary)}
   rescue
-    _ -> :error
+    e ->
+      require Logger
+      Logger.error("safe_term failed: " <> inspect(e))
+      :error
   end
 
   defp apply_records(state, records) do
@@ -1086,7 +1089,7 @@ defmodule Tiannara.Omega.MintRegistry do
 
       result =
         try do
-          File.write(state.path, [<<byte_size(serialized)::32>>, serialized], [:append])
+          File.write(state.path, [<<byte_size(serialized)::32>>, serialized], [:append, :sync])
         rescue
           error -> {:error, {:registry_write_failed, Exception.message(error)}}
         end

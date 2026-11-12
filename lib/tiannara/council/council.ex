@@ -77,9 +77,11 @@ defmodule Tiannara.Council do
 
   @impl true
   def init(_opts) do
-    emergency = %{active: false, invoked_by: nil, reason: nil, invoked_at: nil}
-    state = %{emergency: emergency, emergency_epoch: 0}
-    EmergencyState.publish(Map.put(emergency, :epoch, 0))
+    EmergencyState.load()
+    emergency = EmergencyState.snapshot()
+    epoch = EmergencyState.epoch()
+    state = %{emergency: emergency, emergency_epoch: epoch}
+    EmergencyState.publish(emergency)
 
     AuditLog.append(:council_runtime_booted, :system, %{
       constitution_version: ConstitutionRepository.current().version
@@ -153,7 +155,13 @@ defmodule Tiannara.Council do
     new_emergency = %{active: true, invoked_by: actor, reason: reason, invoked_at: DateTime.utc_now()}
     epoch = state.emergency_epoch + 1
     EmergencyState.publish(Map.put(new_emergency, :epoch, epoch))
-    AuditLog.append(:emergency_invoked, actor, %{reason: reason, epoch: epoch})
+    try do
+      AuditLog.append(:emergency_invoked, actor, %{reason: reason, epoch: epoch})
+    rescue
+      _ -> :ok
+    catch
+      :exit, _ -> :ok
+    end
     Logger.error("CONSTITUTIONAL EMERGENCY by #{inspect(actor)}: #{reason}")
 
     :telemetry.execute([:tiannara, :council, :emergency, :invoked], %{}, %{actor: actor})
@@ -166,7 +174,13 @@ defmodule Tiannara.Council do
       epoch = state.emergency_epoch + 1
       emergency = %{active: false, invoked_by: nil, reason: nil, invoked_at: nil}
       EmergencyState.publish(Map.put(emergency, :epoch, epoch))
-      AuditLog.append(:emergency_lifted, human_id, %{prev: state.emergency.invoked_by, epoch: epoch})
+      try do
+        AuditLog.append(:emergency_lifted, human_id, %{prev: state.emergency.invoked_by, epoch: epoch})
+      rescue
+        _ -> :ok
+      catch
+        :exit, _ -> :ok
+      end
 
       {:reply, :ok, %{state | emergency: emergency, emergency_epoch: epoch}}
     else

@@ -284,6 +284,19 @@ defmodule Tiannara.Omega.RL565CouncilDecisionProvenanceAdversarialTest do
   end
 
   describe "RL-565 emergency enforcement" do
+    test "R565-08d: Council process restart preserves active emergency" do
+      :ok = Council.invoke_emergency(:rl565_test, "restart probe")
+      on_exit(fn -> Council.lift_emergency(:rl565_test) end)
+
+      # simulate process restart by terminating and restarting the Council child
+      sup = Tiannara.Council.Supervisor
+      :ok = Supervisor.terminate_child(sup, Tiannara.Council)
+      {:ok, _} = Supervisor.restart_child(sup, Tiannara.Council)
+
+      assert Council.emergency_state().active == true
+      assert Tiannara.Council.EmergencyState.active?() == true
+    end
+
     test "R565-08a: emergency blocks Council decision issuance" do
       :ok = Council.invoke_emergency(:rl565_test, "RL-565 emergency regression")
       on_exit(fn -> Council.lift_emergency(:rl565_test) end)

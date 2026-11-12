@@ -7,6 +7,7 @@ defmodule Tiannara.World.UnifiedWorldModel do
   alias Tiannara.CEL.Services.EventBus
   alias Tiannara.CEL.Kernel.ConstitutionalScore
   alias Tiannara.Council.{AuditLog, Authorization, MachineAuthorization}
+  alias Tiannara.Council.EmergencyState
   alias Tiannara.Omega.{EffectIdentity, MintRegistry}
 
   @canonical_types Tiannara.World.CanonicalWorldState.domain_entity_types()
@@ -658,6 +659,10 @@ defmodule Tiannara.World.UnifiedWorldModel do
   end
 
   defp check_provenance(_authorization, _entity_id), do: {:error, :authorization_provenance_invalid}
+
+  defp check_emergency_after_consume do
+    if EmergencyState.active?(), do: {:error, :council_emergency_active}, else: :ok
+  end
 
   defp consume(%MachineAuthorization{authorization_id: id, effect_id: effect_id}) do
     case MintRegistry.consume(id, effect_id) do

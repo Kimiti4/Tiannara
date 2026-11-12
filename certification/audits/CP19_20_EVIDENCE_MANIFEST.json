@@ -13,9 +13,15 @@
   "suites": [
     {
       "path": "test/tiannara/omega/rl565_council_decision_provenance_adversarial_test.exs",
-      "tests": 19,
+      "tests": 20,
       "failures": 0,
       "seeds": [0, 123456]
+    },
+    {
+      "path": "test/tiannara/omega/rl565_registry_persistence_recovery_test.exs",
+      "tests": 6,
+      "failures": 0,
+      "seeds": [0]
     },
     {
       "path": "test/tiannara/world/d127_uwm_delete_evaluation_test.exs",
