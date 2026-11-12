@@ -7131,3 +7131,15 @@ The red oracles are valid for the baseline but are not sufficient as closure ora
 - Machine-authority consumers closed: WorldMutationEngine, UnifiedWorldModel.delete_entity/2. Four direct Council.authorize/3 callers remain unresolved and are disclosed.
 - RL-564 and F-ARC-018 remain OPEN. RL-565 remains pending independent review.
 - Disposition: IMPLEMENTED_WITH_PARTIAL_EVIDENCE.
+
+### Checkpoint 19.22 - RL-565 remediation of CP19.21 verification findings
+
+- Independent verification of CP19.21 (commit a64ec8b33f1167409dc9b55973e691d4f5355d43) returned VERIFICATION_FAILED - REMEDIATION INCOMPLETE. CP19.22 addresses the findings; RL-565 remains HIGH / OPEN.
+- Authoritative emergency state: EmergencyState.load/0 fails closed on corrupt, invalid, unreadable, or missing-after-initialization state. Council.init/1 raises instead of publishing an inactive default. A durable emergency_state.bin snapshot is written with atomic temp write + [:sync] + rename + best-effort directory fsync and mirrored in :persistent_term. An emergency_state.initialized marker distinguishes first boot from lost state; publish/1 persists before mutating memory and returns {:error, reason} on failure.
+- Emergency/effect atomicity: a process-wide :global.trans interlock serializes emergency invoke/lift with the protected UWM delete effect. The UWM delete path re-checks emergency before and after grant consumption and emits [:tiannara, :unified_world_model, :effect_boundary] telemetry as a deterministic test hook. Activation cannot land between the final authorization check and world mutation.
+- Durable registry writes: MintRegistry appends with [:append, :sync]; reload/0 loads into empty_state(path) so records are not replayed onto live state; the safe decoder was restored to :erlang.binary_to_term(binary, [:safe]).
+- Recovery evidence: rl565_registry_persistence_recovery_test.exs (6 tests) includes a real sequence-gap case using signed records 1 and 3; rl565_emergency_durability_interlock_test.exs (11 tests) covers fail-closed loads, failed-publish memory invariance, disk reload of active state and epoch, Council.init refusal, and both interlock directions; the adversarial suite is now 20 tests including R565-08d (Council restart preserves active emergency).
+- Combined affected run (8 suites incl. UWM/D127): 93 tests, 0 failures at seeds 0 and 123456 with fresh partitions. No broad {:error, _} or match?({:error, _}) assertions remain in scope.
+- Residual limitation: deleting both the emergency state file and the initialization marker is indistinguishable from first boot without an external trust anchor (RL-564 remains OPEN and is not merged). Direct Council.authorize/3 callers (CEL.Kernel, ResourceManager, ExperimentOrchestrator, Forecasting.DecisionImpl) remain disclosed unresolved consumers.
+- No independent verifier or CI run was available. This entry is self-attested evidence, not verification. No merge, deployment, registry promotion, physical actuation, or closure performed.
+- Disposition: IMPLEMENTED_WITH_PARTIAL_EVIDENCE / VERIFICATION_BLOCKED. RL-564, RL-565, and F-ARC-018 remain OPEN.
