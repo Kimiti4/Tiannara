@@ -988,3 +988,73 @@ fail.
 40 rows: 32 open, 7 resolved, 1 partial. `TCP-B-023` (the 336 disconnected
 modules) is now **PARTIAL** rather than closed: the cluster has an entry
 point, but most of it remains unreferenced and unverified.
+
+---
+
+## 10. TCP-002.4 — Research-to-Forecast Operational Closure
+
+**Status: PARTIAL.** Stages 0–3 delivered; Stages 4–13 open. Full detail in
+`certification/tcp/TCP_002_4_IMPLEMENTATION_REPORT.md`.
+
+### 10.1 What changed in the assessment
+
+TCP-002.3 established that EFDI is canonical and reachable. TCP-002.4 asked a
+sharper question: **can the research path actually use it?**
+
+The answer, from source, was **no** — and the reason was not a missing
+forecasting engine. `Tiannara.Research.ResearchDirector` is a real, supervised
+pipeline:
+
+```
+priorities → hypotheses → experiment plans → (R0 quarantine)
+```
+
+It never asked for a probability. Worse, the hypotheses it generates are
+*causal claims* (*"the observed behaviour is caused by an identifiable
+factor"*) with no outcome space and no horizon — they are **not forecastable
+propositions**. And two of their quantities are hardcoded constants presented
+as measurements: `confidence: 0.5` for every hypothesis, and per-domain
+`eig_score` values of 0.6–0.85.
+
+### 10.2 What was delivered
+
+| Stage | Outcome |
+|-------|---------|
+| 0 — Baseline | PASS |
+| 1 — Lifecycle contract | PASS |
+| 2 — Research Director → EFDI | **PASS** — the supervised director now produces a registered probabilistic forecast |
+| 3 — Durable registry, adversarial | **PASS** — 14 adversarial tests against a real on-disk log |
+| 4 — Outcome acquisition | **BLOCKED** — no live external source in this environment |
+| 5–8, 10, 12 | OPEN |
+| 9 — Spine integration | PARTIAL — NATS transport still unexecuted |
+| 11, 13 | PASS |
+
+### 10.3 The honesty rules the integration obeys
+
+- A hypothesis that is **not a forecastable proposition** is marked
+  `:not_forecastable` with the reason — it is **not** given an invented
+  probability. This is a different statement from `:unavailable`, and the two
+  are kept distinct.
+- **Evidence confidence, expected information gain and forecast probability
+  stay three separate quantities.** A confidence score is never converted into
+  a probability.
+- The forecast request is identified by the **research input**, not by the
+  hypothesis instance, so re-ingesting a priority returns the original
+  forecast rather than creating a second one.
+
+### 10.4 Two more defects found by adversarial testing
+
+| Defect | Consequence | Fix |
+|--------|-------------|-----|
+| `EventStore.parse_frames/4` stopped at the first unreadable frame | A truncated tail or corrupted frame produced a **clean-looking but incomplete** history — corruption was indistinguishable from a clean log | The store counts unreadable frames, distinguishes a truncated tail, and the registry reports `recovery_failures` and `durable: false` |
+| `Event.from_binary/1` used `:erlang.binary_to_term(bin)` | A tampered durable log could introduce **executable terms** into the reader | `:erlang.binary_to_term(bin, [:safe])` |
+
+### 10.5 What remains
+
+The forecast half of the lifecycle is real, durable and adversarially tested.
+The **observation half is not built**: no real outcome is acquired, so nothing
+is independently resolved, nothing is scored, and no calibration claim is
+possible. `TCP-B-046` remains open. RL-565 remains `HIGH / OPEN`; RL-564 and
+`F-ARC-018` remain `OPEN`.
+
+Register after TCP-002.4: **60 rows — 42 open, 17 resolved, 1 partial.**

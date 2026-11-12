@@ -2,8 +2,8 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
   @moduledoc """
   D2 forecast registry: immutable storage + lineage for `Contracts.Forecast`.
 
-  A GenServer backed by an ETS named table (`:efdi_forecast_registry`) and
-  an append-only EventStore lineage.
+  A GenServer backed by a per-instance ETS table and an append-only
+  EventStore lineage.
 
   Constitutional rules:
     - Forecasts are immutable: registering never overwrites; same id → no-op.
@@ -25,6 +25,13 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
   When the event store cannot be reached, the registry says so: `health/0`
   reports `eventstore_degraded: true` and `durable: false`. It does not
   silently present an in-memory forecast as a durably recorded one.
+
+  ## Instance isolation
+
+  The ETS tables are named after the registered instance, so an isolated
+  registry can be started without colliding with the application-wide one. The
+  registered name is configurable through
+  `config :tiannara, :forecast_registry_name`.
   """
   use GenServer
 
@@ -33,8 +40,6 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
   alias Tiannara.Forecasting.Forecast
   alias Tiannara.Forecasting.Contracts.Forecast, as: ForecastRecord
 
-  @table :efdi_forecast_registry
-  @request_table :efdi_forecast_request_index
   @event_type "efdi.forecast.registered"
 
   # ------------------------------------------------------------------
@@ -42,23 +47,55 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
   # ------------------------------------------------------------------
 
   def start_link(opts \\ []) do
-    name = Keyword.get(opts, :name, __MODULE__)
+    name = Keyword.get(opts, :name, server())
     GenServer.start_link(__MODULE__, opts, name: name)
   end
 
+  @doc """
+  The registered name of the forecast registry.
+
+  It is configurable so that an isolated instance can be used where the
+  application-wide instance would conflict — in tests, and where two registries
+  must not share a table.
+  """
+  @spec server() :: atom()
+  def server, do: Application.get_env(:tiannara, :forecast_registry_name) || __MODULE__
+
+  @doc """
+  The ETS table backing this registry instance.
+
+  The table is named after the instance so that an isolated registry never
+  shares state with the application-wide one.
+  """
+  @spec table() :: atom()
+  def table, do: :"#{server()}_forecasts"
+
+  @doc "The ETS table backing the request id index of this instance."
+  @spec request_table() :: atom()
+  def request_table, do: :"#{server()}_forecast_request_index"
+
+  @doc """
+  The durable event log this registry writes its lineage to.
+
+  The event store resolves its own registered name, so an isolated log is used
+  by configuring `:executive_event_store`.
+  """
+  @spec event_store() :: module()
+  def event_store, do: Tiannara.Executive.EventStore
+
   @spec register(Forecast.t(), keyword()) :: {:ok, Forecast.t()} | {:error, term()}
   def register(%ForecastRecord{} = f, opts \\ []),
-    do: GenServer.call(__MODULE__, {:register, f, opts})
+    do: GenServer.call(server(), {:register, f, opts})
 
   @doc "The request id index, rebuilt from the durable lineage."
   @spec request_index() :: %{optional(String.t()) => map()}
-  def request_index, do: GenServer.call(__MODULE__, :request_index)
+  def request_index, do: GenServer.call(server(), :request_index)
 
   @spec get(String.t()) :: {:ok, Forecast.t()} | :error
-  def get(id) when is_binary(id), do: GenServer.call(__MODULE__, {:get, id})
+  def get(id) when is_binary(id), do: GenServer.call(server(), {:get, id})
 
   @spec all_ids() :: [String.t()]
-  def all_ids, do: GenServer.call(__MODULE__, :all_ids)
+  def all_ids, do: GenServer.call(server(), :all_ids)
 
   @doc """
   The number of forecasts registered through this process.
@@ -67,31 +104,43 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
   registration, so it is not counted.
   """
   @spec count() :: non_neg_integer()
-  def count, do: GenServer.call(__MODULE__, :count)
+  def count, do: GenServer.call(server(), :count)
 
   @spec health() :: map()
-  def health, do: GenServer.call(__MODULE__, :health)
+  def health, do: GenServer.call(server(), :health)
 
   @doc "Replays the durable lineage and rebuilds the in-memory index."
   @spec recover() :: {:ok, non_neg_integer()} | {:error, :eventstore_unavailable}
-  def recover, do: GenServer.call(__MODULE__, :recover)
+  def recover, do: GenServer.call(server(), :recover)
 
   # Server callbacks
   # ------------------------------------------------------------------
 
   @impl true
-  def init(_opts) do
-    if :ets.info(@table) == :undefined do
-      :ets.new(@table, [:set, :public, :named_table, read_concurrency: true])
+  def init(opts) do
+    name = Keyword.get(opts, :name, server())
+    table = :"#{name}_forecasts"
+    request_table = :"#{name}_forecast_request_index"
+
+    if :ets.info(table) == :undefined do
+      :ets.new(table, [:set, :public, :named_table, read_concurrency: true])
     end
 
-    if :ets.info(@request_table) == :undefined do
-      :ets.new(@request_table, [:set, :public, :named_table, read_concurrency: true])
+    if :ets.info(request_table) == :undefined do
+      :ets.new(request_table, [:set, :public, :named_table, read_concurrency: true])
     end
 
-    {recovered, degraded} = rehydrate()
+    {recovered, degraded, failures} = rehydrate(table, request_table)
 
-    {:ok, %{count: 0, eventstore_degraded: degraded, recovered_count: recovered}}
+    {:ok,
+     %{
+       table: table,
+       request_table: request_table,
+       count: 0,
+       eventstore_degraded: degraded,
+       recovered_count: recovered,
+       recovery_failures: failures
+     }}
   end
 
   @impl true
@@ -104,36 +153,37 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
         {:reply, {:error, reason}, state}
 
       {:ok, f} ->
-        case get_by_id(f.id) do
+        case get_by_id(state.table, f.id) do
           {:ok, existing} ->
             {:reply, {:ok, existing}, state}
 
           :error ->
-            :ets.insert(@table, {f.id, f})
-            index_request_id(request_id, f.id, fingerprint)
+            :ets.insert(state.table, {f.id, f})
+            index_request_id(state.request_table, request_id, f.id, fingerprint)
             state = maybe_append_event(f, request_id, fingerprint, state)
             {:reply, {:ok, f}, bump(state)}
         end
     end
   end
 
-  def handle_call(:request_index, _from, state) do
-    {:reply, request_index_from_ets(), state}
-  end
+  def handle_call({:get, id}, _from, state), do: {:reply, get_by_id(state.table, id), state}
 
-  def handle_call({:get, id}, _from, state), do: {:reply, get_by_id(id), state}
-
-  def handle_call(:all_ids, _from, state), do: {:reply, all_ids_from_ets(), state}
+  def handle_call(:all_ids, _from, state), do: {:reply, all_ids_from_ets(state.table), state}
 
   def handle_call(:count, _from, state), do: {:reply, state.count, state}
 
+  def handle_call(:request_index, _from, state) do
+    {:reply, request_index_from_ets(state.request_table), state}
+  end
+
   def handle_call(:recover, _from, state) do
-    {recovered, degraded} = rehydrate()
+    {recovered, degraded, failures} = rehydrate(state.table, state.request_table)
 
     state = %{
       state
       | recovered_count: recovered,
-        eventstore_degraded: degraded
+        eventstore_degraded: degraded,
+        recovery_failures: failures
     }
 
     {:reply, {:ok, recovered}, state}
@@ -142,31 +192,32 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
   def handle_call(:health, _from, state) do
     {:reply,
      %{
-       ets_available: :ets.info(@table) != :undefined,
+       ets_available: :ets.info(state.table) != :undefined,
        eventstore_degraded: state.eventstore_degraded,
        durable: not state.eventstore_degraded,
-       forecast_count: :ets.info(@table, :size),
-       recovered_count: state.recovered_count
+       forecast_count: :ets.info(state.table, :size),
+       recovered_count: state.recovered_count,
+       recovery_failures: state.recovery_failures
      }, state}
   end
 
   # Persistence helpers
   # ------------------------------------------------------------------
 
-  defp get_by_id(id) do
-    case :ets.lookup(@table, id) do
+  defp get_by_id(table, id) do
+    case :ets.lookup(table, id) do
       [{_, f}] -> {:ok, f}
       [] -> :error
     end
   end
 
-  defp all_ids_from_ets do
+  defp all_ids_from_ets(table) do
     :ets.foldl(fn entry, acc ->
       case entry do
         {id, %ForecastRecord{}} when is_binary(id) -> [id | acc]
         _ -> acc
       end
-    end, [], @table)
+    end, [], table)
   end
 
   defp bump(state), do: %{state | count: state.count + 1}
@@ -183,7 +234,7 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
       })
 
     try do
-      Tiannara.Executive.EventStore.append(event)
+      event_store().append(event)
       state
     catch
       :exit, _reason ->
@@ -209,40 +260,47 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
     end
   end
 
-  defp rehydrate do
+  # Recovery returns what it recovered, whether the log was unreadable, and
+  # how many records it could not read. A record that cannot be decoded is
+  # never silently discarded: it is counted, the registry reports itself
+  # degraded, and the history is not presented as clean.
+  defp rehydrate(table, request_table) do
     case safe_stream() do
-      {:ok, events} ->
-        recovered =
-          Enum.reduce(events, 0, fn event, acc ->
+      {:ok, events, unreadable, truncated} ->
+        {recovered, failures} =
+          Enum.reduce(events, {0, 0}, fn event, {acc, failed} ->
             case forecast_from_event(event) do
               {:ok, forecast} ->
-                :ets.insert(@table, {forecast.id, forecast})
-                index_request(event, forecast)
-                acc + 1
+                :ets.insert(table, {forecast.id, forecast})
+                index_request(event, request_table, forecast)
+                {acc + 1, failed}
 
               :error ->
-                acc
+                {acc, failed + 1}
             end
           end)
 
-        {recovered, false}
+        total_failures = failures + unreadable
+
+        {recovered, total_failures > 0 or truncated, total_failures}
 
       :error ->
-        {0, true}
+        {0, true, :unreadable}
     end
   end
 
-  defp index_request_id(request_id, forecast_id, fingerprint) when is_binary(request_id) do
-    :ets.insert(@request_table, {request_id, %{forecast_id: forecast_id, fingerprint: fingerprint}})
+  defp index_request_id(request_table, request_id, forecast_id, fingerprint)
+       when is_binary(request_id) do
+    :ets.insert(request_table, {request_id, %{forecast_id: forecast_id, fingerprint: fingerprint}})
   end
 
-  defp index_request_id(_request_id, _forecast_id, _fingerprint), do: :ok
+  defp index_request_id(_request_table, _request_id, _forecast_id, _fingerprint), do: :ok
 
-  defp index_request(event, forecast) do
+  defp index_request(event, request_table, forecast) do
     with %{data: data} when is_map(data) <- event,
          request_id when is_binary(request_id) <- Map.get(data, :request_id) do
       :ets.insert(
-        @request_table,
+        request_table,
         {request_id,
          %{forecast_id: forecast.id, fingerprint: Map.get(data, :request_fingerprint)}}
       )
@@ -251,14 +309,20 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
     end
   end
 
-  defp request_index_from_ets do
+  defp request_index_from_ets(request_table) do
     :ets.foldl(fn {request_id, entry}, acc ->
       Map.put(acc, request_id, entry)
-    end, %{}, @request_table)
+    end, %{}, request_table)
   end
 
   defp safe_stream do
-    {:ok, Tiannara.Executive.EventStore.stream(0)}
+    case event_store().stream_with_diagnostics(0) do
+      {:ok, %{events: events, unreadable: unreadable, truncated: truncated}} ->
+        {:ok, events, unreadable, truncated}
+
+      _ ->
+        :error
+    end
   catch
     :exit, _reason -> :error
   rescue

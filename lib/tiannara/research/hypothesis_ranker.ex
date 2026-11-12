@@ -33,7 +33,18 @@ defmodule Tiannara.Research.HypothesisRanker do
     source_priority_id: binary() | nil, confidence: float(), eig_score: float(),
     feasibility: float(), urgency: float(), rank_score: float(), rationale: String.t(),
     falsification_criteria: String.t(), evidence_for: [term()], evidence_against: [term()],
-    status: :pending | :testing | :validated | :rejected | :refined, created_at: DateTime.t(), updated_at: DateTime.t()
+    status: :pending | :testing | :validated | :rejected | :refined, created_at: DateTime.t(), updated_at: DateTime.t(),
+    # TCP-002.4: the forecast specification carried by the research input, and
+    # the outcome of asking the canonical forecasting authority for a
+    # probabilistic forecast. `:not_forecastable` means the hypothesis is not a
+    # forecastable proposition; `:unavailable` means it was forecastable but
+    # the authority could not be reached or refused; `:registered` means a
+    # probabilistic forecast was produced and registered.
+    forecast_spec: map() | nil,
+    forecast_status: :pending | :registered | :unavailable | :not_forecastable,
+    forecast: map() | nil,
+    forecast_id: binary() | nil,
+    forecast_error: term() | nil
   }
 
   def start_link(opts \\ []) do
@@ -98,6 +109,14 @@ defmodule Tiannara.Research.HypothesisRanker do
       domain: priority.domain, signal: priority.signal, source_priority_id: priority.id,
       confidence: 0.5, eig_score: 0.0, feasibility: 0.0, urgency: 0.0, rank_score: 0.0,
       rationale: priority.rationale,
+      # A forecast specification travels with the priority when the observation
+      # supports one. It is optional: a hypothesis without one is not a
+      # forecastable proposition and is marked as such rather than being given
+      # an invented probability.
+      forecast_spec: Map.get(priority, :forecast_spec),
+      forecast_status: :pending,
+      forecast: nil,
+      forecast_id: nil,
       falsification_criteria: "If controlled experiments show no significant change in #{priority.signal} when the suspected factor is varied, the hypothesis is rejected.",
       evidence_for: [priority.rationale], evidence_against: [],
       status: :pending, created_at: DateTime.utc_now(), updated_at: DateTime.utc_now()

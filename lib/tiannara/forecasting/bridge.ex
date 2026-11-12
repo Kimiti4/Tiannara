@@ -153,6 +153,11 @@ defmodule Tiannara.Forecasting.Bridge do
     else
       {:error, reason} -> {:error, reason}
     end
+  catch
+    # The registry is a separate process. If it is not running, the forecast
+    # cannot be registered and the caller must be told so explicitly rather
+    # than crashing.
+    :exit, _reason -> {:error, :forecast_registry_unavailable}
   end
 
   @doc "The forecast previously produced for `request_id`, if any."

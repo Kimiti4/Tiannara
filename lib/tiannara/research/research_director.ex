@@ -106,6 +106,7 @@ defmodule Tiannara.Research.ResearchDirector.Pipeline do
   require Logger
 
   alias Tiannara.Research.{HypothesisRanker, ExperimentPlanner, ResearchQueue, KnowledgeIntegrator, EvidenceScorer}
+  alias Tiannara.Research.Forecasting, as: ForecastAdapter
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -131,6 +132,13 @@ defmodule Tiannara.Research.ResearchDirector.Pipeline do
   def handle_call({:ingest, priorities}, _from, state) do
     hypotheses = HypothesisRanker.generate_from_priorities(priorities)
     ranked = HypothesisRanker.rank(hypotheses)
+
+    # A probabilistic forecast belongs at the hypothesis evaluation stage: the
+    # hypothesis defines the proposition, the outcome space and the resolution
+    # criteria. Hypotheses without an explicit forecast specification are not
+    # forecastable propositions and are marked as such — they are not given an
+    # invented probability.
+    ranked = Enum.map(ranked, &request_forecast/1)
 
     Enum.each(ranked, fn hypothesis ->
       ResearchQueue.enqueue(:hypothesis, hypothesis)
@@ -166,6 +174,22 @@ defmodule Tiannara.Research.ResearchDirector.Pipeline do
   @impl true
   def handle_call(:quarantined_count, _from, state) do
     {:reply, state.total_quarantined, state}
+  end
+
+  # Requests a forecast through the canonical EFDI authority and records the
+  # outcome on the hypothesis. A failure is recorded, not hidden, and never
+  # turns into a confidence value.
+  defp request_forecast(hypothesis) do
+    case Map.get(hypothesis, :forecast_spec) do
+      nil ->
+        ForecastAdapter.mark_not_forecastable(hypothesis, :missing_forecast_specification)
+
+      spec ->
+        ForecastAdapter.attach(
+          hypothesis,
+          ForecastAdapter.request_forecast(hypothesis, spec)
+        )
+    end
   end
 
   defp quarantine_experiment(experiment) do

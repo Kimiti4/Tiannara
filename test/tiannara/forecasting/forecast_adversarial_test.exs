@@ -6,7 +6,7 @@ defmodule Tiannara.Forecasting.ForecastAdversarialTest do
 
   setup do
     start_supervised!(ForecastRegistry)
-    :ets.delete_all_objects(:efdi_forecast_registry)
+    :ets.delete_all_objects(Tiannara.Forecasting.ForecastRegistry.table())
     :ok
   end
 

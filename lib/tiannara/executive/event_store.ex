@@ -25,17 +25,37 @@ defmodule Tiannara.Executive.EventStore do
     GenServer.start_link(__MODULE__, {file_path, name}, name: name)
   end
 
+  @doc """
+  The registered name of the event store.
+
+  Configurable so that an isolated durable log can be used where the
+  application-wide log would conflict — in tests, and where two logs must not
+  share a file.
+  """
+  def server, do: Application.get_env(:tiannara, :executive_event_store) || __MODULE__
+
   @doc "Appends an event to the log."
-  def append(event), do: GenServer.call(__MODULE__, {:append, event})
+  def append(event), do: GenServer.call(server(), {:append, event})
 
   @doc "Streams all events since a given index."
-  def stream(since \\ 0), do: GenServer.call(__MODULE__, {:stream, since})
+  def stream(since \\ 0), do: GenServer.call(server(), {:stream, since})
+
+  @doc """
+  Streams the log together with what could not be read.
+
+  A truncated tail or a corrupted frame must not be presented as clean
+  history: the unreadable count is reported so that a consumer can refuse to
+  treat the recovered history as complete.
+  """
+  @spec stream_with_diagnostics(non_neg_integer()) :: {:ok, map()}
+  def stream_with_diagnostics(since \\ 0),
+    do: GenServer.call(server(), {:stream_with_diagnostics, since})
 
   @doc "Returns events since a given timestamp."
-  def since(timestamp), do: GenServer.call(__MODULE__, {:since, timestamp})
+  def since(timestamp), do: GenServer.call(server(), {:since, timestamp})
 
   @doc "Returns the current event count."
-  def count, do: GenServer.call(__MODULE__, :count)
+  def count, do: GenServer.call(server(), :count)
 
   @impl true
   def init({file_path, _name}) do
@@ -65,8 +85,15 @@ defmodule Tiannara.Executive.EventStore do
 
   @impl true
   def handle_call({:stream, since}, _from, state) do
-    events = read_events(state.file_path, since)
+    {events, _unreadable, _truncated} = read_events(state.file_path, since)
     {:reply, events, state}
+  end
+
+  def handle_call({:stream_with_diagnostics, since}, _from, state) do
+    {events, unreadable, truncated} = read_events(state.file_path, since)
+
+    {:reply,
+     {:ok, %{events: events, unreadable: unreadable, truncated: truncated}}, state}
   end
 
   @impl true
@@ -91,22 +118,46 @@ defmodule Tiannara.Executive.EventStore do
     case File.read(file_path) do
       {:ok, data} ->
         parse_frames(data, since_offset)
-      _ -> []
+
+      _ ->
+        {[], 0, false}
     end
   end
 
   defp parse_frames(data, since_offset) do
-    parse_frames(data, since_offset, 0, [])
+    parse_frames(data, since_offset, 0, [], 0, false)
   end
 
-  defp parse_frames(<<size::32, frame::binary-size(size), rest::binary>>, since_offset, idx, acc) do
-    event = Tiannara.Executive.Event.from_binary(frame)
-    if idx >= since_offset do
-      parse_frames(rest, since_offset, idx + 1, acc ++ [event])
-    else
-      parse_frames(rest, since_offset, idx + 1, acc)
+  defp parse_frames(
+         <<size::32, frame::binary-size(size), rest::binary>>,
+         since_offset,
+         idx,
+         acc,
+         unreadable,
+         truncated
+       ) do
+    case safe_event(frame) do
+      {:ok, event} ->
+        acc = if idx >= since_offset, do: acc ++ [event], else: acc
+        parse_frames(rest, since_offset, idx + 1, acc, unreadable, truncated)
+
+      :error ->
+        parse_frames(rest, since_offset, idx + 1, acc, unreadable + 1, truncated)
     end
   end
 
-  defp parse_frames(_, _, _, acc), do: acc
+  # A frame whose declared size exceeds the remaining bytes is a truncated
+  # tail, not a clean end of log.
+  defp parse_frames(<<size::32, rest::binary>>, _since_offset, _idx, acc, unreadable, _truncated)
+       when byte_size(rest) < size do
+    {acc, unreadable + 1, true}
+  end
+
+  defp parse_frames(_, _, _, acc, unreadable, truncated), do: {acc, unreadable, truncated}
+
+  defp safe_event(bin) do
+    {:ok, Tiannara.Executive.Event.from_binary(bin)}
+  rescue
+    _error -> :error
+  end
 end

@@ -34,7 +34,9 @@ defmodule Tiannara.Executive.Event do
 
   @doc "Deserializes a binary to an event."
   def from_binary(bin) do
-    :erlang.binary_to_term(bin)
+    # `[:safe]` refuses to create new atoms or local function references, so a
+    # tampered log cannot introduce executable terms.
+    :erlang.binary_to_term(bin, [:safe])
   end
 
   @doc "Returns a human-readable description of the event."

@@ -21,9 +21,20 @@ defmodule Tiannara.Forecasting.Adapters.ResearchImpl do
        signal: signal.id,
        score: priority_score(signal),
        id: "priority_#{signal.id}",
-       rationale: "EFDI signal #{signal.id} prioritized for #{signal.domain}"
+       rationale: "EFDI signal #{signal.id} prioritized for #{signal.domain}",
+       # A forecast specification travels with the priority when the signal
+       # carries one, so the Research Director can request a probabilistic
+       # forecast for a forecastable proposition. It is absent otherwise.
+       forecast_spec: forecast_spec(signal)
      }}
   end
+
+  # The forecast specification is carried in the signal's context. It is
+  # passed through unchanged; this adapter does not invent one.
+  defp forecast_spec(%Signal{context: context}) when is_map(context),
+    do: Map.get(context, :forecast_spec)
+
+  defp forecast_spec(_signal), do: nil
 
   @impl Research
   @spec signals_to_priorities([Signal.t()]) :: {:ok, [map()]}

@@ -198,3 +198,48 @@ Details: `certification/tcp/TCP-002_EXECUTION_SPINE.md`,
 784 tests and 32 properties, 0 failures, at seeds 0 and 123456. RL-565 remains
 `HIGH / OPEN`; RL-564 and `F-ARC-018` remain `OPEN`. No merge, deployment,
 registry promotion or physical actuation.
+
+---
+
+## 12. TCP-002.4 — Research-to-Forecast Operational Closure
+
+**Status:** ACTIVE — **PARTIAL**. Stages 0–3 delivered; Stages 4–13 open.
+
+TCP-002.4 is the first checkpoint aimed at a **complete, traceable forecasting
+lifecycle** rather than at a boundary or a component. Its central acceptance
+target is one research investigation whose forecast survives persistence, whose
+outcome is independently resolved, and whose result reaches a genuine score.
+
+**Delivered:**
+
+- **Stage 2 — the Research Director reaches EFDI.** A new adapter
+  (`Tiannara.Research.Forecasting`) performs no forecasting mathematics; the
+  *supervised* Research Director now requests a probabilistic forecast at the
+  hypothesis-evaluation stage and records the forecast id on the hypothesis.
+  A hypothesis that is not a forecastable proposition is marked
+  `:not_forecastable` — it is **not** given an invented probability.
+- **Stage 3 — the durable registry is adversarially verified.** 14 tests against
+  an isolated on-disk log. Writing them exposed two real defects, both fixed at
+  source: the event log **silently truncated history** at the first unreadable
+  frame (corruption was presented as clean history), and `Event.from_binary/1`
+  used an **unsafe** `binary_to_term` that could introduce executable terms
+  from a tampered log.
+
+**Not delivered, and stated plainly:**
+
+- **No real observed outcome was acquired**, so there is no independent
+  resolution, no score and no calibration. Stage 4 is **BLOCKED** by the
+  absence of a live external source in this environment — not by a missing
+  implementation of the machinery, which exists and is correct.
+- The NATS transport remains compiled but unexecuted.
+- **No predictive-performance claim of any kind is made.** A single forecast
+  cannot establish calibration, and nothing in this checkpoint pretends
+  otherwise.
+
+**Disposition:** `IMPLEMENTED_WITH_PARTIAL_EVIDENCE` / `VERIFICATION_BLOCKED`.
+RL-565 remains `HIGH / OPEN`; RL-564 and `F-ARC-018` remain `OPEN`. No merge,
+deployment, registry promotion or physical actuation.
+
+Details: `certification/tcp/TCP_002_4_IMPLEMENTATION_REPORT.md`,
+`certification/tcp/TCP_002_4_BASELINE_AND_INTEGRATION.md`,
+`certification/evidence/tcp002_4/`.
