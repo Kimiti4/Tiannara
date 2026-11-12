@@ -165,3 +165,36 @@ detection, supervision-tree analysis, call-graph reference counting,
 hardcoding census), corroborated by two independent deep-scan passes over the
 capability surface. Every count in the assessment is reproducible from the
 repository at the stated commit.
+
+---
+
+## 11. TCP-002 — W0: Cognitive Capability Activation
+
+**Status:** ACTIVE. TCP-002.1 (activation map) and TCP-002.2 (Cognitive
+Execution Spine) delivered. TCP-002.3–002.6 open.
+
+TCP-002 is the first checkpoint governed by the two-outcome rule. Its
+substantive finding:
+
+> 336 runtime modules — 24 % of the runtime — contained substantial, implemented
+> capability that no process ever called, and a material part of it was
+> **broken** rather than merely unwired.
+
+The activation map (`tools/tcp/tcp002_activation_map.py`) showed that **none of
+the 336 was a process** — they are stateless libraries and behaviour
+contracts. The activation mechanism is therefore *composition*, not
+supervision, and the Cognitive Execution Spine was built as a thin sequencing
+contract over engines that already exist: **one** process for **339** modules,
+with authority and knowledge as fail-closed ports.
+
+Four defects were found by activation that inspection had not found, two of
+them (`CognitiveContext.compute_fingerprint/1` and
+`ContextBuilder.build_context/3`) fatal to every caller.
+
+Details: `certification/tcp/TCP-002_EXECUTION_SPINE.md`,
+`certification/tcp/TCP-002_ACTIVATION_MAP.md` / `.csv`.
+
+**Disposition:** `IMPLEMENTED_WITH_PARTIAL_EVIDENCE` / `VERIFICATION_BLOCKED`.
+784 tests and 32 properties, 0 failures, at seeds 0 and 123456. RL-565 remains
+`HIGH / OPEN`; RL-564 and `F-ARC-018` remain `OPEN`. No merge, deployment,
+registry promotion or physical actuation.

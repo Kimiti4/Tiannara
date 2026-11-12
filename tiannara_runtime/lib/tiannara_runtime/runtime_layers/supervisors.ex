@@ -101,7 +101,14 @@ defmodule TiannaraRuntime.Execution.Supervisor do
   def init(_opts) do
     children =
       required_child(Tiannara.OPC.CoreSupervisor) ++
-        optional_child(Tiannara.OPC.Supervisor)
+        optional_child(Tiannara.OPC.Supervisor) ++
+        # TCP-002.2: the Cognitive Execution Spine is the single governed entry
+        # point through which the runtime's existing cognitive engines
+        # (planning, forecasting, decision, evidence) cooperate. It is an
+        # optional child so a runtime without it still boots; it contains no
+        # capability of its own, only sequencing over engines that already
+        # exist.
+        optional_child(TiannaraRuntime.Cognitive.Spine.SpineServer)
 
     Supervisor.init(children, strategy: :one_for_one)
   end

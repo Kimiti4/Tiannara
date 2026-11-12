@@ -36,6 +36,9 @@ defmodule TiannaraRuntime.Cognitive.Runtime.CognitiveContext do
   def compute_fingerprint(%__MODULE__{} = struct) do
     canonical =
       struct
+      # `Map.drop/2` preserves the `:__struct__` key, so the result is still a
+      # struct and is not Enumerable. `Map.from_struct/1` removes it.
+      |> Map.from_struct()
       |> Map.drop([:id, :fingerprint])
       |> Enum.sort_by(fn {k, _} -> k end)
       |> Enum.map(fn {k, v} -> "#{k}:#{inspect(v)}" end)
