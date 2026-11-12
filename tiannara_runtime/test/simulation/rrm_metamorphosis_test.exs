@@ -1,9 +1,9 @@
-defmodule Tiarnara.Simulation.RRMMetamorphosisTest do
+defmodule Tiannara.Simulation.RRMMetamorphosisTest do
   @moduledoc "Property-based validation of bounded adaptation, equivalence preservation, & rollback triggers"
   use ExUnit.Case, async: true
   use PropCheck
 
-  alias Tiarnara.Phase18.RRM.{AdaptationController, EquivalenceVerifier}
+  alias Tiannara.Phase18.RRM.{AdaptationController, EquivalenceVerifier}
 
   @kappa_meta 0.12
   @stability_threshold 0.50

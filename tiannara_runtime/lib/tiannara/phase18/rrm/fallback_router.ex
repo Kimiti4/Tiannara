@@ -1,4 +1,4 @@
-defmodule Tiarnara.Phase18.RRM.FallbackRouter do
+defmodule Tiannara.Phase18.RRM.FallbackRouter do
   @moduledoc """
   Baseline reversion & Phase 17 quarantine routing.
   """

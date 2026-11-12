@@ -1,4 +1,4 @@
-defmodule Tiarnara.Phase18.RRM.AdaptationController do
+defmodule Tiannara.Phase18.RRM.AdaptationController do
   @moduledoc """
   EMA smoothing, drift capping, and rollback gating.
   """
@@ -29,7 +29,22 @@ defmodule Tiarnara.Phase18.RRM.AdaptationController do
 
   defp compute_drift_delta(old, new) do
     keys = Map.keys(old) ++ Map.keys(new) |> Enum.uniq()
-    diffs = Enum.map(keys, fn k -> abs((old[k] || 0.0) - (new[k] || 0.0)) end)
+
+    diffs =
+      Enum.map(keys, fn k ->
+        value_delta(Map.get(old, k), Map.get(new, k))
+      end)
+
     Enum.sum(diffs) / max(length(diffs), 1)
   end
+
+  # Rule sets mix numbers (`:unroll_factor`) with non-numeric settings
+  # (`:precision`), so a drift measure must compare values by kind: equal
+  # values contribute nothing, numeric pairs contribute their magnitude, and a
+  # changed non-numeric setting contributes one unit of drift.
+  defp value_delta(a, b) when a == b, do: 0.0
+  defp value_delta(a, b) when is_number(a) and is_number(b), do: abs(a - b)
+  defp value_delta(nil, b) when is_number(b), do: abs(b)
+  defp value_delta(a, nil) when is_number(a), do: abs(a)
+  defp value_delta(_a, _b), do: 1.0
 end

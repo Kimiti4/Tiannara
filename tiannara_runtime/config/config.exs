@@ -11,6 +11,28 @@ config :tiannara_runtime,
   cpl_storage_path: "data/cpl",
   cpl_checkpoint_interval: 30_000
 
+# Native accelerator inventory.
+#
+# Every native (NIF) boundary in this runtime resolves its artifact through
+# `TiannaraRuntime.NativeBridge` against this inventory. Paths are relative to
+# the owner application's `priv/` directory, so no call site hardcodes an OTP
+# application atom. An accelerator that is not listed here is reported as
+# `:not_configured` and its bridge fails closed instead of raising.
+config :tiannara_runtime, :native_accelerator_app, :tiannara_runtime
+
+config :tiannara_runtime, :native_accelerators,
+  %{
+    mes_native_compiler: [path: "priv/native/mes_native_compiler"],
+    men_native_solver: [path: "priv/native/men_native_solver"],
+    crca_native_aligner: [path: "priv/native/crca_native_aligner"],
+    reg_native_symbolic: [path: "priv/native/reg_native_symbolic"],
+    smcp_native_simulator: [path: "priv/native/smcp_native_simulator"],
+    rea_native_unifier: [path: "priv/native/rea_native_unifier"],
+    ucc_native_compiler: [path: "priv/native/ucc_native_compiler"],
+    rrm_native_jit: [path: "priv/native/rrm_native_jit"],
+    tcl_native_lattice: [path: "priv/native/tcl_native_lattice"]
+  }
+
 # NATS connection configuration
 config :tiannara_runtime, TiannaraRuntime.NATS.ConnectionManager,
   server_url: System.get_env("NATS_URL", "nats://localhost:4222"),

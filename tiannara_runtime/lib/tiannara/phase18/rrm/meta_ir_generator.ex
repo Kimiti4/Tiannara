@@ -1,4 +1,4 @@
-defmodule Tiarnara.Phase18.RRM.MetaIRGenerator do
+defmodule Tiannara.Phase18.RRM.MetaIRGenerator do
   @moduledoc """
   Transforms standard Phase 17 DAG IR into self-describing Meta-IR.
   Embeds transformation rules, adaptation bounds, and equivalence checkpoints.

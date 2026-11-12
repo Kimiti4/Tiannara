@@ -1,4 +1,4 @@
-defmodule Tiarnara.Phase18.RRM.Metrics do
+defmodule Tiannara.Phase18.RRM.Metrics do
   @moduledoc "Exports RRM metamorphosis metrics to Prometheus via :telemetry."
   import Telemetry.Metrics
 
