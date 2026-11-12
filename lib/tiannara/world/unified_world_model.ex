@@ -271,55 +271,74 @@ defmodule Tiannara.World.UnifiedWorldModel do
 
   @impl true
   def handle_call({:delete_entity, entity_id, authorization}, _from, state) do
-    with :ok <- check_present(authorization),
-         :ok <- check_status(authorization),
-         :ok <- check_not_expired(authorization),
-         :ok <- check_authority(authorization),
-         :ok <- check_binding(authorization, entity_id),
-         :ok <- check_provenance(authorization, entity_id),
-         false <- MapSet.member?(state.executed_effects, authorization.effect_id),
-         {:ok, entity} <- UnifiedRealityGraph.get_entity(entity_id),
-         :ok <- consume(authorization) do
-      UnifiedRealityGraph.remove_entity(entity_id)
-      UnifiedRealityGraph.remove_relationships_for_entity(entity_id)
+    result =
+      EmergencyState.with_interlock(fn ->
+        with :ok <- check_emergency_active(),
+             :ok <- check_present(authorization),
+             :ok <- check_status(authorization),
+             :ok <- check_not_expired(authorization),
+             :ok <- check_authority(authorization),
+             :ok <- check_binding(authorization, entity_id),
+             :ok <- check_provenance(authorization, entity_id),
+             false <- MapSet.member?(state.executed_effects, authorization.effect_id),
+             {:ok, entity} <- UnifiedRealityGraph.get_entity(entity_id),
+             :ok <- consume(authorization),
+             :ok <- check_emergency_after_consume() do
+          :telemetry.execute(
+            [:tiannara, :unified_world_model, :effect_boundary],
+            %{count: 1},
+            %{
+              authorization_id: authorization.authorization_id,
+              effect_id: authorization.effect_id
+            }
+          )
 
-      result = %{
-        entity_id: entity_id,
-        effect_id: authorization.effect_id,
-        authorization_id: authorization.authorization_id,
-        receipt_id: authorization.receipt_id,
-        decision_digest: authorization.council_decision_ref,
-        scope_digest: authorization.scope_digest,
-        grant_digest: Tiannara.Council.DecisionDigest.machine_grant(authorization)
-      }
+          UnifiedRealityGraph.remove_entity(entity_id)
+          UnifiedRealityGraph.remove_relationships_for_entity(entity_id)
 
-      ent_type = Map.get(entity, :type, :unknown)
+          result = %{
+            entity_id: entity_id,
+            effect_id: authorization.effect_id,
+            authorization_id: authorization.authorization_id,
+            receipt_id: authorization.receipt_id,
+            decision_digest: authorization.council_decision_ref,
+            scope_digest: authorization.scope_digest,
+            grant_digest: Tiannara.Council.DecisionDigest.machine_grant(authorization)
+          }
 
-      EventBus.publish(
-        "world.entity.deleted",
-        Map.merge(result, %{entity_type: ent_type})
-      )
+          ent_type = Map.get(entity, :type, :unknown)
 
-      ns = %{
-        state
-        | total_entities: max(0, state.total_entities - 1),
-          type_counts: Map.update!(state.type_counts, ent_type, &max(0, &1 - 1)),
-          executed_effects: MapSet.put(state.executed_effects, result.effect_id)
-      }
+          EventBus.publish(
+            "world.entity.deleted",
+            Map.merge(result, %{entity_type: ent_type})
+          )
 
-      case record_and_verify_audit(result) do
-        :ok ->
-          {:reply, {:ok, result}, ns}
+          ns = %{
+            state
+            | total_entities: max(0, state.total_entities - 1),
+              type_counts: Map.update!(state.type_counts, ent_type, &max(0, &1 - 1)),
+              executed_effects: MapSet.put(state.executed_effects, result.effect_id)
+          }
 
-        {:error, reason} ->
-          {:reply, {:error, reason}, ns}
-      end
-    else
-      true ->
-        {:reply, {:error, :effect_already_executed}, state}
+          case record_and_verify_audit(result) do
+            :ok ->
+              {:reply, {:ok, result}, ns}
 
-      {:error, _reason} = error ->
-        {:reply, error, state}
+            {:error, reason} ->
+              {:reply, {:error, reason}, ns}
+          end
+        else
+          true ->
+            {:reply, {:error, :effect_already_executed}, state}
+
+          {:error, _reason} = error ->
+            {:reply, error, state}
+        end
+      end)
+
+    case result do
+      {:reply, _response, _state} = reply -> reply
+      {:error, reason} -> {:reply, {:error, reason}, state}
     end
   end
 
@@ -659,6 +678,10 @@ defmodule Tiannara.World.UnifiedWorldModel do
   end
 
   defp check_provenance(_authorization, _entity_id), do: {:error, :authorization_provenance_invalid}
+
+  defp check_emergency_active do
+    if EmergencyState.active?(), do: {:error, :council_emergency_active}, else: :ok
+  end
 
   defp check_emergency_after_consume do
     if EmergencyState.active?(), do: {:error, :council_emergency_active}, else: :ok

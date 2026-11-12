@@ -51,9 +51,29 @@ See git diff on branch `feat/cp19-20-rl565-council-provenance`. New: `decision_d
 See `CP19_20_RL565_CONSUMER_CLOSURE_MATRIX.md`. Machine-authority consumers closed: `WorldMutationEngine`, `UnifiedWorldModel.delete_entity/2`. Direct `Council.authorize/3` callers (`CEL.Kernel`, `ResourceManager`, `ExperimentOrchestrator`, `Forecasting.Adapters.DecisionImpl`) remain unresolved direct decision consumers and are disclosed; they do not mint machine grants today.
 
 ## 4. Test results
-- `rl565_council_decision_provenance_adversarial_test.exs`: 19 tests, 0 failures at seeds 0 and 123456.
-- Migrated UWM/D127 suites: 34 tests, 0 failures.
+- `rl565_council_decision_provenance_adversarial_test.exs`: 20 tests, 0 failures at seeds 0 and 123456.
+- `rl565_registry_persistence_recovery_test.exs`: 6 tests, 0 failures at seeds 0 and 123456.
+- `rl565_emergency_durability_interlock_test.exs`: 11 tests, 0 failures at seeds 0 and 123456.
+- Combined affected run (8 suites incl. UWM/D127): 93 tests, 0 failures at seeds 0 and 123456.
 - `rl564_registry_issuance_adversarial_test.exs`: remains red baseline (RL-564 out of scope).
 
 ## 5. Disposition
-`IMPLEMENTED_WITH_PARTIAL_EVIDENCE`. RL-565 pending independent review. No push/merge/deployment/closure performed.
+`IMPLEMENTED_WITH_PARTIAL_EVIDENCE`. RL-565 pending independent review. No merge/deployment/closure performed.
+
+## 6. CP19.22 addendum — remediation of CP19.21 verifier findings
+
+The CP19.21 independent verification returned `VERIFICATION_FAILED — REMEDIATION INCOMPLETE`. CP19.22 addresses each finding:
+
+1. **Authoritative, restart-safe emergency state.** `EmergencyState.load/0` now fails closed on corrupt, invalid, unreadable, or missing-after-initialization state. `Council.init/1` raises instead of publishing an inactive default, so a Council process cannot come up with a silently-defaulted emergency snapshot.
+2. **Emergency/effect atomicity.** A process-wide `:global.trans` interlock is acquired by both emergency invoke/lift and the protected UWM delete effect. The effect re-checks emergency before consumption and after consumption, so activation cannot land between the final authorization check and world mutation. The `:claim` is `{{EmergencyState, :interlock}, self()}`; a holder crash releases the lock automatically.
+3. **Durable registry writes.** `MintRegistry` appends with `[:append, :sync]`; the emergency snapshot uses atomic temp write + `[:sync]` + rename + best-effort directory fsync.
+4. **Fail-closed emergency persistence.** `publish/1` persists first and only then updates `:persistent_term`; a failed write returns `{:error, reason}` with memory untouched. A marker file distinguishes first boot from lost state.
+5. **Real recovery suite.** `rl565_registry_persistence_recovery_test.exs` (6 tests) exercises clean round-trip, truncation, MAC tamper, sequence gap (real records 1 then 3), and restart reload. The sequence-gap test is no longer a placeholder.
+6. **Emergency recheck wired into UWM.** The delete handler now performs pre-consume and post-consume emergency checks inside the interlock and emits `[:tiannara, :unified_world_model, :effect_boundary]` telemetry as a deterministic test hook.
+
+### Residual limitations (not closed by CP19.22)
+- Deleting both the emergency state file and the initialization marker is indistinguishable from first boot without an external trust anchor. RL-564 remains `OPEN` and is not merged into this trust root.
+- Direct `Council.authorize/3` callers (`CEL.Kernel`, `ResourceManager`, `ExperimentOrchestrator`, `Forecasting.DecisionImpl`) remain disclosed unresolved consumers.
+- No independent verifier or CI run was available; this is self-attested evidence, not verification.
+
+RL-565 remains `HIGH / OPEN`.

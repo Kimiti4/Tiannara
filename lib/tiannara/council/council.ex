@@ -77,11 +77,18 @@ defmodule Tiannara.Council do
 
   @impl true
   def init(_opts) do
-    EmergencyState.load()
+    case EmergencyState.load() do
+      :ok ->
+        :ok
+
+      {:error, reason} ->
+        # Fail closed: never start with a silently-defaulted emergency state.
+        raise "authoritative emergency state unavailable: #{inspect(reason)}"
+    end
+
     emergency = EmergencyState.snapshot()
     epoch = EmergencyState.epoch()
     state = %{emergency: emergency, emergency_epoch: epoch}
-    EmergencyState.publish(emergency)
 
     AuditLog.append(:council_runtime_booted, :system, %{
       constitution_version: ConstitutionRepository.current().version
@@ -152,39 +159,67 @@ defmodule Tiannara.Council do
 
   @impl true
   def handle_call({:emergency, actor, reason}, _from, state) do
-    new_emergency = %{active: true, invoked_by: actor, reason: reason, invoked_at: DateTime.utc_now()}
-    epoch = state.emergency_epoch + 1
-    EmergencyState.publish(Map.put(new_emergency, :epoch, epoch))
-    try do
-      AuditLog.append(:emergency_invoked, actor, %{reason: reason, epoch: epoch})
-    rescue
-      _ -> :ok
-    catch
-      :exit, _ -> :ok
-    end
-    Logger.error("CONSTITUTIONAL EMERGENCY by #{inspect(actor)}: #{reason}")
+    result =
+      EmergencyState.with_interlock(fn ->
+        new_emergency = %{active: true, invoked_by: actor, reason: reason, invoked_at: DateTime.utc_now()}
+        epoch = state.emergency_epoch + 1
 
-    :telemetry.execute([:tiannara, :council, :emergency, :invoked], %{}, %{actor: actor})
-    {:reply, :ok, %{state | emergency: new_emergency, emergency_epoch: epoch}}
+        case EmergencyState.publish(Map.put(new_emergency, :epoch, epoch)) do
+          :ok ->
+            try do
+              AuditLog.append(:emergency_invoked, actor, %{reason: reason, epoch: epoch})
+            rescue
+              _ -> :ok
+            catch
+              :exit, _ -> :ok
+            end
+
+            Logger.error("CONSTITUTIONAL EMERGENCY by #{inspect(actor)}: #{reason}")
+            :telemetry.execute([:tiannara, :council, :emergency, :invoked], %{}, %{actor: actor})
+            {:reply, :ok, %{state | emergency: new_emergency, emergency_epoch: epoch}}
+
+          {:error, reason} ->
+            {:reply, {:error, reason}, state}
+        end
+      end)
+
+    case result do
+      {:reply, _, _} = reply -> reply
+      {:error, reason} -> {:reply, {:error, reason}, state}
+    end
   end
 
   @impl true
   def handle_call({:lift_emergency, human_id}, _from, state) do
-    if state.emergency.active do
-      epoch = state.emergency_epoch + 1
-      emergency = %{active: false, invoked_by: nil, reason: nil, invoked_at: nil}
-      EmergencyState.publish(Map.put(emergency, :epoch, epoch))
-      try do
-        AuditLog.append(:emergency_lifted, human_id, %{prev: state.emergency.invoked_by, epoch: epoch})
-      rescue
-        _ -> :ok
-      catch
-        :exit, _ -> :ok
-      end
+    result =
+      EmergencyState.with_interlock(fn ->
+        if state.emergency.active do
+          epoch = state.emergency_epoch + 1
+          emergency = %{active: false, invoked_by: nil, reason: nil, invoked_at: nil}
 
-      {:reply, :ok, %{state | emergency: emergency, emergency_epoch: epoch}}
-    else
-      {:reply, {:error, :no_active_emergency}, state}
+          case EmergencyState.publish(Map.put(emergency, :epoch, epoch)) do
+            :ok ->
+              try do
+                AuditLog.append(:emergency_lifted, human_id, %{prev: state.emergency.invoked_by, epoch: epoch})
+              rescue
+                _ -> :ok
+              catch
+                :exit, _ -> :ok
+              end
+
+              {:reply, :ok, %{state | emergency: emergency, emergency_epoch: epoch}}
+
+            {:error, reason} ->
+              {:reply, {:error, reason}, state}
+          end
+        else
+          {:reply, {:error, :no_active_emergency}, state}
+        end
+      end)
+
+    case result do
+      {:reply, _, _} = reply -> reply
+      {:error, reason} -> {:reply, {:error, reason}, state}
     end
   end
 

@@ -793,12 +793,9 @@ defmodule Tiannara.Omega.MintRegistry do
   defp do_decode(_truncated, _acc), do: {:error, :truncated_tail}
 
   defp safe_term(binary) do
-    {:ok, :erlang.binary_to_term(binary)}
+    {:ok, :erlang.binary_to_term(binary, [:safe])}
   rescue
-    e ->
-      require Logger
-      Logger.error("safe_term failed: " <> inspect(e))
-      :error
+    _ -> :error
   end
 
   defp apply_records(state, records) do

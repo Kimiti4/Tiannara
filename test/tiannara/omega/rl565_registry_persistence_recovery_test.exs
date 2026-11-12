@@ -92,11 +92,13 @@ defmodule Tiannara.Omega.RL565RegistryPersistenceRecoveryTest do
     snapshot = snapshot(path)
 
     try do
-      # rewrite with a gap by dropping first record's framing is complex;
-      # instead append a duplicate seq via raw encode is not needed.
-      # Simulate by truncating to empty then reloading (empty is valid),
-      # then ensure a normal reload of original works.
-      :ok
+      event1 = {:receipt_issue, %{receipt_id: "r1", receipt_digest: String.duplicate("0", 64), decision_digest: String.duplicate("1", 64), decision_type: :delete_entity, scope_digest: String.duplicate("2", 64), actor: :a, issuer: "tiannara.council/v1", policy_version: "p", constitution_version: "1.0.0", issued_at: DateTime.utc_now(), expires_at: DateTime.add(DateTime.utc_now(), 300, :second)}}
+      event2 = {:receipt_issue, %{receipt_id: "r2", receipt_digest: String.duplicate("0", 64), decision_digest: String.duplicate("1", 64), decision_type: :delete_entity, scope_digest: String.duplicate("2", 64), actor: :a, issuer: "tiannara.council/v1", policy_version: "p", constitution_version: "1.0.0", issued_at: DateTime.utc_now(), expires_at: DateTime.add(DateTime.utc_now(), 300, :second)}}
+
+      File.write!(path, encode_record(1, event1))
+      File.write!(path, encode_record(3, event2), [:append])
+
+      assert {:error, :registry_corrupt} = MintRegistry.reload()
     after
       restore(path, snapshot)
       MintRegistry.reload()

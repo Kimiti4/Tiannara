@@ -1,15 +1,48 @@
 {
-  "checkpoint": "CP19.20",
+  "checkpoint": "CP19.22",
   "remediation": "RL-565",
+  "scope": "Remediation of CP19.21 verifier findings against CP19.20 RL-565 Council decision provenance and machine authorization",
   "disposition": "IMPLEMENTED_WITH_PARTIAL_EVIDENCE",
   "base_commit": "60933859f529db68863d6610ff5cf3901f722eb6",
   "baseline_commit": "ac39083923e1352eed430d1d880cb6affb8adbf2",
+  "implementation_commits": {
+    "cp19_20": "6523b079c6f9d6f098fea96aeecfdb78d562718f",
+    "cp19_21": "a64ec8b33f1167409dc9b55973e691d4f5355d43",
+    "cp19_22": "PENDING_COMMIT"
+  },
+  "branch": "feat/cp19-20-rl565-council-provenance",
   "toolchain": {
     "elixir": "1.18.4",
     "otp": "28",
     "erts": "16.4"
   },
   "seeds": [0, 123456],
+  "cp19_22_verifier_findings_addressed": [
+    {
+      "finding": "Emergency state authoritative and restart-safe; Council.init/1 must not publish inactive default",
+      "fix": "EmergencyState.load/0 fails closed on corrupt/invalid/unreadable/missing-after-init state; Council.init/1 raises on load error and no longer republishes a default snapshot."
+    },
+    {
+      "finding": "Emergency/effect atomicity: emergency cannot activate between final authorization check and world mutation",
+      "fix": "Process-wide :global.trans interlock serializes emergency invoke/lift with the protected UWM delete effect; pre-consume and post-consume emergency checks plus boundary telemetry."
+    },
+    {
+      "finding": "Missing registry persistence/recovery suite",
+      "fix": "Added and executed rl565_registry_persistence_recovery_test.exs (6 tests) including a real sequence-gap test (records 1 and 3)."
+    },
+    {
+      "finding": "Registry writes need durable-write semantics (:sync)",
+      "fix": "MintRegistry append uses [:append, :sync]; emergency snapshot uses atomic temp write + [:sync] + rename + best-effort directory fsync."
+    },
+    {
+      "finding": "Emergency persistence fail-open",
+      "fix": "publish/1 persists before updating :persistent_term and returns {:error, reason} without mutating memory on failure; initialization marker distinguishes first boot from lost state."
+    },
+    {
+      "finding": "Sequence-gap test was a placeholder",
+      "fix": "Replaced with real gap injection using RegistryFixtures.encode_record(1, ...) then encode_record(3, ...)."
+    }
+  ],
   "suites": [
     {
       "path": "test/tiannara/omega/rl565_council_decision_provenance_adversarial_test.exs",
@@ -21,15 +54,51 @@
       "path": "test/tiannara/omega/rl565_registry_persistence_recovery_test.exs",
       "tests": 6,
       "failures": 0,
-      "seeds": [0]
+      "seeds": [0, 123456]
+    },
+    {
+      "path": "test/tiannara/omega/rl565_emergency_durability_interlock_test.exs",
+      "tests": 11,
+      "failures": 0,
+      "seeds": [0, 123456]
+    },
+    {
+      "path": "test/tiannara/world/d127_council_path_evaluation_test.exs",
+      "tests": 0,
+      "failures": 0,
+      "note": "included in the 93-test affected-suite run"
     },
     {
       "path": "test/tiannara/world/d127_uwm_delete_evaluation_test.exs",
       "tests": 0,
       "failures": 0,
-      "note": "part of 34-test combined run, 0 failures"
+      "note": "included in the 93-test affected-suite run"
+    },
+    {
+      "path": "test/tiannara/world/uwm_delete_governance_test.exs",
+      "tests": 0,
+      "failures": 0,
+      "note": "included in the 93-test affected-suite run"
+    },
+    {
+      "path": "test/tiannara/omega/d127_authorization_attack_test.exs",
+      "tests": 0,
+      "failures": 0,
+      "note": "included in the 93-test affected-suite run"
+    },
+    {
+      "path": "test/tiannara/omega/d127_gateway_evaluation_test.exs",
+      "tests": 0,
+      "failures": 0,
+      "note": "included in the 93-test affected-suite run"
     }
   ],
+  "combined_affected_run": {
+    "suites": 8,
+    "tests": 93,
+    "failures": 0,
+    "seeds": [0, 123456]
+  },
   "exclusions": [
     "rl564_registry_issuance_adversarial_test.exs (RL-564 out of scope, remains red baseline)",
     "F-ARC-018 (per-run DETS partitions do not close it)"
@@ -41,7 +110,13 @@
     "CP19_20_RL565_PERSISTENCE_AND_RECOVERY_REPORT.md",
     "CP19_20_EVIDENCE_MANIFEST.json"
   ],
+  "residual_limitations": [
+    "Deleting both the emergency state file and the initialization marker is indistinguishable from first boot without an external trust anchor (RL-564 remains OPEN).",
+    "Direct Council.authorize/3 callers CEL.Kernel, ResourceManager, ExperimentOrchestrator, and Forecasting.DecisionImpl remain disclosed unresolved consumers.",
+    "No independent verifier or CI run was available for this checkpoint; the disposition is not a verification."
+  ],
   "closure_claimed": false,
   "rl564_status": "OPEN",
+  "rl565_status": "OPEN",
   "f_arc_018_status": "OPEN"
 }
