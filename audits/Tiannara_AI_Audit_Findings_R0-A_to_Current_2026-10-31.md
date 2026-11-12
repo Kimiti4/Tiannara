@@ -7119,3 +7119,15 @@ The red oracles are valid for the baseline but are not sufficient as closure ora
 **Checkpoint 19.19 final disposition:** CP19.18 red baseline independently reproduced at seeds 0 and 123456 (18 tests, 12 genuine unsafe-success failures, 6 valid controls); oracle integrity validated with documented weaknesses; separate RL-564 and RL-565 remediation specifications and the two-root trust-chain diagram issued; no production change. RL-564, RL-565, and F-ARC-018 remain `OPEN`.
 
 **Next checkpoint:** 19.20 — RL-565 production remediation implementation (Council receipt, one-time mint, registry provenance, UWM effect-boundary verification, emergency enforcement), followed by a separate RL-564 implementation checkpoint. Each must be independently verified against the CP19.19 acceptance criteria before any closure entry is proposed.
+
+
+### Checkpoint 19.20 - RL-565 implementation (Council decision provenance)
+
+- Implemented in isolated worktree feat/cp19-20-rl565-council-provenance on local/pr4 base 60933859; baseline commit ac390839. No push, merge, deployment, or closure performed.
+- New trust root: Council.DecisionReceipt (MAC-protected, scoped, expiring, one-time) issued by Council.decide/3; MachineAuthorization.mint/2 fail-closed; mint/3 verifies genuine receipt; atomic consumption via v2 MintRegistry.
+- UWM delete verifies registry-anchored grant/decision/type/scope/effect provenance; emergency enforced at issuance, mint, and effect.
+- Persistence/tamper/restart fail closed (v2 MAC, strict loader, no prefix promotion).
+- RL-565 suite: 19 tests, 0 failures at seeds 0 and 123456. Migrated UWM/D127 suites: 34 tests, 0 failures.
+- Machine-authority consumers closed: WorldMutationEngine, UnifiedWorldModel.delete_entity/2. Four direct Council.authorize/3 callers remain unresolved and are disclosed.
+- RL-564 and F-ARC-018 remain OPEN. RL-565 remains pending independent review.
+- Disposition: IMPLEMENTED_WITH_PARTIAL_EVIDENCE.
