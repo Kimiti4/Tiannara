@@ -85,8 +85,10 @@ defmodule Tiannara.Forecasting do
   def forecast(req), do: ForecastEngine.forecast(req)
 
   @doc "D2: register a forecast (immutable)."
-  @spec register_forecast(Contracts.Forecast.t()) :: {:ok, Contracts.Forecast.t()} | {:error, term()}
-  def register_forecast(%Contracts.Forecast{} = f), do: ForecastRegistry.register(f)
+  @spec register_forecast(Contracts.Forecast.t(), keyword()) ::
+          {:ok, Contracts.Forecast.t()} | {:error, term()}
+  def register_forecast(%Contracts.Forecast{} = f, opts \\ []),
+    do: ForecastRegistry.register(f, opts)
 
   @doc "D2: retrieve a forecast by id."
   @spec get_forecast(String.t()) :: {:ok, Contracts.Forecast.t()} | :error

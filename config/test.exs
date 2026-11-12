@@ -1,5 +1,9 @@
 import Config
 
+# The forecasting suites own an isolated forecast registry per test, so the
+# application does not supervise one in the test environment.
+config :tiannara, :supervise_forecast_registry, false
+
 # NOTE: the former `config :tiannara, Tiannara.Repo` block (incl. the Ecto
 # SQL.Sandbox pool) was removed (2026-10-13 audit) — no Tiannara.Repo module
 # exists and ecto is not a dependency of this app; the config was dead.

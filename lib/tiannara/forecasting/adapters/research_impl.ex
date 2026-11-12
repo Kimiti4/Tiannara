@@ -38,12 +38,13 @@ defmodule Tiannara.Forecasting.Adapters.ResearchImpl do
       %{information_gain: g} when is_number(g) ->
         {:ok, g}
 
+      # No defensible measurement exists. The previous implementation returned
+      # `1.0 / length(existing)` — a reciprocal of the size of the existing
+      # set. That is a heuristic, not an information gain, and returning it in
+      # the `:ok` slot made an unmeasured quantity indistinguishable from a
+      # measured one. The contract already provides the honest state.
       _ ->
-        if existing == [] do
-          {:error, :insufficient_data}
-        else
-          {:ok, 1.0 / length(existing)}
-        end
+        {:error, :insufficient_data}
     end
   end
 

@@ -1,5 +1,10 @@
 import Config
 
+# EFDI forecasting authority. The canonical forecast registry is supervised
+# with the application so that forecast history and its durable lineage
+# survive a restart.
+config :tiannara, :supervise_forecast_registry, true
+
 # Configure the Elixir runtime system
 config :tiannara, Tiannara, namespace: Tiannara
 

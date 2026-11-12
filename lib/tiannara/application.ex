@@ -15,6 +15,7 @@ defmodule Tiannara.Application do
   def start(_type, _args) do
     children =
       core_children() ++
+        efdi_children() ++
         loop_children() ++
         asc_children(asc_enabled?())
 
@@ -102,10 +103,28 @@ defmodule Tiannara.Application do
   end
 
   # Foundation, World layer, Phase 4, Phase 5 control — always on.
+  # The canonical forecast registry holds the immutable forecast history and
+  # the durable lineage. It is supervised wherever the application runs the
+  # forecasting subsystem. The test environment excludes it because the
+  # forecasting suites own an isolated instance per test.
+  defp efdi_children do
+    if Application.get_env(:tiannara, :supervise_forecast_registry, true) do
+      [Tiannara.Forecasting.ForecastRegistry]
+    else
+      []
+    end
+  end
+
   defp core_children do
     [
       # Tier 0: Constitutional Runtime — must boot first
       Tiannara.Council.Supervisor,
+
+      # EFDI forecasting authority (TCP-002.3). The bridge is the single
+      # sanctioned cross-stack entry point for a probabilistic forecast. It was
+      # never supervised, so the canonical forecasting subsystem could not be
+      # reached from the application at all.
+      Tiannara.Forecasting.Bridge,
 
       # Tier 1: Service Registry — used by Kernel during boot
       Tiannara.CEL.Kernel.ServiceRegistry,

@@ -46,6 +46,7 @@ defmodule TiannaraRuntime.Cognitive.Spine.CognitiveExecutionSpine do
   alias TiannaraRuntime.Cognitive.Planning.{GoalDecomposer, TaskPlanner}
   alias TiannaraRuntime.Cognitive.Runtime.EvidenceRouter
   alias TiannaraRuntime.Cognitive.Spine.Authority
+  alias TiannaraRuntime.Cognitive.Spine.Forecasting
   alias TiannaraRuntime.Cognitive.Spine.Knowledge
   alias TiannaraRuntime.WorldModel.Pipeline.PipelineOrchestrator
 
@@ -83,9 +84,10 @@ defmodule TiannaraRuntime.Cognitive.Spine.CognitiveExecutionSpine do
   def run(request, opts \\ []) do
     authority = Keyword.get(opts, :authority, Authority.Refusing)
     knowledge = Keyword.get(opts, :knowledge, Knowledge.Refusing)
+    forecasting = Keyword.get(opts, :forecasting, Forecasting.Refusing)
     request = normalize_request(request)
 
-    ctx = %{request: request, trace: [], outputs: %{}}
+    ctx = %{request: request, trace: [], outputs: %{}, forecasting: forecasting}
 
     case run_pipeline_stages(ctx) do
       {:ok, ctx} ->
@@ -235,10 +237,74 @@ defmodule TiannaraRuntime.Cognitive.Spine.CognitiveExecutionSpine do
 
     with {:ok, confidence} <- ConfidenceEstimator.estimate(evidence),
          {:ok, uncertainty} <- UncertaintyAnalyzer.analyze(request.mission, plan, outcomes) do
-      {:ok, %{confidence: confidence, uncertainty: uncertainty}}
+      # A probabilistic forecast is a different quantity from a confidence
+      # score. It is requested from the canonical forecasting authority
+      # (EFDI) through the forecasting port; when that authority is not
+      # reachable the port reports `:forecast_engine_unavailable` and the
+      # Spine records that. It never substitutes the confidence score.
+      probabilistic =
+        case forecasting_port(ctx).forecast(efdi_request(ctx)) do
+          {:ok, forecast} -> forecast
+          {:error, reason} -> {:error, reason}
+        end
+
+      {:ok,
+       %{
+         confidence: confidence,
+         uncertainty: uncertainty,
+         probabilistic_forecast: probabilistic
+       }}
     else
       {:error, reason} -> {:error, {:forecast_failed, reason}}
     end
+  end
+
+  defp efdi_request(ctx) do
+    request = ctx.request
+    evidence = request.evidence
+
+    %{
+      "v" => TiannaraRuntime.Cognitive.Spine.Forecasting.schema_version(),
+      "request_id" => forecast_request_id(ctx),
+      "question" => question_of(request.mission),
+      "event" => question_of(request.mission),
+      "outcomes" => ["supported", "not_supported"],
+      "horizon" => to_string(request.domain),
+      "evidence" =>
+        Enum.map(evidence, fn e ->
+          %{
+            "id" => "ev_#{:erlang.phash2(e)}",
+            "epistemic_status" => "observed",
+            "source" => "cognitive_execution_spine"
+          }
+        end),
+      "signal_ids" => [],
+      "base_rate" => nil,
+      "model_ref" => nil,
+      "assumptions" => [],
+      "context" => %{},
+      "regime" => nil,
+      "provenance" => %{
+        "origin" => "cognitive_execution_spine",
+        "investigation_id" => forecast_request_id(ctx),
+        "requested_by" => "cognitive_execution_spine"
+      }
+    }
+  end
+
+  defp forecast_request_id(ctx) do
+    "req_" <> (:crypto.hash(:sha256, inspect(ctx.request)) |> Base.encode16(case: :lower) |> String.slice(0, 16))
+  end
+
+  defp question_of(mission) when is_map(mission) do
+    Map.get(mission, :objective) || "unspecified objective"
+  end
+
+  defp question_of(mission) when is_binary(mission), do: mission
+  defp question_of(_), do: "unspecified objective"
+
+  defp forecasting_port(ctx) do
+    Map.get(ctx.request, :forecasting) || ctx.forecasting || Forecasting.Refusing
   end
 
   defp outcome_value(%{quality: value}) when is_number(value), do: value
@@ -351,14 +417,31 @@ defmodule TiannaraRuntime.Cognitive.Spine.CognitiveExecutionSpine do
   defp summarize(ctx) do
     trace = Enum.reverse(ctx.trace)
 
+    completed = Enum.filter(trace, &(&1.status == :ok)) |> Enum.map(& &1.stage)
+    blocked = Enum.filter(trace, &(&1.status == :blocked)) |> Enum.map(& &1.stage)
+
+    # A capability that is unavailable is reported as unavailable. The Spine
+    # must not present an investigation as complete when a required forecast,
+    # knowledge retention or authorization was not obtained.
+    unavailable =
+      []
+      |> maybe_unavailable(:probabilistic_forecast, get_in(ctx.outputs, [:forecast, :probabilistic_forecast]))
+      |> maybe_unavailable(:knowledge_retention, get_in(ctx.outputs, [:knowledge]))
+      |> maybe_unavailable(:authorization, get_in(ctx.outputs, [:authorize]))
+
     %{
       trace: trace,
       outputs: ctx.outputs,
-      completed_stages: Enum.filter(trace, &(&1.status == :ok)) |> Enum.map(& &1.stage),
-      blocked_stages: Enum.filter(trace, &(&1.status == :blocked)) |> Enum.map(& &1.stage),
+      completed_stages: completed,
+      blocked_stages: blocked,
+      unavailable_capabilities: unavailable,
+      complete?: blocked == [] and unavailable == [],
       stage_count: length(@stages)
     }
   end
+
+  defp maybe_unavailable(list, capability, {:error, _reason}), do: list ++ [capability]
+  defp maybe_unavailable(list, _capability, _other), do: list
 
   defp ok_entry(stage, outputs) do
     %{stage: stage, status: :ok, reason: nil, outputs: outputs}
