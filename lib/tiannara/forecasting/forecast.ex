@@ -54,8 +54,23 @@ defmodule Tiannara.Forecasting.Forecast do
       confidence: Map.get(m, :confidence),
       context: Map.get(m, :context),
       regime: Map.get(m, :regime),
-      provenance: Map.get(m, :provenance)
+      provenance: Map.get(m, :provenance),
+      typed_horizon: Map.get(m, :typed_horizon),
+      outcome_definition_digest: outcome_definition_digest(m)
     }
+  end
+
+  # The outcome definition is the immutable part of a forecast: the question,
+  # the outcome space and the typed horizon. Its digest binds an observation to
+  # the exact proposition that was forecast.
+  defp outcome_definition_digest(m) do
+    definition = %{
+      question: Map.get(m, :question),
+      outcomes: Map.get(m, :outcomes),
+      typed_horizon: Map.get(m, :typed_horizon)
+    }
+
+    :crypto.hash(:sha256, :erlang.term_to_binary({:tiannara_outcome_definition_v1, definition}))
   end
 
   @spec validate(Forecast.t()) :: {:ok, Forecast.t()} | {:error, term()}

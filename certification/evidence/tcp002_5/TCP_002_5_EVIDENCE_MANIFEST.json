@@ -1,0 +1,178 @@
+{
+  "checkpoint": "TCP-002.5",
+  "title": "Outcome Integrity, Independent Verification, and Durable Forecast Resolution",
+  "workstream": "W0 - Activate Existing Capabilities",
+  "repository": "Kimiti4/Tiannara",
+  "branch": "feat/tcp-001-completion-programme",
+  "baseline_commit": "367036321659f91562c469ba3f36fe0c3b5142b4",
+  "commit": "63184bfb3b38a573b3133f2999c473ef195fa600",
+  "parent_commit": "367036321659f91562c469ba3f36fe0c3b5142b4",
+  "generated_at": "2026-11-13T01:20:49.476352+00:00",
+  "toolchain": {
+    "elixir": "1.18.4",
+    "otp": "28",
+    "erts": "16.4"
+  },
+  "status": "PARTIAL",
+  "disposition": "IMPLEMENTED_WITH_PARTIAL_EVIDENCE / VERIFICATION_BLOCKED",
+  "canonical_forecasting_authority": "Tiannara.Forecasting (EFDI)",
+  "stages": {
+    "0_baseline": "PASS",
+    "1_event_ordering": "PASS",
+    "2_record_integrity": "PARTIAL",
+    "3_typed_horizon": "PARTIAL",
+    "4_observation_binding": "OPEN",
+    "5_real_source_acquisition": "BLOCKED",
+    "6_independent_verification": "OPEN",
+    "7_temporal_resolution": "OPEN",
+    "8_durable_outcome": "OPEN",
+    "9_scoring": "PASS (implementation only; no eligible resolved forecast exists)",
+    "10_calibration_readiness": "OPEN",
+    "11_spine_transport": "PARTIAL",
+    "12_end_to_end": "PARTIAL",
+    "13_evidence_register": "PASS"
+  },
+  "lifecycle_state_proven": "FORECAST_REGISTERED",
+  "lifecycle_states_not_proven": [
+    "OBSERVATION_ACQUIRED",
+    "OUTCOME_VERIFIED",
+    "OUTCOME_RESOLVED",
+    "FORECAST_SCORED",
+    "CALIBRATION_ASSESSED"
+  ],
+  "changed_paths": [
+    "lib/tiannara/executive/event_store.ex",
+    "lib/tiannara/executive/event.ex",
+    "lib/tiannara/forecasting/integrity.ex",
+    "lib/tiannara/forecasting/contracts.ex",
+    "lib/tiannara/forecasting/forecast.ex",
+    "lib/tiannara/forecasting/forecast_engine.ex",
+    "lib/tiannara/forecasting/forecast_registry.ex",
+    "lib/tiannara/forecasting/bridge.ex",
+    "lib/tiannara/research/forecasting.ex",
+    "test/tiannara/forecasting/event_store_integrity_test.exs",
+    "test/tiannara/forecasting/horizon_contract_test.exs",
+    "test/tiannara/forecasting/bridge_test.exs",
+    "test/tiannara/research/research_forecasting_integration_test.exs"
+  ],
+  "artifacts": [
+    {
+      "path": "certification/tcp/TCP_002_5_IMPLEMENTATION_REPORT.md",
+      "sha256": "9a1bfbf5c9f06b435b4fcf5a9dee531d9cb2de978a8db3f3640a2f739fb4fa22"
+    },
+    {
+      "path": "certification/tcp/TCP_002_5_EVIDENCE_MANIFEST.json",
+      "sha256": "0bfd978575160f5bc01b79349aab6a2e10ef55e7916c7198d64ec0a55219faca"
+    },
+    {
+      "path": "certification/tcp/TCP_002_4_IMPLEMENTATION_REPORT.md",
+      "sha256": "95c73ea7a47034b16f0e99d844d9b4214c9b3ca88f253e481cf85b6eefdb3758"
+    },
+    {
+      "path": "certification/tcp/TCP-002_EXECUTION_SPINE.md",
+      "sha256": "7e2b9525308199bfa10fb59fa7ec4f8ee66baafe38654404279434cb80af56d6"
+    },
+    {
+      "path": "certification/tcp/TCP-001_MASTER_COMPLETION_ASSESSMENT.md",
+      "sha256": "f10786e4cda56d48c3c5ca0b8c7d0f01ee3fc5f0f0196217f61d9c06f34f4823"
+    },
+    {
+      "path": "certification/tcp/TCP-001_PROGRAMME_CHARTER.md",
+      "sha256": "50a90aa13733858e1bc9dd5ec10e0b81772a7188b7d9f37602d667e84cce4dac"
+    },
+    {
+      "path": "certification/tcp/TCP-001_COMPLETION_REGISTER.csv",
+      "sha256": "13917144ae3273a82e9745df98ef7413b4580e8d16b2eb207e27905cdb118b02"
+    },
+    {
+      "path": "certification/tcp/TCP_002_3_EFDI_CONTRACT_AUDIT.md",
+      "sha256": "4eb01003638ee4473c81145187a6d6a7f0a4c88f8ac470a32261f6144513f66a"
+    }
+  ],
+  "test_commands": [
+    {
+      "suite": "application: test/tiannara/forecasting + test/tiannara/research",
+      "command": "MIX_ENV=test mix test test/tiannara/forecasting test/tiannara/research --seed 0 --no-deps-check",
+      "cwd": ".",
+      "tests": 491,
+      "failures": 0,
+      "seeds": [
+        0,
+        123456
+      ]
+    },
+    {
+      "suite": "event store integrity and ordering (new)",
+      "command": "MIX_ENV=test mix test test/tiannara/forecasting/event_store_integrity_test.exs --seed 0 --no-deps-check",
+      "cwd": ".",
+      "tests": 11,
+      "failures": 0,
+      "seeds": [
+        0,
+        123456
+      ]
+    },
+    {
+      "suite": "typed horizon and canonical scoring vectors (new)",
+      "command": "MIX_ENV=test mix test test/tiannara/forecasting/horizon_contract_test.exs --seed 0 --no-deps-check",
+      "cwd": ".",
+      "tests": 23,
+      "failures": 0,
+      "seeds": [
+        0,
+        123456
+      ]
+    },
+    {
+      "suite": "runtime regression",
+      "command": "MIX_ENV=test mix test test/simulation test/runtime_layers test/kernel test/cognitive test/world_model --seed 0 --no-deps-check",
+      "cwd": "tiannara_runtime",
+      "tests": 792,
+      "properties": 32,
+      "failures": 0,
+      "seeds": [
+        0,
+        123456
+      ]
+    }
+  ],
+  "not_executed": [
+    "NATS transport: no NATS server is available in this environment. It is compiled; its absent-authority behaviour is covered by the refusing default. No mocked transport evidence is reported as real transport execution.",
+    "Outcome acquisition, independent verification, outcome resolution, scoring of a resolved forecast, and calibration readiness: no eligible resolved forecast exists."
+  ],
+  "known_limitations": [
+    "Record integrity is established; record authenticity is NOT. The digest chain has no trusted anchor outside the log's storage boundary, so a wholesale log replacement with recomputed digests would not be detected.",
+    "The typed horizon is validated, persisted and immutable, but the canonical resolution path does not yet read it, so enforcement at resolution is not proven (TCP-B-059 partial).",
+    "The durable log supports a single writer only (TCP-B-062).",
+    "The forecast lifecycle's temporal guard (Outcome) and the decision firewall (TemporalFirewall) are separate mechanisms and neither is exercised by a live resolution (TCP-B-063).",
+    "Hypothesis confidence (0.5) and per-domain eig_score constants remain heuristics presented as measurements (TCP-B-056).",
+    "D6 institutional forecasting memory remains deferred."
+  ],
+  "open_blockers": [
+    "TCP-B-046",
+    "TCP-B-048",
+    "TCP-B-056",
+    "TCP-B-059",
+    "TCP-B-060",
+    "TCP-B-061",
+    "TCP-B-062",
+    "TCP-B-063"
+  ],
+  "unresolved_findings": {
+    "RL-565": "HIGH / OPEN",
+    "RL-564": "OPEN",
+    "F-ARC-018": "OPEN"
+  },
+  "governance": {
+    "model_update_gate": "unchanged; authority: :none, production_mutation: :forbidden, human_review_required: true",
+    "human_review_controls": "intact",
+    "production_mutation": false,
+    "deployment_or_registry_promotion": false,
+    "physical_actuation": false
+  },
+  "independent_verification": {
+    "performed": false,
+    "reason": "no independent verifier was available for this checkpoint"
+  },
+  "closure_claimed": false
+}

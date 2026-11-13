@@ -243,3 +243,55 @@ deployment, registry promotion or physical actuation.
 Details: `certification/tcp/TCP_002_4_IMPLEMENTATION_REPORT.md`,
 `certification/tcp/TCP_002_4_BASELINE_AND_INTEGRATION.md`,
 `certification/evidence/tcp002_4/`.
+
+---
+
+## 13. TCP-002.5 — Outcome Integrity, Independent Verification, and Durable Forecast Resolution
+
+**Status:** ACTIVE — **PARTIAL**. Stages 0–3 and 9 delivered against real durable
+implementations; Stages 4–8 and 10–13 open.
+
+TCP-002.5 is an **outcome-integrity** checkpoint, not a learning checkpoint.
+Its success criterion is the first independently verified, durably recorded
+forecast score — and, where that is not reachable, the honest closure of the
+integrity and contract defects that block it.
+
+**Delivered:**
+
+- **Stage 1 — deterministic ordering (TCP-B-057, RESOLVED).** The durable event
+  log now carries a versioned frame envelope with a store-assigned sequence, a
+  SHA-256 record digest and the previous record's digest. The first record must
+  be sequence `1`; a wrong origin means **no later record can establish one**,
+  and nothing is applied. Sequence gaps, duplicates, reordering, removal,
+  payload and digest modification and truncation are each proven against real
+  files to leave the exact expected state.
+- **Stage 2 — record integrity (TCP-B-058, PARTIAL).** Integrity is established
+  and verified on append and recovery; `Event.from_binary/1` no longer accepts
+  arbitrary terms. **Authenticity is not established and is not claimed** — a
+  digest proves that the bytes are the bytes recorded, not who wrote them, and
+  the chain has no anchor outside the log's own storage boundary.
+- **Stage 3 — typed horizon (TCP-B-059, PARTIAL).** `Contracts.Horizon` is a
+  typed, UTC-normalised, validated temporal contract with a closed/open
+  publication policy; it is required by the bridge, persisted in the forecast,
+  and bound into the forecast's outcome-definition digest. Legacy forecasts
+  without one remain readable but are not eligible for normal resolution.
+  **The resolution path does not yet read it**, so enforcement at resolution is
+  not proven and the finding stays partial.
+- **Stage 9 — scoring verified.** The canonical `Calibration.score/2` is
+  unchanged and is pinned against **independently calculated** Brier and
+  log-loss vectors, with the implementation's binary convention now documented
+  rather than assumed.
+
+**Not delivered, and stated plainly.** No observation was acquired, so nothing
+was independently verified, resolved or scored. The lifecycle is demonstrated
+to `FORECAST_REGISTERED` and no further. **No real-world predictive
+performance claim of any kind is made.**
+
+**Disposition:** `IMPLEMENTED_WITH_PARTIAL_EVIDENCE` / `VERIFICATION_BLOCKED`.
+Register: 63 rows — 42 open, 18 resolved, 3 partial. RL-565 remains `HIGH /
+OPEN`; RL-564 and `F-ARC-018` remain `OPEN`. `ModelUpdateGate` is unchanged
+and still forbids production mutation without human review. No merge,
+deployment, registry promotion or physical actuation.
+
+Details: `certification/tcp/TCP_002_5_IMPLEMENTATION_REPORT.md`,
+`certification/evidence/tcp002_5/`.

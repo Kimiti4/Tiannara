@@ -33,6 +33,9 @@ defmodule Tiannara.Research.ResearchForecastingIntegrationTest do
       proposition: "The thermal model reaches operational status within 24 hours",
       outcomes: ["operational", "not_operational"],
       horizon: "24h",
+      horizon_start: "2026-06-01T00:00:00Z",
+      horizon_end: "2026-06-02T00:00:00Z",
+      horizon_policy: "closed",
       resolution_criteria: "the model registry records the model with status :operational",
       evidence: [
         %{

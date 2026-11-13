@@ -55,7 +55,8 @@ defmodule Tiannara.Forecasting.ForecastEngine do
         regime: req.regime,
         probabilities: prior,
         confidence: prior_confidence(prior_src, prior, base_rate),
-        uncertainty: prior_src
+        uncertainty: prior_src,
+        typed_horizon: req.typed_horizon
       }
 
       {:ok, Forecast.new(forecast_input)}

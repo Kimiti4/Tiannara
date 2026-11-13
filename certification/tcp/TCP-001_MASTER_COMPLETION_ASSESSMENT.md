@@ -1058,3 +1058,58 @@ possible. `TCP-B-046` remains open. RL-565 remains `HIGH / OPEN`; RL-564 and
 `F-ARC-018` remain `OPEN`.
 
 Register after TCP-002.4: **60 rows — 42 open, 17 resolved, 1 partial.**
+
+---
+
+## 11. TCP-002.5 — Outcome Integrity and Durable Forecast Resolution
+
+**Status: PARTIAL.** Stages 0–3 and 9 delivered against real durable
+implementations; Stages 4–8 and 10–13 open. Detail in
+`certification/tcp/TCP_002_5_IMPLEMENTATION_REPORT.md`.
+
+### 11.1 What changed in the assessment
+
+TCP-002.4 produced forecasts and made them durable. TCP-002.5 asked whether
+that durability could be *believed*, and the answer was no. Two structural
+gaps were found in the durable log itself:
+
+| Gap | Before | After |
+|---|---|---|
+| **No ordering identity** | Frames were `<<size, payload>>`; the parser stopped silently at the first unreadable frame | Versioned envelope with a store-assigned sequence, a SHA-256 digest and the previous record's digest; the origin must be sequence `1`, and a wrong origin means no later record can establish one |
+| **No record integrity** | No digest; `Event.from_binary/1` used an unsafe `binary_to_term` | Digest verified on append and on recovery; `[:safe]` decoding; only established records are applied, and the registry reports `recovery_failures` and `durable: false` |
+
+A third gap was in the forecast contract itself: the **horizon was free text**
+and could not be enforced. It is now a typed, UTC-normalised, validated
+contract, persisted inside the forecast and bound into the forecast's
+outcome-definition digest.
+
+### 11.2 Two source facts that shaped the work
+
+- **The forecast lifecycle's temporal guard is `Outcome`, not `TemporalFirewall`.**
+  `TemporalFirewall.verify/3` operates on decisions. Using it for forecasts
+  would have meant building a second time validator.
+- **`Calibration.score/2` is correct under a binary convention** — the
+  realised outcome is encoded as `y = 1` and `p` is the probability assigned
+  to that outcome. The convention is now documented and pinned by
+  independently calculated vectors rather than left ambiguous.
+
+### 11.3 The honest limit
+
+**Integrity is not authenticity.** The digest chain detects modification, but
+the log and its anchor share a storage boundary: a wholesale replacement of the
+log with recomputed digests would not be detected. No signature is claimed,
+and the assurance level achieved is stated in the module documentation and in
+the report.
+
+**No real-world predictive performance exists.** The lifecycle is demonstrated
+to `FORECAST_REGISTERED` and no further. Nothing was observed, independently
+verified, resolved or scored. The scoring implementation is verified against
+known-answer vectors; it has not been applied to an eligible resolved
+forecast, because none exists.
+
+### 11.4 Register
+
+63 rows — 42 open, 18 resolved, 3 partial. `TCP-B-057` resolved;
+`TCP-B-058` and `TCP-B-059` partial with their limits recorded;
+`TCP-B-060` open; `TCP-B-061` … `TCP-B-063` newly recorded (no trusted
+integrity anchor; single-writer log; divergent temporal mechanisms).

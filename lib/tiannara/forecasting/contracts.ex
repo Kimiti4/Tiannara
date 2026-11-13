@@ -1,4 +1,191 @@
 defmodule Tiannara.Forecasting.Contracts do
+  defmodule Horizon do
+    @moduledoc """
+    The typed, enforceable temporal contract of a forecast.
+
+    A free-text horizon such as `"24h"` cannot be enforced: nothing can decide
+    whether an observation is eligible. This struct is the enforceable form and it
+    is part of the forecast's immutable outcome definition.
+
+    ## Fields
+
+      * `start_at` — the beginning of the forecast's target period, UTC.
+      * `end_at` — the end of the forecast's target period, UTC. It is also the
+        forecast's resolution deadline.
+      * `policy` — how evidence published after the deadline may be used:
+          * `:closed` — only evidence published at or before `end_at` may resolve
+            the forecast.
+          * `:open` — evidence published after the deadline may resolve it if it
+            attests an event that occurred inside the target period. The event
+            time is what counts; the publication time is recorded separately and
+            never substituted for it.
+      * `label` — a human-readable explanation. **Explanatory only.** It is
+        never used to decide eligibility.
+      * `version` — the horizon contract version.
+
+    ## Immutability
+
+    A registered forecast's horizon is fixed. A correction must be a new
+    forecast version with lineage, never an edit of the original.
+    """
+    defstruct [:start_at, :end_at, :policy, :label, :version]
+
+    @type t :: %__MODULE__{
+            start_at: DateTime.t() | nil,
+            end_at: DateTime.t() | nil,
+            policy: :closed | :open,
+            label: String.t() | nil,
+            version: pos_integer()
+          }
+
+    @policies [:closed, :open]
+    @version 1
+
+    @doc "The accepted resolution policies."
+    @spec policies() :: [atom()]
+    def policies, do: @policies
+
+    @doc "The horizon contract version."
+    @spec version() :: pos_integer()
+    def version, do: @version
+
+    @doc """
+    Builds and validates a horizon.
+
+    Timestamps are normalised to UTC. A naive (timezone-less) timestamp is
+    ambiguous and is refused rather than assumed.
+    """
+    @spec new(map() | Keyword.t()) :: {:ok, t()} | {:error, atom()}
+    def new(attrs) when is_map(attrs) or is_list(attrs) do
+      m = Map.new(attrs)
+
+      with {:ok, start_at} <- require_datetime(m, :start_at),
+           {:ok, end_at} <- require_datetime(m, :end_at),
+           :ok <- require_order(start_at, end_at),
+           {:ok, policy} <- require_policy(m) do
+        {:ok,
+         %__MODULE__{
+           start_at: start_at,
+           end_at: end_at,
+           policy: policy,
+           label: Map.get(m, :label),
+           version: @version
+         }}
+      end
+    end
+
+    @doc "Builds a horizon from ISO-8601 strings."
+    @spec from_iso(map()) :: {:ok, t()} | {:error, atom()}
+    def from_iso(attrs) when is_map(attrs) do
+      m = Map.new(attrs)
+
+      with {:ok, start_at} <- parse_iso_field(Map.get(m, :start_at), :start_at),
+           {:ok, end_at} <- parse_iso_field(Map.get(m, :end_at), :end_at) do
+        new(Map.merge(m, %{start_at: start_at, end_at: end_at}))
+      end
+    end
+
+    @doc """
+    The canonical digest of a horizon.
+
+    It is bound into the forecast's outcome definition, so that a horizon
+    substituted after registration is detectable.
+    """
+    @spec digest(t() | nil) :: binary() | nil
+    def digest(nil), do: nil
+
+    def digest(%__MODULE__{} = horizon) do
+      :crypto.hash(:sha256, :erlang.term_to_binary({:tiannara_horizon_v1, horizon.start_at, horizon.end_at, horizon.policy}))
+    end
+
+    @doc """
+    Whether an event time falls inside the target period.
+
+    The event time is the time the thing happened, not the time it was
+    published and not the time it was retrieved.
+    """
+    @spec event_within?(t(), DateTime.t() | nil) :: boolean()
+    def event_within?(%__MODULE__{} = horizon, %DateTime{} = event_at) do
+      DateTime.compare(event_at, horizon.start_at) in [:gt, :eq] and
+        DateTime.compare(event_at, horizon.end_at) in [:lt, :eq]
+    end
+
+    def event_within?(_horizon, _event_at), do: false
+
+    @doc """
+    Whether evidence published at `published_at` may resolve the forecast.
+
+    Under `:closed` the evidence must have been published within the target
+    period. Under `:open`, later publication is permitted, but only because the
+    policy says so — never by default.
+    """
+    @spec publication_eligible?(t(), DateTime.t() | nil) :: boolean()
+    def publication_eligible?(%__MODULE__{policy: :closed} = horizon, %DateTime{} = published_at) do
+      DateTime.compare(published_at, horizon.end_at) in [:lt, :eq]
+    end
+
+    def publication_eligible?(%__MODULE__{policy: :open}, %DateTime{}), do: true
+
+    def publication_eligible?(_horizon, _published_at), do: false
+
+    @doc "Whether the target period has elapsed, relative to `now`."
+    @spec elapsed?(t(), DateTime.t()) :: boolean()
+    def elapsed?(%__MODULE__{end_at: end_at}, %DateTime{} = now) do
+      DateTime.compare(now, end_at) in [:gt, :eq]
+    end
+
+    defp require_datetime(m, key) do
+      case Map.get(m, key) do
+        %DateTime{} = value -> {:ok, DateTime.shift_zone!(value, "Etc/UTC")}
+        %NaiveDateTime{} -> {:error, :ambiguous_horizon_timestamp}
+        _ -> {:error, :"missing_horizon_#{key}"}
+      end
+    end
+
+    defp require_order(start_at, end_at) do
+      if DateTime.compare(end_at, start_at) == :gt do
+        :ok
+      else
+        {:error, :horizon_end_before_start}
+      end
+    end
+
+    defp require_policy(m) do
+      case Map.get(m, :policy, :closed) do
+        policy when policy in @policies ->
+          {:ok, policy}
+
+        policy when is_binary(policy) ->
+          if policy in Enum.map(@policies, &Atom.to_string/1) do
+            {:ok, String.to_existing_atom(policy)}
+          else
+            {:error, :invalid_horizon_policy}
+          end
+
+        _ ->
+          {:error, :invalid_horizon_policy}
+      end
+    end
+
+    defp parse_iso_field(nil, field), do: {:error, :"missing_horizon_#{field}"}
+
+    defp parse_iso_field(value, _field) when is_binary(value), do: parse_iso(value)
+
+    defp parse_iso_field(%DateTime{} = value, _field),
+      do: {:ok, DateTime.shift_zone!(value, "Etc/UTC")}
+
+    defp parse_iso_field(_value, _field), do: {:error, :invalid_horizon_timestamp}
+
+    defp parse_iso(value) when is_binary(value) do
+      case DateTime.from_iso8601(value) do
+        {:ok, dt, _offset} -> {:ok, DateTime.shift_zone!(dt, "Etc/UTC")}
+        {:error, _reason} -> {:error, :invalid_horizon_timestamp}
+      end
+    end
+
+    defp parse_iso(%DateTime{} = value), do: {:ok, DateTime.shift_zone!(value, "Etc/UTC")}
+    defp parse_iso(_value), do: {:error, :invalid_horizon_timestamp}
+  end
   @moduledoc """
   The EFDI D1 contract-layer for D2-D6.
 
@@ -36,6 +223,9 @@ defmodule Tiannara.Forecasting.Contracts do
       :model,
       :assumptions,
       :horizon,
+      # The enforceable temporal contract. A forecast without one is readable
+      # and auditable but is not eligible for normal resolution.
+      :typed_horizon,
       :question,
       # D2 fields
       :event,
@@ -87,7 +277,11 @@ defmodule Tiannara.Forecasting.Contracts do
       :confidence,
       :context,
       :regime,
-      :provenance
+      :provenance,
+      # The enforceable temporal contract, and the digest of the immutable
+      # outcome definition (question, outcome space and typed horizon).
+      :typed_horizon,
+      :outcome_definition_digest
     ]
 
     @type t :: %__MODULE__{}

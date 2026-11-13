@@ -139,7 +139,8 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
        count: 0,
        eventstore_degraded: degraded,
        recovered_count: recovered,
-       recovery_failures: failures
+       recovery_failures: failures,
+       integrity_failures: failures
      }}
   end
 
@@ -197,7 +198,8 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
        durable: not state.eventstore_degraded,
        forecast_count: :ets.info(state.table, :size),
        recovered_count: state.recovered_count,
-       recovery_failures: state.recovery_failures
+       recovery_failures: state.recovery_failures,
+       integrity_failures: state.integrity_failures
      }, state}
   end
 
@@ -315,10 +317,22 @@ defmodule Tiannara.Forecasting.ForecastRegistry do
     end, %{}, request_table)
   end
 
+  # Only records whose integrity and ordering could be established are
+  # returned. A record that failed verification, or that broke the sequence,
+  # is *not* silently applied: it is counted and reported.
   defp safe_stream do
-    case event_store().stream_with_diagnostics(0) do
-      {:ok, %{events: events, unreadable: unreadable, truncated: truncated}} ->
-        {:ok, events, unreadable, truncated}
+    case event_store().stream_verified(0) do
+      {:ok,
+       %{
+         records: records,
+         unreadable: unreadable,
+         truncated: truncated,
+         integrity_failures: failures,
+         sequence_gaps: gaps,
+         unverified_legacy: legacy
+       }} ->
+        events = Enum.map(records, & &1.event)
+        {:ok, events, unreadable + failures + gaps + legacy, truncated}
 
       _ ->
         :error

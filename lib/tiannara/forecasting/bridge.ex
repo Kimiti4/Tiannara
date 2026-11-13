@@ -30,6 +30,9 @@ defmodule Tiannara.Forecasting.Bridge do
         "event" => "model_converged",
         "outcomes" => ["yes", "no"],
         "horizon" => "24h",
+        "horizon_start" => "2026-06-01T00:00:00Z",
+        "horizon_end" => "2026-06-02T00:00:00Z",
+        "horizon_policy" => "closed",
         "evidence" => [
           %{"id" => "ev_1", "epistemic_status" => "observed",
             "source" => "sensor_a", "observed_at" => "2026-06-01T12:00:00Z"}
@@ -68,8 +71,9 @@ defmodule Tiannara.Forecasting.Bridge do
 
   @epistemic_statuses ~w(observed verified inferred simulated hypothetical unknown rejected)
 
-  @request_fields ~w(v request_id question event outcomes horizon evidence
-                     signal_ids base_rate model_ref assumptions context regime provenance)
+  @request_fields ~w(v request_id question event outcomes horizon horizon_start
+                     horizon_end horizon_policy typed_horizon evidence signal_ids
+                     base_rate model_ref assumptions context regime provenance)
 
   @response_fields ~w(v request_id status forecast error)
 
@@ -228,7 +232,7 @@ defmodule Tiannara.Forecasting.Bridge do
          {:ok, request_id} <- require_binary(payload, "request_id"),
          {:ok, question} <- require_binary(payload, "question"),
          {:ok, outcomes} <- require_binary_list(payload, "outcomes"),
-         {:ok, horizon} <- require_binary(payload, "horizon"),
+         {:ok, typed_horizon} <- typed_horizon(payload),
          {:ok, evidence} <- validate_evidence(payload),
          :ok <- validate_provenance(payload) do
       {:ok,
@@ -237,7 +241,8 @@ defmodule Tiannara.Forecasting.Bridge do
          "question" => question,
          "event" => Map.get(payload, "event") || question,
          "outcomes" => outcomes,
-         "horizon" => horizon,
+         "horizon" => Map.get(payload, "horizon"),
+         "typed_horizon" => typed_horizon,
          "evidence" => evidence,
          "signal_ids" => Map.get(payload, "signal_ids") || [],
          "base_rate" => Map.get(payload, "base_rate"),
@@ -255,6 +260,20 @@ defmodule Tiannara.Forecasting.Bridge do
       nil -> {:error, :missing_schema_version}
       @schema_version -> :ok
       _ -> {:error, :unsupported_schema_version}
+    end
+  end
+
+  # The enforceable temporal contract. A free-text horizon is explanatory
+  # only; without a typed horizon the forecast would not be resolvable.
+  defp typed_horizon(payload) do
+    case Contracts.Horizon.from_iso(%{
+           start_at: Map.get(payload, "horizon_start"),
+           end_at: Map.get(payload, "horizon_end"),
+           policy: Map.get(payload, "horizon_policy", :closed),
+           label: Map.get(payload, "horizon")
+         }) do
+      {:ok, horizon} -> {:ok, horizon}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -326,6 +345,7 @@ defmodule Tiannara.Forecasting.Bridge do
       event: request["event"],
       outcomes: request["outcomes"],
       horizon: request["horizon"],
+      typed_horizon: request["typed_horizon"],
       signal_ids: request["signal_ids"],
       evidence_ids: Enum.map(request["evidence"], & &1["id"]),
       base_rate: to_base_rate(request["base_rate"]),
@@ -355,6 +375,8 @@ defmodule Tiannara.Forecasting.Bridge do
       "event" => forecast.event,
       "outcomes" => forecast.outcomes,
       "horizon" => forecast.horizon,
+      "typed_horizon" => wire_horizon(forecast.typed_horizon),
+      "outcome_definition_digest" => forecast.outcome_definition_digest,
       "probabilities" => wire_value(forecast.probabilities),
       "probability" => wire_value(forecast.probability),
       "distribution" => wire_value(forecast.distribution),
@@ -392,6 +414,19 @@ defmodule Tiannara.Forecasting.Bridge do
   defp wire_value(value) when is_tuple(value), do: inspect(value)
   defp wire_value(value), do: value
 
+  defp wire_horizon(nil), do: nil
+
+  defp wire_horizon(%Contracts.Horizon{} = horizon) do
+    %{
+      "start_at" => DateTime.to_iso8601(horizon.start_at),
+      "end_at" => DateTime.to_iso8601(horizon.end_at),
+      "policy" => Atom.to_string(horizon.policy),
+      "label" => horizon.label,
+      "version" => horizon.version,
+      "digest" => Base.encode16(Contracts.Horizon.digest(horizon), case: :lower)
+    }
+  end
+
   defp wire_timestamp(nil), do: nil
   defp wire_timestamp(%DateTime{} = value), do: DateTime.to_iso8601(value)
   defp wire_timestamp(%NaiveDateTime{} = value), do: NaiveDateTime.to_iso8601(value)
@@ -420,6 +455,12 @@ defmodule Tiannara.Forecasting.Bridge do
       :missing_outcomes -> "a forecast must declare its outcome space"
       :invalid_outcomes -> "every outcome must be a non-empty string"
       :missing_horizon -> "a forecast must declare its horizon"
+      :missing_horizon_start_at -> "a forecast must declare the start of its target period"
+      :missing_horizon_end_at -> "a forecast must declare the end of its target period"
+      :invalid_horizon_timestamp -> "the forecast horizon carries an invalid timestamp"
+      :ambiguous_horizon_timestamp -> "the forecast horizon carries a timezone-less timestamp"
+      :horizon_end_before_start -> "the forecast horizon ends before it starts"
+      :invalid_horizon_policy -> "the forecast horizon policy is not recognised"
       :missing_evidence -> "at least one piece of evidence is required"
       :missing_provenance -> "provenance with an origin is required"
       :invalid_epistemic_status -> "the epistemic status of the evidence is not recognised"

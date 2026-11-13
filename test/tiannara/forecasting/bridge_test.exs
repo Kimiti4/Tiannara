@@ -31,6 +31,9 @@ defmodule Tiannara.Forecasting.BridgeTest do
         "event" => "model_converged",
         "outcomes" => ["yes", "no"],
         "horizon" => "24h",
+        "horizon_start" => "2026-06-01T00:00:00Z",
+        "horizon_end" => "2026-06-02T00:00:00Z",
+        "horizon_policy" => "closed",
         "evidence" => [
           %{
             "id" => "ev_1",
@@ -130,11 +133,47 @@ defmodule Tiannara.Forecasting.BridgeTest do
       assert response["error"]["reason"] == "missing_outcomes"
     end
 
-    test "refuses a request with no horizon" do
+    test "refuses a request with no typed horizon" do
+      payload = request() |> Map.delete("horizon_start")
+      response = Bridge.handle_request(payload)
+
+      assert response["error"]["reason"] == "missing_horizon_start_at"
+    end
+
+    test "refuses a request whose horizon has no end" do
+      payload = request() |> Map.delete("horizon_end")
+      response = Bridge.handle_request(payload)
+
+      assert response["error"]["reason"] == "missing_horizon_end_at"
+    end
+
+    test "refuses a horizon that ends before it starts" do
+      payload = request(%{"horizon_end" => "2026-05-31T00:00:00Z"})
+      response = Bridge.handle_request(payload)
+
+      assert response["error"]["reason"] == "horizon_end_before_start"
+    end
+
+    test "refuses an unrecognised horizon policy" do
+      payload = request(%{"horizon_policy" => "whenever"})
+      response = Bridge.handle_request(payload)
+
+      assert response["error"]["reason"] == "invalid_horizon_policy"
+    end
+
+    test "a free-text horizon alone is not sufficient" do
+      payload = request() |> Map.delete("horizon_start") |> Map.delete("horizon_end")
+      response = Bridge.handle_request(payload)
+
+      assert response["error"]["reason"] == "missing_horizon_start_at"
+    end
+
+    test "the free-text horizon is explanatory and may be absent" do
       payload = request() |> Map.delete("horizon")
       response = Bridge.handle_request(payload)
 
-      assert response["error"]["reason"] == "missing_horizon"
+      assert response["status"] == "ok"
+      assert response["forecast"]["typed_horizon"]["policy"] == "closed"
     end
 
     test "refuses a request with no evidence" do
@@ -177,6 +216,10 @@ defmodule Tiannara.Forecasting.BridgeTest do
       assert is_binary(forecast["id"])
       assert forecast["question"] == "Will the thermal model converge within 24h?"
       assert forecast["horizon"] == "24h"
+      assert forecast["typed_horizon"]["start_at"] == "2026-06-01T00:00:00Z"
+      assert forecast["typed_horizon"]["end_at"] == "2026-06-02T00:00:00Z"
+      assert forecast["typed_horizon"]["policy"] == "closed"
+      assert is_binary(forecast["outcome_definition_digest"])
       assert forecast["outcomes"] == ["yes", "no"]
       assert forecast["model_ref"] == "model_v3"
       assert forecast["epistemic_status"] == "forecasted"

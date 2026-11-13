@@ -82,6 +82,7 @@ defmodule Tiannara.Research.Forecasting do
     with {:ok, proposition} <- require_string(spec, :proposition),
          {:ok, outcomes} <- require_outcomes(spec),
          {:ok, horizon} <- require_string(spec, :horizon),
+         {:ok, typed_horizon} <- require_typed_horizon(spec, horizon),
          {:ok, criteria} <- require_string(spec, :resolution_criteria),
          {:ok, evidence} <- require_evidence(spec) do
       {:ok,
@@ -89,11 +90,27 @@ defmodule Tiannara.Research.Forecasting do
          proposition: proposition,
          outcomes: outcomes,
          horizon: horizon,
+         typed_horizon: typed_horizon,
          resolution_criteria: criteria,
          evidence: evidence,
          base_rate: Map.get(spec, :base_rate),
          model_ref: Map.get(spec, :model_ref)
        }}
+    end
+  end
+
+  # The enforceable temporal contract. A forecast specification that carries
+  # only free text is refused: a horizon that cannot be checked is not a
+  # horizon.
+  defp require_typed_horizon(spec, label) do
+    case Tiannara.Forecasting.Contracts.Horizon.from_iso(%{
+           start_at: Map.get(spec, :horizon_start),
+           end_at: Map.get(spec, :horizon_end),
+           policy: Map.get(spec, :horizon_policy, :closed),
+           label: label
+         }) do
+      {:ok, typed_horizon} -> {:ok, typed_horizon}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -117,6 +134,9 @@ defmodule Tiannara.Research.Forecasting do
          "event" => spec.proposition,
          "outcomes" => spec.outcomes,
          "horizon" => spec.horizon,
+         "horizon_start" => DateTime.to_iso8601(spec.typed_horizon.start_at),
+         "horizon_end" => DateTime.to_iso8601(spec.typed_horizon.end_at),
+         "horizon_policy" => Atom.to_string(spec.typed_horizon.policy),
          "evidence" => spec.evidence,
          "signal_ids" => [],
          "base_rate" => spec.base_rate,
