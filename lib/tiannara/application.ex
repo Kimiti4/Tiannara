@@ -108,10 +108,16 @@ defmodule Tiannara.Application do
   # forecasting subsystem. The test environment excludes it because the
   # forecasting suites own an isolated instance per test.
   defp efdi_children do
+    # The lifecycle ledger is always supervised. It is pure in-memory
+    # observability, it is the only place the forecast lifecycle's real
+    # state is exposed, and it must never be the reason a lifecycle
+    # operation is unobservable.
+    children = [Tiannara.Forecasting.Lifecycle, Tiannara.Forecasting.VerificationAuthority]
+
     if Application.get_env(:tiannara, :supervise_forecast_registry, true) do
-      [Tiannara.Forecasting.ForecastRegistry]
+      children ++ [Tiannara.Forecasting.ForecastRegistry]
     else
-      []
+      children
     end
   end
 

@@ -56,7 +56,8 @@ defmodule Tiannara.Forecasting.Forecast do
       regime: Map.get(m, :regime),
       provenance: Map.get(m, :provenance),
       typed_horizon: Map.get(m, :typed_horizon),
-      outcome_definition_digest: outcome_definition_digest(m)
+      outcome_definition_digest: outcome_definition_digest(m),
+      horizon_digest: Forecast.horizon_digest(Map.get(m, :typed_horizon))
     }
   end
 

@@ -295,3 +295,90 @@ deployment, registry promotion or physical actuation.
 
 Details: `certification/tcp/TCP_002_5_IMPLEMENTATION_REPORT.md`,
 `certification/evidence/tcp002_5/`.
+
+## 14. TCP-002.6 — Immutable Observation Binding, Independent Evidence Verification, and First Governed Outcome Resolution
+
+**Status:** ACTIVE — **PARTIAL**. Stages 0–5 and 10–13 delivered against
+real implementations with executed tests; Stages 6–9 blocked or open.
+
+TCP-002.6 is a **lifecycle-boundary** checkpoint. Its subject is the missing
+middle of the forecasting lifecycle — the part that turns a registered
+probabilistic forecast into an independently checked, temporally valid,
+resolved outcome. Its success criterion is the **first defensible transition**
+from `FORECAST_REGISTERED` to a resolved outcome, not the first successful
+call to an outcome API.
+
+**Delivered:**
+
+- **Stage 3 — immutable binding (TCP-B-060, RESOLVED).** The existing
+  `Outcome` was **extended, not replaced**: it now carries the forecast
+  binding, the outcome-definition digest, the horizon digest, the evidence
+  reference and digest, the source identity, four **distinct** timestamps
+  (`event_at`, `published_at`, `acquired_at`, `verified_at`) and the
+  verification state. `Observation.bind/2` derives the authoritative digests
+  from the **registered** forecast in the canonical registry, so the caller
+  cannot choose them. Legacy outcomes stay readable, are classified
+  `legacy_unverified`, and are **refused for resolution**
+  (`:legacy_outcome_not_eligible`).
+- **Stage 4 — independent verifier.** `OutcomeVerifier` is given the
+  registered forecast, the bound observation and an evidence reader. It
+  retrieves the evidence **itself**, **re-digests the raw bytes**, parses them
+  with a trusted parser, and compares the parsed value with the registered
+  outcome definition — it never trusts the acquisition adapter's parsed
+  `observed_outcome`. Assurance is reported **dimension by dimension**:
+  integrity, source identity, transport protection, publisher authenticity,
+  semantic verification, temporal eligibility and corroboration. A completed
+  verification always returns a **structured result with a distinct status** —
+  `:verified_with_limited_source_assurance`, `:requires_review`, `:rejected`,
+  `:unverified` or `:unavailable` — so a negative verdict is a finding and not
+  an error tuple. `OutcomeVerifier.apply/2` is the **only** sanctioned
+  verification transition: it refuses a result that is not bound to the
+  observation, the evidence, the forecast and the observation's content
+  digest, and it recomputes the record's own digest so a tampered record is
+  detected. The resolver **requires** that record, so an adapter that asserts
+  its own verification is not believed.
+- **Stage 5 — horizon enforcement (TCP-B-059, RESOLVED).** The canonical
+  `OutcomeResolution` now reads the **registered** typed horizon and enforces
+  it at the resolution boundary: the forecast digest, the outcome-definition
+  digest and the horizon digest must match the authoritative forecast, the
+  event timestamp must be present and inside the horizon, and the publication
+  timestamp must satisfy the registered policy. A caller cannot substitute a
+  horizon, because the horizon used is the forecast's own.
+- **Stage 1 — the temporal authority is settled (TCP-B-063, RESOLVED).** The
+  forecast lifecycle's temporal authority is the existing
+  `Outcome`/`OutcomeResolution` path. `TemporalFirewall.verify/3` is
+  decision-scoped and was **not** repurposed; no parallel forecast time
+  validator was created. `OutcomeResolution.resolve/4` has exactly **one**
+  production caller (`efdi.ex:116`), so there is no bypass path; `resolve/3`
+  remains but **fails closed**.
+- **Stage 12 — truthful observability.** `Tiannara.Forecasting.Lifecycle` is a
+  supervised, process-scoped ledger wired into the real paths — outcome
+  construction, binding, verification and resolution. It reports where the
+  lifecycle has actually reached, keeps "no observation", "acquired but
+  unverified", "verified with limited assurance", "requires review",
+  "rejected" and "resolved" as distinct conditions, reports **no counts at
+  all** when the ledger itself is unreachable, and never claims durability it
+  does not have.
+
+**Not delivered, and stated plainly.** **No real observation was acquired.**
+No live external source is reachable from this environment, so Stage 6 is
+`BLOCKED`, and the lifecycle is left at `FORECAST_REGISTERED` rather than
+advanced with synthetic evidence. Nothing was independently verified against
+reality, nothing was durably resolved, and no real score exists:
+`REAL_FORECAST_SCORE = NOT_ESTABLISHED`. **Publisher authenticity is not
+established** — the verifier reports `publisher_authenticity:
+:not_established` in every result, and `VERIFIED_WITH_LIMITED_SOURCE_ASSURANCE`
+is never presented as interchangeable with `VERIFIED`. The resolution record
+is **not durably persisted** (`TCP-B-064`), so a resolution survives only as a
+returned map.
+
+**Disposition:** `IMPLEMENTED_WITH_PARTIAL_EVIDENCE` / `VERIFICATION_BLOCKED`.
+Register: 66 rows — 43 open, 21 resolved, 2 partial. `TCP-B-059`, `TCP-B-060`
+and `TCP-B-063` resolved; `TCP-B-058` remains partial with its authenticity
+limit intact; `TCP-B-064`, `TCP-B-065` and `TCP-B-066` newly recorded. RL-565
+remains `HIGH / OPEN`; RL-564 and `F-ARC-018` remain `OPEN`. `ModelUpdateGate`
+is unchanged and still forbids production mutation without human review. No
+merge, deployment, registry promotion or physical actuation.
+
+Details: `certification/tcp/TCP_002_6_IMPLEMENTATION_REPORT.md`,
+`certification/evidence/tcp002_6/`.

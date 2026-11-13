@@ -109,11 +109,44 @@ defmodule Tiannara.Forecasting do
     Tiannara.Forecasting.TemporalEvaluation.evaluate(records, cutoff, opts)
   end
 
-  @doc "Resolve a forecast against an observed outcome without certifying it."
-  @spec resolve_forecast_outcome(Contracts.Forecast.t(), map(), map()) ::
+  @doc """
+  Resolve a forecast against an observed outcome without certifying it.
+
+  A verification record produced by `Tiannara.Forecasting.OutcomeVerifier` is
+  required. Without one the resolution is refused: an observation that only
+  *claims* to be verified is not believed.
+  """
+  @spec resolve_forecast_outcome(Contracts.Forecast.t(), map(), map(), map() | nil) ::
           {:ok, map()} | {:error, term()}
-  def resolve_forecast_outcome(%Contracts.Forecast{} = forecast, outcome, evidence \\ %{}),
-    do: OutcomeResolution.resolve(forecast, outcome, evidence)
+  def resolve_forecast_outcome(forecast, outcome, evidence \\ %{}, verification \\ nil, evidence_reader \\ nil)
+
+  def resolve_forecast_outcome(%Contracts.Forecast{} = forecast, outcome, evidence, verification, evidence_reader)
+      when is_map(outcome) do
+    OutcomeResolution.resolve(forecast, outcome, evidence, verification, evidence_reader)
+  end
+
+  @doc """
+  The lifecycle and assurance state of the forecast lifecycle.
+
+  This reports where the lifecycle has actually reached and what has actually
+  been established. It never reports a state that was not reached, and it
+  never collapses "no observation", "acquired but unverified", "verified with
+  limited source assurance" and "resolved" into one another.
+  """
+  @spec lifecycle_status() :: map()
+  def lifecycle_status, do: Tiannara.Forecasting.Lifecycle.snapshot()
+
+  @doc "Bind an acquired observation to a registered forecast."
+  @spec bind_observation(Contracts.Forecast.t(), map()) ::
+          {:ok, map()} | {:error, term()}
+  def bind_observation(%Contracts.Forecast{} = forecast, observation),
+    do: Tiannara.Forecasting.Observation.bind(forecast, observation)
+
+  @doc "Independently verify an observation against its registered forecast."
+  @spec verify_observation(Contracts.Forecast.t(), map(), (String.t() -> {:ok, binary()})) ::
+          {:ok, map()} | {:error, term()}
+  def verify_observation(%Contracts.Forecast{} = forecast, observation, evidence_reader),
+    do: Tiannara.Forecasting.OutcomeVerifier.verify(forecast, observation, evidence_reader)
 
   @doc "Append a resolved forecast record to descriptive performance history."
   @spec record_forecast_performance(map()) :: :ok | {:error, term()}

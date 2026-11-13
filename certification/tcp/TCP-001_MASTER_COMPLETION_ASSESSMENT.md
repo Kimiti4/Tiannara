@@ -1113,3 +1113,120 @@ forecast, because none exists.
 `TCP-B-058` and `TCP-B-059` partial with their limits recorded;
 `TCP-B-060` open; `TCP-B-061` … `TCP-B-063` newly recorded (no trusted
 integrity anchor; single-writer log; divergent temporal mechanisms).
+
+## 12. TCP-002.6 — Immutable Observation Binding, Independent Evidence Verification, and First Governed Outcome Resolution
+
+**Status: PARTIAL.** Stages 0–5 and 10–13 delivered against real
+implementations with executed tests; Stages 6–9 blocked or open. Detail
+in `certification/tcp/TCP_002_6_IMPLEMENTATION_REPORT.md`.
+
+### 12.1 What changed in the assessment
+
+TCP-002.5 proved that the *durable log* could be believed. It said nothing
+about the *lifecycle* that was supposed to use it: nothing connected a
+registered forecast to an observation, and nothing connected an observation to
+a resolution. TCP-002.6 found that the forecast lifecycle had a **trust
+gap**, not a storage gap.
+
+The `Outcome` struct carried five fields — id, forecast id, observed value,
+observed time, source. It could *link* an outcome. It could not say what was
+observed, when it happened, on what evidence, or whether that evidence had
+been checked by anything other than the code that retrieved it. The resolver
+validated the forecast id, the observed value, the observed time and hindsight
+— and **nothing else**. The typed horizon that TCP-002.5 carefully built was
+persisted and read by nobody.
+
+Three things are now true that were not:
+
+| Property | Before | After |
+|---|---|---|
+| **Binding** | The caller asserted the forecast id; the digests did not exist | The forecast digest, the outcome-definition digest and the horizon digest are derived from the **registered** forecast and re-checked at resolution |
+| **Verification** | The acquisition adapter's parsed value *was* the outcome | The verifier re-reads the stored evidence, re-digests it, parses it independently, and reports assurance dimension by dimension — with a **distinct status** for every verdict |
+| **Certification** | Any caller could assert `verified: true` | The only sanctioned transition is `OutcomeVerifier.apply/2`, which requires a record bound to the observation, the evidence, the forecast **and the observation's content**. The resolver refuses a resolution without one |
+| **Horizon** | Typed, persisted, read by nobody | Enforced at the canonical resolution boundary, against the forecast's own horizon |
+
+### 12.2 The three decisions that shaped the work
+
+- **Extend `Outcome`; do not replace it.** A parallel observation model would
+  have created a second authority for the same question. The struct was
+  extended, and legacy outcomes were given an explicit fate: readable,
+  `legacy_unverified`, and **refused for resolution**. The legacy
+  `observed_at` was not reinterpreted as an event time, and no field was
+  fabricated during deserialization.
+- **Independence means reading the evidence, not being a different module.** A
+  separate verifier module is not independence by itself. Independence here is
+  operational: the verifier retrieves the immutable evidence through the
+  reader, recomputes the digest rather than trusting the recorded one, and
+  parses the payload itself. The test suite proves this by making the
+  adapter's parsed value disagree with the stored evidence — the verifier
+  follows the evidence.
+- **The resolver's horizon is the forecast's horizon.** The resolver reads
+  `forecast.typed_horizon` and applies it. A caller-supplied horizon is not
+  consulted at all, which is why "horizon substitution" is not a separate
+  defence but a structural impossibility.
+- **A claim is not a record.** An observation that *says* it was verified is
+  not believed. The verifier produces a record bound to the observation, the
+  evidence digest, the forecast and the observation's content digest; the
+  resolver checks that record and refuses anything else. The content digest
+  closes the gap where an observation is verified and then its observed value
+  is changed before resolution.
+
+### 12.3 The honest limit
+
+**The contract half is real; the evidence half is not.**
+
+The binding, the verifier and the horizon enforcement are implemented and
+adversarially tested — 74 new or rewritten tests, against a 561-test
+application suite and a 792-test runtime suite, all executed. But
+**no real observation was acquired**: no live external source is reachable
+from this environment. Stage 6 is `BLOCKED` and the lifecycle is left at
+`FORECAST_REGISTERED` rather than advanced with a synthetic fixture. Nothing
+was independently verified against reality, nothing was durably resolved, and
+no real score exists.
+
+**Publisher authenticity is still not established.** The verifier reports
+`publisher_authenticity: :not_established` in every result and the overall
+status is `VERIFIED_WITH_LIMITED_SOURCE_ASSURANCE` — deliberately **not**
+interchangeable with `VERIFIED`. The `:verified` status is therefore
+**unreachable**, and that is stated rather than papered over. A content digest
+proves integrity; it does not prove who wrote the content. `TCP-B-058`
+therefore stays **PARTIAL**, and the existence of an evidence digest does not
+close it. The same limitation applies to the verification record itself: its
+digest detects modification, not forgery.
+
+**The resolution is not durable.** `OutcomeResolution.resolve/3` returns a
+resolution map that is never written to durable storage. A resolution
+therefore survives only as a returned value and cannot be recovered after a
+restart. This is registered as `TCP-B-064` and is the first item of
+TCP-002.7.
+
+### 12.4 Register
+
+66 rows — 43 open, 21 resolved, 2 partial. `TCP-B-059` resolved (the canonical
+resolver now reads and enforces the registered typed horizon); `TCP-B-060`
+resolved (binding, evidence integrity, legacy handling and the verifier
+transition are implemented and adversarially tested); `TCP-B-063` resolved
+(one temporal authority, no bypass path). `TCP-B-058` remains partial;
+`TCP-B-061` (no trusted integrity anchor), `TCP-B-062` (single-writer log),
+`TCP-B-056` (pseudo-measurements), `TCP-B-046` and `TCP-B-048` (no live
+outcome source) remain open. `TCP-B-064`, `TCP-B-065` and `TCP-B-066` are
+newly recorded. RL-565 remains `HIGH / OPEN`; RL-564 and `F-ARC-018` remain
+`OPEN`.
+
+### 12.5 Source-review findings
+
+Four source-level findings raised in review were addressed in this
+checkpoint rather than deferred:
+
+1. **Verified evidence could disagree with the value being scored** —
+   `check_semantics/3` now requires the independently parsed value to equal
+   the bound observation's `observed_outcome`.
+2. **The verification-record digest did not authenticate its issuer** —
+   `VerificationAuthority` (a supervised Agent holding a process-secret key)
+   signs every record with HMAC-SHA256; the resolver calls
+   `OutcomeVerifier.authentic?/1`.
+3. **Source identity was declared, not authenticated** — reported as
+   `:declared` with `source_identity_authenticated: :not_established`.
+4. **The resolver did not retrieve the canonical registered forecast** — it
+   now calls `ForecastRegistry.get/1` and anchors all validation on the
+   registered record.

@@ -278,13 +278,45 @@ defmodule Tiannara.Forecasting.Contracts do
       :context,
       :regime,
       :provenance,
-      # The enforceable temporal contract, and the digest of the immutable
-      # outcome definition (question, outcome space and typed horizon).
+      # The enforceable temporal contract, the digest of the immutable outcome
+      # definition (question, outcome space and typed horizon), and the digest
+      # of the typed horizon itself.
       :typed_horizon,
-      :outcome_definition_digest
+      :outcome_definition_digest,
+      :horizon_digest
     ]
 
     @type t :: %__MODULE__{}
+
+    @doc """
+    The digest of the typed horizon.
+
+    A forecast's horizon is immutable with the forecast, so the digest is what
+    binds an observation to the horizon it was forecast under.
+    """
+    @spec horizon_digest(Horizon.t() | nil) :: binary() | nil
+    def horizon_digest(nil), do: nil
+
+    def horizon_digest(%Horizon{} = horizon), do: Horizon.digest(horizon)
+
+    @doc """
+    The canonical digest of a registered forecast.
+
+    It binds the forecast's identity, version, outcome definition and
+    horizon. An observation carries this digest so that the binding can be
+    checked against the authoritative record rather than asserted by the
+    caller.
+    """
+    @spec digest(t()) :: binary()
+    def digest(%__MODULE__{} = forecast) do
+      :crypto.hash(
+        :sha256,
+        :erlang.term_to_binary(
+          {:tiannara_forecast_v1, forecast.id, forecast.forecast_version,
+           forecast.outcome_definition_digest, forecast.horizon_digest}
+        )
+      )
+    end
   end
 
   defmodule BaseRate do
