@@ -57,9 +57,8 @@ defmodule Tiannara.Forecasting.OutcomeResolution do
     with {:ok, registered} <- require_registered_canonical(forecast),
          :ok <- validate_link(registered, outcome),
          :ok <- validate_horizon(registered, outcome),
-         :ok <- verify_record_hmac(verification),
          :ok <- validate_verification(registered, outcome, verification),
-         :ok <- verify_record_reexecution(registered, outcome, verification, evidence_reader),
+         :ok <- verify_record_authenticity(registered, outcome, verification, evidence_reader),
          :ok <- validate_evidence(evidence),
          :ok <- validate_source_trust_policy(evidence, verification),
          {:ok, scores} <- score(registered, outcome) do
@@ -259,16 +258,35 @@ defmodule Tiannara.Forecasting.OutcomeResolution do
   #
   # This distinguishes live verification from historical recovery explicitly
   # rather than skipping authentication on every request.
-  defp verify_record_hmac(verification) do
+  # Process-local HMAC is a live-process tamper check, not a durable
+  # credential. On a fresh process the key differs, so a previously signed
+  # record fails the HMAC check. That is not by itself evidence of tampering:
+  # it may be a historical record from a restarted authority.
+  #
+  # The HMAC check is the live-process path. When it fails, the recovery
+  # path is re-execution against the immutable evidence (see
+  # verify_record_reexecution/4). The two are separate steps so that binding
+  # checks run between them and produce precise errors.
+  # Process-local HMAC is a live-process tamper check, not a durable
+  # credential. On a fresh process the key differs, so a previously signed
+  # record fails the HMAC check. That is not by itself evidence of tampering:
+  # it may be a historical record from a restarted authority.
+  # Process-local HMAC is a live-process tamper check, not a durable
+  # credential. On a fresh process the key differs, so a previously signed
+  # record fails the HMAC check. That is not by itself evidence of tampering:
+  # it may be a historical record from a restarted authority.
+  #
+  # The recovery authority is re-execution against the immutable evidence.
+  defp verify_record_authenticity(_registered, _outcome, verification, nil) do
+    # No evidence reader: the HMAC must hold, because re-execution is
+    # unavailable. This is the live-process, integrity-only path.
     case OutcomeVerifier.authentic?(verification) do
       :ok -> :ok
       {:error, reason} -> {:error, reason}
     end
   end
 
-  defp verify_record_reexecution(_registered, _outcome, _verification, nil), do: :ok
-
-  defp verify_record_reexecution(registered, outcome, verification, reader)
+  defp verify_record_authenticity(registered, outcome, verification, reader)
        when is_function(reader, 1) do
     case OutcomeVerifier.authentic?(verification) do
       :ok ->

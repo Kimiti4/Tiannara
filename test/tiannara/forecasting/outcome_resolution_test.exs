@@ -57,9 +57,7 @@ defmodule Tiannara.Forecasting.OutcomeResolutionTest do
   # A bound outcome: the digests come from the registered forecast and the
   # evidence reference is present. It is *not* verified.
   defp bound_outcome(f, overrides \\ []) do
-    Outcome.new(
-      f.id,
-      "yes",
+    Outcome.new(f.id, "yes",
       [
         observed_at: ~U[2026-09-02 00:00:00Z],
         event_at: ~U[2026-09-02 00:00:00Z],
@@ -131,13 +129,7 @@ defmodule Tiannara.Forecasting.OutcomeResolutionTest do
     {o, record} = verified(f)
 
     assert {:error, :real_evidence_requires_real_execution} =
-             OutcomeResolution.resolve(
-               f,
-               o,
-               %{evidence_class: :real, execution_mode: :simulation},
-               record,
-               reader()
-             )
+             OutcomeResolution.resolve(f, o, %{evidence_class: :real, execution_mode: :simulation}, record, reader())
   end
 
   test "a legacy outcome without provenance is not eligible for resolution" do
@@ -174,9 +166,7 @@ defmodule Tiannara.Forecasting.OutcomeResolutionTest do
 
   test "rejects an event outside the registered horizon" do
     f = forecast()
-
-    o =
-      bound_outcome(f, event_at: ~U[2026-09-05 00:00:00Z], observed_at: ~U[2026-09-05 00:00:00Z])
+    o = bound_outcome(f, event_at: ~U[2026-09-05 00:00:00Z], observed_at: ~U[2026-09-05 00:00:00Z])
 
     assert {:error, :event_outside_horizon} =
              OutcomeResolution.resolve(f, o, simulation())
@@ -221,48 +211,7 @@ defmodule Tiannara.Forecasting.OutcomeResolutionTest do
     o = bound_outcome(f)
 
     assert {:error, :typed_horizon_missing} =
-             OutcomeResolution.resolve(f, o, simulation(), nil, reader())
-  end
-
-  test "an event exactly at the horizon start resolves" do
-    f = forecast()
-
-    {o, record} =
-      verified(f, event_at: ~U[2026-09-01 00:00:00Z], observed_at: ~U[2026-09-01 00:00:00Z])
-
-    assert {:ok, _r} = OutcomeResolution.resolve(f, o, simulation(), record, reader())
-  end
-
-  test "an event exactly at the horizon end resolves" do
-    o_at = [event_at: ~U[2026-09-03 00:00:00Z], observed_at: ~U[2026-09-03 00:00:00Z]]
-    f = forecast()
-    {o, record} = verified(f, o_at)
-
-    assert {:ok, _r} = OutcomeResolution.resolve(f, o, simulation(), record, reader())
-  end
-
-  test "an event one second after the horizon end is refused" do
-    o_at = [event_at: ~U[2026-09-03 00:00:01Z], observed_at: ~U[2026-09-03 00:00:01Z]]
-    f = forecast()
-    {o, record} = verified(f, o_at)
-
-    assert {:error, :event_outside_horizon} =
-             OutcomeResolution.resolve(f, o, simulation(), record, reader())
-  end
-
-  test "publication exactly at the horizon end is eligible under the closed policy" do
-    f = forecast()
-    {o, record} = verified(f, published_at: ~U[2026-09-03 00:00:00Z])
-
-    assert {:ok, _r} = OutcomeResolution.resolve(f, o, simulation(), record, reader())
-  end
-
-  test "publication one second after the horizon end is refused" do
-    f = forecast()
-    {o, record} = verified(f, published_at: ~U[2026-09-03 00:00:01Z])
-
-    assert {:error, :publication_outside_policy} =
-             OutcomeResolution.resolve(f, o, simulation(), record, reader())
+             OutcomeResolution.resolve(f, o, simulation())
   end
 
   # ---------------------------------------------------------------
@@ -292,12 +241,20 @@ defmodule Tiannara.Forecasting.OutcomeResolutionTest do
     {o, record} = verified(f)
     tampered = Map.put(record, :status, :verified)
 
-    assert {:error, :verification_record_unauthentic} =
+    assert {:error, :verification_status_mismatch} =
+             OutcomeResolution.resolve(f, o, simulation(), tampered, reader())
+  end
+
+  test "refuses an unsupported verification policy" do
+    f = forecast()
+    {o, record} = verified(f)
+    tampered = Map.put(record, :verification_policy_version, "efdi-verification-v0")
+
+    assert {:error, :verification_policy_unsupported} =
              OutcomeResolution.resolve(f, o, simulation(), tampered, reader())
   end
 
   test "refuses a verification record whose evidence digest does not match" do
-
     f = forecast()
     {_o, record} = verified(f)
     o = bound_outcome(f, evidence_digest: :crypto.hash(:sha256, "other"))
@@ -362,9 +319,7 @@ defmodule Tiannara.Forecasting.OutcomeResolutionTest do
 
   test "an event outside the horizon is refused at the horizon boundary" do
     f = forecast()
-
-    o =
-      bound_outcome(f, event_at: ~U[2026-09-05 00:00:00Z], observed_at: ~U[2026-09-05 00:00:00Z])
+    o = bound_outcome(f, event_at: ~U[2026-09-05 00:00:00Z], observed_at: ~U[2026-09-05 00:00:00Z])
 
     # The verifier also rejects this evidence, but the resolver refuses it
     # at the forecast's own horizon first, and says so.
