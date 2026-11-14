@@ -280,21 +280,35 @@ defmodule Tiannara.Forecasting.ResolutionRegistry do
   end
 
   defp safe_stream do
-    case event_store().stream_verified(0) do
-      {:ok,
-       %{
-         records: records,
-         unreadable: unreadable,
-         truncated: truncated,
-         integrity_failures: failures,
-         sequence_gaps: gaps,
-         unverified_legacy: legacy
-       }} ->
-        events = Enum.map(records, & &1.event)
-        {:ok, events, unreadable + failures + gaps + legacy, truncated}
+    # Check EventStore health first.
+    health =
+      try do
+        event_store().health()
+      rescue
+        _ -> %{degraded: true}
+      catch
+        :exit, _ -> %{degraded: true}
+      end
 
-      _ ->
-        :error
+    if Map.get(health, :degraded, true) do
+      :error
+    else
+      case event_store().stream_verified(0) do
+        {:ok,
+         %{
+           records: records,
+           unreadable: unreadable,
+           truncated: truncated,
+           integrity_failures: failures,
+           sequence_gaps: gaps,
+           unverified_legacy: legacy
+         }} ->
+          events = Enum.map(records, & &1.event)
+          {:ok, events, unreadable + failures + gaps + legacy, truncated}
+
+        _ ->
+          :error
+      end
     end
   catch
     :exit, _reason -> :error

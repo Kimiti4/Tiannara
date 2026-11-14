@@ -31,7 +31,7 @@ defmodule Tiannara.Executive.EventStore do
 
   require Logger
 
-  defstruct [:file_path, :file_handle, :count, :last_digest, :last_sequence]
+  defstruct [:file_path, :file_handle, :count, :last_digest, :last_sequence, :degraded, :integrity_issues]
 
   @type t :: %__MODULE__{
           file_path: String.t(),
@@ -98,12 +98,15 @@ defmodule Tiannara.Executive.EventStore do
   @doc "Returns the current event count."
   def count, do: GenServer.call(server(), :count)
 
+  @doc "Returns the health and integrity state of the store."
+  def health, do: GenServer.call(server(), :health)
+
   @impl true
   def init({file_path, _name}) do
     File.mkdir_p!(Path.dirname(file_path))
     {:ok, fh} = File.open(file_path, [:append, :read, :binary])
 
-    {records, _unreadable, _truncated, _failures, _gaps, _legacy} = read_frames(file_path, 0)
+    {records, unreadable, truncated, failures, gaps, legacy} = read_frames(file_path, 0)
 
     verified =
       records
@@ -116,12 +119,32 @@ defmodule Tiannara.Executive.EventStore do
       |> Enum.reject(&is_nil/1)
       |> Enum.max(fn -> 0 end)
 
+    # Determine integrity state from diagnostics.
+    issues = []
+    issues = if unreadable > 0, do: [:unreadable_frames | issues], else: issues
+    issues = if truncated, do: [:truncated_tail | issues], else: issues
+    issues = if failures > 0, do: [:integrity_failures | issues], else: issues
+    issues = if gaps > 0, do: [:sequence_gaps | issues], else: issues
+    issues = if legacy > 0, do: [:unverified_legacy | issues], else: issues
+
+    degraded = issues != []
+
+    # If degraded, poison the digest chain so appends are refused.
+    last_digest =
+      if degraded do
+        :poisoned
+      else
+        verified && verified.digest
+      end
+
     state = %__MODULE__{
       file_path: file_path,
       file_handle: fh,
       count: count,
-      last_digest: verified && verified.digest,
-      last_sequence: verified && verified.sequence
+      last_digest: last_digest,
+      last_sequence: verified && verified.sequence,
+      degraded: degraded,
+      integrity_issues: issues
     }
 
     Logger.info(
@@ -135,8 +158,8 @@ defmodule Tiannara.Executive.EventStore do
   @impl true
   def handle_call({:append, event}, _from, state) do
     # Refuse to append when the store is poisoned or its integrity is uncertain.
-    if state.last_digest == :poisoned do
-      {:reply, {:error, :store_poisoned}, state}
+    if state.degraded or state.last_digest == :poisoned do
+      {:reply, {:error, :store_degraded}, state}
     else
       sequence = (state.last_sequence || 0) + 1
       previous_digest = state.last_digest || @zero_digest
@@ -248,6 +271,18 @@ defmodule Tiannara.Executive.EventStore do
   @impl true
   def handle_call(:count, _from, state) do
     {:reply, state.count, state}
+  end
+
+  @impl true
+  def handle_call(:health, _from, state) do
+    {:reply,
+     %{
+       file_path: state.file_path,
+       degraded: state.degraded,
+       integrity_issues: state.integrity_issues,
+       count: state.count,
+       last_sequence: state.last_sequence
+     }, state}
   end
 
   @impl true
