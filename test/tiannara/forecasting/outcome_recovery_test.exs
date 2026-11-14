@@ -19,6 +19,22 @@ defmodule Tiannara.Forecasting.OutcomeRecoveryTest do
       start_supervised!(Tiannara.Forecasting.ForecastRegistry)
     end
 
+    # Isolated EventStore for durable resolution.
+    dir = Path.join(System.tmp_dir!(), "tcp0027_recovery_#{System.unique_integer([:positive])}")
+    File.mkdir_p!(dir)
+    log = Path.join(dir, "events.log")
+    store_name = :"event_store_tcp0027_#{System.unique_integer([:positive])}"
+    registry_name = :"resolution_registry_tcp0027_#{System.unique_integer([:positive])}"
+
+    original_store = Application.get_env(:tiannara, :executive_event_store)
+    original_registry = Application.get_env(:tiannara, :resolution_registry_name)
+
+    Application.put_env(:tiannara, :executive_event_store, store_name)
+    Application.put_env(:tiannara, :resolution_registry_name, registry_name)
+
+    start_supervised!({Tiannara.Executive.EventStore, [name: store_name, file_path: log]})
+    start_supervised!({Tiannara.Forecasting.ResolutionRegistry, [name: registry_name]})
+
     # Use a test-private authority so the test can stop and restart it without
     # the application supervisor resurrecting it (or shutting down).
     unique_name = :"va_recovery_#{System.unique_integer([:positive])}"
@@ -26,7 +42,10 @@ defmodule Tiannara.Forecasting.OutcomeRecoveryTest do
     {:ok, _} = Tiannara.Forecasting.VerificationAuthority.start_link(name: unique_name)
 
     on_exit(fn ->
+      Application.delete_env(:tiannara, :executive_event_store)
+      Application.delete_env(:tiannara, :resolution_registry_name)
       Application.delete_env(:tiannara, :verification_authority_name)
+      File.rm_rf!(dir)
     end)
 
     :ok

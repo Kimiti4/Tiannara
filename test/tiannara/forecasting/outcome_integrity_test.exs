@@ -30,6 +30,27 @@ defmodule Tiannara.Forecasting.OutcomeIntegrityTest do
     unless Process.whereis(ForecastRegistry), do: start_supervised!(ForecastRegistry)
     unless Process.whereis(Tiannara.Forecasting.VerificationAuthority), do: start_supervised!(Tiannara.Forecasting.VerificationAuthority)
 
+    dir = Path.join(System.tmp_dir!(), "tcp0027_int_#{System.unique_integer([:positive])}")
+    File.mkdir_p!(dir)
+    log = Path.join(dir, "events.log")
+    store_name = :"event_store_tcp0027_#{System.unique_integer([:positive])}"
+    registry_name = :"resolution_registry_tcp0027_#{System.unique_integer([:positive])}"
+
+    original_store = Application.get_env(:tiannara, :executive_event_store)
+    original_registry = Application.get_env(:tiannara, :resolution_registry_name)
+
+    Application.put_env(:tiannara, :executive_event_store, store_name)
+    Application.put_env(:tiannara, :resolution_registry_name, registry_name)
+
+    start_supervised!({Tiannara.Executive.EventStore, [name: store_name, file_path: log]})
+    start_supervised!({Tiannara.Forecasting.ResolutionRegistry, [name: registry_name]})
+
+    on_exit(fn ->
+      restore_env(:executive_event_store, original_store)
+      restore_env(:resolution_registry_name, original_registry)
+      File.rm_rf!(dir)
+    end)
+
     {:ok, horizon} =
       Horizon.from_iso(%{
         start_at: "2026-09-01T00:00:00Z",
@@ -515,4 +536,7 @@ defmodule Tiannara.Forecasting.OutcomeIntegrityTest do
                })
     end
   end
+
+  defp restore_env(key, nil), do: Application.delete_env(:tiannara, key)
+  defp restore_env(key, value), do: Application.put_env(:tiannara, key, value)
 end

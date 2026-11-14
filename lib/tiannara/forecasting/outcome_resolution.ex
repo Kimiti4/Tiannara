@@ -91,12 +91,12 @@ defmodule Tiannara.Forecasting.OutcomeResolution do
         model_update: :requires_independent_review
       }
 
-      Tiannara.Forecasting.Lifecycle.record_resolution(resolution)
-
       # Durable commit before acknowledgement. The resolution is not reported
       # as successful until the canonical store confirms the append.
       case Tiannara.Forecasting.ResolutionRegistry.commit(resolution) do
         {:ok, persisted} ->
+          # Lifecycle notification only after durable success.
+          Tiannara.Forecasting.Lifecycle.record_resolution(persisted)
           {:ok, persisted}
 
         {:error, reason} ->

@@ -134,25 +134,46 @@ defmodule Tiannara.Executive.EventStore do
 
   @impl true
   def handle_call({:append, event}, _from, state) do
-    sequence = (state.last_sequence || 0) + 1
-    previous_digest = state.last_digest || @zero_digest
-    payload = Tiannara.Executive.Event.to_binary(event)
-    digest = record_digest(sequence, previous_digest, payload)
+    # Refuse to append when the store is poisoned or its integrity is uncertain.
+    if state.last_digest == :poisoned do
+      {:reply, {:error, :store_poisoned}, state}
+    else
+      sequence = (state.last_sequence || 0) + 1
+      previous_digest = state.last_digest || @zero_digest
+      payload = Tiannara.Executive.Event.to_binary(event)
+      digest = record_digest(sequence, previous_digest, payload)
 
-    frame =
-      <<@magic::binary, byte_size(payload)::32, sequence::64, digest::binary-size(@digest_size),
-        previous_digest::binary-size(@digest_size), payload::binary>>
+      frame =
+        <<@magic::binary, byte_size(payload)::32, sequence::64, digest::binary-size(@digest_size),
+          previous_digest::binary-size(@digest_size), payload::binary>>
 
-    IO.binwrite(state.file_handle, frame)
+      case IO.binwrite(state.file_handle, frame) do
+        :ok ->
+          # Synchronize before acknowledging.
+          case :file.sync(state.file_handle) do
+            :ok ->
+              state = %{
+                state
+                | count: state.count + 1,
+                  last_digest: digest,
+                  last_sequence: sequence
+              }
 
-    state = %{
-      state
-      | count: state.count + 1,
-        last_digest: digest,
-        last_sequence: sequence
-    }
+              {:reply, :ok, state}
 
-    {:reply, :ok, state}
+            {:error, reason} ->
+              # Sync failed. The write may or may not have reached durable
+              # storage. Poison the store rather than advancing state.
+              Logger.error("[ExecutiveMemory.EventStore] sync failed: #{inspect(reason)}")
+              poisoned = %{state | last_digest: :poisoned}
+              {:reply, {:error, {:sync_failed, reason}}, poisoned}
+          end
+
+        {:error, reason} ->
+          Logger.error("[ExecutiveMemory.EventStore] write failed: #{inspect(reason)}")
+          {:reply, {:error, {:write_failed, reason}}, state}
+      end
+    end
   end
 
   @impl true

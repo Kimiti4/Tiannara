@@ -103,7 +103,7 @@ defmodule Tiannara.Forecasting.ResolutionRegistry do
     table = :"#{name}_resolutions"
 
     if :ets.info(table) == :undefined do
-      :ets.new(table, [:set, :public, :named_table, read_concurrency: true])
+      :ets.new(table, [:set, :protected, :named_table, read_concurrency: true])
     end
 
     {recovered, degraded, failures} = rehydrate(table)
@@ -122,19 +122,33 @@ defmodule Tiannara.Forecasting.ResolutionRegistry do
   def handle_call({:commit, resolution}, _from, state) do
     forecast_id = Map.get(resolution, :forecast_id)
 
-    case get_by_forecast(state.table, forecast_id) do
-      {:ok, existing} ->
-        # Idempotency: exact retry returns the original.
-        if resolution_identity(existing) == resolution_identity(resolution) do
-          {:reply, {:ok, existing}, state}
-        else
-          {:reply, {:error, :resolution_conflict}, state}
-        end
+    if not is_binary(forecast_id) or forecast_id == "" do
+      {:reply, {:error, :invalid_resolution_payload}, state}
+    else
+      case get_by_forecast(state.table, forecast_id) do
+        {:ok, existing} ->
+          # Idempotency: exact retry returns the original.
+          if resolution_identity(existing) == resolution_identity(resolution) do
+            {:reply, {:ok, existing}, state}
+          else
+            {:reply, {:error, :resolution_conflict}, state}
+          end
 
-      :error ->
-        :ets.insert(state.table, {forecast_id, resolution})
-        state = maybe_append_event(resolution, state)
-        {:reply, {:ok, resolution}, %{state | count: state.count + 1}}
+        :error ->
+          if state.eventstore_degraded do
+            {:reply, {:error, :eventstore_degraded}, state}
+          else
+            # Persist first; update the index only after durable append succeeds.
+            case maybe_append_event(resolution, state) do
+              {:ok, new_state} ->
+                :ets.insert(state.table, {forecast_id, resolution})
+                {:reply, {:ok, resolution}, %{new_state | count: new_state.count + 1}}
+
+              {:error, reason, new_state} ->
+                {:reply, {:error, reason}, new_state}
+            end
+          end
+      end
     end
   end
 
@@ -153,7 +167,12 @@ defmodule Tiannara.Forecasting.ResolutionRegistry do
   def handle_call(:recover, _from, state) do
     {recovered, degraded, failures} = rehydrate(state.table)
     state = %{state | recovered_count: recovered, eventstore_degraded: degraded, recovery_failures: failures}
-    {:reply, {:ok, recovered}, state}
+
+    if failures == :unreadable do
+      {:reply, {:error, :eventstore_unavailable}, state}
+    else
+      {:reply, {:ok, recovered}, state}
+    end
   end
 
   def handle_call(:health, _from, state) do
@@ -190,11 +209,19 @@ defmodule Tiannara.Forecasting.ResolutionRegistry do
     :crypto.hash(
       :sha256,
       :erlang.term_to_binary(
-        {:tiannara_resolution_identity_v1, Map.get(resolution, :forecast_id),
+        {:tiannara_resolution_identity_v2, Map.get(resolution, :forecast_id),
          Map.get(resolution, :forecast_version), Map.get(resolution, :forecast_digest),
          Map.get(resolution, :outcome_definition_digest), Map.get(resolution, :horizon_digest),
-         Map.get(resolution, :observation_id), Map.get(resolution, :evidence_digest),
-         Map.get(resolution, :observed_outcome), Map.get(resolution, :verification_record_digest)}
+         Map.get(resolution, :model_ref), Map.get(resolution, :observation_id),
+         Map.get(resolution, :observation_digest), Map.get(resolution, :evidence_digest),
+         Map.get(resolution, :evidence_status), Map.get(resolution, :observed_outcome),
+         Map.get(resolution, :observed_at), Map.get(resolution, :event_at),
+         Map.get(resolution, :published_at), Map.get(resolution, :acquired_at),
+         Map.get(resolution, :verified_at), Map.get(resolution, :verification_status),
+         Map.get(resolution, :verification_policy_version),
+         Map.get(resolution, :verification_record_digest),
+         Map.get(resolution, :resolution_source), Map.get(resolution, :scores),
+         Map.get(resolution, :status)}
       )
     )
   end
@@ -203,26 +230,35 @@ defmodule Tiannara.Forecasting.ResolutionRegistry do
     event = Tiannara.Executive.Event.new(@event_type, %{resolution: resolution})
 
     try do
-      event_store().append(event)
-      state
+      case event_store().append(event) do
+        :ok ->
+          {:ok, state}
+
+        {:error, reason} ->
+          Logger.error("[EFDI.ResolutionRegistry] durable append failed: #{inspect(reason)}")
+          {:error, reason, %{state | eventstore_degraded: true}}
+      end
     catch
       :exit, _reason ->
         Logger.error("[EFDI.ResolutionRegistry] durable lineage unavailable")
-        %{state | eventstore_degraded: true}
+        {:error, :eventstore_unavailable, %{state | eventstore_degraded: true}}
 
       :error, _reason ->
         Logger.error("[EFDI.ResolutionRegistry] durable lineage failed")
-        %{state | eventstore_degraded: true}
+        {:error, :eventstore_failed, %{state | eventstore_degraded: true}}
     rescue
       _error ->
         Logger.error("[EFDI.ResolutionRegistry] durable lineage raised")
-        %{state | eventstore_degraded: true}
+        {:error, :eventstore_failed, %{state | eventstore_degraded: true}}
     end
   end
 
   defp rehydrate(table) do
     case safe_stream() do
       {:ok, events, unreadable, truncated} ->
+        # Rebuild from a verified snapshot: clear stale entries first.
+        :ets.delete_all_objects(table)
+
         {recovered, failures} =
           Enum.reduce(events, {0, 0}, fn event, {acc, failed} ->
             case resolution_from_event(event) do
