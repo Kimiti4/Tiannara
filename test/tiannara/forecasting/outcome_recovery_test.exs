@@ -249,4 +249,101 @@ defmodule Tiannara.Forecasting.OutcomeRecoveryTest do
                reader()
              )
   end
+
+
+  test "historical recovery is refused when the outcome-definition digest is tampered" do
+    f = forecast()
+    o = bound_outcome(f)
+    {:ok, record} = OutcomeVerifier.verify(f, o, reader())
+    {:ok, verified_outcome} = OutcomeVerifier.apply(record, o)
+
+    authority_name = Tiannara.Forecasting.VerificationAuthority.server()
+    GenServer.stop(Process.whereis(authority_name), :normal)
+    {:ok, _} = Tiannara.Forecasting.VerificationAuthority.start_link(name: authority_name)
+
+    tampered = Map.put(record, :outcome_definition_digest, :crypto.hash(:sha256, "other"))
+
+    assert {:error, :verification_record_unauthentic} =
+             OutcomeResolution.resolve(f, verified_outcome, simulation(), tampered, reader())
+  end
+
+  test "historical recovery is refused when the horizon digest is tampered" do
+    f = forecast()
+    o = bound_outcome(f)
+    {:ok, record} = OutcomeVerifier.verify(f, o, reader())
+    {:ok, verified_outcome} = OutcomeVerifier.apply(record, o)
+
+    authority_name = Tiannara.Forecasting.VerificationAuthority.server()
+    GenServer.stop(Process.whereis(authority_name), :normal)
+    {:ok, _} = Tiannara.Forecasting.VerificationAuthority.start_link(name: authority_name)
+
+    tampered = Map.put(record, :horizon_digest, :crypto.hash(:sha256, "other"))
+
+    assert {:error, :verification_record_unauthentic} =
+             OutcomeResolution.resolve(f, verified_outcome, simulation(), tampered, reader())
+  end
+
+  test "historical recovery is refused when the source identity is tampered" do
+    f = forecast()
+    o = bound_outcome(f)
+    {:ok, record} = OutcomeVerifier.verify(f, o, reader())
+    {:ok, verified_outcome} = OutcomeVerifier.apply(record, o)
+
+    authority_name = Tiannara.Forecasting.VerificationAuthority.server()
+    GenServer.stop(Process.whereis(authority_name), :normal)
+    {:ok, _} = Tiannara.Forecasting.VerificationAuthority.start_link(name: authority_name)
+
+    tampered = Map.put(record, :source_identity, "evil-source")
+
+    assert {:error, :verification_record_unauthentic} =
+             OutcomeResolution.resolve(f, verified_outcome, simulation(), tampered, reader())
+  end
+
+  test "historical recovery is refused when the evidence digest is tampered" do
+    f = forecast()
+    o = bound_outcome(f)
+    {:ok, record} = OutcomeVerifier.verify(f, o, reader())
+    {:ok, verified_outcome} = OutcomeVerifier.apply(record, o)
+
+    authority_name = Tiannara.Forecasting.VerificationAuthority.server()
+    GenServer.stop(Process.whereis(authority_name), :normal)
+    {:ok, _} = Tiannara.Forecasting.VerificationAuthority.start_link(name: authority_name)
+
+    tampered = Map.put(record, :evidence_digest, :crypto.hash(:sha256, "other"))
+
+    assert {:error, :verification_evidence_mismatch} =
+             OutcomeResolution.resolve(f, verified_outcome, simulation(), tampered, reader())
+  end
+
+  test "historical recovery is refused when the forecast id is tampered" do
+    f = forecast()
+    o = bound_outcome(f)
+    {:ok, record} = OutcomeVerifier.verify(f, o, reader())
+    {:ok, verified_outcome} = OutcomeVerifier.apply(record, o)
+
+    authority_name = Tiannara.Forecasting.VerificationAuthority.server()
+    GenServer.stop(Process.whereis(authority_name), :normal)
+    {:ok, _} = Tiannara.Forecasting.VerificationAuthority.start_link(name: authority_name)
+
+    tampered = Map.put(record, :forecast_id, "evil-forecast")
+
+    assert {:error, :verification_forecast_mismatch} =
+             OutcomeResolution.resolve(f, verified_outcome, simulation(), tampered, reader())
+  end
+
+  test "historical recovery is refused when the observation id is tampered" do
+    f = forecast()
+    o = bound_outcome(f)
+    {:ok, record} = OutcomeVerifier.verify(f, o, reader())
+    {:ok, verified_outcome} = OutcomeVerifier.apply(record, o)
+
+    authority_name = Tiannara.Forecasting.VerificationAuthority.server()
+    GenServer.stop(Process.whereis(authority_name), :normal)
+    {:ok, _} = Tiannara.Forecasting.VerificationAuthority.start_link(name: authority_name)
+
+    tampered = Map.put(record, :observation_id, "evil-obs")
+
+    assert {:error, :verification_observation_mismatch} =
+             OutcomeResolution.resolve(f, verified_outcome, simulation(), tampered, reader())
+  end
 end

@@ -309,9 +309,22 @@ defmodule Tiannara.Forecasting.OutcomeResolution do
   defp reexecute_and_compare(forecast, outcome, verification, reader) do
     case OutcomeVerifier.verify(forecast, outcome, reader) do
       {:ok, recomputed} ->
+        # Every security-relevant binding must agree between the persisted
+        # record and the independently re-executed verification. A field that
+        # is not compared here could be substituted in a persisted record
+        # without detection.
         if recomputed.status == Map.get(verification, :status) and
              recomputed.reason == Map.get(verification, :reason) and
-             recomputed.assurance == Map.get(verification, :assurance) do
+             recomputed.assurance == Map.get(verification, :assurance) and
+             recomputed.forecast_id == Map.get(verification, :forecast_id) and
+             recomputed.forecast_digest == Map.get(verification, :forecast_digest) and
+             recomputed.outcome_definition_digest ==
+               Map.get(verification, :outcome_definition_digest) and
+             recomputed.horizon_digest == Map.get(verification, :horizon_digest) and
+             recomputed.observation_id == Map.get(verification, :observation_id) and
+             recomputed.observation_digest == Map.get(verification, :observation_digest) and
+             recomputed.evidence_digest == Map.get(verification, :evidence_digest) and
+             recomputed.source_identity == Map.get(verification, :source_identity) do
           :ok
         else
           {:error, :verification_record_unauthentic}
