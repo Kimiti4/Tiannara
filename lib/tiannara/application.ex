@@ -112,7 +112,11 @@ defmodule Tiannara.Application do
     # observability, it is the only place the forecast lifecycle's real
     # state is exposed, and it must never be the reason a lifecycle
     # operation is unobservable.
-    children = [Tiannara.Forecasting.Lifecycle, Tiannara.Forecasting.VerificationAuthority]
+    children = [
+      Tiannara.Forecasting.Lifecycle,
+      Tiannara.Forecasting.VerificationAuthority,
+      Tiannara.Forecasting.ResolutionRegistry
+    ]
 
     if Application.get_env(:tiannara, :supervise_forecast_registry, true) do
       children ++ [Tiannara.Forecasting.ForecastRegistry]

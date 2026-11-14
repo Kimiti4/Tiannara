@@ -34,7 +34,7 @@ defmodule Tiannara.Forecasting.OutcomeResolutionTest do
     h = horizon()
 
     f = %Forecast{
-      id: "f-1",
+      id: "f-#{System.unique_integer([:positive])}",
       question: "Will event occur?",
       outcomes: ["yes", "no"],
       probabilities: [0.7, 0.3],

@@ -93,7 +93,15 @@ defmodule Tiannara.Forecasting.OutcomeResolution do
 
       Tiannara.Forecasting.Lifecycle.record_resolution(resolution)
 
-      {:ok, resolution}
+      # Durable commit before acknowledgement. The resolution is not reported
+      # as successful until the canonical store confirms the append.
+      case Tiannara.Forecasting.ResolutionRegistry.commit(resolution) do
+        {:ok, persisted} ->
+          {:ok, persisted}
+
+        {:error, reason} ->
+          {:error, reason}
+      end
     end
   end
 
