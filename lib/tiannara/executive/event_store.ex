@@ -26,19 +26,77 @@ defmodule Tiannara.Executive.EventStore do
   `unverified_legacy`: they are **never** presented as integrity-verified.
   A legacy frame whose declared size equals the magic prefix would be
   misread; frames of that size (~1.16 GB) are not supported.
+
+  ## Integrity state
+
+  `health/0` reports an explicit classification instead of an implicit flag:
+
+  * `:verified` — the complete log was read and every frame verified;
+  * `:empty_verified` — the log was opened and read as empty;
+  * `:unavailable` — the log could not be opened or read (the reason is
+    exposed as `read_error`);
+  * `:truncated` — the final frame is incomplete;
+  * `:integrity_failure` — a digest or chain check failed;
+  * `:sequence_gap` — the sequence is not contiguous from 1;
+  * `:legacy_unverified` — unverified legacy frames are present;
+  * `:recovery_required` — several diagnostic categories are present at once;
+  * `:poisoned` — a write or `fsync` failed with an uncertain file boundary.
+
+  Append is permitted only for `:verified` and `:empty_verified`. A read
+  failure is never represented as a clean empty history. A poisoned store
+  refuses every subsequent append until it is restarted against the file and
+  the complete history verifies again.
+
+  ## Synchronisation limits
+
+  A successful `:file.sync/1` means the write was handed to the operating
+  system and the file was synchronised at the time of the call. It is not a
+  proof that hardware, firmware or a remote filesystem will never lose or
+  reorder data. `durability` here means "acknowledged only after write and
+  sync succeeded", not "immune to every storage failure".
   """
   use GenServer
 
   require Logger
 
-  defstruct [:file_path, :file_handle, :count, :last_digest, :last_sequence, :degraded, :integrity_issues]
+  defstruct [
+    :file_path,
+    :file_handle,
+    :count,
+    :last_digest,
+    :last_sequence,
+    :integrity_issues,
+    :diagnostics,
+    :read_error,
+    :fault_injection,
+    :created_on_start,
+    integrity: :unavailable,
+    degraded: true,
+    append_permitted: false,
+    poisoned: false
+  ]
+
+  @type integrity ::
+          :verified
+          | :empty_verified
+          | :unavailable
+          | :truncated
+          | :integrity_failure
+          | :sequence_gap
+          | :legacy_unverified
+          | :recovery_required
+          | :poisoned
 
   @type t :: %__MODULE__{
           file_path: String.t(),
           file_handle: File.io_device() | nil,
           count: non_neg_integer(),
           last_digest: binary() | nil,
-          last_sequence: non_neg_integer()
+          last_sequence: non_neg_integer() | nil,
+          integrity: integrity(),
+          degraded: boolean(),
+          append_permitted: boolean(),
+          poisoned: boolean()
         }
 
   @magic "EFD2"
@@ -58,25 +116,31 @@ defmodule Tiannara.Executive.EventStore do
   def start_link(opts \\ []) do
     name = Keyword.get(opts, :name, server())
     file_path = Keyword.get(opts, :file_path, "/tmp/tiannara_executive_events.log")
-    GenServer.start_link(__MODULE__, {file_path, name}, name: name)
+    fault_injection = Keyword.get(opts, :fault_injection)
+
+    GenServer.start_link(__MODULE__, {file_path, name, fault_injection}, name: name)
   end
 
   @doc "Appends an event to the log."
-  def append(event), do: GenServer.call(server(), {:append, event})
+  @spec append(term(), atom()) :: :ok | {:error, term()}
+  def append(event, name \\ server()), do: GenServer.call(name, {:append, event})
 
   @doc "Streams all events since a given index."
-  def stream(since \\ 0), do: GenServer.call(server(), {:stream, since})
+  @spec stream(non_neg_integer(), atom()) :: [term()] | {:error, term()}
+  def stream(since \\ 0, name \\ server()), do: GenServer.call(name, {:stream, since})
 
   @doc """
   Streams the log together with what could not be read.
 
   A truncated tail or a corrupted frame must not be presented as clean
-  history: the unreadable count is reported so that a consumer can refuse to
-  treat the recovered history as complete.
+  history: the diagnostics are reported so that a consumer can refuse to
+  treat the recovered history as complete. An I/O failure is returned as
+  `{:error, {:read_failed, reason}}` rather than as an empty history.
   """
-  @spec stream_with_diagnostics(non_neg_integer()) :: {:ok, map()}
-  def stream_with_diagnostics(since \\ 0),
-    do: GenServer.call(server(), {:stream_with_diagnostics, since})
+  @spec stream_with_diagnostics(non_neg_integer(), atom()) ::
+          {:ok, map()} | {:error, term()}
+  def stream_with_diagnostics(since \\ 0, name \\ server()),
+    do: GenServer.call(name, {:stream_with_diagnostics, since})
 
   @doc """
   Streams the log with per-record integrity and ordering metadata.
@@ -89,183 +153,221 @@ defmodule Tiannara.Executive.EventStore do
   returned as an event; it is reported as a failure so that a consumer cannot
   silently apply it.
   """
-  @spec stream_verified(non_neg_integer()) :: {:ok, map()}
-  def stream_verified(since \\ 0), do: GenServer.call(server(), {:stream_verified, since})
+  @spec stream_verified(non_neg_integer(), atom()) :: {:ok, map()} | {:error, term()}
+  def stream_verified(since \\ 0, name \\ server()),
+    do: GenServer.call(name, {:stream_verified, since})
+
+  @doc """
+  Returns the complete framed history, including records that failed
+  verification, together with the diagnostics.
+
+  This is the diagnostic read used by storage consumers that must decide
+  whether the *entire* history is trustworthy before publishing derived
+  state.
+  """
+  @spec read_records(atom()) :: {:ok, map()} | {:error, term()}
+  def read_records(name \\ server()), do: GenServer.call(name, :read_records)
 
   @doc "Returns events since a given timestamp."
-  def since(timestamp), do: GenServer.call(server(), {:since, timestamp})
+  @spec since(DateTime.t(), atom()) :: [term()] | {:error, term()}
+  def since(timestamp, name \\ server()), do: GenServer.call(name, {:since, timestamp})
 
-  @doc "Returns the current event count."
-  def count, do: GenServer.call(server(), :count)
+  @doc "Returns the current verified event count."
+  def count(name \\ server()), do: GenServer.call(name, :count)
 
-  @doc "Returns the health and integrity state of the store."
-  def health, do: GenServer.call(server(), :health)
+  @doc """
+  Returns the health and integrity state of the store.
+
+  `durable` is deliberately absent: this call reports whether the history is
+  verified and whether appends are permitted, not whether a particular record
+  has reached stable storage.
+  """
+  @spec health(atom()) :: map()
+  def health(name \\ server()), do: GenServer.call(name, :health)
 
   @impl true
-  def init({file_path, _name}) do
+  def init({file_path, _name, fault_injection}) do
     File.mkdir_p!(Path.dirname(file_path))
-    {:ok, fh} = File.open(file_path, [:append, :read, :binary])
+    created? = not File.exists?(file_path)
 
-    {records, unreadable, truncated, failures, gaps, legacy} = read_frames(file_path, 0)
+    case File.open(file_path, [:append, :read, :binary]) do
+      {:ok, fh} ->
+        case read_frames(file_path, 0, fault_injection) do
+          {:ok, %{records: records, diagnostics: diagnostics}} ->
+            verified = Enum.filter(records, &(&1.integrity == :verified))
+            last = List.last(verified)
+            integrity = classify(diagnostics, records)
+            append_permitted = integrity in [:verified, :empty_verified]
 
-    verified =
-      records
-      |> Enum.filter(&(&1.integrity == :verified))
-      |> List.last()
+            state = %__MODULE__{
+              file_path: file_path,
+              file_handle: fh,
+              count: length(verified),
+              last_digest: last && last.digest,
+              last_sequence: last && last.sequence,
+              integrity: integrity,
+              degraded: not append_permitted,
+              append_permitted: append_permitted,
+              poisoned: false,
+              integrity_issues: issues_for(integrity, diagnostics),
+              diagnostics: diagnostics,
+              read_error: nil,
+              fault_injection: fault_injection,
+              created_on_start: created?
+            }
 
-    count =
-      records
-      |> Enum.map(& &1.sequence)
-      |> Enum.reject(&is_nil/1)
-      |> Enum.max(fn -> 0 end)
+            Logger.info(
+              "[ExecutiveMemory.EventStore] Started: #{file_path} " <>
+                "(#{length(verified)} verified, integrity=#{integrity}, " <>
+                "append_permitted=#{append_permitted})"
+            )
 
-    # Determine integrity state from diagnostics.
-    issues = []
-    issues = if unreadable > 0, do: [:unreadable_frames | issues], else: issues
-    issues = if truncated, do: [:truncated_tail | issues], else: issues
-    issues = if failures > 0, do: [:integrity_failures | issues], else: issues
-    issues = if gaps > 0, do: [:sequence_gaps | issues], else: issues
-    issues = if legacy > 0, do: [:unverified_legacy | issues], else: issues
+            {:ok, state}
 
-    degraded = issues != []
+          {:error, {:read_failed, reason}} ->
+            File.close(fh)
+            Logger.error("[ExecutiveMemory.EventStore] Cannot read log: #{inspect(reason)}")
+            {:ok, unavailable_state(file_path, reason, fault_injection, created?)}
+        end
 
-    # If degraded, poison the digest chain so appends are refused.
-    last_digest =
-      if degraded do
-        :poisoned
-      else
-        verified && verified.digest
-      end
-
-    state = %__MODULE__{
-      file_path: file_path,
-      file_handle: fh,
-      count: count,
-      last_digest: last_digest,
-      last_sequence: verified && verified.sequence,
-      degraded: degraded,
-      integrity_issues: issues
-    }
-
-    Logger.info(
-      "[ExecutiveMemory.EventStore] Started: #{file_path} (#{count} sequenced records, " <>
-        "#{Enum.count(records, &(&1.integrity == :verified))} verified)"
-    )
-
-    {:ok, state}
+      {:error, reason} ->
+        Logger.error("[ExecutiveMemory.EventStore] Cannot open log: #{inspect(reason)}")
+        {:ok, unavailable_state(file_path, reason, fault_injection, created?)}
+    end
   end
 
   @impl true
+  def handle_call({:append, _event}, _from, %{poisoned: true} = state) do
+    {:reply, {:error, :store_poisoned}, state}
+  end
+
+  def handle_call({:append, _event}, _from, %{append_permitted: false} = state) do
+    {:reply, {:error, :store_not_appendable}, state}
+  end
+
   def handle_call({:append, event}, _from, state) do
-    # Refuse to append when the store is poisoned or its integrity is uncertain.
-    if state.degraded or state.last_digest == :poisoned do
-      {:reply, {:error, :store_degraded}, state}
-    else
-      sequence = (state.last_sequence || 0) + 1
-      previous_digest = state.last_digest || @zero_digest
-      payload = Tiannara.Executive.Event.to_binary(event)
-      digest = record_digest(sequence, previous_digest, payload)
+    case pre_append_integrity(state) do
+      :ok ->
+        do_append(event, state)
 
-      frame =
-        <<@magic::binary, byte_size(payload)::32, sequence::64, digest::binary-size(@digest_size),
-          previous_digest::binary-size(@digest_size), payload::binary>>
+      {:error, reason} ->
+        Logger.error("[ExecutiveMemory.EventStore] History no longer intact: #{inspect(reason)}")
 
-      case IO.binwrite(state.file_handle, frame) do
-        :ok ->
-          # Synchronize before acknowledging.
-          case :file.sync(state.file_handle) do
-            :ok ->
-              state = %{
-                state
-                | count: state.count + 1,
-                  last_digest: digest,
-                  last_sequence: sequence
-              }
+        degraded = %{
+          state
+          | append_permitted: false,
+            degraded: true,
+            integrity: :integrity_failure,
+            integrity_issues: [{:history_integrity_lost, reason} | state.integrity_issues]
+        }
 
-              {:reply, :ok, state}
-
-            {:error, reason} ->
-              # Sync failed. The write may or may not have reached durable
-              # storage. Poison the store rather than advancing state.
-              Logger.error("[ExecutiveMemory.EventStore] sync failed: #{inspect(reason)}")
-              poisoned = %{state | last_digest: :poisoned}
-              {:reply, {:error, {:sync_failed, reason}}, poisoned}
-          end
-
-        {:error, reason} ->
-          Logger.error("[ExecutiveMemory.EventStore] write failed: #{inspect(reason)}")
-          {:reply, {:error, {:write_failed, reason}}, state}
-      end
+        {:reply, {:error, {:store_integrity_failure, reason}}, degraded}
     end
   end
 
   @impl true
   def handle_call({:stream, since}, _from, state) do
-    {records, _unreadable, _truncated, _failures, _gaps, _legacy} = read_frames(state.file_path, 0)
+    case read_frames(state.file_path, 0, state.fault_injection) do
+      {:ok, %{records: records}} ->
+        events =
+          records
+          |> Enum.filter(&(&1.integrity in [:verified, :unverified_legacy]))
+          |> Enum.filter(&(is_nil(&1.sequence) or &1.sequence > since))
+          |> Enum.map(& &1.event)
 
-    events =
-      records
-      |> Enum.filter(&(&1.integrity in [:verified, :unverified_legacy]))
-      |> Enum.filter(&(is_nil(&1.sequence) or &1.sequence > since))
-      |> Enum.map(& &1.event)
+        {:reply, events, state}
 
-    {:reply, events, state}
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+    end
   end
 
   def handle_call({:stream_with_diagnostics, since}, _from, state) do
-    {records, unreadable, truncated, failures, gaps, legacy} = read_frames(state.file_path, 0)
+    case read_frames(state.file_path, 0, state.fault_injection) do
+      {:ok, %{records: records, diagnostics: diagnostics}} ->
+        events =
+          records
+          |> Enum.filter(&(&1.integrity in [:verified, :unverified_legacy]))
+          |> Enum.filter(&(is_nil(&1.sequence) or &1.sequence > since))
+          |> Enum.map(& &1.event)
 
-    events =
-      records
-      |> Enum.filter(&(&1.integrity in [:verified, :unverified_legacy]))
-      |> Enum.filter(&(is_nil(&1.sequence) or &1.sequence > since))
-      |> Enum.map(& &1.event)
+        {:reply,
+         {:ok,
+          %{
+            events: events,
+            integrity: classify(diagnostics, records),
+            diagnostics: diagnostics,
+            unreadable: diagnostics.unreadable,
+            truncated: diagnostics.truncated,
+            integrity_failures: diagnostics.integrity_failures,
+            sequence_gaps: diagnostics.sequence_gaps,
+            unverified_legacy: diagnostics.unverified_legacy,
+            verified: Enum.count(records, &(&1.integrity == :verified))
+          }}, state}
 
-    {:reply,
-     {:ok,
-      %{
-        events: events,
-        unreadable: unreadable,
-        truncated: truncated,
-        integrity_failures: failures,
-        sequence_gaps: gaps,
-        unverified_legacy: legacy,
-        verified: Enum.count(records, &(&1.integrity == :verified))
-      }}, state}
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+    end
   end
 
   def handle_call({:stream_verified, since}, _from, state) do
-    {records, unreadable, truncated, failures, gaps, legacy} = read_frames(state.file_path, 0)
+    case read_frames(state.file_path, 0, state.fault_injection) do
+      {:ok, %{records: records, diagnostics: diagnostics}} ->
+        verified =
+          records
+          |> Enum.filter(&(&1.integrity == :verified))
+          |> Enum.filter(&(is_nil(&1.sequence) or &1.sequence > since))
 
-    verified =
-      records
-      |> Enum.filter(&(&1.integrity == :verified))
-      |> Enum.filter(&(is_nil(&1.sequence) or &1.sequence > since))
+        {:reply,
+         {:ok,
+          %{
+            records: verified,
+            integrity: classify(diagnostics, records),
+            diagnostics: diagnostics,
+            unreadable: diagnostics.unreadable,
+            truncated: diagnostics.truncated,
+            integrity_failures: diagnostics.integrity_failures,
+            sequence_gaps: diagnostics.sequence_gaps,
+            unverified_legacy: diagnostics.unverified_legacy,
+            verified: Enum.count(records, &(&1.integrity == :verified))
+          }}, state}
 
-    {:reply,
-     {:ok,
-      %{
-        records: verified,
-        unreadable: unreadable,
-        truncated: truncated,
-        integrity_failures: failures,
-        sequence_gaps: gaps,
-        unverified_legacy: legacy
-      }}, state}
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+    end
   end
 
-  @impl true
+  def handle_call(:read_records, _from, state) do
+    case read_frames(state.file_path, 0, state.fault_injection) do
+      {:ok, %{records: records, diagnostics: diagnostics}} ->
+        {:reply,
+         {:ok,
+          %{
+            records: records,
+            diagnostics: diagnostics,
+            integrity: classify(diagnostics, records)
+          }}, state}
+
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+    end
+  end
+
   def handle_call({:since, timestamp}, _from, state) do
-    {records, _unreadable, _truncated, _failures, _gaps, _legacy} = read_frames(state.file_path, 0)
+    case read_frames(state.file_path, 0, state.fault_injection) do
+      {:ok, %{records: records}} ->
+        filtered =
+          Enum.filter(records, fn r ->
+            r.integrity == :verified and
+              match?(%{timestamp: ts} when not is_nil(ts), r.event) and
+              DateTime.compare(r.event.timestamp, timestamp) != :lt
+          end)
 
-    filtered =
-      Enum.filter(records, fn r ->
-        r.integrity == :verified and
-          match?(%{timestamp: ts} when not is_nil(ts), r.event) and
-          DateTime.compare(r.event.timestamp, timestamp) != :lt
-      end)
+        {:reply, Enum.map(filtered, & &1.event), state}
 
-    {:reply, Enum.map(filtered, & &1.event), state}
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+    end
   end
 
   @impl true
@@ -275,13 +377,26 @@ defmodule Tiannara.Executive.EventStore do
 
   @impl true
   def handle_call(:health, _from, state) do
+    complete? = state.integrity in [:verified, :empty_verified]
+
     {:reply,
      %{
        file_path: state.file_path,
+       integrity: state.integrity,
        degraded: state.degraded,
-       integrity_issues: state.integrity_issues,
+       complete_history_verified: complete?,
+       readable: state.integrity != :unavailable,
+       append_permitted: state.append_permitted,
+       writable: state.append_permitted,
        count: state.count,
-       last_sequence: state.last_sequence
+       verified_count: state.count,
+       last_sequence: state.last_sequence,
+       last_digest: state.last_digest,
+       diagnostics: state.diagnostics,
+       integrity_issues: state.integrity_issues,
+       poisoned: state.poisoned,
+       read_error: state.read_error,
+       created_on_start: state.created_on_start
      }, state}
   end
 
@@ -289,6 +404,117 @@ defmodule Tiannara.Executive.EventStore do
   def terminate(_reason, state) do
     if state.file_handle, do: File.close(state.file_handle)
     :ok
+  end
+
+  # ------------------------------------------------------------------ append
+
+  defp do_append(event, state) do
+    sequence = (state.last_sequence || 0) + 1
+    previous_digest = state.last_digest || @zero_digest
+    payload = Tiannara.Executive.Event.to_binary(event)
+    digest = record_digest(sequence, previous_digest, payload)
+
+    frame =
+      <<@magic::binary, byte_size(payload)::32, sequence::64, digest::binary-size(@digest_size),
+        previous_digest::binary-size(@digest_size), payload::binary>>
+
+    case write_frame(state, frame) do
+      :ok ->
+        if fault(state, :kill_after_write) == true do
+          # Simulated machine/process loss between write and sync. The caller
+          # must not receive a successful acknowledgement.
+          Process.exit(self(), :kill)
+        end
+
+        case sync_file(state) do
+          :ok ->
+            state = %{
+              state
+              | count: state.count + 1,
+                last_digest: digest,
+                last_sequence: sequence
+            }
+
+            {:reply, :ok, state}
+
+          {:error, reason} ->
+            Logger.error("[ExecutiveMemory.EventStore] sync failed: #{inspect(reason)}")
+            {:reply, {:error, {:sync_failed, reason}}, poison(state, {:sync_failed, reason})}
+        end
+
+      {:error, reason} ->
+        Logger.error("[ExecutiveMemory.EventStore] write failed: #{inspect(reason)}")
+        {:reply, {:error, {:write_failed, reason}}, poison(state, {:write_failed, reason})}
+    end
+  end
+
+  # Re-read the complete history before accepting another record. The cached
+  # state is not evidence that the file on disk is still intact: another
+  # process, a partial restore or a truncation can change it underneath us.
+  defp pre_append_integrity(state) do
+    case read_frames(state.file_path, 0, state.fault_injection) do
+      {:ok, %{records: records, diagnostics: diagnostics}} ->
+        verified = Enum.filter(records, &(&1.integrity == :verified))
+        last = List.last(verified)
+
+        cond do
+          diagnostics_any?(diagnostics) ->
+            {:error, storage_reason(diagnostics, records)}
+
+          length(verified) != length(records) ->
+            {:error, :unverified_history}
+
+          length(verified) != state.count ->
+            {:error, :history_changed}
+
+          (last && last.digest) != state.last_digest ->
+            {:error, :history_changed}
+
+          true ->
+            :ok
+        end
+
+      {:error, {:read_failed, reason}} ->
+        {:error, {:read_failed, reason}}
+    end
+  end
+
+  defp write_frame(state, frame) do
+    case fault(state, :write) do
+      nil ->
+        IO.binwrite(state.file_handle, frame)
+
+      {:error, reason} ->
+        {:error, reason}
+
+      {:partial, count} ->
+        # Write a real prefix of the frame, then report failure. This leaves a
+        # genuinely truncated frame on disk so that restart recovery is
+        # exercised against a real partial write, not a simulated one.
+        partial = binary_part(frame, 0, min(count, byte_size(frame)))
+        _ = IO.binwrite(state.file_handle, partial)
+        {:error, :partial_write}
+    end
+  end
+
+  defp sync_file(state) do
+    case fault(state, :sync) do
+      nil -> :file.sync(state.file_handle)
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp fault(state, key), do: Map.get(state.fault_injection || %{}, key)
+
+  defp poison(state, detail) do
+    %{
+      state
+      | poisoned: true,
+        append_permitted: false,
+        degraded: true,
+        integrity: :poisoned,
+        integrity_issues: [detail | state.integrity_issues]
+    }
   end
 
   # ------------------------------------------------------------------ frames
@@ -301,13 +527,32 @@ defmodule Tiannara.Executive.EventStore do
     )
   end
 
-  defp read_frames(file_path, since_offset) do
-    case File.read(file_path) do
-      {:ok, data} ->
-        parse_frames(data, since_offset, nil, [], 0, false, 0, 0, 0, 0)
+  defp read_frames(file_path, since_offset, fault_injection) do
+    case Map.get(fault_injection || %{}, :read) do
+      {:error, reason} ->
+        {:error, {:read_failed, reason}}
 
       _ ->
-        {[], 0, false, 0, 0, 0}
+        case File.read(file_path) do
+          {:ok, data} ->
+            {records, unreadable, truncated, failures, gaps, legacy} =
+              parse_frames(data, since_offset, nil, [], 0, false, 0, 0, 0, 0)
+
+            {:ok,
+             %{
+               records: records,
+               diagnostics: %{
+                 unreadable: unreadable,
+                 truncated: truncated,
+                 integrity_failures: failures,
+                 sequence_gaps: gaps,
+                 unverified_legacy: legacy
+               }
+             }}
+
+          {:error, reason} ->
+            {:error, {:read_failed, reason}}
+        end
     end
   end
 
@@ -346,7 +591,7 @@ defmodule Tiannara.Executive.EventStore do
 
       expected = record_digest(sequence, previous_digest, payload)
 
-      {integrity, detail, new_prev, new_sequence} =
+      {integrity, detail, new_prev, _new_sequence} =
         cond do
           digest != expected ->
             {:integrity_failure, :digest_mismatch, prev, prev && prev.sequence}
@@ -447,7 +692,7 @@ defmodule Tiannara.Executive.EventStore do
     else
       <<payload::binary-size(size), tail::binary>> = rest
 
-      {event, record} =
+      {_event, record} =
         case safe_event(payload) do
           {:ok, event} ->
             {event,
@@ -494,6 +739,89 @@ defmodule Tiannara.Executive.EventStore do
          _seen
        ) do
     {Enum.reverse(acc), unreadable, truncated, failures, gaps, legacy}
+  end
+
+  # ------------------------------------------------------------------ state
+
+  defp unavailable_state(file_path, reason, fault_injection, created?) do
+    %__MODULE__{
+      file_path: file_path,
+      file_handle: nil,
+      count: 0,
+      last_digest: nil,
+      last_sequence: nil,
+      integrity: :unavailable,
+      degraded: true,
+      append_permitted: false,
+      poisoned: false,
+      integrity_issues: [:read_failed],
+      diagnostics: empty_diagnostics(),
+      read_error: reason,
+      fault_injection: fault_injection,
+      created_on_start: created?
+    }
+  end
+
+  defp empty_diagnostics do
+    %{
+      unreadable: 0,
+      truncated: false,
+      integrity_failures: 0,
+      sequence_gaps: 0,
+      unverified_legacy: 0
+    }
+  end
+
+  defp classify(diagnostics, records) do
+    case diagnostic_categories(diagnostics) do
+      [] -> if records == [], do: :empty_verified, else: :verified
+      [single] -> single
+      [_ | _] -> :recovery_required
+    end
+  end
+
+  defp diagnostic_categories(diagnostics) do
+    []
+    |> maybe_category(:truncated, diagnostics.truncated)
+    |> maybe_category(:integrity_failure, diagnostics.integrity_failures > 0)
+    |> maybe_category(:sequence_gap, diagnostics.sequence_gaps > 0)
+    |> maybe_category(:legacy_unverified, diagnostics.unverified_legacy > 0)
+    |> Enum.reverse()
+  end
+
+  defp maybe_category(list, category, true), do: [category | list]
+  defp maybe_category(list, _category, false), do: list
+
+  defp diagnostics_any?(diagnostics) do
+    diagnostics.unreadable > 0 or diagnostics.truncated or
+      diagnostics.integrity_failures > 0 or diagnostics.sequence_gaps > 0 or
+      diagnostics.unverified_legacy > 0
+  end
+
+  defp issues_for(integrity, _diagnostics) when integrity in [:verified, :empty_verified],
+    do: []
+
+  defp issues_for(_integrity, diagnostics), do: diagnostic_categories(diagnostics)
+
+  @doc false
+  def storage_reason(diagnostics, records) do
+    cond do
+      diagnostics.truncated -> :truncated_history
+      diagnostics.integrity_failures > 0 -> failure_detail(records)
+      diagnostics.sequence_gaps > 0 -> :sequence_gap
+      diagnostics.unverified_legacy > 0 -> :unverified_legacy_record
+      diagnostics.unreadable > 0 -> :unreadable_record
+      true -> :unknown_history_integrity_failure
+    end
+  end
+
+  @doc false
+  def failure_detail(records) do
+    case Enum.find(records, &(&1.integrity == :integrity_failure)) do
+      %{detail: :chain_break} -> :chain_break
+      %{detail: :digest_mismatch} -> :digest_mismatch
+      _ -> :unreadable_record
+    end
   end
 
   defp safe_event(bin) do
