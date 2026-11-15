@@ -21,7 +21,6 @@ EVID = os.path.join(ROOT, "certification", "evidence", "tcp002_7_r3")
 
 ARTIFACTS = [
     "certification/tcp/TCP_002_7_R3_IMPLEMENTATION_REPORT.md",
-    "certification/tcp/TCP_002_7_R3_EVIDENCE_MANIFEST.json",
     "certification/tcp/TCP_002_6_IMPLEMENTATION_REPORT.md",
     "certification/tcp/TCP_002_7_SOURCE_TRUST_POLICY_PROPOSAL.md",
     "certification/tcp/TCP-001_MASTER_COMPLETION_ASSESSMENT.md",
@@ -45,6 +44,16 @@ def git(*args):
         return subprocess.check_output(["git", "-C", ROOT] + list(args), text=True).strip()
     except Exception:
         return ""
+
+
+def implementation_commit():
+    """Return the SHA of commit A: the most recent commit whose message starts with 'TCP-002.7-R3'."""
+    out = git("log", "--format=%H %s", "-n", "50")
+    for line in out.splitlines():
+        sha, _, subject = line.partition(" ")
+        if subject.startswith("TCP-002.7-R3"):
+            return sha
+    return None
 
 
 def sha256(path):
@@ -72,12 +81,15 @@ def main():
         "branch": git("rev-parse", "--abbrev-ref", "HEAD"),
         "baseline_commit": BASELINE,
         "baseline_parent": BASELINE_PARENT,
-        "commit_a": (
-            git("rev-parse", "HEAD")
-            if git("log", "-1", "--pretty=%s").startswith("TCP-002.7-R3")
-            else None
+        "implementation_commit": implementation_commit(),
+        "evidence_commit": None,
+        "evidence_commit_note": (
+            "This manifest is committed in the evidence commit (commit B), which "
+            "cannot contain its own SHA. The implementation commit SHA above is "
+            "commit A. Commit B's SHA is recorded in the append-only register row, "
+            "the master assessment section 13, and the final reconciliation report "
+            "after commit B is created."
         ),
-        "commit_b": git("rev-parse", "HEAD"),
         "parent_commit": git("rev-parse", "HEAD~1"),
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "toolchain": {"elixir": "1.18.4", "otp": "28", "erts": "16.4"},
@@ -365,7 +377,7 @@ def main():
     print("wrote certification/evidence/tcp002_7_r3/TCP_002_7_R3_EVIDENCE_MANIFEST.json")
     print("wrote certification/tcp/TCP_002_7_R3_EVIDENCE_MANIFEST.json")
     print("artifacts with digests:", len(artifacts))
-    print("commit_b:", manifest["commit_b"])
+    print("implementation_commit:", manifest["implementation_commit"])
 
 
 if __name__ == "__main__":

@@ -1230,3 +1230,68 @@ checkpoint rather than deferred:
 4. **The resolver did not retrieve the canonical registered forecast** — it
    now calls `ForecastRegistry.get/1` and anchors all validation on the
    registered record.
+
+## 13. TCP-002.7-R3 — EventStore Fail-Closed Recovery, Write Poisoning, and Transactional ResolutionRegistry Recovery
+
+**Status: PARTIAL — `IMPLEMENTED_WITH_PARTIAL_EVIDENCE / VERIFICATION_BLOCKED`.**
+Storage and recovery are implemented and executed-tested on isolated
+instances with simulated fault injection; no real observation exists, no
+independent verifier ran, and CI on the branch is pending. Detail in
+`certification/tcp/TCP_002_7_R3_IMPLEMENTATION_REPORT.md`.
+
+### 13.1 What changed in the assessment
+
+TCP-002.6 created the *trust boundary* between an observation and a
+resolution, and TCP-002.7 made the resolution *durable* through the canonical
+commit path. Neither said anything about what happens when the log itself
+cannot be read, is half-written, or is replaced underneath a running process.
+TCP-002.7-R2 added a startup integrity gate but still failed **open** in the
+read and write paths: a read failure was indistinguishable from an empty
+history, a failed write left the store appendable, `ResolutionRegistry`
+rebuilt its index one event at a time with no all-or-nothing publication,
+and a stale index could survive an integrity failure.
+
+TCP-002.7-R3 closes those fail-open paths:
+
+| Concern | Before | After |
+|---|---|---|
+| **Read failure** | `File.read` error returned `{[], …}` → reported as clean empty history, appends permitted | Every reader propagates `{:error, {:read_failed, reason}}`; startup enters `:unavailable`; appends refused with `:store_not_appendable` |
+| **Uncertain write/sync** | Failed write left prior state; sync failure tracked via a `:poisoned` sentinel in `last_digest` | Any write/`fsync` failure poisons the store (`integrity: :poisoned`, `append_permitted: false`), advances nothing, never acknowledges success, and refuses all later appends with `:store_poisoned` |
+| **Registry publication** | `rehydrate/1` cleared ETS then inserted a partially built candidate one event at a time | Three-stage transaction (read → validate candidate → publish one atomic ETS object); failure invalidates any prior index and publishes nothing |
+| **Duplicate durable events** | Silently collapsed; count inflated or masked | `:duplicate_identical_resolution_event` / `:conflicting_forecast_resolutions` — recovery fails closed, count unchanged |
+| **Lookups** | `count/0`, `all_ids/0` read ETS directly | Trust-gated on a live verified EventStore (`integrity in [:verified, :empty_verified]`, not poisoned, appendable, not degraded) plus a published index |
+
+### 13.2 The honest limit
+
+**The storage contract is enforced and tested; storage reality is not
+proven.** Fault injection is simulated — `:read`, `:write`, `:partial`,
+`:sync` are synthetic faults, `:kill_after_write` performs a real process
+kill at the process layer; a partial write does create a real truncated file
+on disk. No hardware, firmware, filesystem or `fsync`-semantics fault was
+injected; no power-loss event occurred; no multi-writer concurrency exists.
+The 42-test dedicated suite passes at seeds 0/1/2/3/4/5/123456 (0 failures),
+the application regression is 617/0 at seeds 0 and 123456, the executive set
+is 88/0 (2 skipped) and the runtime regression is 32 properties + 792 tests,
+0 failures. No independent verifier ran and the branch CI is pending.
+
+**No genuine observation exists.** `TCP-B-048` remains **OPEN / BLOCKED**: no
+live external source is reachable from this environment and no registered
+forecast has an outcome definition reachable by a live source. The lifecycle
+remains `FORECAST_REGISTERED`; nothing was resolved, scored or claimed.
+`TCP-B-066` remains **PROPOSED — NOT RATIFIED** and no real limited-assurance
+resolution is authorized. `TCP-B-067` (ephemeral verification key) remains
+open. `TCP-B-058` remains **PARTIAL**: the record digest proves integrity,
+never publisher authenticity. `TCP-B-061` (no trusted integrity anchor) and
+`TCP-B-062` (single writer) remain open. RL-565 remains `HIGH / OPEN`; RL-564
+and `F-ARC-018` remain `OPEN`.
+
+### 13.3 Register
+
+67 rows — **43 open, 22 resolved, 2 partial**. `TCP-B-064` (resolution not
+durably persisted) is **RESOLVED**: the resolution is persisted through the
+durable event log via the canonical commit path over the fail-closed
+EventStore; recovery is transactional with atomic publication, restart
+recovery is executed-tested, and exact retries are idempotent with conflict
+refusal. This closes the persistence capability only — it does not assert
+that any genuine resolution has been produced (that remains `TCP-B-048`).
+
