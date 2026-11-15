@@ -87,11 +87,14 @@ def main():
         "evidence_commit": None,
         "evidence_commit_note": (
             "commits A (implementation), B (evidence: this manifest, register and "
-            "master) and C (CI record + this manifest) are all part of the "
+            "master), C (CI record + this manifest), D (reconciliation) and E "
+            "(independent-review addendum + this manifest) are all part of the "
             "checkpoint; a manifest committed in any of them cannot contain its "
-            "own SHA. The implementation commit SHA above is A. B and C are "
+            "own SHA. The implementation commit SHA above is A. B, C, D and E are "
             "recorded in the append-only register row, master assessment section 13 "
-            "and the final reconciliation after push."
+            "and the final reconciliation after push. A later commit F records push "
+            "E's CI; F's own CI cannot be embedded in F and is reported in the "
+            "closing response."
         ),
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "toolchain": {"elixir": "1.18.4", "otp": "28", "erts": "16.4"},
@@ -226,6 +229,46 @@ def main():
                 },
                 "cross_platform_verification": {
                     "run_id": "43703627228",
+                    "conclusion": "success",
+                    "jobs": {
+                        "verify_macos_latest": "success",
+                        "verify_ubuntu_latest": "success",
+                        "compare_cross_platform_hashes": "success",
+                    },
+                },
+                "r3_files_in_failed_logs": (
+                    "zero R3-related lines: no resolution_registry_test.exs, no ResolutionRegistry, "
+                    "no TCP_002_7_R3; only the five pre-existing warnings for the unrelated "
+                    "Tiannara.CEL.Services.EventStore module"
+                ),
+            },
+            "push_of_commit_e": {
+                "remote_head_verified": "0c42961641e7b7970f523e6f5e50b768c937b679",
+                "elixir_ci": {
+                    "run_id": "43713070044",
+                    "conclusion": "failure",
+                    "jobs": {
+                        "compile": "success",
+                        "test-placement": "success",
+                        "tiannara_audit_suite_required": "success",
+                        "lineage-regression": "success",
+                        "tiannara_runtime_suite_required": "success",
+                        "suite": "failure",
+                        "tiannara_runtime_quarantine_non_blocking": "failure",
+                    },
+                    "suite_failure_analysis": (
+                        "again exactly the ten pre-existing ResearchForecastingIntegrationTest "
+                        "failures (first failure logged at line 89 in this run, matching pushes "
+                        "B and C; the D run logged its first failure at line 88 - a line-ending "
+                        "offset, the same tests, the same set)"
+                    ),
+                    "quarantine_failure_analysis": (
+                        "again exactly the four pre-existing non-blocking failures"
+                    ),
+                    "new_failures_attributable_to_r3": 0,
+                },
+                "cross_platform_verification": {
+                    "run_id": "43713070042",
                     "conclusion": "success",
                     "jobs": {
                         "verify_macos_latest": "success",
@@ -407,7 +450,7 @@ def main():
         ],
         "not_executed": [
             "Independent verification: no independent verifier was available.",
-            "CI on this branch: executed and completed on all three pushes (B, C and D). Elixir CI failed only the two documented pre-existing jobs (suite: the ten ResearchForecastingIntegrationTest failures; the non-blocking runtime quarantine: four failures) on all three pushes; Cross-Platform Verification passed on all three. No new failure is attributable to R3; the outcome is not claimed as passing (see ci_record).",
+            "CI on this branch: executed and completed on all four pushes (B, C, D and E). Elixir CI failed only the two documented pre-existing jobs (suite: the ten ResearchForecastingIntegrationTest failures; the non-blocking runtime quarantine: four failures) on all four pushes; Cross-Platform Verification passed on all four. No new failure is attributable to R3; the outcome is not claimed as passing (see ci_record).",
             "Real disk-corruption, power-loss, fsync-semantics or multi-writer fault injection on real media.",
             "Real external source acquisition (TCP-B-048) — no live external source is reachable from this environment.",
             "Resolution of a genuine, registered forecast against a real observation.",

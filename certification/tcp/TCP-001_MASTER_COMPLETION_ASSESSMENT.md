@@ -1272,19 +1272,19 @@ injected; no power-loss event occurred; no multi-writer concurrency exists.
 The 42-test dedicated suite passes at seeds 0/1/2/3/4/5/123456 (0 failures),
 the application regression is 617/0 at seeds 0 and 123456, the executive set
 is 88/0 (2 skipped) and the runtime regression is 32 properties + 792 tests,
-0 failures. No independent verifier ran. Branch CI completed on both pushes:
-Cross-Platform Verification passed; Elixir CI failed only the two documented
-pre-existing jobs (`suite`: the ten ResearchForecastingIntegrationTest
+0 failures. No independent verifier ran. Branch CI completed on all four
+pushes: Cross-Platform Verification passed on each; Elixir CI failed only the
+two documented pre-existing jobs (`suite`: the ten ResearchForecastingIntegrationTest
 failures; the non-blocking runtime quarantine: four failures) — no new
-failure attributable to R3 on any of the three pushes (the third push, the
-reconciliation commit, reproduced the same pre-existing-only outcome with
-zero R3-related lines in its failed-job logs), and the two unused-`ctx`
-warnings seen on the first push were removed by the second. An independent
-post-push review of the published branch confirmed the linear commit chain,
-all six workflow runs against their actual commit SHAs, the source-level
-fail-closed behaviour, and the narrowing of TCP-B-064 to a persistence
-capability; it did not re-execute the local tests or the working-tree
-preservation claims. The review raised one accepted caveat: the legacy
+failure attributable to R3 on any push, and the pushes C, D and E (the CI
+record, the reconciliation commit and the review addendum, all
+documentation-only) have zero R3-related lines in their failed-job logs, the
+two unused-`ctx` warnings seen on the first push having been removed by
+commit C. An independent post-push review of the published branch confirmed the
+linear commit chain, all six then-current workflow runs against their actual
+commit SHAs, the source-level fail-closed behaviour, and the narrowing of
+TCP-B-064 to a persistence capability; it did not re-execute the local tests or
+the working-tree preservation claims. The review raised one accepted caveat: the legacy
 compatibility readers `EventStore.stream/2` and `EventStore.since/2` return
 bare event lists, discard parser diagnostics, and (`stream/2` only) include
 `:unverified_legacy` events unlabelled — they are not fail-closed for

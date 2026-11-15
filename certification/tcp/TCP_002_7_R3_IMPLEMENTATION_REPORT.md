@@ -21,7 +21,7 @@
 | 5 — Adversarial regression suite | **PASS** | 42 dedicated tests, executed at seeds 0/1/2/3/4/5/123456 — 0 failures |
 | 6 — Cross-suite regression | **PASS** | forecasting+research 617/0 (2 seeds); Executive set 88/0 (2 skipped); runtime 32 properties/792/0 |
 | 7 — Independent verification | **NOT_RUN** | No independent verifier available |
-| 8 — CI on this branch | **COMPLETE (failure, pre-existing only)** | All three pushes (B, C and D): Cross-Platform Verification **success** (macOS, Ubuntu, hash comparison). Elixir CI: compile, test-placement, audit, lineage-regression, runtime suite (required) **pass**; `suite` fails with exactly the ten pre-existing `ResearchForecastingIntegrationTest` failures; the non-blocking runtime quarantine fails with exactly the four pre-existing failures. **No new failure attributable to R3** on any push; the two unused-`ctx` warnings seen on push B were removed by commit C, and push D's failed-job logs contain zero R3-related lines (§12) |
+| 8 — CI on this branch | **COMPLETE (failure, pre-existing only)** | All four pushes (B, C, D and E): Cross-Platform Verification **success** (macOS, Ubuntu, hash comparison). Elixir CI: compile, test-placement, audit, lineage-regression, runtime suite (required) **pass**; `suite` fails with exactly the ten pre-existing `ResearchForecastingIntegrationTest` failures; the non-blocking runtime quarantine fails with exactly the four pre-existing failures. **No new failure attributable to R3** on any push; the two unused-`ctx` warnings seen on push B were removed by commit C, and pushes D and E (both documentation-only) have zero R3-related lines in their failed-job logs (§12) |
 | 9 — Genuine observation / scoring | **BLOCKED** | Inherits TCP-B-048 (no live source) — out of R3 scope |
 | 10 — Evidence register and manifest | **PASS** | This report, the manifest, the append-only register and the master assessment |
 
@@ -33,9 +33,12 @@ real-world predictive claim of any kind is made.** The evidence plan is:
 commit A (implementation + tests + report + generator), commit B (manifest +
 register/master referencing A), commit C (CI record + the two unused-`ctx`
 warning fixes), commit D (reconciliation record, which references — but does
-not embed — its own SHA), and commit E (documentation-only addendum recording
-the independent review outcome and the legacy compatibility-reader caveat; it
-changes no code, no tests and no disposition).
+not embed — its own SHA), commit E (documentation-only addendum recording the
+independent review outcome and the legacy compatibility-reader caveat; it
+changes no code, no tests and no disposition) and commit F (documentation-only
+record of push E's CI; it changes no code, no tests and no disposition).
+F's own CI outcome cannot be embedded in F and is reported in the closing
+response instead.
 
 ## 2. What TCP-002.7-R2 left broken
 
@@ -250,8 +253,9 @@ checkpoint file was pruned. The three pre-existing untracked files
 `certification/audit/GENSERVER_OWNERSHIP_INVENTORY.csv`,
 `certification/audit/GENSERVER_OWNERSHIP_INVENTORY.md`) were not staged.
 `cel_memory_v2.dets` was restored before commit and is not staged. The R3
-branch adds five commits (A implementation, B evidence, C CI record, D
-reconciliation, E review addendum) and touches none of these paths.
+branch adds six commits (A implementation, B evidence, C CI record, D
+reconciliation, E review addendum, F CI addendum) and touches none of these
+paths.
 
 ## 8. Known limitations
 
@@ -272,7 +276,7 @@ reconciliation, E review addendum) and touches none of these paths.
    Elixir CI failed only the `suite` job (the ten pre-existing
    `ResearchForecastingIntegrationTest` failures) and the non-blocking runtime
    quarantine (the four pre-existing failures). Cross-Platform Verification
-   passed on all three pushes. No new failure was introduced by R3 (§12).
+   passed on all four pushes. No new failure was introduced by R3 (§12).
 7. The `:empty_verified` baseline is **not** permission to trust an
    empty file that was never opened by this process; it is established only
    after `File.open` and a complete read.
@@ -326,9 +330,10 @@ The manifest is generated, never hand-edited.
 ## 11. Next
 
 1. ~~Push the branch; verify the remote HEAD matches; record the workflow
-   runs.~~ **Done** — pushed at commits B, C and D; remote HEAD verified equal
-   to local HEAD after each push; all six workflow runs recorded in §12 and in
-   the reconciliation document.
+   runs.~~ **Done** — pushed at commits B, C, D and E; remote HEAD verified equal
+   to local HEAD after each push; all eight workflow runs recorded in §12 and in
+   the reconciliation document. Commit F records push E's CI; push F's own CI
+   outcome is reported in the closing response (it cannot be embedded in F).
 2. Make the legacy compatibility readers (`stream/2`, `since/2`) explicit
    about incomplete or unverified history (bounded next engineering work; the
    compatibility readers themselves are unchanged in R3) — see §8 item 10.
@@ -340,12 +345,13 @@ The manifest is generated, never hand-edited.
 5. TCP-B-067 (persistent, protected VerificationAuthority key) and
    TCP-B-065 (runtime file growth) remain open workstreams.
 
-## 12. CI record (branch pushed three times, workflows executed)
+## 12. CI record (branch pushed four times, workflows executed)
 
-The branch was pushed three times: at evidence commit B
-(`96155353fa22de6cbca5650ae423977a383ce93a`), at evidence commit C
-(`500730e40b84cf947ff2abce66e6404e89fcd033`), and at evidence commit D
-(`df9231a73497d8303a446b31e20a2f2e22431ddd`). Remote HEAD was verified equal
+The branch was pushed four times: at evidence commits B
+(`96155353fa22de6cbca5650ae423977a383ce93a`), C
+(`500730e40b84cf947ff2abce66e6404e89fcd033`), D
+(`df9231a73497d8303a446b31e20a2f2e22431ddd`) and E
+(`0c42961641e7b7970f523e6f5e50b768c937b679`). Remote HEAD was verified equal
 to local HEAD after each push.
 
 ### 12.1 Push of commit B
@@ -419,6 +425,31 @@ R3-related lines: no `resolution_registry_test.exs`, no `ResolutionRegistry`,
 no `TCP_002_7_R3` — only the five pre-existing warnings for the unrelated
 `Tiannara.CEL.Services.EventStore` module. Zero new failures attributable to
 R3.
+
+### 12.4 Push of commit E
+
+| Workflow | Run ID | Conclusion |
+|---|---|---|
+| Elixir CI | `43713070044` | **failure** |
+| Cross-Platform Verification | `43713070042` | **success** |
+
+The job-by-job conclusions are identical to §12.1. The `suite` failure is
+again exactly the ten pre-existing `ResearchForecastingIntegrationTest`
+failures (first failure logged at line 89 again; the line-88 log in push D
+was a line-ending offset — the same test, the same set). The quarantine
+failure is again exactly the four pre-existing failures.
+
+**Commit E is documentation-only** (independent-review record +
+compatibility-reader caveat + D-push CI record + manifest regeneration), and
+its failed-job logs contain **zero** R3-related lines: no
+`resolution_registry_test.exs`, no `ResolutionRegistry`, no `TCP_002_7_R3` —
+only the five pre-existing warnings for the unrelated
+`Tiannara.CEL.Services.EventStore` module. Zero new failures attributable to
+R3.
+
+Commit E's own CI outcome (this subsection) is recorded by the next commit,
+F; F's own CI outcome cannot be embedded in F and is reported in the closing
+response instead. No further commits are planned.
 
 **Independent verification** was still not performed; the disposition
 `IMPLEMENTED_WITH_PARTIAL_EVIDENCE / VERIFICATION_BLOCKED` is unchanged.

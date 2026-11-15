@@ -18,15 +18,10 @@ records.
 | B — evidence | `96155353fa22de6cbca5650ae423977a383ce93a` | Evidence manifest (SHA-256 digests verified against the working tree), register row TCP-B-064 → RESOLVED, master assessment §13 |
 | C — CI record | `500730e40b84cf947ff2abce66e6404e89fcd033` | Elixir CI and Cross-Platform Verification outcomes recorded; the two unused-`ctx` warnings identified by the B push's CI logs renamed to `_ctx`; manifest regenerated with a `ci_record` and `FAIL_PREEXISTING_ONLY` stage 8 |
 | D — reconciliation | `df9231a73497d8303a446b31e20a2f2e22431ddd` | CI record for the C push added to the report, master assessment and manifest; report header/plan wording corrected; this document. D's SHA was verified against the remote after the push (`git ls-remote` = local HEAD) |
-| E — review addendum | this commit | Independent-review outcome recorded; legacy `stream/2`/`since/2` compatibility-reader caveat documented in the report, this document and the manifest; D push's CI record (§12.3 of the report) added; documentation-only — no code, no tests, no disposition change |
+| E — review addendum | `0c42961641e7b7970f523e6f5e50b768c937b679` | Independent-review outcome recorded; legacy `stream/2`/`since/2` compatibility-reader caveat documented in the report, this document and the manifest; D push's CI record (§12.3 of the report) added; documentation-only — no code, no tests, no disposition change. E's SHA was verified against the remote after the push (`git ls-remote` = local HEAD) |
+| F — E-push CI record | this commit | Push E's CI record added to the report (§12.4), master assessment, manifest and this document; documentation-only — no code, no tests, no disposition change |
 
-Commit E's own SHA is **not embedded** in this file or in the manifest — a
-commit cannot contain its own SHA. It is recorded as the branch HEAD at push
-time. Commit D's SHA (previously not embedded) is now committed in this file,
-and was likewise verified against the remote (`git ls-remote` = local HEAD at
-the time of the D push).
-
-Commit D's own SHA is **not embedded** in this file or in the manifest — a
+Commit F's own SHA is **not embedded** in this file or in the manifest — a
 commit cannot contain its own SHA. It is recorded as the branch HEAD at push
 time and can be read with
 
@@ -35,7 +30,8 @@ git rev-parse HEAD
 ```
 
 on `feat/tcp-002-7-r3-transactional-recovery` after the push that carries
-this document.
+this document. Commit E's SHA (previously not embedded) is now committed in
+this file and was verified against the remote at the time of the E push.
 
 ## Parent relationships
 
@@ -44,16 +40,17 @@ this document.
 - C parent: `96155353` (B)
 - D parent: `500730e4` (C)
 - E parent: `df9231a7` (D)
+- F parent: `0c429616` (E)
 
 All are linear descendants on one branch. No force-push or history rewrite
-was performed at any stage. The branch is 5 commits ahead of the baseline and
+was performed at any stage. The branch is 6 commits ahead of the baseline and
 0 behind it.
 
 ## Evidence artifacts
 
 | Artifact | Path |
 |---|---|
-| Implementation report (§12 CI record for all three pushes) | `certification/tcp/TCP_002_7_R3_IMPLEMENTATION_REPORT.md` |
+| Implementation report (§12 CI record for all four pushes) | `certification/tcp/TCP_002_7_R3_IMPLEMENTATION_REPORT.md` |
 | Evidence manifest | `certification/tcp/TCP_002_7_R3_EVIDENCE_MANIFEST.json` |
 | Evidence manifest (same bytes, evidence tree) | `certification/evidence/tcp002_7_r3/TCP_002_7_R3_EVIDENCE_MANIFEST.json` |
 | Manifest generator | `tools/tcp/tcp0027r3_evidence_manifest.py` |
@@ -97,7 +94,7 @@ unmeasured); independent verification; calibration; model mutation.
 
 ## CI record
 
-The branch was pushed three times and each push triggered `Elixir CI` (all-branch
+The branch was pushed four times and each push triggered `Elixir CI` (all-branch
 workflow) and `Cross-Platform Verification` (all-branch workflow):
 
 | Push | Workflow | Run ID | Conclusion |
@@ -108,13 +105,15 @@ workflow) and `Cross-Platform Verification` (all-branch workflow):
 | C | Cross-Platform Verification | `43702102197` | **success** |
 | D (`df9231a7…`) | Elixir CI | `43703627182` | **failure** |
 | D | Cross-Platform Verification | `43703627228` | **success** |
+| E (`0c429616…`) | Elixir CI | `43713070044` | **failure** |
+| E | Cross-Platform Verification | `43713070042` | **success** |
 
-Elixir CI job-by-job on all three pushes: `compile` success, `test-placement`
+Elixir CI job-by-job on all four pushes: `compile` success, `test-placement`
 success, `tiannara_audit suite (required)` success, `lineage-regression`
 success, `tiannara_runtime suite (required)` success; `suite` **failure** and
 `tiannara_runtime quarantine (non-blocking)` **failure**.
 
-On all three pushes the `suite` failure is exactly the ten pre-existing
+On all four pushes the `suite` failure is exactly the ten pre-existing
 `ResearchForecastingIntegrationTest` failures
 (`research_forecasting_integration_test.exs` lines 89, 104, 116, 131, 143,
 153, 166, 182, 191, 208 — the D run logs its first failure at line 88, a
@@ -126,11 +125,15 @@ this work.**
 
 The only R3-related lines in the first push's logs were two compile warnings
 (unused `ctx` in `resolution_registry_test.exs`); those were renamed to `_ctx`
-in commit C. The C and D pushes' failed-job logs contain no lines from
+in commit C. The C, D and E pushes' failed-job logs contain no lines from
 `resolution_registry_test.exs` — only the five pre-existing warnings for the
-unrelated `Tiannara.CEL.Services.EventStore` module (D: zero R3-related lines
-whatsoever). The dedicated suite was re-executed after the change at seeds
-0/1/2/3/4/5/123456 (42 tests, 0 failures).
+unrelated `Tiannara.CEL.Services.EventStore` module (D and E: zero
+R3-related lines whatsoever). The dedicated suite was re-executed after the
+change at seeds 0/1/2/3/4/5/123456 (42 tests, 0 failures).
+
+**Commit F cannot contain its own CI outcome**; this subsection and its
+counterparts in the report and manifest record pushes B–E. F's own CI is
+reported in the closing response to commit F; no further commits are planned.
 
 The disposition `IMPLEMENTED_WITH_PARTIAL_EVIDENCE / VERIFICATION_BLOCKED`
 is unchanged by CI; the checkpoint is not independently verified and is not
@@ -148,11 +151,11 @@ long predate this branch).
   were never staged.
 - `cel_memory_v2.dets` was restored before every commit; it is not staged
   and its working-tree diff is empty.
-- The R3 branch adds the five commits above and touches no path under
+- The R3 branch adds the six commits above and touches no path under
   `tiannara_runtime/data/cpl/checkpoints/` or any of the three protected
   untracked files.
 - Nothing in the R3 sequence was force-pushed; `git rev-list --count fd7babaf..HEAD`
-  = 5, `--count HEAD..fd7babaf` = 0.
+  = 6, `--count HEAD..fd7babaf` = 0.
 
 ## Register after this checkpoint
 
@@ -247,7 +250,7 @@ sequence.
 Storage and recovery are **implemented and executed-tested**. They are **not
 independently verified**, they are **not** protected against real hardware
 faults, they do **not** prove any predictive claim, and they are **not**
-claimed as passing CI (the pre-existing `suite` job fails on all three pushes
+claimed as passing CI (the pre-existing `suite` job fails on all four pushes
 for reasons that predate this branch). The genuine forecast outcome lifecycle
 remains blocked at acquisition (`TCP-B-048`) and at policy ratification
 (`TCP-B-066`).
@@ -257,8 +260,8 @@ remains blocked at acquisition (`TCP-B-048`) and at policy ratification
 1. ~~Push commit D and verify remote HEAD equals local HEAD.~~ **Done** —
    pushed at `df9231a7`; remote HEAD verified equal; CI recorded above.
 2. ~~Report the final dispositions honestly, including the CI outcome on all
-   three pushes.~~ **Done** — see the report §12 and this document; commit E
-   records this review and the D-push CI outcome.
+   three pushes.~~ **Done** — see the report §12 and this document; commits E
+   and F record the independent review and the D- and E-push CI outcomes.
 3. Make the legacy compatibility readers (`stream/2`, `since/2`) explicit
    about incomplete or unverified history (bounded next engineering work;
    unchanged here).
