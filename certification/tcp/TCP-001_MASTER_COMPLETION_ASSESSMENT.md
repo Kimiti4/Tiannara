@@ -1272,11 +1272,12 @@ injected; no power-loss event occurred; no multi-writer concurrency exists.
 The 42-test dedicated suite passes at seeds 0/1/2/3/4/5/123456 (0 failures),
 the application regression is 617/0 at seeds 0 and 123456, the executive set
 is 88/0 (2 skipped) and the runtime regression is 32 properties + 792 tests,
-0 failures. No independent verifier ran. Branch CI has completed: Cross-Platform
-Verification passed; Elixir CI failed only the two documented pre-existing
-jobs (`suite`: the ten ResearchForecastingIntegrationTest failures; the
-non-blocking runtime quarantine: four failures) — no new failure attributable
-to R3.
+0 failures. No independent verifier ran. Branch CI completed on both pushes:
+Cross-Platform Verification passed; Elixir CI failed only the two documented
+pre-existing jobs (`suite`: the ten ResearchForecastingIntegrationTest
+failures; the non-blocking runtime quarantine: four failures) — no new
+failure attributable to R3 on either push, and the two unused-`ctx` warnings
+seen on the first push were removed by the second.
 
 **No genuine observation exists.** `TCP-B-048` remains **OPEN / BLOCKED**: no
 live external source is reachable from this environment and no registered

@@ -5,7 +5,7 @@
 **Branch:** `feat/tcp-002-7-r3-transactional-recovery`
 **Baseline:** `fd7babafc42cccf7d290b6f6af59fb6a6fc63bf4` (TCP-002.7-R2)
 **Baseline parent:** `05ee148e88d4ba066a9c3c085363eced9d0b5872` (TCP-002.7-R1)
-**Status:** **PARTIAL / VERIFICATION BLOCKED** — storage and recovery are implemented and executed-tested (isolated instances, simulated fault injection); no real observation exists; no independent verification; CI pending.
+**Status:** **PARTIAL / VERIFICATION BLOCKED** — storage and recovery are implemented and executed-tested (isolated instances, simulated fault injection); no real observation exists; no independent verification; CI executed and completed with only the pre-existing failures (§12).
 
 ---
 
@@ -21,7 +21,7 @@
 | 5 — Adversarial regression suite | **PASS** | 42 dedicated tests, executed at seeds 0/1/2/3/4/5/123456 — 0 failures |
 | 6 — Cross-suite regression | **PASS** | forecasting+research 617/0 (2 seeds); Executive set 88/0 (2 skipped); runtime 32 properties/792/0 |
 | 7 — Independent verification | **NOT_RUN** | No independent verifier available |
-| 8 — CI on this branch | **COMPLETE (failure, pre-existing only)** | Cross-Platform Verification **success** (macOS, Ubuntu, hash comparison). Elixir CI: compile, test-placement, audit, lineage-regression, runtime suite (required) **pass**; `suite` fails with the exact ten pre-existing `ResearchForecastingIntegrationTest` failures; the non-blocking runtime quarantine fails with the exact four pre-existing failures. **No new failure attributable to R3** (§12) |
+| 8 — CI on this branch | **COMPLETE (failure, pre-existing only)** | Both pushes (B and C): Cross-Platform Verification **success** (macOS, Ubuntu, hash comparison). Elixir CI: compile, test-placement, audit, lineage-regression, runtime suite (required) **pass**; `suite` fails with exactly the ten pre-existing `ResearchForecastingIntegrationTest` failures; the non-blocking runtime quarantine fails with exactly the four pre-existing failures. **No new failure attributable to R3** on either push; the two unused-`ctx` warnings seen on push B were removed by commit C (§12) |
 | 9 — Genuine observation / scoring | **BLOCKED** | Inherits TCP-B-048 (no live source) — out of R3 scope |
 | 10 — Evidence register and manifest | **PASS** | This report, the manifest, the append-only register and the master assessment |
 
@@ -31,8 +31,9 @@ The storage and recovery contract is now enforced and proven against isolated
 instances and simulated faults. **It is not independently verified, and no
 real-world predictive claim of any kind is made.** The evidence plan is:
 commit A (implementation + tests + report + generator), commit B (manifest +
-register/master referencing A), and a third, evidence-only commit recording
-the CI outcome (this section was added by it).
+register/master referencing A), commit C (CI record + the two unused-`ctx`
+warning fixes, this section was extended by it), and commit D (this
+reconciliation record, which references — but does not embed — its own SHA).
 
 ## 2. What TCP-002.7-R2 left broken
 
@@ -233,7 +234,8 @@ checkpoint file was pruned. The three pre-existing untracked files
 `certification/audit/GENSERVER_OWNERSHIP_INVENTORY.csv`,
 `certification/audit/GENSERVER_OWNERSHIP_INVENTORY.md`) were not staged.
 `cel_memory_v2.dets` was restored before commit and is not staged. The R3
-branch adds two commits and touches none of these paths.
+branch adds four commits (A implementation, B evidence, C CI record, D this
+reconciliation) and touches none of these paths.
 
 ## 8. Known limitations
 
@@ -302,11 +304,14 @@ The manifest is generated, never hand-edited.
 3. TCP-B-067 (persistent, protected VerificationAuthority key) and
    TCP-B-065 (runtime file growth) remain open workstreams.
 
-## 12. CI record (branch pushed, workflows executed)
+## 12. CI record (branch pushed twice, workflows executed)
 
-Pushed `feat/tcp-002-7-r3-transactional-recovery` at evidence commit B
-(`96155353fa22de6cbca5650ae423977a383ce93a`); remote HEAD verified equal to
-local HEAD. Workflow runs triggered by that push:
+The branch was pushed twice: at evidence commit B
+(`96155353fa22de6cbca5650ae423977a383ce93a`) and at evidence commit C
+(`500730e40b84cf947ff2abce66e6404e89fcd033`). Remote HEAD was verified equal
+to local HEAD after each push.
+
+### 12.1 Push of commit B
 
 | Workflow | Run ID | Conclusion |
 |---|---|---|
@@ -337,6 +342,26 @@ dedicated suite is re-executed after the change at seeds 0 and 123456 —
 
 **Cross-Platform Verification**: `Verify — macos-latest` success,
 `Verify — ubuntu-latest` success, `Compare Cross-Platform Hashes` success.
+
+### 12.2 Push of commit C
+
+| Workflow | Run ID | Conclusion |
+|---|---|---|
+| Elixir CI | `43702102210` | **failure** |
+| Cross-Platform Verification | `43702102197` | **success** |
+
+The job-by-job conclusions are identical to §12.1 (`suite` and the
+non-blocking quarantine fail; compile, test-placement, audit,
+lineage-regression and the required runtime suite pass). The `suite`
+failure is again exactly the ten pre-existing
+`ResearchForecastingIntegrationTest` failures (same lines), and the
+quarantine failure is again exactly the four pre-existing failures.
+
+**The two `resolution_registry_test.exs` unused-`ctx` warnings are gone**
+in this run's logs, confirming the `_ctx` rename; the only remaining
+R3-adjacent lines are the five pre-existing warnings for the unrelated
+`Tiannara.CEL.Services.EventStore` module. Zero new failures attributable
+to R3.
 
 **Independent verification** was still not performed; the disposition
 `IMPLEMENTED_WITH_PARTIAL_EVIDENCE / VERIFICATION_BLOCKED` is unchanged.

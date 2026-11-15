@@ -120,45 +120,85 @@ def main():
             "10_evidence_register": "PASS",
         },
         "ci_record": {
-            "elixir_ci": {
-                "run_id": "43700070002",
-                "conclusion": "failure",
-                "jobs": {
-                    "compile": "success",
-                    "test-placement": "success",
-                    "tiannara_audit_suite_required": "success",
-                    "lineage-regression": "success",
-                    "tiannara_runtime_suite_required": "success",
-                    "suite": "failure",
-                    "tiannara_runtime_quarantine_non_blocking": "failure",
+            "push_of_commit_b": {
+                "remote_head_verified": "96155353fa22de6cbca5650ae423977a383ce93a",
+                "elixir_ci": {
+                    "run_id": "43700070002",
+                    "conclusion": "failure",
+                    "jobs": {
+                        "compile": "success",
+                        "test-placement": "success",
+                        "tiannara_audit_suite_required": "success",
+                        "lineage-regression": "success",
+                        "tiannara_runtime_suite_required": "success",
+                        "suite": "failure",
+                        "tiannara_runtime_quarantine_non_blocking": "failure",
+                    },
+                    "suite_failure_analysis": (
+                        "exactly the ten pre-existing ResearchForecastingIntegrationTest "
+                        "failures (research_forecasting_integration_test.exs lines 89, 104, "
+                        "116, 131, 143, 153, 166, 182, 191, 208)"
+                    ),
+                    "quarantine_failure_analysis": (
+                        "exactly the four pre-existing non-blocking failures "
+                        "(passive_mode_test.exs:38, reactivity_test.exs:69, "
+                        "omega_robustness_test.exs:25 and :48)"
+                    ),
+                    "new_failures_attributable_to_r3": 0,
                 },
-                "suite_failure_analysis": (
-                    "exactly the ten pre-existing ResearchForecastingIntegrationTest "
-                    "failures (research_forecasting_integration_test.exs lines 89, 104, "
-                    "116, 131, 143, 153, 166, 182, 191, 208)"
-                ),
-                "quarantine_failure_analysis": (
-                    "exactly the four pre-existing non-blocking failures "
-                    "(passive_mode_test.exs:38, reactivity_test.exs:69, "
-                    "omega_robustness_test.exs:25 and :48)"
-                ),
-                "new_failures_attributable_to_r3": 0,
-            },
-            "cross_platform_verification": {
-                "run_id": "43700069993",
-                "conclusion": "success",
-                "jobs": {
-                    "verify_macos_latest": "success",
-                    "verify_ubuntu_latest": "success",
-                    "compare_cross_platform_hashes": "success",
+                "cross_platform_verification": {
+                    "run_id": "43700069993",
+                    "conclusion": "success",
+                    "jobs": {
+                        "verify_macos_latest": "success",
+                        "verify_ubuntu_latest": "success",
+                        "compare_cross_platform_hashes": "success",
+                    },
                 },
+                "r3_files_in_failed_logs": (
+                    "only two compile warnings in resolution_registry_test.exs (unused ctx), "
+                    "renamed to _ctx in the third commit; plus pre-existing warnings for "
+                    "the unrelated Tiannara.CEL.Services.EventStore module"
+                ),
             },
-            "r3_files_in_failed_logs": (
-                "only two compile warnings in resolution_registry_test.exs (unused ctx), "
-                "renamed to _ctx in the third commit; plus pre-existing warnings for "
-                "the unrelated Tiannara.CEL.Services.EventStore module"
-            ),
-            "remote_head_verified": "96155353fa22de6cbca5650ae423977a383ce93a",
+            "push_of_commit_c": {
+                "remote_head_verified": "500730e40b84cf947ff2abce66e6404e89fcd033",
+                "elixir_ci": {
+                    "run_id": "43702102210",
+                    "conclusion": "failure",
+                    "jobs": {
+                        "compile": "success",
+                        "test-placement": "success",
+                        "tiannara_audit_suite_required": "success",
+                        "lineage-regression": "success",
+                        "tiannara_runtime_suite_required": "success",
+                        "suite": "failure",
+                        "tiannara_runtime_quarantine_non_blocking": "failure",
+                    },
+                    "suite_failure_analysis": (
+                        "again exactly the ten pre-existing ResearchForecastingIntegrationTest "
+                        "failures (same lines as commit B)"
+                    ),
+                    "quarantine_failure_analysis": (
+                        "again exactly the four pre-existing non-blocking failures"
+                    ),
+                    "new_failures_attributable_to_r3": 0,
+                },
+                "cross_platform_verification": {
+                    "run_id": "43702102197",
+                    "conclusion": "success",
+                    "jobs": {
+                        "verify_macos_latest": "success",
+                        "verify_ubuntu_latest": "success",
+                        "compare_cross_platform_hashes": "success",
+                    },
+                },
+                "r3_files_in_failed_logs": (
+                    "the two resolution_registry_test.exs unused-ctx warnings are gone "
+                    "(the _ctx rename is confirmed by this run); only the five pre-existing "
+                    "warnings for the unrelated Tiannara.CEL.Services.EventStore module remain"
+                ),
+            },
         },
         "lifecycle_state_proven": "FORECAST_REGISTERED",
         "lifecycle_states_not_proven": [
@@ -327,7 +367,7 @@ def main():
         ],
         "not_executed": [
             "Independent verification: no independent verifier was available.",
-            "CI on this branch: pending push and workflow completion — not reported as passing.",
+            "CI on this branch: executed and completed on both pushes (B and C). Elixir CI failed only the two documented pre-existing jobs (suite: the ten ResearchForecastingIntegrationTest failures; the non-blocking runtime quarantine: four failures) on both pushes; Cross-Platform Verification passed on both. No new failure is attributable to R3; the outcome is not claimed as passing (see ci_record).",
             "Real disk-corruption, power-loss, fsync-semantics or multi-writer fault injection on real media.",
             "Real external source acquisition (TCP-B-048) — no live external source is reachable from this environment.",
             "Resolution of a genuine, registered forecast against a real observation.",
