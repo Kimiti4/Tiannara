@@ -21,7 +21,7 @@
 | 5 — Adversarial regression suite | **PASS** | 42 dedicated tests, executed at seeds 0/1/2/3/4/5/123456 — 0 failures |
 | 6 — Cross-suite regression | **PASS** | forecasting+research 617/0 (2 seeds); Executive set 88/0 (2 skipped); runtime 32 properties/792/0 |
 | 7 — Independent verification | **NOT_RUN** | No independent verifier available |
-| 8 — CI on this branch | **NOT_RUN** | Pending push and workflow completion |
+| 8 — CI on this branch | **COMPLETE (failure, pre-existing only)** | Cross-Platform Verification **success** (macOS, Ubuntu, hash comparison). Elixir CI: compile, test-placement, audit, lineage-regression, runtime suite (required) **pass**; `suite` fails with the exact ten pre-existing `ResearchForecastingIntegrationTest` failures; the non-blocking runtime quarantine fails with the exact four pre-existing failures. **No new failure attributable to R3** (§12) |
 | 9 — Genuine observation / scoring | **BLOCKED** | Inherits TCP-B-048 (no live source) — out of R3 scope |
 | 10 — Evidence register and manifest | **PASS** | This report, the manifest, the append-only register and the master assessment |
 
@@ -29,9 +29,10 @@
 
 The storage and recovery contract is now enforced and proven against isolated
 instances and simulated faults. **It is not independently verified, and no
-real-world predictive claim of any kind is made.** The two-commit evidence
-plan is used (commit A: implementation + tests + report + generator;
-commit B: manifest + register/master updates referencing A).
+real-world predictive claim of any kind is made.** The evidence plan is:
+commit A (implementation + tests + report + generator), commit B (manifest +
+register/master referencing A), and a third, evidence-only commit recording
+the CI outcome (this section was added by it).
 
 ## 2. What TCP-002.7-R2 left broken
 
@@ -249,10 +250,11 @@ branch adds two commits and touches none of these paths.
 5. **TCP-B-061** (no trusted integrity anchor), **TCP-B-062** (single writer),
    **TCP-B-056** (pseudo-measurements), **TCP-B-046** (cross-stack boundary),
    **TCP-B-065** (unbounded runtime file growth) remain **OPEN**.
-6. **CI is pending** on this branch. Pre-existing CI failures observed on the
-   main line (`ResearchForecastingIntegrationTest` full-suite state
-   contamination; the runtime quarantine's four non-blocking failures) are
-   unchanged by this work.
+6. **CI on this branch has completed and failed exactly as the baseline does.**
+   Elixir CI failed only the `suite` job (the ten pre-existing
+   `ResearchForecastingIntegrationTest` failures) and the non-blocking runtime
+   quarantine (the four pre-existing failures). Cross-Platform Verification
+   passed. No new failure was introduced by R3 (§12).
 7. The `:empty_verified` baseline is **not** permission to trust an
    empty file that was never opened by this process; it is established only
    after `File.open` and a complete read.
@@ -299,3 +301,42 @@ The manifest is generated, never hand-edited.
    (TCP-B-048) and at policy ratification (TCP-B-066).
 3. TCP-B-067 (persistent, protected VerificationAuthority key) and
    TCP-B-065 (runtime file growth) remain open workstreams.
+
+## 12. CI record (branch pushed, workflows executed)
+
+Pushed `feat/tcp-002-7-r3-transactional-recovery` at evidence commit B
+(`96155353fa22de6cbca5650ae423977a383ce93a`); remote HEAD verified equal to
+local HEAD. Workflow runs triggered by that push:
+
+| Workflow | Run ID | Conclusion |
+|---|---|---|
+| Elixir CI | `43700070002` | **failure** |
+| Cross-Platform Verification | `43700069993` | **success** |
+
+**Elixir CI** job-by-job: `compile` success; `test-placement` success;
+`tiannara_audit suite (required)` success; `lineage-regression` success;
+`tiannara_runtime suite (required)` success; `suite` **failure**;
+`tiannara_runtime quarantine (non-blocking)` **failure**.
+
+The `suite` failure is the documented pre-existing full-suite state
+contamination: exactly the ten `ResearchForecastingIntegrationTest` failures
+(`research_forecasting_integration_test.exs` lines 89, 104, 116, 131, 143,
+153, 166, 182, 191, 208). The quarantine failure is the documented set of
+four non-blocking failures (`passive_mode_test.exs:38`,
+`reactivity_test.exs:69`, `omega_robustness_test.exs:25` and `:48`). These
+match the failures recorded for the main line at TCP-002.6; R3 did not add,
+remove or alter any of them.
+
+**R3 files in CI output.** The only R3-related lines in the failed-job logs
+are two compile warnings about an unused `ctx` variable in
+`resolution_registry_test.exs` (lines 585 and 843) and pre-existing warnings
+for the unrelated `Tiannara.CEL.Services.EventStore` module. The two unused
+variables are renamed to `_ctx` in the third commit of this sequence; the
+dedicated suite is re-executed after the change at seeds 0 and 123456 —
+42 tests, 0 failures, exit 0, and the test file produces no compile warning.
+
+**Cross-Platform Verification**: `Verify — macos-latest` success,
+`Verify — ubuntu-latest` success, `Compare Cross-Platform Hashes` success.
+
+**Independent verification** was still not performed; the disposition
+`IMPLEMENTED_WITH_PARTIAL_EVIDENCE / VERIFICATION_BLOCKED` is unchanged.

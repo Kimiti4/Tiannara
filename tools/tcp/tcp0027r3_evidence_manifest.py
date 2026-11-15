@@ -47,13 +47,14 @@ def git(*args):
 
 
 def implementation_commit():
-    """Return the SHA of commit A: the most recent commit whose message starts with 'TCP-002.7-R3'."""
-    out = git("log", "--format=%H %s", "-n", "50")
+    """Return the SHA of commit A: the OLDEST commit whose message starts with 'TCP-002.7-R3' on this branch."""
+    found = None
+    out = git("log", "--format=%H %s")
     for line in out.splitlines():
         sha, _, subject = line.partition(" ")
         if subject.startswith("TCP-002.7-R3"):
-            return sha
-    return None
+            found = sha
+    return found
 
 
 def sha256(path):
@@ -84,13 +85,13 @@ def main():
         "implementation_commit": implementation_commit(),
         "evidence_commit": None,
         "evidence_commit_note": (
-            "This manifest is committed in the evidence commit (commit B), which "
-            "cannot contain its own SHA. The implementation commit SHA above is "
-            "commit A. Commit B's SHA is recorded in the append-only register row, "
-            "the master assessment section 13, and the final reconciliation report "
-            "after commit B is created."
+            "commits A (implementation), B (evidence: this manifest, register and "
+            "master) and C (CI record + this manifest) are all part of the "
+            "checkpoint; a manifest committed in any of them cannot contain its "
+            "own SHA. The implementation commit SHA above is A. B and C are "
+            "recorded in the append-only register row, master assessment section 13 "
+            "and the final reconciliation after push."
         ),
-        "parent_commit": git("rev-parse", "HEAD~1"),
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "toolchain": {"elixir": "1.18.4", "otp": "28", "erts": "16.4"},
         "status": "PARTIAL",
@@ -114,9 +115,50 @@ def main():
             "5_adversarial_regression_suite": "PASS",
             "6_cross_suite_regression": "PASS",
             "7_independent_verification": "NOT_RUN",
-            "8_ci_on_this_branch": "NOT_RUN",
+            "8_ci_on_this_branch": "FAIL_PREEXISTING_ONLY",
             "9_genuine_observation_scoring": "BLOCKED",
             "10_evidence_register": "PASS",
+        },
+        "ci_record": {
+            "elixir_ci": {
+                "run_id": "43700070002",
+                "conclusion": "failure",
+                "jobs": {
+                    "compile": "success",
+                    "test-placement": "success",
+                    "tiannara_audit_suite_required": "success",
+                    "lineage-regression": "success",
+                    "tiannara_runtime_suite_required": "success",
+                    "suite": "failure",
+                    "tiannara_runtime_quarantine_non_blocking": "failure",
+                },
+                "suite_failure_analysis": (
+                    "exactly the ten pre-existing ResearchForecastingIntegrationTest "
+                    "failures (research_forecasting_integration_test.exs lines 89, 104, "
+                    "116, 131, 143, 153, 166, 182, 191, 208)"
+                ),
+                "quarantine_failure_analysis": (
+                    "exactly the four pre-existing non-blocking failures "
+                    "(passive_mode_test.exs:38, reactivity_test.exs:69, "
+                    "omega_robustness_test.exs:25 and :48)"
+                ),
+                "new_failures_attributable_to_r3": 0,
+            },
+            "cross_platform_verification": {
+                "run_id": "43700069993",
+                "conclusion": "success",
+                "jobs": {
+                    "verify_macos_latest": "success",
+                    "verify_ubuntu_latest": "success",
+                    "compare_cross_platform_hashes": "success",
+                },
+            },
+            "r3_files_in_failed_logs": (
+                "only two compile warnings in resolution_registry_test.exs (unused ctx), "
+                "renamed to _ctx in the third commit; plus pre-existing warnings for "
+                "the unrelated Tiannara.CEL.Services.EventStore module"
+            ),
+            "remote_head_verified": "96155353fa22de6cbca5650ae423977a383ce93a",
         },
         "lifecycle_state_proven": "FORECAST_REGISTERED",
         "lifecycle_states_not_proven": [

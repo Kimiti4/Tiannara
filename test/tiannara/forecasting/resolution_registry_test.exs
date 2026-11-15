@@ -582,7 +582,7 @@ defmodule Tiannara.Forecasting.ResolutionRegistryTest do
       assert index_published(ctx) == []
     end
 
-    test "a missing forecast identity is rejected", ctx do
+    test "a missing forecast identity is rejected", _ctx do
       for missing <- [nil, ""] do
         dir =
           Path.join(System.tmp_dir!(), "tcp0027r3_missing_#{System.unique_integer([:positive])}")
@@ -840,7 +840,7 @@ defmodule Tiannara.Forecasting.ResolutionRegistryTest do
       assert health.durable == false
     end
 
-    test "conflicting durable history is rejected for each identity field", ctx do
+    test "conflicting durable history is rejected for each identity field", _ctx do
       fields = [
         observation_id: "obs-2",
         evidence_digest: :crypto.hash(:sha256, "other-evidence"),

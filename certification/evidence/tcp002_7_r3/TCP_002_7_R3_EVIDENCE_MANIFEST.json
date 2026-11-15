@@ -8,9 +8,8 @@
   "baseline_parent": "05ee148e88d4ba066a9c3c085363eced9d0b5872",
   "implementation_commit": "37acceb53f6c177bc91ebee05ccd69bb5be3b033",
   "evidence_commit": null,
-  "evidence_commit_note": "This manifest is committed in the evidence commit (commit B), which cannot contain its own SHA. The implementation commit SHA above is commit A. Commit B's SHA is recorded in the append-only register row, the master assessment section 13, and the final reconciliation report after commit B is created.",
-  "parent_commit": "fd7babafc42cccf7d290b6f6af59fb6a6fc63bf4",
-  "generated_at": "2026-11-15T09:33:35.079503+00:00",
+  "evidence_commit_note": "commits A (implementation), B (evidence: this manifest, register and master) and C (CI record + this manifest) are all part of the checkpoint; a manifest committed in any of them cannot contain its own SHA. The implementation commit SHA above is A. B and C are recorded in the append-only register row, master assessment section 13 and the final reconciliation after push.",
+  "generated_at": "2026-11-15T09:58:32.482452+00:00",
   "toolchain": {
     "elixir": "1.18.4",
     "otp": "28",
@@ -31,9 +30,38 @@
     "5_adversarial_regression_suite": "PASS",
     "6_cross_suite_regression": "PASS",
     "7_independent_verification": "NOT_RUN",
-    "8_ci_on_this_branch": "NOT_RUN",
+    "8_ci_on_this_branch": "FAIL_PREEXISTING_ONLY",
     "9_genuine_observation_scoring": "BLOCKED",
     "10_evidence_register": "PASS"
+  },
+  "ci_record": {
+    "elixir_ci": {
+      "run_id": "43700070002",
+      "conclusion": "failure",
+      "jobs": {
+        "compile": "success",
+        "test-placement": "success",
+        "tiannara_audit_suite_required": "success",
+        "lineage-regression": "success",
+        "tiannara_runtime_suite_required": "success",
+        "suite": "failure",
+        "tiannara_runtime_quarantine_non_blocking": "failure"
+      },
+      "suite_failure_analysis": "exactly the ten pre-existing ResearchForecastingIntegrationTest failures (research_forecasting_integration_test.exs lines 89, 104, 116, 131, 143, 153, 166, 182, 191, 208)",
+      "quarantine_failure_analysis": "exactly the four pre-existing non-blocking failures (passive_mode_test.exs:38, reactivity_test.exs:69, omega_robustness_test.exs:25 and :48)",
+      "new_failures_attributable_to_r3": 0
+    },
+    "cross_platform_verification": {
+      "run_id": "43700069993",
+      "conclusion": "success",
+      "jobs": {
+        "verify_macos_latest": "success",
+        "verify_ubuntu_latest": "success",
+        "compare_cross_platform_hashes": "success"
+      }
+    },
+    "r3_files_in_failed_logs": "only two compile warnings in resolution_registry_test.exs (unused ctx), renamed to _ctx in the third commit; plus pre-existing warnings for the unrelated Tiannara.CEL.Services.EventStore module",
+    "remote_head_verified": "96155353fa22de6cbca5650ae423977a383ce93a"
   },
   "lifecycle_state_proven": "FORECAST_REGISTERED",
   "lifecycle_states_not_proven": [
@@ -53,7 +81,7 @@
   "artifacts": [
     {
       "path": "certification/tcp/TCP_002_7_R3_IMPLEMENTATION_REPORT.md",
-      "sha256": "a3311230e1b89b553f26b35d7dd2627757b41e8046a79cfe40c75f587c4e8b45"
+      "sha256": "b74da75bfc074847f6c95e7de743d7ab8099ecb7122c4cbd9316a1660432d44d"
     },
     {
       "path": "certification/tcp/TCP_002_6_IMPLEMENTATION_REPORT.md",
@@ -65,7 +93,7 @@
     },
     {
       "path": "certification/tcp/TCP-001_MASTER_COMPLETION_ASSESSMENT.md",
-      "sha256": "71130555ef5c05897325ea7c17da4d5089f0ba0cca9c5e95f9388bb1f6a7bd95"
+      "sha256": "2ce3b503d17def7def75fb3e37c1e013dd8c8bbc31a115c6317465254fd86ad8"
     },
     {
       "path": "certification/tcp/TCP-001_COMPLETION_REGISTER.csv",
