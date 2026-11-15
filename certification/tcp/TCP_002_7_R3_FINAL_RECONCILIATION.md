@@ -17,7 +17,14 @@ records.
 | A — implementation | `37acceb53f6c177bc91ebee05ccd69bb5be3b033` | EventStore fail-closed recovery, write poisoning, transactional ResolutionRegistry recovery, 42-test isolated suite, implementation report, manifest generator |
 | B — evidence | `96155353fa22de6cbca5650ae423977a383ce93a` | Evidence manifest (SHA-256 digests verified against the working tree), register row TCP-B-064 → RESOLVED, master assessment §13 |
 | C — CI record | `500730e40b84cf947ff2abce66e6404e89fcd033` | Elixir CI and Cross-Platform Verification outcomes recorded; the two unused-`ctx` warnings identified by the B push's CI logs renamed to `_ctx`; manifest regenerated with a `ci_record` and `FAIL_PREEXISTING_ONLY` stage 8 |
-| D — reconciliation | this commit | CI record for the C push added to the report, master assessment and manifest; report header/plan wording corrected; this document |
+| D — reconciliation | `df9231a73497d8303a446b31e20a2f2e22431ddd` | CI record for the C push added to the report, master assessment and manifest; report header/plan wording corrected; this document. D's SHA was verified against the remote after the push (`git ls-remote` = local HEAD) |
+| E — review addendum | this commit | Independent-review outcome recorded; legacy `stream/2`/`since/2` compatibility-reader caveat documented in the report, this document and the manifest; D push's CI record (§12.3 of the report) added; documentation-only — no code, no tests, no disposition change |
+
+Commit E's own SHA is **not embedded** in this file or in the manifest — a
+commit cannot contain its own SHA. It is recorded as the branch HEAD at push
+time. Commit D's SHA (previously not embedded) is now committed in this file,
+and was likewise verified against the remote (`git ls-remote` = local HEAD at
+the time of the D push).
 
 Commit D's own SHA is **not embedded** in this file or in the manifest — a
 commit cannot contain its own SHA. It is recorded as the branch HEAD at push
@@ -36,16 +43,17 @@ this document.
 - B parent: `37acceb5` (A)
 - C parent: `96155353` (B)
 - D parent: `500730e4` (C)
+- E parent: `df9231a7` (D)
 
 All are linear descendants on one branch. No force-push or history rewrite
-was performed at any stage. The branch is 4 commits ahead of the baseline and
+was performed at any stage. The branch is 5 commits ahead of the baseline and
 0 behind it.
 
 ## Evidence artifacts
 
 | Artifact | Path |
 |---|---|
-| Implementation report (with §12 CI record for both pushes) | `certification/tcp/TCP_002_7_R3_IMPLEMENTATION_REPORT.md` |
+| Implementation report (§12 CI record for all three pushes) | `certification/tcp/TCP_002_7_R3_IMPLEMENTATION_REPORT.md` |
 | Evidence manifest | `certification/tcp/TCP_002_7_R3_EVIDENCE_MANIFEST.json` |
 | Evidence manifest (same bytes, evidence tree) | `certification/evidence/tcp002_7_r3/TCP_002_7_R3_EVIDENCE_MANIFEST.json` |
 | Manifest generator | `tools/tcp/tcp0027r3_evidence_manifest.py` |
@@ -89,7 +97,7 @@ unmeasured); independent verification; calibration; model mutation.
 
 ## CI record
 
-The branch was pushed twice and both pushes triggered `Elixir CI` (all-branch
+The branch was pushed three times and each push triggered `Elixir CI` (all-branch
 workflow) and `Cross-Platform Verification` (all-branch workflow):
 
 | Push | Workflow | Run ID | Conclusion |
@@ -98,26 +106,31 @@ workflow) and `Cross-Platform Verification` (all-branch workflow):
 | B | Cross-Platform Verification | `43700069993` | **success** |
 | C (`500730e4…`) | Elixir CI | `43702102210` | **failure** |
 | C | Cross-Platform Verification | `43702102197` | **success** |
+| D (`df9231a7…`) | Elixir CI | `43703627182` | **failure** |
+| D | Cross-Platform Verification | `43703627228` | **success** |
 
-Elixir CI job-by-job on both pushes: `compile` success, `test-placement`
+Elixir CI job-by-job on all three pushes: `compile` success, `test-placement`
 success, `tiannara_audit suite (required)` success, `lineage-regression`
 success, `tiannara_runtime suite (required)` success; `suite` **failure** and
 `tiannara_runtime quarantine (non-blocking)` **failure**.
 
-On both pushes the `suite` failure is exactly the ten pre-existing
+On all three pushes the `suite` failure is exactly the ten pre-existing
 `ResearchForecastingIntegrationTest` failures
 (`research_forecasting_integration_test.exs` lines 89, 104, 116, 131, 143,
-153, 166, 182, 191, 208) and the quarantine failure is exactly the four
-pre-existing non-blocking failures (`passive_mode_test.exs:38`,
-`reactivity_test.exs:69`, `omega_robustness_test.exs:25` and `:48`).
-**Zero new failures attributable to this work.**
+153, 166, 182, 191, 208 — the D run logs its first failure at line 88, a
+line-ending offset; the same tests, the same set) and the quarantine failure
+is exactly the four pre-existing non-blocking failures
+(`passive_mode_test.exs:38`, `reactivity_test.exs:69`,
+`omega_robustness_test.exs:25` and `:48`). **Zero new failures attributable to
+this work.**
 
 The only R3-related lines in the first push's logs were two compile warnings
 (unused `ctx` in `resolution_registry_test.exs`); those were renamed to `_ctx`
-in commit C, and the second push's failed-job logs contain no lines from
+in commit C. The C and D pushes' failed-job logs contain no lines from
 `resolution_registry_test.exs` — only the five pre-existing warnings for the
-unrelated `Tiannara.CEL.Services.EventStore` module. The dedicated suite was
-re-executed after the change at seeds 0/1/2/3/4/5/123456 (42 tests, 0 failures).
+unrelated `Tiannara.CEL.Services.EventStore` module (D: zero R3-related lines
+whatsoever). The dedicated suite was re-executed after the change at seeds
+0/1/2/3/4/5/123456 (42 tests, 0 failures).
 
 The disposition `IMPLEMENTED_WITH_PARTIAL_EVIDENCE / VERIFICATION_BLOCKED`
 is unchanged by CI; the checkpoint is not independently verified and is not
@@ -135,11 +148,11 @@ long predate this branch).
   were never staged.
 - `cel_memory_v2.dets` was restored before every commit; it is not staged
   and its working-tree diff is empty.
-- The R3 branch adds the four commits above and touches no path under
+- The R3 branch adds the five commits above and touches no path under
   `tiannara_runtime/data/cpl/checkpoints/` or any of the three protected
   untracked files.
 - Nothing in the R3 sequence was force-pushed; `git rev-list --count fd7babaf..HEAD`
-  = 4, `--count HEAD..fd7babaf` = 0.
+  = 5, `--count HEAD..fd7babaf` = 0.
 
 ## Register after this checkpoint
 
@@ -193,24 +206,63 @@ definition).
 
 ## Independent verification
 
-Not performed. No independent verifier was available for this checkpoint. The
-tests are self-authored against the contract asserted in the report. The
-disposition remains `IMPLEMENTED_WITH_PARTIAL_EVIDENCE / VERIFICATION_BLOCKED`.
+Not performed. No independent verifier was available for the executed tests or
+the working-tree preservation claims; those remain locally reported. The
+tests are self-authored against the contract asserted in the report.
+
+## Independent review (post-push, performed on the published branch)
+
+An independent review of the *committed and pushed* state was performed after
+commit D, before commit E. It verified:
+
+- the commit chain `fd7babaf → 37acceb5 → 96155353 → 500730e4 → df9231a7`,
+  resolved D to `df9231a73497d8303a446b31e20a2f2e22431ddd`, and confirmed via
+  the GitHub API that the branch is 4 commits ahead of the R2 baseline and
+  0 behind (linear, no force-push);
+- all six workflow runs against their actual commit SHAs (table above),
+  including that the two R3 test-file warnings present on push B are absent
+  on pushes C and D;
+- D's failed-job logs: zero references to `resolution_registry_test.exs`,
+  zero to `ResolutionRegistry`, five to the separate
+  `Tiannara.CEL.Services.EventStore`;
+- the source: the fail-closed states, poisoning, transactional publication,
+  duplicate/conflict closure and the trust-gated commit path.
+
+The review agreed with the disposition `IMPLEMENTED_WITH_PARTIAL_EVIDENCE /
+VERIFICATION_BLOCKED` and with narrowing TCP-B-064's closure to a
+persistence-capability finding. It explicitly did **not** re-execute the local
+tests or the local preservation claims, and noted that the absence of R3 lines
+in failed logs does not prove which passing tests executed. It raised one
+bounded compatibility caveat, accepted here: the legacy readers `stream/2` and
+`since/2` return bare event lists and discard parser diagnostics, and
+`stream/2` includes `:unverified_legacy` events unlabelled, so a consumer of
+those two readers could mistake a verified prefix of a damaged or truncated log
+for complete history. The R3 recovery path itself uses `read_records/1` plus
+live `health/1` and is unaffected. Making the compatibility readers explicit
+is bounded next work (report §8 item 10); the readers are unchanged in this
+sequence.
 
 ## Sequence disposition
 
 Storage and recovery are **implemented and executed-tested**. They are **not
 independently verified**, they are **not** protected against real hardware
 faults, they do **not** prove any predictive claim, and they are **not**
-claimed as passing CI (the pre-existing `suite` job fails on both pushes for
-reasons that predate this branch). The genuine forecast outcome lifecycle
+claimed as passing CI (the pre-existing `suite` job fails on all three pushes
+for reasons that predate this branch). The genuine forecast outcome lifecycle
 remains blocked at acquisition (`TCP-B-048`) and at policy ratification
 (`TCP-B-066`).
 
 ## Next
 
-1. Push commit D and verify remote HEAD equals local HEAD.
-2. Report the final dispositions honestly, including the CI outcome on all
-   three pushes.
-3. TCP-002.7's genuine forecast outcome lifecycle remains out of scope until
+1. ~~Push commit D and verify remote HEAD equals local HEAD.~~ **Done** —
+   pushed at `df9231a7`; remote HEAD verified equal; CI recorded above.
+2. ~~Report the final dispositions honestly, including the CI outcome on all
+   three pushes.~~ **Done** — see the report §12 and this document; commit E
+   records this review and the D-push CI outcome.
+3. Make the legacy compatibility readers (`stream/2`, `since/2`) explicit
+   about incomplete or unverified history (bounded next engineering work;
+   unchanged here).
+4. Independent verification of the storage/recovery contract (none available
+   in this environment).
+5. TCP-002.7's genuine forecast outcome lifecycle remains out of scope until
    `TCP-B-048` and `TCP-B-066` are resolved by an authorized process.

@@ -21,7 +21,7 @@
 | 5 — Adversarial regression suite | **PASS** | 42 dedicated tests, executed at seeds 0/1/2/3/4/5/123456 — 0 failures |
 | 6 — Cross-suite regression | **PASS** | forecasting+research 617/0 (2 seeds); Executive set 88/0 (2 skipped); runtime 32 properties/792/0 |
 | 7 — Independent verification | **NOT_RUN** | No independent verifier available |
-| 8 — CI on this branch | **COMPLETE (failure, pre-existing only)** | Both pushes (B and C): Cross-Platform Verification **success** (macOS, Ubuntu, hash comparison). Elixir CI: compile, test-placement, audit, lineage-regression, runtime suite (required) **pass**; `suite` fails with exactly the ten pre-existing `ResearchForecastingIntegrationTest` failures; the non-blocking runtime quarantine fails with exactly the four pre-existing failures. **No new failure attributable to R3** on either push; the two unused-`ctx` warnings seen on push B were removed by commit C (§12) |
+| 8 — CI on this branch | **COMPLETE (failure, pre-existing only)** | All three pushes (B, C and D): Cross-Platform Verification **success** (macOS, Ubuntu, hash comparison). Elixir CI: compile, test-placement, audit, lineage-regression, runtime suite (required) **pass**; `suite` fails with exactly the ten pre-existing `ResearchForecastingIntegrationTest` failures; the non-blocking runtime quarantine fails with exactly the four pre-existing failures. **No new failure attributable to R3** on any push; the two unused-`ctx` warnings seen on push B were removed by commit C, and push D's failed-job logs contain zero R3-related lines (§12) |
 | 9 — Genuine observation / scoring | **BLOCKED** | Inherits TCP-B-048 (no live source) — out of R3 scope |
 | 10 — Evidence register and manifest | **PASS** | This report, the manifest, the append-only register and the master assessment |
 
@@ -32,8 +32,10 @@ instances and simulated faults. **It is not independently verified, and no
 real-world predictive claim of any kind is made.** The evidence plan is:
 commit A (implementation + tests + report + generator), commit B (manifest +
 register/master referencing A), commit C (CI record + the two unused-`ctx`
-warning fixes, this section was extended by it), and commit D (this
-reconciliation record, which references — but does not embed — its own SHA).
+warning fixes), commit D (reconciliation record, which references — but does
+not embed — its own SHA), and commit E (documentation-only addendum recording
+the independent review outcome and the legacy compatibility-reader caveat; it
+changes no code, no tests and no disposition).
 
 ## 2. What TCP-002.7-R2 left broken
 
@@ -78,6 +80,20 @@ the reason): `:verified`, `:empty_verified`, `:unavailable`, `:truncated`,
 enters an `:unavailable` state instead of crashing: `health/0` reports
 `integrity: :unavailable`, `read_error: reason`, `append_permitted: false`,
 and appends are refused with `:store_not_appendable`.
+
+**Compatibility readers are not fail-closed for completeness.** The legacy
+readers `stream/2` and `since/2` return bare event lists: they discard the
+parser diagnostics, so a consumer cannot see truncation, corruption or
+sequence gaps. `stream/2` additionally includes `:unverified_legacy` events
+without labelling them as such (verified prefix of a damaged log is
+indistinguishable from complete history); `since/2` is stricter — it returns
+only `:verified` records — but still reports no diagnostics. These two
+readers predate R3 and were left unchanged for compatibility; making them
+explicit about incomplete or unverified history is bounded next work.
+`stream_with_diagnostics/3`, `stream_verified/3` and `read_records/1` are the
+fail-closed readers, and ResolutionRegistry recovery uses `read_records/1`
+plus live `health/1`, so R3's transactional recovery does not depend on the
+compatibility readers.
 
 **Append gate.** Append is permitted only when `integrity` is `:verified` or
 `:empty_verified`. On every append the **complete history is re-read** and
@@ -234,8 +250,8 @@ checkpoint file was pruned. The three pre-existing untracked files
 `certification/audit/GENSERVER_OWNERSHIP_INVENTORY.csv`,
 `certification/audit/GENSERVER_OWNERSHIP_INVENTORY.md`) were not staged.
 `cel_memory_v2.dets` was restored before commit and is not staged. The R3
-branch adds four commits (A implementation, B evidence, C CI record, D this
-reconciliation) and touches none of these paths.
+branch adds five commits (A implementation, B evidence, C CI record, D
+reconciliation, E review addendum) and touches none of these paths.
 
 ## 8. Known limitations
 
@@ -256,14 +272,27 @@ reconciliation) and touches none of these paths.
    Elixir CI failed only the `suite` job (the ten pre-existing
    `ResearchForecastingIntegrationTest` failures) and the non-blocking runtime
    quarantine (the four pre-existing failures). Cross-Platform Verification
-   passed. No new failure was introduced by R3 (§12).
+   passed on all three pushes. No new failure was introduced by R3 (§12).
 7. The `:empty_verified` baseline is **not** permission to trust an
    empty file that was never opened by this process; it is established only
    after `File.open` and a complete read.
 8. Full-history re-read before every append is deliberate and unmeasured; for
    very long logs this is an O(n) append cost.
-9. Windows-only local execution; CI (ubuntu-latest) not yet witnessed for
-   this branch.
+9. Windows-only local execution; CI (ubuntu-latest) has now executed three
+   times on this branch with the outcome recorded in §12. Local macOS/Linux
+   execution has not occurred.
+10. **The legacy compatibility readers `stream/2` and `since/2` are not
+    fail-closed for completeness** (found by post-push independent review of
+    the source, confirmed in the code). They return bare event lists and
+    discard parser diagnostics; `stream/2` additionally includes
+    `:unverified_legacy` events unlabelled, so a verified prefix of a damaged
+    or truncated log is indistinguishable from complete history to such a
+    consumer. `since/2` returns only `:verified` records but also reports no
+    diagnostics. R3's transactional recovery does not use these readers
+    (it uses `read_records/1` plus live `health/1`), so the caveat does not
+    invalidate the recovery contract — but not every public EventStore read
+    API is universally fail-closed. Making these readers explicit about
+    incomplete or unverified history is bounded next work (§11).
 
 ## 9. Findings after this checkpoint
 
@@ -296,19 +325,27 @@ The manifest is generated, never hand-edited.
 
 ## 11. Next
 
-1. Push `feat/tcp-002-7-r3-transactional-recovery`; verify the remote HEAD
-   matches; record GitHub Actions runs for both commits.
-2. With storage/recovery gates passed, return to TCP-002.7 proper: a genuine
+1. ~~Push the branch; verify the remote HEAD matches; record the workflow
+   runs.~~ **Done** — pushed at commits B, C and D; remote HEAD verified equal
+   to local HEAD after each push; all six workflow runs recorded in §12 and in
+   the reconciliation document.
+2. Make the legacy compatibility readers (`stream/2`, `since/2`) explicit
+   about incomplete or unverified history (bounded next engineering work; the
+   compatibility readers themselves are unchanged in R3) — see §8 item 10.
+3. Independent verification of the storage/recovery contract (none available
+   in this environment).
+4. With storage/recovery gates passed, return to TCP-002.7 proper: a genuine
    forecast outcome lifecycle — which remains blocked at acquisition
    (TCP-B-048) and at policy ratification (TCP-B-066).
-3. TCP-B-067 (persistent, protected VerificationAuthority key) and
+5. TCP-B-067 (persistent, protected VerificationAuthority key) and
    TCP-B-065 (runtime file growth) remain open workstreams.
 
-## 12. CI record (branch pushed twice, workflows executed)
+## 12. CI record (branch pushed three times, workflows executed)
 
-The branch was pushed twice: at evidence commit B
-(`96155353fa22de6cbca5650ae423977a383ce93a`) and at evidence commit C
-(`500730e40b84cf947ff2abce66e6404e89fcd033`). Remote HEAD was verified equal
+The branch was pushed three times: at evidence commit B
+(`96155353fa22de6cbca5650ae423977a383ce93a`), at evidence commit C
+(`500730e40b84cf947ff2abce66e6404e89fcd033`), and at evidence commit D
+(`df9231a73497d8303a446b31e20a2f2e22431ddd`). Remote HEAD was verified equal
 to local HEAD after each push.
 
 ### 12.1 Push of commit B
@@ -362,6 +399,26 @@ in this run's logs, confirming the `_ctx` rename; the only remaining
 R3-adjacent lines are the five pre-existing warnings for the unrelated
 `Tiannara.CEL.Services.EventStore` module. Zero new failures attributable
 to R3.
+
+### 12.3 Push of commit D
+
+| Workflow | Run ID | Conclusion |
+|---|---|---|
+| Elixir CI | `43703627182` | **failure** |
+| Cross-Platform Verification | `43703627228` | **success** |
+
+The job-by-job conclusions are identical to §12.1. The `suite` failure is
+again exactly the ten pre-existing `ResearchForecastingIntegrationTest`
+failures (the first is logged at line 88 in this run versus 89 in pushes B
+and C — a line-ending offset; the same test, same set). The quarantine
+failure is again exactly the four pre-existing failures.
+
+**Commit D is documentation-only** (reconciliation document + both-push CI
+record + manifest regeneration), and its failed-job logs contain **zero**
+R3-related lines: no `resolution_registry_test.exs`, no `ResolutionRegistry`,
+no `TCP_002_7_R3` — only the five pre-existing warnings for the unrelated
+`Tiannara.CEL.Services.EventStore` module. Zero new failures attributable to
+R3.
 
 **Independent verification** was still not performed; the disposition
 `IMPLEMENTED_WITH_PARTIAL_EVIDENCE / VERIFICATION_BLOCKED` is unchanged.

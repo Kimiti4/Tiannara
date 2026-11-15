@@ -1276,8 +1276,20 @@ is 88/0 (2 skipped) and the runtime regression is 32 properties + 792 tests,
 Cross-Platform Verification passed; Elixir CI failed only the two documented
 pre-existing jobs (`suite`: the ten ResearchForecastingIntegrationTest
 failures; the non-blocking runtime quarantine: four failures) — no new
-failure attributable to R3 on either push, and the two unused-`ctx` warnings
-seen on the first push were removed by the second.
+failure attributable to R3 on any of the three pushes (the third push, the
+reconciliation commit, reproduced the same pre-existing-only outcome with
+zero R3-related lines in its failed-job logs), and the two unused-`ctx`
+warnings seen on the first push were removed by the second. An independent
+post-push review of the published branch confirmed the linear commit chain,
+all six workflow runs against their actual commit SHAs, the source-level
+fail-closed behaviour, and the narrowing of TCP-B-064 to a persistence
+capability; it did not re-execute the local tests or the working-tree
+preservation claims. The review raised one accepted caveat: the legacy
+compatibility readers `EventStore.stream/2` and `EventStore.since/2` return
+bare event lists, discard parser diagnostics, and (`stream/2` only) include
+`:unverified_legacy` events unlabelled — they are not fail-closed for
+completeness. R3's recovery path uses `read_records/1` plus live `health/1`
+and is unaffected; making those readers explicit is bounded next work.
 
 **No genuine observation exists.** `TCP-B-048` remains **OPEN / BLOCKED**: no
 live external source is reachable from this environment and no registered

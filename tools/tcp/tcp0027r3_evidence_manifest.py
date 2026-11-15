@@ -33,6 +33,7 @@ CHANGED = [
     "test/tiannara/forecasting/resolution_registry_test.exs",
     "tools/tcp/tcp0027r3_evidence_manifest.py",
     "certification/tcp/TCP_002_7_R3_IMPLEMENTATION_REPORT.md",
+    "certification/tcp/TCP_002_7_R3_FINAL_RECONCILIATION.md",
 ]
 
 BASELINE = "fd7babafc42cccf7d290b6f6af59fb6a6fc63bf4"
@@ -197,6 +198,45 @@ def main():
                     "the two resolution_registry_test.exs unused-ctx warnings are gone "
                     "(the _ctx rename is confirmed by this run); only the five pre-existing "
                     "warnings for the unrelated Tiannara.CEL.Services.EventStore module remain"
+                ),
+            },
+            "push_of_commit_d": {
+                "remote_head_verified": "df9231a73497d8303a446b31e20a2f2e22431ddd",
+                "elixir_ci": {
+                    "run_id": "43703627182",
+                    "conclusion": "failure",
+                    "jobs": {
+                        "compile": "success",
+                        "test-placement": "success",
+                        "tiannara_audit_suite_required": "success",
+                        "lineage-regression": "success",
+                        "tiannara_runtime_suite_required": "success",
+                        "suite": "failure",
+                        "tiannara_runtime_quarantine_non_blocking": "failure",
+                    },
+                    "suite_failure_analysis": (
+                        "again exactly the ten pre-existing ResearchForecastingIntegrationTest "
+                        "failures; the first failure is logged at line 88 in this run versus 89 "
+                        "in pushes B and C - a line-ending offset, the same tests, the same set"
+                    ),
+                    "quarantine_failure_analysis": (
+                        "again exactly the four pre-existing non-blocking failures"
+                    ),
+                    "new_failures_attributable_to_r3": 0,
+                },
+                "cross_platform_verification": {
+                    "run_id": "43703627228",
+                    "conclusion": "success",
+                    "jobs": {
+                        "verify_macos_latest": "success",
+                        "verify_ubuntu_latest": "success",
+                        "compare_cross_platform_hashes": "success",
+                    },
+                },
+                "r3_files_in_failed_logs": (
+                    "zero R3-related lines: no resolution_registry_test.exs, no ResolutionRegistry, "
+                    "no TCP_002_7_R3; only the five pre-existing warnings for the unrelated "
+                    "Tiannara.CEL.Services.EventStore module"
                 ),
             },
         },
@@ -367,7 +407,7 @@ def main():
         ],
         "not_executed": [
             "Independent verification: no independent verifier was available.",
-            "CI on this branch: executed and completed on both pushes (B and C). Elixir CI failed only the two documented pre-existing jobs (suite: the ten ResearchForecastingIntegrationTest failures; the non-blocking runtime quarantine: four failures) on both pushes; Cross-Platform Verification passed on both. No new failure is attributable to R3; the outcome is not claimed as passing (see ci_record).",
+            "CI on this branch: executed and completed on all three pushes (B, C and D). Elixir CI failed only the two documented pre-existing jobs (suite: the ten ResearchForecastingIntegrationTest failures; the non-blocking runtime quarantine: four failures) on all three pushes; Cross-Platform Verification passed on all three. No new failure is attributable to R3; the outcome is not claimed as passing (see ci_record).",
             "Real disk-corruption, power-loss, fsync-semantics or multi-writer fault injection on real media.",
             "Real external source acquisition (TCP-B-048) — no live external source is reachable from this environment.",
             "Resolution of a genuine, registered forecast against a real observation.",
@@ -396,6 +436,7 @@ def main():
             "Full-history re-read before every append and on replay is deliberate, O(n) and unmeasured here.",
             "TCP-B-061 (no trusted integrity anchor) and TCP-B-062 (single-writer log) remain open.",
             "Evidence digest and chain establish integrity, not publisher authenticity (TCP-B-058 remains PARTIAL).",
+            "Legacy compatibility readers EventStore.stream/2 and EventStore.since/2 return bare event lists, discard parser diagnostics, and stream/2 includes :unverified_legacy events unlabelled; they are not fail-closed for completeness. R3 recovery uses read_records/1 plus live health/1 and is unaffected; making the compatibility readers explicit is bounded next work.",
         ],
         "open_blockers": [
             "TCP-B-046",
