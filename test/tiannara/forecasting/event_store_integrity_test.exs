@@ -332,13 +332,9 @@ defmodule Tiannara.Executive.EventStoreIntegrityTest do
     end
 
     test "default stream propagates read failures", ctx do
-      # Make the log unreadable.
-      File.chmod!(ctx.log, 0o000)
-      start_store(ctx)
+      start_supervised!({EventStore, [name: ctx.name, file_path: ctx.log, fault_injection: %{read: {:error, :eacces}}]})
 
       assert {:error, {:read_failed, _}} = EventStore.stream(0)
-
-      File.chmod!(ctx.log, 0o644)
     end
 
     test "default stream fails closed on mixed verified and legacy records", ctx do
@@ -404,12 +400,9 @@ defmodule Tiannara.Executive.EventStoreIntegrityTest do
     end
 
     test "stream_unverified propagates read failures", ctx do
-      File.chmod!(ctx.log, 0o000)
-      start_store(ctx)
+      start_supervised!({EventStore, [name: ctx.name, file_path: ctx.log, fault_injection: %{read: {:error, :eacces}}]})
 
       assert {:error, {:read_failed, _}} = EventStore.stream_unverified(0)
-
-      File.chmod!(ctx.log, 0o644)
     end
 
     test "since_unverified returns a bare list", ctx do
@@ -421,13 +414,10 @@ defmodule Tiannara.Executive.EventStoreIntegrityTest do
     end
 
     test "since_unverified propagates read failures", ctx do
-      File.chmod!(ctx.log, 0o000)
-      start_store(ctx)
+      start_supervised!({EventStore, [name: ctx.name, file_path: ctx.log, fault_injection: %{read: {:error, :eacces}}]})
 
       assert {:error, {:read_failed, _}} =
                EventStore.since_unverified(~U[2026-01-01 00:00:00Z], ctx.name)
-
-      File.chmod!(ctx.log, 0o644)
     end
 
     test "a consumer requiring verified history must not accept an error result", ctx do
