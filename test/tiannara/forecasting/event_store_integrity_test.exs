@@ -50,8 +50,11 @@ defmodule Tiannara.Executive.EventStoreIntegrityTest do
 
   defp frame(sequence, previous_digest, payload) do
     digest = EventStore.record_digest(sequence, previous_digest, payload)
-    body = @magic <> <<byte_size(payload)::32, sequence::64, digest::binary-size(@digest_size),
-             previous_digest::binary-size(@digest_size), payload::binary>>
+
+    body =
+      @magic <>
+        <<byte_size(payload)::32, sequence::64, digest::binary-size(@digest_size),
+          previous_digest::binary-size(@digest_size), payload::binary>>
 
     {body, digest}
   end
@@ -225,9 +228,23 @@ defmodule Tiannara.Executive.EventStoreIntegrityTest do
       assert result.unverified_legacy == 1
       assert result.records == []
 
-      # It is still readable through the plain stream for legacy consumers.
-      assert [event] = EventStore.stream(0)
+      # It is still readable through the legacy compatibility reader.
+      assert [event] = EventStore.stream_unverified(0)
       assert event.data.text == "legacy"
+    end
+
+    test "readers fail closed on legacy or incomplete history", ctx do
+      payload = Event.to_binary(event("legacy"))
+      legacy = <<byte_size(payload)::32, payload::binary>>
+
+      write_frames(ctx.log, [legacy])
+      start_store(ctx)
+
+      assert {:error, :unverified_legacy_record} =
+               EventStore.stream(0, ctx.name)
+
+      assert {:error, :unverified_legacy_record} =
+               EventStore.since(~U[2026-01-01 00:00:00Z], ctx.name)
     end
   end
 
@@ -246,6 +263,187 @@ defmodule Tiannara.Executive.EventStoreIntegrityTest do
       # can recompute it, so it is an integrity check and not an authenticity
       # proof. The module documents this distinction.
       refute is_nil(record.digest)
+    end
+  end
+
+  describe "compatibility readers (R4)" do
+    test "default stream fails closed on legacy history", ctx do
+      payload = Event.to_binary(event("legacy"))
+      write_frames(ctx.log, [<<byte_size(payload)::32, payload::binary>>])
+      start_store(ctx)
+
+      assert {:error, :unverified_legacy_record} = EventStore.stream(0)
+    end
+
+    test "default stream succeeds on verified complete history", ctx do
+      start_store(ctx)
+      assert :ok = EventStore.append(event("a"))
+      assert :ok = EventStore.append(event("b"))
+
+      assert {:ok, result} = EventStore.stream(0)
+      assert result.integrity == :verified
+      assert length(result.events) == 2
+      assert result.unverified_legacy == 0
+      assert result.truncated == false
+    end
+
+    test "default stream succeeds on verified empty history", ctx do
+      start_store(ctx)
+
+      assert {:ok, result} = EventStore.stream(0)
+      assert result.integrity == :empty_verified
+      assert result.events == []
+      assert result.verified == 0
+    end
+
+    test "default stream fails closed on truncated history", ctx do
+      p1 = Event.to_binary(event("one"))
+      {f1, _d1} = frame(1, @zero, p1)
+
+      <<head::binary-size(byte_size(f1) - 10), _tail::binary>> = f1
+      write_frames(ctx.log, [head])
+      start_store(ctx)
+
+      assert {:error, :truncated_history} = EventStore.stream(0)
+    end
+
+    test "default stream fails closed on corrupt history", ctx do
+      p1 = Event.to_binary(event("one"))
+      {f1, _d1} = frame(1, @zero, p1)
+
+      <<head::binary-size(12), _digest::binary-size(32), tail::binary>> = f1
+      corrupt = <<head::binary, 7::256, tail::binary>>
+      write_frames(ctx.log, [corrupt])
+      start_store(ctx)
+
+      assert {:error, _} = EventStore.stream(0)
+    end
+
+    test "default stream fails closed on a sequence gap", ctx do
+      p1 = Event.to_binary(event("one"))
+      p2 = Event.to_binary(event("two"))
+      {f1, d1} = frame(1, @zero, p1)
+      {f2, _d2} = frame(3, d1, p2)
+
+      write_frames(ctx.log, [f1, f2])
+      start_store(ctx)
+
+      assert {:error, :sequence_gap} = EventStore.stream(0)
+    end
+
+    test "default stream propagates read failures", ctx do
+      # Make the log unreadable.
+      File.chmod!(ctx.log, 0o000)
+      start_store(ctx)
+
+      assert {:error, {:read_failed, _}} = EventStore.stream(0)
+
+      File.chmod!(ctx.log, 0o644)
+    end
+
+    test "default stream fails closed on mixed verified and legacy records", ctx do
+      p1 = Event.to_binary(event("one"))
+      {f1, _d1} = frame(1, @zero, p1)
+      payload = Event.to_binary(event("legacy"))
+      legacy = <<byte_size(payload)::32, payload::binary>>
+
+      write_frames(ctx.log, [f1, legacy])
+      start_store(ctx)
+
+      assert {:error, :unverified_legacy_record} = EventStore.stream(0)
+    end
+
+    test "default stream fails closed on a valid prefix followed by invalid history", ctx do
+      p1 = Event.to_binary(event("one"))
+      {f1, _d1} = frame(1, @zero, p1)
+      payload = Event.to_binary(event("legacy"))
+      legacy = <<byte_size(payload)::32, payload::binary>>
+
+      write_frames(ctx.log, [f1, legacy])
+      start_store(ctx)
+
+      # The verified prefix must not be returned as though complete.
+      assert {:error, _} = EventStore.stream(0)
+    end
+
+    test "default since fails closed on legacy history", ctx do
+      payload = Event.to_binary(event("legacy"))
+      write_frames(ctx.log, [<<byte_size(payload)::32, payload::binary>>])
+      start_store(ctx)
+
+      assert {:error, :unverified_legacy_record} =
+               EventStore.since(~U[2026-01-01 00:00:00Z], ctx.name)
+    end
+
+    test "default since succeeds on verified history", ctx do
+      start_store(ctx)
+      assert :ok = EventStore.append(event("a"))
+
+      assert {:ok, result} = EventStore.since(~U[2026-01-01 00:00:00Z], ctx.name)
+      assert result.integrity == :verified
+      assert length(result.events) == 1
+    end
+
+    test "stream_unverified returns a bare list including legacy records", ctx do
+      payload = Event.to_binary(event("legacy"))
+      write_frames(ctx.log, [<<byte_size(payload)::32, payload::binary>>])
+      start_store(ctx)
+
+      assert [legacy_event] = EventStore.stream_unverified(0)
+      assert legacy_event.data.text == "legacy"
+    end
+
+    test "stream_unverified returns verified events as a bare list", ctx do
+      start_store(ctx)
+      assert :ok = EventStore.append(event("a"))
+      assert :ok = EventStore.append(event("b"))
+
+      assert [e1, e2] = EventStore.stream_unverified(0)
+      assert e1.data.text == "a"
+      assert e2.data.text == "b"
+    end
+
+    test "stream_unverified propagates read failures", ctx do
+      File.chmod!(ctx.log, 0o000)
+      start_store(ctx)
+
+      assert {:error, {:read_failed, _}} = EventStore.stream_unverified(0)
+
+      File.chmod!(ctx.log, 0o644)
+    end
+
+    test "since_unverified returns a bare list", ctx do
+      start_store(ctx)
+      assert :ok = EventStore.append(event("a"))
+
+      assert [e] = EventStore.since_unverified(~U[2026-01-01 00:00:00Z], ctx.name)
+      assert e.data.text == "a"
+    end
+
+    test "since_unverified propagates read failures", ctx do
+      File.chmod!(ctx.log, 0o000)
+      start_store(ctx)
+
+      assert {:error, {:read_failed, _}} =
+               EventStore.since_unverified(~U[2026-01-01 00:00:00Z], ctx.name)
+
+      File.chmod!(ctx.log, 0o644)
+    end
+
+    test "a consumer requiring verified history must not accept an error result", ctx do
+      payload = Event.to_binary(event("legacy"))
+      write_frames(ctx.log, [<<byte_size(payload)::32, payload::binary>>])
+      start_store(ctx)
+
+      # The verified-history consumer cannot proceed on an error result.
+      case EventStore.stream(0) do
+        {:ok, %{integrity: :verified, events: events}} ->
+          assert is_list(events)
+
+        {:error, _} ->
+          # Expected: legacy history is refused, not silently accepted.
+          :ok
+      end
     end
   end
 end

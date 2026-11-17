@@ -153,7 +153,7 @@ defmodule Tiannara.Forecasting.ForecastRegistryDurabilityTest do
       assert {:ok, ^f} = register(f)
 
       # Deliver the same durable record a second time.
-      [event | _] = EventStore.stream(0)
+      [event | _] = EventStore.stream_unverified(0)
       assert is_map(event)
       EventStore.append(event)
 
@@ -200,7 +200,11 @@ defmodule Tiannara.Forecasting.ForecastRegistryDurabilityTest do
       # Corrupt the payload of the durable record.
       content = File.read!(ctx.log)
       <<head::binary-size(20), _rest::binary>> = content
-      File.write!(ctx.log, head <> :binary.copy(<<255>>, 64) <> binary_part(content, byte_size(content) - 40, 40))
+
+      File.write!(
+        ctx.log,
+        head <> :binary.copy(<<255>>, 64) <> binary_part(content, byte_size(content) - 40, 40)
+      )
 
       start_registry(ctx)
 
@@ -242,7 +246,8 @@ defmodule Tiannara.Forecasting.ForecastRegistryDurabilityTest do
       stop_supervised(ForecastRegistry)
 
       # A record that references a forecast but carries no payload.
-      empty = Event.new("efdi.forecast.registered", %{forecast_id: "ghost", request_id: "req_ghost"})
+      empty =
+        Event.new("efdi.forecast.registered", %{forecast_id: "ghost", request_id: "req_ghost"})
 
       EventStore.append(empty)
       stop_supervised(EventStore)

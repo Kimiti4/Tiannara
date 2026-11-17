@@ -323,8 +323,8 @@ defmodule Tiannara.Forecasting.ResolutionRegistryTest do
 
       assert {:error, :store_not_appendable} = EventStore.append(event("a"), ctx.store)
 
-      # Legacy history remains readable, but never verified.
-      assert [legacy] = EventStore.stream(0, ctx.store)
+      # Legacy history remains readable through the compatibility reader.
+      assert [legacy] = EventStore.stream_unverified(0, ctx.store)
       assert legacy.data.text == "legacy"
 
       {:ok, result} = EventStore.stream_verified(0, ctx.store)

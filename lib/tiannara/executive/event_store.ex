@@ -125,9 +125,40 @@ defmodule Tiannara.Executive.EventStore do
   @spec append(term(), atom()) :: :ok | {:error, term()}
   def append(event, name \\ server()), do: GenServer.call(name, {:append, event})
 
-  @doc "Streams all events since a given index."
-  @spec stream(non_neg_integer(), atom()) :: [term()] | {:error, term()}
-  def stream(since \\ 0, name \\ server()), do: GenServer.call(name, {:stream, since})
+  @doc """
+  Streams events since a given index.
+
+  Verification-aware and fail-closed: returns `{:ok, %{events:, integrity:,
+  diagnostics:, unreadable:, truncated:, integrity_failures:, sequence_gaps:,
+  unverified_legacy:, verified:}}` only when the complete history is verified
+  (or empty-verified); returns `{:error, reason}` for unverified, truncated,
+  corrupt, gapped, unreadable or otherwise incomplete history. A consumer
+  cannot mistake a verified prefix for complete history.
+
+  For best-effort legacy access without verification gating, use
+  `stream_unverified/2` (documented as not verification-safe).
+  """
+  @spec stream(non_neg_integer(), atom()) :: {:ok, map()} | {:error, term()}
+  def stream(since \\ 0, name \\ server()) do
+    GenServer.call(name, {:stream, since})
+  end
+
+  @doc """
+  Compatibility reader: returns a bare list of events (verified and
+  unverified-legacy) without verification gating or diagnostics.
+
+  **Not verification-safe.** It does not prove completeness or integrity and
+  cannot distinguish a verified history from a truncated, corrupt, gapped or
+  legacy one; a consumer requiring proof of complete history must use
+  `stream/2` (or `stream_verified/2` / `stream_with_diagnostics/2`).
+  An I/O failure is still returned as `{:error, {:read_failed, reason}}`
+  rather than as an empty history.
+  """
+  @spec stream_unverified(non_neg_integer(), atom()) ::
+          [term()] | {:error, {:read_failed, term()}}
+  def stream_unverified(since \\ 0, name \\ server()) do
+    GenServer.call(name, {:stream_unverified, since})
+  end
 
   @doc """
   Streams the log together with what could not be read.
@@ -168,9 +199,34 @@ defmodule Tiannara.Executive.EventStore do
   @spec read_records(atom()) :: {:ok, map()} | {:error, term()}
   def read_records(name \\ server()), do: GenServer.call(name, :read_records)
 
-  @doc "Returns events since a given timestamp."
-  @spec since(DateTime.t(), atom()) :: [term()] | {:error, term()}
-  def since(timestamp, name \\ server()), do: GenServer.call(name, {:since, timestamp})
+  @doc """
+  Returns events since a given timestamp.
+
+  Verification-aware and fail-closed: returns `{:ok, %{events:, integrity:,
+  diagnostics:, unreadable:, truncated:, integrity_failures:, sequence_gaps:,
+  unverified_legacy:, verified:}}` only when the complete history is verified
+  (or empty-verified); returns `{:error, reason}` for unverified, truncated,
+  corrupt, gapped, unreadable or otherwise incomplete history.
+
+  For best-effort legacy access without verification gating, use
+  `since_unverified/2` (documented as not verification-safe).
+  """
+  @spec since(DateTime.t(), atom()) :: {:ok, map()} | {:error, term()}
+  def since(timestamp, name \\ server()) do
+    GenServer.call(name, {:since, timestamp})
+  end
+
+  @doc """
+  Compatibility reader: returns a bare list of events (verified and
+  unverified-legacy) whose timestamp is at or after `timestamp`, without
+  verification gating or diagnostics.
+
+  **Not verification-safe.** See `stream_unverified/2`.
+  """
+  @spec since_unverified(DateTime.t(), atom()) :: [term()] | {:error, {:read_failed, term()}}
+  def since_unverified(timestamp, name \\ server()) do
+    GenServer.call(name, {:since_unverified, timestamp})
+  end
 
   @doc "Returns the current verified event count."
   def count(name \\ server()), do: GenServer.call(name, :count)
@@ -268,6 +324,41 @@ defmodule Tiannara.Executive.EventStore do
   @impl true
   def handle_call({:stream, since}, _from, state) do
     case read_frames(state.file_path, 0, state.fault_injection) do
+      {:ok, %{records: records, diagnostics: diagnostics}} ->
+        events =
+          records
+          |> Enum.filter(&(&1.integrity in [:verified, :unverified_legacy]))
+          |> Enum.filter(&(is_nil(&1.sequence) or &1.sequence > since))
+          |> Enum.map(& &1.event)
+
+        if diagnostics_any?(diagnostics) do
+          {:reply, {:error, storage_reason(diagnostics, records)}, state}
+        else
+          {:reply,
+           {:ok,
+            %{
+              events: events,
+              integrity: classify(diagnostics, records),
+              diagnostics: diagnostics,
+              unreadable: diagnostics.unreadable,
+              truncated: diagnostics.truncated,
+              integrity_failures: diagnostics.integrity_failures,
+              sequence_gaps: diagnostics.sequence_gaps,
+              unverified_legacy: diagnostics.unverified_legacy,
+              verified: Enum.count(records, &(&1.integrity == :verified))
+            }}, state}
+        end
+
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+    end
+  end
+
+  @impl true
+  def handle_call({:stream_unverified, since}, _from, state) do
+    # Compatibility reader: best-effort bare list, no verification gating.
+    # See stream_unverified/2 documentation: not verification-safe.
+    case read_frames(state.file_path, 0, state.fault_injection) do
       {:ok, %{records: records}} ->
         events =
           records
@@ -353,7 +444,45 @@ defmodule Tiannara.Executive.EventStore do
     end
   end
 
+  @impl true
   def handle_call({:since, timestamp}, _from, state) do
+    case read_frames(state.file_path, 0, state.fault_injection) do
+      {:ok, %{records: records, diagnostics: diagnostics}} ->
+        filtered =
+          Enum.filter(records, fn r ->
+            r.integrity == :verified and
+              match?(%{timestamp: ts} when not is_nil(ts), r.event) and
+              DateTime.compare(r.event.timestamp, timestamp) != :lt
+          end)
+
+        events = Enum.map(filtered, & &1.event)
+
+        if diagnostics_any?(diagnostics) do
+          {:reply, {:error, storage_reason(diagnostics, records)}, state}
+        else
+          {:reply,
+           {:ok,
+            %{
+              events: events,
+              integrity: classify(diagnostics, records),
+              diagnostics: diagnostics,
+              unreadable: diagnostics.unreadable,
+              truncated: diagnostics.truncated,
+              integrity_failures: diagnostics.integrity_failures,
+              sequence_gaps: diagnostics.sequence_gaps,
+              unverified_legacy: diagnostics.unverified_legacy,
+              verified: Enum.count(records, &(&1.integrity == :verified))
+            }}, state}
+        end
+
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+    end
+  end
+
+  @impl true
+  def handle_call({:since_unverified, timestamp}, _from, state) do
+    # Compatibility reader: best-effort bare list, no verification gating.
     case read_frames(state.file_path, 0, state.fault_injection) do
       {:ok, %{records: records}} ->
         filtered =
