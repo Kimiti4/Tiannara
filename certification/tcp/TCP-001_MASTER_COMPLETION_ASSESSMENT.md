@@ -1312,3 +1312,42 @@ recovery is executed-tested, and exact retries are idempotent with conflict
 refusal. This closes the persistence capability only — it does not assert
 that any genuine resolution has been produced (that remains `TCP-B-048`).
 
+## 14. TCP-002.7-R4 — EventStore Compatibility-Reader Explicitness
+
+**Status: PARTIAL — `IMPLEMENTED_AND_TESTED` (tests via CI, no independent
+verification).** R4 addresses the accepted R3 caveat about `EventStore.stream/2`
+and `EventStore.since/2` without reopening R3.
+
+### 14.1 What changed
+
+`stream/2` and `since/2` are now verification-aware by default: they return
+`{:ok, %{events:, integrity:, diagnostics:, ...}}` only when the complete
+history is verified (or empty-verified), and `{:error, reason}` for
+unverified, truncated, corrupt, gapped, unreadable or otherwise incomplete
+history. The old bare-list behaviour is retained only behind the explicitly
+named, documented compatibility wrappers `stream_unverified/2` and
+`since_unverified/2`. R3's transactional recovery (`read_records/1` +
+`health/1`) is untouched.
+
+### 14.2 Caller migration
+
+No production caller used the legacy readers (`forecast_registry` uses
+`stream_verified/2`). Three test call sites migrated to `stream_unverified/*`.
+The R3-era `strict:`/`fail_closed:`/`explicit:` opt-in was removed.
+
+### 14.3 Evidence
+
+- Branch `feat/tcp-002-7-r4-reader-explicitness`, base `0c31f985` (R3 closing).
+- Commits: A `8893f36c` (implementation + tests), B `b4b8b053` (read-failure
+  test fix).
+- CI: Elixir `44105174511` failure (pre-existing only — same ten
+  ResearchForecastingIntegrationTest + four quarantine failures; zero new
+  failures), Cross-Platform `44105173387` success.
+- R3 history preserved; no merge, deploy, promotion, mutation or actuation.
+
+### 14.4 Governance
+
+Unchanged: TCP-B-048 OPEN/BLOCKED, TCP-B-066 PROPOSED/NOT RATIFIED,
+TCP-B-067 OPEN, TCP-B-058 PARTIAL. ModelUpdateGate unchanged. No genuine
+acquisition or lifecycle advancement.
+
