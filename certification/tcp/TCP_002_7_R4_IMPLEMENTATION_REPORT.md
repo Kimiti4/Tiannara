@@ -136,11 +136,14 @@ ubuntu-latest.
 | A | Cross-Platform Verification | `44101105577` | **success** |
 | B (`b4b8b053`) | Elixir CI | `44105174511` | **failure** (pre-existing only) |
 | B | Cross-Platform Verification | `44105173387` | **success** |
+| C (`94d244d7`) | Elixir CI | `44108040685` | **failure** (pre-existing only) |
+| C | Cross-Platform Verification | `44108040263` | **success** |
 
-Job-level (push B): compile success, test-placement success,
+Job-level (push B and C): compile success, test-placement success,
 lineage-regression success, runtime suite (required) success, audit suite
 (required) success; `suite` failure and non-blocking quarantine failure — both
-pre-existing. Zero new failures attributable to R4.
+pre-existing. Zero new failures attributable to R4. Push C (documentation-only
+evidence commit) reproduced the same pre-existing-only outcome.
 
 ## 8. Findings and governance
 
@@ -160,9 +163,10 @@ pre-existing. Zero new failures attributable to R4.
 |--------|-----|---------|
 | A | `8893f36c` | Implementation + migrated tests + 15 new R4 tests |
 | B | `b4b8b053` | Fix read-failure tests (simulated fault injection) |
+| C | `94d244d7` | Evidence package + master assessment update; push C CI recorded below |
 
 Base: `0c31f985` (R3 closing SHA). Parent of A: `0c31f985`. Linear, no
-force-push. Remote HEAD = local HEAD = `b4b8b053`.
+force-push. Remote HEAD = local HEAD = `94d244d7`.
 
 ## 10. Preservation
 

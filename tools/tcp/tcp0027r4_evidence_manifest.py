@@ -238,6 +238,33 @@ def main():
                     },
                 },
             },
+            "push_of_commit_c": {
+                "remote_head_verified": "94d244d741951ea7acf8a47b88442af7d5bdb88f",
+                "elixir_ci": {
+                    "run_id": "44108040685",
+                    "conclusion": "failure",
+                    "jobs": {
+                        "compile": "success",
+                        "test-placement": "success",
+                        "tiannara_audit_suite_required": "success",
+                        "lineage-regression": "success",
+                        "tiannara_runtime_suite_required": "success",
+                        "suite": "failure",
+                        "tiannara_runtime_quarantine_non_blocking": "failure",
+                    },
+                    "suite_failure_analysis": "exactly the ten pre-existing ResearchForecastingIntegrationTest failures; zero new failures attributable to R4",
+                    "new_failures_attributable_to_r4": 0,
+                },
+                "cross_platform_verification": {
+                    "run_id": "44108040263",
+                    "conclusion": "success",
+                    "jobs": {
+                        "verify_macos_latest": "success",
+                        "verify_ubuntu_latest": "success",
+                        "compare_cross_platform_hashes": "success",
+                    },
+                },
+            },
         },
         "not_executed": [
             "Local test execution: blocked by a pre-existing environment issue (CEL.Kernel boot timeout). Tests verified via CI on ubuntu-latest.",

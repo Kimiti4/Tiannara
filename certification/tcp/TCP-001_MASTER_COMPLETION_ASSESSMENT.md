@@ -1342,7 +1342,9 @@ The R3-era `strict:`/`fail_closed:`/`explicit:` opt-in was removed.
   test fix).
 - CI: Elixir `44105174511` failure (pre-existing only — same ten
   ResearchForecastingIntegrationTest + four quarantine failures; zero new
-  failures), Cross-Platform `44105173387` success.
+  failures), Cross-Platform `44105173387` success. Push C (evidence commit
+  `94d244d7`): Elixir `44108040685` failure (same pre-existing sets; zero
+  new failures), Cross-Platform `44108040263` success.
 - R3 history preserved; no merge, deploy, promotion, mutation or actuation.
 
 ### 14.4 Governance
